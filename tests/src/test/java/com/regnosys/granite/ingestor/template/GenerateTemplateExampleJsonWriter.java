@@ -9,13 +9,13 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.postprocess.pathduplicates.PathCollector;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;
@@ -34,6 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
+
 /**
  * Generates sample json for com.regnosys.cdm.example.template.TemplateExample.
  */
@@ -51,7 +53,8 @@ public class GenerateTemplateExampleJsonWriter {
 
 	public void init(String[] args) throws IOException {
 		// Guice Injection
-		Injector injector = Guice.createInjector(new CdmRuntimeModule());
+		Module runtimeModule = new CdmRuntimeModule();
+		Injector injector = Guice.createInjector(runtimeModule);
 		injector.injectMembers(this);
 
 		String outputPath = Arrays.stream(args).findFirst().orElse("target/template/");
@@ -59,14 +62,14 @@ public class GenerateTemplateExampleJsonWriter {
 
 		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
 		IngestionFactory.init(
-			injector.getInstance(ReferenceConfig.class),
-			globalKeyProcessStep,
-			new ReKeyProcessStep(globalKeyProcessStep),
-			qualifyProcessorStep,
-			new PathCollector<>(),
-			validator);
+				runtimeModule,
+				globalKeyProcessStep,
+				new ReKeyProcessStep(globalKeyProcessStep),
+				qualifyProcessorStep,
+				new PathCollector<>(),
+				validator);
 
-		IngestionReport<TradeState> ingest = IngestionFactory.getInstance().getFpml510()
+		IngestionReport<TradeState> ingest = getFpml5ConfirmationToTradeState()
 			.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
 		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
 	}

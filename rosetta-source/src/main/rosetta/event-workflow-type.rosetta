@@ -28,6 +28,13 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
 	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
 
+type WorkflowStepApproval: <"Party approvals associated to the current WorkflowStep. ">
+	[metadata key]
+	approved boolean (1..1) <"Flag denoting whether the workflow step is approved or not">
+	party Party (1..1) <"Reference to the Party who is approving/rejecting this workflow step">
+		[metadata reference]
+	rejectedReason string (0..1) <"Optional reason for rejecting the workflow step">
+	timestamp EventTimestamp (1..1) <"Timestamp of the approval">
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedEvent is present and is rejected if the rejected flag is set.">
 	[metadata key]
@@ -36,6 +43,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedEvent or rejection are present.">
 	proposedEvent EventInstruction (0..1) <"The proposed event for a workflow step. The proposedEvent is optional when the businessEvent or rejection are present">
 	rejected boolean (0..1) <"Flags this step as rejected.">
+	approval WorkflowStepApproval (0..*) <"Optional party approvals for the current workflow step. A workflow step can have any number of parties associated to it, thus this object is represented as a list. All parties that are expected to provide approval should have an item in this list that references them.">
 	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
 		[metadata reference]
 	nextEvent EventInstruction (0..1) <"The intended next event can be specified, even if the instructions are not known yet.">

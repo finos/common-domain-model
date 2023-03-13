@@ -47,6 +47,6 @@
 .. _ISDA CDM as Java Examples: https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples
 
 .. _CDM Distribution: https://portal.cdm.rosetta-technology.io/api/download/artefact/cdm-distribution-$LATEST_RELEASE_ID.zip?path=com/isda/cdm-distribution/$LATEST_RELEASE_ID
-.. _CDM Distribution V3: https://portal.cdm.rosetta-technology.io/api/download/artefact/cdm-distribution-$LATEST_RELEASE_ID.zip?path=com/isda/cdm-distribution/3.2.0
+.. _CDM Distribution V3: https://portal.cdm.rosetta-technology.io/api/download/artefact/cdm-distribution-3.3.1.zip?path=com/isda/cdm-distribution/3.3.1
 .. _CDM Examples: https://portal.cdm.rosetta-technology.io/api/download/artefact/isda-cdm-examples-$LATEST_RELEASE_ID.zip?path=com/regnosys/isda-cdm-examples/$LATEST_RELEASE_ID
-.. _CDM Examples V3: https://portal.cdm.rosetta-technology.io/api/download/artefact/isda-cdm-examples-$LATEST_RELEASE_ID.zip?path=com/regnosys/isda-cdm-examples/3.2.0
+.. _CDM Examples V3: https://portal.cdm.rosetta-technology.io/api/download/artefact/isda-cdm-examples-3.3.1.zip?path=com/regnosys/isda-cdm-examples/3.3.1

@@ -2,16 +2,13 @@ package com.regnosys.granite.projector.fpml_5_10;
 
 import cdm.event.common.TradeState;
 import com.google.common.io.Resources;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Provider;
+import com.google.inject.Module;
+import com.google.inject.*;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
-import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -144,9 +141,12 @@ class Fpml510ProjectionMapperTest {
 
 	@BeforeAll
 	static void globalSetUp() {
-		injector = Guice.createInjector(new CdmRuntimeModule());
-		initialiseIngestionFactory();
-		ingestionService = IngestionFactory.getInstance(INSTANCE_NAME).getFpml510();
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		injector = Guice.createInjector(runtimeModule);
+		initialiseIngestionFactory(runtimeModule);
+		ingestionService = IngestionFactory
+				.getInstance(INSTANCE_NAME)
+				.getService("FpML_5_Confirmation_To_TradeState");
 	}
 
 	@BeforeEach
@@ -220,10 +220,10 @@ class Fpml510ProjectionMapperTest {
 			.collect(Collectors.toList());
 	}
 
-	private static void initialiseIngestionFactory() {
+	private static void initialiseIngestionFactory(Module Fpml510ProjectionMapperTest) {
 		IngestionFactory.init(INSTANCE_NAME,
 				Fpml510ProjectionMapperTest.class.getClassLoader(),
-				injector.getInstance(ReferenceConfig.class),
+				Fpml510ProjectionMapperTest,
 				IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
 	}
 

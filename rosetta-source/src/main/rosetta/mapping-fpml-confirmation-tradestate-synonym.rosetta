@@ -1,4 +1,4 @@
-namespace cdm.mapping.fpml
+namespace cdm.mapping.fpml.confirmation.tradestate
 version "${project.version}"
 
 import cdm.base.math.*
@@ -32,7 +32,7 @@ import cdm.product.collateral.*
 
 synonym source FpML
 
-synonym source FpML_5_10 extends FpML
+synonym source FpML_5_Confirmation_To_TradeState extends FpML
 {
 	PerformancePayout:
 	    [meta "id"]
@@ -329,7 +329,9 @@ synonym source FpML_5_10 extends FpML
 
 	AutomaticExercise:
 		+ thresholdRate
-			[value "thresholdRate"]
+			[value "thresholdRate" path "automaticExercise"]
+		+ isApplicable
+			[value "automaticExercise"]
 
 	BermudaExercise:
 	 	[value "BermudaExercise" meta "id"]
@@ -434,7 +436,7 @@ synonym source FpML_5_10 extends FpML
 		+ manualExercise
 			[value "manualExercise"]
 		+ automaticExercise
-			[value "automaticExercise"]
+			[hint "automaticExercise"]
 		+ followUpConfirmation
 			[value "followUpConfirmation"]
 			[value "writtenConfirmation"]
@@ -465,6 +467,10 @@ synonym source FpML_5_10 extends FpML
 			[value "capRateSchedule"]
 		+ floorRateSchedule
 			[value "floorRateSchedule"]
+	 	+ calculationParameters
+			[value "calculationParameters"]
+		+ fallbackRate
+			[value "fallbackRate"]
 
 	FloatingRateSpecification:
 		+ finalRateRounding
@@ -959,6 +965,7 @@ synonym source FpML_5_10 extends FpML
 			[value "cashSettlementReferenceBanks"]
 		+ dealerOrCCP
 			[hint "dealer"]
+			[value "mutuallyAgreedClearinghouse"]
 
 	SettlementRateOption:
 		+ settlementRateOption
@@ -2026,31 +2033,33 @@ synonym source FpML_5_10 extends FpML
 			[value "additionalAcknowledgements"]
 
 	AssignedIdentifier:
-		+ identifier
-			[value "tradeId" meta "tradeIdScheme"]
-			[value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
-			[value "businessUnitId" meta "unitScheme"]
-			[value "eventId"]
-		+ version
-			[value "version" path "versionedTradeId"]
-			[value "version"]
+        + identifier
+            [value "tradeId" maps 2 meta "tradeIdScheme"]
+            [value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
+            [value "businessUnitId" meta "unitScheme"]
+            [value "eventId" meta "eventIdScheme"]
+            [value "messageId"]
+            [value "collateralPortfolio"]
+        + version
+            [value "version" path "versionedTradeId"]
+            [value "version"]
 
-	TradeIdentifier:
-		+ identifierType
-			// [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
-			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
-			[set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
-			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
-			[set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
+     TradeIdentifier:
+        + identifierType
+            // [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
+            [set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/uti"]
+            [set to TradeIdentifierTypeEnum -> UniqueTransactionIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"]
+            [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/usi"]
+            [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"]
 
-	Identifier:
-		[meta "id"]
-		[meta "id" path "versionedTradeId->tradeId"]
-		+ issuerReference
-			[value "issuer" meta "href"]
-			[value "partyReference" meta "href"]
-		+ issuer
-			[value "issuer" meta "issuerIdScheme"]
+    Identifier:
+        [meta "id"]
+        [meta "id" path "versionedTradeId->tradeId"]
+        + issuerReference
+            [value "issuer" meta "href"]
+            [value "partyReference" meta "href"]
+        + issuer
+            [value "issuer" maps 2 meta "issuerIdScheme"]
 
 	IdentifiedList:
 		+ listId
@@ -2254,15 +2263,16 @@ synonym source FpML_5_10 extends FpML
 		+ priceSchedule
 			[value "ignore"]
 
-	CreditDefaultPayout:
-		[meta "id"]
-		+ generalTerms
-			[value "generalTerms"]
-		+ protectionTerms
-			[value "protectionTerms"]
+    CreditDefaultPayout:
+        [meta "id"]
+        + generalTerms
+            [value "generalTerms"]
+            [hint "underlyer"]
+        + protectionTerms
+            [value "protectionTerms"]
         - priceQuantity
         + priceQuantity
-			[value "protectionTerms"]
+            [value "protectionTerms"]
 
 	EconomicTerms:
 		+ effectiveDate
@@ -2297,19 +2307,20 @@ synonym source FpML_5_10 extends FpML
 		+ collateral
 			[value "ignore"]
 
-	GeneralTerms:
-		+ referenceInformation
-			[value "referenceInformation"]
-		+ indexReferenceInformation
-			[value "indexReferenceInformation"]
-		+ basketReferenceInformation
-			[value "basketReferenceInformation"]
-		+ additionalTerm
-			[value "additionalTerm" meta "additionalTermScheme"]
-		+ substitution
-			[value "substitution"]
-		+ modifiedEquityDelivery
-			[value "modifiedEquityDelivery"]
+    GeneralTerms:
+        + referenceInformation
+            [value "referenceInformation"]
+        + indexReferenceInformation
+            [value "indexReferenceInformation"]
+        + basketReferenceInformation
+            [value "basketReferenceInformation"]
+            [hint "underlyer"]
+        + additionalTerm
+            [value "additionalTerm" meta "additionalTermScheme"]
+        + substitution
+            [value "substitution"]
+        + modifiedEquityDelivery
+            [value "modifiedEquityDelivery"]
 
 	InterestRatePayout:
 		+ dayCountFraction
@@ -2990,15 +3001,16 @@ synonym source FpML_5_10 extends FpML
 		+ relativeDateAdjustments
 			[value "relativeDateAdjustments"]
 
-	BusinessCenters:
-		[meta "id" path "businessCenters"]
-		[meta "id"]
-		+ businessCenter
-			[value "businessCenter" meta "businessCenterScheme"]
-			[value "businessCenter" path "businessCenters" meta "businessCenterScheme"]
-			[value "businessCalendar"]
-		+ businessCentersReference
-			[value "businessCentersReference" meta "href"]
+    BusinessCenters:
+        [meta "id" path "businessCenters"]
+        [meta "id"]
+        + businessCenter
+            [value "businessCenter" meta "businessCenterScheme"]
+            [value "businessCenter" path "businessCenters" meta "businessCenterScheme"]
+        + commodityBusinessCalendar
+            [value "businessCalendar" meta "commodityBusinessCalendarScheme"]
+        + businessCentersReference
+            [value "businessCentersReference" meta "href"]
 
 	BusinessCenterTime:
 		+ hourMinuteTime
@@ -3141,12 +3153,12 @@ synonym source FpML_5_10 extends FpML
 			[value "referenceBankName"]
 
 	RelatedParty:
-		+ partyReference
-			[value "partyReference" maps 2 meta "href"]
-		+ accountReference
-			[value "accountReference" meta "href"]
-		+ role
-			[value "role"]
+        + partyReference
+            [value "partyReference" maps 2 meta "href"]
+        + accountReference
+            [value "accountReference" meta "href"]
+        + role
+            [value "role" maps 2]
 
 	Account:
 	 	[value "Account" meta "id"]
@@ -3210,23 +3222,27 @@ synonym source FpML_5_10 extends FpML
 			[value "entityName" path "referenceEntity" meta "entityNameScheme"]
 			[value "initialDesignation"]
 			[value "dealer"]
+        + name
+            [value "identifier"]
 
 	NaturalPerson:
-	 	[value "Person" meta "id"]
-		+ honorific
-			[value "honorific"]
-		+ firstName
-			[value "firstName"]
-		+ middleName
-			[value "middleName"]
-		+ initial
-			[value "initial"]
-		+ surname
-			[value "surname"]
-		+ suffix
-			[value "suffix"]
-		+ dateOfBirth
-			[value "dateOfBirth"]
+        [value "Person" meta "id"]
+        + honorific
+            [value "honorific"]
+        + firstName
+            [value "firstName"]
+            [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$1"]
+        + middleName
+            [value "middleName"]
+        + initial
+            [value "initial"]
+        + surname
+            [value "surname"]
+            [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$2"]
+        + suffix
+            [value "suffix"]
+        + dateOfBirth
+            [value "dateOfBirth"]
 
 	PersonIdentifier:
 		+ identifier
@@ -3346,19 +3362,23 @@ synonym source FpML_5_10 extends FpML
 		+ writedownReimbursement
 			[value "writedownReimbursement"]
 
-	BasketReferenceInformation:
-		+ basketName
-			[value "basketName" meta "basketNameScheme"]
-		+ basketId
-			[value "basketId" meta "basketIdScheme"]
-		+ referencePool
-			[value "referencePool"]
-		+ nthToDefault
-			[value "nthToDefault"]
-		+ mthToDefault
-			[value "mthToDefault"]
-		+ tranche
-			[value "tranche"]
+    BasketReferenceInformation:
+        + basketName
+            [value "basketName" meta "basketNameScheme"]
+            [value "basketName" path "underlyer->basket" meta "basketNameScheme"]
+        + basketId
+            [value "basketId" meta "basketIdScheme"]
+            [value "id" path "underlyer->basket" meta "basketIdScheme"]
+            [value "basketId" path "underlyer->basket" meta "basketIdScheme"]
+        + referencePool
+            [value "referencePool"]
+            [hint "underlyer"]
+        + nthToDefault
+            [value "nthToDefault"]
+        + mthToDefault
+            [value "mthToDefault"]
+        + tranche
+            [value "tranche"]
 
 	CashSettlementTerms:
 		[meta "id"]
@@ -3429,6 +3449,11 @@ synonym source FpML_5_10 extends FpML
 			[value "fixing"]
 			[value "rateSourceFixing"]
 			[hint "settlementRateOption"]
+            [value "indicativeQuotations"]
+            // The following are un-tested:
+            // [value "indicativeQuotationsAlternate"]
+            // [value "calculationAgentDetermination"]
+            [value "firmQuotations"]
 		+ quotationMethod
 			[value "quotationMethod"]
 			[value "quotationRateType"]
@@ -3436,6 +3461,12 @@ synonym source FpML_5_10 extends FpML
 			[value "quotationAmount"]
 		+ minimumQuotationAmount
 			[value "minimumQuotationAmount"]
+		+ cashCollateralValuationMethod
+			[value "indicativeQuotations"]
+			// The following are un-tested:
+			// [value "indicativeQuotationsAlternate"]
+			// [value "calculationAgentDetermination"]
+			[value "firmQuotations"]
 
 	DeliverableObligations:
 		+ accruedInterest
@@ -3613,21 +3644,23 @@ synonym source FpML_5_10 extends FpML
 		+ entityType
 			[value "entityType" meta "entityTypeScheme"]
 
-	ReferencePool:
-		+ referencePoolItem
-			[value "referencePoolItem"]
+    ReferencePool:
+        + referencePoolItem
+            [value "referencePoolItem"]
+            [value "underlyer"]
 
-	ReferencePoolItem:
-		+ constituentWeight
-			[value "constituentWeight"]
-		+ referencePair
-			[value "referencePair"]
-		+ protectionTermsReference
-			[value "protectionTermsReference" meta "href"]
-		+ cashSettlementTermsReference
-			[value "settlementTermsReference" maps 2 meta "href"]
-		+ physicalSettlementTermsReference
-			[value "settlementTermsReference" maps 2 meta "href"]
+    ReferencePoolItem:
+        + constituentWeight
+            [value "constituentWeight"]
+        + referencePair
+            [value "referencePair"]
+            [value "referenceEntity"]
+        + protectionTermsReference
+            [value "protectionTermsReference" meta "href"]
+        + cashSettlementTermsReference
+            [value "settlementTermsReference" maps 2 meta "href"]
+        + physicalSettlementTermsReference
+            [value "settlementTermsReference" maps 2 meta "href"]
 
 	SettledEntityMatrix:
 		+ matrixSource
@@ -3790,6 +3823,66 @@ synonym source FpML_5_10 extends FpML
 			[set to False when "averagingMethod" = "Harmonic"]
 			[set to True when "calculation->averagingMethod" = "Weighted"]
 			[set to True when "averagingMethod" = "Weighted"]
+
+	FloatingRateCalculationParameters:
+		+ calculationMethod
+			[value "calculationMethod"]
+		+ applicableBusinessDays
+			[value "applicableBusinessDays"]
+		+ observationShiftCalculation
+			[value "observationShift"]
+		+ lookbackCalculation
+			[value "lookback" ]
+		+ lockoutCalculation
+			[value "lockout"]
+
+	FallbackRateParameters:
+		+ floatingRateIndex
+			[value "floatingRateIndex"]
+		+ effectiveDate
+			[value "effectiveDate"]
+		+ calculationParameters
+			[value "calculationParameters"]
+		+ spreadAdjustment
+			[value "spreadAdjustment"]
+
+	OffsetCalculation:
+		+ offsetDays
+			[value "offsetDays"]
+
+	ObservationShiftCalculation:
+		+ offsetDays
+			[value "offsetDays"]
+		+ calculationBase
+			[value "observationPeriodDates"]
+		+ additionalBusinessDays
+			[value "additionalBusinessDays"]
+
+	ObservationParameters:
+		+ observationCapRate
+			[ value "observationCapRate"]
+		+ observationFloorRate
+			[value "observationFloorRate"]
+
+	AncillaryEntity:
+		+ ancillaryParty
+			[value "partyReference"]
+		+ legalEntity
+			[hint "identifier"]
+
+	CashCollateralValuationMethod:
+		+ applicableCsa
+			[value "applicableCsa"]
+		+ cashCollateralCurrency
+			[value "cashCollateralCurrency"]
+		+ cashCollateralInterestRate
+			[value "cashCollateralInterestRate"]
+		+ agreedDiscountRate
+			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
+		+ protectedParty
+		 	[value "partyDetermination" path "protectedParty"]
+		+ prescribedDocumentationAdjustment
+			[value "prescribedDocumentationAdjustment"]
 
 	enums
 
@@ -5528,24 +5621,26 @@ synonym source FpML_5_10 extends FpML
 			[value "ZMLU"]
 		+ ZWHA
 			[value "ZWHA"]
+
+	CommodityBusinessCalendarEnum:
 		// Commodity Business Centers from FpML
 		+ ADSM
 			[value "ADSM"]
-		+ AGRUSFMB
+		+ AGRUS_FMB
 			[value "AGRUS-FMB"]
 		+ APPI
 			[value "APPI"]
-		+ ARGUSCRUDE
+		+ ARGUS_CRUDE
 			[value "ARGUS-CRUDE"]
-		+ ARGUSEUROPEANGAS
+		+ ARGUS_EUROPEAN_GAS
 			[value "ARGUS-EUROPEAN-GAS"]
-		+ ARGUSEUROPEANPRODUCTS
+		+ ARGUS_EUROPEAN_PRODUCTS
 			[value "ARGUS-EUROPEAN-PRODUCTS"]
-		+ ARGUSINTERNATIONALLPG
+		+ ARGUS_INTERNATIONAL_LPG
 			[value "ARGUS-INTERNATIONAL-LPG"]
-		+ ARGUSMCCLOSKEYSCOALREPORT
+		+ ARGUS_MCCLOSKEYS_COAL_REPORT
 			[value "ARGUS-MCCLOSKEYS-COAL-REPORT"]
-		+ ARGUSUSPRODUCTS
+		+ ARGUS_US_PRODUCTS
 			[value "ARGUS-US-PRODUCTS"]
 		+ ASX
 			[value "ASX"]
@@ -5553,121 +5648,121 @@ synonym source FpML_5_10 extends FpML
 			[value "AWB"]
 		+ AWEX
 			[value "AWEX"]
-		+ BALTICEXCHANGE
+		+ BALTIC_EXCHANGE
 			[value "BALTIC-EXCHANGE"]
-		+ BANKNEGARAMALAYSIAPOLICYCOMMITTEE
+		+ BANK_NEGARA_MALAYSIA_POLICY_COMMITTEE
 			[value "BANK-NEGARA-MALAYSIA-POLICY-COMMITTEE"]
 		+ BELPEX
 			[value "BELPEX"]
 		+ BLUENEXT
 			[value "BLUENEXT"]
-		+ BMandF
+		+ BM_F
 			[value "BM&F"]
-		+ BURSAMALAYSIASETTLEMENT
+		+ BURSA_MALAYSIA_SETTLEMENT
 			[value "BURSA-MALAYSIA-SETTLEMENT"]
-		+ BURSAMALAYSIATRADING
+		+ BURSA_MALAYSIA_TRADING
 			[value "BURSA-MALAYSIA-TRADING"]
-		+ CANADIANGASPRICEREPORTER
+		+ CANADIAN_GAS_PRICE_REPORTER
 			[value "CANADIAN-GAS-PRICE-REPORTER"]
-		+ CBOTSOFT
+		+ CBOT_SOFT
 			[value "CBOT-SOFT"]
-		+ CMAIAROMATICSMARKETREPORT
+		+ CMAI_AROMATICS_MARKET_REPORT
 			[value "CMAI-AROMATICS-MARKET-REPORT"]
-		+ CMAIGLOBALPLASTICSANDPOLYMERSMARKETREPORT
+		+ CMAI_GLOBAL_PLASTICS_AND_POLYMERS_MARKET_REPORT
 			[value "CMAI-GLOBAL-PLASTICS-AND-POLYMERS-MARKET-REPORT"]
-		+ CMAIMETHANOLMARKETREPORT
+		+ CMAI_METHANOL_MARKET_REPORT
 			[value "CMAI-METHANOL-MARKET-REPORT"]
-		+ CMAIMONOMERSMARKETREPORT
+		+ CMAI_MONOMERS_MARKET_REPORT
 			[value "CMAI-MONOMERS-MARKET-REPORT"]
-		+ CMEDAIRY
+		+ CME_DAIRY
 			[value "CME-DAIRY"]
-		+ CMENONDAIRYSOFT
+		+ CME_NON_DAIRY_SOFT
 			[value "CME-NON-DAIRY-SOFT"]
 		+ COMEX
 			[value "COMEX"]
 		+ CRU
 			[value "CRU"]
-		+ CRULONG
+		+ CRU_LONG
 			[value "CRU-LONG"]
-		+ DEPARTMENTOFENERGY
+		+ DEPARTMENT_OF_ENERGY
 			[value "DEPARTMENT-OF-ENERGY"]
-		+ DEWITTBENZENEDERIVATIVES
+		+ DEWITT_BENZENE_DERIVATIVES
 			[value "DEWITT-BENZENE-DERIVATIVES"]
 		+ DME
 			[value "DME"]
-		+ DOWJONES
+		+ DOW_JONES
 			[value "DOW-JONES"]
-		+ DOWJONESENERGYSERVICE
+		+ DOW_JONES_ENERGY_SERVICE
 			[value "DOW-JONES-ENERGY-SERVICE"]
 		+ DowJonesPower
 			[value "DowJonesPower"]
-		+ EEXCOAL
+		+ EEX_COAL
 			[value "EEX-COAL"]
-		+ EEXEMISSIONS
+		+ EEX_EMISSIONS
 			[value "EEX-EMISSIONS"]
-		+ EEXGAS
+		+ EEX_GAS
 			[value "EEX-GAS"]
-		+ EEXPOWER
+		+ EEX_POWER
 			[value "EEX-POWER"]
-		+ EURONEXMATIF
+		+ EURONEX_MATIF
 			[value "EURONEX-MATIF"]
 		+ FERTECON
 			[value "FERTECON"]
-		+ FERTILIZERWEEK
+		+ FERTILIZER_WEEK
 			[value "FERTILIZER-WEEK"]
-		+ GASDAILY
+		+ GAS_DAILY
 			[value "GAS-DAILY"]
-		+ GASDAILYPRICEGUIDE
+		+ GAS_DAILY_PRICE_GUIDE
 			[value "GAS-DAILY-PRICE-GUIDE"]
 		+ GLOBALCOAL
 			[value "GLOBALCOAL"]
-		+ HERENREPORT
+		+ HEREN_REPORT
 			[value "HEREN-REPORT"]
-		+ ICE10XDAILY
+		+ ICE_10X_DAILY
 			[value "ICE/10X-DAILY"]
-		+ ICE10XMONTHLY
+		+ ICE_10X_MONTHLY
 			[value "ICE/10X-MONTHLY"]
-		+ ICECANADA
+		+ ICE_CANADA
 			[value "ICE-CANADA"]
-		+ ICEECX
+		+ ICE_ECX
 			[value "ICE-ECX"]
-		+ ICEGAS
+		+ ICE_GAS
 			[value "ICE-GAS"]
-		+ ICEOIL
+		+ ICE_OIL
 			[value "ICE-OIL"]
-		+ ICEUSAGRICULTURAL
+		+ ICE_US_AGRICULTURAL
 			[value "ICE-US-AGRICULTURAL"]
-		+ ICISPRICINGBENZENEEUROPE
+		+ ICIS_PRICING_BENZENE__EUROPE_
 			[value "ICIS-PRICING-BENZENE-(EUROPE)"]
-		+ ICISPRICINGETHYLENEEUROPE
+		+ ICIS_PRICING_ETHYLENE__EUROPE_
 			[value "ICIS-PRICING-ETHYLENE-(EUROPE)"]
-		+ ICISPRICINGPOLYPROPYLENEEUROPE
+		+ ICIS_PRICING_POLYPROPYLENE__EUROPE_
 			[value "ICIS-PRICING-POLYPROPYLENE-(EUROPE)"]
-		+ INSIDEFERC
+		+ INSIDE_FERC
 			[value "INSIDE-FERC"]
-		+ JAPANMOFTSRR
+		+ JAPAN_MOF_TSRR
 			[value "JAPAN-MOF-TSRR"]
 		+ KCBOT
 			[value "KCBOT"]
-		+ KUALALUMPURBANK
+		+ KUALA_LUMPUR_BANK
 			[value "KUALA-LUMPUR-BANK"]
-		+ LABUANBANK
+		+ LABUAN_BANK
 			[value "LABUAN-BANK"]
-		+ LIFFELONDONSOFT
+		+ LIFFE_LONDON_SOFT
 			[value "LIFFE-LONDON-SOFT"]
 		+ LME
 			[value "LME"]
-		+ LONDONBULLIONMARKET
+		+ LONDON_BULLION_MARKET
 			[value "LONDON-BULLION-MARKET"]
-		+ LONDONBULLIONMARKETGOLDAMONLY
+		+ LONDON_BULLION_MARKET_GOLD_A_M_ONLY
 			[value "LONDON-BULLION-MARKET-GOLD-A.M-ONLY"]
-		+ LONDONPLATINUMPALLADIUMMARKET
+		+ LONDON_PLATINUM_PALLADIUM_MARKET
 			[value "LONDON-PLATINUM-PALLADIUM-MARKET"]
 		+ MGEX
 			[value "MGEX"]
-		+ NASDAQOMX
+		+ NASDAQ_OMX
 			[value "NASDAQ-OMX"]
-		+ NATURALGASWEEK
+		+ NATURAL_GAS_WEEK
 			[value "NATURAL-GAS-WEEK"]
 		+ NERC
 			[value "NERC"]
@@ -5675,87 +5770,87 @@ synonym source FpML_5_10 extends FpML
 			[value "NGI"]
 		+ NGX
 			[value "NGX"]
-		+ NUCLEARMARKETREVIEW
+		+ NUCLEAR_MARKET_REVIEW
 			[value "NUCLEAR-MARKET-REVIEW"]
-		+ NYMEXELECTRICITY
+		+ NYMEX_ELECTRICITY
 			[value "NYMEX-ELECTRICITY"]
-		+ NYMEXGAS
+		+ NYMEX_GAS
 			[value "NYMEX-GAS"]
-		+ NYMEXNATURALGAS
+		+ NYMEX_NATURAL_GAS
 			[value "NYMEX-NATURAL-GAS"]
-		+ NYMEXOIL
+		+ NYMEX_OIL
 			[value "NYMEX-OIL"]
-		+ OFFICIALBOARDMARKETS
+		+ OFFICIAL_BOARD_MARKETS
 			[value "OFFICIAL-BOARD-MARKETS"]
-		+ OPISLPGAS
+		+ OPIS_LP_GAS
 			[value "OPIS-LP-GAS"]
-		+ OPISPROPANE
+		+ OPIS_PROPANE
 			[value "OPIS-PROPANE"]
-		+ PAPERPACKAGINGMONITOR
+		+ PAPER_PACKAGING_MONITOR
 			[value "PAPER-PACKAGING-MONITOR"]
-		+ PAPERTRADER
+		+ PAPER_TRADER
 			[value "PAPER-TRADER"]
 		+ PERTAMINA
 			[value "PERTAMINA"]
 		+ PETROCHEMWIRE
 			[value "PETROCHEMWIRE"]
-		+ PIXPULPBENCHMARKINDICES
+		+ PIX_PULP_BENCHMARK_INDICES
 			[value "PIX-PULP-BENCHMARK-INDICES"]
-		+ PLATTSAPAGMARKETSCAN
+		+ PLATTS_APAG_MARKETSCAN
 			[value "PLATTS-APAG-MARKETSCAN"]
-		+ PLATTSBUNKERWIRE
+		+ PLATTS_BUNKERWIRE
 			[value "PLATTS-BUNKERWIRE"]
-		+ PLATTSCLEANTANKERWIRE
+		+ PLATTS_CLEAN_TANKERWIRE
 			[value "PLATTS-CLEAN-TANKERWIRE"]
-		+ PLATTSCRUDEOILMARKETWIRE
+		+ PLATTS_CRUDE_OIL_MARKETWIRE
 			[value "PLATTS-CRUDE-OIL-MARKETWIRE"]
-		+ PLATTSDIRTYTANKERWIRE
+		+ PLATTS_DIRTY_TANKERWIRE
 			[value "PLATTS-DIRTY-TANKERWIRE"]
-		+ PLATTSEUROPEANGAS
+		+ PLATTS_EUROPEAN_GAS
 			[value "PLATTS-EUROPEAN-GAS"]
-		+ PLATTSEUROPEANMARKETSCAN
+		+ PLATTS_EUROPEAN_MARKETSCAN
 			[value "PLATTS-EUROPEAN-MARKETSCAN"]
-		+ PLATTSMETALSALERT
+		+ PLATTS_METALS_ALERT
 			[value "PLATTS-METALS-ALERT"]
-		+ PLATTSOILGRAM
+		+ PLATTS_OILGRAM
 			[value "PLATTS-OILGRAM"]
-		+ PLATTSTSIIRONORE
+		+ PLATTS_TSI_IRON_ORE
 			[value "PLATTS-TSI-IRON-ORE"]
-		+ PLATTSTSISCRAP
+		+ PLATTS_TSI_SCRAP
 			[value "PLATTS-TSI-SCRAP"]
-		+ PLATTSTSISTEEL
+		+ PLATTS_TSI_STEEL
 			[value "PLATTS-TSI-STEEL"]
-		+ PLATTSUSMARKETSCAN
+		+ PLATTS_US_MARKETSCAN
 			[value "PLATTS-US-MARKETSCAN"]
-		+ PULPANDPAPERINTERNATIONAL
+		+ PULP_AND_PAPER_INTERNATIONAL
 			[value "PULP-AND-PAPER-INTERNATIONAL"]
-		+ PULPANDPAPERWEEK
+		+ PULP_AND_PAPER_WEEK
 			[value "PULP-AND-PAPER-WEEK"]
-		+ RIMPRODUCTSINTELLIGENCEDAILY
+		+ RIM_PRODUCTS_INTELLIGENCE_DAILY
 			[value "RIM-PRODUCTS-INTELLIGENCE-DAILY"]
-		+ SAFEXSOFT
+		+ SAFEX_SOFT
 			[value "SAFEX-SOFT"]
-		+ SFESOFT
+		+ SFE_SOFT
 			[value "SFE-SOFT"]
 		+ SGX
 			[value "SGX"]
 		+ SICOM
 			[value "SICOM"]
-		+ SPGSCI
+		+ SP_GSCI
 			[value "SP-GSCI"]
-		+ STATISTICHESBUNDESAMT
+		+ STATISTICHES_BUNDESAMT
 			[value "STATISTICHES-BUNDESAMT"]
 		+ TGE
 			[value "TGE"]
-		+ TOCOMOIL
+		+ TOCOM_OIL
 			[value "TOCOM-OIL"]
-		+ TOCOMPRECIOUS
+		+ TOCOM_PRECIOUS
 			[value "TOCOM-PRECIOUS"]
-		+ TOCOMSOFT
+		+ TOCOM_SOFT
 			[value "TOCOM-SOFT"]
-		+ UXWEEKLY
+		+ UX_WEEKLY
 			[value "UX-WEEKLY"]
-		+ WORLDPULPMONTHLY
+		+ WORLD_PULP_MONTHLY
 			[value "WORLD-PULP-MONTHLY"]
 
 	BusinessDayConventionEnum:
@@ -6869,6 +6964,8 @@ synonym source FpML_5_10 extends FpML
 			[value "NegativeInterestRateMethod"]
 		+ ZeroInterestRateMethod
 			[value "ZeroInterestRateMethod"]
+        + ZeroInterestRateExcludingSpreadMethod
+            [value "ZeroInterestRateMethodExcludingSpread"]
 
 	NonCashDividendTreatmentEnum:
 		+ PotentialAdjustmentEvent
@@ -7965,99 +8062,6 @@ synonym source FpML_5_10 extends FpML
 			[value "http://www.fpml.org/coding-scheme/external/iso9362"]
 		+ MIC
 			[value "http://www.fpml.org/coding-scheme/external/iso10383"]
-}
-
-synonym source FpML_5_12 extends FpML_5_10
-{
-	FloatingRate:
-	 	+ calculationParameters
-			[value "calculationParameters"]
-		+ fallbackRate
-			[value "fallbackRate"]
-
-	FloatingRateCalculationParameters:
-		+ calculationMethod
-			[value "calculationMethod"]
-		+ applicableBusinessDays
-			[value "applicableBusinessDays"]
-		+ observationShiftCalculation
-			[value "observationShift"]
-		+ lookbackCalculation
-			[value "lookback" ]
-		+ lockoutCalculation
-			[value "lockout"]
-
-	FallbackRateParameters:
-		+ floatingRateIndex
-			[value "floatingRateIndex"]
-		+ effectiveDate
-			[value "effectiveDate"]
-		+ calculationParameters
-			[value "calculationParameters"]
-		+ spreadAdjustment
-			[value "spreadAdjustment"]
-
-	OffsetCalculation:
-		+ offsetDays
-			[value "offsetDays"]
-
-	ObservationShiftCalculation:
-		+ offsetDays
-			[value "offsetDays"]
-		+ calculationBase
-			[value "observationPeriodDates"]
-		+ additionalBusinessDays
-			[value "additionalBusinessDays"]
-
-	ObservationParameters:
-		+ observationCapRate
-			[ value "observationCapRate"]
-		+ observationFloorRate
-			[value "observationFloorRate"]
-
-	AncillaryEntity:
-		+ ancillaryParty
-			[value "partyReference"]
-		+ legalEntity
-			[hint "identifier"]
-
-	CashCollateralValuationMethod:
-		+ applicableCsa
-			[value "applicableCsa"]
-		+ cashCollateralCurrency
-			[value "cashCollateralCurrency"]
-		+ cashCollateralInterestRate
-			[value "cashCollateralInterestRate"]
-		+ agreedDiscountRate
-			[value "agreedDiscountRate" meta "benchmarkRateScheme"]
-		+ protectedParty
-		 	[value "partyDetermination" path "protectedParty"]
-		+ prescribedDocumentationAdjustment
-			[value "prescribedDocumentationAdjustment"]
-
-	LegalEntity:
-		+ name
-			[value "identifier"]
-
-	ValuationSource:
-		+ dealerOrCCP
-			[value "mutuallyAgreedClearinghouse"]
-
-	ValuationMethod:
-		+ valuationSource
-			[value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
-		+ cashCollateralValuationMethod
-			[value "indicativeQuotations"]
-			// The following are un-tested:
-			// [value "indicativeQuotationsAlternate"]
-			// [value "calculationAgentDetermination"]
-			[value "firmQuotations"]
-
-	enums
 
 	CsaTypeEnum:
 		+ NoCSA
@@ -8075,19 +8079,11 @@ synonym source FpML_5_12 extends FpML_5_10
  		+ CompoundedIndex
 			[value "CompoundedIndex"]
 
- 	NegativeInterestRateTreatmentEnum:
- 		+ ZeroInterestRateExcludingSpreadMethod
-			[value "ZeroInterestRateMethodExcludingSpread"]
-
-	ObservationPeriodDatesEnum: 
+	ObservationPeriodDatesEnum:
 		+ Standard
 			[ value "Standard"]
 		+ SetInAdvance
 			[ value "SetInAdvance"]
 		+ FixingDate
 			[ value "FixingDate" ]
-}
-
-synonym source FpML_5_13 extends FpML_5_12 {
-
 }
