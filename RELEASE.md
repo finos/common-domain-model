@@ -4,11 +4,11 @@ _What is being released?_
 
 This release adds the following fields:
 
-- *calculationMethod*. This field will be added as an enum value. The enum will contain the following values:
+- **calculationMethod**. This field will be added as an enum value. The enum will contain the following values:
   - Ratio
   - Return
   - Spread
-- *calculationStyle*. This field will be added as an enum value. The enum will contain the following values:
+- **calculationStyle**. This field will be added as an enum value. The enum will contain the following values:
   - YearOnYear
   - ZeroCoupon
 
