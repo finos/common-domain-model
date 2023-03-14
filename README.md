@@ -26,15 +26,15 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 The following Working Groups are currently activated or about to be setup for this project:
 
-* FINOS CDM Steering Working Group
-* Structured Products Working Group
+* [Contribution Review Working Group](https://www.finos.org/finos-community-calendar)
+* [Collateral Working Group](https://www.finos.org/finos-community-calendar)
+* [Technology Architecture Working Group](https://www.finos.org/finos-community-calendar)
+* [Structured Products Working Group](https://www.finos.org/finos-community-calendar)
+* [FINOS CDM Steering Working Group](https://www.finos.org/finos-community-calendar)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
 * ICMA CDM SteerCo for repo and bonds
-* Collateral Working Group
-* Technology Architecture Working Group
-* Contribution Review Working Group
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
@@ -77,6 +77,35 @@ Contributions to the CDM have to comply with the following set of design princip
 ## CDM development guidelines 
 
 The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+
+## Getting involved 
+
+Interact with the CDM community
+
+
+### 
+**GitHub**
+
+CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
+
+
+### 
+**Email**
+
+If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
+
+
+### 
+**Meetings**
+
+Finally, another great way to interact with the community is to attend the biweekly CDM Contribution Review Working Group, monthly Collateral Working Group, FINOS CDM monthly Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com).
+
+
+### 
+**Need help?**
+
+Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+
 
 ## Contributing
 
