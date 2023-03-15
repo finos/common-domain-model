@@ -98,7 +98,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the biweekly CDM Contribution Review Working Group, monthly Collateral Working Group, monthly FINOS CDM Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com).
+Finally, another great way to interact with the community is to attend the bi-weekly CDM Contribution Review Working Group, monthly Collateral Working Group, monthly FINOS CDM Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). If you are using an outlook calender you can add the meetings to your calender directly by downloading the ics files shown [here.](https://github.com/eteridvalishvili/common-domain-model/tree/master/meeting-ics-files)
 
 
 ### 
