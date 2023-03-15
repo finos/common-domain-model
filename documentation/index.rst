@@ -11,7 +11,6 @@ Welcome to the ISDA CDM documentation
    source/cdm-overview
    source/common-domain-model
    source/eligible-collateral-representation
-   source/repurchase-agreement-representation
    source/cdm-guidelines
    source/contribution
    releases/latest
