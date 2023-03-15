@@ -1661,6 +1661,70 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 		and packageRef count = openTradeNoExecutionDetails count
 		and packageRef distinct count = 1
 
+
+func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
+	inputs:
+		//ICMA-P2 Instructions
+		tradeState TradeState (1..1) <"The original trade to be rolled.">
+		newAllinPrice number(1..1) <"The asset new all-in price.">
+		newAssetQuantity number(1..1) <"The new asset quantity.">
+		newCashValue number(1..1)<"The new asset value.">
+	output:
+		instruction PrimitiveInstruction (1..1)
+
+	alias oldPriceQuantity:
+		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
+	
+	alias unit:
+		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity->quantity->unit
+	
+	alias newPriceQuantity:
+			oldPriceQuantity
+
+	condition ContractualProduct: <"Only a contractual product can be rolled.">
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+	
+	set newPriceQuantity->price->value:
+		if 	newPriceQuantity->price->priceExpression->priceType contains PriceTypeEnum->InterestRate
+		then newCashValue
+
+	set newPriceQuantity->price->value:
+		if 	newPriceQuantity->price->priceExpression->priceType contains PriceTypeEnum->AssetPrice
+		then newAssetQuantity
+
+
+	set instruction: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
+		Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+			Create_QuantityChangeInstruction(
+				newPriceQuantity,
+				QuantityChangeDirectionEnum -> Replace,
+				empty
+				),
+			empty, empty, empty, empty, empty, empty, empty
+			)
+
+
+
+func Qualify_Reprice: <"Qualification of a reprice event">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+
+	alias beforeTradePrice: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> tradeLot->priceQuantity
+
+	alias openTradePrice: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> tradeLot->priceQuantity
+
+	alias closedTradePrice: FilterClosedTradeStates( businessEvent -> after )
+    
+	set is_event:
+		beforeTradePrice exists and		
+		openTradePrice exists and
+		closedTradePrice count = 1 and
+		openTradePrice  <> beforeTradePrice
+		
+		
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
 	inputs:
 		executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
