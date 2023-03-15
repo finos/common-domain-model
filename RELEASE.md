@@ -6,11 +6,11 @@ Rosetta has a feature for its enumerations that enables, if a certain enumeratio
 
 _What is being released?_
 
-The following `CapacityUnitEnum` have been added along with their synonym mappings: 
-* `GBBSH`, `GBBTU`, `GBMBTU`, `GBMMBTU`, `GBTHM`, `HOGB`, `ISOBTU`, `ISOMBTU`, `ISOMMBTU`, `ISOTHM`, `KWD`, `KWM`, `KWMIN`, `KWY`, `MWD`, `MWM`, `MWMIN`, `MWY`, `SGB`, `USBSH`, `USBTU`, `USMBTU`, `USMMBTU`, `USTHM`
+* The following `CapacityUnitEnum` have been added along with their synonym mappings: 
+  * `GBBSH`, `GBBTU`, `GBMBTU`, `GBMMBTU`, `GBTHM`, `HOGB`, `ISOBTU`, `ISOMBTU`, `ISOMMBTU`, `ISOTHM`, `KWD`, `KWM`, `KWMIN`, `KWY`, `MWD`, `MWM`, `MWMIN`, `MWY`, `SGB`, `USBSH`, `USBTU`, `USMBTU`, `USMMBTU`, `USTHM`
 
-The following `CapacityUnitEnum` have been removed along with their synonym mappings: 
-* `BSH`, `BTU`, `DTH`, `INGOT`, `KWDC`, `KWHC`, `KWMC`, `KWMINC`, `KWYC`, `MMBTU`, `MWDC`, `MWHC`, `MWMC`, `MWMINC`, `MWYC`, `THERM`
+* The following `CapacityUnitEnum` have been removed along with their synonym mappings: 
+  * `BSH`, `BTU`, `DTH`, `INGOT`, `KWDC`, `KWHC`, `KWMC`, `KWMINC`, `KWYC`, `MMBTU`, `MWDC`, `MWHC`, `MWMC`, `MWMINC`, `MWYC`, `THERM`
 
 * Enum `CreditEventTypeEnum` has been annotated with FpML coding scheme `CreditEventTypeScheme`
 
