@@ -2,11 +2,15 @@
 
 _Background_
 
-Rosetta has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated (and so will do its mappings). That has been done for `CreditEventTypeEnum` and `InformationProviderEnum`. For `CapacityUnitEnum`, since it is not uniquely related to an FpML coding scheme, the changes have been done  manually.
+Rosetta has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated (and so will its mappings). That has been done for `CreditEventTypeEnum` and `InformationProviderEnum`. For `CapacityUnitEnum`, since it is not uniquely related to an FpML coding scheme, the changes have been done  manually.
 
 _What is being released?_
 
-* Enum `CapacityUnitEnum` has had the following modifications: the codes `GBBSH`, `GBBTU`, `GBMBTU`, `GBMMBTU`, `GBTHM`, `HOGB`, `ISOBTU`, `ISOMBTU`, `ISOMMBTU`, `ISOTHM`, `KWD`, `KWM`, `KWMIN`, `KWY`, `MWD`, `MWM`, `MWMIN`, `MWY`, `SGB`, `USBSH`, `USBTU`, `USMBTU`, `USMMBTU` and `USTHM` have been added, while `BSH`, `BTU`, `DTH`, `INGOT`, `KWDC`, `KWHC`, `KWMC`, `KWMINC`, `KWYC`, `MMBTU`, `MWDC`, `MWHC`, `MWMC`, `MWMINC`, `MWYC` and `THERM` have been removed. All the synonym mappings for the new codes have been added and all the synonym mappings for old codes have been removed, too
+The following `CapacityUnitEnum` have been added along with their synonym mappings: 
+* `GBBSH`, `GBBTU`, `GBMBTU`, `GBMMBTU`, `GBTHM`, `HOGB`, `ISOBTU`, `ISOMBTU`, `ISOMMBTU`, `ISOTHM`, `KWD`, `KWM`, `KWMIN`, `KWY`, `MWD`, `MWM`, `MWMIN`, `MWY`, `SGB`, `USBSH`, `USBTU`, `USMBTU`, `USMMBTU`, `USTHM`
+
+The following `CapacityUnitEnum` have been removed along with their synonym mappings: 
+* `BSH`, `BTU`, `DTH`, `INGOT`, `KWDC`, `KWHC`, `KWMC`, `KWMINC`, `KWYC`, `MMBTU`, `MWDC`, `MWHC`, `MWMC`, `MWMINC`, `MWYC`, `THERM`
 
 * Enum `CreditEventTypeEnum` has been annotated with FpML coding scheme `CreditEventTypeScheme`
 
