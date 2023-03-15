@@ -29,7 +29,7 @@ Long Term Support (LTS)', 'In Development', 'Maintenance', and 'Not Started'.
  release.
 
 Please refer to the Development Guidelines for further information on [semantic
-versioning](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json) guidelines.
+versioning](https://cdm.docs.rosetta-technology.io/source/contribution.html#semantic-versioning) guidelines.
 
 The term 'supported release lines' will be used to refer to all release lines
 that are not End-of-Life.
