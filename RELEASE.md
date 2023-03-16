@@ -1,14 +1,17 @@
-# *Infrastructure - Dependency Updates*
+# Product Model - FpML synonym mappings for price and quantity
+
+_Background_
+
+This release updates and extends the FpML mapping coverage for the product model.
 
 _What is being released?_
 
-This release updates the CDM library dependencies including:
-
-- Dependency `rosetta-dsl` updated to version `7.1.0` - contains bug fixes, a simplified dependency structure, and security updates
-- Dependency `ingest-test-framework` updated to version `5.5.0` - contains bug fixes related to synonym conditional mapping
-
-This release contains no changes to the model or test expectations.
+* Mappings added to populate CDM type `PriceSchedule` containers with FpML element `fixedPriceStep`
+* Mappings added to populate CDM attribute `QuantitySchedule -> datedValue` with FpML element `period`
+* Mappings added to populate CDM attribute `DatedValue -> date` with FpML element `startDate`
+* Mappings added to populate CDM attribute `DatedValue -> value` with FpML path `notionalStep -> quantity`
+* Mappings added to populate CDM attribute `ResolvablePriceQuantity -> quantitySchedule` with FpML path `protectionTerms -> calculationAmount`
 
 _Review directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+* In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
