@@ -1457,7 +1457,7 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
 
 func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction for early cancellation.">
 	inputs:
-		tradeState TradeState (1..1) <"The original trade to be rolled.">
+		tradeState TradeState (1..1) <"The original trade to be cancelled.">
 		newRepurchasePrice number (0..1) <"The new repurchase price after the new termination date is set.">
 		cancellationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
 	output:
@@ -1664,9 +1664,8 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 
 func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
 	inputs:
-		//ICMA-P2 Instructions
-		tradeState TradeState (1..1) <"The original trade to be rolled.">
-		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+		tradeState TradeState (1..1) <"The original trade to be modified.">
+		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new trade with new collateral.">
 		newPayout Payout(1..1) <"New payout to subtitute for the original payout. The payout define the product and other contractual attributes.">
 		priceQuantity PriceQuantity (1..*) <"The price and quantity of the substituted product. ">
 	output: 
@@ -1698,9 +1697,9 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
 
 func Create_SubstitutionInstruction:
 	inputs:
-		contractualProduct ContractualProduct (1..1)
+		contractualProduct ContractualProduct (1..1) <"The orginal contractual product to be used as the basis of the new trade.">
 		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-		newPayout Payout (1..1)
+		newPayout Payout (1..1) <"The new payout structure of the substituted collateral.">
 	output:
 		termsChangeInstruction TermsChangeInstruction (1..1)
 
@@ -1715,7 +1714,7 @@ func Create_SubstitutionInstruction:
 func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 	[qualification BusinessEvent]
 	inputs:
-		businessEvent BusinessEvent (1..1)
+	businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
 	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
