@@ -711,14 +711,14 @@ TaxonomyValue has been expanded to represent a complex type:
 	 name string (0..1)
 	 classification TaxonomyClassification (0..*)
 	 
-TaxonomyClassification is also a complex type that support a hierarchical structure of any depth:
+TaxonomyClassification is also a complex type that supports a hierarchical structure of any depth:
 
  type TaxonomyClassification:
 	 className string (1..1)
 	 value string (1..1)
 	 description string (0..1)
 	 
-To represent the repurchase agreement using the CFI taxonomy the json would lookk like:
+To represent the repurchase agreement using the CFI taxonomy the json would look like:
 
 .. code-block:: Javascript
 
@@ -785,7 +785,7 @@ The ``ProductTaxonomy`` data structure and an instance of a CDM object (`seriali
     }
   ]
 
-Predefine classifications are available in the model using the AssetClassEnum:
+Predefined classifications are available in the model using the AssetClassEnum:
 
 .. code-block:: Haskell
 
@@ -805,7 +805,7 @@ Collateral
 
 Collateral on a repo transaction is defined in the AssetPayout object. 
 Security identification is created in the securityInformation attribute 
-which itself is a ProductType allow for the possibility of creating 
+which itself is a ProductType allowing for the possibility of creating 
 products defined in terms of other products using the same Product model.
 The assetPayoutLeg defines the delivery dates, as relative references to 
 purchase date and repurchase date, and delivery methods (DVP). 
