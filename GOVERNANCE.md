@@ -10,7 +10,7 @@ Each Working Group may include the following roles. Additional roles may be adop
 
 * 1.2. Editor. “Editors” are responsible for ensuring that the contents of the document accurately reflect the decisions that have been made by the group, and that the specification adheres to formatting and content guidelines. Each Working Group will designate an Editor for that Working Group. A Working Group may select a new Editor upon Approval of the Working Group Participants.
 
-* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the Community Specification License.
+* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the Community Specification License. Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
 
 * 1.4. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
 
