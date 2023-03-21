@@ -847,7 +847,7 @@ Collateral is defined in the assetPayout->securityInformation:
 Haircut and Margin
 ^^^^^^^^^^^^^^^^^^
 
-Most repo trades include a haircut or margin adjustment to the collateral value that affords the collateral holder a level of risk protection in the case of default and the value of the collateral is lower than the loan value. 
+A trade that includes a haircut or margin adjustment to collateral affords the collateral holder a level of risk protection in the case of default and the value of the collateral is lower than the loan value. 
 Haircuts and margin adjustments are set on the collateralProvision under economicTerms->collateral-> collateralProvisions. 
 
 .. code-block:: Haskell
