@@ -1,17 +1,11 @@
-# Product Model - FpML synonym mappings for price and quantity
-
-_Background_
-
-This release updates and extends the FpML mapping coverage for the product model.
+# *CDM Model - CFTC Rewrite - Addition of Create Receipt Timestamp*
 
 _What is being released?_
 
-* Mappings added to populate CDM type `PriceSchedule` containers with FpML element `fixedPriceStep`
-* Mappings added to populate CDM attribute `QuantitySchedule -> datedValue` with FpML element `period`
-* Mappings added to populate CDM attribute `DatedValue -> date` with FpML element `startDate`
-* Mappings added to populate CDM attribute `DatedValue -> value` with FpML path `notionalStep -> quantity`
-* Mappings added to populate CDM attribute `ResolvablePriceQuantity -> quantitySchedule` with FpML path `protectionTerms -> calculationAmount`
+Modifications related to Create Receipt Timestamp for swap data reporting requirements under Parts 43 and 45 of the CFTC's regulations in Version 3.1.
 
-_Review directions_
+_Review Directions_
 
-* In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In Rosetta, open CDM model and in Textual view navigate to file cdm > regulation > cftc > event > workflow > enum and review:
+
+- Modifications to `EventTimestampQualificationEnum` and addition of `clearingReceiptDateTime`
