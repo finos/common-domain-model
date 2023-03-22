@@ -7,7 +7,7 @@ Title: Community Code of Conduct
 
 The Fintech Open Source Foundation ("FINOS" or the "Foundation") community is comprised of professionals and volunteers from all over the world, working in many different capacities including writing code, leading working groups, managing events, and more.
 
-Diversity is one of our strengths, but it can sometimes give rise to miscommunication and conflict. To ensure that all of our contributors feel welcome and valued, our code of conduct establlishes clear expectations for participants in the Foundation's work. It is not intended to serve as an exhaustive list of prohibited behavior, but rather, a set of principles for maintaining a healthy and inclusive community.
+Diversity is one of our strengths, but it can sometimes give rise to miscommunication and conflict. To ensure that all of our contributors feel welcome and valued, our code of conduct establishes clear expectations for participants in the Foundation's work. It is not intended to serve as an exhaustive list of prohibited behavior, but rather, a set of principles for maintaining a healthy and inclusive community.
 
 This code of conduct applies to all activities managed by FINOS. This includes the Foundation's developer pod, mailing lists, Jira, Confluence, GitHub resources, conference calls, in-person events, and any other forum established or managed by the Foundation for community collaboration. In some cases, violations of this code outside of the Foundation's scope may affect a person's ability to participate in our community.
 
