@@ -1,4 +1,4 @@
-# *Product Model - FpML synonym mappings for commodity products*
+# *Product Model - FpML synonym mappings for Commodity products*
 
 _Background_
 
