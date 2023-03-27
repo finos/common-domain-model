@@ -6,9 +6,8 @@ This release updates and extends the FpML mapping coverage for commodity product
 
 _What is being released?_
 
-* Mappings added to populate CDM attribute `CommodityPayout -> calculationPeriodDates -> effectiveDate` with FpML elements `calculationPeriods`; taking the date explicited inside it
-
-* Mappings added to populate CDM attribute `CommodityPayout -> fixedPrice -> price` with FpML element `fixedPriceStep`
+* Mappings added to populate attribute `CommodityPayout -> calculationPeriodDates -> effectiveDate` with FpML elements `calculationPeriods`
+* Mappings added to populate attribute `CommodityPayout -> fixedPrice -> price` with FpML element `fixedPriceStep`
 
 _Review directions_
 
