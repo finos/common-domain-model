@@ -2,26 +2,17 @@
 
 _Background_
 
-An issue was found recently with the mapping for the EMIR field `2.143 - Seniority`. This release adds the necessary enumeration CreditSeniorityEnum in tradestate.synonym to fix the issue.
+This release updates and extends the FpML mapping coverage for the product model.
 
 _What is being released?_
 
-_Enumerations_
-
-- Added mapping coverage for EMIR field `2.143 - Seniority` by adding `CreditSeniorityEnum` enumeration in tradestate.synonym.
-
-_Samples_
-
-- Added 3 new Credit samples to test the mapping for EMIR field `2.143 - Seniority`:
-  - cdindex-ex01-cdx-seniority-Senior.xml
-  - cdindex-ex02-cdx-seniority-Subordinate.xml
-  - cdindex-ex03-cdx-seniority-Other.xml
+- FpML mappings added for enum `CreditSeniorityEnum`
+- FpML samples added to test the synonym mappings
 
 _Review directions_
 
-In the CDM Portal, select Translate and review the following samples:
+In the CDM Portal, select Ingestion and review the following samples in the test pack:
 
-- fpml-5-10/products/credit
-  - cdindex-ex01-cdx-seniority-Senior.xml
-  - cdindex-ex02-cdx-seniority-Subordinate.xml
-  - cdindex-ex03-cdx-seniority-Other.xml
+- fpml-5-10 > products > credit > cdindex-ex01-cdx-seniority-Senior.xml
+- fpml-5-10 > products > credit > cdindex-ex02-cdx-seniority-Subordinate.xml
+- fpml-5-10 > products > credit > cdindex-ex03-cdx-seniority-Other.xml
