@@ -1,31 +1,27 @@
-# *Product Model - FpML synonym mappings for Commodity products*
+# *Product Model - FpML synonym mappings for CreditSeniorityEnum*
 
 _Background_
 
-This release updates and extends the FpML mapping coverage for commodity products.
+An issue was found recently with the mapping for the EMIR field `2.143 - Seniority`. This release adds the necessary enumeration CreditSeniorityEnum in tradestate.synonym to fix the issue.
 
 _What is being released?_
 
-* Mappings added to populate attribute `CommodityPayout -> calculationPeriodDates -> effectiveDate` with FpML elements `calculationPeriods`
-* Mappings added to populate attribute `CommodityPayout -> fixedPrice -> price` with FpML element `fixedPriceStep`
+_Enumerations_
+
+- Added mapping coverage for EMIR field `2.143 - Seniority` by adding `CreditSeniorityEnum` enumeration in tradestate.synonym.
+
+_Samples_
+
+- Added 3 new Credit samples to test the mapping for EMIR field `2.143 - Seniority`:
+  - cdindex-ex01-cdx-seniority-Senior.xml
+  - cdindex-ex02-cdx-seniority-Subordinate.xml
+  - cdindex-ex03-cdx-seniority-Other.xml
 
 _Review directions_
 
-* In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select Translate and review the following samples:
 
-# *Infrastructure - Dependency Updates*
-
-_What is being released?_
-
-This release updates the `rosetta-dsl` dependency:
-
-- Version `7.3.1` - Fix Java code-gen bug related to extracting `date` from `zonedDateTime` record type
-- Version `7.3.0` - Add support for external rule reference
-- Version `7.2.1` - Code-gen generated Java that does not contain keyword clashes
-
-This release contains no changes to the model or test expectations.
-
-_Review directions_
-
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
-
+- fpml-5-10/products/credit
+  - cdindex-ex01-cdx-seniority-Senior.xml
+  - cdindex-ex02-cdx-seniority-Subordinate.xml
+  - cdindex-ex03-cdx-seniority-Other.xml
