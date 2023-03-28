@@ -24,9 +24,9 @@ type DeterminationRolesAndTerms: <"Defines the roles and related terms which doc
 	fallbackLanguageBespokeTerms string (0..1) <"Where parties may optionnaly describe any extra bespoke agreements about fallback procedure attached to a particular determination role. This fallback bespoke paragraph would typically address topics such as : delay for the Disputing Party to notify a disagreement when receiving a determination from the Calculation Agent ; Independent Third Party Dealers election terms e.g. number of Dealers to be jointly elected by the counterparties ; delay for joint election of Dealers by the counterparties ; further fallback election procedure in case of disagreement between parties to jointly elect all the Dealers e.g. typically each party designates 1 Dealer, each a Party Representant, which thus result in 2 Dealers in charge of joint election of 3 other Dealers who will be the final ones to provide the response, each a Final Dealer ; delay for joint election of the Final Dealers by the Party Representants ; fees repartition e.g. typically cost and fees incurred by the election of Dealers are equally shared by the parties ; etc.">
 
 	condition DisputingPartyCannotHaveOriginalRole:
-	if whoToDetermine = CounterpartyRoleEnum -> Party1
-	then disputingParty <> CounterpartyRoleEnum -> Party1
-	and (if whoToDetermine = CounterpartyRoleEnum -> Party2
+	(if whoToDetermine any = CounterpartyRoleEnum -> Party1
+	then disputingParty <> CounterpartyRoleEnum -> Party1)
+	and (if whoToDetermine any = CounterpartyRoleEnum -> Party2
 	then disputingParty <> CounterpartyRoleEnum -> Party2)
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">

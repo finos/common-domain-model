@@ -154,11 +154,10 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 
 type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
 	product Product (0..1) <"product to be changed">
-	legalAgreement LegalAgreement (0..1) <"legal agreement to be changed">
 	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
 	adjustment NotionalAdjustmentEnum (0..1)
 
-	condition AtLeastOneOf: (product exists or ancillaryParty exists or adjustment exists or legalAgreement exists)
+	condition AtLeastOneOf: (product exists or ancillaryParty exists or adjustment exists)
 
 type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
 	// Should cardinality be (2..*)?
@@ -412,11 +411,11 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
 		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
+			and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 	condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999Credit
+		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
@@ -426,7 +425,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
 
 	condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
+		if contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
 	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
@@ -467,12 +466,12 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
             FpmlIrd8( tradableProduct, account ) = True
 
 	condition ExtraordinaryEvents: <"Extraordinary Events provisions must be associated with an equity payout.">
-		if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equity -> extraordinaryEvents exists
+		if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists 
 		or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlier -> security exists
 
 	condition SubstitutionProvisions: <"Substitution provisions must be associated with an equity payout.">
-		if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equity -> substitutionProvisions exists
+		if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> substitutionProvisions exists
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists 
 		or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout -> underlier -> security exists
 
