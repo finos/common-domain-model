@@ -36,9 +36,16 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
         or (
             economicTerms -> payout -> optionPayout only exists 
             and ( economicTerms -> payout -> optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Debt 
-                or Qualify_AssetClass_InterestRate(economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms) = True
+                or economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
             )
         )
+        /*economicTerms -> payout -> interestRatePayout only exists 
+        or (
+            economicTerms -> payout -> optionPayout only exists 
+            and ( economicTerms -> payout -> optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Debt 
+                or Qualify_AssetClass_InterestRate(economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms) = True
+            )
+        )*/
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
 	inputs: economicTerms EconomicTerms (1..1)
@@ -637,7 +644,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
 		and (economicTerms -> payout -> optionPayout -> feature is absent
 			or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
-func Qualify_UnderlierProduct_Equity: <"Qualifies a product as an Equity Option with an index as underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is an index and 2) No special option feature exists other than option averaging.">
+func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Option with an index as underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is an index and 2) No special option feature exists other than option averaging.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -826,7 +833,7 @@ func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Produc
 	output: is_product boolean (1..1)
 
 	set is_product:
-		Qualify_AssetClass_InterestRate_Swap(economicTerms) = True
+		Qualify_AssetClass_InterestRate(economicTerms) = True
 		and economicTerms -> payout -> interestRatePayout count = 2
 		and economicTerms -> payout -> interestRatePayout -> paymentDates count = 2
 		and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
