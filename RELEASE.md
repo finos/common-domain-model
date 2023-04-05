@@ -1,19 +1,23 @@
-# *Equity Swap - Valuation Dates Initial*
+# *Product Model - Qualification*
 
 _Background_
 
-This release updates and extends valuation dates mapping coverage for Equity Swap products.
+This release completes the coverage of the first level of composable product qualification based on ISDA taxonomy v2.
 
 _What is being released?_
 
-Mapping added for `ValuationDates -> valuationDatesInitial` with FpML element `rateOfReturn -> initialPrice`.
+Function updates in `cdm.product.qualification` namespace to fully support first level of composable product qualification for all 5 asset classes: InterestRate, Credit, ForeignExchange, Equity and Commodity.
 
-_Review Directions_
+_Qualification_
+
+- Removed `Qualify_AssetClass_InterestRate_Swap` and updated all references with the new `Qualify_AssetClass_InterestRate`
+- Removed `Qualify_AssetClass_CreditDefault` and updated all references with the new `Qualify_AssetClass_Credit`
+- Updated `Qualify_AssetClass_Equity` to work with `economicTerms` argument
+- Renamed `Qualify_AssetClass_Equity` to `Qualify_UnderlierProduct_Equity` using `underlier` argument.
+- Created `Qualify_AssetClass_ForeignExchange`
+- Created `Qualify_AssetClass_Commodity`
+
+_Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-In the CDM Portal, select Ingestion and review the following samples:
-`fpml-5-10 > incomplete-products > equity-swaps`
-- eqs_ex05_single_stock_plus_fee_long_form
-- eqs_ex07_long_form_with_stub `fpml-5-12 > products > equity`
-- eqs_ex15_forward_starting_pre_european_interdealer_share_swap_short_form
-- trs_ex04_index_ios
+In the CDM Portal, select Ingestion and review `fpml-5-10/products` and `fpml-5-12/products` samples.
