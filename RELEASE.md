@@ -1,9 +1,21 @@
-# *Event Model - Event Timestamp Qualification*
+# *Product Model/ Collateral - Eligible Collateral Schedule – Data Type Name Change*
 
 _What is being released?_
 
-The release contains the addition of an enum value `clearingReceiptDateTime` to enum `EventTimestampQualificationEnum` for the purpose of qualifying an event time stamp indicating when a cleared trade was received by the clearing body.
+The change of name of a root data type` EligibleCollateralSchedule` to a new name `EligibleCollateralSpecification` and where else this is referenced in the CDM. The changes also address references in the textual descriptions. The following changes have been made:
+
+1.	Root type `EligibleCollateralSchedule` renamed to `EligibleCollateralSpecification`
+2.	Attribute `scheduleIdentifier` renamed to ‘identifier`
+3.	Function `EligibleCollateralScheduleHelper` renamed to `EligibleCollateralSpecificationHelper`
+4.	Data Type `EligibleCollateralScheduleInstruction` renamed to `EligibleCollateralSpecificationInstruction`
+5.	Textual descriptions related to the above changes have been updated accordingly to remove the direct reference to eligible collateral schedule 
+
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect the changes mentioned above and across the following: 
+
+1.	function `EligibleCollateralScheduleHelper`
+2.	type`EligibleCollateralSchedule` and attribute `scheduleIdentifier`
+3.	Type `EligibleCollateralScheduleInstruction`
+4.	`CollateralTypeEnum` attribute `eligibleCollateral`
