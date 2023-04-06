@@ -265,7 +265,7 @@ The development of a digital data standard for representation of eligible collat
 
 .. code-block:: Haskell
 
- type EligibleCollateralSchedule:
+ type EligibleCollateralSpecification:
     [rootType]
     [metadata key]
     scheduleIdentifier Identifier (0..*)
