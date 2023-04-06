@@ -6,7 +6,7 @@ The change of name of a root data type` EligibleCollateralSchedule` to a new nam
 
 1.	Root type `EligibleCollateralSchedule` renamed to `EligibleCollateralSpecification`
 2.	Attribute `scheduleIdentifier` renamed to ‘identifier`
-3.	Function `EligibleCollateralScheduleHelper` renamed to `EligibleCollateralSpecificationHelper`
+3.	Function `EligibleCollateralScheduleHelper` renamed to `Create_EligibleCollateralSpecificationFromInstrcution`
 4.	Data Type `EligibleCollateralScheduleInstruction` renamed to `EligibleCollateralSpecificationInstruction`
 5.	Textual descriptions related to the above changes have been updated accordingly to remove the direct reference to eligible collateral schedule 
 
