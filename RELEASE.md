@@ -1,4 +1,4 @@
-# *Product / Collateral Model - Eligible Collateral Schedule – Data Type Name Change*
+# *Product Model / Collateral - Eligible Collateral Schedule – Data Type Name Change*
 
 _What is being released?_
 
