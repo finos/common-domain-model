@@ -268,7 +268,7 @@ The development of a digital data standard for representation of eligible collat
  type EligibleCollateralSpecification:
     [rootType]
     [metadata key]
-    scheduleIdentifier Identifier (0..*)
+    identifier Identifier (0..*)
     criteria EligibleCollateralCriteria (1..*)
 
 The ``EligibleCollateralCriteria`` data type contains the following key components to allow the digital representation of the detailed criteria reflected in the legal agreement:
