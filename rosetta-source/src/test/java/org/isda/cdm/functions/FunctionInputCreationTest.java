@@ -1922,7 +1922,7 @@ class FunctionInputCreationTest {
                 getVariableCriteria(0.9, getMaturityRange(30)));
 
         // Create instruction
-        EligibleCollateralScheduleInstruction instruction = EligibleCollateralScheduleInstruction.builder()
+        EligibleCollateralSpecificationInstruction instruction = EligibleCollateralSpecificationInstruction.builder()
                 .setCommon(common)
                 .setVariable(variable)
                 .build();
