@@ -6,7 +6,7 @@ import cdm.base.datetime.PeriodEnum;
 import cdm.base.datetime.PeriodRange;
 import cdm.base.staticdata.asset.common.*;
 import cdm.product.collateral.*;
-import cdm.product.collateral.functions.EligibleCollateralScheduleHelper;
+import cdm.product.collateral.functions.Create_EligibleCollateralSpecificationFromInstruction;
 import com.google.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import com.regnosys.cdm.example.util.ResourcesUtils;
@@ -22,10 +22,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EligibleCollateralScheduleHelperTest extends AbstractExampleTest {
+public class CreateEligibleCollateralSpecificationFromInstructionTest extends AbstractExampleTest {
 
     @Inject
-    EligibleCollateralScheduleHelper func;
+    Create_EligibleCollateralSpecificationFromInstruction func;
 
     @Test
     void shouldMergeCommonAndVariableEligibleCollateralCriteria() throws IOException {
@@ -41,13 +41,13 @@ public class EligibleCollateralScheduleHelperTest extends AbstractExampleTest {
                 getVariableCriteria(0.9, getMaturityRange(30)));
 
         // Create instruction
-        EligibleCollateralScheduleInstruction instruction = EligibleCollateralScheduleInstruction.builder()
+        EligibleCollateralSpecificationInstruction instruction = EligibleCollateralSpecificationInstruction.builder()
                 .setCommon(common)
                 .setVariable(variable)
                 .build();
 
         // Call function to merge common and variable criteria
-        EligibleCollateralSchedule merged = func.evaluate(instruction);
+        EligibleCollateralSpecification merged = func.evaluate(instruction);
 
         // Assert
         String expectedJson = ResourcesUtils.getJson("merge-eligible-collateral-expected.json");

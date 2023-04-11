@@ -1,19 +1,16 @@
-# *Equity Swap - Valuation Dates Initial*
-
-_Background_
-
-This release updates and extends valuation dates mapping coverage for Equity Swap products.
+# *Product Model / Collateral - Eligible Collateral Schedule – Data Type Name Change*
 
 _What is being released?_
 
-Mapping added for `ValuationDates -> valuationDatesInitial` with FpML element `rateOfReturn -> initialPrice`.
+The change of name of a root data type` EligibleCollateralSchedule` to a new name `EligibleCollateralSpecification` and where else this is referenced in the CDM. The changes also address references in the textual descriptions. The following changes have been made:
+
+1.	Root type `EligibleCollateralSchedule` renamed to `EligibleCollateralSpecification`
+2.	Attribute `scheduleIdentifier` renamed to `identifier`
+3.	Function `EligibleCollateralScheduleHelper` renamed to `Create_EligibleCollateralSpecificationFromInstruction`
+4.	Data Type `EligibleCollateralScheduleInstruction` renamed to `EligibleCollateralSpecificationInstruction`
+5.	Textual descriptions related to the above changes have been updated accordingly to remove the direct reference to eligible collateral schedule 
+
 
 _Review Directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-In the CDM Portal, select Ingestion and review the following samples:
-`fpml-5-10 > incomplete-products > equity-swaps`
-- eqs_ex05_single_stock_plus_fee_long_form
-- eqs_ex07_long_form_with_stub `fpml-5-12 > products > equity`
-- eqs_ex15_forward_starting_pre_european_interdealer_share_swap_short_form
-- trs_ex04_index_ios
+In the CDM Portal, select the Textual Browser and inspect the changes mentioned above. 
