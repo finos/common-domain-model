@@ -1,16 +1,23 @@
-# *Product Model / Collateral - Eligible Collateral Schedule – Data Type Name Change*
+# *Product Model - Qualification*
+
+_Background_
+
+This release completes the coverage of the first level of composable product qualification based on ISDA taxonomy v2.
 
 _What is being released?_
 
-The change of name of a root data type` EligibleCollateralSchedule` to a new name `EligibleCollateralSpecification` and where else this is referenced in the CDM. The changes also address references in the textual descriptions. The following changes have been made:
+Function updates have been made in the `cdm.product.qualification` namespace to fully support the first level of composable product qualification for all 5 asset classes: InterestRate, Credit, ForeignExchange, Equity and Commodity.
 
-1.	Root type `EligibleCollateralSchedule` renamed to `EligibleCollateralSpecification`
-2.	Attribute `scheduleIdentifier` renamed to `identifier`
-3.	Function `EligibleCollateralScheduleHelper` renamed to `Create_EligibleCollateralSpecificationFromInstruction`
-4.	Data Type `EligibleCollateralScheduleInstruction` renamed to `EligibleCollateralSpecificationInstruction`
-5.	Textual descriptions related to the above changes have been updated accordingly to remove the direct reference to eligible collateral schedule 
+_Qualification_
 
+- Removed `Qualify_AssetClass_InterestRate_Swap` and updated all references with the new `Qualify_AssetClass_InterestRate`
+- Removed `Qualify_AssetClass_CreditDefault` and updated all references with the new `Qualify_AssetClass_Credit`
+- Updated `Qualify_AssetClass_Equity` to work with `economicTerms` argument
+- Renamed `Qualify_AssetClass_Equity` to `Qualify_UnderlierProduct_Equity` using `underlier` argument
+- Created `Qualify_AssetClass_ForeignExchange`
+- Created `Qualify_AssetClass_Commodity`
 
-_Review Directions_
+_Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the changes mentioned above. 
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select Ingestion and review the `fpml-5-10/products` and `fpml-5-12/products` samples.
