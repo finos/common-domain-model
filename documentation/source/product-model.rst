@@ -685,6 +685,7 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
     output: is_product boolean (1..1)
     set is_product:
         Qualify_BaseProduct_Inflation(economicTerms) = True
+        and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
         and Qualify_SubProduct_FixedFloat(economicTerms) = True
         and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
