@@ -682,7 +682,6 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
     [qualification Product]
     inputs: economicTerms EconomicTerms (1..1)
-	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
 	set is_product:
