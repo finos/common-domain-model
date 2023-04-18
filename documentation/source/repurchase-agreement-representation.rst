@@ -142,30 +142,9 @@ type Payout:
     assetPayout AssetPayout (0..*)
 
 
-Defining the rate as an interest rate is done through the PriceTypeEnum->InterestRate:
-
-.. code-block:: Haskell
-
-    InterestRate
-        [docReference ICMA GMRA namingConvention "Pricing Rate"
-            provision "As defined in the GMRA, paragraph 2(ll) The pricing rate 
-			is the per annum percentage rate for calculation of the Price Differential 
-			agreed to by Buyer and Seller in relation to that Transaction."]
-        [docReference ICMA ERCCBestPractice namingConvention "Pricing Rate" 
-            provision "ERCC Guide: Annex II  Glossary of repo terminology. Repo rate 
-			is the market term for the annualised percentage rate of interest on the 
-			cash in a repo. Legally-speaking, however, the term is a misnomer, 
-			as the legal form of a repo is not an interest-paying loan or deposit. 
-			Rather, the return is just the difference between two securities prices. 
-			In the GMRA, the repo rate is called the Pricing Rate. Traditionally, 
-			the repo rate was the price of a Repurchase Transaction but Buy/Sell-Backs 
-			are now often quoted in the same way."]
-
-
+Defining the rate as an interest rate is done by setting PriceTypeEnum->InterestRate.
 
 A floating rate repo is defined using the FloatingRateSpecification type:
-
-
 
 .. code-block:: Haskell
 
