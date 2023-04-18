@@ -682,11 +682,14 @@ The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual product
  func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
     [qualification Product]
     inputs: economicTerms EconomicTerms (1..1)
-    output: is_product boolean (1..1)
-    set is_product:
-        Qualify_BaseProduct_Inflation(economicTerms) = True
-        and Qualify_SubProduct_FixedFloat(economicTerms) = True
-        and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+		[synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
+	set is_product:
+		Qualify_BaseProduct_Inflation(economicTerms) = True
+        and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
+		and Qualify_SubProduct_FixedFloat(economicTerms) = True
+		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 
 If all the statements above are true, then the function evaluates to True, and the product is determined to be qualified as the product type referenced by the function name.
 
@@ -711,9 +714,13 @@ TaxonomyValue has been expanded to represent a complex type:
 
 .. code-block:: Haskell
 
- type TaxonomyValue:
-	 name string (0..1)
-	 classification TaxonomyClassification (0..*)
+type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
+	
+	name string (0..1) 
+		[metadata scheme]
+	classification TaxonomyClassification (0..*)
+	condition ValueExists:
+		name exists or classification exists
 	 
 TaxonomyClassification is also a complex type that support a hierarchical structure of any depth:
 
