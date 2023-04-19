@@ -126,7 +126,7 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 8)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
+        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -148,7 +148,7 @@ class SecLendingFunctionInputCreationTest {
                 returnInstruction,
                 Date.of(2020, 10, 21));
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
+        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -329,7 +329,7 @@ class SecLendingFunctionInputCreationTest {
 
         BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+        WhitespaceAgnosticAssert.assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
                 "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -461,7 +461,7 @@ class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
 
-        assertEquals(readResource(inputJson),
+        WhitespaceAgnosticAssert.assertEquals(readResource(inputJson),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
