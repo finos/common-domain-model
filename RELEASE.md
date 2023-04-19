@@ -1,41 +1,23 @@
-# *Product Model - Inflation Swaps - calculationMethod and calculationStyle*
+# *Product Model - Qualification*
+
+_Background_
+
+This release completes the coverage of the first level of composable product qualification based on ISDA taxonomy v2.
 
 _What is being released?_
 
-This release adds the following fields:
+Function updates have been made in the `cdm.product.qualification` namespace to fully support the first level of composable product qualification for all 5 asset classes: InterestRate, Credit, ForeignExchange, Equity and Commodity.
 
-- `calculationMethod` - This field will be added as an enum. The enum will contain the following values:
-  - `Ratio`
-  - `Return`
-  - `Spread`
-- `calculationStyle` - This field will be added as an enum. The enum will contain the following values:
-  - `YearOnYear`
-  - `ZeroCoupon`
+_Qualification_
 
-These fields can be found under the following paths:
+- Removed `Qualify_AssetClass_InterestRate_Swap` and updated all references with the new `Qualify_AssetClass_InterestRate`
+- Removed `Qualify_AssetClass_CreditDefault` and updated all references with the new `Qualify_AssetClass_Credit`
+- Updated `Qualify_AssetClass_Equity` to work with `economicTerms` argument
+- Renamed `Qualify_AssetClass_Equity` to `Qualify_UnderlierProduct_Equity` using `underlier` argument
+- Created `Qualify_AssetClass_ForeignExchange`
+- Created `Qualify_AssetClass_Commodity`
 
-- For `calculationMethod`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationMethod`
-- For `calculationStyle`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationStyle`
-
-The enum values can be found under the following paths:
-
-- For `calculationMethod`, a new enum called `InflationCalculationMethodEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
-- For `calculationStyle`, a new enum called `InflationCalculationStyleEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
-
-_Review Directions_
+_Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-# *Product Model - Bond Reference - Coupon Rate*
-
-_What is being released?_
-
-This release adds the field `couponRate` to the `BondReference` type under `InterestRatePayout`.
-
-The path for this field would be the following:
-
-- InterestRatePayout > bondReference > couponRate. The `couponRate` is of type `FixedRateSpecification` with a cardinality of (0..1).
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select Ingestion and review the `fpml-5-10/products` and `fpml-5-12/products` samples.
