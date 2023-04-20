@@ -5,7 +5,7 @@ _What is being released?_
 This release updates the `rosetta-dsl` dependency:
 
 - Version `7.4.0`:
-  - Generate rosetta models from a xsd
+  - Rosetta models generated from an xsd
   - Bug fix related to code-generated Java that avoids keyword clashes
 
 This release contains no changes to the model or test expectations.
