@@ -1,23 +1,15 @@
-# *Product Model - Qualification*
-
-_Background_
-
-This release completes the coverage of the first level of composable product qualification based on ISDA taxonomy v2.
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-Function updates have been made in the `cdm.product.qualification` namespace to fully support the first level of composable product qualification for all 5 asset classes: InterestRate, Credit, ForeignExchange, Equity and Commodity.
+This release updates the `rosetta-dsl` dependency:
 
-_Qualification_
+- Version `7.4.0`:
+    - Generate rosetta models from a xsd
+    - Bug fix related to code-generated Java that avoids keyword clashes
 
-- Removed `Qualify_AssetClass_InterestRate_Swap` and updated all references with the new `Qualify_AssetClass_InterestRate`
-- Removed `Qualify_AssetClass_CreditDefault` and updated all references with the new `Qualify_AssetClass_Credit`
-- Updated `Qualify_AssetClass_Equity` to work with `economicTerms` argument
-- Renamed `Qualify_AssetClass_Equity` to `Qualify_UnderlierProduct_Equity` using `underlier` argument
-- Created `Qualify_AssetClass_ForeignExchange`
-- Created `Qualify_AssetClass_Commodity`
+This release contains no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-In the CDM Portal, select Ingestion and review the `fpml-5-10/products` and `fpml-5-12/products` samples.
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
