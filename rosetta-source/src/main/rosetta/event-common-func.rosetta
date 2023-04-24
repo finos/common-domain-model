@@ -1661,6 +1661,101 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 		and packageRef count = openTradeNoExecutionDetails count
 		and packageRef distinct count = 1
 
+func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
+	inputs:
+		tradeState TradeState (1..1) <"The original trade to be rolled.">
+		newAllinPrice number(1..1) <"The asset new all-in price.">
+		newAssetQuantity number(1..1) <"The new asset quantity.">
+		newCashValue number(1..1)<"The new asset value.">
+		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
+	output:
+		instruction PrimitiveInstruction (1..1)
+	
+	alias oldPriceQuantity:
+		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
+		
+	alias currentPrice: <"Filter interest rate price and make it into a single element">
+		oldPriceQuantity
+		extract [ item -> price ]
+		flatten
+		filter [ item -> priceExpression -> priceType = PriceTypeEnum -> InterestRate ] only-element
+		
+	alias newPrice: <"Create the new price object.">
+		Create_Price( newAllinPrice, currentPrice -> unit, currentPrice -> perUnitOf, currentPrice -> priceExpression )
+		
+	alias changeQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
+		if newAssetQuantity <> 0 then
+			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+				map [ Create_NonNegativeQuantitySchedule( newAssetQuantity, item -> unit ) ]
+				distinct
+		else 
+			empty
+			
+	alias newPriceQuantity: <"Create the new price quantity object.">
+		Create_PriceQuantity( [ newPrice ], changeQuantity, empty )
+		
+	alias haircutPercentage:
+        newCashValue / (newAssetQuantity * newAllinPrice)
+	
+	set instruction -> split -> breakdown:
+		[ Create_TerminationInstruction( tradeState ) ]
+	
+	add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+		[
+		Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+			Create_QuantityChangeInstruction(
+				[newPriceQuantity],
+				QuantityChangeDirectionEnum -> Replace,
+				empty
+				),
+			empty, empty, 
+			Create_RepriceTermsChangeInstruction(
+				tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+				haircutPercentage,
+				effectiveRepriceDate
+				),
+			empty, empty, empty, empty
+			)
+		]
+
+func Create_RepriceTermsChangeInstruction: <"Creates the relevant terms change primitive instruction object for rolling a contractual product, which consists in the same terms as the original contractual product but with different effective and termination dates.">
+	inputs:
+		contractualProduct ContractualProduct (1..1) <"The original contractual product to be rolled.">
+		newHaircutPercentage number (1..1) <"The new haricut value based on cash adjustment.">
+		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+	output:
+		termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the roll, which is a terms change.">
+
+	set termsChangeInstruction -> product -> contractualProduct:
+		contractualProduct
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> collateral -> collateralProvisions -> eligibleCollateral -> criteria -> treatment ->
+		valuationTreatment -> haircutPercentage:
+		newHaircutPercentage
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
+		effectiveRepriceDate
+
+func Qualify_Reprice: <"Qualification of a reprice event">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+
+	alias beforeTradePrice: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> tradeLot->priceQuantity
+
+	alias openTradePrice: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> tradeLot->priceQuantity
+
+	alias closedTradePrice: FilterClosedTradeStates( businessEvent -> after )
+
+	set is_event:
+		beforeTradePrice exists and		
+		openTradePrice exists and
+		closedTradePrice count = 1 and
+		openTradePrice  <> beforeTradePrice
+
+
+
+
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
 	inputs:
 		executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
