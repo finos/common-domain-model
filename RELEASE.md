@@ -1,18 +1,15 @@
-# *Product Model - FpML synonym mappings for CreditSeniorityEnum*
-
-_Background_
-
-This release updates and extends the FpML mapping coverage for the product model.
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-- FpML mappings added for enum `CreditSeniorityEnum`
-- FpML samples added to test the synonym mappings
+This release updates the `rosetta-dsl` dependency:
+
+- Version `7.4.0`:
+    - Rosetta models generated from an xsd
+    - Bug fix related to code-generated Java that avoids keyword clashes
+
+This release contains no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, select Ingestion and review the following samples in the test pack:
-
-- fpml-5-10 > products > credit > cdindex-ex01-cdx-seniority-Senior.xml
-- fpml-5-10 > products > credit > cdindex-ex02-cdx-seniority-Subordinate.xml
-- fpml-5-10 > products > credit > cdindex-ex03-cdx-seniority-Other.xml
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.

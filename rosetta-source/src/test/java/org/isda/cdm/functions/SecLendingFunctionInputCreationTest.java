@@ -30,6 +30,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.testing.WhitespaceAgnosticAssert;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -125,7 +126,7 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 8)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
+        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -147,7 +148,7 @@ class SecLendingFunctionInputCreationTest {
                 returnInstruction,
                 Date.of(2020, 10, 21));
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
+        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -328,7 +329,7 @@ class SecLendingFunctionInputCreationTest {
 
         BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
 
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
+        WhitespaceAgnosticAssert.assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
                 "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
     }
@@ -460,7 +461,7 @@ class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
 
-        assertEquals(readResource(inputJson),
+        WhitespaceAgnosticAssert.assertEquals(readResource(inputJson),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
@@ -482,12 +483,12 @@ class SecLendingFunctionInputCreationTest {
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
         String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
         String expectedJson = getJson(expectedJsonPath);
-        if (!expectedJson.equals(actualJson)) {
+        if (!WhitespaceAgnosticAssert.equals(expectedJson, actualJson)) {
             if (WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
             }
         }
-        assertEquals(expectedJson, actualJson,
+        WhitespaceAgnosticAssert.assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
