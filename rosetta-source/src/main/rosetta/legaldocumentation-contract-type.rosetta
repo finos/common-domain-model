@@ -3,6 +3,10 @@ version "${project.version}"
 
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
+import cdm.legaldocumentation.common.*
+import cdm.observable.event.*
+import cdm.base.staticdata.party.*
+import cdm.base.math.*
 
 type Agreement: <"Specification of the standard set of terms that define a legal agreement.">
 
@@ -10,5 +14,241 @@ type Agreement: <"Specification of the standard set of terms that define a legal
 	collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
 	securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
 	masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+    transactionAdditionalTerms TransactionAdditionalTerms (0..1)
 
 	condition: one-of
+
+
+    type TransactionAdditionalTerms: <"Any additional terms which mainly intend to specify the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens. Such terms are typically required to extend the economics terms, for the purpose of producing the final legal contractual form of the Transaction. As an indication, in terms of workflow, when considering the whole front-to-middle sequence per which a trade is executed, booked, complemented and processed until it is eventually confirmed and signed by both counterparties as a final legal contractual form : Execution of economic terms which affect the pricing of the trade comes as a first Event, then some additional terms may be processed as a Contract Formation event.">
+
+	equityAdditionalTerms EquityAdditionalTerms (0..1)
+    foreignExchangeAdditionalTerms FxAdditionalTerms (0..1)
+	commoditiesAdditionalTerms string (0..1)
+	creditAdditionalTerms string (0..1)
+	interestRateAdditionalTerms string (0..1)
+	digitalAssetAdditionalTerms string (0..1)
+
+type EquityAdditionalTerms: <"TransactionAdditionalTerms whi.ch apply to Equity asset class.">
+	extraordinaryEvents NewExtraordinaryEvents (0..1)
+	determinationTerms DeterminationRolesAndTerms (1..*)
+	substitutionProvisions SubstitutionProvisions (0..*)
+
+type SubstitutionProvisions: <"Where parties describe any substitution terms.">
+
+	whoMaySubstitute CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
+	substitutionBeSpokeTerms string (1..1) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
+	substitutionTriggerEvents NewExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
+	disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
+
+	condition DisputingPartyCannotHaveOriginalRole:
+	if whoMaySubstitute = CounterpartyRoleEnum -> Party1
+	then disputingParty <> CounterpartyRoleEnum -> Party1
+	and (if whoMaySubstitute = CounterpartyRoleEnum -> Party2
+	then disputingParty <> CounterpartyRoleEnum -> Party2)
+
+type NewExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+
+	additionalBespokeTerms string (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
+	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
+	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
+	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
+	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
+	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
+	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
+	representations Representations (0..1)
+	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
+	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
+	//methodOfAdjustment MethodOfAdjustment (0..1)
+
+//type MethodOfAdjustment: <"A method to further specifying how to adjust in case of an event affecting Indices, Shares and more generally Equity Transactions, as defined in Section 11.2. Article 11 in the 2002 ISDA Equity Derivatives Definitions.">
+
+	//bespokeMethodTerms string (0..*) <"Where parties may optionnaly describe specific method in addition or in lieu of the related enumarative elections which are Options Exchaneg Adjustment or Calculation Agent Adjustment.">
+	//methodOfAdjustmentType MethodOfAdjustmentEnum (0..1) <"Defines the related enumarative elections.">
+
+type FxAdditionalTerms: <"TransactionAdditionalTerms which apply to the CurrencyPair asset class.">
+	disruptionEvents FxDisruptionEvents (0..1)
+	determinationTerms DeterminationRolesAndTerms (0..1)
+	noFaultTermination boolean (0..1)
+
+	condition SpecificDeterminationRetrictionsForFx:
+	determinationTerms -> determinationRole = DeterminationRoleEnum -> CalculationAgent
+
+	condition NoFaultTerminationOrDisruptionTerms:
+	(disruptionEvents exists and noFaultTermination is absent or noFaultTermination = False)
+	or (disruptionEvents is absent and noFaultTermination = True)
+
+type FxDisruptionEvents: <"Additional Provisions for a Confirmation of an FX or Currency Option Transaction, as described in EXHIBIT II-E to 1998 FX and Currency Option Definitions.">
+	illegalityOrImpossibility FxIllegalityOrImpossibilityEnum (0..1) <"The enumerated values to specify whether such terms i.e. Illegality or Impossibility shall be treated either as defined per an ISDA  Master  Agreement or a 1987 Interest Rate and Currency Exchange Agreement or FEOMA or IFEMA or ICOM signed between the parties and applicable to the related FX transaction ; else as a Disruption Event, as described in Section 5.1.(c).(i) of the 1998 FX and Currency Option Definitions.">
+	forceMajeureOrActOfSState FxForceMajeureOrActOfSStateEnum (0..1) <"The enumerated values to specify whether such terms i.e. Force Majeure or Act Of State shall be treated either as defined per an FEOMA or IFEMA or ICOM signed between the parties and applicable to the related FX transaction ; else as a Disruption Event, as described in Section 5.1.(c).(ii) of the 1998 FX and Currency Option Definitions.">
+	eventCurrency EventCurrency (0..1) <"Additional Provisions for a Confirmation ofan FX or Currency Option Transaction, as described in EXHIBIT II-E to 1998 FX and Currency Option Definitions.">
+	priceSourceDisruption FxPriceSourceDisruption (0..1) <"The Disruption event described in Section 5.1.(d).(xi) of the 1998 FX and Currency Option Definitions.">
+	benchmarkObligationDefault FxBenchmarkObligationDefault (0..1) <"The Disruption event described in Section 5.1.(d).(i) of the 1998 FX and Currency Option Definitions.">
+	dualExchangeRate FxDualExchangeRate (0..1) <"The Disruption event described in Section 5.1.(d).(ii) of the 1998 FX and Currency Option Definitions.">
+	inconvertibilityOrNonTransferability FxInconvertibilityOrNonTransferability (0..1) <"The Disruption event described in Section 5.1.(d).(vii) of the 1998 FX and Currency Option Definitions.">
+	governmentalAuthorityDefault GovernmentalAuthorityDefault (0..1) <"The Disruption event described in Section 5.1.(d).(v) of the 1998 FX and Currency Option Definitions.">
+	illiquidity Illiquidity (0..1) <"The Disruption event described in Section 5.1.(d).(vi) of the 1998 FX and Currency Option Definitions.">
+	materialChangeInCircumstance MaterialChangeInCircumstance (0..1) <"The Disruption event described in Section 5.1.(d).(viii) of the 1998 FX and Currency Option Definitions.">
+	nationalization Nationalization (0..1) <"The Disruption event described in Section 5.1.(d).(ix) of the 1998 FX and Currency Option Definitions.">
+	priceMateriality PriceMateriality (0..1) <"The Disruption event described in Section 5.1.(d).(x) of the 1998 FX and Currency Option Definitions.">
+
+type GovernmentalAuthorityDefault: <"The Disruption event described in Section 5.1.(d).(v) of the 1998 FX and Currency Option Definitions.">
+	governmentalAuthorityDefaultIsApplicable boolean (1..1)
+	escrowArrangement EscrowArrangement (0..1)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	specifiedValue SpecifiedValueEnum (0..1) <"The Disruption event described in Section 5.4.(w). of the 1998 FX and Currency Option Definitions.">
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
+
+type Illiquidity: <"The Disruption event described in Section 5.1.(d).(vi) of the 1998 FX and Currency Option Definitions.">
+	illiquidityIsApplicable boolean (1..1) <"The Disruption event described in Section 5.1.(d).(vi) of the 1998 FX and Currency Option Definitions.">
+	escrowArrangement EscrowArrangement (0..1)
+	minimumAmount Quantity (0..1)
+	fallbackReferencePrice cdm.observable.asset.SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+	illiquidityValuationDate cdm.base.datetime.AdjustedRelativeDateOffset (0..1)
+
+type MaterialChangeInCircumstance: <"The Disruption event described in Section 5.1.(d).(viii) of the 1998 FX and Currency Option Definitions.">
+	materialChangeInCircumstanceIsApplicable boolean (1..1)
+	escrowArrangement EscrowArrangement (0..1)
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
+
+type Nationalization: <"The Disruption event described in Section 5.1.(d).(ix) of the 1998 FX and Currency Option Definitions.">
+	nationalizationIsApplicable boolean (1..1)
+	relevantAffiliate AncillaryEntity (0..*)
+	escrowArrangement EscrowArrangement (0..1)
+	assignmentOfClaim boolean (0..1)
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
+
+	condition AssignmentOfClaim :
+	if nationalizationIsApplicable = False then assignmentOfClaim is absent
+
+type PriceMateriality: <"The Disruption event described in Section 5.1.(d).(x) of the 1998 FX and Currency Option Definitions.">
+	priceMaterialityIsApplicable boolean (1..1)
+	escrowArrangement EscrowArrangement (0..1)
+	fallbackReferencePrice cdm.observable.asset.SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+
+type FxPriceSourceDisruption: <"The Disruption event described in Section 5.1.(d).(xi) of the 1998 FX and Currency Option Definitions.">
+	priceSourceDisruptionIsApplicable boolean (1..1)
+	fallbackReferencePrice cdm.observable.asset.SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+	escrowArrangement EscrowArrangement (0..1)
+
+type FxBenchmarkObligationDefault: <"The Disruption event described in Section 5.1.(d).(i) of the 1998 FX and Currency Option Definitions.">
+	benchmarkObligationDefaultIsApplicable boolean (1..1)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	specifiedValue SpecifiedValueEnum (0..1) <"The Disruption event described in Section 5.4.(w). of the 1998 FX and Currency Option Definitions.">
+	escrowArrangement EscrowArrangement (0..1)
+
+type FxDualExchangeRate: <"The Disruption event described in Section 5.1.(d).(ii) of the 1998 FX and Currency Option Definitions.">
+	dualExchangeRateIsApplicable boolean (1..1)
+	fallbackReferencePrice cdm.observable.asset.FallbackReferencePrice (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+	escrowArrangement EscrowArrangement (0..1)
+
+type FxInconvertibilityOrNonTransferability: <"Any event type encompassed in the Section 5.1.(d).(vii) of the 1998 FX and Currency Option Definitions.">
+	generalInconvertibility GeneralInconvertibility (0..1) <"The Disruption event described in Section 5.1.(d).(iii) of the 1998 FX and Currency Option Definitions.">
+	generalNonTransferability GeneralNonTransferability (0..1) <"The Disruption event described in Section 5.1.(d).(iv) of the 1998 FX and Currency Option Definitions.">
+	specificInconvertibility SpecificInconvertibility (0..1) <"The Disruption event described in Section 5.1.(d).(xii) of the 1998 FX and Currency Option Definitions.">
+	specificNonTransferability SpecificNonTransferability (0..1) <"The Disruption event described in Section 5.1.(d).(xiii) of the 1998 FX and Currency Option Definitions.">
+
+type GeneralInconvertibility:
+	generalInconvertivilityIsApplicable boolean (1..1)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+	nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+	escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
+
+	condition SettlementPostponementExistence: 
+	if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+	then maximumDaysOfDisruption exists
+
+	condition SubstituteTermsChoice: 
+	if localSubstituteProvisionType exists then nonDeliverableSubstitute is absent 
+	or if nonDeliverableSubstitute exists then localSubstituteProvisionType is absent
+
+type GeneralNonTransferability:
+	generalNonTransferabilityIsApplicable boolean (1..1)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+	nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+	escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
+
+	condition SettlementPostponementExistence: 
+	if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+	then maximumDaysOfDisruption exists
+
+	condition SubstituteTermsChoice: 
+	if localSubstituteProvisionType exists then nonDeliverableSubstitute is absent 
+	or if nonDeliverableSubstitute exists then localSubstituteProvisionType is absent
+
+type SpecificInconvertibility:
+	specificInconvertibilityIsApplicable boolean (1..1)
+	minimumAmount Quantity (0..1)
+	relevantClass string (0..*)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+	nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+	escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
+
+	condition SettlementPostponementExistence: 
+	if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+	then maximumDaysOfDisruption exists
+
+	condition SubstituteTermsChoice: 
+	if localSubstituteProvisionType exists then nonDeliverableSubstitute is absent 
+	or if nonDeliverableSubstitute exists then localSubstituteProvisionType is absent
+
+type SpecificNonTransferability:
+	specificNonTransferabilityIsApplicable boolean (1..1)
+	relevantClass string (0..*)
+	localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1) <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
+	nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+	escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
+
+	condition SettlementPostponementExistence: 
+	if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+	then maximumDaysOfDisruption exists
+
+	condition SubstituteTermsChoice: 
+	if localSubstituteProvisionType exists then nonDeliverableSubstitute is absent 
+	or if nonDeliverableSubstitute exists then localSubstituteProvisionType is absent
+
+type EscrowArrangement: <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
+	escrowArrangementIsApplicable boolean (1..1)
+	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
+	bespokeEscrowArrangements string (0..1)
+
+	condition SettlementPostponementExistence: 
+	if escrowArrangementIsApplicable  = False then maximumDaysOfDisruption is absent
+	and if escrowArrangementIsApplicable = True then maximumDaysOfDisruption exists
+
+type EventCurrency: <"Defines the currency referenced as such in any terms related to FX Disruption Events, as as described in Section 5.4.(c). in the 1998 FX and Currency Option Definitions.">
+
+	eventCurrency string (1..1) <"Defines the currency referenced as such in any terms related to FX Disruption Events, as as described in Section 5.4.(c). in the 1998 FX and Currency Option Definitions.">
+		[metadata scheme]
+	eventCurrentAmount Quantity (0..1) <"Defines the Event Currency Amount to be exchanged on the Settlement Date.">
+	eventCurrencyBuyerSeller BuyerSeller (0..2) <"Unless otherwised specified, the Buyer is the party to which the Event Currency Amount is owed on the Settlement Date and the Seller is the party which owes the Event Currency Amount on the Settlement Date.">
+
+type NonDeliverableSubstitute: 
+	nonDeliverableSubstituteIsApplicable boolean (1..1)
+	valuationDate cdm.base.datetime.AdjustedRelativeDateOffset (0..1)
+	settlementDate cdm.base.datetime.AdjustedRelativeDateOffset (0..1)
+	settlementRateOption cdm.observable.asset.SettlementRateOption (0..1)
+
+    enum FxIllegalityOrImpossibilityEnum: <"The enumerated values to specify whether such terms i.e. Illegality or Impossibility shall be treated either as defined per an ISDA  Master  Agreement or a 1987 Interest Rate and Currency Exchange Agreement or FEOMA or IFEMA or ICOM signed between the parties and applicable to the related FX transaction ; else as a Disruption Event, as described in Section 5.1.(c).(i) of the 1998 FX and Currency Option Definitions.">
+	ToBeTreatedAsDisruptionEvent
+	ToBeTreatedAsIllegalityOrImpossibility
+
+enum FxForceMajeureOrActOfSStateEnum : <"The enumerated values to specify whether such terms i.e. Force Majeure or Act Of State shall be treated either as defined per an FEOMA or IFEMA or ICOM signed between the parties and applicable to the related FX transaction ; else as a Disruption Event, as described in Section 5.1.(c).(ii) of the 1998 FX and Currency Option Definitions.">
+	ToBeTreatedAsDisruptionEvent
+	ToBeTreatedAsForceMajeureOrActOfSState
+
+enum SpecifiedValueEnum : <"The enumerated values described in Section 5.4.(w). of the 1998 FX and Currency Option Definitions.">
+	OutstandingPricipalBalance
+	StatedPrincipalBalance
+	FaceValue
+	MarketValue
+
+enum FxSubstitutionProvisionTypeEnum: <"The enumerated values respectively described in paragraphs (vi), (vii) and (viii) under Section 5.2.(c). of the 1998 FX and Currency Option Definitions.">
+	LocalAssetSubstituteGross
+	LocalAssetSubstituteNet
+	LocalCurrencySubstitute
+
+    
