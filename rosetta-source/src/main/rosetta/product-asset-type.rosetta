@@ -92,9 +92,9 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">
 	cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">
 	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">
-	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 	fixedAmount calculation (0..1) <"Fixed Amount Calculation">
 	floatingAmount calculation (0..1) <"Floating Amount Calculation">
+    swapAdditionalTerms SwapAdditionalTerms (0..1) <"Contains any additional terms to the swap contract.">
 
 	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
 		priceQuantity exists
@@ -165,6 +165,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 		if compoundingMethod is absent
 			or compoundingMethod = CompoundingMethodEnum -> None
 		then calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
+
+type SwapAdditionalTerms: <"Contains any additional terms to the swap contract.">
+    bondReference BondReference (1..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
+    spreadCalculationMethod SpreadCalculationMethodEnum (0..1) <"Method by which asset swap spread is calculated, par-par or proceeds.">
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
