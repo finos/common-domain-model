@@ -11,10 +11,6 @@
 
     <artifactId>examples</artifactId>
 
-    <properties>
-        <legacy.name>isda-cdm-examples</legacy.name>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -29,6 +25,11 @@
         <dependency>
             <groupId>org.finos.cdm</groupId>
             <artifactId>cdm-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.regnosys</groupId>
+            <artifactId>rosetta-testing</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -48,27 +49,24 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>deploy-repo-zip</id>
-                        <phase>deploy</phase>
-                        <goals>
-                            <goal>deploy-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>${project.build.directory}/${project.name}-${project.parent.version}.zip</file>
-                            <repositoryId>snapshots</repositoryId>
-                            <url>https://regnosys.jfrog.io/regnosys/libs-snapshot-local</url>
-                            <groupId>com.regnosys</groupId>
-                            <artifactId>${legacy.name}</artifactId>
-                            <version>${project.parent.version}</version>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-assembly-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <phase>package</phase>
+                      <goals>
+                          <goal>single</goal>
+                      </goals>
+                      <configuration>
+                          <appendAssemblyId>false</appendAssemblyId>
+                          <descriptors>
+                              <descriptor>assembly.xml</descriptor>
+                          </descriptors>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
         </plugins>
     </build>
 
