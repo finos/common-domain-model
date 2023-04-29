@@ -203,6 +203,73 @@ func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset C
             or economicTerms -> payout -> performancePayout only exists
         )
 
+func Qualify_BaseProduct_EquityOption:
+
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+
+	alias optionUnderlier: economicTerms -> payout -> optionPayout -> underlier only-element
+
+    set is_product:
+
+        Qualify_AssetClass_Equity(economicTerms) = True
+
+        and economicTerms -> payout -> optionPayout only exists
+        and if optionUnderlier exists then Qualify_UnderlierProduct_Equity(optionUnderlier) = True
+
+func Qualify_SubProduct_PriceReturnBasicPerformance:
+
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+
+    alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+    alias performancePayout: economicTerms -> payout -> performancePayout only-element
+
+
+    set is_product:
+
+    if Qualify_BaseProduct_EquitySwap(economicTerms) = True then
+
+        // qualifies that there is exactly one performance leg, one interest rate leg and no legs of other types
+        (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
+        economicTerms -> payout -> interestRatePayout count = 1 and
+        economicTerms -> payout -> performancePayout count = 1 and
+
+        // qualifies that the performance leg has priceReturnTerms
+        performancePayout -> returnTerms -> priceReturnTerms only exists
+    
+    //this could be replaced by economicTerms -> payout -> optionPayout only exists
+    else if Qualify_BaseProduct_EquityOption(economicTerms) = True then
+
+        // qualifies that an option style is defined and that no feature other than averaging exists
+
+        (economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
+        or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
+        or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
+        and (economicTerms -> payout -> optionPayout -> feature is absent
+        or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
+
+func Qualify_TransactionType_SingleName:
+
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+
+    alias underlierEconomicTerms: economicTerms -> payout -> optionPayout -> underlier -> contractualProduct -> economicTerms only-element
+
+    set is_product:
+
+        if Qualify_BaseProduct_EquitySwap(economicTerms) = True then
+        //for volatility, variance and correlation we had only exists 
+        economicTerms -> payout -> performancePayout only-element -> underlier -> security exists
+        
+        else if Qualify_BaseProduct_EquityOption(economicTerms) = True then
+            //PriceReturnBasicPerformance options are not swaptions
+            if Qualify_SubProduct_PriceReturnBasicPerformance(economicTerms) then 
+                economicTerms -> payout -> optionPayout only-element -> underlier -> security exists
+            else  
+                Qualify_TransactionType_SingleName(underlierEconomicTerms) = True
+
+
 func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features.">
 	[qualification Product]
     inputs: economicTerms EconomicTerms (1..1)
@@ -214,17 +281,9 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
 	set is_product:
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True and
-
-        // qualifies that there is exactly one performance leg, one interest rate leg and no legs of other types
-        (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
-        economicTerms -> payout -> interestRatePayout count = 1 and
-        economicTerms -> payout -> performancePayout count = 1 and
-
-		// qualifies that the performance leg has priceReturnTerms
-		performancePayout -> returnTerms -> priceReturnTerms only exists and
-
-        // qualifies that underlier is a security (single name)
-        performancePayout -> underlier -> security exists
+        Qualify_SubProduct_PriceReturnBasicPerformance(economicTerms) = True and
+        Qualify_TransactionType_SingleName(economicTerms) = True
+        
 
 func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features">
 	[qualification Product]
