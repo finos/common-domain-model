@@ -285,39 +285,39 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
         Qualify_TransactionType_SingleName(economicTerms) = True
         
 
-func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features">
-	[qualification Product]
-	inputs: economicTerms EconomicTerms (1..1)
-	output: is_product boolean (1..1)
+// func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features">
+// 	[qualification Product]
+// 	inputs: economicTerms EconomicTerms (1..1)
+// 	output: is_product boolean (1..1)
 
-	set is_product:
-        // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
-        Qualify_BaseProduct_EquitySwap(economicTerms) = True and
+// 	set is_product:
+//         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
+//         Qualify_BaseProduct_EquitySwap(economicTerms) = True and
 
-        // qualifies that underlier is a security (single name)
-        economicTerms -> payout -> performancePayout -> underlier -> security exists and
-        (
-            // Intended final payout structure
-            // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
-            (
-                (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
-                economicTerms -> payout -> interestRatePayout count = 1 and
-                economicTerms -> payout -> performancePayout count = 2
-            )
-            or
-            // Provisional payout structure
-            // qualifies that there is 1 performance leg, 1 interest rate leg and no legs of other types
-            (
-                (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
-                economicTerms -> payout -> interestRatePayout count = 1 and
-                economicTerms -> payout -> performancePayout count = 1
-            )
-        )
-        and
+//         // qualifies that underlier is a security (single name)
+//         economicTerms -> payout -> performancePayout -> underlier -> security exists and
+//         (
+//             // Intended final payout structure
+//             // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
+//             (
+//                 (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
+//                 economicTerms -> payout -> interestRatePayout count = 1 and
+//                 economicTerms -> payout -> performancePayout count = 2
+//             )
+//             or
+//             // Provisional payout structure
+//             // qualifies that there is 1 performance leg, 1 interest rate leg and no legs of other types
+//             (
+//                 (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists and
+//                 economicTerms -> payout -> interestRatePayout count = 1 and
+//                 economicTerms -> payout -> performancePayout count = 1
+//             )
+//         )
+//         and
 
-		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
-        economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
-        economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
+// 		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
+//         economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
+//         economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists
 
 func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price change on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
 	[qualification Product]
