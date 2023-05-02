@@ -21,7 +21,7 @@ steps:
     commands:
       - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
       - cf_export CI_DEPLOY_FLAGS=-Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
-      - cf_export MVN_DEPLOY_FLAGS=-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
+      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}"
 
   ReleaseProperties:
     stage: 'setup'
@@ -34,7 +34,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full"
-      - cf_export MVN_DEPLOY_FILE_FLAGS=${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=releases
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=releases"
 
   SnapshotProperties:
     stage: 'setup'
@@ -47,7 +47,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin"
-      - cf_export MVN_DEPLOY_FILE_FLAGS=${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=snapshots
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=snapshots"
 
   EchoProperties:
     stage: 'setup'
@@ -58,6 +58,7 @@ steps:
       - echo CF_REPO_NAME = ${{CF_REPO_NAME}}
       - echo CI_DEPLOY_PASSWORD = ${{CI_DEPLOY_PASSWORD}}
       - echo RELEASE_NAME = ${{RELEASE_NAME}}
+      - echo MVN_DEPLOY_FLAGS = ${{MVN_DEPLOY_FLAGS}}
       - echo MAVEN_BUILD_PROFILES = ${{MAVEN_BUILD_PROFILES}}
       - echo MVN_DEPLOY_FILE_FLAGS = ${{MVN_DEPLOY_FILE_FLAGS}}
 
