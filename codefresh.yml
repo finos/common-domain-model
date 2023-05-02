@@ -17,10 +17,20 @@ steps:
     title: Setup properties for build
     image: alpine/git
     commands:
-      - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
-      - cf_export CI_DEPLOY_FLAGS=-Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
-      - cf_export MVN_DEPLOY_FLAGS=-s ${{REPO_PATH}}/settings.xml ${{CI_DEPLOY_FLAGS}}
       - echo CF_VOLUME_NAME = ${{CF_VOLUME_NAME}}
+      - echo CF_VOLUME_PATH = ${{CF_VOLUME_PATH}}
+      - echo CF_REPO_NAME = ${{CF_REPO_NAME}}
+      - echo CI_DEPLOY_PASSWORD = ${{CI_DEPLOY_PASSWORD}}
+      - echo CI_DEPLOY_USERNAME = ${{CI_DEPLOY_USERNAME}}
+      - echo REPO_PATH = ${{REPO_PATH}}
+
+      - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      - echo REPO_PATH = ${{REPO_PATH}}
+      - cf_export CI_DEPLOY_FLAGS=-Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
+      - echo CI_DEPLOY_FLAGS = ${{CI_DEPLOY_FLAGS}}
+
+      - cf_export MVN_DEPLOY_FLAGS=-s ${{REPO_PATH}}/settings.xml ${{CI_DEPLOY_FLAGS}}
+      - echo MVN_DEPLOY_FLAGS = ${{MVN_DEPLOY_FLAGS}}
 
   ReleaseProperties:
     stage: 'build'
