@@ -1,5 +1,6 @@
 version: '1.0'
 stages:
+  - setup
   - build
   - distribute
   - finalise
@@ -7,22 +8,23 @@ steps:
 
   main_clone:
     title: Cloning main repository...
+    stage: 'setup'
     type: git-clone
     git: github
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
   SetProperties:
-    stage: 'build'
+    stage: 'setup'
     title: Setup properties for build
     image: alpine/git
     commands:
-      - echo "CF_VOLUME_NAME = ${{CF_VOLUME_NAME}}"
       - echo CF_VOLUME_PATH = ${{CF_VOLUME_PATH}}
       - echo CF_REPO_NAME = ${{CF_REPO_NAME}}
       - echo CI_DEPLOY_PASSWORD = ${{CI_DEPLOY_PASSWORD}}
       - echo CI_DEPLOY_USERNAME = ${{CI_DEPLOY_USERNAME}}
       - echo REPO_PATH = ${{REPO_PATH}}
+      - echo "CF_VOLUME_NAME = ${{CF_VOLUME_NAME}}"
 
       - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
       - echo REPO_PATH = ${{REPO_PATH}}
@@ -33,7 +35,7 @@ steps:
       - echo MVN_DEPLOY_FLAGS = ${{MVN_DEPLOY_FLAGS}}
 
   ReleaseProperties:
-    stage: 'build'
+    stage: 'setup'
     title: Setup properties for tag release build
     image: alpine/git
     when:
@@ -48,7 +50,7 @@ steps:
       - cf_export MVN_DEPLOY_FILE_FLAGS=-Durl=${{MVN_REPOSITORY_URL}} -DrepositoryId=${{MVN_REPOSITORY_ID}} ${{MVN_DEPLOY_FLAGS}}
 
   SnapshotProperties:
-    stage: 'build'
+    stage: 'setup'
     title: Setup properties for snapshot build
     image: alpine/git
     when:
