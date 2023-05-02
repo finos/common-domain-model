@@ -1,14 +1,24 @@
 .. include:: links.rst
 
-Download
-========
+Download Source Code
+====================
 
-The CDM distribution contains the model source files along with the generated Java and the required dependencies to work with the model. Examples of how you can use this distribution can be found in the CDM Examples also below.
+The CDM source code is open source and can be downloaded from `_CDM GitHub`_. All released versions are tagged and can be downloaded from `_CDM GitHub Releases`_.
 
-To download the latest Distribution click on `CDM Distribution`_.
+Java Distribution
+=================
+The CDM is distributed in Java can is available in maven central.
 
-To download the 3.x.x Distribution click on `CDM Distribution V3`_.
+Setup
+-----
+In order to use the CDM in a Maven project, the following dependency needs to be addeed to the project pom.xml:
 
-To download the latest Examples click on `CDM Examples`_.
+```
+<dependency>
+  <groupId>org.finos.cdm</groupId>
+  <artifactId>cdm-java</artifactId>
+  <version>LATEST</version>
+</dependency>
+```
 
-To download the 3.x.x Examples click on `CDM Examples V3`_.
+Examples of how you can use the CDM can be found in the `_CDM GitHub Examples`_.

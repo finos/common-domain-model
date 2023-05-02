@@ -20,7 +20,6 @@ steps:
     image: alpine/git
     commands:
       - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
-      - cf_export CI_DEPLOY_FLAGS=-Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
       - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}"
 
   ReleaseProperties:
@@ -185,7 +184,7 @@ steps:
         commands:
           - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/kotlin
           - mvn -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -f kotlin-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+          - mvn -f kotlin-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeDaml:
     stage: 'distribute'
@@ -195,7 +194,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f daml-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f daml-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeScala:
     stage: 'distribute'
@@ -205,7 +204,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f scala-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f scala-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeCSharp8:
     stage: 'distribute'
@@ -215,7 +214,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f csharp8-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f csharp8-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeCSharp9:
     stage: 'distribute'
@@ -225,7 +224,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f csharp9-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f csharp9-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeTypeScript:
     stage: 'distribute'
@@ -235,7 +234,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f typescript-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f typescript-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeGo:
     stage: 'distribute'
@@ -245,7 +244,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f golang-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f golang-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   DistributeKotlin:
     stage: 'distribute'
@@ -255,7 +254,7 @@ steps:
     working_directory: ./distribution
     commands:
       - mvn -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -f kotlin-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
+      - mvn -f kotlin-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
 
   NotifySlackOnFail:
     stage: 'finalise'
