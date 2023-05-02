@@ -8,21 +8,22 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.granite.distribution.VerifyFileUtils.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class VerifyCdmDistributionKotlinIntegrationTest {
+class VerifyCdmDistributionCSharp8IntegrationTest {
 
     @Test
     void shouldVerifyCdmDistributionZipContainsExpectedFolders() throws IOException {
-        Optional<Path> distZipFile = getDistZipFile("target/cdm-distribution-kotlin-*.zip");
+        Optional<Path> distZipFile = getDistZipFile("target/distribution-csharp8-*.zip");
         assertTrue(distZipFile.isPresent(), "CDM distribution zip not found");
 
         Map<Path, Long> distZipContents = getFolderFileCount(distZipFile.get());
 
-        long kotlinJarFileCount = getFileCount(distZipContents, "/*/lib");
-        assertThat("kotlin artifact (.jar) is not found", kotlinJarFileCount, is(2L));
+        long csharp8SrcFileCount = getFileCount(distZipContents, "/*/csharp8/**");
+        assertTrue(csharp8SrcFileCount > 0, "csharp8 src is not found or empty");
+
+        long csharp8LibFileCount = getFileCount(distZipContents, "/*/lib/app");
+        assertTrue(csharp8LibFileCount > 0, "csharp8 artifacts (.dll) not found");
 
         long rosettaSrcFileCount = getFileCount(distZipContents, "/*/common-domain-model");
         assertTrue(rosettaSrcFileCount > 0, "rosetta src is not found or empty");
