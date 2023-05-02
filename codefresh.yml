@@ -12,9 +12,9 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
-  TagReleaseName:
+  ReleaseProperties:
     stage: 'build'
-    title: Setup RELEASE_NAME variable with tag
+    title: Setup properties for tag release build
     image: alpine/git
     when:
       condition:
@@ -22,51 +22,37 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,distribute,distribute-full"
+      - cf_export MVN_REPOSITORY_URL="https://oss.sonatype.org/service/local/staging/deploy/maven2"
+      - cf_export MVN_REPOSITORY_ID="releases"
 
-  BranchReleaseName:
+  SnapshotProperties:
     stage: 'build'
-    title: Setup RELEASE_NAME variable with branch name
+    title: Setup properties for snapshot build
     image: alpine/git
     when:
       condition:
         all:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
-      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
+      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,distribute"
+      - cf_export MVN_REPOSITORY_URL="https://oss.sonatype.org/content/repositories/snapshots"
+      - cf_export MVN_REPOSITORY_ID="snapshots"
 
-  BuildNormal:
+  Build:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./
     when:
       condition:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
-      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*" -x "isda-demo/target/*"
-      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
-
-  BuildRelease:
-    stage: 'build'
-    title: Maven build for release
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
-      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
-      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
+      - mvn -s settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy -P ${{MAVEN_BUILD_PROFILES}}
 
   BuildParallelTasks:
     stage: 'build'
@@ -122,197 +108,152 @@ steps:
         stage: 'build'
         title: DAML deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/
         shell: bash
         commands:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target
           - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployScala:
         stage: 'build'
         title: Scala deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployCSharp8:
         stage: 'build'
         title: CSharp8 deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
           - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployCSharp9:
         stage: 'build'
         title: CSharp9 deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
           - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployTypeScript:
         stage: 'build'
         title: TypeScript deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployGo:
         stage: 'build'
         title: Go deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployKotlin:
         stage: 'build'
         title: Kotlin deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11-slim
         working_directory: ./rosetta-source/
         shell: bash
         commands:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
-
-  BuildJavaDocs:
-    stage: 'build'
-    title: Javadocs build and deploy
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    commands:
-      - cd rosetta-source
-      - mvn -s /settings.xml javadoc:jar
-      - mvn -s /settings.xml javadoc:jar
-      - cd ..
-      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
-
-  BuildDistributionNormal:
-    stage: 'distribute'
-    title: Maven distribution build
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - cd cdm-distribution
-      - mvn -U -s /settings.xml clean deploy -P distribute
-
-  BuildDistributionRelease:
-    stage: 'distribute'
-    title: Maven distribution build for release
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - cd cdm-distribution
-      - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
+          - mvn -s settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -s settings.xml -f kotlin-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeDaml:
     stage: 'distribute'
     title: Maven DAML distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
+      - mvn -s settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f daml-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeScala:
     stage: 'distribute'
     title: Maven Scala distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
+      - mvn -s settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f scala-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeCSharp8:
     stage: 'distribute'
     title: Maven CSharp8 distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
+      - mvn -s settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f csharp8-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeCSharp9:
     stage: 'distribute'
     title: Maven CSharp9 distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
+      - mvn -s settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f csharp9-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeTypeScript:
     stage: 'distribute'
     title: Maven TypeScript distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
+      - mvn -s settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f typescript-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeGo:
     stage: 'distribute'
     title: Maven Golang distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
+      - mvn -s settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f golang-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   DistributeKotlin:
     stage: 'distribute'
     title: Maven Kotlin distribution
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11-slim
     working_directory: ./cdm-distribution
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
+      - mvn -s settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -s ../settings.xml -f kotlin-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
 
   NotifySlackOnFail:
     stage: 'finalise'
@@ -324,7 +265,7 @@ steps:
           - master
       condition:
         any:
-          buildNormalFailed: steps.BuildNormal.result == 'error'
+          BuildSnapshotFailed: steps.BuildSnapshot.result == 'error'
           buildReleaseFailed: steps.BuildRelease.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
@@ -366,7 +307,7 @@ steps:
     when:
       condition:
         any:
-          normalBuildFailure: steps.BuildNormal.result == 'failure'
+          normalBuildFailure: steps.BuildSnapshot.result == 'failure'
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
@@ -418,7 +359,7 @@ steps:
           - master
       condition:
         all:
-          buildPassed: steps.BuildNormal.result == 'success'
+          buildPassed: steps.BuildSnapshot.result == 'success'
           variableDefined: "${{TAG_REPO}} == false"
           skipNextBuild: "${{SKIP_NEXT_BUILD}} == false"
     commands:
