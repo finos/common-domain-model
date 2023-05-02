@@ -19,9 +19,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 public class SchemeImporterTestHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemeImporterTestHelper.class);
 
@@ -103,7 +100,6 @@ public class SchemeImporterTestHelper {
                 .loadFromClasspath("coding-schemes/fpml", classLoader)
                 .findFirst()
                 .orElseThrow();
-        assertNotNull(baseFolder);
 
         HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
         try (Stream<Path> walk = Files.walk(baseFolder)) {

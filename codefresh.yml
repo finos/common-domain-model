@@ -12,6 +12,16 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  SetProperties:
+    stage: 'build'
+    title: Setup properties for build
+    image: alpine/git
+    commands:
+      - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      - cf_export CI_DEPLOY_FLAGS=-Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}
+      - cf_export MVN_DEPLOY_FLAGS=-s ${{REPO_PATH}}/settings.xml ${{CI_DEPLOY_FLAGS}}
+      - echo CF_VOLUME_NAME = ${{CF_VOLUME_NAME}}
+
   ReleaseProperties:
     stage: 'build'
     title: Setup properties for tag release build
@@ -22,9 +32,10 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,distribute,distribute-full"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full"
       - cf_export MVN_REPOSITORY_URL="https://oss.sonatype.org/service/local/staging/deploy/maven2"
       - cf_export MVN_REPOSITORY_ID="releases"
+      - cf_export MVN_DEPLOY_FILE_FLAGS=-Durl=${{MVN_REPOSITORY_URL}} -DrepositoryId=${{MVN_REPOSITORY_ID}} ${{MVN_DEPLOY_FLAGS}}
 
   SnapshotProperties:
     stage: 'build'
@@ -36,9 +47,10 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,distribute"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin"
       - cf_export MVN_REPOSITORY_URL="https://oss.sonatype.org/content/repositories/snapshots"
       - cf_export MVN_REPOSITORY_ID="snapshots"
+      - cf_export MVN_DEPLOY_FILE_FLAGS=-Durl=${{MVN_REPOSITORY_URL}} -DrepositoryId=${{MVN_REPOSITORY_ID}}
 
   Build:
     stage: 'build'
@@ -51,9 +63,8 @@ steps:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     commands:
-      - mvn -s settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - echo ${{MAVEN_BUILD_PROFILES}}
-      - mvn -s settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
+      - mvn ${MVN_DEPLOY_FLAGS} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
   BuildParallelTasks:
     stage: 'build'
@@ -113,9 +124,9 @@ steps:
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target
+          - cd ${{REPO_PATH}}/rosetta-source/target
           - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployScala:
         stage: 'build'
         title: Scala deploy
@@ -124,9 +135,9 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
+          - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployCSharp8:
         stage: 'build'
         title: CSharp8 deploy
@@ -136,7 +147,7 @@ steps:
         shell: bash
         commands:
           - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployCSharp9:
         stage: 'build'
         title: CSharp9 deploy
@@ -146,7 +157,7 @@ steps:
         shell: bash
         commands:
           - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployTypeScript:
         stage: 'build'
         title: TypeScript deploy
@@ -156,7 +167,7 @@ steps:
         shell: bash
         commands:
           - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployGo:
         stage: 'build'
         title: Go deploy
@@ -166,7 +177,7 @@ steps:
         shell: bash
         commands:
           - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
-          - mvn -s settings.xml deploy:deploy-file -Durl=${{MVN_REPOSITORY_URL}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DrepositoryId=${{MVN_REPOSITORY_ID}} -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployKotlin:
         stage: 'build'
         title: Kotlin deploy
@@ -175,9 +186,9 @@ steps:
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -s settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -s settings.xml -f kotlin-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+          - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/kotlin
+          - mvn -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+          - mvn -f kotlin-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeDaml:
     stage: 'distribute'
@@ -186,9 +197,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f daml-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f daml-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeScala:
     stage: 'distribute'
@@ -197,9 +207,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f scala-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f scala-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeCSharp8:
     stage: 'distribute'
@@ -208,9 +217,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f csharp8-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f csharp8-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeCSharp9:
     stage: 'distribute'
@@ -219,9 +227,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f csharp9-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f csharp9-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeTypeScript:
     stage: 'distribute'
@@ -230,9 +237,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f typescript-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f typescript-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeGo:
     stage: 'distribute'
@@ -241,9 +247,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f golang-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f golang-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   DistributeKotlin:
     stage: 'distribute'
@@ -252,9 +257,8 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -s ../settings.xml -f kotlin-pom.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} clean deploy
+      - mvn -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -f kotlin-pom.xml ${CI_DEPLOY_FLAGS} clean deploy
 
   NotifySlackOnFail:
     stage: 'finalise'
