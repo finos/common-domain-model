@@ -34,7 +34,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=releases"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro"
 
   SnapshotProperties:
     stage: 'setup'
@@ -47,20 +47,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=snapshots"
-
-  EchoProperties:
-    stage: 'setup'
-    title: Setup build
-    image: alpine/git
-    commands:
-      - echo CF_VOLUME_PATH = ${{CF_VOLUME_PATH}}
-      - echo CF_REPO_NAME = ${{CF_REPO_NAME}}
-      - echo CI_DEPLOY_PASSWORD = ${{CI_DEPLOY_PASSWORD}}
-      - echo RELEASE_NAME = ${{RELEASE_NAME}}
-      - echo MVN_DEPLOY_FLAGS = ${{MVN_DEPLOY_FLAGS}}
-      - echo MAVEN_BUILD_PROFILES = ${{MAVEN_BUILD_PROFILES}}
-      - echo MVN_DEPLOY_FILE_FLAGS = ${{MVN_DEPLOY_FILE_FLAGS}}
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh"
 
   Build:
     stage: 'build'
