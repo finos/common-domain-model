@@ -20,7 +20,8 @@ steps:
     image: alpine/git
     commands:
       - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
-      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}"
+      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}}"
+      - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
 
   ReleaseProperties:
     stage: 'setup'
@@ -33,7 +34,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro"
 
   SnapshotProperties:
     stage: 'setup'
@@ -46,7 +47,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh"
 
   Build:
     stage: 'build'
@@ -59,8 +60,8 @@ steps:
         all:
           isNotRelease: "${{TAG_REPO}} == false"
     commands:
-      - mvn versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - mvn ${MVN_DEPLOY_FLAGS} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
+      - mvn ${{MVN_DEPLOY_FLAGS}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
   BuildParallelTasks:
     stage: 'build'
@@ -183,9 +184,9 @@ steps:
         shell: bash
         commands:
           - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -f kotlin-build-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-          - mvn -f kotlin-build-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-          - mvn -f kotlin-build-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+          - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+          - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+          - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeDaml:
     stage: 'distribute'
@@ -194,9 +195,9 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f daml-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f daml-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f daml-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f daml-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f daml-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeScala:
     stage: 'distribute'
@@ -205,9 +206,9 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f scala-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f scala-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f scala-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f scala-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f scala-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeCSharp8:
     stage: 'distribute'
@@ -216,9 +217,9 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f csharp8-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp8-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f csharp8-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f csharp8-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f csharp8-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeCSharp9:
     stage: 'distribute'
@@ -227,9 +228,9 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f csharp9-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp9-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f csharp9-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f csharp9-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f csharp9-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeTypeScript:
     stage: 'distribute'
@@ -238,9 +239,9 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f typescript-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f typescript-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f typescript-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f typescript-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f typescript-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   DistributeGo:
     stage: 'distribute'
@@ -249,20 +250,20 @@ steps:
     image: maven:3.8.2-jdk-11-slim
     working_directory: ./distribution
     commands:
-      - mvn -f golang-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f golang-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+      - mvn -f golang-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f golang-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f golang-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
-#  DistributeKotlin:
-#    stage: 'distribute'
-#    title: Maven Kotlin distribution
-#    fail_fast: false
-#    image: maven:3.8.2-jdk-11-slim
-#    working_directory: ./distribution
-#    commands:
-#      - mvn -f kotlin-pom.xml versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-#      - mvn -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-#      - mvn -f kotlin-pom.xml ${MVN_DEPLOY_FLAGS} clean deploy
+  DistributeKotlin:
+    stage: 'distribute'
+    title: Maven Kotlin distribution
+    fail_fast: false
+    image: maven:3.8.2-jdk-11-slim
+    working_directory: ./distribution
+    commands:
+      - mvn -f kotlin-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f kotlin-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f kotlin-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
   NotifySlackOnFail:
     stage: 'finalise'
