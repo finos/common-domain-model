@@ -4,9 +4,10 @@ _What is being released?_
 
 This release updates the `rosetta-dsl` dependency:
 
-- Version `7.4.0`:
-    - Rosetta models generated from an xsd
-    - Bug fix related to code-generated Java that avoids keyword clashes
+- Versions:
+    - `7.5.0` Support for ISO data types - see DSL documentation https://github.com/REGnosys/rosetta-dsl/issues/512 
+    - `7.5.2` Import model from xsd updated to support different documentation tags
+    - `7.5.3` Additional changes make ISO data types backwards compatible
 
 This release contains no changes to the model or test expectations.
 
