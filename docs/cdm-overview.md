@@ -54,7 +54,7 @@ documentation.
 
 ## Governance
 
-The CDM [governance framework](contribution.html#governance) regulates
+The CDM [governance framework](contribution#governance) regulates
 the development of the CDM in open source.
 
 ## Scope

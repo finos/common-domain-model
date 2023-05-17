@@ -49,7 +49,7 @@ The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
-Section](../releases/all.html) of the CDM documentation.
+Section](#) of the CDM documentation.
 
 ## Semantic Versioning
 
@@ -608,7 +608,7 @@ these steps:
     CDM Maintainer who can assist modelling discussions and provide
     early feedback. CDM Maintainers are appointed by the CDM Owners as
     and when relevant. Please contact
-    [cdmInfo@isda.org](cdminfo@isda.org).
+    [cdm@lists.finos.org](mailto:cdm@lists.finos.org).
 
 ::: note
 ::: title
@@ -1003,7 +1003,7 @@ release notes), they will be specified as such.
 
 The model should be referred to as *the CDM*, without any ownership
 mention. The only exception is the [Overview of the ISDA
-CDM](cdm-overview.html) section at the beginning of the user
+CDM](cdm-overview) section at the beginning of the user
 documentation when the CDM is introduced as *the ISDA CDM*.
 
 ### General data definition components
