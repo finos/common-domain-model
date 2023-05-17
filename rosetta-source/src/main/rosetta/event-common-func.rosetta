@@ -1661,6 +1661,86 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 		and packageRef count = openTradeNoExecutionDetails count
 		and packageRef distinct count = 1
 
+
+func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
+	inputs:
+		tradeState TradeState (1..1) <"The original trade to be closed.">
+		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
+		deliveredPriceQuantity PriceQuantity (1..*) <"The price and quantity of the remaining trade. ">
+		undeliveredPriceQuantity PriceQuantity (1..*) <"The price and quantity of the remaining trade. ">
+	output: 
+		instruction PrimitiveInstruction (1..1)
+
+	condition ContractualProduct: <"Only a contractual product can be rolled.">
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+
+	set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
+		[ Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+						Create_QuantityChangeInstruction(
+						deliveredPriceQuantity, 
+						QuantityChangeDirectionEnum -> Replace, 
+						tradeState->trade->tradableProduct->tradeLot->lotIdentifier
+			),
+			empty, empty, empty, empty,	empty, empty, empty)]
+
+	add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+		[
+		Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+			Create_QuantityChangeInstruction(
+				undeliveredPriceQuantity,
+				QuantityChangeDirectionEnum -> Replace,
+				empty
+				),
+			empty, empty,
+			Create_PartialDeliveryInstructionTermsChange(
+				tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+				effectiveDate, terminationDate
+				),
+			empty, empty, empty, empty
+			)
+		]
+
+func Create_PartialDeliveryInstructionTermsChange:
+	inputs:
+		contractualProduct ContractualProduct (1..1)
+		effectiveRollDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
+	output:
+		termsChangeInstruction TermsChangeInstruction (1..1)
+
+	set termsChangeInstruction -> product -> contractualProduct:
+		contractualProduct
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
+		effectiveRollDate
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
+		terminationDate
+		
+
+
+func Qualify_PartialDelivery: <"Qualification of a partial delivery which constitutes a contract close and reopen with a difference quantity and termination date.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+
+	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+	alias openEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+	alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
+    
+	set is_event:
+		beforeEconomicterms exists and		
+		openEconomicTerms exists and
+		closedTradeState count = 1 and
+		openEconomicTerms -> payout <> beforeEconomicterms -> payout and
+		openEconomicTerms -> collateral = beforeEconomicterms -> collateral and
+		openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate and
+		openEconomicTerms -> terminationDate <> beforeEconomicterms -> terminationDate
+		
+		
+
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
 	inputs:
 		executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
