@@ -50,6 +50,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.regnosys.testing.WhitespaceAgnosticAssert;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -74,7 +75,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.isda.cdm.functions.FunctionUtils.guard;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.ResourcesUtils.reKey;
 
 class FunctionInputCreationTest {
@@ -1922,7 +1922,7 @@ class FunctionInputCreationTest {
                 getVariableCriteria(0.9, getMaturityRange(30)));
 
         // Create instruction
-        EligibleCollateralScheduleInstruction instruction = EligibleCollateralScheduleInstruction.builder()
+        EligibleCollateralSpecificationInstruction instruction = EligibleCollateralSpecificationInstruction.builder()
                 .setCommon(common)
                 .setVariable(variable)
                 .build();
@@ -1966,12 +1966,12 @@ class FunctionInputCreationTest {
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
         String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
         String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
-        if (!expectedJson.equals(actualJson)) {
+        if (!WhitespaceAgnosticAssert.equals(expectedJson, actualJson)) {
             if (WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
             }
         }
-        assertEquals(expectedJson, actualJson,
+        WhitespaceAgnosticAssert.assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 

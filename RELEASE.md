@@ -1,41 +1,16 @@
-# *Product Model - Inflation Swaps - calculationMethod and calculationStyle*
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-This release adds the following fields:
+This release updates the `rosetta-dsl` dependency:
 
-- `calculationMethod` - This field will be added as an enum. The enum will contain the following values:
-  - `Ratio`
-  - `Return`
-  - `Spread`
-- `calculationStyle` - This field will be added as an enum. The enum will contain the following values:
-  - `YearOnYear`
-  - `ZeroCoupon`
+- Versions:
+    - `7.5.0` Support for ISO data types - see DSL documentation https://github.com/REGnosys/rosetta-dsl/issues/512 
+    - `7.5.2` Import model from xsd updated to support different documentation tags
+    - `7.5.3` Additional changes make ISO data types backwards compatible
 
-These fields can be found under the following paths:
+This release contains no changes to the model or test expectations.
 
-- For `calculationMethod`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationMethod`
-- For `calculationStyle`, please use - `InterestRatePayout -> rateSpecification -> inflationRate -> calculationStyle`
+_Review directions_
 
-The enum values can be found under the following paths:
-
-- For `calculationMethod`, a new enum called `InflationCalculationMethodEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
-- For `calculationStyle`, a new enum called `InflationCalculationStyleEnum` was added. This can be found at rosetta-source/src/main/rosetta/observable-asset-calculatedrate-enum.rosetta
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
-# *Product Model - Bond Reference - Coupon Rate*
-
-_What is being released?_
-
-This release adds the field `couponRate` to the `BondReference` type under `InterestRatePayout`.
-
-The path for this field would be the following:
-
-- InterestRatePayout > bondReference > couponRate. The `couponRate` is of type `FixedRateSpecification` with a cardinality of (0..1).
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
