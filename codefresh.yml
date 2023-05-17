@@ -188,90 +188,6 @@ steps:
           - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
           - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
 
-  DistributeDaml:
-    stage: 'distribute'
-    title: Maven DAML distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f daml-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f daml-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f daml-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeScala:
-    stage: 'distribute'
-    title: Maven Scala distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f scala-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f scala-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f scala-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeCSharp8:
-    stage: 'distribute'
-    title: Maven CSharp8 distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f csharp8-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp8-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp8-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeCSharp9:
-    stage: 'distribute'
-    title: Maven CSharp9 distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f csharp9-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp9-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f csharp9-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeTypeScript:
-    stage: 'distribute'
-    title: Maven TypeScript distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f typescript-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f typescript-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f typescript-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeGo:
-    stage: 'distribute'
-    title: Maven Golang distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f golang-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f golang-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f golang-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
-  DistributeKotlin:
-    stage: 'distribute'
-    title: Maven Kotlin distribution
-    fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
-    working_directory: ./
-    commands:
-      - cd distribution
-      - mvn -f kotlin-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy
-
   NotifySlackOnFail:
     stage: 'finalise'
     title: Trigger Slack dev channel notification if master build failed
@@ -295,17 +211,6 @@ steps:
           deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
           deployGoFailed: steps.DeployGo.result == 'error'
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
-          buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
-          distributeNormalFailed: steps.BuildDistributionNormal.result == 'error'
-          distributeReleaseFailed: steps.BuildDistributionRelease.result == 'error'
-          distributeDamlFailed: steps.DistributeDaml.result == 'error'
-          distributeScalaFailed: steps.DistributeScala.result == 'error'
-          distributeTypeScriptFailed: steps.DistributeTypeScript.result == 'error'
-          distributeCSharp8Failed: steps.DistributeCSharp8.result == 'error'
-          distributeCSharp9Failed: steps.DistributeCSharp9.result == 'error'
-          distributeGoFailed: steps.DistributeGo.result == 'error'
-          distributeKotlinFailed: steps.DistributeKotlin.result == 'error'
-          distributeJavaDocsFailed: steps.DistributeJavaDocs.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -337,17 +242,6 @@ steps:
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
-          javaDocsBuildFailure: steps.BuildJavaDocs.result == 'failure'
-          distributeNormalFailure: steps.BuildDistributionNormal.result == 'failure'
-          distributeReleaseFailure: steps.BuildDistributionRelease.result == 'failure'
-          distributeDamlFailure: steps.DistributeDaml.result == 'failure'
-          distributeScalaFailure: steps.DistributeScala.result == 'failure'
-          distributeTypeScriptFailure: steps.DistributeTypeScript.result == 'failure'
-          distributeCSharp8Failure: steps.DistributeCSharp8.result == 'failure'
-          distributeCSharp9Failure: steps.DistributeCSharp9.result == 'failure'
-          distributeGoFailure: steps.DistributeGo.result == 'failure'
-          distributeKotlinFailure: steps.DistributeKotlin.result == 'failure'
-          distributeJavaDocsFailure: steps.DistributeJavaDocs.result == 'failure'
     commands:
       - exit 1
 
