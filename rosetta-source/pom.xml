@@ -746,6 +746,66 @@
             </build>
         </profile>
         <profile>
+            <id>python</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.xtext</groupId>
+                        <artifactId>xtext-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-python-src</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceRoots>
+                                        <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+                                    </sourceRoots>
+                                    <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <languages>
+                                        <language>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+                                            <outputConfigurations>
+                                                <!-- Python output folder -->
+                                                <outputConfiguration>
+                                                    <name>SRC_GEN_PYTHON_OUTPUT</name>
+                                                    <outputDirectory>src/generated/python</outputDirectory>
+                                                </outputConfiguration>
+                                            </outputConfigurations>
+                                        </language>
+                                    </languages>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-src-generated-python</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/generated/python</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>docs</id>
             <build>
                 <plugins>
