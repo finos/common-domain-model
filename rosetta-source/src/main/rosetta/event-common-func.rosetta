@@ -1664,14 +1664,14 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 
 func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
 	inputs:
-		tradeState TradeState (1..1) <"The original trade to be modified.">
+		tradeState TradeState (1..1) <"The original trade to be for substitution of collateral.">
 		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new trade with new collateral.">
 		newPayout Payout(1..1) <"New payout to subtitute for the original payout. The payout define the product and other contractual attributes.">
-		priceQuantity PriceQuantity (1..*) <"The price and quantity of the substituted product. ">
+		priceQuantity PriceQuantity (1..*) <"The price and quantity of the substituted product.">
 	output: 
 		instruction PrimitiveInstruction (1..1)
 
-	condition ContractualProduct: <"Only a contractual product can be rolled.">
+	condition ContractualProduct: <"Only a repo contractual product can substitute collateral.">
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
 
 	set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
@@ -1722,7 +1722,6 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 	alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
     
 	set is_event:
-		// The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
 		beforeEconomicterms exists and		
 		openEconomicTerms exists and
 		closedTradeState count = 1 and
