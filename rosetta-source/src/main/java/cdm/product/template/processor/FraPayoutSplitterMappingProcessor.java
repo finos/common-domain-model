@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.observable.asset.metafields.ReferenceWithMetaFloatingRateOption.ReferenceWithMetaFloatingRateOptionBuilder;
 import static cdm.product.asset.FloatingRate.FloatingRateBuilder;
 import static cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 import static cdm.product.template.processor.FraHelper.getDummyFloatingLegPath;
@@ -106,11 +105,11 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
-		Reference.ReferenceBuilder reference = Optional.of(floatingLeg)
+		Reference reference = Optional.of(floatingLeg)
 				.map(InterestRatePayoutBuilder::getRateSpecification)
 				.map(RateSpecificationBuilder::getFloatingRate)
 				.map(FloatingRateBuilder::getRateOption)
-				.map(ReferenceWithMetaFloatingRateOptionBuilder::getReference)
+				.map(x -> x.getReference())
 				.orElse(null);
 		mapping.setRosettaValue(reference);
 		mapping.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(mapping.getRosettaPath(), "interestRatePayout", 1));

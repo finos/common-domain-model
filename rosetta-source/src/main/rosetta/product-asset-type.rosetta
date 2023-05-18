@@ -624,7 +624,7 @@ type FloatingRateDefinition: <"A data defining:  parameters associated with a fl
 
 type InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
 	[synonym ISO20022 value "InfltnIndx"]
-
+    
 	inflationLag Offset (1..1) <"An off-setting period from the payment date which determines the reference period for which the inflation index is observed.">
 	indexSource string (1..1) <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">
 		[metadata scheme]
@@ -636,21 +636,25 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
 	calculationMethod InflationCalculationMethodEnum (0..1) <"Indicates how to use the inflation index to calculate the payment (e.g. Ratio, Return, Spread). Added for Inflation Asset Swap">
 	calculationStyle InflationCalculationStyleEnum (0..1) <"Indicates the style of how the inflation index calculates the payment (e.g. YearOnYear, ZeroCoupon).
-">
+    ">
 
-
-type FloatingRate: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
+type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
 	[metadata key]
 
     rateOption FloatingRateOption (0..1)
         [metadata address "pointsTo"=Observable->rateOption]
+	spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
+	capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
+	floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
+
+
+type FloatingRate extends FloatingRateBase:
+    
 	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
 	fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
 	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
-	spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
 	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
-	capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
-	floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
+
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 
