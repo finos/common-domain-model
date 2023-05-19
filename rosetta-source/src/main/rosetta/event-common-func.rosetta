@@ -1661,6 +1661,170 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 		and packageRef count = openTradeNoExecutionDetails count
 		and packageRef distinct count = 1
 
+
+func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
+	inputs:
+		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
+		newAllinPrice number(1..1) <"The collateral all-in price.">
+		newAssetQuantity number(0..1) <"The collateral quantity.">
+		newCashValue number(0..1)<"The new collateral value.">
+		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
+	output:
+		instruction PrimitiveInstruction (0..1)
+
+	alias oldPriceQuantity:
+		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
+		
+	alias currentPrice: <"Filter interest rate price and make it into a single element">
+		oldPriceQuantity
+		extract [ item -> price ]
+		flatten
+		filter [ item -> priceExpression -> priceType = PriceTypeEnum -> InterestRate ] only-element
+		
+	alias newPrice: <"Create the new price object.">
+		Create_Price( newAllinPrice, currentPrice -> unit, currentPrice -> perUnitOf, currentPrice -> priceExpression )
+		
+	alias changeQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
+		if newAssetQuantity exists then
+			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+				map [ Create_NonNegativeQuantitySchedule( newAssetQuantity, item -> unit ) ]
+				distinct
+		else 
+			empty
+			
+	alias newPriceQuantity: <"Create the new price quantity object.">
+		Create_PriceQuantity( [ newPrice ], changeQuantity, empty )
+		
+	condition ContractualProduct: <"This repricing function applies only to contractual products.">
+		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+		
+	condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
+		tradeState -> trade -> tradableProduct -> tradeLot count = 1
+	
+	
+	//Based on the repo lifecycle event processing, if the cash amount is being changed then the contract will be closed and a new one opened.
+	//If the collateral quantity is changed and the cash amount is not then the contract is amended. 
+	//In either case the all-in price on the collateral may or may not be changed.
+	//Create new instruction to update the collateral price only of the cash amount does not change
+	set instruction -> quantityChange: <"Set primitive instruction to be only a price change.">
+		if newCashValue is absent and newAssetQuantity is absent then
+			Create_QuantityChangeInstruction( [newPriceQuantity], QuantityChangeDirectionEnum->Replace, empty )
+		else
+			empty
+			
+	//Create new instruction if the cash does not change but the collateral quantity changes.
+	set instruction -> quantityChange: <"Set primitive instruction to be only a quantity change instruction.">
+		if newCashValue is absent and newAssetQuantity exists then
+			Create_QuantityChangeInstruction( [newPriceQuantity], QuantityChangeDirectionEnum->Replace, empty )
+		else
+			empty			
+	//If the cash amount is changed then contract is closed and new one at the new cash amount is opened.
+	set instruction: <"Sets the first part of the split to be a termination instruction for the existing trade.">
+		if newCashValue exists and newAssetQuantity exists then 
+			Create_RepriceAndReplaceInstruction( tradeState, newAllinPrice, newAssetQuantity, newCashValue, effectiveRepriceDate )
+		else
+			empty
+		
+func Create_RepriceAndReplaceInstruction: <"This function is used when the cash amount and collateral amount need to be modified. Thus all parameters are required.">
+	inputs:
+		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
+		newAllinPrice number(1..1) <"The collateral new all-in price.">
+		newAssetQuantity number(1..1) <"The collateral new quantity.">
+		newCashValue number(1..1)<"The new cash amount.">
+		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
+	output:
+		instruction PrimitiveInstruction (1..1)
+	
+	alias oldPriceQuantity:
+		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
+		
+	alias currentPrice: <"Filter interest rate price and make it into a single element">
+		oldPriceQuantity
+		extract [ item -> price ]
+		flatten
+		filter [ item -> priceExpression -> priceType = PriceTypeEnum -> InterestRate ] only-element
+		
+	alias newPrice: <"Create the new price object.">
+		Create_Price( newAllinPrice, currentPrice -> unit, currentPrice -> perUnitOf, currentPrice -> priceExpression )
+		
+	alias changeQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
+		if newAssetQuantity <> 0 then
+			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+				map [ Create_NonNegativeQuantitySchedule( newAssetQuantity, item -> unit ) ]
+				distinct
+		else 
+			empty
+			
+	alias newPriceQuantity: <"Create the new price quantity object.">
+		Create_PriceQuantity( [ newPrice ], changeQuantity, empty )
+		
+	alias haircutPercentage:
+        newCashValue / (newAssetQuantity * newAllinPrice)
+	
+	set instruction -> split -> breakdown:
+		[ Create_TerminationInstruction( tradeState ) ]
+	
+	add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+		[
+		Create_PrimitiveInstruction(
+			empty, empty, empty, empty,
+			Create_QuantityChangeInstruction(
+				[newPriceQuantity],
+				QuantityChangeDirectionEnum -> Replace,
+				empty
+				),
+			empty, empty, 
+			Create_RepriceTermsChangeInstruction(
+				tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+				haircutPercentage,
+				effectiveRepriceDate
+				),
+			empty, empty, empty, empty
+			)
+		]
+		
+		
+func Create_RepriceTermsChangeInstruction: <"Creates the relevant terms change primitive instruction object for repricing a contractual product, which consists in the same terms as the original contractual product 
+											but with a new collateral price that may also result in modifing the cash or collateral quantity.">
+	inputs:
+		contractualProduct ContractualProduct (1..1) <"The original contractual product to be repriced.">
+		newHaircutPercentage number (1..1) <"The new haircut value based on cash adjustment.">
+		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
+	output:
+		termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the repricing.">
+
+	set termsChangeInstruction -> product -> contractualProduct:
+		contractualProduct
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> collateral -> collateralProvisions -> eligibleCollateral -> criteria -> treatment ->
+		valuationTreatment -> haircutPercentage:
+		newHaircutPercentage
+	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
+		effectiveRepriceDate
+		
+func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
+	[qualification BusinessEvent]
+	inputs:
+		businessEvent BusinessEvent (1..1)
+	output: is_event boolean (1..1)
+	
+	alias beforeTradePrice: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> tradeLot->priceQuantity
+	alias afterTradePrice: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> tradeLot->priceQuantity
+	
+	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+	alias afterEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+
+	set is_event:
+		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists and
+		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
+		beforeTradePrice exists and
+		afterTradePrice exists and
+		afterTradePrice  <> beforeTradePrice and
+		beforeEconomicterms exists and
+		afterEconomicTerms exists and
+		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+
+	
+
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
 	inputs:
 		executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
