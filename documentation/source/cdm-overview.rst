@@ -90,7 +90,7 @@ The language includes one default code generator into `Java`_. To facilitate ado
 CDM Applications
 ^^^^^^^^^^^^^^^^
 
-An eco-system of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
+An ecosystem of CDM-based application components from software providers exists in order to support the adoption of CDM and the implementation of CDM-based production systems by industry participants. These applications may be open source software or licensed under commercial terms. In particular:
 
 * Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides xxx industry community to directly participate in the CDM development by contributing code to the CDM. Please refer to the `Rosetta Documentation`_ for more details.
 
