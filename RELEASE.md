@@ -4,9 +4,8 @@ _What is being released?_
 
 This release updates the `rosetta-dsl` dependency:
 
-- Version `7.4.0`:
-    - Rosetta models generated from an xsd
-    - Bug fix related to code-generated Java that avoids keyword clashes
+- Versions:
+    - `7.5.4` Fixed DSL issue related to `typeAlias` - see https://github.com/REGnosys/rosetta-dsl/issues/554 
 
 This release contains no changes to the model or test expectations.
 
