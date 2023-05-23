@@ -29,7 +29,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 The following Working Groups are currently activated or about to be setup for this project:
 
 * [Contribution Review Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11547016/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
-* [Collateral Working Group](https://www.isda.org/a/jwygE/CDM-for-Collateral-Initiatives-factsheet.pdf)
+* [Collateral Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11547285/CDM-for-Collateral-Initiatives-factsheet.1.pdf)
 * [Technology Architecture Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11546939/CDM.Technology.Architecture.WG.ToR.v1.2.4.pdf).
 * [Structured Products Working Group](https://www.finos.org/finos-community-calendar)
 * [FINOS CDM Steering Working Group](https://www.finos.org/finos-community-calendar)
