@@ -2,7 +2,7 @@
 Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have committed to the [Community Specification Contributor License Agreement](LICENSE.md).
 
 ## Participants
-- Name, organization, Date of enrollment: MMM/DD/YYYY
+- Ron Kaim, CFX Consulting, Date of enrollment: May/03/2023
 - 
 -
 -  
