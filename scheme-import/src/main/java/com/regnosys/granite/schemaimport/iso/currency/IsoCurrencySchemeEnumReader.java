@@ -4,6 +4,7 @@ import com.regnosys.granite.schemaimport.SchemeEnumReader;
 import com.regnosys.granite.schemaimport.SchemeIdentifier;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;
+import com.regnosys.rosetta.rosetta.RosettaNamed;
 import com.regnosys.rosetta.rosetta.impl.RosettaFactoryImpl;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.iso.currency.ISO4217;
@@ -20,6 +21,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,8 +38,7 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
     public List<RosettaEnumValue> generateEnumFromScheme(IsoCurrencyEnumReaderProperties properties) {
         try {
             ISO4217 iso4217 = parseSchemaFile(properties.getSchemaLocationForEnum());
-            List<RosettaEnumValue> rosettaEnumValues = transformToEnums(iso4217);
-            return rosettaEnumValues;
+            return transformToEnums(iso4217);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -49,6 +50,7 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
                 .map(ccyNtry -> new ImmutablePair<>(ccyNtry.getCcy(), ccyNtry.getCcyNm().getValue()))
                 .distinct()
                 .map(pair -> createEnumValue(pair.getLeft(), pair.getRight()))
+                .sorted(Comparator.comparing(RosettaNamed::getName))
                 .collect(Collectors.toList());
     }
 
