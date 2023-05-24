@@ -6,7 +6,6 @@ import com.regnosys.rosetta.rosetta.RosettaModel;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import javax.inject.Inject;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,19 +14,36 @@ import java.util.stream.Collectors;
 public class SchemeImporter {
     @Inject
 	private FpMLSchemeEnumReader fpMLSchemeEnumReader;
+
+	@Inject
+	private IsoCurrencySchemeEnumReader isoCurrencySchemeEnumReader;
+
     @Inject
 	private AnnotatedRosettaEnumReader enumReader;
     @Inject
 	private RosettaResourceWriter rosettaResourceWriter;
 
-	public Map<String, String> generateRosettaEnums(URL enumCodingSchemeUrl, String enumCodingSchemeRelativePath, List<RosettaModel> models, String body, String corpus) {
+	public Map<String, String> generateRosettaEnums(List<RosettaModel> models, String body, String corpus) {
 		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(models, body, corpus);
 		for (RosettaEnumeration annotatedEnum : annotatedEnums) {
 			Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
 			if (schemaLocationForEnumMaybe.isEmpty()) {
 				continue;
 			}
-			List<RosettaEnumValue> newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(enumCodingSchemeUrl, enumCodingSchemeRelativePath, schemaLocationForEnumMaybe.get());
+			SchemeIdentifier schemeIdentifier = new SchemeIdentifier(body, corpus);
+
+			List<RosettaEnumValue> newEnumValues;
+			if (fpMLSchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
+				String codingSchemeRelativePath = "coding-schemes/fpml/";
+				FpMLSchemeEnumReaderProperties fpMLSchemeEnumReaderProperties = new FpMLSchemeEnumReaderProperties(codingSchemeRelativePath, schemaLocationForEnumMaybe.get());
+				newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(fpMLSchemeEnumReaderProperties);
+			} else if (isoCurrencySchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
+				IsoCurrencyEnumReaderProperties isoCurrencyEnumReaderProperties = new IsoCurrencyEnumReaderProperties();
+				newEnumValues = isoCurrencySchemeEnumReader.generateEnumFromScheme(isoCurrencyEnumReaderProperties);
+			} else {
+				throw new RuntimeException("No scheme reader found for " + body + ", " + corpus);
+			}
+
 			overwriteEnums(annotatedEnum, newEnumValues);
 		}
 
@@ -36,6 +52,7 @@ public class SchemeImporter {
 
 		return rosettaResourceWriter.generateRosettaFiles(enumsGroupedByRosettaResource.keySet());
 	}
+
 
 	private void overwriteEnums(RosettaEnumeration rosettaEnumeration, List<RosettaEnumValue> newEnumValues) {
 		rosettaEnumeration.getEnumValues().clear();

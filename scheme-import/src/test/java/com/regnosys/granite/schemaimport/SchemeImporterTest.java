@@ -41,38 +41,4 @@ class SchemeImporterTest {
         assertThat(WRITE_TEST_OUTPUT, equalTo(false));
     }
 
-    //TODO: finish this to generate updated synonyms
-    @Disabled
-    @Test
-    void updateSynonyms() {
-//		Map<String, List<RosettaEnumeration>> enums = modelLoader.rosettaElements(RosettaEnumeration.class)
-//			.stream().collect(Collectors.groupingBy(RosettaNamed::getName));
-
-        Map<String, List<RosettaEnumeration>> enums = null;
-
-//		List<RosettaExternalSynonymSource> rosettaExternalSynonymSources = modelLoader.rosettaElements(RosettaExternalSynonymSource.class);
-        List<RosettaExternalSynonymSource> rosettaExternalSynonymSources = null;
-
-
-        RosettaExternalSynonymSource fpML_5_10 = rosettaExternalSynonymSources.stream()
-                .filter(x -> x.getName().equals("FpML_5_10"))
-                .findAny().orElseThrow();
-
-        List<RosettaExternalEnum> externalEnums = fpML_5_10.getExternalEnums();
-
-        for (RosettaExternalEnum externalEnum : externalEnums) {
-            String name = externalEnum.getTypeRef().getName();
-
-            if (enums.containsKey(name)) {
-                List<RosettaEnumeration> rosettaEnumerations = enums.get(name);
-                externalEnum.getRegularValues().clear();
-                for (RosettaEnumeration rosettaEnumeration : rosettaEnumerations) {
-
-                    // create RosettaExternalEnumValue
-
-                    // set the value from the rosettaEnumeration.displayname
-                }
-            }
-        }
-    }
 }

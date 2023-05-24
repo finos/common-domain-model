@@ -10,14 +10,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,11 +32,8 @@ public class SchemeImporterTestHelper {
     public void checkEnumsAreValid(String rosettaPathRoot, String body, String codingScheme, boolean writeTestOutput) throws IOException {
         URL[] rosettaPaths = getRosettaPaths(rosettaPathRoot);
         List<RosettaModel> models = modelLoader.loadRosettaModels(rosettaPaths);
-        String schemaPath = getLatestSetOfSchemeFile();
         Map<String, String> generatedFromScheme =
                 schemeImporter.generateRosettaEnums(
-                        schemeUrl(schemaPath),
-                        "coding-schemes/fpml/",
                         models,
                         body,
                         codingScheme);
@@ -62,12 +57,6 @@ public class SchemeImporterTestHelper {
                 ).stream()
                 .map(UrlUtils::toUrl)
                 .toArray(URL[]::new);
-    }
-
-    private URL schemeUrl(String schemaPath) {
-        return ClassPathUtils.loadFromClasspath(schemaPath, getClass().getClassLoader())
-                .map(UrlUtils::toUrl)
-                .findFirst().orElseThrow();
     }
 
     private String getContents(URL[] rosettaPaths, String fileName) throws IOException {
@@ -97,41 +86,5 @@ public class SchemeImporterTestHelper {
         }
     }
 
-    public String getLatestSetOfSchemeFile() throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        Path baseFolder = ClassPathUtils
-                .loadFromClasspath("coding-schemes/fpml", classLoader)
-                .findFirst()
-                .orElseThrow();
-        assertNotNull(baseFolder);
 
-        HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
-        try (Stream<Path> walk = Files.walk(baseFolder)) {
-            walk.filter(this::isSetOfSchemeXmlFile)
-                    .forEach(inFile -> {
-                        String fileName = inFile.getFileName().toString();
-                        String versionNumber = fileName.substring(15, fileName.indexOf(".")).replace("-", ".");
-
-                        versionNumberFileName.put(fileName,new BigDecimal(versionNumber));
-                    });
-        }
-
-        BigDecimal highestVersion = new BigDecimal(0);
-        String latestSetOfSchemesFile = "coding-schemes/fpml/set-of-schemes-2-2.xml";
-        for (Map.Entry<String, BigDecimal> entry : versionNumberFileName.entrySet()) {
-            BigDecimal value = entry.getValue();
-            if (value.unscaledValue().compareTo(highestVersion.unscaledValue())>0){
-                highestVersion = value;
-                latestSetOfSchemesFile = "coding-schemes/fpml/" + entry.getKey();
-            }
-
-        }
-
-        return latestSetOfSchemesFile;
-    }
-
-
-    private boolean isSetOfSchemeXmlFile(Path inFile) {
-        return inFile.getFileName().toString().endsWith(".xml") && inFile.getFileName().toString().contains("set-of-schemes-");
-    }
 }

@@ -1,6 +1,7 @@
 package com.regnosys.granite.schemaimport;
 
 import com.google.common.collect.Lists;
+import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;
@@ -20,14 +21,17 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class FpMLSchemeEnumReader implements SchemeEnumReader {
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class FpMLSchemeEnumReader implements SchemeEnumReader<FpMLSchemeEnumReaderProperties> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FpMLSchemeEnumReader.class);
 
@@ -35,23 +39,32 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 	public static final String CODE = "Code";
 	public static final String DESCRIPTION = "Description";
 	public static final String CODING_SCHEME = "http://www.fpml.org/coding-scheme/";
+	private final URL codingSchemeUrl;
 
-    /**
+	public FpMLSchemeEnumReader() {
+		try {
+			codingSchemeUrl = getCodingSchemeUrl();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
      *
      * @param codingSchemeUrl this is the url of the set-of-schemes-n-n.xml published by FpML
      * @param codingSchemeRelativePath
      * @param schemeLocation
      */
 	@Override
-	public List<RosettaEnumValue> generateEnumFromScheme(URL codingSchemeUrl, String codingSchemeRelativePath, String schemeLocation) {
-        try {
-            Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles(codingSchemeUrl, codingSchemeRelativePath);
-            CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemeLocation);
+	public List<RosettaEnumValue> generateEnumFromScheme(FpMLSchemeEnumReaderProperties properties) {
+		try {
+            Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles(codingSchemeUrl, properties.getCodingSchemeRelativePath());
+            CodeListDocument codeListDocument = stringCodeListDocumentMap.get(properties.getSchemeLocation());
             if (codeListDocument != null) {
                 Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
                 return transform.getFirst();
             } else {
-                LOGGER.warn("No document found for schema location {}", schemeLocation);
+                LOGGER.warn("No document found for schema location {}", properties.getSchemeLocation());
             }
         } catch (JAXBException | IOException | XMLStreamException e) {
             throw new RuntimeException(e);
@@ -179,5 +192,54 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 			LOGGER.warn("Error reading scheme file " + url, e);
 		}
 		return null;
+	}
+
+	private URL getCodingSchemeUrl() throws IOException {
+		String schemaPath = getLatestSetOfSchemeFile();
+		return ClassPathUtils.loadFromClasspath(schemaPath, getClass().getClassLoader())
+				.map(UrlUtils::toUrl)
+				.findFirst().orElseThrow();
+	}
+
+	public String getLatestSetOfSchemeFile() throws IOException {
+		ClassLoader classLoader = getClass().getClassLoader();
+		Path baseFolder = ClassPathUtils
+				.loadFromClasspath("coding-schemes/fpml", classLoader)
+				.findFirst()
+				.orElseThrow();
+		assertNotNull(baseFolder);
+
+		HashMap<String, BigDecimal> versionNumberFileName = new HashMap<>();
+		try (Stream<Path> walk = Files.walk(baseFolder)) {
+			walk.filter(this::isSetOfSchemeXmlFile)
+					.forEach(inFile -> {
+						String fileName = inFile.getFileName().toString();
+						String versionNumber = fileName.substring(15, fileName.indexOf(".")).replace("-", ".");
+
+						versionNumberFileName.put(fileName,new BigDecimal(versionNumber));
+					});
+		}
+
+		BigDecimal highestVersion = new BigDecimal(0);
+		String latestSetOfSchemesFile = "coding-schemes/fpml/set-of-schemes-2-2.xml";
+		for (Map.Entry<String, BigDecimal> entry : versionNumberFileName.entrySet()) {
+			BigDecimal value = entry.getValue();
+			if (value.unscaledValue().compareTo(highestVersion.unscaledValue())>0){
+				highestVersion = value;
+				latestSetOfSchemesFile = "coding-schemes/fpml/" + entry.getKey();
+			}
+
+		}
+
+		return latestSetOfSchemesFile;
+	}
+
+	private boolean isSetOfSchemeXmlFile(Path inFile) {
+		return inFile.getFileName().toString().endsWith(".xml") && inFile.getFileName().toString().contains("set-of-schemes-");
+	}
+
+	@Override
+	public SchemeIdentifier applicableToScheme() {
+		return new SchemeIdentifier("ISDA", "FpML_Coding_Scheme");
 	}
 }
