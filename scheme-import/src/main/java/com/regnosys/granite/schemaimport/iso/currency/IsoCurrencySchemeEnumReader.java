@@ -6,14 +6,11 @@ import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import org.iso.currency.ISO4217;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -21,7 +18,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -42,14 +38,18 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
         }
     }
 
-    private ISO4217 parseSchemaFile(URL schemaLocationForEnum) throws JAXBException, IOException, XMLStreamException, URISyntaxException, InterruptedException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(ISO4217.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+    private ISO4217 parseSchemaFile(URL schemaLocationForEnum) throws JAXBException, IOException, URISyntaxException, InterruptedException {
         String xmlContents = getXmlContents(schemaLocationForEnum);
-        XMLStreamReader reader = inputFactory.createXMLStreamReader(new StringReader(Objects.requireNonNull(xmlContents)));
-        JAXBElement<ISO4217> doc = unmarshaller.unmarshal(reader, ISO4217.class);
-        return doc.getValue();
+        JAXBContext jaxbContext = JAXBContext.newInstance(ISO4217.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        InputStream inputStream = new ByteArrayInputStream(removeLineBreaks(xmlContents).getBytes());
+        return (ISO4217) jaxbUnmarshaller.unmarshal(inputStream);
+    }
+
+    private String removeLineBreaks(String response) {
+        return response
+                .replace("\n", "")
+                .replace("\t", "");
     }
 
     private String getXmlContents(URL schemaLocationForEnum) throws URISyntaxException, IOException, InterruptedException {
