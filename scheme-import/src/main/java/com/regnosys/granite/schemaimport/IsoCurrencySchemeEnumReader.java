@@ -7,7 +7,7 @@ import java.util.List;
 public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrencyEnumReaderProperties> {
     @Override
     public List<RosettaEnumValue> generateEnumFromScheme(IsoCurrencyEnumReaderProperties properties) {
-        return null;
+        return List.of();
     }
 
     @Override

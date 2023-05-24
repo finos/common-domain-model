@@ -26,4 +26,8 @@ public class SchemeImportModule extends RosettaTestingModule {
     public Class<? extends FpMLSchemeHelper> bindFpMLSchemeHelper() {
         return FpMLSchemeHelper.class;
     }
+
+    public Class<? extends IsoCurrencySchemeEnumReader> bindIsoCurrencySchemeEnumReader() {
+        return IsoCurrencySchemeEnumReader.class;
+    }
 }
