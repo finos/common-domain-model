@@ -797,6 +797,7 @@
                                             <directory>${basedir}/src/generated/python</directory>
                                             <includes>
                                                 <include>**/*.py</include>
+                                                <include>**/*.toml</include>
                                             </includes>
                                             <filtering>true</filtering>
                                         </resource>
@@ -804,6 +805,37 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cdm-code-gen-python-resources</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.regnosys.rosetta.code-generators</groupId>
+                                            <artifactId>python</artifactId>
+                                            <version>${rosetta.code-gen.version}</version>
+                                            <type>jar</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <includes>runtime/rosetta_runtime-1.0.0-py3-none-any.whl</includes>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>false</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
