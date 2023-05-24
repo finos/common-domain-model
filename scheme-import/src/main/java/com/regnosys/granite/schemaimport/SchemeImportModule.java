@@ -22,4 +22,8 @@ public class SchemeImportModule extends RosettaTestingModule {
     public Class<? extends SchemeImporterTestHelper> bindSchemeImporterTestHelper() {
         return SchemeImporterTestHelper.class;
     }
+
+    public Class<? extends FpMLSchemeHelper> bindFpMLSchemeHelper() {
+        return FpMLSchemeHelper.class;
+    }
 }
