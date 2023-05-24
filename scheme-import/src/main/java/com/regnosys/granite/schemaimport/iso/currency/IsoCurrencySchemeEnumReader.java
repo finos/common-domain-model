@@ -36,7 +36,8 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
     public List<RosettaEnumValue> generateEnumFromScheme(IsoCurrencyEnumReaderProperties properties) {
         try {
             ISO4217 iso4217 = parseSchemaFile(properties.getSchemaLocationForEnum());
-            return transformToEnums(iso4217);
+            List<RosettaEnumValue> rosettaEnumValues = transformToEnums(iso4217);
+            return rosettaEnumValues;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -44,6 +45,7 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
 
     private List<RosettaEnumValue> transformToEnums(ISO4217 iso4217) {
         return iso4217.getCcyTbl().getCcyNtry().stream()
+                .filter(ccyNtry -> ccyNtry.getCcy() != null) //filters out Antarctica which has no ccy code!
                 .map(ccyNtry -> new ImmutablePair<>(ccyNtry.getCcy(), ccyNtry.getCcyNm().getValue()))
                 .distinct()
                 .map(pair -> createEnumValue(pair.getLeft(), pair.getRight()))
@@ -54,7 +56,6 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
         RosettaFactory factory = RosettaFactoryImpl.eINSTANCE;
         RosettaEnumValue ev = factory.createRosettaEnumValue();
         ev.setName(currencyCode);
-        ev.setDisplay(currencyCode);
         ev.setDefinition(currencyName);
         return ev;
     }
