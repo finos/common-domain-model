@@ -1,8 +1,17 @@
 package com.regnosys.granite.schemaimport;
 
-public class IsoCurrencyEnumReaderProperties {
-    public IsoCurrencyEnumReaderProperties() {
+import java.net.URL;
 
+public class IsoCurrencyEnumReaderProperties {
+    private final URL schemaLocationForEnum;
+
+    public IsoCurrencyEnumReaderProperties(URL schemaLocationForEnum) {
+
+        this.schemaLocationForEnum = schemaLocationForEnum;
+    }
+
+    public URL getSchemaLocationForEnum() {
+        return schemaLocationForEnum;
     }
 
 }

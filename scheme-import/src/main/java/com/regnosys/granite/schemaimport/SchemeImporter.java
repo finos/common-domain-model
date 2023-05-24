@@ -6,6 +6,9 @@ import com.regnosys.rosetta.rosetta.RosettaModel;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import javax.inject.Inject;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +26,7 @@ public class SchemeImporter {
     @Inject
 	private RosettaResourceWriter rosettaResourceWriter;
 
-	public Map<String, String> generateRosettaEnums(List<RosettaModel> models, String body, String corpus) {
+	public Map<String, String> generateRosettaEnums(List<RosettaModel> models, String body, String corpus) throws MalformedURLException {
 		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(models, body, corpus);
 		for (RosettaEnumeration annotatedEnum : annotatedEnums) {
 			Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
@@ -33,12 +36,14 @@ public class SchemeImporter {
 			SchemeIdentifier schemeIdentifier = new SchemeIdentifier(body, corpus);
 
 			List<RosettaEnumValue> newEnumValues;
+			String schemaLocationForEnum = schemaLocationForEnumMaybe.get();
 			if (fpMLSchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
 				String codingSchemeRelativePath = "coding-schemes/fpml/";
-				FpMLSchemeEnumReaderProperties fpMLSchemeEnumReaderProperties = new FpMLSchemeEnumReaderProperties(codingSchemeRelativePath, schemaLocationForEnumMaybe.get());
+				FpMLSchemeEnumReaderProperties fpMLSchemeEnumReaderProperties = new FpMLSchemeEnumReaderProperties(codingSchemeRelativePath, schemaLocationForEnum);
 				newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(fpMLSchemeEnumReaderProperties);
 			} else if (isoCurrencySchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
-				IsoCurrencyEnumReaderProperties isoCurrencyEnumReaderProperties = new IsoCurrencyEnumReaderProperties();
+				URL schemaUrl = new URL(schemaLocationForEnum);
+				IsoCurrencyEnumReaderProperties isoCurrencyEnumReaderProperties = new IsoCurrencyEnumReaderProperties(schemaUrl);
 				newEnumValues = isoCurrencySchemeEnumReader.generateEnumFromScheme(isoCurrencyEnumReaderProperties);
 			} else {
 				throw new RuntimeException("No scheme reader found for " + body + ", " + corpus);

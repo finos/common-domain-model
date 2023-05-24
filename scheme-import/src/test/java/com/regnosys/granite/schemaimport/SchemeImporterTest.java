@@ -1,8 +1,5 @@
 package com.regnosys.granite.schemaimport;
 
-import com.regnosys.rosetta.rosetta.RosettaEnumeration;
-import com.regnosys.rosetta.rosetta.RosettaExternalEnum;
-import com.regnosys.rosetta.rosetta.RosettaExternalSynonymSource;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.junit.jupiter.api.Disabled;
@@ -11,8 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,8 +27,14 @@ class SchemeImporterTest {
     private SchemeImporterTestHelper schemeImporterTestHelper;
 
     @Test
-	void checkEnumsAreValid() throws IOException {
-        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, BODY, CODING_SCHEME, WRITE_TEST_OUTPUT);
+	void checkFpMLEnumsAreValid() throws IOException {
+        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISDA", "FpML_Coding_Scheme", WRITE_TEST_OUTPUT);
+    }
+
+    @Disabled
+    @Test
+    void checkIsoCurrencyEnumsAreValid() throws IOException {
+        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISO", "ISO_4217_Currency_Scheme", WRITE_TEST_OUTPUT);
     }
 
     @Test
