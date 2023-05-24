@@ -1,5 +1,7 @@
-package com.regnosys.granite.schemaimport;
+package com.regnosys.granite.schemaimport.iso.currency;
 
+import com.regnosys.granite.schemaimport.SchemeEnumReader;
+import com.regnosys.granite.schemaimport.SchemeIdentifier;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 
 import java.util.List;

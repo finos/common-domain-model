@@ -18,10 +18,6 @@ import static org.hamcrest.Matchers.equalTo;
 class SchemeImporterTest {
     private static final boolean WRITE_TEST_OUTPUT = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
     		.map(Boolean::parseBoolean).orElse(false);
-	public static final String FPML_SET_OF_SCHEMES_2_2_XML = "coding-schemes/fpml/set-of-schemes-2-2.xml";
-    public static final String BODY = "ISDA";
-    public static final String CODING_SCHEME = "FpML_Coding_Scheme";
-
     public static final String ROSETTA_PATH_ROOT = "cdm/rosetta";
     @Inject
     private SchemeImporterTestHelper schemeImporterTestHelper;

@@ -1,6 +1,8 @@
-package com.regnosys.granite.schemaimport;
+package com.regnosys.granite.schemaimport.fpml;
 
 import com.google.common.collect.Lists;
+import com.regnosys.granite.schemaimport.SchemeEnumReader;
+import com.regnosys.granite.schemaimport.SchemeIdentifier;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;

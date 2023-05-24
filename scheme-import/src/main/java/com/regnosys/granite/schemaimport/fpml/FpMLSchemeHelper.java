@@ -1,4 +1,4 @@
-package com.regnosys.granite.schemaimport;
+package com.regnosys.granite.schemaimport.fpml;
 
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.UrlUtils;

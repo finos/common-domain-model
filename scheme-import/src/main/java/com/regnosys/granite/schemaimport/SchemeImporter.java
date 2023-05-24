@@ -1,5 +1,9 @@
 package com.regnosys.granite.schemaimport;
 
+import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
+import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReaderProperties;
+import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencyEnumReaderProperties;
+import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaEnumeration;
 import com.regnosys.rosetta.rosetta.RosettaModel;
@@ -8,7 +12,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

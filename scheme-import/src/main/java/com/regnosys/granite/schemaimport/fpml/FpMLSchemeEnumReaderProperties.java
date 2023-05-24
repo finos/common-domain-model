@@ -1,4 +1,4 @@
-package com.regnosys.granite.schemaimport;
+package com.regnosys.granite.schemaimport.fpml;
 
 import java.util.Objects;
 

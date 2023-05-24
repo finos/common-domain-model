@@ -1,5 +1,8 @@
 package com.regnosys.granite.schemaimport;
 
+import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
+import com.regnosys.granite.schemaimport.fpml.FpMLSchemeHelper;
+import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
 import com.regnosys.testing.RosettaTestingModule;
 
 public class SchemeImportModule extends RosettaTestingModule {
