@@ -1,7 +1,6 @@
 package com.regnosys.granite.schemaimport.iso.currency;
 
 import com.regnosys.granite.schemaimport.SchemeEnumReader;
-import com.regnosys.granite.schemaimport.SchemeIdentifier;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;
 import com.regnosys.rosetta.rosetta.RosettaNamed;
@@ -88,10 +87,5 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader{
             throw new RuntimeException("Response from xml get: " + response.statusCode());
         }
         return response.body();
-    }
-
-    @Override
-    public SchemeIdentifier applicableToScheme() {
-        return new SchemeIdentifier("ISO", "ISO_4217_Currency_Scheme");
     }
 }

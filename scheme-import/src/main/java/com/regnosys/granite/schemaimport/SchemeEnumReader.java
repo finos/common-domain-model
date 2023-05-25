@@ -8,5 +8,4 @@ import java.util.List;
 public interface SchemeEnumReader {
     List<RosettaEnumValue> generateEnumFromScheme(URL schemaLocationForEnum);
 
-    SchemeIdentifier applicableToScheme();
 }

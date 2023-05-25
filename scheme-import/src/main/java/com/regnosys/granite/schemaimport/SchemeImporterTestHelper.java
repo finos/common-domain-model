@@ -1,5 +1,6 @@
 package com.regnosys.granite.schemaimport;
 
+import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaModel;
@@ -29,14 +30,15 @@ public class SchemeImporterTestHelper {
     private ModelLoader modelLoader;
 
 
-    public void checkEnumsAreValid(String rosettaPathRoot, String body, String codingScheme, boolean writeTestOutput) throws IOException {
+    public void checkEnumsAreValid(String rosettaPathRoot, String body, String codingScheme, SchemeEnumReader schemeEnumReader, boolean writeTestOutput) throws IOException {
         URL[] rosettaPaths = getRosettaPaths(rosettaPathRoot);
         List<RosettaModel> models = modelLoader.loadRosettaModels(rosettaPaths);
         Map<String, String> generatedFromScheme =
                 schemeImporter.generateRosettaEnums(
                         models,
                         body,
-                        codingScheme);
+                        codingScheme,
+                        schemeEnumReader);
 
         if (writeTestOutput) {
             writeTestOutput(generatedFromScheme);

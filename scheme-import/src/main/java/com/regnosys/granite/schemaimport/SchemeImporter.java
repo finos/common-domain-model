@@ -17,35 +17,19 @@ import java.util.stream.Collectors;
 
 public class SchemeImporter {
     @Inject
-	private FpMLSchemeEnumReader fpMLSchemeEnumReader;
-
-	@Inject
-	private IsoCurrencySchemeEnumReader isoCurrencySchemeEnumReader;
-
-    @Inject
 	private AnnotatedRosettaEnumReader enumReader;
     @Inject
 	private RosettaResourceWriter rosettaResourceWriter;
 
-	public Map<String, String> generateRosettaEnums(List<RosettaModel> models, String body, String corpus) throws MalformedURLException {
+	public Map<String, String> generateRosettaEnums(List<RosettaModel> models, String body, String corpus, SchemeEnumReader schemeEnumReader) throws MalformedURLException {
 		List<RosettaEnumeration> annotatedEnums = enumReader.getAnnotatedEnum(models, body, corpus);
 		for (RosettaEnumeration annotatedEnum : annotatedEnums) {
 			Optional<String> schemaLocationForEnumMaybe = enumReader.getSchemaLocationForEnum(annotatedEnum, body, corpus);
 			if (schemaLocationForEnumMaybe.isEmpty()) {
 				continue;
 			}
-			SchemeIdentifier schemeIdentifier = new SchemeIdentifier(body, corpus);
-
-			List<RosettaEnumValue> newEnumValues;
 			String schemaLocationForEnum = schemaLocationForEnumMaybe.get();
-			if (fpMLSchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
-				newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(new URL(schemaLocationForEnum));
-			} else if (isoCurrencySchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
-				URL schemaUrl = new URL(schemaLocationForEnum);
-				newEnumValues = isoCurrencySchemeEnumReader.generateEnumFromScheme(schemaUrl);
-			} else {
-				throw new RuntimeException("No scheme reader found for " + body + ", " + corpus);
-			}
+			List<RosettaEnumValue> newEnumValues = schemeEnumReader.generateEnumFromScheme(new URL(schemaLocationForEnum));
 
 			overwriteEnums(annotatedEnum, newEnumValues);
 		}

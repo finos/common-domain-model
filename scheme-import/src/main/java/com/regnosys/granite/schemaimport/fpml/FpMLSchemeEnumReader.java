@@ -2,7 +2,6 @@ package com.regnosys.granite.schemaimport.fpml;
 
 import com.google.common.collect.Lists;
 import com.regnosys.granite.schemaimport.SchemeEnumReader;
-import com.regnosys.granite.schemaimport.SchemeIdentifier;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaFactory;
@@ -184,10 +183,5 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader {
 			LOGGER.warn("Error reading scheme file " + url, e);
 		}
 		return null;
-	}
-
-	@Override
-	public SchemeIdentifier applicableToScheme() {
-		return new SchemeIdentifier("ISDA", "FpML_Coding_Scheme");
 	}
 }
