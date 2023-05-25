@@ -4,7 +4,6 @@ import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
 import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
