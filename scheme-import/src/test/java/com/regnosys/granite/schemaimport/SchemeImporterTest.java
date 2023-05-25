@@ -1,7 +1,9 @@
 package com.regnosys.granite.schemaimport;
 
-import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
-import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
+import com.regnosys.testing.schemaimport.SchemeImportInjectorProvider;
+import com.regnosys.testing.schemaimport.SchemeImporterTestHelper;
+import com.regnosys.testing.schemaimport.fpml.FpMLSchemeEnumReader;
+import com.regnosys.testing.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.junit.jupiter.api.Test;
