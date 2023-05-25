@@ -5,40 +5,56 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class LatestSchemesImportTest {
 
     private static final String SCHEMA_PATH = "src/main/resources/coding-schemes/fpml";
     private static final String CODE_LIST_ZIP = "src/main/resources/coding-schemes/fpml/codelist.zip";
     private static final String CODE_LIST = "src/main/resources/coding-schemes/fpml/codelist";
-    private static final boolean EXECUTE_DOWNLOAD_LATEST_VERSION = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
+    private static final boolean WRITE_LATEST_VERSION = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
                     .map(Boolean::parseBoolean).orElse(false);
 
     @Test
-    public void downloadLatestVersions() throws IOException {
-        if (EXECUTE_DOWNLOAD_LATEST_VERSION) {
-            URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
+    public void downloadLatestVersions() throws IOException, NoSuchAlgorithmException {
+        URL website = new URL("https://www.fpml.org/spec/coding-scheme/codelist.zip");
+        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
 
-            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-            FileOutputStream fos = new FileOutputStream(LatestSchemesImportTest.CODE_LIST_ZIP);
+        try (FileOutputStream fos = new FileOutputStream(LatestSchemesImportTest.CODE_LIST_ZIP)) {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            String checksum = getZipCheckSum(Paths.get(CODE_LIST_ZIP));
+            assertThat("CodeList zip has been updated, run again with write WRITE_LATEST_VERSION enabled then update expected checksum",
+                    checksum, equalTo("e8b6362c02feb1ecb926663c8bc2f01c"));
 
-            //Unzip from CodeList just being downloaded
-            unzip();
-            //Move the unzipped files to SchemePath if not already exists
-            moveFilesToFpml();
-            // InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
-            // Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
-            deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST_ZIP));
-            deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST));
+            if (WRITE_LATEST_VERSION) {
+                //Unzip from CodeList just being downloaded
+                unzip();
+                //Move the unzipped files to SchemePath if not already exists
+                moveFilesToFpml();
+                // InputStream inputStream = new URL("https://www.fpml.org/coding-scheme/set-of-schemes").openStream();
+                // Files.copy(inputStream, Paths.get("src/main/resources/" + schemaPath), StandardCopyOption.REPLACE_EXISTING);
+                deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST_ZIP));
+                deleteFileFolder(new File(LatestSchemesImportTest.CODE_LIST));
+            }
         }
+    }
+
+    private String getZipCheckSum(Path zipPath) throws IOException, NoSuchAlgorithmException {
+        byte[] data = Files.readAllBytes(zipPath);
+        byte[] hash = MessageDigest.getInstance("MD5").digest(data);
+        return new BigInteger(1, hash).toString(16);
     }
 
     private static void unzip() {
