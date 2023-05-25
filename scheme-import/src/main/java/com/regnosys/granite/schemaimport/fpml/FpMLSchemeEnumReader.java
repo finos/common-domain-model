@@ -30,8 +30,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class FpMLSchemeEnumReader implements SchemeEnumReader<FpMLSchemeEnumReaderProperties> {
+public class FpMLSchemeEnumReader implements SchemeEnumReader {
 
+	private static final String CODING_SCHEME_RELATIVE_PATH = "coding-schemes/fpml/";
 	private static final Logger LOGGER = LoggerFactory.getLogger(FpMLSchemeEnumReader.class);
 
 	public static final String VERSION = "Version";
@@ -43,18 +44,19 @@ public class FpMLSchemeEnumReader implements SchemeEnumReader<FpMLSchemeEnumRead
 	@Inject
 	public FpMLSchemeEnumReader(FpMLSchemeHelper fpMLSchemeHelper) {
 		codingSchemeUrl = fpMLSchemeHelper.getLatestSetOfSchemeUrl();
+
 	}
 
 	@Override
-	public List<RosettaEnumValue> generateEnumFromScheme(FpMLSchemeEnumReaderProperties properties) {
+	public List<RosettaEnumValue> generateEnumFromScheme(URL schemaLocationForEnum) {
 		try {
-            Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles(codingSchemeUrl, properties.getCodingSchemeRelativePath());
-            CodeListDocument codeListDocument = stringCodeListDocumentMap.get(properties.getSchemeLocation());
+            Map<String, CodeListDocument> stringCodeListDocumentMap = readSchemaFiles(codingSchemeUrl, CODING_SCHEME_RELATIVE_PATH);
+            CodeListDocument codeListDocument = stringCodeListDocumentMap.get(schemaLocationForEnum.toString());
             if (codeListDocument != null) {
                 Pair<List<RosettaEnumValue>, String> transform = transform(codeListDocument);
                 return transform.getFirst();
             } else {
-                LOGGER.warn("No document found for schema location {}", properties.getSchemeLocation());
+                LOGGER.warn("No document found for schema location {}", schemaLocationForEnum);
             }
         } catch (JAXBException | IOException | XMLStreamException e) {
             throw new RuntimeException(e);

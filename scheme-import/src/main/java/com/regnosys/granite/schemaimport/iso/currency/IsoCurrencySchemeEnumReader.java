@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrencyEnumReaderProperties> {
+public class IsoCurrencySchemeEnumReader implements SchemeEnumReader{
     private final HttpClient httpClient;
 
     public IsoCurrencySchemeEnumReader() {
@@ -35,9 +35,9 @@ public class IsoCurrencySchemeEnumReader implements SchemeEnumReader<IsoCurrency
     }
 
     @Override
-    public List<RosettaEnumValue> generateEnumFromScheme(IsoCurrencyEnumReaderProperties properties) {
+    public List<RosettaEnumValue> generateEnumFromScheme(URL schemaLocationForEnum) {
         try {
-            ISO4217 iso4217 = parseSchemaFile(properties.getSchemaLocationForEnum());
+            ISO4217 iso4217 = parseSchemaFile(schemaLocationForEnum);
             return transformToEnums(iso4217);
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -1,8 +1,6 @@
 package com.regnosys.granite.schemaimport;
 
 import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReader;
-import com.regnosys.granite.schemaimport.fpml.FpMLSchemeEnumReaderProperties;
-import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencyEnumReaderProperties;
 import com.regnosys.granite.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 import com.regnosys.rosetta.rosetta.RosettaEnumeration;
@@ -41,13 +39,10 @@ public class SchemeImporter {
 			List<RosettaEnumValue> newEnumValues;
 			String schemaLocationForEnum = schemaLocationForEnumMaybe.get();
 			if (fpMLSchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
-				String codingSchemeRelativePath = "coding-schemes/fpml/";
-				FpMLSchemeEnumReaderProperties fpMLSchemeEnumReaderProperties = new FpMLSchemeEnumReaderProperties(codingSchemeRelativePath, schemaLocationForEnum);
-				newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(fpMLSchemeEnumReaderProperties);
+				newEnumValues = fpMLSchemeEnumReader.generateEnumFromScheme(new URL(schemaLocationForEnum));
 			} else if (isoCurrencySchemeEnumReader.applicableToScheme().equals(schemeIdentifier)) {
 				URL schemaUrl = new URL(schemaLocationForEnum);
-				IsoCurrencyEnumReaderProperties isoCurrencyEnumReaderProperties = new IsoCurrencyEnumReaderProperties(schemaUrl);
-				newEnumValues = isoCurrencySchemeEnumReader.generateEnumFromScheme(isoCurrencyEnumReaderProperties);
+				newEnumValues = isoCurrencySchemeEnumReader.generateEnumFromScheme(schemaUrl);
 			} else {
 				throw new RuntimeException("No scheme reader found for " + body + ", " + corpus);
 			}

@@ -2,10 +2,11 @@ package com.regnosys.granite.schemaimport;
 
 import com.regnosys.rosetta.rosetta.RosettaEnumValue;
 
+import java.net.URL;
 import java.util.List;
 
-public interface SchemeEnumReader<T> {
-    List<RosettaEnumValue> generateEnumFromScheme(T properties);
+public interface SchemeEnumReader {
+    List<RosettaEnumValue> generateEnumFromScheme(URL schemaLocationForEnum);
 
     SchemeIdentifier applicableToScheme();
 }
