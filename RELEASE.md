@@ -1,16 +1,9 @@
-# *Infrastructure - Dependency Updates*
+# *Product Model - Currency Enums*
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
-
-- Versions:
-    - `7.5.0` Support for ISO data types - see DSL documentation https://github.com/REGnosys/rosetta-dsl/issues/512 
-    - `7.5.2` Import model from xsd updated to support different documentation tags
-    - `7.5.3` Additional changes make ISO data types backwards compatible
-
-This release contains no changes to the model or test expectations.
+- Added process to automate the generation of `ISO 4217 Currencies`. The updated currency enum values can be found in `ISOCurrencyCodeEnum`  
 
 _Review directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
