@@ -47,9 +47,9 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*" -x "isda-demo/target/*"
-      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
 
   BuildRelease:
     stage: 'build'
@@ -64,9 +64,9 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
-      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
 
   BuildParallelTasks:
     stage: 'build'
