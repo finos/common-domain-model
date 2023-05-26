@@ -113,6 +113,18 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
+      BuildPython:
+        stage: 'build'
+        title: Python build
+        fail_fast: false
+        image: python:3.10-alpine
+        working_directory: ./rosetta-source/target/classes/cdm/python
+        shell: sh
+        commands:
+          - python3 -m pip install pydantic
+          - python3 -m pip install jsonpickle
+          - python3 -m pip install rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip wheel --no-deps --only-binary :all: .
 
   DeployParallelTasks:
     stage: 'build'
