@@ -1,4 +1,4 @@
-# _Payout underlier for Equity Option Baskets_
+# _Product Model - FpML synonym mappings of underlier for Equity Option Baskets_
 
 _Background_
 
@@ -10,7 +10,7 @@ _What is being released?_
 
 _Translate_
 
-Added minor changes for mapping coverage of equity options with baskets.
+Updated FpML synonym mappings for coverage of underliers in equity options with baskets.
 
 _Review directions_
 
