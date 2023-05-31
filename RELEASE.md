@@ -10,7 +10,7 @@ _What is being released?_
 
 _Translate_
 
-Updated FpML synonym mappings for coverage of underliers in equity options with baskets.
+FpML synonym mappings added to populate CDM attribute `optionPayout -> underlier -> basket` with FpML path `equityOption -> underlyer -> basket` for Equity Option products with baskets.
 
 _Review directions_
 
