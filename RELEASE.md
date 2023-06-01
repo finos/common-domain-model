@@ -1,9 +1,5 @@
-# *Product Model - Currency Enums*
+This release updates the `rosetta-dsl` and `rosetta-bundle` dependencies:
 
-_What is being released?_
+- DSL `7.7.0`: adds type format validation. Validation failures concerning type format (e.g., the number of characters in a string, the number of digits of a number) will now be displayed in the Report tab.
 
-- Added process to automate the generation of `ISO 4217 Currencies`. The updated currency enum values can be found in `ISOCurrencyCodeEnum`  
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+This release contains no changes to the model or test expectations.
