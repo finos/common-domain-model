@@ -42,10 +42,10 @@ import com.rosetta.model.lib.meta.FieldWithMeta;
 import com.rosetta.model.lib.meta.GlobalKeyFields;
 import com.rosetta.model.lib.meta.ReferenceWithMeta;
 import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.BasicReferenceWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
+import com.rosetta.model.metafields.ReferenceWithMetaDate;
 import org.fpml.fpml_5.confirmation.CalculationAgent;
 import org.fpml.fpml_5.confirmation.Currency;
 import org.fpml.fpml_5.confirmation.EuropeanExercise;
@@ -1145,9 +1145,9 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private Optional<DateReference> getDateRelativeTo(BasicReferenceWithMetaDate cdmDateRelativeTo) {
+	private Optional<DateReference> getDateRelativeTo(ReferenceWithMetaDate cdmDateRelativeTo) {
 		return Optional.ofNullable(cdmDateRelativeTo)
-			.map(BasicReferenceWithMetaDate::getExternalReference)
+			.map(ReferenceWithMetaDate::getExternalReference)
 			.map(r -> {
 				IdentifiedDate dateRef = objectFactory.createIdentifiedDate();
 				dateRef.setId(r);

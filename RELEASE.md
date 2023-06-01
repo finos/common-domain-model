@@ -1,15 +1,9 @@
-# *Infrastructure - Dependency Updates*
+# *Product Model - Currency Enums*
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
-
-- Version `7.4.0`:
-    - Rosetta models generated from an xsd
-    - Bug fix related to code-generated Java that avoids keyword clashes
-
-This release contains no changes to the model or test expectations.
+- Added process to automate the generation of `ISO 4217 Currencies`. The updated currency enum values can be found in `ISOCurrencyCodeEnum`  
 
 _Review directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
