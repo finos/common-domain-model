@@ -1,9 +1,26 @@
-# *Product Model - Currency Enums*
+# _Product Model - FpML synonym mappings of underlier for Equity Option Baskets_
+
+_Background_
+
+An issue was identified with the underlier mapping from FpML to CDM for Equity Option Basket products. The mapping from CDM was not generating an underlier and its corresponding baskets for these products and therefore some samples were not accurately qualified.
+
+This release addresses this mapping issue, correctly generating the underlier and its corresponding baskets.
 
 _What is being released?_
 
-- Added process to automate the generation of `ISO 4217 Currencies`. The updated currency enum values can be found in `ISOCurrencyCodeEnum`  
+_Translate_
+
+FpML synonym mappings added to populate CDM attribute `optionPayout -> underlier -> basket` with FpML path `equityOption -> underlyer -> basket` for Equity Option products with baskets.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+
+In the CDM Portal, select Ingestion and review the following samples:
+
+fpml-5-10/incomplete-products/equity-options
+
+- eqd ex08 basket long form
+- eqd ex20 nested basket
+- eqd ex21 flat weight basket
+- eqd ex26 mixed asset basket
