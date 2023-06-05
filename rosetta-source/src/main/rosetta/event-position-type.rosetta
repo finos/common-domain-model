@@ -2,11 +2,15 @@ namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggr
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.identifier.*
 
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.product.collateral.*
 import cdm.observable.asset.*
 import cdm.event.common.*
+import cdm.event.workflow.*
 
 type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
 	
@@ -15,6 +19,7 @@ type Position: <"A Position describes how much of a given Product is being held 
 	cashBalance Money (0..1) <"The aggregate cost of proceeds">
  	tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
  		[metadata reference]
+    parties Party (0..*) <"parties">
 	
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 	[metadata key]
@@ -37,6 +42,19 @@ type AggregationParameters: <" Parameters to be used to filter events that are r
 	productQualifier productType (0..*) <"To aggregate based on a selection of product type(s).">
 	tradeReference Trade (0..*)
 	    [metadata reference]
+
+type Availability: <"Availability describes a list of availability records, with each record being an individual security and its associated criteria. Criteria can include the quantity available, the rate at which the security is available to borrow at, as well as other details that can affect the decision as to whether a party wants to borrow the securities being offered.">
+    messageInformation MessageInformation (0..1) <"Allows details related to the Availability messaging to be defined">
+    parties Party (0..*) <"Defines all parties involved for the list of Availability records in this Availability item. This could include the sender of the Availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of Availability going through multiple agents), an agent or a venue.">
+	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the Availability.">
+    availabilityRecord AvailabilityRecord (0..*) <"The Availability being described. Each element in the availabilityRecord array represents an individual piece of Availability.">
+
+type AvailabilityRecord: <"An individual piece of Availability. This represents a single security.">
+    collateral CollateralProvisions (0..*) <"The collateralType under CollateralPositions can often be required when determining if the piece of Availability being described is suitable for the party to make an offer on.">
+    identifer AssignedIdentifier (1..1) <"Unique identifier for this Availability record. This can be used as a reference by a party when responding back to the sender of the Availability about a specific piece of Availability">
+    partyRoles PartyRole (0..*) <"An individual piece of Availability may be held by several agents/LEIs. Including the party role at this level allows us to reference the party holding this specific record.">
+    priceQuantity PriceQuantity (0..*) <"Primarily used to hold the quantity of the security. An additional element can be used to hold an optional rate associated to this piece of Availability.">
+    security Security (1..1) <"The security details. This is the only mandatory item required for a piece of Availability.">
 
 type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
 
