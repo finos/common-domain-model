@@ -36,7 +36,6 @@ class SchemeImporterTest {
         schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISDA", "FpML_Coding_Scheme", fpMLSchemeEnumReader, WRITE_TEST_OUTPUT);
     }
 
-    @Disabled
     @Test
     void checkIsoCurrencyEnumsAreValid() throws IOException {
         schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISO", "ISO_4217_Currency_Scheme", isoCurrencySchemeEnumReader, WRITE_TEST_OUTPUT);
