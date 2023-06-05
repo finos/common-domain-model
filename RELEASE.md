@@ -1,26 +1,14 @@
-# _Product Model - FpML synonym mappings of underlier for Equity Option Baskets_
-
-_Background_
-
-An issue was identified with the underlier mapping from FpML to CDM for Equity Option Basket products. The mapping from CDM was not generating an underlier and its corresponding baskets for these products and therefore some samples were not accurately qualified.
-
-This release addresses this mapping issue, correctly generating the underlier and its corresponding baskets.
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-_Translate_
-
-FpML synonym mappings added to populate CDM attribute `optionPayout -> underlier -> basket` with FpML path `equityOption -> underlyer -> basket` for Equity Option products with baskets.
+This release introduces Python code generation functionality.  The Python package implements a class library mirroring the model's hierarchy and supporting its full capabilities including object construction, validation, and deserialization/serialization of enabled types.  Facilitating development, the package provides as Python docstrings documentation of all Rosetta elements (data types, enums, members, and validation conditions) described in the model.  It does not support functionality natively implemented in the underlying language.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+Download the package from the Downloads section in the CDM Portal.  The library comes in two parts.  Each must be installed via pip.
 
-In the CDM Portal, select Ingestion and review the following samples:
-
-fpml-5-10/incomplete-products/equity-options
-
-- eqd ex08 basket long form
-- eqd ex20 nested basket
-- eqd ex21 flat weight basket
-- eqd ex26 mixed asset basket
+- a static runtime that provides certain core functionality: rosetta_runtime-1.0.0-py3-none-any.whl.  Install this package first.
+- the CDM library: python_cdm-x.x.x-py3-none-any.whl
+  
+These libraries are compatible with Python 3.10+ and rely upon [Pydantic](https://pydantic.dev).
