@@ -337,6 +337,17 @@ steps:
       - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
 
+  DistributePython:
+    stage: 'distribute'
+    title: Maven Python distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f python-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -U -s /settings.xml -f python-pom.xml clean deploy
+
   NotifySlackOnFail:
     stage: 'finalise'
     title: Trigger Slack dev channel notification if master build failed
