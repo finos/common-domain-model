@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release introduces Python code generation functionality.  The Python package implements a class library mirroring the model's hierarchy and supporting its full capabilities including object construction, validation, and deserialization/serialization of enabled types.  Facilitating development, the package provides as Python docstrings documentation of all Rosetta elements (data types, enums, members, and validation conditions) described in the model.  It does not support functionality natively implemented in the underlying language.
+This release introduces Python code generation functionality.  The Python package implements a class library mirroring the model's hierarchy and supporting its full capabilities including object construction, validation, and deserialization/serialization of enabled types.  Facilitating development, the package provides as Python docstrings documentation of all Rosetta elements (data types, enums, and validation conditions) described in the model.  It does not support functionality natively implemented in the underlying language.
 
 _Review directions_
 
