@@ -7,7 +7,7 @@ This release introduces Python code generation functionality.
 The Python distribution includes:
 - a class library mirroring the model namespace hierarchy
 - support for object construction, validation, and deserialization/serialization
-- includes docstrings documentation of for data types, enums, and conditions
+- includes docstrings documentation for data types, enums, and conditions
 
 _Review directions_
 
