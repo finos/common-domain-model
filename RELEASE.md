@@ -6,7 +6,9 @@ This release introduces Python code generation functionality.  The Python packag
 
 _Review directions_
 
-Download the package from the Downloads section in the CDM Portal.  The library comes in two parts.  Each must be installed via pip.
+In the CDM Portal, go to the Downloads section, and download CDM as Python.
+
+Unzip and review the libs folder.  The library comes in two parts.  Each must be installed via pip.
 
 - a static runtime that provides certain core functionality: rosetta_runtime-1.0.0-py3-none-any.whl.  Install this package first.
 - the CDM library: python_cdm-x.x.x-py3-none-any.whl
