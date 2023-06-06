@@ -47,9 +47,9 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*" -x "isda-demo/target/*"
-      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin
+      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
 
   BuildRelease:
     stage: 'build'
@@ -64,9 +64,9 @@ steps:
     commands:
       - rm -rf /codefresh/volume/.m2/com/regnosys
       - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
       - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
-      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,full
+      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
 
   BuildParallelTasks:
     stage: 'build'
@@ -113,6 +113,19 @@ steps:
           - dotnet build Cdm/Cdm.csproj
           - dotnet test Test/Test.csproj
           - dotnet publish Cdm/Cdm.csproj -c release -o ./app
+      BuildPython:
+        stage: 'build'
+        title: Python build
+        fail_fast: false
+        image: python:3.10-alpine
+        working_directory: ./rosetta-source/target/classes/cdm/python
+        shell: sh
+        commands:
+          - python3 -m pip install pydantic
+          - python3 -m pip install jsonpickle
+          - python3 -m pip install rosetta_runtime-1.0.0-py3-none-any.whl
+          - |-
+            python3 -m pip wheel --no-deps --only-binary :all: .
 
   DeployParallelTasks:
     stage: 'build'
@@ -191,6 +204,16 @@ steps:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
           - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
           - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
+      DeployPython:
+        stage: 'build'
+        title: Python deploy
+        fail_fast: false
+        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        working_directory: ./rosetta-source/target/classes/cdm/python
+        shell: bash
+        commands:
+          - zip cdm-python-${{RELEASE_NAME}}.zip python_cdm-*-py3-none-any.whl rosetta_runtime-*-py3-none-any.whl
+          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-python-${{RELEASE_NAME}}.zip -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=zip -DgeneratePom=true
 
   BuildJavaDocs:
     stage: 'build'
@@ -314,6 +337,17 @@ steps:
       - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
 
+  DistributePython:
+    stage: 'distribute'
+    title: Maven Python distribution
+    fail_fast: false
+    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    working_directory: ./cdm-distribution
+    commands:
+      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+      - mvn -s /settings.xml -f python-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+      - mvn -U -s /settings.xml -f python-pom.xml clean deploy
+
   NotifySlackOnFail:
     stage: 'finalise'
     title: Trigger Slack dev channel notification if master build failed
@@ -330,6 +364,7 @@ steps:
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
           buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
+          buildPythonFailed: steps.BuildPython.result == 'error'
           deployDamlFailed: steps.DeployDaml.result == 'error'
           deployScalaFailed: steps.DeployScala.result == 'error'
           deployTypeScriptFailed: steps.DeployTypeScript.result == 'error'
@@ -337,6 +372,7 @@ steps:
           deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
           deployGoFailed: steps.DeployGo.result == 'error'
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
+          deployPythonFailed: steps.DeployPython.result == 'error'
           buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
           distributeNormalFailed: steps.BuildDistributionNormal.result == 'error'
           distributeReleaseFailed: steps.BuildDistributionRelease.result == 'error'
@@ -372,6 +408,7 @@ steps:
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
+          pythonBuildFailure: steps.BuildPython.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
           scalaDeployFailure: steps.DeployScala.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
@@ -379,6 +416,7 @@ steps:
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
+          pythonDeployFailure: steps.DeployPython.result == 'failure'
           javaDocsBuildFailure: steps.BuildJavaDocs.result == 'failure'
           distributeNormalFailure: steps.BuildDistributionNormal.result == 'failure'
           distributeReleaseFailure: steps.BuildDistributionRelease.result == 'failure'
