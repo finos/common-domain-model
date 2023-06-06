@@ -1,13 +1,21 @@
-# *Infrastructure - Dependency Updates*
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
+This release introduces Python code generation functionality.  
 
-- `7.7.3`: Validation checks concerning type format (e.g., the number of characters in a string, the number of digits of a number) will now be supported by the DSL.
-
-This release contains no changes to the model or test expectations.
+The Python distribution includes:
+- a class library mirroring the model namespace hierarchy
+- support for object construction, validation, and deserialization/serialization
+- includes docstrings documentation for data types, enums, and conditions
 
 _Review directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+In the CDM Portal, go to the Downloads section, and download CDM as Python.
+
+Unzip and review the libs folder.  The library comes in two parts, each must be installed via pip.
+
+- a static runtime that provides certain core functionality: `rosetta_runtime-1.0.0-py3-none-any.whl`.  Install this package first.
+- the CDM library: `python_cdm-x.x.x-py3-none-any.whl`
+  
+These libraries are compatible with Python 3.10+ and rely upon [Pydantic](https://pydantic.dev).
