@@ -1,4 +1,4 @@
-# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation *
+# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation*
 
 _What is being released?_
 
