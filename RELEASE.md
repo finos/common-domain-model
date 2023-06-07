@@ -1,21 +1,15 @@
-# *CDM Distribution - Python Code Generation*
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-This release introduces Python code generation functionality.  
+This release updates the following dependencies:
 
-The Python distribution includes:
-- a class library mirroring the model namespace hierarchy
-- support for object construction, validation, and deserialization/serialization
-- includes docstrings documentation for data types, enums, and conditions
+`rosetta-dsl` - `7.8.0`: Removes logging implementations from non test scoped classpath
+
+`rosetta-bundle` - `6.6.0`: Windows fix for scheme import test
+
+This release contains no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, go to the Downloads section, and download CDM as Python.
-
-Unzip and review the libs folder.  The library comes in two parts, each must be installed via pip.
-
-- a static runtime that provides certain core functionality: `rosetta_runtime-1.0.0-py3-none-any.whl`.  Install this package first.
-- the CDM library: `python_cdm-x.x.x-py3-none-any.whl`
-  
-These libraries are compatible with Python 3.10+ and rely upon [Pydantic](https://pydantic.dev).
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
