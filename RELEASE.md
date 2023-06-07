@@ -4,9 +4,9 @@ _What is being released?_
 
 This release updates the following dependencies:
 
-`rosetta-dsl` - `7.8.0`: Removes logging implementations from non test scoped classpath
+* `rosetta-dsl` - `7.8.0`: Logging implementations removed from classpath to allow Java users of the CDM to select their own logging implementation
 
-`rosetta-bundle` - `6.6.0`: Windows fix for scheme import test
+* `rosetta-bundle` - `6.6.0`: Includes a fix for the model enum generator (a scheme import test) specific for Microsoft Windows
 
 This release contains no changes to the model or test expectations.
 
