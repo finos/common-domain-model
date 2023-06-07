@@ -3,7 +3,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 
 ## Participants
 - Ron Kaim, CFX Consulting, Date of enrollment: May/03/2023
-- 
+- Benjamin Mourad, Standard Chartered Bank, Jun/07/2023
 -
 -  
 - 
