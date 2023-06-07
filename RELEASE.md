@@ -1,26 +1,21 @@
-# _Product Model - FpML synonym mappings of underlier for Equity Option Baskets_
-
-_Background_
-
-An issue was identified with the underlier mapping from FpML to CDM for Equity Option Basket products. The mapping from CDM was not generating an underlier and its corresponding baskets for these products and therefore some samples were not accurately qualified.
-
-This release addresses this mapping issue, correctly generating the underlier and its corresponding baskets.
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-_Translate_
+This release introduces Python code generation functionality.  
 
-FpML synonym mappings added to populate CDM attribute `optionPayout -> underlier -> basket` with FpML path `equityOption -> underlyer -> basket` for Equity Option products with baskets.
+The Python distribution includes:
+- a class library mirroring the model namespace hierarchy
+- support for object construction, validation, and deserialization/serialization
+- includes docstrings documentation for data types, enums, and conditions
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+In the CDM Portal, go to the Downloads section, and download CDM as Python.
 
-In the CDM Portal, select Ingestion and review the following samples:
+Unzip and review the libs folder.  The library comes in two parts, each must be installed via pip.
 
-fpml-5-10/incomplete-products/equity-options
-
-- eqd ex08 basket long form
-- eqd ex20 nested basket
-- eqd ex21 flat weight basket
-- eqd ex26 mixed asset basket
+- a static runtime that provides certain core functionality: `rosetta_runtime-1.0.0-py3-none-any.whl`.  Install this package first.
+- the CDM library: `python_cdm-x.x.x-py3-none-any.whl`
+  
+These libraries are compatible with Python 3.10+ and rely upon [Pydantic](https://pydantic.dev).
