@@ -123,9 +123,12 @@ steps:
         commands:
           - python3 -m pip install pydantic
           - python3 -m pip install jsonpickle
-          - python3 -m pip install rosetta_runtime-1.0.0-py3-none-any.whl
-          - |-
-            python3 -m pip wheel --no-deps --only-binary :all: .
+          - python3 -m pip install runtime/rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip wheel --no-deps --only-binary :all: .
+          - python3 -m pip install python_cdm-*-py3-none-any.whl
+          - python3 -m pip install pytest
+          - pytest ./test/
+
 
   DeployParallelTasks:
     stage: 'build'
@@ -212,7 +215,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/python
         shell: bash
         commands:
-          - zip cdm-python-${{RELEASE_NAME}}.zip python_cdm-*-py3-none-any.whl rosetta_runtime-*-py3-none-any.whl
+          - zip cdm-python-${{RELEASE_NAME}}.zip python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
           - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-python-${{RELEASE_NAME}}.zip -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=zip -DgeneratePom=true
 
   BuildJavaDocs:
