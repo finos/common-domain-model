@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-The collateral interest calculation and handling representation, related data types and associated descriptions have been enhanced or refined with additional features.  It is intended to support vendor operational requirements in addition to terms included in the CSA or other collateral agreements.
+The collateral interest calculation and handling representation, related data types and associated descriptions have been enhanced or refined with additional features. This update is intended to support vendor operational requirements in addition to terms included in the Credit Support Annex (CSA) or other collateral agreements.
 
 - DistributionAndInterestPayment – this type has been updated to include a choice of the prior model or 0..* of a new CollateralInterestParameters type
 - The CollateralInterestParameters type has been added.  It is keyed by postingParty  (party 1 or party 2), marginType (Initial or Variation Margin), or currency.  This allows parameters to vary by any of these dimensions.  Keys may be omitted to allow defaulting.  Its contents include interestCalculationFrequency (which says how often to calculate interest (typically monthly), interestCalculationParameters (how much interest is accumulated), and interestHandlingParameters (how the interest amounts are used, i.e. are they transferred or are they used to adjust the collateral balance?  Is there netting? Etc.)
@@ -11,11 +11,11 @@ The collateral interest calculation and handling representation, related data ty
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above. Review and inspect all updated descriptions, these include missing, re written descriptions and any updates needed to be in line with the Rosetta style guide. These changes span across the following namespaces:
+In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above. Review and inspect all updated descriptions, these include missing, rewritten descriptions and any updates needed to be in line with the Rosetta style guide. These changes span across the following namespaces:
 
-- `base-datetime-enum`: 2 new enumerations, CompoundingTypeEnum and RoundingFrequencyEnum)
-- `base-datetime-type`: (1 new type, CalculationFrequency)
+- `base-datetime-enum`: two new enumerations, CompoundingTypeEnum and RoundingFrequencyEnum
+- `base-datetime-type`: one new type, CalculationFrequency
 - `mapping-fpml-confirmation-tradestate-synonyms`: changes to reflect update to the FloatingRate type
 - `product-asset-type`: Factored FloatingRateBase out of FloatingRate
-- `product-collateral-enum`:  3 new enumerations, AlternativeToInterestAmountEnum, CollateralInterestHandlingEnum, and DeliveryAmountElectionEnum 
+- `product-collateral-enum`:  three new enumerations, AlternativeToInterestAmountEnum, CollateralInterestHandlingEnum, and DeliveryAmountElectionEnum 
 - `product-collateral-type`:  The bulk of the new structures, starting with DistributionAndInterestPayment, and including CollateralInterestParameters, CollateralInterestCalculationParameters, and CollateralInterestHandlingParameters, and several supporting types
