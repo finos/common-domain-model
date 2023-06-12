@@ -11,7 +11,7 @@ committee structure pilots the development of the CDM:
 1.  The *CDM Executive Committee* is accountable for setting the
     strategy, promoting adoption of the standard, and overseeing the
     activity of the Working Groups and the Architecture & Review
-    Committee. Members are senior executives appointed by the ISDA Board
+    Committee. Members are senior executives appointed by the FINOS Board
     considering their strategic influence in the decision making at
     their firm and active contribution to the development of the CDM.
 2.  The *CDM Architecture and Review Committee* is responsible for
@@ -22,7 +22,7 @@ committee structure pilots the development of the CDM:
     documentation, and technical modelling.
 3.  The *CDM Working Groups* are assembled per subject matter or use
     cases to actively develop and implement concretely targeted elements
-    of the CDM. Participants include ISDA members and non-members from
+    of the CDM. Participants include FINOS members and non-members from
     the CDM user community who commit time and effort for the
     development and implementation of the CDM as a global standard.
 
@@ -35,7 +35,7 @@ A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM `design-principles`{.interpreted-text role="ref"} and
 `agile-development-approach`{.interpreted-text role="ref"} and submitted
-to ISDA staff and the Architecture & Review Committee for approval. In
+to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
@@ -318,7 +318,7 @@ transaction's lifecycle, from negotiating a legal agreement to
 allocating a block-trade, calculating settlement amounts or exchanging
 margin requirements.
 
-While ISDA defines the protocols for industry processes in its
+While FINOS defines the protocols for industry processes in its
 documentation library, differences in the implementation minutia may
 cause operational friction between market participants. Even the
 protocols that have a native digital representation have written
@@ -600,7 +600,7 @@ these steps:
     to each other, and, if applicable, a workflow.
 -   **Design approval**. Obtain approval of high-level conceptual design
     from CDM stakeholders:
-    -   CDM Owners (ISDA and other involved Trade Associations, where
+    -   CDM Owners (FINOS and other involved Trade Associations, where
         applicable)
     -   CDM Sub-Working Group, if applicable
     -   CDM Architecture and Review Committee
@@ -1002,9 +1002,9 @@ release notes), they will be specified as such.
 ### The CDM
 
 The model should be referred to as *the CDM*, without any ownership
-mention. The only exception is the [Overview of the ISDA
+mention. The only exception is the [Overview of the FINOS
 CDM](cdm-overview) section at the beginning of the user
-documentation when the CDM is introduced as *the ISDA CDM*.
+documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
 

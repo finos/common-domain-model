@@ -1,17 +1,16 @@
 ---
-title: Overview of the ISDA CDM
+title: Overview of the FINOS CDM
 ---
 
 **Continuous Integration:** [![Codefresh build
 status](https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1)](https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm)
-`<br />`{=html}
 
-# What is the ISDA CDM
+# What is the FINOS CDM
 
-The ISDA Common Domain Model (CDM) is a standardised, machine-readable
+The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
-[domain model](#) and distributed in open source.
+[domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353)(#) and distributed in open source.
 
 ## Purpose
 
@@ -33,8 +32,8 @@ enhances financial markets\' operational efficiency in several ways:
     reporting requirements.
 
 For further information about the CDM and its applications, please
-consult the [CDM section](#) of the ISDA website or contact ISDA directly
-at <marketinfrastructureandtechnology@isda.org>.
+consult the [CDM section](https://www.finos.org/common-domain-model)(#) of the FINOS website or contact FINOS directly
+at <marketinfrastructureandtechnology@FINOS.org>.
 
 ## Design Principles
 
@@ -64,22 +63,22 @@ securities financing, and commodities.
 
 # CDM Components
 
-**The CDM is made of three sets of components**, as laid-out in the ISDA
+**The CDM is made of three sets of components**, as laid-out in the FINOS
 CDM components diagram below:
 
--   The ISDA CDM Distribution (in *blue*)
+-   The FINOS CDM Distribution (in *blue*)
 -   The Rosetta DSL (in *grey*)
 -   CDM Applications (in *green*)
 
 ![](/img/cdm-components-diagram.png)
 
-## ISDA CDM Distribution
+## FINOS CDM Distribution
 
-The ISDA CDM distribution is openly accessible to all industry
-participants, subject to the ISDA CDM open source licence. This
+The FINOS CDM distribution is openly accessible to all industry
+participants, subject to the FINOS CDM open source licence. This
 distribution is fully downloadable.
 
-The ISDA CDM distribution comprises three main sets of components:
+The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rosetta DSL and contained into a set of *.rosetta* files
@@ -95,7 +94,7 @@ The ISDA CDM distribution comprises three main sets of components:
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rosetta DSL using [available code
-    generators](#). Once a code generator is implemented for a particular
+    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available)(#). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -167,7 +166,7 @@ Note
 :::
 
 The CDM Portal and Rosetta have been developed by technology firm
-[REGnosys](#). ISDA encourages the adoption of CDM by software providers
+[REGnosys](#). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 :::
 

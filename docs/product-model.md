@@ -910,7 +910,7 @@ type ProductBase:
 The data types that extend from ProductBase are Index, Commodity, Loan,
 and Security. Index and Commodity do not have any additional attributes.
 In the case of Commodity, the applicable product identifiers are the
-ISDA definitions for reference benchmarks. Loan and Security both have a
+FINOS definitions for reference benchmarks. Loan and Security both have a
 set of additional attributes, as shown below:
 
 ``` Haskell
@@ -969,9 +969,9 @@ inferred. The Product Qualification function name in the CDM begins with
 the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
-The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
+The CDM implements the FINOS Product Taxonomy v2.0 to qualify contractual
 products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
+prevalence of usage of the FINOS Product Taxonomy v1.0, the equivalent
 name from that taxonomy is also systematically indicated in the CDM,
 using a `synonym` annotation displayed under the function output. An
 example is provided below for the qualification of a Zero-Coupon
@@ -1012,7 +1012,7 @@ Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix
 is part of the function name. Credit Default products are qualified, but
-not down to the full level of detail. The ISDA Product Taxonomy v2.0
+not down to the full level of detail. The FINOS Product Taxonomy v2.0
 references the FpML *transaction type* field instead of just the product
 features, whose possible values are not publicly available and hence not
 positioned as a CDM enumeration.
@@ -1064,11 +1064,11 @@ type ProductTaxonomy extends Taxonomy:
       },
       "value": "InterestRate:IRSwap:FixedFloat"
     }
-    "taxonomySource": "ISDA"
+    "taxonomySource": "FINOS"
   },
   {
     "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "ISDA"
+    "taxonomySource": "FINOS"
   }
 ]
 ```

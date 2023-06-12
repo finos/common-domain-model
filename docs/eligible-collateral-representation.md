@@ -670,8 +670,8 @@ taxonomy source.
 -   The data attribute `taxonomySource` must be specified and will
     provide the following options through the enumerations list:
     -   CFI (The ISO 10962 Classification of Financial Instruments code)
-    -   ISDA (The ISDA product taxonomy)
-    -   ICAD (ISDA Collateral Asset Definition Identifier code)
+    -   FINOS (The FINOS product taxonomy)
+    -   ICAD (FINOS Collateral Asset Definition Identifier code)
     -   EU EMIR Eligible Collateral Asset Class (European Union Eligible
         Collateral Assets classification categories based on EMIR
         Uncleared Margin Rules)
@@ -683,7 +683,7 @@ taxonomy source.
         Margin Rules published by the CFTC and the US Prudential
         Regulators)
 
-The options CFI, ISDA and ICAD would be further expressed with the
+The options CFI, FINOS and ICAD would be further expressed with the
 flexible data *'string'* representation through data type
 `ProductTaxonomy`.
 

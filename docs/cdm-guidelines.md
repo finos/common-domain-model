@@ -33,9 +33,9 @@ Download page for zip files of the Java code and examples
 
     Direct links:
 
-    :   [ISDA CDM as Java Code](#)
+    :   [FINOS CDM as Java Code](#)
 
-        [ISDA CDM as Java Examples](#)
+        [FINOS CDM as Java Examples](#)
 
 Tutorials
 

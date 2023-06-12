@@ -33,8 +33,8 @@ The following set of synonym sources are currently in place for the CDM:
     submission
 -   **AcadiaSoft** (synonym source: `AcadiaSoft_AM_1_0`): synonyms to
     version 1.0 of AcadiaSoft Agreement Manager
--   **ISDA Create** (synonym source: `ISDA_Create_1_0`): synonyms to
-    version 1.0 of the ISDA Create tool for Initial Margin negotiation
+-   **FINOS Create** (synonym source: `FINOS_Create_1_0`): synonyms to
+    version 1.0 of the FINOS Create tool for Initial Margin negotiation
 -   **ORE** (synonym source: `ORE_1_0_39`): synonyms to version 1.0.39
     of the ORE XML Model
 
