@@ -48,7 +48,7 @@ design principles that include the following concepts:
 -   **Modularisation** into logical layers
 
 These design principles are further detailed in the
-`design-principles`{.interpreted-text role="ref"} section of the CDM
+[design-principles](#design-principles) section of the CDM
 documentation.
 
 ## Governance

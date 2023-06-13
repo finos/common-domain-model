@@ -55,7 +55,7 @@ Direct link: [Tutorials](https://vimeo.com/359012532)(#)
 
 # Setting Up Google\'s Guice Injector
 
-CDM uses [Google\'s Guice](#) as a dependency manager. Injector is the
+CDM uses [Google\'s Guice](https://github.com/google/guice)(#) as a dependency manager. Injector is the
 core of Guice that contains the whole object graph (context).
 
 The first step is to initialise the injector. There are two options:
