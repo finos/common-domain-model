@@ -36,7 +36,7 @@ type EquityAdditionalTerms: <"TransactionAdditionalTerms whi.ch apply to Equity 
 type SubstitutionProvisions: <"Where parties describe any substitution terms.">
 
 	whoMaySubstitute CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
-	substitutionBeSpokeTerms string (1..1) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
+	substitutionBeSpokeTerms AdditionalBespokeTerm (1..1) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
 	substitutionTriggerEvents NewExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
 	disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
 
@@ -45,7 +45,7 @@ type SubstitutionProvisions: <"Where parties describe any substitution terms.">
 
 type NewExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
 
-	additionalBespokeTerms string (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
+	additionalBespokeTerms AdditionalBespokeTerm (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
 	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
 	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
 	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
@@ -204,7 +204,7 @@ type SpecificNonTransferability:
 type EscrowArrangement: <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective, as as described in Section 5.2.(c).(iv). in the 1998 FX and Currency Option Definitions.">
 	escrowArrangementIsApplicable boolean (1..1)
 	maximumDaysOfDisruption cdm.observable.asset.ValuationPostponement (0..1)
-	bespokeEscrowArrangements string (0..1)
+	bespokeEscrowArrangements AdditionalBespokeTerm (0..1)
 
 	condition SettlementPostponementExistence: 
 	if escrowArrangementIsApplicable  = False then maximumDaysOfDisruption is absent
