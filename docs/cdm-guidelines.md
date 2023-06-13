@@ -17,7 +17,7 @@ version of CDM. Topics covered are listed below:
 
 # Introduction
 
--   The CDM in Java is built using [maven](#) and is published using the
+-   The CDM in Java is built using [maven](https://maven.apache.org)(#) and is published using the
     REGnosys artifactory. The repository can be accessed using the maven
     settings file that is included in the cdm sources jar or by copying
     the repository information to your own settings.
