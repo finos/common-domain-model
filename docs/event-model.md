@@ -1021,7 +1021,7 @@ The benefits of the CDM generic approach are twofold:
 -   Gathering all of those in one place in the model allows for
     evaluation and rationalisation down the road.
 
-Below is an instance of a CDM representation ([serialised](#) into JSON)
+Below is an instance of a CDM representation ([serialised](https://en.wikipedia.org/wiki/Serialization)(#) into JSON)
 of this approach.
 
 ``` JSON

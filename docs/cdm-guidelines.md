@@ -41,7 +41,7 @@ Tutorials
 
 ![](/img/cdm-tutorials.png)
 
-Direct link: [Tutorials](#)
+Direct link: [Tutorials](https://vimeo.com/359012532)(#)
 
 -   The CDM model objects are classified into namespaces (cdm.base,
     cdm.base.staticdata, etc). These namespaces translate into Java
@@ -50,7 +50,7 @@ Direct link: [Tutorials](#)
 
 ![](/img/cdm-distribution.png)
 
--   The CDM uses [builder pattern](#) for each of the pojos. The
+-   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern)(#) for each of the pojos. The
     distribution ships with the json to java object serialisers.
 
 # Setting Up Google\'s Guice Injector

@@ -552,7 +552,7 @@ technology or service vendors. It describes:
 
 ::: {#modelling-platforms}
 Development of the CDM is supported through various modelling platforms,
-including [Rosetta](https://rosetta-technology.io)(#) and [Legend](#). Regardless of the modelling
+including [Rosetta](https://rosetta-technology.io)(#) and [Legend](https://legend.finos.org/studio)(#). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
 the contribution check-list below.
 :::
@@ -669,7 +669,7 @@ certain mapper implementations).
 
 The Rosetta support team can help resolve these errors before the
 changes are contributed. In most cases you will be able to contact the
-team via the [In-App chat](#). If the support team identifies that
+team via the [In-App chat](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat)(#). If the support team identifies that
 significant work may be required to resolve these errors, they will
 notify the Contributor who should then contact the CDM Maintainer
 originally appointed for the proposed change and/or CDM Owners. The
@@ -698,7 +698,7 @@ adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](#) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component)(#) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -767,7 +767,7 @@ Note
 :::
 
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](#).
+under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda)(#).
 :::
 
 When using Rosetta to contribute model changes, the contribution
