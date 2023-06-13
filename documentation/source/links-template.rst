@@ -1,19 +1,4 @@
-.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
-.. _Rosetta Design Content Assist Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#rosetta-design-content-assist
-.. _Rosetta DSL Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component
-.. _Rosetta Design Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta
-.. _Rosetta Auto Compilation Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#auto-completion-scoping
-.. _Rosetta Workspace Contribution Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes
-.. _Rosetta Translate Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/
-.. _Rosetta: https://rosetta-technology.io
-.. _Rosetta Starter Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta
-.. _available code generators: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available
-.. _Rosetta Documentation: https://docs.rosetta-technology.io/rosetta/rosetta-products/
 
-.. _REGnosys: https://regnosys.com
-
-.. _Code Generation Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators
-.. _available languages: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available
 .. _Mapping Component Section: https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component
 .. _Source Control Integration Guide: https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration
 .. _In-App chat: https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat

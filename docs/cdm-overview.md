@@ -158,7 +158,7 @@ commercial terms. In particular:
     Rosetta DSL, that provides an *editable* version of the CDM Portal.
     It allows the industry community to directly participate in the CDM
     development by contributing code to the CDM. Please refer to the
-    [Rosetta Documentation](#) for more details.
+    [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/)(#) for more details.
 
 ::: note
 ::: title
@@ -166,7 +166,7 @@ Note
 :::
 
 The CDM Portal and Rosetta have been developed by technology firm
-[REGnosys](#). FINOS encourages the adoption of CDM by software providers
+[REGnosys](https://regnosys.com)(#). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 :::
 

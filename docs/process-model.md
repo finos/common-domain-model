@@ -41,7 +41,7 @@ widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rosetta DSL and is further
-described in the [Code Generation Section](#), including an up-to-date
+described in the [[Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators)(#), including an up-to-date
 list of [available languages](#). Support for further languages can be
 added as required by market participants.
 

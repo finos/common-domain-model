@@ -552,7 +552,7 @@ technology or service vendors. It describes:
 
 ::: {#modelling-platforms}
 Development of the CDM is supported through various modelling platforms,
-including [Rosetta](#) and [Legend](#). Regardless of the modelling
+including [Rosetta](https://rosetta-technology.io)(#) and [Legend](#). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
 the contribution check-list below.
 :::
@@ -584,7 +584,7 @@ following pre-modelling checklist:
 
 -   Review the `design-principles`{.interpreted-text role="ref"} and
     `governance`{.interpreted-text role="ref"}
--   Review the [Rosetta Starter Guide](#) or equivalent in your chosen
+-   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta)(#) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
@@ -691,7 +691,7 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](#).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/)(#).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
@@ -774,7 +774,7 @@ When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
 contribution. Those inputs are used to create a Pull Request on a
 one-off branch in the source-control repository. Please refer to the
-[Rosetta Workspace Contribution Guide](#) for more information.
+[Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes)(#) for more information.
 
 ::: note
 ::: title
