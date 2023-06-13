@@ -152,7 +152,7 @@ implementation of CDM-based production systems by industry participants.
 These applications may be open source software or licensed under
 commercial terms. In particular:
 
--   The [CDM Portal](#) provides a user interface allowing users to
+-   The [CDM Portal](https://portal.cdm.rosetta-technology.io)(#) provides a user interface allowing users to
     navigate through and download the CDM.
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
     Rosetta DSL, that provides an *editable* version of the CDM Portal.

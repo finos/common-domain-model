@@ -23,7 +23,7 @@ version of CDM. Topics covered are listed below:
     the repository information to your own settings.
 -   The CDM in Java code, a related set of examples, and a video
     tutorial accessing the code and loading the examples are available
-    in the [CDM Portal](#):
+    in the [CDM Portal](https://portal.cdm.rosetta-technology.io)(#):
 
 Download page for zip files of the Java code and examples
 

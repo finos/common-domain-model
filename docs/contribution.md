@@ -676,7 +676,7 @@ originally appointed for the proposed change and/or CDM Owners. The
 latter will be able to assist in the resolution of the issues.
 
 For more information about auto-compilation using the Rosetta DSL,
-please refer to the [Rosetta Auto Compilation Guide](#).
+please refer to the [Rosetta Auto Compilation Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#auto-completion-scoping)(#).
 
 ### Testing
 

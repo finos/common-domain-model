@@ -19,4 +19,4 @@ language components used by the CDM including types, functions and
 annotations are described in the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component)(#).
 
 The complete model definition, including descriptions and other details
-can be viewed in the [Textual Browser](#) in the [CDM Portal](#).
+can be viewed in the [Textual Browser](https://portal.cdm.rosetta-technology.io/#/text-browser)(#) in the [CDM Portal](https://portal.cdm.rosetta-technology.io)(#).
