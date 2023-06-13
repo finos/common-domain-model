@@ -33,9 +33,9 @@ Download page for zip files of the Java code and examples
 
     Direct links:
 
-    :   [FINOS CDM as Java Code](#)
+    :   [FINOS CDM as Java Code](https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution)(#)
 
-        [FINOS CDM as Java Examples](#)
+        [FINOS CDM as Java Examples](https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples)(#)
 
 Tutorials
 
