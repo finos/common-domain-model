@@ -53,7 +53,7 @@ steps:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: maven:3.8.2-jdk-11-slim
+    image: maven:3.8.2-jdk-11
     working_directory: ./
     when:
       condition:
@@ -117,69 +117,69 @@ steps:
         stage: 'build'
         title: DAML deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/
         shell: bash
         commands:
           - cd ${{REPO_PATH}}/rosetta-source/target
           - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployScala:
         stage: 'build'
         title: Scala deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
           - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployCSharp8:
         stage: 'build'
         title: CSharp8 deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
           - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployCSharp9:
         stage: 'build'
         title: CSharp9 deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
           - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployTypeScript:
         stage: 'build'
         title: TypeScript deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployGo:
         stage: 'build'
         title: Go deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
           - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
-          - mvn deploy:deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployKotlin:
         stage: 'build'
         title: Kotlin deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11-slim
+        image: maven:3.8.2-jdk-11
         working_directory: ./
         shell: bash
         commands:
