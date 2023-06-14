@@ -22,7 +22,7 @@ steps:
       - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
       - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}"
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
-      - cf_export GPG_IMPORT_COMMAND="bash -c cat <(echo -e \"${{GPG_PRIVATE_KEY}}\") | gpg --batch --import"
+      - cf_export GPG_IMPORT_COMMAND="cat <(echo -e \"${{GPG_PRIVATE_KEY}}\") | gpg --batch --import"
 
   ReleaseProperties:
     stage: 'setup'
@@ -50,24 +50,6 @@ steps:
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,gpg"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
-  MvnJdkGpgBuildImage:
-    stage: 'build'
-    title: Building Docker Image
-    type: build
-    dockerfile:
-      content: |-
-        FROM maven:3.8.2-jdk-11
-        
-        SHELL ["/bin/bash", "-c"]
-        
-        RUN gpg --list-secret-keys --keyid-format LONG
-        # Install gpg secret key
-        RUN cat <(echo -e "${{GPG_PRIVATE_KEY}}") | gpg --batch --import
-        # Verify gpg secret key
-        RUN gpg --list-secret-keys --keyid-format LONG
-
-    image_name: mvn-gpg-build
-
   Build:
     stage: 'build'
     title: Maven build
@@ -75,7 +57,7 @@ steps:
     image: maven:3.8.2-jdk-11
     working_directory: ./
     commands:
-      - ${{GPG_IMPORT_COMMAND}}
+      - bash -c "${{GPG_IMPORT_COMMAND}}"
       - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
       - mvn ${{MVN_DEPLOY_FLAGS}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
@@ -137,7 +119,7 @@ steps:
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - cd ${{REPO_PATH}}/rosetta-source/target
           - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
@@ -149,7 +131,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - cd ${{REPO_PATH}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
@@ -161,7 +143,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployCSharp9:
@@ -172,7 +154,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployTypeScript:
@@ -183,7 +165,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
       DeployGo:
@@ -194,7 +176,7 @@ steps:
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployKotlin:
@@ -205,7 +187,7 @@ steps:
         working_directory: ./
         shell: bash
         commands:
-          - ${{GPG_IMPORT_COMMAND}}
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
           - cd rosetta-source/target/classes/cdm/kotlin
           - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:update-parent -DparentVersion=${{RELEASE_NAME}} -DallowSnapshots=true
           - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
