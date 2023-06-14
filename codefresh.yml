@@ -74,6 +74,7 @@ steps:
     image: ${{MvnJdkGpgBuildImage}}
     working_directory: ./
     commands:
+      - echo ${{GPG_PASSPHRASE}}
       - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
       - mvn ${{MVN_DEPLOY_FLAGS}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
@@ -131,7 +132,7 @@ steps:
         stage: 'build'
         title: DAML deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/
         shell: bash
         commands:
@@ -142,7 +143,7 @@ steps:
         stage: 'build'
         title: Scala deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/target/classes/cdm/scala
         shell: bash
         commands:
@@ -153,7 +154,7 @@ steps:
         stage: 'build'
         title: CSharp8 deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
         shell: bash
         commands:
@@ -163,7 +164,7 @@ steps:
         stage: 'build'
         title: CSharp9 deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
         shell: bash
         commands:
@@ -173,7 +174,7 @@ steps:
         stage: 'build'
         title: TypeScript deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
@@ -183,7 +184,7 @@ steps:
         stage: 'build'
         title: Go deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./rosetta-source/target/classes/cdm
         shell: bash
         commands:
@@ -193,7 +194,7 @@ steps:
         stage: 'build'
         title: Kotlin deploy
         fail_fast: false
-        image: maven:3.8.2-jdk-11
+        image: ${{MvnJdkGpgBuildImage}}
         working_directory: ./
         shell: bash
         commands:
