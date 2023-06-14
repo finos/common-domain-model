@@ -5,7 +5,11 @@
  * CDM for Repo and Bonds Demo
  *
  * This file is intended for demo purposes only and may not be distributed
+<<<<<<< HEAD
  * or used in any commercial capacity other then its intended purpose.
+=======
+ * or used in any commercial capacity other than its intended purpose.
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
  *
  * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
  * THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
@@ -55,7 +59,13 @@ import cdm.event.common.Trade;
 import cdm.event.common.TradeIdentifier;
 import cdm.event.common.ExecutionDetails;
 import cdm.event.common.*;
+<<<<<<< HEAD
 import cdm.legaldocumentation.common.*;
+=======
+import cdm.legaldocumentation.common.AgreementName;
+import cdm.legaldocumentation.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreementIdentification;
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.product.asset.*;
 import cdm.product.collateral.*;
@@ -156,6 +166,7 @@ public class RepoLegalAgreementCreation {
 			String agreementUrl
 	) throws JsonProcessingException {
 
+<<<<<<< HEAD
 		Integer vintage = Integer.parseInt(agreementVintageStr);
 
 		LegalAgreement lga;
@@ -178,6 +189,13 @@ public class RepoLegalAgreementCreation {
 		}
 
 		return lga;
+=======
+		return LegalAgreement.builder()
+				.setLegalAgreementIdentification(LegalAgreementIdentification.builder()
+						.setAgreementName(AgreementName.builder()
+								.setMasterAgreementTypeValue(MasterAgreementTypeEnum.GMRA)))
+				.build();
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 	}
 }

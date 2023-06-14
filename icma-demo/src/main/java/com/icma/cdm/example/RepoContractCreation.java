@@ -5,7 +5,11 @@
  * CDM for Repo and Bonds Demo
  *
  * This file is intended for demo purposes only and may not be distributed
+<<<<<<< HEAD
  * or used in any commercial capacity other then its intended purpose.
+=======
+ * or used in any commercial capacity other than its intended purpose.
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
  *
  * This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
  * THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A

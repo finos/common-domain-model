@@ -33,7 +33,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+<<<<<<< HEAD
 import javax.swing.border.Border;
+=======
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 import cdm.base.datetime.*;
 import cdm.base.datetime.AdjustableDate;
@@ -111,10 +114,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
+<<<<<<< HEAD
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+=======
+import java.util.List;
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import cdm.event.common.functions.Create_RollPrimitiveInstruction;
 import org.isda.cdm.CdmRuntimeModule;
 
@@ -123,9 +130,13 @@ import static com.rosetta.model.lib.records.Date.of;
 public class RepoTradingApp extends JFrame implements ActionListener{
 	
 	private JFrame frame;
+<<<<<<< HEAD
 	private JPanel mainContainer;
 	private JPanel panel;
 	private JPanel panel2;
+=======
+	private JPanel panel;
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	
 	private JButton newTradeBtn;
 	private JButton bookTradeBtn;
@@ -133,17 +144,26 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JButton terminateTradeBtn;
 	private JButton rerateTradeBtn;
 	private JButton reportTradeBtn;
+<<<<<<< HEAD
 
 
 	private JComboBox transactionTypeField;
 
 	private JComboBox tradeDirectionField;
+=======
+	
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	private JTextField tradeDateField;
 	private JTextField purchaseDateField;
 	private JTextField repurchaseDateField;
 	private JTextField tradeUTIField;
+<<<<<<< HEAD
 	private JComboBox buyerLEIField;
 	private JComboBox sellerLEIField;
+=======
+	private JTextField buyerLEIField;
+	private JTextField sellerLEIField;
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	private JTextField collateralDescriptionField;
 	private JTextField collateralISINField;
 	private JTextField collateralQuantityField;
@@ -165,6 +185,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JTextField termDaysField;
 	private JTextField purchasePriceField;
 	private JTextField repurchasePriceField;
+<<<<<<< HEAD
 
 	//Panel 2 fields
 
@@ -209,6 +230,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 	private JTextField tradeIdField;
 	private JTextField statusField;
+=======
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	
 	private boolean dbEnabled = false;
 	
@@ -231,6 +254,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	public String PDformattedDateTimeString;
 	public ZonedDateTime RDzonedDateTime;
 	public String RDformattedDateTimeString;
+<<<<<<< HEAD
 
 	public String ETformattedDateTimeString;
 	public DateTimeFormatter formatter;
@@ -238,6 +262,10 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	public ZonedDateTime ETzonedDateTime;
 	public DateTimeFormatter ETformatter;
 
+=======
+	public DateTimeFormatter formatter;
+
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	public DateTimeFormatter eventFileformatter;
 	private JTextArea outputArea;
 
@@ -245,7 +273,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 	JScrollPane scrollPane = null;
 
+<<<<<<< HEAD
 	Map<String, String> cdmMap = new HashMap<>();
+=======
+
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 	
 	public static void main( String[] args ) throws JsonProcessingException  {
@@ -260,8 +292,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 	public void BuildTicketPanel () throws JsonProcessingException {
 
+<<<<<<< HEAD
 		IcmaRepoUtil ru = new IcmaRepoUtil();
 
+=======
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		JFrame eout= new JFrame("Business Event Output");
 		eout.setLayout(new FlowLayout(FlowLayout.LEFT));
 		eout.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -282,7 +317,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		frame = new JFrame( "ICMA CDM Repo Demo" );
 		frame.setLayout(new FlowLayout(FlowLayout.LEFT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+<<<<<<< HEAD
 		frame.setSize( 800, 800 );
+=======
+		frame.setSize( 400, 800 );
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		JPanel logoPanel = new JPanel();
 		try{
@@ -293,6 +332,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		ioe.printStackTrace();
 		}
 
+<<<<<<< HEAD
 		Border blackline = BorderFactory.createLineBorder(Color.black);
 		mainContainer = new JPanel();
 		mainContainer.setLayout(new GridBagLayout());
@@ -341,13 +381,33 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		panel.add(tradeDirectionPanel);
 
 
+=======
+
+
+
+		panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		frame.add(panel);
+		
+		
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		//Trade Date
 		JPanel tradeDatePanel = new JPanel(new GridBagLayout());
 		JLabel tradeDateLabel = new JLabel("Trade Date:",JLabel.LEFT);
 		tradeDateLabel.setPreferredSize(new Dimension(150, 15));
+<<<<<<< HEAD
 		tradeDateField = new JTextField(15);
 		LocalDateTime localDateTime = LocalDateTime.now();
 		TDzonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of(this.defaultLocalTimeZone));
+=======
+		
+		tradeDateField = new JTextField(15);
+
+		LocalDateTime localDateTime = LocalDateTime.now();
+
+		TDzonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of(this.defaultLocalTimeZone));
+
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		TDformattedDateTimeString = TDzonedDateTime.format(formatter);
 		
@@ -409,6 +469,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		
 		//Buyer
 		JPanel buyerLEIPanel = new JPanel(new GridBagLayout());
+<<<<<<< HEAD
 		JLabel buyerLEILabel = new JLabel("Buyer:",JLabel.LEFT);
 		buyerLEILabel.setPreferredSize(new Dimension(150, 15));
 
@@ -417,12 +478,19 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		buyerLEIField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		buyerLEIField.setPreferredSize(new Dimension(170, 20));
+=======
+		JLabel buyerLEILabel = new JLabel("Buyer LEI:",JLabel.LEFT);
+		buyerLEILabel.setPreferredSize(new Dimension(150, 15));
+		buyerLEIField = new JTextField(15);
+		buyerLEIField.setText("529900DTJ5A7S5UCBB52");
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		buyerLEIPanel.add(buyerLEILabel);
 		buyerLEIPanel.add(buyerLEIField);
 		panel.add(buyerLEIPanel);
 		
 		//Seller
 		JPanel sellerLEIPanel = new JPanel(new GridBagLayout());
+<<<<<<< HEAD
 		JLabel sellerLEILabel = new JLabel("Seller:",JLabel.LEFT);
 		sellerLEILabel.setPreferredSize(new Dimension(150, 15));
 
@@ -432,6 +500,12 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		sellerLEIField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		sellerLEIField.setPreferredSize(new Dimension(170, 20));
 
+=======
+		JLabel sellerLEILabel = new JLabel("Seller LEI:",JLabel.LEFT);
+		sellerLEILabel.setPreferredSize(new Dimension(150, 15));
+		sellerLEIField = new JTextField(15);
+		sellerLEIField.setText("5493000SCC07UI6DB380");
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		sellerLEIPanel.add(sellerLEILabel);
 		sellerLEIPanel.add(sellerLEIField);
 		panel.add(sellerLEIPanel);
@@ -605,12 +679,20 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 
 		//Termination Option
+<<<<<<< HEAD
 		String[] terminationChoices = { "","Early Termination", "Evergreen", "Extendible"};
 		JPanel terminationOptionPanel = new JPanel(new GridBagLayout());
 		JLabel terminationOptionLabel = new JLabel("Termination Option:",JLabel.LEFT);
 		terminationOptionLabel.setPreferredSize(new Dimension(150, 15));
 		terminationOptionField = new JComboBox<String>(terminationChoices);
 
+=======
+		String[] terminationChoices = { "N", "Y"};
+		JPanel terminationOptionPanel = new JPanel(new GridBagLayout());
+		JLabel terminationOptionLabel = new JLabel("Early Termination:",JLabel.LEFT);
+		terminationOptionLabel.setPreferredSize(new Dimension(150, 15));
+		
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		terminationOptionField = new JComboBox<String>(terminationChoices);
 		terminationOptionField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		terminationOptionField.setPreferredSize(new Dimension(170, 20));
@@ -711,6 +793,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		repurchasePricePanel.add(repurchasePriceField);
 		panel.add(repurchasePricePanel);
 
+<<<<<<< HEAD
 		//Panel 2
 
 		//Trading Book
@@ -1079,6 +1162,40 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		actionPanel.add(actionBtnPanel);
 		frame.add(actionPanel,apgbc);
+=======
+
+
+
+		
+
+		JPanel actionPanel = new JPanel(new GridLayout(3,6));
+		
+		newTradeBtn = new JButton("New Trade");
+		newTradeBtn.addActionListener(this);
+		actionPanel.add(newTradeBtn);
+		
+		bookTradeBtn = new JButton("Book Trade");
+		bookTradeBtn.addActionListener(this);
+		actionPanel.add(bookTradeBtn);
+		
+		rollTradeBtn = new JButton("Roll");
+		rollTradeBtn.addActionListener(this);
+		actionPanel.add(rollTradeBtn);
+		
+		terminateTradeBtn = new JButton("Terminate");
+		terminateTradeBtn.addActionListener(this);
+		actionPanel.add(terminateTradeBtn);
+		
+		rerateTradeBtn = new JButton("Re-Rate");
+		rerateTradeBtn.addActionListener(this);
+		actionPanel.add(rerateTradeBtn);
+		
+		reportTradeBtn = new JButton("SFTR");
+		reportTradeBtn.addActionListener(this);
+		actionPanel.add(reportTradeBtn);
+		
+		panel.add(actionPanel, BorderLayout.SOUTH);
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		frame.setVisible( true );
 
@@ -1098,11 +1215,15 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String formattedDateTimeString = startDateTime.format(formatter);
 		tradeDateField.setText(formattedDateTimeString);
 
+<<<<<<< HEAD
 		//Execution Time
 		DateTimeFormatter ETformatter = DateTimeFormatter.ofPattern("hh:mm:ss");
 		ETzonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of(this.defaultLocalTimeZone));
 		ETformattedDateTimeString = ETzonedDateTime.format(ETformatter);
 		executionTimeField.setText(ETformattedDateTimeString);
+=======
+
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		//Purchase Date
 		purchaseDateField.setText(formattedDateTimeString);
@@ -1118,6 +1239,16 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		//UTI
 		tradeUTIField.setText("ICMA202303231000178");
 
+<<<<<<< HEAD
+=======
+		
+		//Buyer
+		buyerLEIField.setText("529900DTJ5A7S5UCBB52");
+
+		
+		//Seller
+		sellerLEIField.setText("5493000SCC07UI6DB380");
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		
 		//Collateral
@@ -1181,10 +1312,13 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		//Repurchase Price
 		repurchasePriceField.setText("9879155.06");
 
+<<<<<<< HEAD
 		agreementNameField.setText("GMRA");
 
 		agreementVersionField.setText("2011");
 
+=======
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		this.initRepoWorkflow();
 
 	}
@@ -1202,7 +1336,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			JOptionPane.showMessageDialog(this, "Book Trade", "Alert", JOptionPane.INFORMATION_MESSAGE);
 			try {
 				String businessEvent = this.bookTrade();
+<<<<<<< HEAD
 				this.statusField.setText("EXECUTED");
+=======
+
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 				System.out.println(businessEvent);
 				outputArea.setText(businessEvent);
 
@@ -1234,7 +1372,10 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			
 			try {
 				String businessEvent = this.rollTrade();
+<<<<<<< HEAD
 				this.statusField.setText("ROLLED");
+=======
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 				System.out.println(businessEvent);
 				outputArea.setText(businessEvent);
 
@@ -1261,9 +1402,16 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 			try {
 				String businessEvent = this.earlyTerminateTrade();
+<<<<<<< HEAD
 				this.statusField.setText("EARLY TERMINATION");
 				System.out.println(businessEvent);
 				outputArea.setText(businessEvent);
+=======
+
+				String repoBusinesseventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
+				System.out.println(repoBusinesseventJson);
+				outputArea.setText(repoBusinesseventJson);
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 				IcmaRepoUtil ru = new IcmaRepoUtil();
 
@@ -1396,8 +1544,12 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	//Functions linked to button actions
 	
 	public String bookTrade()throws IOException{
+<<<<<<< HEAD
 
 
+=======
+	
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		String tdt = this.tradeDateField.getText();
 		String tradeDateStr = tdt.replaceAll("\\s", "") + "T00:00:00.000+00:00";
 		
@@ -1408,6 +1560,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String repurchaseDateStr = rdt.replaceAll("\\s", "") + "T00:00:00.000+00:00";
 		
 		String tradeUTIStr = this.tradeUTIField.getText();
+<<<<<<< HEAD
 
 
 		CItem buyer = (CItem) this.buyerLEIField.getSelectedItem();
@@ -1426,6 +1579,10 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			throw new IOException("Seller cannot be empty");
 		}
 
+=======
+		String buyerLEIStr = this.buyerLEIField.getText();
+		String sellerLEIStr = this.sellerLEIField.getText();
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		String collateralDescriptionStr = this.collateralDescriptionField.getText();
 		String collateralISINStr = this.collateralISINField.getText();
 		
@@ -1449,14 +1606,21 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String repurchasePriceStr = this.repurchasePriceField.getText().replaceAll(",","").trim();
 
 		//Predefined Values
+<<<<<<< HEAD
 		String agreementNameStr = this.agreementNameField.getText();
 		String agreementGoverningLawStr = "England";
 		String agreementVintageStr = this.agreementVersionField.getText();
+=======
+		String agreementNameStr = "GMRA";
+		String agreementGoverningLawStr = "England";
+		String agreementVintageStr = "2011";
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		String agreementPublisherStr = "ICMA";
 		String agreementDateStr = "2011-04-20";
 		String agreementIdentifierStr =  "GMRA-2011_2011-04-20";
 		String agreementEffectiveDate = "2011-04-20";
 		String agreementUrl = "https://www.icmagroup.org/assets/documents/Legal/GMRA-2011_2011.04.20_formular_copy-incl-annexes-and-buy-sell-back-annex.pdf";
+<<<<<<< HEAD
 		String businessCenter = this.businessCenterOptionField.getSelectedItem().toString();
 		String execVenueCode = this.venueCodeOptionField.getSelectedItem().toString();
 		String execVenueScheme = "MIC";
@@ -1505,15 +1669,29 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		RepoLifeCycle repoExecution = new RepoLifeCycle();
 
+=======
+		
+
+		
+		RepoLifeCycle repoExecution = new RepoLifeCycle();
+		
+
+		
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		String businessEvent = repoExecution.RepoExecution(
 		tradeDateStr,					// tradeDateStr = .getText();
 		purchaseDateStr,				// purchaseDateStr
 		repurchaseDateStr,				// repurchaseDateStr
 		tradeUTIStr,  					// tradeUTIStr
+<<<<<<< HEAD
 		buyerLEIStr, 					// buyerLEIStr,
 				buyerNameStr,			// buyerNameStr
 		sellerLEIStr, 					// sellerLEIStr
 				sellerNameStr,
+=======
+		buyerLEIStr, 					// buyerLEIStr
+		sellerLEIStr, 					// sellerLEIStr
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		collateralDescriptionStr,		// collateralDescriptionStr
 		collateralISINStr,				// collateralISINStr
 		collateralQuantityStr,			// collateralQuantitySt
@@ -1541,6 +1719,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		agreementDateStr,
 		agreementIdentifierStr,
 		agreementEffectiveDate,
+<<<<<<< HEAD
 		agreementUrl,
 				businessCenter,
 				execVenueCode,
@@ -1557,6 +1736,9 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 				tripartyNameStr,
 				clearingMemberLeiStr,
 				clearingMemberNameStr
+=======
+		agreementUrl
+>>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		);
 		
 
