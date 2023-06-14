@@ -33,7 +33,7 @@ amendments in accordance with the following process:
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM `design-principles`{.interpreted-text role="ref"} and
+CDM `design-principles` and
 `agile-development-approach`{.interpreted-text role="ref"} and submitted
 to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
