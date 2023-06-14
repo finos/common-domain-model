@@ -49,26 +49,27 @@ steps:
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,gpg"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh"
 
-  MvnGpgBuildImage:
+  MvnJdkGpgBuildImage:
     stage: 'build'
     title: Building Docker Image
     type: build
-    dockerfile: |-
-      FROM maven:3.8.2-jdk-11
-      
-      RUN echo hello
-      #  RUN gpg --list-secret-keys --keyid-format LONG
-
-      # Install gpg secret key
-      #  RUN cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
-      # Verify gpg secret key
+    dockerfile:
+      content: |-
+        FROM maven:3.8.2-jdk-11
+        
+        RUN echo hello
+        #  RUN gpg --list-secret-keys --keyid-format LONG
+  
+        # Install gpg secret key
+        #  RUN cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+        # Verify gpg secret key
     image_name: mvn-gpg-build
 
   Build:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: ${{MvnGpgBuildImage}}
+    image: ${{MvnJdkGpgBuildImage}}
     working_directory: ./
     commands:
       - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
