@@ -9,7 +9,7 @@ This release updates the `rosetta-dsl` dependency:
       square brackets. See https://github.com/REGnosys/rosetta-dsl/issues/569
 
 The model has been updated to conform to the new DSL syntax. No logical changes to
-the model has been made, so the test expectations remain the same.
+the model have been made, so the test expectations remain the same.
 
 _Review directions_
 
