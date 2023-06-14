@@ -552,7 +552,7 @@ technology or service vendors. It describes:
 
 ::: {#modelling-platforms}
 Development of the CDM is supported through various modelling platforms,
-including [Rosetta](https://rosetta-technology.io)(#) and [Legend](https://legend.finos.org/studio)(#). Regardless of the modelling
+including [Rosetta](https://rosetta-technology.io) and [Legend](https://legend.finos.org/studio). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
 the contribution check-list below.
 :::
@@ -584,7 +584,7 @@ following pre-modelling checklist:
 
 -   Review the `design-principles`{.interpreted-text role="ref"} and
     `governance`{.interpreted-text role="ref"}
--   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta)(#) or equivalent in your chosen
+-   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
@@ -654,7 +654,7 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component)(#).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
@@ -669,14 +669,14 @@ certain mapper implementations).
 
 The Rosetta support team can help resolve these errors before the
 changes are contributed. In most cases you will be able to contact the
-team via the [In-App chat](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat)(#). If the support team identifies that
+team via the [In-App chat](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat). If the support team identifies that
 significant work may be required to resolve these errors, they will
 notify the Contributor who should then contact the CDM Maintainer
 originally appointed for the proposed change and/or CDM Owners. The
 latter will be able to assist in the resolution of the issues.
 
 For more information about auto-compilation using the Rosetta DSL,
-please refer to the [Rosetta Auto Compilation Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#auto-completion-scoping)(#).
+please refer to the [Rosetta Auto Compilation Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#auto-completion-scoping).
 
 ### Testing
 
@@ -691,14 +691,14 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/)(#).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component)(#) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -767,14 +767,14 @@ Note
 :::
 
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda)(#).
+under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
 :::
 
 When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
 contribution. Those inputs are used to create a Pull Request on a
 one-off branch in the source-control repository. Please refer to the
-[Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes)(#) for more information.
+[Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes) for more information.
 
 ::: note
 ::: title

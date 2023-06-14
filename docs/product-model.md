@@ -1027,7 +1027,7 @@ be associated to such product taxonomy information, which are also
 propagated in the `ProductTaxonomy` object.
 
 The `ProductTaxonomy` data structure and an instance of a CDM object
-([serialised](https://en.wikipedia.org/wiki/Serialization)(#) into JSON) are shown below:
+([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON) are shown below:
 
 ``` Haskell
 type ProductTaxonomy extends Taxonomy:

@@ -10,7 +10,7 @@ status](https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosett
 The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
-[domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353)(#) and distributed in open source.
+[domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
 
 ## Purpose
 
@@ -32,7 +32,7 @@ enhances financial markets\' operational efficiency in several ways:
     reporting requirements.
 
 For further information about the CDM and its applications, please
-consult the [CDM section](https://www.finos.org/common-domain-model)(#) of the FINOS website or contact FINOS directly
+consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
 at <marketinfrastructureandtechnology@FINOS.org>.
 
 ## Design Principles
@@ -94,7 +94,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rosetta DSL using [available code
-    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available)(#). Once a code generator is implemented for a particular
+    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -125,10 +125,10 @@ functions\' executable code.
 ## Rosetta DSL
 
 The CDM is written in a Domain-Specific Language (DSL) called the
-*Rosetta DSL*, that comprises a [language](https://github.com/REGnosys/rosetta-dsl)(#) (i.e. syntax, semantics and
-rules) and [code generators](https://github.com/REGnosys/rosetta-code-generators)(#).
+*Rosetta DSL*, that comprises a [language](https://github.com/REGnosys/rosetta-dsl) (i.e. syntax, semantics and
+rules) and [code generators](https://github.com/REGnosys/rosetta-code-generators).
 
-The language includes one default code generator into [java](https://www.oracle.com/java/)(#). To
+The language includes one default code generator into [java](https://www.oracle.com/java/). To
 facilitate adoption and implementation of the CDM by the community of
 industry participants, the Rosetta DSL is available in open source under
 an Apache 2.0 license. This allows industry participants to write and
@@ -140,7 +140,7 @@ Note
 :::
 
 All the language components, their syntax and purpose are detailed in
-the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component)(#). The documentation also describes the
+the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component). The documentation also describes the
 mechanism to write and use code generators.
 :::
 
@@ -152,13 +152,13 @@ implementation of CDM-based production systems by industry participants.
 These applications may be open source software or licensed under
 commercial terms. In particular:
 
--   The [CDM Portal](https://portal.cdm.rosetta-technology.io)(#) provides a user interface allowing users to
+-   The [CDM Portal](https://portal.cdm.rosetta-technology.io) provides a user interface allowing users to
     navigate through and download the CDM.
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
     Rosetta DSL, that provides an *editable* version of the CDM Portal.
     It allows the industry community to directly participate in the CDM
     development by contributing code to the CDM. Please refer to the
-    [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/)(#) for more details.
+    [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
 ::: note
 ::: title
@@ -166,7 +166,7 @@ Note
 :::
 
 The CDM Portal and Rosetta have been developed by technology firm
-[REGnosys](https://regnosys.com)(#). FINOS encourages the adoption of CDM by software providers
+[REGnosys](https://regnosys.com). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 :::
 
@@ -181,7 +181,7 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-`java-distribution-guidelines`{.interpreted-text role="ref"}.
+[CDM Java Distribution Guidelines](/docs/cdm-guideliness).
 
 ::: note
 ::: title
