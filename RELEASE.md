@@ -2,13 +2,14 @@
 
 _What is being released?_
 
-This release updates the following dependencies:
+This release updates the `rosetta-dsl` dependency:
 
-* `rosetta-dsl` - `7.8.0`: Logging implementations removed from classpath to allow Java users of the CDM to select their own logging implementation
+- Versions:
+    - `7.9.3` Made `then` mandatory to avoid ambiguity. Improved consistency of using
+      square brackets. See https://github.com/REGnosys/rosetta-dsl/issues/569
 
-* `rosetta-bundle` - `6.6.0`: Includes a fix for the model enum generator (a scheme import test) specific for Microsoft Windows
-
-This release contains no changes to the model or test expectations.
+The model has been updated to conform to the new DSL syntax. No logical changes to
+the model has been made, so the test expectations remain the same.
 
 _Review directions_
 
