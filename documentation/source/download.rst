@@ -34,6 +34,11 @@ CDM as Java Examples
 
 Examples of how you can use the CDM can be found in GitHub: `_CDM GitHub Examples`_.
 
+CDM as PYTHON
+===========
+
+CDM as PYTHON is available as a `.zip` file published `here <https://central.sonatype.com/artifact/org.finos.cdm/cdm-python>`_.
+
 CDM as DAML
 ===========
 
