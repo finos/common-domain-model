@@ -28,30 +28,34 @@ For implemntation of CDM releases prior to today's release, dependencies in impl
 
 Examples of how you can use the CDM can be found in GitHub: [CDM GitHub Examples](https://github.com/finos/common-domain-model/tree/master/examples).
 
+#### _CDM as PYTHON_
+
+CDM as PYHON is available as a set of `.tar.gz` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/).
+
 #### _CDM as DAML_
 
-CDM as DAML is available as a set of `.dar` files published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-daml/).
+CDM as DAML is available as a set of `.dar` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-daml/).
 
 #### _CDM as Scala_
 
-CDM as Scala is available as a `.jar` file published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-scala/).
+CDM as Scala is available as a `.jar` file published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/).
 
 #### _CDM as C# 8.0_
 
-CDM as C# 8.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-csharp8/).
+CDM as C# 8.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp8/).
 
 #### _CDM as C# 9.0_
 
-CDM as C# 9.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-csharp9/).
+CDM as C# 9.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp9/).
 
 #### _CDM as Go_
 
-CDM as Go is available as a `tar.gz` file containing the `.go` files published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-golang/).
+CDM as Go is available as a `tar.gz` file containing the `.go` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-golang/).
 
 #### _CDM as TypeScript_
 
-CDM as TypeScript is available as a `tar.gz` file containing the `.ts` files published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-typescript/).
+CDM as TypeScript is available as a `tar.gz` file containing the `.ts` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-typescript/).
 
 #### _CDM as Kotlin_
 
-CDM as Kotlin is available as a `.jar` file published [here](https://oss.sonatype.org/content/repositories/snapshots/org/finos/cdm/cdm-kotlin/).
+CDM as Kotlin is available as a `.jar` file published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-kotlin/).
