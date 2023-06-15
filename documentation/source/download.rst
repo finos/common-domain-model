@@ -8,7 +8,7 @@ The CDM source code is open source and can be downloaded from `_CDM GitHub`_. Al
 Versions
 ========
 
-The CDM code is tagged using semantic versioning and are available on `GitHub Releases <https://github.com/finos/common-domain-model/releases>`_.
+The CDM code is tagged using semantic versioning and is available on `GitHub Releases <https://github.com/finos/common-domain-model/releases>`_.
 All CDM Binary distribution are created on every release and are published to `Maven Central <https://central.sonatype.com/artifact/org.finos.cdm/cdm-parent>`_.
 
 CDM as Java
