@@ -49,7 +49,7 @@ The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
-Section](#) of the CDM documentation.
+Section](#NEED TO FIND WHAT LINK TO Post) of the CDM documentation.
 
 ## Semantic Versioning
 
@@ -638,7 +638,7 @@ checklist:
 
 The following sections detail that checklist. When using the Rosetta
 Design web application to edit the model, the Contributor should also
-refer to the [Rosetta Design Guide](#).
+refer to the [Rosetta Design Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta).
 
 ### CDM version
 
@@ -646,7 +646,7 @@ To the extent possible it is recommended that the Contributor keeps
 working with a version of the CDM that is as close as possible to the
 latest to minimise the risk of backward compatibility.
 
-Please refer to the [Source Control Integration Guide](#) for more
+Please refer to the [Source Control Integration Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration) for more
 information.
 
 ### Syntax
@@ -658,7 +658,7 @@ refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rose
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
-Guide](#).
+Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#rosetta-design-content-assist).
 
 ### Compilation
 
@@ -709,8 +709,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the `namespace-documentation`{.interpreted-text
-role="ref"} section for more details.
+Please refer to the [namespace-documentation](/docs/namespace) section for more details.
 
 ### Descriptions
 
@@ -1003,7 +1002,7 @@ release notes), they will be specified as such.
 
 The model should be referred to as *the CDM*, without any ownership
 mention. The only exception is the [Overview of the FINOS
-CDM](cdm-overview) section at the beginning of the user
+CDM](/docs/cdm-overview) section at the beginning of the user
 documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
@@ -1164,19 +1163,15 @@ Another non-compliant example:
   Heading   Notation (underline in .rst)                   Relative font size   Section Example
   Level                                                    (as seen by users)   
   --------- ---------------------------------------------- -------------------- -------------------------------------------
-  1         [===============]{.title-ref}                  XL font and bold     `common-domain-model`{.interpreted-text
-                                                                                role="ref"}
+  1         [===============]{.title-ref}                  XL font and bold     [common-domain-model](/docs/common-domain-model)
 
-  2         [\-\-\-\-\-\-\-\-\-\-\-\-\-\--]{.title-ref}    L font and bold      `product-model-page`{.interpreted-text
-                                                                                role="ref"},
-                                                                                `legal-agreements-page`{.interpreted-text
-                                                                                role="ref"}
+  2         [\-\-\-\-\-\-\-\-\-\-\-\-\-\--]{.title-ref}    L font and bold      [product-model-page](/docs/product-model),
+                                                                                [legal-agreements-page](/docs/legal-agreements)
 
-  3         [\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]{.title-ref}   M font and bold      `tradable-product`{.interpreted-text
-                                                                                role="ref"}
+  3         [\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]{.title-ref}   M font and bold      [tradable-product](/docs/product-model#tradable-product)
 
-  4         [\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]{.title-ref}   S font (same as      `price-quantity`{.interpreted-text
-                                                           content), but bold   role="ref"}
+  4         [\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]{.title-ref}   S font (same as      [price-quantity](/docs/product-model#price-quantity)
+                                                           content), but bold   
   -------------------------------------------------------------------------------------------------------------------------
 
   : Heading Styles
@@ -1421,7 +1416,7 @@ prior to any release.
 
 ### Style references for additional guidance
 
-1.  [New Hart\'s Rules](#): An updated version of this erstwhile
+1.  [New Hart\'s Rules](https://global.oup.com/academic/product/new-harts-rules-9780199570027): An updated version of this erstwhile
     comprehensive style guide for writers and editors using British
     English, published by the Oxford University Press. Invaluable as an
     official reference on proofreading and copy-editing. Subjects

@@ -27,7 +27,7 @@ FpML, the CDM includes defined Synonyms that map to FpML (and other
 models) and can be used for transformation purposes. More details on
 Synonyms are provided in the Mapping (Synonym) section of this document.
 
-# TradableProduct {#tradable-product}
+## TradableProduct {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
