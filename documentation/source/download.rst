@@ -9,7 +9,7 @@ Versions
 ========
 
 The CDM code is tagged using semantic versioning and is available on `GitHub Releases <https://github.com/finos/common-domain-model/releases>`_.
-All CDM Binary distribution are created on every release and are published to `Maven Central <https://central.sonatype.com/artifact/org.finos.cdm/cdm-parent>`_.
+All CDM Binary distributions are created on every release and are all published to `Maven Central <https://central.sonatype.com/artifact/org.finos.cdm/cdm-parent>`_.
 
 CDM as Java
 ===========
