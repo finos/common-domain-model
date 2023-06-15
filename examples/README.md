@@ -1,6 +1,6 @@
-# ISDA CDM&trade; Generated Java Usage Examples
+f# CDM&trade; Generated Java Usage Examples
 
-This project demonstrates functionality of the generated code artifacts of the ISDA Common Domain Model&trade; 
+This project demonstrates functionality of the generated code artifacts of the Common Domain Model&trade; 
 
 ## Build
 
