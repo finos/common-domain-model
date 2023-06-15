@@ -2,7 +2,7 @@
 
 #### _What is being released?_
 
-As part of the CDM migration to FINOS, all generated artifacts are now being published to Maven Central. The intention to make this change was presented to CDM community, and noted in the CDM transition document ["Common Domain Model becoming Open Source @ FINOS"](https://assets.isda.org/media/6fac704a/081f5537.pdf), earlier this year. This is a positive step for the CDM community and realizes a demand from implementors that the project has noted for some time.
+As part of the CDM migration to FINOS, all generated artifacts are now being published to Maven Central. The intention to make this change was presented to CDM community, and noted in the CDM transition document ["Common Domain Model becoming Open Source @ FINOS"](https://assets.isda.org/media/6fac704a/081f5537.pdf), earlier this year. This is a positive step for the CDM community and realizes a demand from implementers that the project has noted for some time.
 
 #### _Downloading Source Code_
 
