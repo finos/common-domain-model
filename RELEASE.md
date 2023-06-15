@@ -25,6 +25,8 @@ _What is being released?_
   - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
   - FloatingRate - including factoring out FloatingRateBase
 
+For more detail see also https://github.com/REGnosys/rosetta-dsl/issues/583
+
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
