@@ -475,7 +475,7 @@ CDM is an *execution*. In practice, this execution represents the
 conclusion of a pre-trade process, which may be a client order that gets
 filled or a quote that gets accepted by the client. However, the CDM
 event model only covers post-trade lifecycle events so assumes that a
-trade gets instantiated \"from scratch\" at execution.
+trade gets instantiated "from scratch" at execution.
 
 Therefore, the execution function does not take any before state as
 input and all the trade details are contained in the execution

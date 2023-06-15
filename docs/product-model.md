@@ -624,14 +624,14 @@ below:
 
 -   **Interest rate derivatives**:
     -   Interest Rate Swaps (incl. cross-currency swaps, non-deliverable
-        swaps, basis swaps, swaps with non-regular periods, \...)
+        swaps, basis swaps, swaps with non-regular periods, ...)
     -   Swaptions
     -   Caps/floors
     -   FRAs
     -   OTC Options on Bonds
 -   **Credit derivatives**:
     -   Credit Default Swaps (incl. baskets, tranche, swaps with
-        mortgage and loans underlyers, \...)
+        mortgage and loans underlyers, ...)
     -   Options on Credit Default Swaps
 -   **Equity derivatives**:
     -   Equity Swaps (single name)
@@ -787,7 +787,7 @@ By design, the CDM requires that each payout leg can only be associated
 with a single quantity schedule that defines this leg\'s contractual
 behaviour (e.g. for the payment of cashflows). In the `PriceQuantity`
 object, where that attribute is of multiple cardinality, other
-quantities may be provided \"for information only\" which can be
+quantities may be provided "for information only" which can be
 inferred from the main quantity used in the payout leg: e.g. when a
 commodity quantity is associated to a frequency and needs to be
 multiplied by the period to get the total quantity.

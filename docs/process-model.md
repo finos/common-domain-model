@@ -310,7 +310,7 @@ FINOS compounding formulas do not cover ACT basis at the moment. *`DayCountBasis
 ## Floating Rate Option/Index Features
 
 The CDM includes features for retrieving information about floating rate
-options and for calculating custom (\"modular\") floating rates.
+options and for calculating custom ("modular") floating rates.
 
 Functions for retrieving information about FROs include:
 
@@ -442,7 +442,7 @@ Floating rate processing an calculation functions include:
     logic as described in the 2021 FINOS Definitions, section 4.8.1.
 
 Most of the above have a preliminary implementation for feedback. A few
-are only defined as \"do-nothing\" interfaces, and users needing these
+are only defined as "do-nothing" interfaces, and users needing these
 features would need to implement the functions.
 
 ## Fixed Amount and Floating Amount Definitions

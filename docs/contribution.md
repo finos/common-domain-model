@@ -59,8 +59,8 @@ format of a version number is MAJOR.MINOR.PATCH (e.g. `1.23.456`),
 where:
 
 -   A MAJOR (`1`) version may introduce backward-incompatible changes
-    and will be used as high level release name (e.g. \"CDM Version
-    1\").
+    and will be used as high level release name (e.g. "CDM Version
+    1").
 -   A MINOR (`23`) version may introduce new features but in a
     backward-compatible way, for example supporting a new type of event
     or function.
@@ -264,7 +264,7 @@ regulatory purposes.
 
 **To facilitate adoption by market participants, the CDM is made
 compatible with existing industry messaging formats.** This means that
-the CDM does not need to be implemented \"wholesale\" as a replacement
+the CDM does not need to be implemented "wholesale" as a replacement
 to existing messaging systems or databases but can coexist alongside
 existing systems, with a translation layer. In fact, the CDM is designed
 to provide only a logical model but does not prescribe any physical data
@@ -384,7 +384,7 @@ two high-level principles:
     in the concept of *user story*
 2.  Delivery of small, releasable changes that contribute to that
     business value (sometimes referred to as *shippable increments*) -
-    i.e. no \"big bang\" changes
+    i.e. no "big bang" changes
 
 Development by the CDM Maintainer team is being planned along a series
 of 2-week *sprints* aligned onto the CDM Architecture and Review
@@ -414,7 +414,7 @@ one sentence: who, what and why.
 -   *Who* defines the user (or more generally the set of users defined
     by some profiling) that will enjoy that benefit
 -   *What* defines the feature to be delivered, as a verbal proposition
-    applying to the user - i.e. \"the user can do this or that\"
+    applying to the user - i.e. "the user can do this or that"
 -   *Why* specifies the benefit, i.e. what makes this feature important
     for the user
 
@@ -448,18 +448,18 @@ underlying tasks or techical details.
 
 Instead of writing:
 
-> \"Commodity Swap Follow Up w/Enum values, mapping, samples\"
+> "Commodity Swap Follow Up w/Enum values, mapping, samples"
 
 Which is unclear, assumes some context which not all users may have
-(\"follow-up\" from what?) and has no explicit benefit, write:
+("follow-up" from what?) and has no explicit benefit, write:
 
-> \"A Commodity user of the CDM can map a set of basic Commodity
-> attributes to represent simple Commodity derivative products.\"
+> "A Commodity user of the CDM can map a set of basic Commodity
+> attributes to represent simple Commodity derivative products."
 
 In which some of the underlying tasks may be:
 
-> -   \"Map basic Commodity enumerations\"
-> -   \"Add Commodity samples to the ingestion test pack\"
+> -   "Map basic Commodity enumerations"
+> -   "Add Commodity samples to the ingestion test pack"
 > -   etc.
 
 As a rule, a task is written in the imperative mode as an injunction to
@@ -470,14 +470,14 @@ written.
 
 For instance, instead of writing:
 
-> \"Release member contribution for DayCountFraction.\"
+> "Release member contribution for DayCountFraction."
 
 Write:
 
-> \"A user of interest rate products is able to model products that use
-> the ACT/364 day count convention in the CDM.\"
+> "A user of interest rate products is able to model products that use
+> the ACT/364 day count convention in the CDM."
 
-Where the \"Release\" injunction is attached to a deploy-type task.
+Where the "Release" injunction is attached to a deploy-type task.
 
 ## Delivery of small releasable units
 
@@ -746,7 +746,7 @@ Given the alignment:
 > 1 pull request = 1 contribution = 1 releasable unit = 1 user story,
 
 we recommend labelling the pull request with the user story label, i.e.
-\"STORY-XYZ: \...\" to facilitate its tracking.
+"STORY-XYZ: ..." to facilitate its tracking.
 
 ---
 **Note:**
@@ -933,7 +933,7 @@ deployment and discuss a timeline for the release.
 ## Documentation Style Guide 
 
 The purpose of this section is to provide form and substance
-recommendations for editors of CDM documentation. \"Documentation\" in
+recommendations for editors of CDM documentation. "Documentation" in
 this context means any form of written guidance to CDM users and
 includes:
 
@@ -965,7 +965,7 @@ Writing and editing style is subjective and a matter of personal
 preferences, rather than right or wrong. The following guidelines are
 intended to ensure that the documentation provides consistent styling,
 regardless of who writes it, but should not be interpreted as an
-authoritative source on \"good\" styling.
+authoritative source on "good" styling.
 
 Unless otherwise noted, the recommended rules apply to all forms of CDM
 documentation. When rules are applicable only to certain forms of
@@ -1067,12 +1067,12 @@ The two data definition components should be referred to as follows:
     terms.
     1.  The description of objects in the model should begin with the
         purpose of the object. The purpose should explain what the
-        object is, not \"what it is not\".
+        object is, not "what it is not".
     2.  Data type description should begin with a verb that describes
         what the type does.
     3.  The logical model identifies data types without needing a
         description, therefore, the description should not begin with a
-        phrase like: "A data type that does\...\"
+        phrase like: "A data type that does..."
     4.  Attribute description should articulate the use of the type in
         the context of the attribute.
     5.  The description should not be tautological, e.g. PartyRole
@@ -1138,7 +1138,7 @@ Another non-compliant example:
 | 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](/docs/common-domain-model) |
 | 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](/docs/product-model),<br/>[legal-agreements-page](/docs/legal-agreements) |
 | 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](/docs/product-model#tradable-product) |
-| 4             | _[\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/product-model#price-quantity) |
+| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/product-model#price-quantity) |
 :Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
@@ -1172,10 +1172,10 @@ notes are edited in the *Mark-Down (MD)* syntax, which is then rendered
 into Html in the various channels where the release is published.
 
 1.  release notes should begin with a high-level headline of the part of
-    the model being changed, followed by \"--\" and a short headline
+    the model being changed, followed by "--" and a short headline
     description
-    1.  For example: \"# Legal Agreement Model - Collateral Agreement
-        Elections\"
+    1.  For example: "# Legal Agreement Model - Collateral Agreement
+        Elections"
 2.  They should provide enough detail for a reviewer or other interested
     parties to be able to find and evaluate the change. For a data model
     change, for example, the data type and attributes should be named
@@ -1243,11 +1243,11 @@ can therefore serve as a release publication channel.
             in these artefacts).
         3.  Incomplete sentences cannot end with a punctuation. For
             example, "Through the `legalAgreement` attribute the CDM
-            provides support for implementors to:\" is an incomplete
+            provides support for implementors to:" is an incomplete
             sentence and cannot end in a punctuation. This can be fixed
             by adding a few words, e .g. "Through the `legalAgreement`
             attribute the CDM provides support for implementors to do
-            the following:\"
+            the following:"
         4.  Always use the Oxford Comma (aka the Serial Comma) for
             clarity when listing more than two items in a sentence, e.g.
             "data types, attributes, and enumerated values." In extreme
@@ -1259,40 +1259,40 @@ can therefore serve as a release publication channel.
     2.  Sentences should not end with a preposition
         1.  Non-compliant example: "..to represent the party that the
             election terms are being defined for."
-        2.  Compliant: "\...to represent the party or parties for which
+        2.  Compliant: "...to represent the party or parties for which
             the election terms are being defined."
 3.  When a name or phrase is defined - continue to use it unless an
     alias has been defined. For example, one section reviewed had an
-    expression \"agreement specification details\" but then switched to
-    using \"agreement content\" without explanation. There is sufficient
+    expression "agreement specification details" but then switched to
+    using "agreement content" without explanation. There is sufficient
     terminology to absorb, as such there is no need for synonyms or
     aliases, unless there are commonly used terms, in which case, they
     should be defined and one term should be used consistently.
 4.  User Documentation and descriptions should always be in the third
-    person, for example: \"the CDM model provides the following\...\".
-    Never use the first person (including the use of \"we\").
+    person, for example: "the CDM model provides the following...".
+    Never use the first person (including the use of "we").
 5.  In the user documentation, when there is a need for a long list, use
     bullets (`*` or `-` followed by space, then text) as opposed to long
     sentences.
 6.  To the extent possible, use simple direct sentence structures, e.g.
-    replace \"An example of such\" with \"For example\", or replace
-    \"Proposals for amendment to the CDM can be created upon the
+    replace "An example of such" with "For example", or replace
+    "Proposals for amendment to the CDM can be created upon the
     initiative of members of a Committee or by any users of CDM within
-    the community who are not a current Committee member.\" with
-    \"Committee members or any user of CDM within the community can
-    propose amendments to the CDM.\"
-7.  Exclude the usage of \"mean to\", "intends to", or "looks to".
-    1.  For example, \"the model looks to use strong data type
+    the community who are not a current Committee member." with
+    "Committee members or any user of CDM within the community can
+    propose amendments to the CDM."
+7.  Exclude the usage of "mean to", "intends to", or "looks to".
+    1.  For example, "the model looks to use strong data type
         attributes such as numbers, boolean or enumerations whenever
-        possible.\"
+        possible."
     2.  Either the object works as designed or it does not. This
         expression might be used in a bug report when describing a
         function not working as intended but not to describe a
         production data model.
 8.  Explain the CDM objects in an honest and transparent manner, but
-    without criticism of the model. Sentences such as: \"\...which firms
-    may deem inappropriate and may replace by\...\" or \"the model is
-    incomplete with regards to\...\" are unnecessary in a documentation.
+    without criticism of the model. Sentences such as: "...which firms
+    may deem inappropriate and may replace by..." or "the model is
+    incomplete with regards to..." are unnecessary in a documentation.
     Rather, issues which may be identified in the CDM should be raised
     and addressed via the CDM governance structure.
 
@@ -1306,7 +1306,7 @@ can therefore serve as a release publication channel.
     2.  If the same word or phrase is used in a business context, as
         part of an explanation, then the words should be spaced and
         titled normally and the special format is not required: e.g.
-        "Tradable products are represented by\...".
+        "Tradable products are represented by...".
 2.  Code snippets should be preceded by the string:
     `.. code-block:: Language` (where the Language could be any of
     Haskell, Java, JSON, etc.), followed by a line spacing before the

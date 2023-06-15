@@ -145,7 +145,7 @@ The legal agreement model in the CDM comprises the following features:
 
     **Variation Margin Agreements**
 
-    -   FINOS 2016 CSA for Variation Margin (\"VM\") (Security Interest -
+    -   FINOS 2016 CSA for Variation Margin ("VM") (Security Interest -
         New York Law)
     -   FINOS 2016 CSA for VM (Title Transfer -- English Law)
     -   FINOS 2016 CSA for VM (Loan -- Japanese Law)
@@ -402,13 +402,13 @@ Initial Margin or Variation Margin Credit Support Agreements supported
 by the CDM:
 
 -   FINOS 2016 Phase One Credit Support Annex ("CSA") for Initial Margin
-    (\"IM\") (Security Interest -- New York Law)
+    ("IM") (Security Interest -- New York Law)
 -   FINOS 2016 Phase One Credit Support Deed ("CSD") for IM (Security
     Interest -- English Law)
 -   FINOS 2016 Phase One CSA for IM (Loan -- Japanese Law)
 -   FINOS 2018 CSA for IM (Security Interest -- New York Law)
 -   FINOS 2018 CSD for IM (Security Interest -- English Law)
--   FINOS 2016 CSA for Variation Margin (\"VM\") (Security Interest - New
+-   FINOS 2016 CSA for Variation Margin ("VM") (Security Interest - New
     York Law)
 -   FINOS 2016 CSA for VM (Title Transfer -- English Law)
 -   FINOS 2016 CSA for VM (Loan -- Japanese Law)

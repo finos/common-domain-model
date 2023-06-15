@@ -128,7 +128,7 @@ asset types that are commonly seen in eligible collateral data.
 The approach in the CDM is to adopt a similar method to the \'Animal
 Kingdom\' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species) -- i.e., that there is one method for describing any of
-the core attributes of an \"animal\" (i.e., type of issuer/type of
+the core attributes of an "animal" (i.e., type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
 way. Each issuer type, asset type, economic type etc has a unique place
 in the universe of collateral but is logically grouped together with
