@@ -8,12 +8,12 @@ title: Process Model
 
 **The CDM lays the foundation for the standardisation, automation and
 inter-operability of industry processes**. Industry processes represent
-events and actions that occur through the transaction\'s lifecycle, from
+events and actions that occur through the transaction's lifecycle, from
 negotiating a legal agreement to allocating a block-trade or calculating
 settlement amounts.
 
-While ISDA defines the protocols for industry processes in its library
-of ISDA Documentation, differences in the implementation minutia may
+While FINOS defines the protocols for industry processes in its library
+of FINOS Documentation, differences in the implementation minutia may
 cause operational friction between market participants. Evidence shows
 that even when calculations are defined in mathematical notation (for
 example, day count fraction formulae which are used when calculating
@@ -41,8 +41,8 @@ widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rosetta DSL and is further
-described in the [Code Generation Section](#), including an up-to-date
-list of [available languages](#). Support for further languages can be
+described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators), including an up-to-date
+list of [available languages](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Support for further languages can be
 added as required by market participants.
 
 # Scope
@@ -57,7 +57,7 @@ The scope of the process model has two dimensions:
 
 **The CDM process model currently covers the post-trade lifecycle of
 securities, contractual products, and foreign exchange**. Generally, a
-process is in-scope when it is already covered in ISDA Documentation or
+process is in-scope when it is already covered in FINOS Documentation or
 other technical documents. For example, the following processes are all
 in scope:
 
@@ -86,7 +86,7 @@ DSL. A function receives a set of input values and applies logical
 instructions to return an output. The input and output are both CDM
 objects (including basic types). While a function specifies its inputs
 and output, its logic may be *fully defined* or only *partially defined*
-depending on how much of the output\'s attribute values it builds.
+depending on how much of the output's attribute values it builds.
 Unspecified parts of a process represent functionality that firms are
 expected to implement, either internally or through third-parties such
 as utilities.
@@ -99,7 +99,7 @@ be omitted from the CDM for the following reasons:
     object.
 -   The sub-process has already been defined and its implementation is
     widely adopted by the industry.
--   The sub-process is specific to a firm\'s internal process and
+-   The sub-process is specific to a firm's internal process and
     therefore cannot be specified in an industry standard.
 
 Given these reasons, the CDM process model focuses on the most critical
@@ -107,7 +107,7 @@ data and processes required to create functional objects that satisfy
 the below criterion:
 
 -   All of the qualifiable constituents (such as `BusinessEvent` and
-    `Product`) of a function\'s output can be qualified, which means
+    `Product`) of a function's output can be qualified, which means
     that they evaluate to True according to at least one of the
     applicable Qualification functions.
 -   Lineage and cross-referencing between objects is accurate for data
@@ -126,7 +126,7 @@ detailed in the next sections:
 2.  Calculation process
 3.  Event creation process
 
-# Validation Process
+## Validation Process
 
 In many legacy models and technical standards, validation rules are
 generally specified in text-based documentation, which requires software
@@ -161,12 +161,12 @@ condition FpML_ird_57:
     and rollConvention <> RollConventionEnum -> SUN
 ```
 
-# Calculation Process
+## Calculation Process
 
-The CDM provides certain ISDA Definitions as machine executable formulas
+The CDM provides certain FINOS Definitions as machine executable formulas
 to standardise the industry calculation processes that depend on those
-definitions. Examples include the ISDA 2006 definitions of *Fixed
-Amount* and *Floating Amount* , the ISDA 2006 definitions of Day Count
+definitions. Examples include the FINOS 2006 definitions of *Fixed
+Amount* and *Floating Amount* , the FINOS 2006 definitions of Day Count
 Fraction rules, and performance calculations for Equity Swaps. The CDM
 also specifies related utility functions.
 
@@ -304,14 +304,13 @@ year represented by a date range. \* `YearFractionForOneDay`[: Return
 the year fraction represented by a single day, i.e. 1 / dayCountBasis,
 where dayCountBasis represents the denominator of the day count
 fraction. This perhaps should take into account leap years, though the
-ISDA compounding formulas do not cover ACT basis at the moment. \*
-]{.title-ref}[DayCountBasis]{.title-ref}\`: Return the day count basis
+FINOS compounding formulas do not cover ACT basis at the moment. *`DayCountBasis`: Return the day count basis
 (the denominator of the day count fraction) for the day count fraction.
 
 ## Floating Rate Option/Index Features
 
 The CDM includes features for retrieving information about floating rate
-options and for calculating custom (\"modular\") floating rates.
+options and for calculating custom ("modular") floating rates.
 
 Functions for retrieving information about FROs include:
 
@@ -328,7 +327,7 @@ Functions for retrieving information about FROs include:
 Functions for calculating modular floating rates include:
 
 -   `EvaluateCalculatedRate`: Evaluate a calculated rate as described in
-    the 2021 ISDA Definitions, Section 7
+    the 2021 FINOS Definitions, Section 7
 -   `GenerateObservationDatesAndWeights`: Apply shifts to generate the
     list of observation dates and weights for each of those dates.
 -   `ComputeCalculationPeriod`: Determine the calculation period to use
@@ -347,17 +346,17 @@ Functions for calculating modular floating rates include:
 -   `DetermineWeightingDates`: Determine the dates to be used for
     weighting observations.
 -   `ProcessObservations`: Apply daily observation parameters to rate
-    observation. These are discussed in the 2021 ISDA Definitions,
+    observation. These are discussed in the 2021 FINOS Definitions,
     section 7.2.3 and 7.2.4.
 -   `GenerateWeights`: Recursively creates a list of weights based on
     the date difference between successive days.
 -   `ApplyCompoundingFormula`: Implements the compounding formula:
     Product of ( 1 + (rate \* weight) / basis), then backs out the final
-    rate. This is used to support section 7.3 of the 2021 ISDA
+    rate. This is used to support section 7.3 of the 2021 FINOS
     Definitions.
 -   `ApplyAveragingFormula`: Implements the weighted arithmetic
     averaging formula. Sums the weighted rates and divides by the total
-    weight. This is used to support section 7.4 of the 2021 ISDA
+    weight. This is used to support section 7.4 of the 2021 FINOS
     Definitions.
 
 ## Fixed Amount and Floating Amount Definitions
@@ -376,7 +375,7 @@ Base calculation functions include:
     any rate treatments, looking up the calculation period notional,
     then performing the multiplication of the notional, rate, and year
     fraction. Floating amount calculations are described in the 2021
-    ISDA Definitions in Section 6 and 7.
+    FINOS Definitions in Section 6 and 7.
 -   `GetNotionalAmount`: Look up the notional amount in effect for a
     calculation period
 -   `GetQuantityScheduleStepValues`: Find all schedule step values whose
@@ -391,10 +390,10 @@ Floating rate processing an calculation functions include:
 -   `DetermineFloatingRateReset`: Get the value of a floating rate by
     either observing it directly or performing a rate calculation. This
     function works differently depending on the rate category and style,
-    as described in the 2021 ISDA Definitions, Section 6.6.
+    as described in the 2021 FINOS Definitions, Section 6.6.
 -   `GetFloatingRateProcessingType`: Get a classification of the
     floating rate is processed. This is based on FRO category, style,
-    and calculation method, as described in the 2021 ISDA Definitions
+    and calculation method, as described in the 2021 FINOS Definitions
     Section 6.6. The categorization information is obtained from the FRO
     metadata.
 -   `ProcessFloatingRateReset`: Entry point for the function that
@@ -408,8 +407,8 @@ Floating rate processing an calculation functions include:
     Call the compounded index processing logic to calculate the reset
 -   `EvaluateScreenRate`: Evaluate/lookup the value of a screen rate
 -   `DetermineResetDate`: Determine the value of the reset date given a
-    reset dates structure and a calculation period for which it\'s
-    needed. Reset dates are defined in the 2021 ISDA Definition in
+    reset dates structure and a calculation period for which it's
+    needed. Reset dates are defined in the 2021 FINOS Definition in
     Section 6.5.5.
 -   `DetermineFixingDate`: Determine the observation (fixing) date
     needed given a reset dates structure and a reset date.
@@ -433,23 +432,23 @@ Floating rate processing an calculation functions include:
     treatments on floating rates, such as applying caps and floors,
     rounding, and negative interest treatment.
 -   `ApplyCapsAndFloors`: Apply any cap or floor rate as a constraint on
-    a regular swap rate, as discussed in the 2021 ISDA Definitions,
+    a regular swap rate, as discussed in the 2021 FINOS Definitions,
     section 6.5.8 and 6.5.9
 -   `ApplyUSRateTreatment`: Apply the US rate treatment logic where
     applicable (Bond Equivalent Yield, Money Market Yield, as described
-    in the 2021 ISDA Definitions, section 6.9. (NB: this function does
+    in the 2021 FINOS Definitions, section 6.9. (NB: this function does
     not have an implementation.)
 -   `ApplyFinalRateRounding`: Apply the final rate rounding treatment
-    logic as described in the 2021 ISDA Definitions, section 4.8.1.
+    logic as described in the 2021 FINOS Definitions, section 4.8.1.
 
 Most of the above have a preliminary implementation for feedback. A few
-are only defined as \"do-nothing\" interfaces, and users needing these
+are only defined as "do-nothing" interfaces, and users needing these
 features would need to implement the functions.
 
 ## Fixed Amount and Floating Amount Definitions
 
 The CDM expressions of `FixedAmount` and `FloatingAmount` are similar in
-structure: a calculation formula that reflects the terms of the ISDA
+structure: a calculation formula that reflects the terms of the FINOS
 2006 Definitions and the arguments associated with the formula.
 
 ``` Haskell
@@ -475,7 +474,7 @@ func FloatingAmount:
 ## Year Fraction
 
 The CDM process model incorporates calculations that represent the set
-of day count fraction rules specified as part of the ISDA 2006
+of day count fraction rules specified as part of the FINOS 2006
 Definitions, e.g. the *ACT/365.FIXED* and the *30E/360* day count
 fraction rules. Although these rules are widely accepted in
 international markets, many of them have complex nuances which can lead
@@ -486,9 +485,9 @@ each month is generally assumed to be 30 days for accrual purposes (and
 each year is assumed to be 360 days). However there are nuances in the
 rule sets that distinguish the resulting calculations under different
 circumstances, such as when the last day of the period is the last day
-of February. These distinct rule sets are defined by ISDA as 30/360
+of February. These distinct rule sets are defined by FINOS as 30/360
 (also known as 30/360 US), 30E/360 (formerly known as 30/360 ICMA or
-30/360 Eurobond), and the 30E/360.ISDA.
+30/360 Eurobond), and the 30E/360.FINOS.
 
 The CDM process model eliminates the need for implementors to interpret
 the logic and write unique code for these rules. Instead, it provides a
@@ -542,7 +541,7 @@ func CalculationPeriod:
 The CDM process model includes calculations to support the equity
 performance concepts applied to reset and pay cashflows on Equity Swaps.
 Those calculations follow the definitions as normalised in the new *2018
-ISDA CDM Equity Confirmation for Security Equity Swap* (although this is
+FINOS CDM Equity Confirmation for Security Equity Swap* (although this is
 a new template that is not yet in use across the industry).
 
 Some of those calculations are presented below:
@@ -602,10 +601,10 @@ func RateOfReturn:
 The CDM process model includes calculations to support the billing event
 consisting of the individual amounts that need to be settled in relation
 to a portfolio of Security Loans. These calculations leverage the
-[FixedAmount]{.title-ref}, [FloatingAmount]{.title-ref} and [Day Count
-Fraction]{.title-ref} calculations described earlier in the
+_FixedAmount_, _FloatingAmount_ and _Day Count
+Fraction_ calculations described earlier in the
 documentation. A functional model is provided to populate the
-[SecurityLendingInvoice]{.title-ref} data type following the definitions
+_SecurityLendingInvoice_ data type following the definitions
 as normalised in the *ISLA best practice handbook*
 
 The data type and function to generate a Security Lending Invoice:
@@ -646,7 +645,7 @@ func Create_SecurityLendingInvoice:
 # Lifecycle Event Process
 
 While the lifecycle event model described in the
-`event-model-section`{.interpreted-text role="ref"} provides a
+[event-model-section](/docs/event-model) provides a
 standardised data representation of those events using the concept of
 *primitive event* components, the CDM must further specify the
 processing of those events to ensure standardised implementations across
@@ -658,10 +657,9 @@ In particular, the CDM must ensure that:
 -   The lifecycle event process model constructs valid CDM event
     objects.
 -   The constructed events qualify according to the qualification logic
-    described in the `event-qualification-section`{.interpreted-text
-    role="ref"}.
+    described in the [event-qualification-section](/docs/event-model#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
-    trade\'s lifecycle sequence.
+    trade's lifecycle sequence.
 
 There are three levels of function components in the CDM to define the
 processing of lifecycle events:
@@ -675,8 +673,7 @@ function already defined in the CDM. As part of the validation processe
 embedded in the CDM, an object validation step is included in all these
 object creation functions to ensure that they each construct valid CDM
 objects. Further details on the underlying calculation and validation
-processes are described in the `calculation-process`{.interpreted-text
-role="ref"} and `validation-process`{.interpreted-text role="ref"}.
+processes are described in the [calculation-process](#calculation-process) and [validation-process](#validation-process).
 
 Illustration of the three components are given in the sections below.
 
@@ -771,8 +768,8 @@ func ResolvePerformanceObservationIdentifiers:
 
     set identifiers -> observationDate:
         AdjustedValuationDates( payout -> valuationDates )
-            filter [ item <= adjustedDate ]
-            last
+            filter item <= adjustedDate
+            then last
 
     set identifiers -> observationTime:
         ResolvePerformanceValuationTime(valuationDates -> valuationTime,

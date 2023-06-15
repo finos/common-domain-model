@@ -11,7 +11,7 @@ committee structure pilots the development of the CDM:
 1.  The *CDM Executive Committee* is accountable for setting the
     strategy, promoting adoption of the standard, and overseeing the
     activity of the Working Groups and the Architecture & Review
-    Committee. Members are senior executives appointed by the ISDA Board
+    Committee. Members are senior executives appointed by the FINOS Board
     considering their strategic influence in the decision making at
     their firm and active contribution to the development of the CDM.
 2.  The *CDM Architecture and Review Committee* is responsible for
@@ -22,7 +22,7 @@ committee structure pilots the development of the CDM:
     documentation, and technical modelling.
 3.  The *CDM Working Groups* are assembled per subject matter or use
     cases to actively develop and implement concretely targeted elements
-    of the CDM. Participants include ISDA members and non-members from
+    of the CDM. Participants include FINOS members and non-members from
     the CDM user community who commit time and effort for the
     development and implementation of the CDM as a global standard.
 
@@ -33,17 +33,17 @@ amendments in accordance with the following process:
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM `design-principles`{.interpreted-text role="ref"} and
-`agile-development-approach`{.interpreted-text role="ref"} and submitted
-to ISDA staff and the Architecture & Review Committee for approval. In
+CDM [design-principles](/docs/cdm-overview#design-principles) and
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
+to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
 
 Once approved, the amendment will be scheduled to be merged with the
-CDM\'s main code branch by the CDM Maintainers.
+CDM's main code branch by the CDM Maintainers.
 
-# Version Management
+## Version Management
 
 The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
@@ -59,8 +59,8 @@ format of a version number is MAJOR.MINOR.PATCH (e.g. `1.23.456`),
 where:
 
 -   A MAJOR (`1`) version may introduce backward-incompatible changes
-    and will be used as high level release name (e.g. \"CDM Version
-    1\").
+    and will be used as high level release name (e.g. "CDM Version
+    1").
 -   A MINOR (`23`) version may introduce new features but in a
     backward-compatible way, for example supporting a new type of event
     or function.
@@ -99,7 +99,7 @@ make any change to update to such version.
     -   Change to the DSL that results in any existing expression
         becoming invalid
     -   Change to the DSL that results in change to any of the generated
-        code\'s public interfaces
+        code's public interfaces
 -   Allowed changes:
     -   Change that relaxes any condition or cardinality constraint
     -   Change to any synonym that improves, or at least does not
@@ -121,8 +121,8 @@ dual objective.
     fosters continued, rapid change development and involves model
     contributions made by the industry community. Changes that break
     backward compatibility are allowed. This development version is
-    available in read-only and read-write access on the CDM\'s
-    `modelling-platforms`{.interpreted-text role="ref"}.
+    available in read-only and read-write access on the CDM's
+    modelling-platforms.
 -   The latest *production* version (i.e. without any pre-release tag)
     offers a stable, well-supported production environment for consumers
     of the model. Unless under exceptional circumstances, no new
@@ -130,8 +130,7 @@ dual objective.
     change shall adhere to a strict governance process as it must be
     backward-compatible. Generally, it can only be developed by a CDM
     Maintainer. This production version is available in read-only access
-    through the CDM\'s `modelling-platforms`{.interpreted-text
-    role="ref"}.
+    through the CDM's modelling-platforms.
 -   Earlier production versions, when still supported, are also
     available in read-only access for industry members who are still
     implementing older versions of the model. Over time, those earlier
@@ -154,14 +153,12 @@ various versions available would be as follows:
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The above example is for illustration only and not indicative of
 actually supported CDM versions.
-:::
+
+---
 
 # Design Principles
 
@@ -217,7 +214,7 @@ patterns that should be factored into common components and avoid
 specialising the model according to each use case. For instance, in the
 model for *averaging* options (often used for commodity products,
 whereby multiple price observations are averaged through time to be
-compared to the option\'s strike price), the components are built and
+compared to the option's strike price), the components are built and
 named such that they can be re-used across asset classes.
 
 ## Composability
@@ -226,7 +223,7 @@ named such that they can be re-used across asset classes.
 as a composable model** whereby financial objects can be constructed
 bottom-up based on building-block components. A composable and modular
 approach allows for a streamlined model to address a broad scope of
-operational processes consistently across firms\' front-to-back flows
+operational processes consistently across firms' front-to-back flows
 and across asset classes. The main groups of composable components are:
 
 -   **Financial products**: e.g. the same *option* component is re-used
@@ -255,7 +252,7 @@ given taxonomy (e.g. a product classification).
 
 **The benefit of this approach is that consistency of object
 classification is achieved through how those objects are populated**,
-rather than depending on each market participant\'s implementation to
+rather than depending on each market participant's implementation to
 use the same naming convention. This approach also avoids the model
 relying on specific taxonomies, labels or identifiers to function and
 provides the flexibility to maintain multiple values from different
@@ -267,7 +264,7 @@ regulatory purposes.
 
 **To facilitate adoption by market participants, the CDM is made
 compatible with existing industry messaging formats.** This means that
-the CDM does not need to be implemented \"wholesale\" as a replacement
+the CDM does not need to be implemented "wholesale" as a replacement
 to existing messaging systems or databases but can coexist alongside
 existing systems, with a translation layer. In fact, the CDM is designed
 to provide only a logical model but does not prescribe any physical data
@@ -275,15 +272,13 @@ format, neither for storage nor transport. This means that translation
 to those physical data formats is built-in, and the CDM is best thought
 of as a logical layer supporting inter-operability between them.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Although the CDM features a *serialisation* mechanism (currently in
 JSON), this format is only provided for the convenience of representing
 physical CDM objects and is not designed as a storage mechanism.
-:::
+
+---
 
 The need for such inter-operability is illustrated by a typical trade
 flow, as it exists in derivatives: a trade may be executed using the
@@ -306,7 +301,7 @@ allowing firms that already use such standards to bootstrap their CDM
 implementation. Besides, because most standard messaging formats are
 typically extended and customised by each market participants (e.g. FpML
 or FIX), the CDM allows the synonym representation for those standards
-to be similarly inherited and extended to cover each firm\'s specific
+to be similarly inherited and extended to cover each firm's specific
 customisation.
 
 ## Embedded logic
@@ -318,7 +313,7 @@ transaction's lifecycle, from negotiating a legal agreement to
 allocating a block-trade, calculating settlement amounts or exchanging
 margin requirements.
 
-While ISDA defines the protocols for industry processes in its
+While FINOS defines the protocols for industry processes in its
 documentation library, differences in the implementation minutia may
 cause operational friction between market participants. Even the
 protocols that have a native digital representation have written
@@ -379,17 +374,17 @@ components in the namespace hierarchy is critical** as part of the
 design (or potentially the re-organising of the hierarchy following the
 new development), to ensure the CDM remains well organised.
 
-# Agile Development Approach
+## Agile Development Approach
 
 The on-going development of the CDM adheres to a methodology inspired by
 the *Agile* software development framework. This methodology is based on
 two high-level principles:
 
-1.  Focus on business value from the user\'s perspective, encapsulated
+1.  Focus on business value from the user's perspective, encapsulated
     in the concept of *user story*
 2.  Delivery of small, releasable changes that contribute to that
     business value (sometimes referred to as *shippable increments*) -
-    i.e. no \"big bang\" changes
+    i.e. no "big bang" changes
 
 Development by the CDM Maintainer team is being planned along a series
 of 2-week *sprints* aligned onto the CDM Architecture and Review
@@ -419,11 +414,11 @@ one sentence: who, what and why.
 -   *Who* defines the user (or more generally the set of users defined
     by some profiling) that will enjoy that benefit
 -   *What* defines the feature to be delivered, as a verbal proposition
-    applying to the user - i.e. \"the user can do this or that\"
+    applying to the user - i.e. "the user can do this or that"
 -   *Why* specifies the benefit, i.e. what makes this feature important
     for the user
 
-Since a story is from the user\'s perspective, it must be written in
+Since a story is from the user's perspective, it must be written in
 plain language, or at least in language that is intelligible by that
 user. It must be free of technical jargon that only the developer of
 that feature may understand, so that it can be communicated to the user.
@@ -453,36 +448,36 @@ underlying tasks or techical details.
 
 Instead of writing:
 
-> \"Commodity Swap Follow Up w/Enum values, mapping, samples\"
+> "Commodity Swap Follow Up w/Enum values, mapping, samples"
 
 Which is unclear, assumes some context which not all users may have
-(\"follow-up\" from what?) and has no explicit benefit, write:
+("follow-up" from what?) and has no explicit benefit, write:
 
-> \"A Commodity user of the CDM can map a set of basic Commodity
-> attributes to represent simple Commodity derivative products.\"
+> "A Commodity user of the CDM can map a set of basic Commodity
+> attributes to represent simple Commodity derivative products."
 
 In which some of the underlying tasks may be:
 
-> -   \"Map basic Commodity enumerations\"
-> -   \"Add Commodity samples to the ingestion test pack\"
+> -   "Map basic Commodity enumerations"
+> -   "Add Commodity samples to the ingestion test pack"
 > -   etc.
 
 As a rule, a task is written in the imperative mode as an injunction to
 the developer, whereas a story should be written as a sentence starting
-with the user\'s profile as the subject of a verbal proposition. A story
+with the user's profile as the subject of a verbal proposition. A story
 written in the imperative mode is more likely a task and improperly
 written.
 
 For instance, instead of writing:
 
-> \"Release member contribution for DayCountFraction.\"
+> "Release member contribution for DayCountFraction."
 
 Write:
 
-> \"A user of interest rate products is able to model products that use
-> the ACT/364 day count convention in the CDM.\"
+> "A user of interest rate products is able to model products that use
+> the ACT/364 day count convention in the CDM."
 
-Where the \"Release\" injunction is attached to a deploy-type task.
+Where the "Release" injunction is attached to a deploy-type task.
 
 ## Delivery of small releasable units
 
@@ -504,15 +499,13 @@ achievable during a single sprint.
 
 > 1 contribution = 1 releasable unit = 1 user story
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 A CDM [release](#version-management) may contain more than 1 releasable
 unit. Every unit should still be shippable in isolation, even if they
 may end-up being shipped as a group.
-:::
+
+---
 
 ### Epics
 
@@ -523,7 +516,7 @@ user stories. Developers or contributors are responsible for ensuring
 that the changes are being delivered in small, incremental units and
 must plan accordingly.
 
-Particularly for complex stories, not all of that story\'s tasks may
+Particularly for complex stories, not all of that story's tasks may
 necessarily be known in advance and therefore guaranteed to fit in one
 single sprint. A story may demand some prior analysis before it can be
 decomposed into development tasks. It may also require several design
@@ -552,10 +545,11 @@ technology or service vendors. It describes:
 
 ::: {#modelling-platforms}
 Development of the CDM is supported through various modelling platforms,
-including [Rosetta](#) and [Legend](#). Regardless of the modelling
+including [Rosetta](https://rosetta-technology.io) and [Legend](https://legend.finos.org/studio). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
 the contribution check-list below.
-:::
+
+---
 
 The steps required to change the CDM are aligned with the software
 development lifecycle typically applicable to the development of any
@@ -565,31 +559,29 @@ platform that can be used to support the development of the CDM.
 
 ![](/img/SDLC.png)
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 This documentation is not an endorsement of any modelling platform and
 associated products and CDM users remain invited to leverage the tools
 of their choosing. This contribution guide has been contextualised with
 references to Rosetta to ease understanding and align with the current
 process.
-:::
+
+---
 
 ## Before you start modelling
 
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the `design-principles`{.interpreted-text role="ref"} and
-    `governance`{.interpreted-text role="ref"}
--   Review the [Rosetta Starter Guide](#) or equivalent in your chosen
+-   Review the [design-principles](/docs/cdm-overview#design-principles) and
+    [governance](/docs/cdm-overview#governance)
+-   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-`agile-development-approach`{.interpreted-text role="ref"} and follows
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -600,7 +592,7 @@ these steps:
     to each other, and, if applicable, a workflow.
 -   **Design approval**. Obtain approval of high-level conceptual design
     from CDM stakeholders:
-    -   CDM Owners (ISDA and other involved Trade Associations, where
+    -   CDM Owners (FINOS and other involved Trade Associations, where
         applicable)
     -   CDM Sub-Working Group, if applicable
     -   CDM Architecture and Review Committee
@@ -610,15 +602,13 @@ these steps:
     and when relevant. Please contact
     [cdm@lists.finos.org](mailto:cdm@lists.finos.org).
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Unless explicitly instructed by a CDM Maintainer, a Contributor can only
 ever develop changes to a development (i.e. pre-release) version of the
 CDM.
-:::
+
+---
 
 ## Editing the model
 
@@ -638,7 +628,7 @@ checklist:
 
 The following sections detail that checklist. When using the Rosetta
 Design web application to edit the model, the Contributor should also
-refer to the [Rosetta Design Guide](#).
+refer to the [Rosetta Design Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta).
 
 ### CDM version
 
@@ -646,7 +636,7 @@ To the extent possible it is recommended that the Contributor keeps
 working with a version of the CDM that is as close as possible to the
 latest to minimise the risk of backward compatibility.
 
-Please refer to the [Source Control Integration Guide](#) for more
+Please refer to the [Source Control Integration Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration) for more
 information.
 
 ### Syntax
@@ -654,11 +644,11 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](#).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
-Guide](#).
+Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#rosetta-design-content-assist).
 
 ### Compilation
 
@@ -669,14 +659,14 @@ certain mapper implementations).
 
 The Rosetta support team can help resolve these errors before the
 changes are contributed. In most cases you will be able to contact the
-team via the [In-App chat](#). If the support team identifies that
+team via the [In-App chat](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta#in-app-chat). If the support team identifies that
 significant work may be required to resolve these errors, they will
 notify the Contributor who should then contact the CDM Maintainer
 originally appointed for the proposed change and/or CDM Owners. The
 latter will be able to assist in the resolution of the issues.
 
 For more information about auto-compilation using the Rosetta DSL,
-please refer to the [Rosetta Auto Compilation Guide](#).
+please refer to the [Rosetta Auto Compilation Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/2-rosetta-design/#auto-completion-scoping).
 
 ### Testing
 
@@ -691,14 +681,14 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](#).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](#) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -709,8 +699,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the `namespace-documentation`{.interpreted-text
-role="ref"} section for more details.
+Please refer to the [namespace-documentation](/docs/namespace) section for more details.
 
 ### Descriptions
 
@@ -737,16 +726,14 @@ following contribution checklist:
     -   Any other additional materials or documentation that may help
         with the review and approval process
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 A contribution should be a whole [releasable
 unit](#what-is-a-releasable-unit) and its size calibrated in accordance
-with the CDM\'s [agile development
+with the CDM's [agile development
 approach](#agile-development-approach).
-:::
+
+---
 
 ### Contributing
 
@@ -759,32 +746,28 @@ Given the alignment:
 > 1 pull request = 1 contribution = 1 releasable unit = 1 user story,
 
 we recommend labelling the pull request with the user story label, i.e.
-\"STORY-XYZ: \...\" to facilitate its tracking.
+"STORY-XYZ: ..." to facilitate its tracking.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](#).
-:::
+under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
+
+---
 
 When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
 contribution. Those inputs are used to create a Pull Request on a
 one-off branch in the source-control repository. Please refer to the
-[Rosetta Workspace Contribution Guide](#) for more information.
+[Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes) for more information.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 It is not yet possible to contribute updated test expectations,
 documentation, release notes or new sample data using Rosetta, so these
 must be provided to the CDM Maintainers via Slack or email.
-:::
+
+---
 
 ### Documentation
 
@@ -805,7 +788,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-`content-of-release-notes`{.interpreted-text role="ref"} for further
+[content-of-release-notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -823,17 +806,15 @@ through the following review checklist:
         with any recent changes
     -   Changes are in accordance with the CDM governance guidelines
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-`downstream-dependencies`{.interpreted-text role="ref"} section for more
+[downstream-dependencies](#downstream-dependencies) section for more
 details.
-:::
+
+---
 
 -   CDM build process completed with no errors or test failures
 -   Review additional samples provided (if use-case is not covered by
@@ -846,11 +827,8 @@ details.
 Any review feedback should be sent to the Contributor as required via
 Slack, email or in direct meetings.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Depending on the size, complexity or impact of a contribution, the CDM
 Maintainer can recommend for the contribution to be presented with an
 appropriate level of details with the CDM Architecture and Review
@@ -858,11 +836,12 @@ Committee for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
-:::
+
+---
 
 ## Model maintenance
 
-Before the Pull Request can be merged into the CDM\'s main branch, some
+Before the Pull Request can be merged into the CDM's main branch, some
 work is usually required by the Maintainer to preserve the integrity of
 the model source code and of its downstream dependencies.
 
@@ -910,16 +889,14 @@ test and, if necessary, update those before the changes can be released.
 -   **CDM Portal**: compile and test.
 -   **CDM Java Examples**: compile and test.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 In most cases, the post-review technical tasks and downstream
 dependencies require software engineering expertise in addition to CDM
 expertise. Additional technical support from the CDM Maintainer team may
 need to be called upon to address those.
-:::
+
+---
 
 The change can be merged into the main CDM code base only upon:
 
@@ -945,20 +922,18 @@ new model:
 -   (Currently done at a later stage) Update the latest CDM version
     available in Rosetta
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 When the release process is handled through Rosetta Deploy, the
 Maintainer should contact the Rosetta support team to request that
 deployment and discuss a timeline for the release.
-:::
 
-# Documentation Style Guide
+---
+
+## Documentation Style Guide 
 
 The purpose of this section is to provide form and substance
-recommendations for editors of CDM documentation. \"Documentation\" in
+recommendations for editors of CDM documentation. "Documentation" in
 this context means any form of written guidance to CDM users and
 includes:
 
@@ -990,7 +965,7 @@ Writing and editing style is subjective and a matter of personal
 preferences, rather than right or wrong. The following guidelines are
 intended to ensure that the documentation provides consistent styling,
 regardless of who writes it, but should not be interpreted as an
-authoritative source on \"good\" styling.
+authoritative source on "good" styling.
 
 Unless otherwise noted, the recommended rules apply to all forms of CDM
 documentation. When rules are applicable only to certain forms of
@@ -1002,9 +977,9 @@ release notes), they will be specified as such.
 ### The CDM
 
 The model should be referred to as *the CDM*, without any ownership
-mention. The only exception is the [Overview of the ISDA
-CDM](cdm-overview) section at the beginning of the user
-documentation when the CDM is introduced as *the ISDA CDM*.
+mention. The only exception is the [Overview of the FINOS
+CDM](/docs/cdm-overview) section at the beginning of the user
+documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
 
@@ -1023,13 +998,13 @@ The two data definition components should be referred to as follows:
 ### Product
 
 1.  *Financial Product*. The user documentation defines
-    `financial-product`{.interpreted-text role="ref"} as the highest
+    [financial-product](/docs/product-model#financial-product) as the highest
     level of the hierarchy of the universe of products. The term
     *Financial Product* should be used consistently throughout the
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    `contractual-product`{.interpreted-text role="ref"} is defined as a
+    [contractual-product](/docs/product-model#contractual-product) is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
@@ -1039,15 +1014,13 @@ The two data definition components should be referred to as follows:
 
 ### Event
 
-1.  *Business Event*. In the CDM, a `business-event`{.interpreted-text
-    role="ref"} represents an event that may occur during the lifecycle
+1.  *Business Event*. In the CDM, a [business-event](/docs/event-model#business-event) represents an event that may occur during the lifecycle
     of a trade, such as an amendment, a termination, a reset or a
     payment.
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a `primitive-event`{.interpreted-text
-    role="ref"} represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model#primitive-event) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
@@ -1094,12 +1067,12 @@ The two data definition components should be referred to as follows:
     terms.
     1.  The description of objects in the model should begin with the
         purpose of the object. The purpose should explain what the
-        object is, not \"what it is not\".
+        object is, not "what it is not".
     2.  Data type description should begin with a verb that describes
         what the type does.
     3.  The logical model identifies data types without needing a
         description, therefore, the description should not begin with a
-        phrase like: "A data type that does\...\"
+        phrase like: "A data type that does..."
     4.  Attribute description should articulate the use of the type in
         the context of the attribute.
     5.  The description should not be tautological, e.g. PartyRole
@@ -1160,26 +1133,13 @@ Another non-compliant example:
         there should not be a heading at level 3 or 4 with the exact
         same title.
 
-  -------------------------------------------------------------------------------------------------------------------------
-  Heading   Notation (underline in .rst)                   Relative font size   Section Example
-  Level                                                    (as seen by users)   
-  --------- ---------------------------------------------- -------------------- -------------------------------------------
-  1         [===============]{.title-ref}                  XL font and bold     `common-domain-model`{.interpreted-text
-                                                                                role="ref"}
-
-  2         [\-\-\-\-\-\-\-\-\-\-\-\-\-\--]{.title-ref}    L font and bold      `product-model-page`{.interpreted-text
-                                                                                role="ref"},
-                                                                                `legal-agreements-page`{.interpreted-text
-                                                                                role="ref"}
-
-  3         [\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]{.title-ref}   M font and bold      `tradable-product`{.interpreted-text
-                                                                                role="ref"}
-
-  4         [\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]{.title-ref}   S font (same as      `price-quantity`{.interpreted-text
-                                                           content), but bold   role="ref"}
-  -------------------------------------------------------------------------------------------------------------------------
-
-  : Heading Styles
+| Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                          Section Example |
+|:--------------|:----------------------------------:|--------------------------------------:|---------------------------------------------------------:|
+| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](/docs/common-domain-model) |
+| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](/docs/product-model),<br/>[legal-agreements-page](/docs/legal-agreements) |
+| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](/docs/product-model#tradable-product) |
+| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/product-model#price-quantity) |
+:Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
 standard web mark-up language, for which a reference guide can be found
@@ -1212,10 +1172,10 @@ notes are edited in the *Mark-Down (MD)* syntax, which is then rendered
 into Html in the various channels where the release is published.
 
 1.  release notes should begin with a high-level headline of the part of
-    the model being changed, followed by \"--\" and a short headline
+    the model being changed, followed by "--" and a short headline
     description
-    1.  For example: \"# Legal Agreement Model - Collateral Agreement
-        Elections\"
+    1.  For example: "# Legal Agreement Model - Collateral Agreement
+        Elections"
 2.  They should provide enough detail for a reviewer or other interested
     parties to be able to find and evaluate the change. For a data model
     change, for example, the data type and attributes should be named
@@ -1256,18 +1216,16 @@ The MD editing syntax in which release notes are written is a standard
 web mark-up language, for which a reference guide can be found at:
 <https://www.markdownguide.org/cheat-sheet/>
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The MD syntax provides similar features to the RST syntax (used to edit
 the user documentation), but the special formatting characters are
 slightly different between the two. While RST allows richer features
 that are useful for a full documentation website, MD is preferred for
 release notes because Slack supports (a subset of) the MD language and
 can therefore serve as a release publication channel.
-:::
+
+---
 
 ## Style
 
@@ -1285,11 +1243,11 @@ can therefore serve as a release publication channel.
             in these artefacts).
         3.  Incomplete sentences cannot end with a punctuation. For
             example, "Through the `legalAgreement` attribute the CDM
-            provides support for implementors to:\" is an incomplete
+            provides support for implementors to:" is an incomplete
             sentence and cannot end in a punctuation. This can be fixed
             by adding a few words, e .g. "Through the `legalAgreement`
             attribute the CDM provides support for implementors to do
-            the following:\"
+            the following:"
         4.  Always use the Oxford Comma (aka the Serial Comma) for
             clarity when listing more than two items in a sentence, e.g.
             "data types, attributes, and enumerated values." In extreme
@@ -1301,40 +1259,40 @@ can therefore serve as a release publication channel.
     2.  Sentences should not end with a preposition
         1.  Non-compliant example: "..to represent the party that the
             election terms are being defined for."
-        2.  Compliant: "\...to represent the party or parties for which
+        2.  Compliant: "...to represent the party or parties for which
             the election terms are being defined."
 3.  When a name or phrase is defined - continue to use it unless an
     alias has been defined. For example, one section reviewed had an
-    expression \"agreement specification details\" but then switched to
-    using \"agreement content\" without explanation. There is sufficient
+    expression "agreement specification details" but then switched to
+    using "agreement content" without explanation. There is sufficient
     terminology to absorb, as such there is no need for synonyms or
     aliases, unless there are commonly used terms, in which case, they
     should be defined and one term should be used consistently.
 4.  User Documentation and descriptions should always be in the third
-    person, for example: \"the CDM model provides the following\...\".
-    Never use the first person (including the use of \"we\").
+    person, for example: "the CDM model provides the following...".
+    Never use the first person (including the use of "we").
 5.  In the user documentation, when there is a need for a long list, use
     bullets (`*` or `-` followed by space, then text) as opposed to long
     sentences.
 6.  To the extent possible, use simple direct sentence structures, e.g.
-    replace \"An example of such\" with \"For example\", or replace
-    \"Proposals for amendment to the CDM can be created upon the
+    replace "An example of such" with "For example", or replace
+    "Proposals for amendment to the CDM can be created upon the
     initiative of members of a Committee or by any users of CDM within
-    the community who are not a current Committee member.\" with
-    \"Committee members or any user of CDM within the community can
-    propose amendments to the CDM.\"
-7.  Exclude the usage of \"mean to\", "intends to", or "looks to".
-    1.  For example, \"the model looks to use strong data type
+    the community who are not a current Committee member." with
+    "Committee members or any user of CDM within the community can
+    propose amendments to the CDM."
+7.  Exclude the usage of "mean to", "intends to", or "looks to".
+    1.  For example, "the model looks to use strong data type
         attributes such as numbers, boolean or enumerations whenever
-        possible.\"
+        possible."
     2.  Either the object works as designed or it does not. This
         expression might be used in a bug report when describing a
         function not working as intended but not to describe a
         production data model.
 8.  Explain the CDM objects in an honest and transparent manner, but
-    without criticism of the model. Sentences such as: \"\...which firms
-    may deem inappropriate and may replace by\...\" or \"the model is
-    incomplete with regards to\...\" are unnecessary in a documentation.
+    without criticism of the model. Sentences such as: "...which firms
+    may deem inappropriate and may replace by..." or "the model is
+    incomplete with regards to..." are unnecessary in a documentation.
     Rather, issues which may be identified in the CDM should be raised
     and addressed via the CDM governance structure.
 
@@ -1348,7 +1306,7 @@ can therefore serve as a release publication channel.
     2.  If the same word or phrase is used in a business context, as
         part of an explanation, then the words should be spaced and
         titled normally and the special format is not required: e.g.
-        "Tradable products are represented by\...".
+        "Tradable products are represented by...".
 2.  Code snippets should be preceded by the string:
     `.. code-block:: Language` (where the Language could be any of
     Haskell, Java, JSON, etc.), followed by a line spacing before the
@@ -1391,17 +1349,15 @@ type Party:
   contactInformation ContactInformation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Code snippets that appear in the user documentation are being compared
 against actual CDM components during the CDM build process, and any
 mismatch will trigger an error in the build. This mechanism ensures that
 the user documentation is kept in sync with the model in production
 prior to any release.
-:::
+
+---
 
 ### Fonts, Text Styles, and Spaces
 
@@ -1421,7 +1377,7 @@ prior to any release.
 
 ### Style references for additional guidance
 
-1.  [New Hart\'s Rules](#): An updated version of this erstwhile
+1.  [New Hart's Rules](https://global.oup.com/academic/product/new-harts-rules-9780199570027): An updated version of this erstwhile
     comprehensive style guide for writers and editors using British
     English, published by the Oxford University Press. Invaluable as an
     official reference on proofreading and copy-editing. Subjects

@@ -27,7 +27,7 @@ FpML, the CDM includes defined Synonyms that map to FpML (and other
 models) and can be used for transformation purposes. More details on
 Synonyms are provided in the Mapping (Synonym) section of this document.
 
-# TradableProduct {#tradable-product}
+## TradableProduct {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
@@ -44,14 +44,12 @@ type TradableProduct:
    adjustment NotionalAdjustmentEnum (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The conditions for this data type are excluded from the snippet above
 for purposes of brevity.
-:::
+
+---
 
 The primary set of attributes represented in the `TradableProduct` data
 type are ones that are shared by all trades and transactions. For
@@ -105,18 +103,16 @@ type Party:
   contactInformation ContactInformation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `partyReference` attribute in `Counterparty` is annotated with a
 `[metadata reference]`, which means that a reference to the party object
-can be passed in instead of a copy. In that case, the attribute\'s type
+can be passed in instead of a copy. In that case, the attribute's type
 must itself be annotated with a `[metadata key]`, so that it is
 referenceable via a key. The use of the key / reference mechanism is
 further detailed in the Rosetta DSL documentation.
-:::
+
+---
 
 ## TradeLot
 
@@ -137,16 +133,14 @@ decreases (or unwind) are treated differently. An increase adds a new
 `TradeLot` instance to the tradadable product, whereas a decrease
 reduces the quantity of one or more of the existing trade lots.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The term *lot* is borrowed from the Equity terminology that refers to
 each trade lot as a *tax lot*, where the capital gains tax that may
 arise upon unwind is calculated based on the price at which the lot was
 entered.
-:::
+
+---
 
 For each trade lot, the quantity and price are represented by an
 attribute called `priceQuantity`.
@@ -194,14 +188,12 @@ type PriceQuantity:
   effectiveDate AdjustableOrRelativeDate (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The conditions for this data type are excluded from the snippet above
 for purposes of brevity.
-:::
+
+---
 
 The price, quantity and observable attributes are joined together in a
 single `PriceQuantity` data type because in some cases, those 3
@@ -297,7 +289,7 @@ only needs to be represented once.
 To represent this, the `MeasureSchedule` type extends `MeasureBase` with
 a set of date and value pair attributes represented by the `DatedValue`
 type. In that structure, the existing `value` attribute can still be
-omitted but, when present, represents the schedule\'s initial value.
+omitted but, when present, represents the schedule's initial value.
 
 ``` Haskell
 type MeasureSchedule extends MeasureBase:
@@ -621,25 +613,25 @@ identifiers are publically available. Therefore, the terms of the
 security do not have to be stored in a transaction lifecycle model, but
 can be referenced with public identifiers.
 
-An Index product is an exception because it\'s not directly tradable,
+An Index product is an exception because it's not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
-# Contractual Product
+## Contractual Product
 
 The scope of contractual products in the current model are summarized
 below:
 
 -   **Interest rate derivatives**:
     -   Interest Rate Swaps (incl. cross-currency swaps, non-deliverable
-        swaps, basis swaps, swaps with non-regular periods, \...)
+        swaps, basis swaps, swaps with non-regular periods, ...)
     -   Swaptions
     -   Caps/floors
     -   FRAs
     -   OTC Options on Bonds
 -   **Credit derivatives**:
     -   Credit Default Swaps (incl. baskets, tranche, swaps with
-        mortgage and loans underlyers, \...)
+        mortgage and loans underlyers, ...)
     -   Options on Credit Default Swaps
 -   **Equity derivatives**:
     -   Equity Swaps (single name)
@@ -724,7 +716,7 @@ type PayoutBase:
   settlementTerms SettlementTerms (0..1)
 ```
 
-The list of payouts that extend [PayoutBase]{.title-ref} are:
+The list of payouts that extend _PayoutBase_ are:
 
 -   `InterestRatePayout`
 -   `EquityPayout`
@@ -756,18 +748,16 @@ type InterestRatePayout extends PayoutBase:
    floatingAmount calculation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The code snippets above excludes the conditions in this data type for
 purposes of brevity.
-:::
 
-The price and quantity attributes in the [PayoutBase]{.title-ref}
-structure are positioned in the [ResolvablePriceQuantity]{.title-ref}
-data type. This data type mirrors the [PriceQuantity]{.title-ref} data
+---
+
+The price and quantity attributes in the _PayoutBase_
+structure are positioned in the _ResolvablePriceQuantity_
+data type. This data type mirrors the _PriceQuantity_ data
 type and contains both the price and quantity schedules.
 
 In addition that data type supports the definition of additional
@@ -794,10 +784,10 @@ type ResolvablePriceQuantity:
 ```
 
 By design, the CDM requires that each payout leg can only be associated
-with a single quantity schedule that defines this leg\'s contractual
+with a single quantity schedule that defines this leg's contractual
 behaviour (e.g. for the payment of cashflows). In the `PriceQuantity`
 object, where that attribute is of multiple cardinality, other
-quantities may be provided \"for information only\" which can be
+quantities may be provided "for information only" which can be
 inferred from the main quantity used in the payout leg: e.g. when a
 commodity quantity is associated to a frequency and needs to be
 multiplied by the period to get the total quantity.
@@ -892,11 +882,11 @@ Code libraries, written in Java and distributed with the CDM, contain
 tools to merge CDM objects together. Implementors may extend these
 merging tools to change the merging strategy to suit their requirements.
 The CDM Java Examples download, available via the [CDM Portal Downloads
-page](#), contains a example demonstrating usage of a data template and
+page](https://portal.cdm.rosetta-technology.io/#/downloads), contains a example demonstrating usage of a data template and
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 
-# Products with Identifiers {#products-with-identifiers-section}
+## Products with Identifiers
 
 The abstract data type ProductBase serves as a base for all products
 that have an identifier, as illustrated below:
@@ -910,7 +900,7 @@ type ProductBase:
 The data types that extend from ProductBase are Index, Commodity, Loan,
 and Security. Index and Commodity do not have any additional attributes.
 In the case of Commodity, the applicable product identifiers are the
-ISDA definitions for reference benchmarks. Loan and Security both have a
+FINOS definitions for reference benchmarks. Loan and Security both have a
 set of additional attributes, as shown below:
 
 ``` Haskell
@@ -962,16 +952,16 @@ functions are identified with a `[qualification Product]` annotation.
 
 A Product Qualification function applies a taxonomy-specific business
 logic to identify if the product attribute values, as represented by the
-product\'s economic terms, match the specified criteria for the product
+product's economic terms, match the specified criteria for the product
 named in that taxonomy. For example, if a certain set of attributes are
 populated and others are absent, then that specific product type is
 inferred. The Product Qualification function name in the CDM begins with
 the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
-The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
+The CDM implements the FINOS Product Taxonomy v2.0 to qualify contractual
 products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
+prevalence of usage of the FINOS Product Taxonomy v1.0, the equivalent
 name from that taxonomy is also systematically indicated in the CDM,
 using a `synonym` annotation displayed under the function output. An
 example is provided below for the qualification of a Zero-Coupon
@@ -993,18 +983,16 @@ If all the statements above are true, then the function evaluates to
 True, and the product is determined to be qualified as the product type
 referenced by the function name.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 In a typical CDM model implementation, the full set of Product
 Qualification functions would be invoked against each instance of the
 product in order to determine the inferred product type. Given the
 product model composability, a single product instance may be qualified
 as more than one type: for example in an Interest Rate Swaption, both
 the Option and the underlying Interest Rate Swap would be qualified.
-:::
+
+---
 
 The CDM supports Product Qualification functions for Credit Derivatives,
 Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and
@@ -1012,7 +1000,7 @@ Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix
 is part of the function name. Credit Default products are qualified, but
-not down to the full level of detail. The ISDA Product Taxonomy v2.0
+not down to the full level of detail. The FINOS Product Taxonomy v2.0
 references the FpML *transaction type* field instead of just the product
 features, whose possible values are not publicly available and hence not
 positioned as a CDM enumeration.
@@ -1027,7 +1015,7 @@ be associated to such product taxonomy information, which are also
 propagated in the `ProductTaxonomy` object.
 
 The `ProductTaxonomy` data structure and an instance of a CDM object
-([serialised](#) into JSON) are shown below:
+([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON) are shown below:
 
 ``` Haskell
 type ProductTaxonomy extends Taxonomy:
@@ -1064,11 +1052,11 @@ type ProductTaxonomy extends Taxonomy:
       },
       "value": "InterestRate:IRSwap:FixedFloat"
     }
-    "taxonomySource": "ISDA"
+    "taxonomySource": "FINOS"
   },
   {
     "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "ISDA"
+    "taxonomySource": "FINOS"
   }
 ]
 ```

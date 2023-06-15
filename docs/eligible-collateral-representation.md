@@ -125,10 +125,10 @@ collateral; the foundational structure in the CDM provides a means to
 identify a majority of collateral issuers and covers a wide range of
 asset types that are commonly seen in eligible collateral data.
 
-The approach in the CDM is to adopt a similar method to the \'Animal
-Kingdom\' tree and taxonomy (kingdom → phylum → class → order→ family →
+The approach in the CDM is to adopt a similar method to the 'Animal
+Kingdom' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species) -- i.e., that there is one method for describing any of
-the core attributes of an \"animal\" (i.e., type of issuer/type of
+the core attributes of an "animal" (i.e., type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
 way. Each issuer type, asset type, economic type etc has a unique place
 in the universe of collateral but is logically grouped together with
@@ -511,7 +511,7 @@ margin types.
 
 The model components are specified in the CDM using data type
 `AgencyRatingCriteria` : - Represents class to specify multiple credit
-notations alongside a conditional \'any\' or \'all\' qualifier.
+notations alongside a conditional 'any' or 'all' qualifier.
 
 For the purpose of use in defining eligible collateral this can be
 applied to the following data attributes:
@@ -565,13 +565,13 @@ type CreditNotation:
 -   `scale` Specifies the credit rating scale, with a typical
     distinction between short term, long term. The data 'string' allows
     the free format field to be populated with a scale indicator such as
-    'long term', 'short term\'.
+    'long term', 'short term'.
 -   `debt` Specifies the credit rating debt type is for any credit
     notation associated debt related credit attributes if needed. This
     gives the additional flexibility option to identify amongst the
     credit criteria debt characteristics such as (high yield, deposits,
     investments grade) The data type extends to offer two options
-    -   `debtType` This attribute is free format \'string\' and used
+    -   `debtType` This attribute is free format 'string' and used
         when only one debt type is specified
     -   `debtTypes` This allows you to specify for than one multiple
         debt type characteristics and has a qualifying conditions to
@@ -670,8 +670,8 @@ taxonomy source.
 -   The data attribute `taxonomySource` must be specified and will
     provide the following options through the enumerations list:
     -   CFI (The ISO 10962 Classification of Financial Instruments code)
-    -   ISDA (The ISDA product taxonomy)
-    -   ICAD (ISDA Collateral Asset Definition Identifier code)
+    -   FINOS (The FINOS product taxonomy)
+    -   ICAD (FINOS Collateral Asset Definition Identifier code)
     -   EU EMIR Eligible Collateral Asset Class (European Union Eligible
         Collateral Assets classification categories based on EMIR
         Uncleared Margin Rules)
@@ -683,7 +683,7 @@ taxonomy source.
         Margin Rules published by the CFTC and the US Prudential
         Regulators)
 
-The options CFI, ISDA and ICAD would be further expressed with the
+The options CFI, FINOS and ICAD would be further expressed with the
 flexible data *'string'* representation through data type
 `ProductTaxonomy`.
 
@@ -718,7 +718,7 @@ list:
     money, such as money market deposits.
 -   `EU_EMIRTypeB` - Denotes gold in the form of allocated pure gold
     bullion of recognised good delivery.
--   `EU_EMIRTypeC` -Denotes debt securities issued by Member States\'
+-   `EU_EMIRTypeC` -Denotes debt securities issued by Member States'
     central governments or central banks.
 
 The cardinality for these enumeration lists (0..\*) denotes that
@@ -783,7 +783,7 @@ product identifiers. Data type `productIdentifier` can be used to
 express specific instrument identifiers such as ISINs, CUSIPs etc. There
 is a section within the CDM documentation that covers this area of the
 model, this can be found in the following link
-`products-with-identifiers-section`{.interpreted-text role="ref"}.
+[products-with-identifiers-section](/docs/product-model#products-with-identifiers).
 
 ## Listing (Used within Asset Criteria)
 

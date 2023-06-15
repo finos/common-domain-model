@@ -128,18 +128,16 @@ type Trade:
     [deprecated]
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Attributes within `Trade` and `ContractDetails` incorporate elements
-from FpML\'s *trade confirmation* view, whereas the `TradableProduct`
-data type corresponds to FpML\'s *pre-trade* view. The `TradableProduct`
+from FpML's *trade confirmation* view, whereas the `TradableProduct`
+data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-`tradable-product`{.interpreted-text role="ref"} section of the
+[`tradable-product`](/docs/product-model#TraableProduct) section of the
 documentation.
-:::
+
+---
 
 Additionally, `Trade` supports the representation of specific execution
 or contractual details via the `executionDetails` and `contractDetails`
@@ -149,7 +147,7 @@ attributes.
 
 The `ExecutionDetails` data type represents details applicable to trade
 executions and includes attributes that describe the execution venue and
-execution type. Not all trades will have been \'executed\', such as
+execution type. Not all trades will have been 'executed', such as
 those created from a Swaption Exercise event. In those cases, the
 `executionDetails` attributes on `Trade` is expected to be empty.
 
@@ -181,7 +179,7 @@ type ContractDetails:
 ## State
 
 The `State` data type defines the state of a trade at a point in the
-Trade\'s life cycle. Trades have many state dimensions, all of which are
+Trade's life cycle. Trades have many state dimensions, all of which are
 represented here. For example, states useful for position keeping are
 represented alongside those needed for regulatory reporting.
 
@@ -236,9 +234,9 @@ typically represents a number that is directly used to compute transfer
 amounts like cashflows.
 
 In addition to the observation value, a reset specifies the date from
-which the resettable value becomes applicable in the trade\'s context,
+which the resettable value becomes applicable in the trade's context,
 which could be different from the observation date if some observation
-lag applies. Depending on the trade\'s economic properties, a reset may
+lag applies. Depending on the trade's economic properties, a reset may
 also depend on several observation values based on some aggregation
 method - e.g. a compounded interest rate based on daily fixings.
 
@@ -293,7 +291,7 @@ type TransferBase:
   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 ```
 
-# Primitive Operator {#primitive-event}
+## Primitive Operator {#primitive-event}
 
 **Primitive operators are functional building blocks used to compose
 business events**. Each primitive operator describes a fundamental state
@@ -309,7 +307,7 @@ are therefore independent of each other.
 4.  party change: changes a party on a trade
 5.  exercise: exercises an option embedded in a trade
 6.  contract formation: associates a legal agreement to a trade
-7.  reset: changes a trade\'s resettable value based on an observation
+7.  reset: changes a trade's resettable value based on an observation
 8.  transfer: transfers some asset (cash, security, commodity) from one
     party to another
 9.  split: splits a trade into multiple identical trades
@@ -347,7 +345,7 @@ func Create_PartyChange:
 Primitive functions take additional inputs alongside the before trade
 state to specify the parameters of the state transition. Each primitive
 operator is associated to a primitive instruction data type that
-contains the function\'s required parameters as attributes - illustrated
+contains the function's required parameters as attributes - illustrated
 below using the same `PartyChange` example.
 
 ``` Haskell
@@ -386,17 +384,15 @@ state, as represented in the diagram below.
 
 ![](/img/composing-primitive-operators.png)
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 When a primitive instruction is composite, interim trade states will be
 created when executing each primitive operator. These interim trade
 states may not correspond to any actual business outcome (only the final
 after trade state does), so implementors will usually choose not to
 persist them.
-:::
+
+---
 
 The `Create_TradeState` function performs such composition of primitive
 operators. It takes a single trade state and a composite primitive
@@ -465,7 +461,7 @@ func Create_Split:
 
   add splitTrade:
     breakdown
-      extract [ Create_TradeState( item, originalTrade ) ]
+      extract Create_TradeState(item, originalTrade)
 ```
 
 Examples of how primitive operators work are illustrated below.
@@ -479,7 +475,7 @@ CDM is an *execution*. In practice, this execution represents the
 conclusion of a pre-trade process, which may be a client order that gets
 filled or a quote that gets accepted by the client. However, the CDM
 event model only covers post-trade lifecycle events so assumes that a
-trade gets instantiated \"from scratch\" at execution.
+trade gets instantiated "from scratch" at execution.
 
 Therefore, the execution function does not take any before state as
 input and all the trade details are contained in the execution
@@ -600,7 +596,7 @@ type TransferInstruction:
   transferState TransferState (0..*)
 ```
 
-# Business Event
+## Business Event
 
 Business events are built according to the following principles:
 
@@ -637,24 +633,22 @@ The only mandatory attributes of a business event are:
     a business event may impact multiple trades concurrently and result
     in multiple (after) trade states.
 -   The event date. The time dimension has been purposely ommitted from
-    the event\'s attributes. That is because, while a business event has
+    the event's attributes. That is because, while a business event has
     a unique date, several time stamps may potentially be associated to
     that event depending on when it was submitted, accepted, rejected
     etc, all of which are *workflow* considerations.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `primitives` attribute corresponds to a previous implementation of
 the primitive operators, now deprecated but maintained for
 backward-compatibility purposes. Because some implementations rely on
 this former mechanism instead of the new primitive instruction
-mechanism, the lower bound of the `instruction` attribute\'s cardinality
+mechanism, the lower bound of the `instruction` attribute's cardinality
 is 0 instead of 1. It will be updated to 1 once the former primitive
 mechanism is fully retired.
-:::
+
+---
 
 ## Event Composition
 
@@ -764,7 +758,7 @@ for the event named in that taxonomy. Like Product Qualification
 functions, the Event Qualification function name is prefixed with the
 word `Qualify_` followed by the taxonomy name.
 
-The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 22
+The CDM uses the FINOS taxonomy V2.0 leaf level to qualify the event. 22
 lifecycle events have currently been qualified as part of the CDM.
 
 One distinction with the product approach is that the `intent`
@@ -801,18 +795,16 @@ of the Event Qualification functions following the creation of each
 event and then insert the appropriate value or provide an exception
 message.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The type of the `eventQualifier` attribute in `BusinessEvent`, called
 `eventType`, is a *meta-type* that indicates that its value is meant to
 be populated using some functional logic. That functional logic must be
 represented by a qualification function annotated with
 `[qualification BusinessEvent]`, as in the example above. This mechanism
 is further detailed in the Rosetta DSL documentation.
-:::
+
+---
 
 ## Intent
 
@@ -886,7 +878,7 @@ represented by a *workflow step*. A workflow may involve multiple
 parties in addition to the parties to the transaction, and may include
 automated and manual steps. A workflow may involve only one step.
 
-The CDM supports a workflow\'s audit trail by providing lineage from one
+The CDM supports a workflow's audit trail by providing lineage from one
 step to another in that workflow.
 
 ``` Haskell
@@ -926,7 +918,7 @@ associated with the final step in the workflow.
 
 ## Proposed Event
 
-This attribute specifies the inputs required to perform the event\'s
+This attribute specifies the inputs required to perform the event's
 state transition and comprises a subset of the attributes of the
 business event itself. It is optional because it is only required for
 all pre-acceptance workflow steps. Once accepted, the business event is
@@ -992,14 +984,12 @@ type MessageInformation:
 applicable in a all technology contexts (e.g. in case of a distributed
 architecture).
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 MessageInformation corresponds to some of the components of the FpML
 *MessageHeader.model*.
-:::
+
+---
 
 ## Timestamp
 
@@ -1021,7 +1011,7 @@ The benefits of the CDM generic approach are twofold:
 -   Gathering all of those in one place in the model allows for
     evaluation and rationalisation down the road.
 
-Below is an instance of a CDM representation ([serialised](#) into JSON)
+Below is an instance of a CDM representation ([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON)
 of this approach.
 
 ``` JSON
@@ -1058,16 +1048,14 @@ type Identifier:
     required choice issuerReference, issuer
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 FpML also uses an event identifier construct: the `CorrelationId`, but
 it is distinct from the identifier associated with the trade itself,
 which comes in different variations: `PartyTradeIdentifier`, with the
 `TradeId` and the `VersionedTradeId` as sub-components).
-:::
+
+---
 
 ## Other Misc. Attributes
 
@@ -1077,13 +1065,11 @@ which comes in different variations: `PartyTradeIdentifier`, with the
     reference an unbounded set of contracts, events and/or payout
     components that an event may be associated to.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `lineage` attribute is superseded by the implementation in the CDM
 of: (i) trade state lineage, via the `before` reference in the primitive
 instructions, and (ii) workflow lineage, via the `previousWorkflowStep`
 attribute.
-:::
+
+---

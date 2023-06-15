@@ -7,7 +7,7 @@ version of CDM. Topics covered are listed below:
 
 -   Prerequisites
 -   Introduction
--   Setting Up Google\'s Guice Injector
+-   Setting Up Google's Guice Injector
 -   Generating Global Keys and Qualifications
 -   Validating the CDM instance
 
@@ -17,13 +17,13 @@ version of CDM. Topics covered are listed below:
 
 # Introduction
 
--   The CDM in Java is built using [maven](#) and is published using the
+-   The CDM in Java is built using [maven](https://maven.apache.org) and is published using the
     REGnosys artifactory. The repository can be accessed using the maven
     settings file that is included in the cdm sources jar or by copying
     the repository information to your own settings.
 -   The CDM in Java code, a related set of examples, and a video
     tutorial accessing the code and loading the examples are available
-    in the [CDM Portal](#):
+    in the [CDM Portal](https://portal.cdm.rosetta-technology.io):
 
 Download page for zip files of the Java code and examples
 
@@ -33,15 +33,15 @@ Download page for zip files of the Java code and examples
 
     Direct links:
 
-    :   [ISDA CDM as Java Code](#)
+    :   [FINOS CDM as Java Code](https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/isda/cdm-distribution)
 
-        [ISDA CDM as Java Examples](#)
+        [FINOS CDM as Java Examples](https://isda:isda@regnosys.jfrog.io/regnosys/libs-snapshot/com/regnosys/isda-cdm-examples)
 
 Tutorials
 
 ![](/img/cdm-tutorials.png)
 
-Direct link: [Tutorials](#)
+Direct link: [Tutorials](https://vimeo.com/359012532)
 
 -   The CDM model objects are classified into namespaces (cdm.base,
     cdm.base.staticdata, etc). These namespaces translate into Java
@@ -50,12 +50,12 @@ Direct link: [Tutorials](#)
 
 ![](/img/cdm-distribution.png)
 
--   The CDM uses [builder pattern](#) for each of the pojos. The
+-   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
 
-# Setting Up Google\'s Guice Injector
+# Setting Up Google's Guice Injector
 
-CDM uses [Google\'s Guice](#) as a dependency manager. Injector is the
+CDM uses [Google's Guice](https://github.com/google/guice) as a dependency manager. Injector is the
 core of Guice that contains the whole object graph (context).
 
 The first step is to initialise the injector. There are two options:
@@ -73,7 +73,7 @@ Injector injector = Guice.createInjector(new CdmRuntimeModule()));
 
 ## Initialising the Injector, Option 2: Build your own Module
 
-To build a custom injector that is not based on the CDM\'s runtime
+To build a custom injector that is not based on the CDM's runtime
 module, first create a Guice module with a minimum of the two bindings
 shown belows:
 
