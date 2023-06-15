@@ -94,7 +94,7 @@ An ecosystem of CDM-based application components from software providers exists 
 
 * Rosetta is a Software Development Kit (SDK or *dev-kit*) for the Rosetta DSL, that provides the cumminity with a free and easy way to contribute code to the CDM. Please refer to the `Rosetta Documentation`_ for more details.
 
-.. note:: Rosetta have been developed by technology firm `REGnosys`_. ISDA encourages the adoption of CDM by software providers but does not endorse any CDM application component.
+.. note:: Rosetta has been developed by technology firm `REGnosys`_. FINOS encourages the adoption of CDM by software providers but does not endorse any CDM application component.
 
 Using the CDM (Java)
 --------------------
