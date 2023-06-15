@@ -7,7 +7,7 @@ version of CDM. Topics covered are listed below:
 
 -   Prerequisites
 -   Introduction
--   Setting Up Google\'s Guice Injector
+-   Setting Up Google's Guice Injector
 -   Generating Global Keys and Qualifications
 -   Validating the CDM instance
 
@@ -53,9 +53,9 @@ Direct link: [Tutorials](https://vimeo.com/359012532)
 -   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
 
-# Setting Up Google\'s Guice Injector
+# Setting Up Google's Guice Injector
 
-CDM uses [Google\'s Guice](https://github.com/google/guice) as a dependency manager. Injector is the
+CDM uses [Google's Guice](https://github.com/google/guice) as a dependency manager. Injector is the
 core of Guice that contains the whole object graph (context).
 
 The first step is to initialise the injector. There are two options:
@@ -73,7 +73,7 @@ Injector injector = Guice.createInjector(new CdmRuntimeModule()));
 
 ## Initialising the Injector, Option 2: Build your own Module
 
-To build a custom injector that is not based on the CDM\'s runtime
+To build a custom injector that is not based on the CDM's runtime
 module, first create a Guice module with a minimum of the two bindings
 shown belows:
 

@@ -8,7 +8,7 @@ title: Process Model
 
 **The CDM lays the foundation for the standardisation, automation and
 inter-operability of industry processes**. Industry processes represent
-events and actions that occur through the transaction\'s lifecycle, from
+events and actions that occur through the transaction's lifecycle, from
 negotiating a legal agreement to allocating a block-trade or calculating
 settlement amounts.
 
@@ -86,7 +86,7 @@ DSL. A function receives a set of input values and applies logical
 instructions to return an output. The input and output are both CDM
 objects (including basic types). While a function specifies its inputs
 and output, its logic may be *fully defined* or only *partially defined*
-depending on how much of the output\'s attribute values it builds.
+depending on how much of the output's attribute values it builds.
 Unspecified parts of a process represent functionality that firms are
 expected to implement, either internally or through third-parties such
 as utilities.
@@ -99,7 +99,7 @@ be omitted from the CDM for the following reasons:
     object.
 -   The sub-process has already been defined and its implementation is
     widely adopted by the industry.
--   The sub-process is specific to a firm\'s internal process and
+-   The sub-process is specific to a firm's internal process and
     therefore cannot be specified in an industry standard.
 
 Given these reasons, the CDM process model focuses on the most critical
@@ -107,7 +107,7 @@ data and processes required to create functional objects that satisfy
 the below criterion:
 
 -   All of the qualifiable constituents (such as `BusinessEvent` and
-    `Product`) of a function\'s output can be qualified, which means
+    `Product`) of a function's output can be qualified, which means
     that they evaluate to True according to at least one of the
     applicable Qualification functions.
 -   Lineage and cross-referencing between objects is accurate for data
@@ -407,7 +407,7 @@ Floating rate processing an calculation functions include:
     Call the compounded index processing logic to calculate the reset
 -   `EvaluateScreenRate`: Evaluate/lookup the value of a screen rate
 -   `DetermineResetDate`: Determine the value of the reset date given a
-    reset dates structure and a calculation period for which it\'s
+    reset dates structure and a calculation period for which it's
     needed. Reset dates are defined in the 2021 FINOS Definition in
     Section 6.5.5.
 -   `DetermineFixingDate`: Determine the observation (fixing) date
@@ -659,7 +659,7 @@ In particular, the CDM must ensure that:
 -   The constructed events qualify according to the qualification logic
     described in the [event-qualification-section](/docs/event-model#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
-    trade\'s lifecycle sequence.
+    trade's lifecycle sequence.
 
 There are three levels of function components in the CDM to define the
 processing of lifecycle events:

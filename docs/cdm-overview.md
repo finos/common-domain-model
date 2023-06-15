@@ -15,7 +15,7 @@ and managed across the transaction lifecycle. It is represented as a
 ## Purpose
 
 A single, digital processing standard for trade events and actions
-enhances financial markets\' operational efficiency in several ways:
+enhances financial markets' operational efficiency in several ways:
 
 -   **Enables inter-operability and straight-through processing** across
     firms, solutions and platforms, reducing the need for reconciliation
@@ -116,7 +116,7 @@ represents the entire CDM as defined in Rosetta (plus any associated
 default implementation). Other distributions may only capture parts of
 the model: for instance, the Scala and TypeScript distributions include
 the complete data model and function specifications, but not the
-functions\' executable code.
+functions' executable code.
 
 ---
 

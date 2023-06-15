@@ -125,8 +125,8 @@ collateral; the foundational structure in the CDM provides a means to
 identify a majority of collateral issuers and covers a wide range of
 asset types that are commonly seen in eligible collateral data.
 
-The approach in the CDM is to adopt a similar method to the \'Animal
-Kingdom\' tree and taxonomy (kingdom → phylum → class → order→ family →
+The approach in the CDM is to adopt a similar method to the 'Animal
+Kingdom' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species) -- i.e., that there is one method for describing any of
 the core attributes of an "animal" (i.e., type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
@@ -511,7 +511,7 @@ margin types.
 
 The model components are specified in the CDM using data type
 `AgencyRatingCriteria` : - Represents class to specify multiple credit
-notations alongside a conditional \'any\' or \'all\' qualifier.
+notations alongside a conditional 'any' or 'all' qualifier.
 
 For the purpose of use in defining eligible collateral this can be
 applied to the following data attributes:
@@ -565,13 +565,13 @@ type CreditNotation:
 -   `scale` Specifies the credit rating scale, with a typical
     distinction between short term, long term. The data 'string' allows
     the free format field to be populated with a scale indicator such as
-    'long term', 'short term\'.
+    'long term', 'short term'.
 -   `debt` Specifies the credit rating debt type is for any credit
     notation associated debt related credit attributes if needed. This
     gives the additional flexibility option to identify amongst the
     credit criteria debt characteristics such as (high yield, deposits,
     investments grade) The data type extends to offer two options
-    -   `debtType` This attribute is free format \'string\' and used
+    -   `debtType` This attribute is free format 'string' and used
         when only one debt type is specified
     -   `debtTypes` This allows you to specify for than one multiple
         debt type characteristics and has a qualifying conditions to
@@ -718,7 +718,7 @@ list:
     money, such as money market deposits.
 -   `EU_EMIRTypeB` - Denotes gold in the form of allocated pure gold
     bullion of recognised good delivery.
--   `EU_EMIRTypeC` -Denotes debt securities issued by Member States\'
+-   `EU_EMIRTypeC` -Denotes debt securities issued by Member States'
     central governments or central banks.
 
 The cardinality for these enumeration lists (0..\*) denotes that

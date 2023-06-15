@@ -41,7 +41,7 @@ assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
 
 Once approved, the amendment will be scheduled to be merged with the
-CDM\'s main code branch by the CDM Maintainers.
+CDM's main code branch by the CDM Maintainers.
 
 ## Version Management
 
@@ -99,7 +99,7 @@ make any change to update to such version.
     -   Change to the DSL that results in any existing expression
         becoming invalid
     -   Change to the DSL that results in change to any of the generated
-        code\'s public interfaces
+        code's public interfaces
 -   Allowed changes:
     -   Change that relaxes any condition or cardinality constraint
     -   Change to any synonym that improves, or at least does not
@@ -214,7 +214,7 @@ patterns that should be factored into common components and avoid
 specialising the model according to each use case. For instance, in the
 model for *averaging* options (often used for commodity products,
 whereby multiple price observations are averaged through time to be
-compared to the option\'s strike price), the components are built and
+compared to the option's strike price), the components are built and
 named such that they can be re-used across asset classes.
 
 ## Composability
@@ -223,7 +223,7 @@ named such that they can be re-used across asset classes.
 as a composable model** whereby financial objects can be constructed
 bottom-up based on building-block components. A composable and modular
 approach allows for a streamlined model to address a broad scope of
-operational processes consistently across firms\' front-to-back flows
+operational processes consistently across firms' front-to-back flows
 and across asset classes. The main groups of composable components are:
 
 -   **Financial products**: e.g. the same *option* component is re-used
@@ -252,7 +252,7 @@ given taxonomy (e.g. a product classification).
 
 **The benefit of this approach is that consistency of object
 classification is achieved through how those objects are populated**,
-rather than depending on each market participant\'s implementation to
+rather than depending on each market participant's implementation to
 use the same naming convention. This approach also avoids the model
 relying on specific taxonomies, labels or identifiers to function and
 provides the flexibility to maintain multiple values from different
@@ -301,7 +301,7 @@ allowing firms that already use such standards to bootstrap their CDM
 implementation. Besides, because most standard messaging formats are
 typically extended and customised by each market participants (e.g. FpML
 or FIX), the CDM allows the synonym representation for those standards
-to be similarly inherited and extended to cover each firm\'s specific
+to be similarly inherited and extended to cover each firm's specific
 customisation.
 
 ## Embedded logic
@@ -380,7 +380,7 @@ The on-going development of the CDM adheres to a methodology inspired by
 the *Agile* software development framework. This methodology is based on
 two high-level principles:
 
-1.  Focus on business value from the user\'s perspective, encapsulated
+1.  Focus on business value from the user's perspective, encapsulated
     in the concept of *user story*
 2.  Delivery of small, releasable changes that contribute to that
     business value (sometimes referred to as *shippable increments*) -
@@ -418,7 +418,7 @@ one sentence: who, what and why.
 -   *Why* specifies the benefit, i.e. what makes this feature important
     for the user
 
-Since a story is from the user\'s perspective, it must be written in
+Since a story is from the user's perspective, it must be written in
 plain language, or at least in language that is intelligible by that
 user. It must be free of technical jargon that only the developer of
 that feature may understand, so that it can be communicated to the user.
@@ -464,7 +464,7 @@ In which some of the underlying tasks may be:
 
 As a rule, a task is written in the imperative mode as an injunction to
 the developer, whereas a story should be written as a sentence starting
-with the user\'s profile as the subject of a verbal proposition. A story
+with the user's profile as the subject of a verbal proposition. A story
 written in the imperative mode is more likely a task and improperly
 written.
 
@@ -516,7 +516,7 @@ user stories. Developers or contributors are responsible for ensuring
 that the changes are being delivered in small, incremental units and
 must plan accordingly.
 
-Particularly for complex stories, not all of that story\'s tasks may
+Particularly for complex stories, not all of that story's tasks may
 necessarily be known in advance and therefore guaranteed to fit in one
 single sprint. A story may demand some prior analysis before it can be
 decomposed into development tasks. It may also require several design
@@ -730,7 +730,7 @@ following contribution checklist:
 **Note:**
 A contribution should be a whole [releasable
 unit](#what-is-a-releasable-unit) and its size calibrated in accordance
-with the CDM\'s [agile development
+with the CDM's [agile development
 approach](#agile-development-approach).
 
 ---
@@ -841,7 +841,7 @@ review process will iterate on the revised proposal.
 
 ## Model maintenance
 
-Before the Pull Request can be merged into the CDM\'s main branch, some
+Before the Pull Request can be merged into the CDM's main branch, some
 work is usually required by the Maintainer to preserve the integrity of
 the model source code and of its downstream dependencies.
 
@@ -1377,7 +1377,7 @@ prior to any release.
 
 ### Style references for additional guidance
 
-1.  [New Hart\'s Rules](https://global.oup.com/academic/product/new-harts-rules-9780199570027): An updated version of this erstwhile
+1.  [New Hart's Rules](https://global.oup.com/academic/product/new-harts-rules-9780199570027): An updated version of this erstwhile
     comprehensive style guide for writers and editors using British
     English, published by the Oxford University Press. Invaluable as an
     official reference on proofreading and copy-editing. Subjects

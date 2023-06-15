@@ -107,7 +107,7 @@ type Party:
 **Note:**
 The `partyReference` attribute in `Counterparty` is annotated with a
 `[metadata reference]`, which means that a reference to the party object
-can be passed in instead of a copy. In that case, the attribute\'s type
+can be passed in instead of a copy. In that case, the attribute's type
 must itself be annotated with a `[metadata key]`, so that it is
 referenceable via a key. The use of the key / reference mechanism is
 further detailed in the Rosetta DSL documentation.
@@ -289,7 +289,7 @@ only needs to be represented once.
 To represent this, the `MeasureSchedule` type extends `MeasureBase` with
 a set of date and value pair attributes represented by the `DatedValue`
 type. In that structure, the existing `value` attribute can still be
-omitted but, when present, represents the schedule\'s initial value.
+omitted but, when present, represents the schedule's initial value.
 
 ``` Haskell
 type MeasureSchedule extends MeasureBase:
@@ -613,7 +613,7 @@ identifiers are publically available. Therefore, the terms of the
 security do not have to be stored in a transaction lifecycle model, but
 can be referenced with public identifiers.
 
-An Index product is an exception because it\'s not directly tradable,
+An Index product is an exception because it's not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
@@ -784,7 +784,7 @@ type ResolvablePriceQuantity:
 ```
 
 By design, the CDM requires that each payout leg can only be associated
-with a single quantity schedule that defines this leg\'s contractual
+with a single quantity schedule that defines this leg's contractual
 behaviour (e.g. for the payment of cashflows). In the `PriceQuantity`
 object, where that attribute is of multiple cardinality, other
 quantities may be provided "for information only" which can be
@@ -952,7 +952,7 @@ functions are identified with a `[qualification Product]` annotation.
 
 A Product Qualification function applies a taxonomy-specific business
 logic to identify if the product attribute values, as represented by the
-product\'s economic terms, match the specified criteria for the product
+product's economic terms, match the specified criteria for the product
 named in that taxonomy. For example, if a certain set of attributes are
 populated and others are absent, then that specific product type is
 inferred. The Product Qualification function name in the CDM begins with

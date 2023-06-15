@@ -131,8 +131,8 @@ type Trade:
 ---
 **Note:**
 Attributes within `Trade` and `ContractDetails` incorporate elements
-from FpML\'s *trade confirmation* view, whereas the `TradableProduct`
-data type corresponds to FpML\'s *pre-trade* view. The `TradableProduct`
+from FpML's *trade confirmation* view, whereas the `TradableProduct`
+data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
 [`tradable-product`](/docs/product-model#TraableProduct) section of the
 documentation.
@@ -147,7 +147,7 @@ attributes.
 
 The `ExecutionDetails` data type represents details applicable to trade
 executions and includes attributes that describe the execution venue and
-execution type. Not all trades will have been \'executed\', such as
+execution type. Not all trades will have been 'executed', such as
 those created from a Swaption Exercise event. In those cases, the
 `executionDetails` attributes on `Trade` is expected to be empty.
 
@@ -179,7 +179,7 @@ type ContractDetails:
 ## State
 
 The `State` data type defines the state of a trade at a point in the
-Trade\'s life cycle. Trades have many state dimensions, all of which are
+Trade's life cycle. Trades have many state dimensions, all of which are
 represented here. For example, states useful for position keeping are
 represented alongside those needed for regulatory reporting.
 
@@ -234,9 +234,9 @@ typically represents a number that is directly used to compute transfer
 amounts like cashflows.
 
 In addition to the observation value, a reset specifies the date from
-which the resettable value becomes applicable in the trade\'s context,
+which the resettable value becomes applicable in the trade's context,
 which could be different from the observation date if some observation
-lag applies. Depending on the trade\'s economic properties, a reset may
+lag applies. Depending on the trade's economic properties, a reset may
 also depend on several observation values based on some aggregation
 method - e.g. a compounded interest rate based on daily fixings.
 
@@ -307,7 +307,7 @@ are therefore independent of each other.
 4.  party change: changes a party on a trade
 5.  exercise: exercises an option embedded in a trade
 6.  contract formation: associates a legal agreement to a trade
-7.  reset: changes a trade\'s resettable value based on an observation
+7.  reset: changes a trade's resettable value based on an observation
 8.  transfer: transfers some asset (cash, security, commodity) from one
     party to another
 9.  split: splits a trade into multiple identical trades
@@ -345,7 +345,7 @@ func Create_PartyChange:
 Primitive functions take additional inputs alongside the before trade
 state to specify the parameters of the state transition. Each primitive
 operator is associated to a primitive instruction data type that
-contains the function\'s required parameters as attributes - illustrated
+contains the function's required parameters as attributes - illustrated
 below using the same `PartyChange` example.
 
 ``` Haskell
@@ -633,7 +633,7 @@ The only mandatory attributes of a business event are:
     a business event may impact multiple trades concurrently and result
     in multiple (after) trade states.
 -   The event date. The time dimension has been purposely ommitted from
-    the event\'s attributes. That is because, while a business event has
+    the event's attributes. That is because, while a business event has
     a unique date, several time stamps may potentially be associated to
     that event depending on when it was submitted, accepted, rejected
     etc, all of which are *workflow* considerations.
@@ -644,7 +644,7 @@ The `primitives` attribute corresponds to a previous implementation of
 the primitive operators, now deprecated but maintained for
 backward-compatibility purposes. Because some implementations rely on
 this former mechanism instead of the new primitive instruction
-mechanism, the lower bound of the `instruction` attribute\'s cardinality
+mechanism, the lower bound of the `instruction` attribute's cardinality
 is 0 instead of 1. It will be updated to 1 once the former primitive
 mechanism is fully retired.
 
@@ -878,7 +878,7 @@ represented by a *workflow step*. A workflow may involve multiple
 parties in addition to the parties to the transaction, and may include
 automated and manual steps. A workflow may involve only one step.
 
-The CDM supports a workflow\'s audit trail by providing lineage from one
+The CDM supports a workflow's audit trail by providing lineage from one
 step to another in that workflow.
 
 ``` Haskell
@@ -918,7 +918,7 @@ associated with the final step in the workflow.
 
 ## Proposed Event
 
-This attribute specifies the inputs required to perform the event\'s
+This attribute specifies the inputs required to perform the event's
 state transition and comprises a subset of the attributes of the
 business event itself. It is optional because it is only required for
 all pre-acceptance workflow steps. Once accepted, the business event is
