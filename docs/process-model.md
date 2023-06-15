@@ -768,8 +768,8 @@ func ResolvePerformanceObservationIdentifiers:
 
     set identifiers -> observationDate:
         AdjustedValuationDates( payout -> valuationDates )
-            filter [ item <= adjustedDate ]
-            last
+            filter item <= adjustedDate
+            then last
 
     set identifiers -> observationTime:
         ResolvePerformanceValuationTime(valuationDates -> valuationTime,

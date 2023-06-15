@@ -461,7 +461,7 @@ func Create_Split:
 
   add splitTrade:
     breakdown
-      extract [ Create_TradeState( item, originalTrade ) ]
+      extract Create_TradeState(item, originalTrade)
 ```
 
 Examples of how primitive operators work are illustrated below.
