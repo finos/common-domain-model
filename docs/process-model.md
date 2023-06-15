@@ -42,7 +42,7 @@ systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rosetta DSL and is further
 described in the [[Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators), including an up-to-date
-list of [available languages](#). Support for further languages can be
+list of [available languages](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Support for further languages can be
 added as required by market participants.
 
 # Scope
@@ -304,8 +304,7 @@ year represented by a date range. \* `YearFractionForOneDay`[: Return
 the year fraction represented by a single day, i.e. 1 / dayCountBasis,
 where dayCountBasis represents the denominator of the day count
 fraction. This perhaps should take into account leap years, though the
-FINOS compounding formulas do not cover ACT basis at the moment. \*
-]{.title-ref}[DayCountBasis]{.title-ref}\`: Return the day count basis
+FINOS compounding formulas do not cover ACT basis at the moment. *`DayCountBasis`: Return the day count basis
 (the denominator of the day count fraction) for the day count fraction.
 
 ## Floating Rate Option/Index Features
@@ -602,10 +601,10 @@ func RateOfReturn:
 The CDM process model includes calculations to support the billing event
 consisting of the individual amounts that need to be settled in relation
 to a portfolio of Security Loans. These calculations leverage the
-[FixedAmount]{.title-ref}, [FloatingAmount]{.title-ref} and [Day Count
-Fraction]{.title-ref} calculations described earlier in the
+_FixedAmount_, _FloatingAmount_ and _Day Count
+Fraction_ calculations described earlier in the
 documentation. A functional model is provided to populate the
-[SecurityLendingInvoice]{.title-ref} data type following the definitions
+_SecurityLendingInvoice_ data type following the definitions
 as normalised in the *ISLA best practice handbook*
 
 The data type and function to generate a Security Lending Invoice:
@@ -646,7 +645,7 @@ func Create_SecurityLendingInvoice:
 # Lifecycle Event Process
 
 While the lifecycle event model described in the
-[`event-model-section`](/docs/event-model) provides a
+[event-model-section](/docs/event-model) provides a
 standardised data representation of those events using the concept of
 *primitive event* components, the CDM must further specify the
 processing of those events to ensure standardised implementations across
@@ -658,8 +657,7 @@ In particular, the CDM must ensure that:
 -   The lifecycle event process model constructs valid CDM event
     objects.
 -   The constructed events qualify according to the qualification logic
-    described in the `event-qualification-section`{.interpreted-text
-    role="ref"}.
+    described in the [event-qualification-section](/docs/event-model#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
     trade\'s lifecycle sequence.
 

@@ -6,7 +6,7 @@ In order to facilitate the translation of existing industry messages
 (based on open standards or proprietary ones) into CDM, the CDM is
 mapped to a set of those alternative data representations using the
 Rosetta DSL *synonym* feature, as described in the [Mapping Component
-Section](#).
+Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component).
 
 The following set of synonym sources are currently in place for the CDM:
 
@@ -33,8 +33,8 @@ The following set of synonym sources are currently in place for the CDM:
     submission
 -   **AcadiaSoft** (synonym source: `AcadiaSoft_AM_1_0`): synonyms to
     version 1.0 of AcadiaSoft Agreement Manager
--   **FINOS Create** (synonym source: `FINOS_Create_1_0`): synonyms to
-    version 1.0 of the FINOS Create tool for Initial Margin negotiation
+-   **ISDA Create** (synonym source: `ISDA_Create_1_0`): synonyms to
+    version 1.0 of the ISDA Create tool for Initial Margin negotiation
 -   **ORE** (synonym source: `ORE_1_0_39`): synonyms to version 1.0.39
     of the ORE XML Model
 
