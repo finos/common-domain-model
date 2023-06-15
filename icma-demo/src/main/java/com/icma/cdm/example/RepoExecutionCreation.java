@@ -40,17 +40,12 @@ import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantitySchedule;
-<<<<<<< HEAD
 import cdm.base.math.Quantity;
+import cdm.base.math.QuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
-=======
-import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
@@ -88,18 +83,12 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
-<<<<<<< HEAD
 import com.rosetta.model.lib.meta.GlobalKeyFields;
-=======
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.Date;
-<<<<<<< HEAD
 import com.rosetta.model.metafields.BasicReferenceWithMetaDate;
-=======
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
@@ -107,6 +96,7 @@ import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.records.Date;
 
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -165,13 +155,9 @@ public class RepoExecutionCreation{
 				String repurchaseDateStr,
 				String tradeUTIStr,
 				String buyerLEIStr,
-<<<<<<< HEAD
 				String buyerNameStr,
 				String sellerLEIStr,
 				String sellerNameStr,
-=======
-				String sellerLEIStr,
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 				String collateralDescriptionStr,
 				String collateralISINStr,
 				String collateralQuantityStr,
@@ -199,7 +185,6 @@ public class RepoExecutionCreation{
 				String agreementDateStr,
 				String agreementIdentifierStr,
 				String agreementEffectiveDate,
-<<<<<<< HEAD
 				String agreementUrl,
 				String businessCenter,
 				String execVenueCode,
@@ -216,9 +201,6 @@ public class RepoExecutionCreation{
 				String  tripartyNameStr,
 				String  clearingMemberLeiStr,
 				String  clearingMemberNameStr
-=======
-				String agreementUrl
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	) throws JsonProcessingException {
 		
 		RepoExecutionCreation rc = new RepoExecutionCreation();
@@ -236,7 +218,6 @@ public class RepoExecutionCreation{
 		
 		TradeIdentifier tradeIdentifier = ru.createRepoTradeIdentifier(tradeUTIStr, "UnqTradIdr", "5493000SCC07UI6DB380");
 
-<<<<<<< HEAD
 		//Party 1 is defined in the interest rate payout model as the payer and thus represents the repo seller also referred to as the collateral giver.
         Party party1 = ru.createRepoParty(sellerLEIStr,"LEI",sellerNameStr);
 				
@@ -262,20 +243,6 @@ public class RepoExecutionCreation{
 		PartyRole  csdParticipantRole = ru.createRepoPartyRole(csdparticipant, csdParticipantLeiStr, "CLEARING_CLIENT");
 
 		List<PartyRole> partyRoles = List.of(partyRole1, partyRole2, settlementAgentRole,ccpRole,csdParticipantRole,brokerRole,tripartyRole,clearingMemberRole);
-=======
-		//Party 1 is defined in the interest rate payout model as the receiver and thus represents the repo seller also referred to as the collateral taker.
-        Party party1 = addGlobalKey(Party.class,
-                ru.createRepoParty(buyerLEIStr,"","BUYER_BANK"));
-				
-		//Party 2 is defined in the interest rate payout model as the payer and thus represents the repo seller also referred to as the collateral giver.
-        Party party2 = addGlobalKey(Party.class,
-                ru.createRepoParty(sellerLEIStr,"","SELLER_BANK"));
-		List<Party> parties = List.of(party1, party2);
-
-		PartyRole partyRole1 = ru.createRepoPartyRole(party1, "GlobalBank", "BUYER");
-		PartyRole partyRole2 = ru.createRepoPartyRole(party2, "GlobalBank","SELLER");
-		List<PartyRole> partyRoles = List.of(partyRole1, partyRole2);
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		
 		Counterparty counterparty1 = ru.createRepoCounterparty(party1, "PARTY_1");
 		Counterparty counterparty2 = ru.createRepoCounterparty(party2, "PARTY_2");
@@ -310,7 +277,6 @@ public class RepoExecutionCreation{
 
 		Product repoProduct = createRepoProduct(effectiveDate, terminationDate, repoRate, haircut , cashCurrencyStr,
 				cashQuantity, repurchaseQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice,
-<<<<<<< HEAD
 				repoRate, collateralISINStr, "", businessCenter, deliveryMethodStr, purchaseDateStr, repurchaseDateStr,settlementAgentNameStr);
 
 		String execType;
@@ -322,11 +288,6 @@ public class RepoExecutionCreation{
 
 		String execVenueName = ""; //Possibility to add lookup based on code;
 		ExecutionDetails executionDetails = createRepoExecutionDetails(execType,execVenueCode, execVenueScheme,execVenueName);
-=======
-				repoRate, collateralISINStr, "");
-		
-		ExecutionDetails executionDetail = createRepoExecutionDetails("ON_VENUE","FINX","MIC","FINXIS");
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		return ExecutionInstruction.builder()
 			.setProduct(repoProduct)
@@ -334,26 +295,18 @@ public class RepoExecutionCreation{
 			.addCounterparty(counterparties)
 			.addParties(parties)
 			.addPartyRoles(partyRoles)
-<<<<<<< HEAD
 			.setExecutionDetails(executionDetails)
-=======
-			.setExecutionDetails(null)
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			.setTradeDate(tradeDate)
 			.addTradeIdentifier(tradeIdentifier)
 			.build();
 	}
 	
 	private Product createRepoProduct(
-<<<<<<< HEAD
 			Date effectiveDate,
 			Date terminationDate,
 			double repoRate,
 			double haircut,
 			String cashCurrency,
-=======
-			Date effectiveDate, Date terminationDate, double repoRate, double haircut, String cashCurrency,
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			double cashQuantity,
 			double repurchaseQuantity,
 			String collateralCurrency,
@@ -362,16 +315,12 @@ public class RepoExecutionCreation{
 			double collateralDirtyPrice,
 			double rate,
 			String collateralISINStr,
-<<<<<<< HEAD
 			String scheme,
 			String businessCenter,
 			String deliveryMethodStr,
 			String purchaseDateStr,
 			String repurchaseDateStr,
 			String settlementAgentNameStr){
-=======
-			String scheme){
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		
 		BigDecimal repoRateBD = new BigDecimal(repoRate);
 		BigDecimal haircutBD = new BigDecimal(haircut);
@@ -379,11 +328,7 @@ public class RepoExecutionCreation{
 		ContractualProduct contractualRepoProduct = createContractualRepoProduct(
 							effectiveDate, terminationDate, repoRateBD, haircutBD, cashCurrency,
 							cashQuantity, repurchaseQuantity,collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
-<<<<<<< HEAD
 							rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,purchaseDateStr,repurchaseDateStr,settlementAgentNameStr
-=======
-							rate, collateralISINStr, scheme
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 				);
 		
 		return Product.builder()
@@ -407,23 +352,18 @@ public class RepoExecutionCreation{
 			double collateralDirtyPrice,
 			double rate,
 			String collateralISINStr,
-<<<<<<< HEAD
 			String scheme,
 			String businessCenter,
 			String deliveryMethodStr,
 			String purchaseDateStr,
 			String repurchaseDateStr,
 			String settlementAgentNameStr
-=======
-			String scheme
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	) {
         return ContractualProduct.builder()
 				.addProductTaxonomy(ProductTaxonomy.builder()
 					.setSource(TaxonomySourceEnum.valueOf("CFI"))
 					.setValue(TaxonomyValue.builder()
 							.setNameValue("LRSTXD")))
-<<<<<<< HEAD
                 .setEconomicTerms(createEconomicTerms(effectiveDate, terminationDate, repoRateBD, haircutBD,
 						cashCurrency, cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity,
 						collteralCleanPrice, collateralDirtyPrice, rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,
@@ -499,31 +439,6 @@ public class RepoExecutionCreation{
 				.build();
 
 	}
-=======
-                .setEconomicTerms(EconomicTerms.builder()
-						.setEffectiveDate(AdjustableOrRelativeDate.builder()
-										.setAdjustableDate(AdjustableDate.builder()
-												.setUnadjustedDate(effectiveDate)
-												.setDateAdjustments(BusinessDayAdjustments.builder()
-														.setBusinessDayConvention(BusinessDayConventionEnum.NONE))))
-                        .setPayout(Payout.builder()
-							.addInterestRatePayout(createFixedRateRepoPayout(effectiveDate, terminationDate,repoRateBD, cashCurrency,
-									cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
-									rate, collateralISINStr, scheme))
-							.addAssetPayout(createRepoCollateralPayout()))
-						.setTerminationDate(AdjustableOrRelativeDate.builder()
-										.setAdjustableDate(AdjustableDate.builder()
-												.setUnadjustedDate(effectiveDate)
-												.setDateAdjustments(BusinessDayAdjustments.builder()
-														.setBusinessDayConvention(BusinessDayConventionEnum.NONE))))
-						.setCollateral(Collateral.builder()
-							.setCollateralProvisions(CollateralProvisions.builder()
-										.setEligibleCollateral(createRepoHairCut(haircutBD))))
-						.build());
-
-    }
-
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	private List<EligibleCollateralSpecification> createRepoHairCut(BigDecimal haircut) {
 
 		return List.of(
@@ -535,7 +450,6 @@ public class RepoExecutionCreation{
 
 	}
 	
-<<<<<<< HEAD
 	private AssetPayout createRepoCollateralPayout(
 			String deliveryMethod,
 			AdjustableOrRelativeDate effectiveDate,
@@ -589,17 +503,6 @@ public class RepoExecutionCreation{
 
 
 	}
-=======
-	private AssetPayout createRepoCollateralPayout(){
-		
-		return AssetPayout.builder()
-                .setPayerReceiver(PayerReceiver.builder()
-                        .setPayer(CounterpartyRoleEnum.PARTY_2)
-                        .setReceiver(CounterpartyRoleEnum.PARTY_1))
-				.build();
-		
-	}
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	
 	private InterestRatePayout createFixedRateRepoPayout(
 		Date effectiveDate,
@@ -614,7 +517,6 @@ public class RepoExecutionCreation{
 		double collateralDirtyPrice,
 		double rate,
 		String collateralISINStr,
-<<<<<<< HEAD
 		String scheme,
 		String deliveryMethodStr,
 		String purchaseDateStr,
@@ -634,20 +536,6 @@ public class RepoExecutionCreation{
                 .setPriceQuantity(createResolveableLoanPriceQuantity(
 						cashCurrency,
 						cashQuantity,
-=======
-		String scheme
-		)
-		{
-        return InterestRatePayout.builder()
-                .setPriceQuantity(createResolveableLoanPriceQuantity(
-						cashCurrency,
-						cashQuantity,
-						collateralCurrency,
-						collateralQuantity,
-						collteralCleanPrice,
-						collateralDirtyPrice, rate,
-						collateralISINStr,
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 						scheme))
 				.setPrincipalPayment(PrincipalPayments.builder()
 						.setInitialPayment(Boolean.TRUE)
@@ -713,7 +601,6 @@ public class RepoExecutionCreation{
                                                         .setPriceExpression(PriceExpression.builder()
                                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)))))))
                 .setPayerReceiver(PayerReceiver.builder()
-<<<<<<< HEAD
                         .setPayer(CounterpartyRoleEnum.PARTY_1)
                         .setReceiver(CounterpartyRoleEnum.PARTY_2))
 				.setSettlementTerms(SettlementTerms.builder()
@@ -728,18 +615,12 @@ public class RepoExecutionCreation{
 						.setSettlementDate(SettlementDate.builder()
 								.setAdjustableOrRelativeDate(ru.createAdjustableOrAdjustedOrRelativeDate(purchaseDateStr)))
                 .build());
-=======
-                        .setPayer(CounterpartyRoleEnum.PARTY_2)
-                        .setReceiver(CounterpartyRoleEnum.PARTY_1))
-                .build();
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
     }
 
 
 	private ResolvablePriceQuantity createResolveableLoanPriceQuantity(
 			String cashCurrencyStr,
 			double cashQuantity,
-<<<<<<< HEAD
 			String scheme)
 	{
 
@@ -750,16 +631,22 @@ public class RepoExecutionCreation{
 						.setResolvedQuantity(Quantity.builder()
 								.setValue(BigDecimal.valueOf(cashQuantity))
 								.setUnit(UnitType.builder()
-										.setCurrencyValue(cashCurrencyStr))
-						.build());
+										.setCurrencyValue(cashCurrencyStr)))
+						.setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
+								.setReference(Reference.builder()
+										.setScope("DOCUMENT")
+										.setReference("quantity-1"))
+								.setValue(NonNegativeQuantitySchedule.builder()
+									.setValue(BigDecimal.valueOf(cashQuantity))
+										.setUnit(UnitType.builder()
+												.setCurrencyValue(cashCurrencyStr))))
+						.build();
 
 	}
 
 	private ResolvablePriceQuantity createResolveableLoanPriceQuantityX(
 			String cashCurrencyStr,
 			double cashQuantity,
-=======
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			String collateralCurrencyStr,
 			double collateralQuantity,
 			double collteralCleanPrice,
@@ -770,7 +657,6 @@ public class RepoExecutionCreation{
 	{
 
 		return ResolvablePriceQuantity.builder()
-<<<<<<< HEAD
 				.setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
 						.setReference(Reference.builder()
 								.setScope("DOCUMENT")
@@ -784,19 +670,6 @@ public class RepoExecutionCreation{
 	}
 
 
-=======
-						.setQuantitySchedule(ReferenceWithMetaNonNegativeQuantitySchedule.builder()
-								.setReference(Reference.builder()
-										.setScope("DOCUMENT")
-										.setReference("quantity-2"))
-								.setValue(NonNegativeQuantitySchedule.builder()
-												.setValue(BigDecimal.valueOf(cashQuantity))
-												.setUnit(UnitType.builder()
-														.setCurrencyValue(cashCurrencyStr))
-						.build()));
-
-	}
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
     private PriceQuantity createLoanPriceQuantity(
 		String cashCurrencyStr, 
 		double cashQuantity, 

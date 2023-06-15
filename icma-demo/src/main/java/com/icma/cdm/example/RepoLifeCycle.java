@@ -217,10 +217,6 @@ import static com.rosetta.model.lib.expression.ExpressionOperators.exists;
 import static com.rosetta.model.lib.records.Date.of;
 
 public class RepoLifeCycle {
-<<<<<<< HEAD
-=======
-	
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 	private final PostProcessStep keyProcessor;
     public RepoLifeCycle() {keyProcessor = new GlobalKeyProcessStep(NonNullHashCollector::new);
     }
@@ -251,13 +247,9 @@ public class RepoLifeCycle {
             String repurchaseDateStr,
             String tradeUTIStr,
             String buyerLEIStr,
-<<<<<<< HEAD
 			String buyerNameStr,
             String sellerLEIStr,
 			String sellerNameStr,
-=======
-            String sellerLEIStr,
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
             String collateralDescriptionStr,
             String collateralISINStr,
             String collateralQuantityStr,
@@ -285,7 +277,6 @@ public class RepoLifeCycle {
 			String agreementDateStr,
 			String agreementIdentifierStr,
 			String agreementEffectiveDate,
-<<<<<<< HEAD
 			String agreementUrl,
 			String businessCenter,
 			String execVenueCode,
@@ -302,9 +293,6 @@ public class RepoLifeCycle {
 			String  tripartyNameStr,
 			String  clearingMemberLeiStr,
 			String  clearingMemberNameStr
-=======
-			String agreementUrl
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
     ) throws JsonProcessingException {
 
         //Create_ExecutionInstruction instruction = new Create_ExecutionInstruction.Create_ExecutionInstructionDefault();
@@ -316,13 +304,9 @@ public class RepoLifeCycle {
 		repurchaseDateStr,				// repurchaseDateStr
 		tradeUTIStr,  					// tradeUTIStr
 		buyerLEIStr, 					// buyerLEIStr
-<<<<<<< HEAD
 				buyerNameStr,
 		sellerLEIStr, 					// sellerLEIStr
 				sellerNameStr,
-=======
-		sellerLEIStr, 					// sellerLEIStr
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		collateralDescriptionStr,		// collateralDescriptionStr,
 		collateralISINStr,				// collateralISINStr
 		collateralQuantityStr,			// collateralQuantityStr
@@ -350,7 +334,6 @@ public class RepoLifeCycle {
 		agreementDateStr,
 		agreementIdentifierStr,
 		agreementEffectiveDate,
-<<<<<<< HEAD
 		agreementUrl,
 				businessCenter,
 				execVenueCode,
@@ -367,9 +350,6 @@ public class RepoLifeCycle {
 				tripartyNameStr,
 				clearingMemberLeiStr,
 				clearingMemberNameStr
-=======
-		agreementUrl
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		);
 
 
@@ -414,13 +394,8 @@ public class RepoLifeCycle {
 				.setBeforeValue(tradeState)
 				.build();
 
-<<<<<<< HEAD
 		String repoExecutionInstructionJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(instruction);
 		System.out.println(repoExecutionInstructionJson);
-=======
-		//String repoExecutionInstructionJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(instruction);
-		//System.out.println(repoExecutionInstructionJson);
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		List<Instruction> instructionList = List.of(instruction);
 
@@ -432,11 +407,7 @@ public class RepoLifeCycle {
 
 		Create_Instruction ci = new Create_Instruction.Create_InstructionDefault();
 		injector.injectMembers(ci);
-<<<<<<< HEAD
 		instructionList = List.of(ci.evaluate(afterTradeState, primitiveInstruction));
-=======
-		instructionList = List.of(ci.evaluate(tradeState, primitiveInstruction));
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		Create_BusinessEvent be= new Create_BusinessEvent.Create_BusinessEventDefault();
 		injector.injectMembers(be);
@@ -470,14 +441,6 @@ public class RepoLifeCycle {
 			String repurchaseDateStr) throws JsonProcessingException {
 
 
-<<<<<<< HEAD
-=======
-			//List<? extends TradeState> tradeStateList,
-			//AdjustableOrRelativeDate effectiveRollDate,
-			//AdjustableOrRelativeDate terminationDate,
-			//List<PriceQuantity> newPriceQuantity) throws JsonProcessingException {
-
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 		Injector injector = Guice.createInjector(new CdmRuntimeModule());
 
 		IcmaRepoUtil ru = new IcmaRepoUtil();
@@ -592,18 +555,14 @@ public class RepoLifeCycle {
 			return repoBusinesseventJson;
     }
 	
-<<<<<<< HEAD
 	public String OnDemandRateChange (
 			String tradeStateStr,
 			String agreedRate,
-=======
-	public BusinessEvent OnDemandRateChange (
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
+			String repurchasePrice,
 			String effectiveDateStr,
 			String eventDateStr
 	) throws JsonProcessingException {
 
-<<<<<<< HEAD
 		IcmaRepoUtil ru = new IcmaRepoUtil();
 
 		Create_OnDemandRateChangePrimitiveInstruction cf =  new Create_OnDemandRateChangePrimitiveInstruction.Create_OnDemandRateChangePrimitiveInstructionDefault();
@@ -640,6 +599,8 @@ public class RepoLifeCycle {
 	public String OnDemandInterestPayment (
 			String tradeStateStr,
 			String interestAmountStr,
+			String cashCurrencyStr,
+			String repurchasePrice,
 			String effectiveDateStr,
 			String eventDateStr
 	) throws JsonProcessingException {
@@ -650,8 +611,14 @@ public class RepoLifeCycle {
 		injector.injectMembers(cf);
 
 		BigDecimal interestAmount = new BigDecimal(interestAmountStr);
+
 		Money interestMoney = Money.builder()
 				.setValue(interestAmount)
+				.setUnit(UnitType.builder()
+						.setCurrencyValue(cashCurrencyStr)
+						.setCurrency(FieldWithMetaString.builder()
+								.setValue(cashCurrencyStr)
+								.setMeta(MetaFields.builder())))
 				.build();
 
 		ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
@@ -678,21 +645,6 @@ public class RepoLifeCycle {
 		String repoBusinesseventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 
 		return repoBusinesseventJson;
-=======
-
-		BusinessEvent businessEvent = new BusinessEvent.BusinessEventBuilderImpl();
-		return businessEvent;
-
-    }
-	
-	public BusinessEvent OnDemandInterestPayment (
-			String effectiveDateStr,
-			String eventDateStr
-	) throws JsonProcessingException {
-
-		BusinessEvent businessEvent = new BusinessEvent.BusinessEventBuilderImpl();
-		return businessEvent;
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
     }
 	

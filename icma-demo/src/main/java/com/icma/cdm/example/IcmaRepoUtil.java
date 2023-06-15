@@ -56,10 +56,7 @@ import cdm.event.common.Trade;
 import cdm.event.common.TradeIdentifier;
 import cdm.event.common.ExecutionDetails;
 import cdm.event.common.*;
-<<<<<<< HEAD
 import cdm.observable.asset.Observable;
-=======
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 import cdm.product.asset.*;
 import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
@@ -93,6 +90,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.records.Date;
+import org.joda.time.DateTime;
 
 
 import java.io.File;
@@ -104,11 +102,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-<<<<<<< HEAD
 import java.util.*;
-=======
-import java.util.List;
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 import static com.rosetta.model.lib.records.Date.of;
 
@@ -121,8 +115,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-<<<<<<< HEAD
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IcmaRepoUtil {
 
@@ -216,99 +211,6 @@ public class IcmaRepoUtil {
 	}
 
 	public List<PriceQuantity> createRepoPriceQuantity(
-=======
-
-public class IcmaRepoUtil{
-	
-		
-		private final PostProcessStep keyProcessor;
-
-		public IcmaRepoUtil() {
-			keyProcessor = new GlobalKeyProcessStep(NonNullHashCollector::new);
-		}
-		
-		/**
-		 * Utility to post process a {@link RosettaModelObject} to add ll gloval keys.
-		 */
-		private <T extends RosettaModelObject> T addGlobalKey(Class<T> type, T modelObject) {
-			RosettaModelObjectBuilder builder = modelObject.toBuilder();
-			keyProcessor.runProcessStep(type, builder);
-			return type.cast(builder.build());
-		}
-
-		/**
-		 * Utility to get the global reference string from a {@link GlobalKey} instance.
-		 */
-		private String getGlobalReference(GlobalKey globalKey) {
-			return globalKey.getMeta().getGlobalKey();
-		}
-
-		private TradeState tradeState;
-
-
-		public FieldWithMetaDate createTradeDate(int y, int m, int d){
-
-			Date dt;
-			dt = of(y, m, d);
-
-			return FieldWithMetaDate.builder().setValue(dt).build();
-
-
-
-		}
-
-		public TradeIdentifier createRepoTradeIdentifier(String identifier, String scheme, String issuer){
-
-			return TradeIdentifier.builder().addAssignedIdentifier(
-							AssignedIdentifier.builder().setIdentifier(
-											FieldWithMetaString.builder().setValue(identifier)
-													.setMeta(MetaFields.builder()
-															.setScheme(scheme)
-															.build())
-													.build())
-									.build())
-					.setIssuer(FieldWithMetaString.builder()
-							.setValue(issuer)
-							.build())
-					.setIdentifierType(TradeIdentifierTypeEnum.valueOf("UNIQUE_TRANSACTION_IDENTIFIER"))
-					.build();
-		}
-
-		public Party createRepoParty(String partyId, String scheme, String pName) {
-			return Party.builder()
-					.addPartyId(PartyIdentifier.builder()
-							.setIdentifierValue(partyId)
-							.setMeta(MetaFields.builder().setScheme(scheme).build())
-							.build())
-					.setNameValue(pName)
-					.build();
-		}
-		public PartyRole createRepoPartyRole(Party party, String reference, String role) {
-			return PartyRole.builder()
-					.setPartyReference(ReferenceWithMetaParty.builder()
-							.setGlobalReference(getGlobalReference(party))
-							.setExternalReference(reference)
-							.build())
-					.setRole(PartyRoleEnum.valueOf(role))
-					.build();
-		}
-
-		public Counterparty createRepoCounterparty(Party party, String role) {
-
-			return Counterparty.builder()
-					.setPartyReferenceValue(party)
-					.setRole(CounterpartyRoleEnum.valueOf(role))
-					.build();
-		}
-		public List<PriceQuantity> createRepoPriceQuantity(){
-
-			PriceQuantity pc = null;
-
-			return List.of(pc, pc);
-		}
-		
-		public List<PriceQuantity> createRepoPriceQuantity(
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			String cashQuantityStr,
 			String cashCurrencyStr,
 			String collateralISINStr,
@@ -318,7 +220,6 @@ public class IcmaRepoUtil{
 			String haircutStr,
 			String collateralCleanPriceStr,
 			String collateralDirtyPriceStr
-<<<<<<< HEAD
 	) throws JsonProcessingException {
 
 		double cashQuantity = Double.parseDouble(cashQuantityStr);
@@ -342,38 +243,12 @@ public class IcmaRepoUtil{
 	public PriceQuantity createLoanPriceQuantity(
 			String cashCurrencyStr,
 			double cashQuantity,
-=======
-		) throws JsonProcessingException {
-		
-			double cashQuantity = Double.parseDouble(cashQuantityStr);
-			double collateralQuantity = Double.parseDouble(collateralQuantityStr);
-			double repoRate = Double.parseDouble(repoRateStr);
-			double haircut = Double.parseDouble(haircutStr);
-			double collateralCleanPrice = Double.parseDouble(collateralCleanPriceStr);
-			double collateralDirtyPrice = Double.parseDouble(collateralDirtyPriceStr);
-			
-		PriceQuantity loanPriceQuantity = addGlobalKey(PriceQuantity.class,
-				createLoanPriceQuantity(cashCurrencyStr, cashQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice, repoRate,collateralISINStr,""));
-		
-		PriceQuantity collateralPriceQuantity = addGlobalKey(PriceQuantity.class,
-				createCollateralPriceQuantity(cashCurrencyStr, cashQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice, repoRate,collateralISINStr,""));
-		
-		List<PriceQuantity> repoPriceQuantity = List.of(loanPriceQuantity, collateralPriceQuantity);
-		
-		return repoPriceQuantity;
-		}
-	
-	    public PriceQuantity createLoanPriceQuantity(
-			String cashCurrencyStr, 
-			double cashQuantity, 
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			String collateralCurrencyStr,
 			double collateralQuantity,
 			double collteralCleanPrice,
 			double collateralDirtyPrice,
 			double rate,
 			String collateralISINStr,
-<<<<<<< HEAD
 			String scheme) throws JsonProcessingException {
 
 		return PriceQuantity.builder()
@@ -448,84 +323,6 @@ public class IcmaRepoUtil{
 	}
 
 	public void writeEventToFile(String eventName, String eventId, String data) throws IOException {
-=======
-			String scheme)throws JsonProcessingException
-			{
-			
-        return PriceQuantity.builder()
-			// Set cash amount and rate				
-                .addPrice(FieldWithMetaPriceSchedule.builder()
-					.setMeta(MetaFields.builder().setScheme(scheme).build())
-					.setValue(Price.builder()
-                        .setUnit(UnitType.builder()
-                            .setCurrencyValue(cashCurrencyStr)))
-                        .setValue(Price.builder()
-                                .setValue(BigDecimal.valueOf(rate))
-                                .setUnit(UnitType.builder()
-                                        .setCurrencyValue(cashCurrencyStr))
-                                .setPerUnitOf(UnitType.builder()
-                                        .setCurrencyValue(cashCurrencyStr))
-                                .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.INTEREST_RATE)))
-								.build())
-								
-                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                        .setValue(NonNegativeQuantitySchedule.builder()
-                                .setValue(BigDecimal.valueOf(cashQuantity))
-                                .setUnit(UnitType.builder()
-                                        .setCurrencyValue(cashCurrencyStr)))
-								.build())
-
-				.build();
-                     
-    }
-	
-	
-		private PriceQuantity createCollateralPriceQuantity(
-		String cashCurrencyStr, 
-		double cashQuantity, 
-		String collateralCurrencyStr,
-		double collateralQuantity,
-		double collteralCleanPrice,
-		double collateralDirtyPrice,
-		double rate,
-		String collateralISINStr,
-		String scheme)throws JsonProcessingException
-		{
-			
-        return PriceQuantity.builder()
-			// Set cash amount and rate
-				.setObservable(Observable.builder()
-						.addProductIdentifierValue(ProductIdentifier.builder()
-							.setIdentifierValue(collateralISINStr)
-							.setSource(ProductIdTypeEnum.ISIN)
-								.build()))				
-				// Set collateral amount and price
-                .addPrice(FieldWithMetaPriceSchedule.builder()
-                        .setValue(Price.builder()
-                                .setValue(BigDecimal.valueOf(collateralDirtyPrice))
-                                .setUnit(UnitType.builder()
-                                        .setCurrencyValue(collateralCurrencyStr))
-                                .setPerUnitOf(UnitType.builder()
-                                        .setCurrencyValue(collateralCurrencyStr))
-                                .setPriceExpression(PriceExpression.builder()
-									.setPriceType(PriceTypeEnum.ASSET_PRICE)
-									.setPriceExpression(PriceExpressionEnum.PERCENTAGE_OF_NOTIONAL)
-									.setCleanOrDirty(CleanOrDirtyPriceEnum.DIRTY)))
-						.build())
-									
-                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                        .setValue(NonNegativeQuantitySchedule.builder()
-                                .setValue(BigDecimal.valueOf(collateralQuantity))
-                                .setUnit(UnitType.builder()
-                                        .setCurrencyValue(collateralCurrencyStr)))
-						.build())
-
-				.build();
-                     
-    }
-
-	public void writeEventToFile(String eventName, String eventId, String data) throws IOException{
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		String userDirectory = Paths.get("")
 				.toAbsolutePath()
@@ -536,7 +333,6 @@ public class IcmaRepoUtil{
 
 		File logFile = new File(eventlogs);
 		final File log_directory = logFile.getAbsoluteFile();
-<<<<<<< HEAD
 		if (null != log_directory) {
 			log_directory.mkdirs();
 		}
@@ -547,28 +343,11 @@ public class IcmaRepoUtil{
 		try {
 			boolean result = eventfile.exists();
 			if (result) {
-=======
-		if (null != log_directory)
-		{
-			log_directory.mkdirs();
-		}
-
-		File eventfile = new File(eventlogs + "/" + eventName + "_"+ eventId + ".txt");
-		FileWriter fr = new FileWriter(eventfile );
-
-		try {
-			boolean result  = eventfile.exists();
-			if(result) {
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 				fr.write(data);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-<<<<<<< HEAD
 		} finally {
-=======
-		}finally{
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 			//close resources
 			try {
 				fr.close();
@@ -577,33 +356,26 @@ public class IcmaRepoUtil{
 			}
 		}
 
-<<<<<<< HEAD
 		System.out.println("writing event file output:" + eventfile);
 
 	}
 
 	public AdjustableOrRelativeDate createAdjustableOrRelativeDate(String dateStr) {
 
+
+		//Extract only the data in case dateStr includes time or other characters
+		String pm = "([0-9]{4}-[0-9]{2}-[0-9]{2})";
+		Pattern pattern = Pattern.compile(pm);
+		Matcher matcher = pattern.matcher(dateStr);
+		matcher.find();
+		dateStr = matcher.group(1) + "T00:00:00.000+00:00";
+
 		//Set the termination date
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
-		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr + "T00:00:00.000+00:00", formatter);
+		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr, formatter);
 		ZonedDateTime zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
 
 		Date terminationDate = of(zdtWithZoneOffset.getYear(), zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
-=======
-		System.out.println("writing event file output:"+eventfile);
-
-	}
-
-	public AdjustableOrRelativeDate createAdjustableOrRelativeDate(String dateStr){
-
-		//Set the termination date
-		DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
-		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr + "T00:00:00.000+00:00", formatter);
-		ZonedDateTime zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
-
-		Date terminationDate = of(zdtWithZoneOffset.getYear(),zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
 
 		AdjustableOrRelativeDate adjustableOrRelativeDateTerminationDateDate = AdjustableOrRelativeDate.builder()
 				.setAdjustableDate(AdjustableDate.builder()
@@ -614,15 +386,21 @@ public class IcmaRepoUtil{
 		return adjustableOrRelativeDateTerminationDateDate;
 	}
 
-<<<<<<< HEAD
 	public AdjustableOrAdjustedOrRelativeDate createAdjustableOrAdjustedOrRelativeDate(String dateStr) {
 
-		//Set the termination date
+		//Extract only the data in case dateStr includes time or other characters
+		String pm = "([0-9]{4}-[0-9]{2}-[0-9]{2})";
+		Pattern pattern = Pattern.compile(pm);
+		Matcher matcher = pattern.matcher(dateStr);
+		matcher.find();
+		dateStr = matcher.group(1) + "T00:00:00.000+00:00";
+
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
 		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr , formatter);
 		ZonedDateTime zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
 
 		Date adjDate = of(zdtWithZoneOffset.getYear(), zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
+
 
 		AdjustableOrAdjustedOrRelativeDate adjustableOrAdjustedOrRelativeDate = AdjustableOrAdjustedOrRelativeDate.builder()
 				.setUnadjustedDate(adjDate)
@@ -636,15 +414,17 @@ public class IcmaRepoUtil{
 
 	public Date createCDMDate(String dateStr) {
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
-		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr + "T00:00:00.000+00:00", formatter);
-=======
-	public Date createCDMDate(String dateStr){
+		//Extract only the data in case dateStr includes time or other characters
+		String pm = "([0-9]{4}-[0-9]{2}-[0-9]{2})";
+		Pattern pattern = Pattern.compile(pm);
+		Matcher matcher = pattern.matcher(dateStr);
+		matcher.find();
+		dateStr = matcher.group(1) + "T00:00:00.000+00:00";
 
-		DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
-		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr+ "T00:00:00.000+00:00", formatter);
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSz");
+		ZonedDateTime zdtWithZoneOffset = ZonedDateTime.parse(dateStr, formatter);
 		ZonedDateTime zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
+
 		Date cdmDate = of(zdtWithZoneOffset.getYear(), zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
 
 		return cdmDate;
@@ -665,7 +445,6 @@ public class IcmaRepoUtil{
 		//return deserializedObject;
 	}
 
-<<<<<<< HEAD
 	public JComboBox addParties(JComboBox jb) {
 		jb.addItem(new CItem("", ""));
 		jb.addItem(new CItem("HSBC Bank Plc", "MP6I5ZYZBEU3UXPYFY54"));
@@ -733,8 +512,3 @@ class CdmEnumMap{
 
 }
 
-=======
-
-
-}
->>>>>>> 7e7819adb8de74762c08f11c6819ade9052d80b5
