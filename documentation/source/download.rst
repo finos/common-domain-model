@@ -14,7 +14,7 @@ All CDM Binary distributions are created on every release and are all published 
 CDM as Java
 ===========
 
-The CDM is distributed in Java can is available in `Maven Central <https://central.sonatype.com>`_.
+The CDM is distributed in Java and is available in `Maven Central <https://central.sonatype.com>`_.
 
 Setup
 -----
