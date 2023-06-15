@@ -33,7 +33,7 @@ enhances financial markets\' operational efficiency in several ways:
 
 For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
-at <marketinfrastructureandtechnology@FINOS.org>.
+at <cdm@lists.finos.org>.
 
 ## Design Principles
 
@@ -84,7 +84,7 @@ The FINOS CDM distribution comprises three main sets of components:
     the Rosetta DSL and contained into a set of *.rosetta* files
     organised as *namespaces*. The primary dimensions of the model are
     listed below and further described in the
-    [`common-domain-model`]((/docs/common-domain-model)) of the
+    [common-domain-model](/docs/common-domain-model) of the
     documentation.
     -   Product
     -   Event
