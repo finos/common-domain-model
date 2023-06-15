@@ -1133,22 +1133,13 @@ Another non-compliant example:
         there should not be a heading at level 3 or 4 with the exact
         same title.
 
-  -------------------------------------------------------------------------------------------------------------------------
-  Heading   Notation (underline in .rst)                   Relative font size   Section Example
-  Level                                                    (as seen by users)   
-  --------- ---------------------------------------------- -------------------- -------------------------------------------
-  1         [===============]{.title-ref}                  XL font and bold     [common-domain-model](/docs/common-domain-model)
-
-  2         [\-\-\-\-\-\-\-\-\-\-\-\-\-\--]{.title-ref}    L font and bold      [product-model-page](/docs/product-model),
-                                                                                [legal-agreements-page](/docs/legal-agreements)
-
-  3         [\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]{.title-ref}   M font and bold      [tradable-product](/docs/product-model#tradable-product)
-
-  4         [\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]{.title-ref}   S font (same as      [price-quantity](/docs/product-model#price-quantity)
-                                                           content), but bold   
-  -------------------------------------------------------------------------------------------------------------------------
-
-        : Heading Styles
+| Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                          Section Example |
+|:--------------|:----------------------------------:|--------------------------------------:|---------------------------------------------------------:|
+| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](/docs/common-domain-model) |
+| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](/docs/product-model),<br/>[legal-agreements-page](/docs/legal-agreements) |
+| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](/docs/product-model#tradable-product) |
+| 4             | _[\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/product-model#price-quantity) |
+:Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
 standard web mark-up language, for which a reference guide can be found
