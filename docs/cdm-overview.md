@@ -176,7 +176,7 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guideliness).
+[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
 
 ---
 **Note:**
