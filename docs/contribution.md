@@ -154,14 +154,12 @@ various versions available would be as follows:
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The above example is for illustration only and not indicative of
 actually supported CDM versions.
-:::
+
+---
 
 # Design Principles
 
@@ -275,15 +273,13 @@ format, neither for storage nor transport. This means that translation
 to those physical data formats is built-in, and the CDM is best thought
 of as a logical layer supporting inter-operability between them.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Although the CDM features a *serialisation* mechanism (currently in
 JSON), this format is only provided for the convenience of representing
 physical CDM objects and is not designed as a storage mechanism.
-:::
+
+---
 
 The need for such inter-operability is illustrated by a typical trade
 flow, as it exists in derivatives: a trade may be executed using the
@@ -504,15 +500,13 @@ achievable during a single sprint.
 
 > 1 contribution = 1 releasable unit = 1 user story
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 A CDM [release](#version-management) may contain more than 1 releasable
 unit. Every unit should still be shippable in isolation, even if they
 may end-up being shipped as a group.
-:::
+
+---
 
 ### Epics
 
@@ -555,7 +549,8 @@ Development of the CDM is supported through various modelling platforms,
 including [Rosetta](https://rosetta-technology.io) and [Legend](https://legend.finos.org/studio). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
 the contribution check-list below.
-:::
+
+---
 
 The steps required to change the CDM are aligned with the software
 development lifecycle typically applicable to the development of any
@@ -565,17 +560,15 @@ platform that can be used to support the development of the CDM.
 
 ![](/img/SDLC.png)
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 This documentation is not an endorsement of any modelling platform and
 associated products and CDM users remain invited to leverage the tools
 of their choosing. This contribution guide has been contextualised with
 references to Rosetta to ease understanding and align with the current
 process.
-:::
+
+---
 
 ## Before you start modelling
 
@@ -610,15 +603,13 @@ these steps:
     and when relevant. Please contact
     [cdm@lists.finos.org](mailto:cdm@lists.finos.org).
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Unless explicitly instructed by a CDM Maintainer, a Contributor can only
 ever develop changes to a development (i.e. pre-release) version of the
 CDM.
-:::
+
+---
 
 ## Editing the model
 
@@ -736,16 +727,14 @@ following contribution checklist:
     -   Any other additional materials or documentation that may help
         with the review and approval process
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 A contribution should be a whole [releasable
 unit](#what-is-a-releasable-unit) and its size calibrated in accordance
 with the CDM\'s [agile development
 approach](#agile-development-approach).
-:::
+
+---
 
 ### Contributing
 
@@ -760,14 +749,12 @@ Given the alignment:
 we recommend labelling the pull request with the user story label, i.e.
 \"STORY-XYZ: \...\" to facilitate its tracking.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 All contributions are submitted as candidate changes to be incorporated
 under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
-:::
+
+---
 
 When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
@@ -775,15 +762,13 @@ contribution. Those inputs are used to create a Pull Request on a
 one-off branch in the source-control repository. Please refer to the
 [Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes) for more information.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 It is not yet possible to contribute updated test expectations,
 documentation, release notes or new sample data using Rosetta, so these
 must be provided to the CDM Maintainers via Slack or email.
-:::
+
+---
 
 ### Documentation
 
@@ -822,17 +807,15 @@ through the following review checklist:
         with any recent changes
     -   Changes are in accordance with the CDM governance guidelines
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
 `downstream-dependencies`{.interpreted-text role="ref"} section for more
 details.
-:::
+
+---
 
 -   CDM build process completed with no errors or test failures
 -   Review additional samples provided (if use-case is not covered by
@@ -845,11 +828,8 @@ details.
 Any review feedback should be sent to the Contributor as required via
 Slack, email or in direct meetings.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Depending on the size, complexity or impact of a contribution, the CDM
 Maintainer can recommend for the contribution to be presented with an
 appropriate level of details with the CDM Architecture and Review
@@ -857,7 +837,8 @@ Committee for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
-:::
+
+---
 
 ## Model maintenance
 
@@ -909,16 +890,14 @@ test and, if necessary, update those before the changes can be released.
 -   **CDM Portal**: compile and test.
 -   **CDM Java Examples**: compile and test.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 In most cases, the post-review technical tasks and downstream
 dependencies require software engineering expertise in addition to CDM
 expertise. Additional technical support from the CDM Maintainer team may
 need to be called upon to address those.
-:::
+
+---
 
 The change can be merged into the main CDM code base only upon:
 
@@ -944,15 +923,13 @@ new model:
 -   (Currently done at a later stage) Update the latest CDM version
     available in Rosetta
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 When the release process is handled through Rosetta Deploy, the
 Maintainer should contact the Rosetta support team to request that
 deployment and discuss a timeline for the release.
-:::
+
+---
 
 ## Documentation Style Guide 
 
@@ -1251,18 +1228,16 @@ The MD editing syntax in which release notes are written is a standard
 web mark-up language, for which a reference guide can be found at:
 <https://www.markdownguide.org/cheat-sheet/>
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The MD syntax provides similar features to the RST syntax (used to edit
 the user documentation), but the special formatting characters are
 slightly different between the two. While RST allows richer features
 that are useful for a full documentation website, MD is preferred for
 release notes because Slack supports (a subset of) the MD language and
 can therefore serve as a release publication channel.
-:::
+
+---
 
 ## Style
 
@@ -1386,17 +1361,15 @@ type Party:
   contactInformation ContactInformation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Code snippets that appear in the user documentation are being compared
 against actual CDM components during the CDM build process, and any
 mismatch will trigger an error in the build. This mechanism ensures that
 the user documentation is kept in sync with the model in production
 prior to any release.
-:::
+
+---
 
 ### Fonts, Text Styles, and Spaces
 

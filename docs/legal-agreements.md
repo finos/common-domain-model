@@ -181,15 +181,13 @@ The legal agreement model in the CDM comprises the following features:
     -   More details on Synonyms are provided in the Mapping (Synonym)
         section of this document.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The CDM supports the FINOS CSA for Variation Margin, but this document is
 not yet represented in FINOS Create - the CDM representation of this
 document is tested with alternative external sample data.
-:::
+
+---
 
 ## Design Principles
 
@@ -279,17 +277,15 @@ agreement(s) that may govern the agreement, either as a reference to
 such agreements when specified as part of the CDM, or through
 identification of some of the key terms of those agreements.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `LegalAgreementType` attribute is used to map related agreement
 terms that are embedded as part of a transaction message converted from
 another model structure, such as FpML. For example, this attribute may
 reference an FINOS Master Agreement, which is not modelled or mapped in
 the CDM `LegalAgreement` data type.
-:::
+
+---
 
 ## Umbrella Agreement
 

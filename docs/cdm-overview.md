@@ -109,18 +109,16 @@ The FINOS CDM distribution comprises three main sets of components:
     uses the de-facto Java hash function to support cross-referencing in
     the CDM, but firms may elect to use an alternative implementation.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Only the Java executable code distribution is complete: i.e. it
 represents the entire CDM as defined in Rosetta (plus any associated
 default implementation). Other distributions may only capture parts of
 the model: for instance, the Scala and TypeScript distributions include
 the complete data model and function specifications, but not the
 functions\' executable code.
-:::
+
+---
 
 ## Rosetta DSL
 
@@ -134,15 +132,14 @@ industry participants, the Rosetta DSL is available in open source under
 an Apache 2.0 license. This allows industry participants to write and
 share code generators into any other languages.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 All the language components, their syntax and purpose are detailed in
 the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component). The documentation also describes the
 mechanism to write and use code generators.
-:::
+
+---
+
 
 ## CDM Applications
 
@@ -160,15 +157,13 @@ commercial terms. In particular:
     development by contributing code to the CDM. Please refer to the
     [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The CDM Portal and Rosetta have been developed by technology firm
 [REGnosys](https://regnosys.com). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
-:::
+
+---
 
 # Using the CDM (Java)
 
@@ -183,11 +178,8 @@ file in the CDM jar.
 For more details, please follow the
 [CDM Java Distribution Guidelines](/docs/cdm-guideliness).
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 These guidelines are intended as a technical documentation for
 developers to make use of the Java distribution in their implementation.
-:::
+---

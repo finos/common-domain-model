@@ -128,18 +128,16 @@ type Trade:
     [deprecated]
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML\'s *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML\'s *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
 [`tradable-product`](/docs/product-model#TraableProduct) section of the
 documentation.
-:::
+
+---
 
 Additionally, `Trade` supports the representation of specific execution
 or contractual details via the `executionDetails` and `contractDetails`
@@ -386,17 +384,15 @@ state, as represented in the diagram below.
 
 ![](/img/composing-primitive-operators.png)
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 When a primitive instruction is composite, interim trade states will be
 created when executing each primitive operator. These interim trade
 states may not correspond to any actual business outcome (only the final
 after trade state does), so implementors will usually choose not to
 persist them.
-:::
+
+---
 
 The `Create_TradeState` function performs such composition of primitive
 operators. It takes a single trade state and a composite primitive
@@ -642,11 +638,8 @@ The only mandatory attributes of a business event are:
     that event depending on when it was submitted, accepted, rejected
     etc, all of which are *workflow* considerations.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `primitives` attribute corresponds to a previous implementation of
 the primitive operators, now deprecated but maintained for
 backward-compatibility purposes. Because some implementations rely on
@@ -654,7 +647,8 @@ this former mechanism instead of the new primitive instruction
 mechanism, the lower bound of the `instruction` attribute\'s cardinality
 is 0 instead of 1. It will be updated to 1 once the former primitive
 mechanism is fully retired.
-:::
+
+---
 
 ## Event Composition
 
@@ -801,18 +795,16 @@ of the Event Qualification functions following the creation of each
 event and then insert the appropriate value or provide an exception
 message.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The type of the `eventQualifier` attribute in `BusinessEvent`, called
 `eventType`, is a *meta-type* that indicates that its value is meant to
 be populated using some functional logic. That functional logic must be
 represented by a qualification function annotated with
 `[qualification BusinessEvent]`, as in the example above. This mechanism
 is further detailed in the Rosetta DSL documentation.
-:::
+
+---
 
 ## Intent
 
@@ -992,14 +984,12 @@ type MessageInformation:
 applicable in a all technology contexts (e.g. in case of a distributed
 architecture).
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 MessageInformation corresponds to some of the components of the FpML
 *MessageHeader.model*.
-:::
+
+---
 
 ## Timestamp
 
@@ -1058,16 +1048,14 @@ type Identifier:
     required choice issuerReference, issuer
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 FpML also uses an event identifier construct: the `CorrelationId`, but
 it is distinct from the identifier associated with the trade itself,
 which comes in different variations: `PartyTradeIdentifier`, with the
 `TradeId` and the `VersionedTradeId` as sub-components).
-:::
+
+---
 
 ## Other Misc. Attributes
 
@@ -1077,13 +1065,11 @@ which comes in different variations: `PartyTradeIdentifier`, with the
     reference an unbounded set of contracts, events and/or payout
     components that an event may be associated to.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `lineage` attribute is superseded by the implementation in the CDM
 of: (i) trade state lineage, via the `before` reference in the primitive
 instructions, and (ii) workflow lineage, via the `previousWorkflowStep`
 attribute.
-:::
+
+---

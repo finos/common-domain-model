@@ -44,14 +44,12 @@ type TradableProduct:
    adjustment NotionalAdjustmentEnum (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The conditions for this data type are excluded from the snippet above
 for purposes of brevity.
-:::
+
+---
 
 The primary set of attributes represented in the `TradableProduct` data
 type are ones that are shared by all trades and transactions. For
@@ -105,18 +103,16 @@ type Party:
   contactInformation ContactInformation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The `partyReference` attribute in `Counterparty` is annotated with a
 `[metadata reference]`, which means that a reference to the party object
 can be passed in instead of a copy. In that case, the attribute\'s type
 must itself be annotated with a `[metadata key]`, so that it is
 referenceable via a key. The use of the key / reference mechanism is
 further detailed in the Rosetta DSL documentation.
-:::
+
+---
 
 ## TradeLot
 
@@ -137,16 +133,14 @@ decreases (or unwind) are treated differently. An increase adds a new
 `TradeLot` instance to the tradadable product, whereas a decrease
 reduces the quantity of one or more of the existing trade lots.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The term *lot* is borrowed from the Equity terminology that refers to
 each trade lot as a *tax lot*, where the capital gains tax that may
 arise upon unwind is calculated based on the price at which the lot was
 entered.
-:::
+
+---
 
 For each trade lot, the quantity and price are represented by an
 attribute called `priceQuantity`.
@@ -194,14 +188,12 @@ type PriceQuantity:
   effectiveDate AdjustableOrRelativeDate (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The conditions for this data type are excluded from the snippet above
 for purposes of brevity.
-:::
+
+---
 
 The price, quantity and observable attributes are joined together in a
 single `PriceQuantity` data type because in some cases, those 3
@@ -756,14 +748,12 @@ type InterestRatePayout extends PayoutBase:
    floatingAmount calculation (0..1)
 ```
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 The code snippets above excludes the conditions in this data type for
 purposes of brevity.
-:::
+
+---
 
 The price and quantity attributes in the [PayoutBase]{.title-ref}
 structure are positioned in the [ResolvablePriceQuantity]{.title-ref}
@@ -993,18 +983,16 @@ If all the statements above are true, then the function evaluates to
 True, and the product is determined to be qualified as the product type
 referenced by the function name.
 
-::: note
-::: title
-Note
-:::
-
+---
+**Note:**
 In a typical CDM model implementation, the full set of Product
 Qualification functions would be invoked against each instance of the
 product in order to determine the inferred product type. Given the
 product model composability, a single product instance may be qualified
 as more than one type: for example in an Interest Rate Swaption, both
 the Option and the underlying Interest Rate Swap would be qualified.
-:::
+
+---
 
 The CDM supports Product Qualification functions for Credit Derivatives,
 Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and
