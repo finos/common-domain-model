@@ -4,7 +4,7 @@ _Background_
 
 The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
 
-_What is being released?_
+#### _What is being released?_
 
 - Added types:
   - CalculationFrequency
@@ -25,9 +25,9 @@ _What is being released?_
   - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
   - FloatingRate - including factoring out FloatingRateBase
 
-For more detail see also https://github.com/REGnosys/rosetta-dsl/issues/583
+For more detail see also https://github.com/finos/common-domain-model/issues/2193
 
-_Review directions_
+#### _Review directions_
 
 In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
 

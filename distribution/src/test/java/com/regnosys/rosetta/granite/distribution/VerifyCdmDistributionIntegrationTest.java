@@ -22,7 +22,7 @@ class VerifyCdmDistributionIntegrationTest {
 
     @Test
     void shouldVerifyCdmDistributionZipContainsExpectedFolders() throws IOException {
-        Optional<Path> distZipFile = getDistZipFile("target/cdm-distribution-*.zip");
+        Optional<Path> distZipFile = getDistZipFile("target/distribution-*.zip");
         assertTrue(distZipFile.isPresent(), "CDM distribution zip not found");
 
         Map<Path, Long> distZipContents = getFolderFileCount(distZipFile.get());

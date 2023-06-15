@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>cdm-parent</artifactId>
-        <groupId>com.isda</groupId>
-        <version>0.0.0.master</version>
+        <groupId>org.finos.cdm</groupId>
+        <version>0.0.0.master-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cdm</artifactId>
+    <artifactId>cdm-java</artifactId>
     <name>rosetta-source</name>
 
     <properties>
@@ -131,20 +131,6 @@
                                 <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -709,38 +695,23 @@
                                     </resources>
                                 </configuration>
                             </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
                             <execution>
-                                <id>cdm-kotlin-resources</id>
-                                <phase>compile</phase>
+                                <id>copy-kotlin-build-pom</id>
+                                <phase>process-resources</phase>
                                 <goals>
-                                    <goal>unpack</goal>
+                                    <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/classes/cdm/kotlin</outputDirectory>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>com.regnosys.rosetta.code-generators</groupId>
-                                            <artifactId>kotlin</artifactId>
-                                            <version>${rosetta.code-gen.version}</version>
-                                            <type>jar</type>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <includes>kotlin-pom.xml</includes>
-                                    <overWriteReleases>false</overWriteReleases>
-                                    <overWriteSnapshots>false</overWriteSnapshots>
-                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                    <outputDirectory>${project.build.directory}/classes/cdm/kotlin
+                                    </outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/main/resources/kotlin-build-resources</directory>
+                                        </resource>
+                                    </resources>
                                 </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -928,27 +899,6 @@
     </profiles>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <configuration>
-                        <sourcepath>
-                            ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
-                        </sourcepath>
-                        <additionalJOption>--no-module-directories</additionalJOption>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>attach-javadocs</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1138,6 +1088,27 @@
                         <exclude>**/*.rosetta</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <sourcepath>
+                        ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
+                    </sourcepath>
+                    <additionalJOption>--no-module-directories</additionalJOption>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
