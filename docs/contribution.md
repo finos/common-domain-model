@@ -49,7 +49,7 @@ The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
-Section](#**NEED TO FIND WHAT LINK TO Post**) of the CDM documentation.
+Section](#) of the CDM documentation.
 
 ## Semantic Versioning
 
