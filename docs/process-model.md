@@ -126,7 +126,7 @@ detailed in the next sections:
 2.  Calculation process
 3.  Event creation process
 
-# Validation Process
+## Validation Process
 
 In many legacy models and technical standards, validation rules are
 generally specified in text-based documentation, which requires software
@@ -161,7 +161,7 @@ condition FpML_ird_57:
     and rollConvention <> RollConventionEnum -> SUN
 ```
 
-# Calculation Process
+## Calculation Process
 
 The CDM provides certain FINOS Definitions as machine executable formulas
 to standardise the industry calculation processes that depend on those
@@ -673,8 +673,7 @@ function already defined in the CDM. As part of the validation processe
 embedded in the CDM, an object validation step is included in all these
 object creation functions to ensure that they each construct valid CDM
 objects. Further details on the underlying calculation and validation
-processes are described in the `calculation-process`{.interpreted-text
-role="ref"} and `validation-process`{.interpreted-text role="ref"}.
+processes are described in the [calculation-process](#calculation-process) and [validation-process](#validation-process).
 
 Illustration of the three components are given in the sections below.
 

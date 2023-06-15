@@ -617,7 +617,7 @@ An Index product is an exception because it\'s not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
-# Contractual Product
+## Contractual Product
 
 The scope of contractual products in the current model are summarized
 below:
@@ -886,7 +886,7 @@ page](https://portal.cdm.rosetta-technology.io/#/downloads), contains a example 
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 
-# Products with Identifiers {#products-with-identifiers-section}
+## Products with Identifiers
 
 The abstract data type ProductBase serves as a base for all products
 that have an identifier, as illustrated below:

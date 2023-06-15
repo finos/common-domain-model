@@ -291,7 +291,7 @@ type TransferBase:
   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 ```
 
-# Primitive Operator {#primitive-event}
+## Primitive Operator {#primitive-event}
 
 **Primitive operators are functional building blocks used to compose
 business events**. Each primitive operator describes a fundamental state
@@ -596,7 +596,7 @@ type TransferInstruction:
   transferState TransferState (0..*)
 ```
 
-# Business Event
+## Business Event
 
 Business events are built according to the following principles:
 
