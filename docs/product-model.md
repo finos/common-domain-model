@@ -716,7 +716,7 @@ type PayoutBase:
   settlementTerms SettlementTerms (0..1)
 ```
 
-The list of payouts that extend [PayoutBase]{.title-ref} are:
+The list of payouts that extend _PayoutBase_ are:
 
 -   `InterestRatePayout`
 -   `EquityPayout`
@@ -755,9 +755,9 @@ purposes of brevity.
 
 ---
 
-The price and quantity attributes in the [PayoutBase]{.title-ref}
-structure are positioned in the [ResolvablePriceQuantity]{.title-ref}
-data type. This data type mirrors the [PriceQuantity]{.title-ref} data
+The price and quantity attributes in the _PayoutBase_
+structure are positioned in the _ResolvablePriceQuantity_
+data type. This data type mirrors the _PriceQuantity_ data
 type and contains both the price and quantity schedules.
 
 In addition that data type supports the definition of additional

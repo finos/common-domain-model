@@ -788,7 +788,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-`content-of-release-notes`{.interpreted-text role="ref"} for further
+[content-of-release-notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -1148,7 +1148,7 @@ Another non-compliant example:
                                                            content), but bold   
   -------------------------------------------------------------------------------------------------------------------------
 
-  : Heading Styles
+        : Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
 standard web mark-up language, for which a reference guide can be found
