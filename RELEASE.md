@@ -6,7 +6,7 @@ As part of the CDM migration to FINOS, all generated artifacts are now being pub
 
 #### _Downloading Source Code_
 
-Precviously, only the latest CDM source code was available to download from the CDM Portal. After this release, the open source code is only available to be downloaded from [CDM GitHub](https://github.com/finos/common-domain-model). However, additional to the latest version, previously released versions are tagged and can be downloaded from [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases) also.
+Previously, only the latest CDM source code was available to download from the CDM Portal. After this release, the open source code is only available to be downloaded from [CDM GitHub](https://github.com/finos/common-domain-model). However, additional to the latest version, previously released versions are tagged and can be downloaded from [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases) also.
 
 #### _CDM as Java_
 
