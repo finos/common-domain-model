@@ -892,7 +892,7 @@ Code libraries, written in Java and distributed with the CDM, contain
 tools to merge CDM objects together. Implementors may extend these
 merging tools to change the merging strategy to suit their requirements.
 The CDM Java Examples download, available via the [CDM Portal Downloads
-page](#), contains a example demonstrating usage of a data template and
+page](https://portal.cdm.rosetta-technology.io/#/downloads), contains a example demonstrating usage of a data template and
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 
