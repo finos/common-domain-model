@@ -33,8 +33,8 @@ amendments in accordance with the following process:
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM `design-principles` and
-`agile-development-approach`{.interpreted-text role="ref"} and submitted
+CDM [design-principles](/docs/cdm-overview#design-principles) and
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
 to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
@@ -379,7 +379,7 @@ components in the namespace hierarchy is critical** as part of the
 design (or potentially the re-organising of the hierarchy following the
 new development), to ensure the CDM remains well organised.
 
-# Agile Development Approach
+## Agile Development Approach
 
 The on-going development of the CDM adheres to a methodology inspired by
 the *Agile* software development framework. This methodology is based on
@@ -582,14 +582,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the `design-principles`{.interpreted-text role="ref"} and
-    `governance`{.interpreted-text role="ref"}
+-   Review the [design-principles](/docs/cdm-overview#design-principles) and
+    [governance](/docs/cdm-overview#governance)
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-`agile-development-approach`{.interpreted-text role="ref"} and follows
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -955,7 +955,7 @@ Maintainer should contact the Rosetta support team to request that
 deployment and discuss a timeline for the release.
 :::
 
-# Documentation Style Guide
+## Documentation Style Guide 
 
 The purpose of this section is to provide form and substance
 recommendations for editors of CDM documentation. \"Documentation\" in
