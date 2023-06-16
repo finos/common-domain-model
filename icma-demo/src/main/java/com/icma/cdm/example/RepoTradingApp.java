@@ -1276,7 +1276,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 				DateTimeFormatter eventDateFormat = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 				LocalDateTime localDateTime = LocalDateTime.now();
 				String eventDateTime = localDateTime.format(eventDateFormat);
-				ru.writeEventToFile("execution", eventDateTime, businessEvent);
+				ru.writeEventToFile("termination", eventDateTime, businessEvent);
 
 
 			} catch (JsonProcessingException e){
@@ -1290,7 +1290,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			try {
 
 				String businessEvent = this.onDemandRateChange();
-
+				this.statusField.setText("RERATE");
 				//String repoBusinesseventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 
 				System.out.println(businessEvent);
@@ -1301,7 +1301,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 				DateTimeFormatter eventDateFormat = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 				LocalDateTime localDateTime = LocalDateTime.now();
 				String eventDateTime = localDateTime.format(eventDateFormat);
-				ru.writeEventToFile("execution", eventDateTime, businessEvent);
+				ru.writeEventToFile("rerate", eventDateTime, businessEvent);
 
 
 			} catch (JsonProcessingException e){
@@ -1315,7 +1315,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 			try {
 				String businessEvent = this.onDemandPayment();
-
+				this.statusField.setText("INTERESTPAYMENT");
 				//String repoBusinesseventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 
 				System.out.println(businessEvent);
@@ -1326,7 +1326,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 				DateTimeFormatter eventDateFormat = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 				LocalDateTime localDateTime = LocalDateTime.now();
 				String eventDateTime = localDateTime.format(eventDateFormat);
-				ru.writeEventToFile("execution", eventDateTime, businessEvent);
+				ru.writeEventToFile("interestpayment", eventDateTime, businessEvent);
 
 
 			} catch (JsonProcessingException e){
