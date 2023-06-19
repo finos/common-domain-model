@@ -4,18 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>cdm-parent</artifactId>
-        <groupId>org.finos.cdm</groupId>
-        <version>0.0.0.master-SNAPSHOT</version>
+        <groupId>com.isda</groupId>
+        <version>0.0.0.master</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>examples</artifactId>
+    <artifactId>isda-demo</artifactId>
+    <url>https://www.regnosys.com/</url>
+
+    <properties>
+        <legacy.name>isda-cdm-examples</legacy.name>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.finos.cdm</groupId>
-                <artifactId>cdm-java</artifactId>
+                <groupId>com.isda</groupId>
+                <artifactId>cdm</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
         </dependencies>
@@ -23,8 +28,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.finos.cdm</groupId>
-            <artifactId>cdm-java</artifactId>
+            <groupId>com.isda</groupId>
+            <artifactId>cdm</artifactId>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
@@ -49,42 +54,36 @@
 
     <build>
         <plugins>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-assembly-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <phase>package</phase>
-                      <goals>
-                          <goal>single</goal>
-                      </goals>
-                      <configuration>
-                          <appendAssemblyId>false</appendAssemblyId>
-                          <descriptors>
-                              <descriptor>assembly.xml</descriptor>
-                          </descriptors>
-                      </configuration>
-                  </execution>
-              </executions>
-          </plugin>
             <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <additionalJOption>--no-module-directories</additionalJOption>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>attach-javadocs</id>
+                        <id>deploy-repo-zip</id>
+                        <phase>deploy</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>deploy-file</goal>
                         </goals>
+                        <configuration>
+                            <file>${project.build.directory}/${project.name}-${project.parent.version}.zip</file>
+                            <repositoryId>snapshots</repositoryId>
+                            <url>https://regnosys.jfrog.io/regnosys/libs-snapshot-local</url>
+                            <groupId>com.regnosys</groupId>
+                            <artifactId>${legacy.name}</artifactId>
+                            <version>${project.parent.version}</version>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>snapshots</id>
+            <name>libs-snapshots</name>
+            <url>https://regnosys.jfrog.io/regnosys/libs-snapshot-local</url>
+        </repository>
+    </distributionManagement>
+
 </project>
