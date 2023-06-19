@@ -537,11 +537,11 @@ For example:
 .. note:: The code snippets above excludes the conditions in this data type for purposes of brevity.
 
 
-Repurchase Agreements are constructed using an InterestRatePayout for the cash loan and AssetPayout for the collateral.
+Repurchase Agreements are constructed using an ``InterestRatePayout`` for the cash loan and ``AssetPayout`` for the collateral.
 
 
 
-The price and quantity attributes in the `PayoutBase` structure are positioned in the `ResolvablePriceQuantity` data type. This data type mirrors the `PriceQuantity` data type and contains both the price and quantity schedules.
+The price and quantity attributes in the ``PayoutBase`` structure are positioned in the `ResolvablePriceQuantity` data type. This data type mirrors the `PriceQuantity` data type and contains both the price and quantity schedules.
 
 In addition that data type supports the definition of additional information such as a quantity reference, a quantity multiplier or the indication that the quantity is resettable. Those are used to describe the quantity of a payout leg that may need to be calculated based on other inputs: e.g. an exchange rate for the foreign leg in a Cross-Currency Swap or a share price for the funding leg of an Equity Swap.
 
@@ -704,15 +704,16 @@ The output of the qualification function is used to populate the ``productQualif
 Many different financial taxonomies may be used by various segments of the financial industry to describe the same product. To support a multitude of taxonomies without adding any specific identity to data types in the model, a Taxonomy type is used to identify the source and attributes any particular taxonomy structure.
 
 .. code-block:: Haskell
+
  type Taxonomy:
  	source TaxonomySourceEnum (0..1)
  	value TaxonomyValue (0..1)
 	
-TaxonomyValue has been expanded to represent a complex type:
+``TaxonomyValue`` has been expanded to represent a complex type:
 
 .. code-block:: Haskell
 
-type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
+ type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
 	
 	name string (0..1) 
 		[metadata scheme]
@@ -720,7 +721,9 @@ type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a mo
 	condition ValueExists:
 		name exists or classification exists
 	 
-TaxonomyClassification is also a complex type that support a hierarchical structure of any depth:
+``TaxonomyClassification`` is also a complex type that support a hierarchical structure of any depth:
+
+.. code-block:: Haskell
 
  type TaxonomyClassification:
 	 className string (1..1)
@@ -806,41 +809,33 @@ Predefined classifications are available in the model using the AssetClassEnum:
      InterestRate 
      MoneyMarket
 	 
-Repurchase Agreements are classified as a MoneyMarket asset but this attribute is not required to qualify a repurchase agreement.
+Repurchase Agreements are classified as a ``MoneyMarket`` asset but this attribute is optiona and not required to qualify a repurchase agreement.
 
 
 Collateral
 ^^^^^^^^^^
 
-Collateral on a repo transaction is defined in the AssetPayout object. 
-Security identification is created in the securityInformation attribute 
-which itself is a ProductType allow for the possibility of creating 
-products defined in terms of other products using the same Product model.
-The assetPayoutLeg defines the delivery dates, as relative references to 
-purchase date and repurchase date, and delivery methods (DVP). 
+Collateral on a repo transaction is defined in the ``AssetPayout`` object. 
+Security identification is created in the ``securityInformation`` attribute 
+which itself is a ``ProductType`` allowing for the possibility of creating 
+products defined in terms of other products using the same product model.
+The ``assetPayoutLeg`` defines the delivery dates, as relative references to 
+purchase date and repurchase date.
 
-type AssetLeg:
-    settlementDate AdjustableOrRelativeDate (1..1)
-    deliveryMethod DeliveryMethodEnum (1..1)
-	
 	
 When represented in json format, collateral looks like:
 
 Collateral is defined in the assetPayout->securityInformation:
 
+.. code-block:: Javascript
+
 	"securityInformation": {
-		"meta": {
-			"globalKey": "40232adf"
-		},
 		"security": {
 			"productIdentifier": [
 				{
 					"value": {
 						"identifier": {
 							"value": "GB00B24FF097"
-						},
-						"meta": {
-							"globalKey": "1ad6d034"
 						},
 						"source": "ISIN"
 					}],
@@ -857,13 +852,12 @@ Haircut and Margin
 ^^^^^^^^^^^^^^^^^^
 
 Most repo trades include a haircut or margin adjustment to the collateral value that affords the collateral holder a level of risk protection in the case of default and the value of the collateral is lower than the loan value. 
-Haircuts and margin adjustments are set on the collateralProvision under economicTerms->collateral-> collateralProvisions. 
+Haircuts and margin adjustments are set on the ``collateralProvision`` attribute under ``economicTerms->collateral->collateralProvisions``. 
 
 .. code-block:: Haskell
 
 
-type CollateralProvisions:
-
+ type CollateralProvisions:
     collateralType CollateralTypeEnum (1..1)
         [docReference ICMA GMRA namingConvention "marginType"]
     eligibleCollateral EligibleCollateralSchedule (0..*) 
@@ -872,9 +866,115 @@ type CollateralProvisions:
 
 Haircuts in json format appear as:
 
+.. code-block:: Javascript
+
 	"collateralProvisions": {
-		"collateralType": "CASH",
-		"marginPercentage": {
-			"marginPercentage": 0.99
+		"eligibleCollateral": [
+			{
+				"criteria": [
+					{
+						"treatment": {
+							"valuationTreatment": {
+								"haircutPercentage": 2
+								}
+						}
+					}
+				]
+			}
+		]
+	}
+	
+Repurchase transactions should define pruchase date and repurchase date in the meta tags
+to properly identify a repurchase agreement product.
+
+In ``economicTerms``, the effective date is the purchase date and the termination date is the repurchase date.
+The external and global key references should include "PurchaseDate and "RepurchaseDate":
+
+.. code-block:: Javascript
+
+	"effectiveDate": {
+		"adjustableDate": {
+			"dateAdjustments": {
+				"businessCenters": {
+					"businessCenter": [
+						{
+							"value": "GBLO"
+						}
+					]
+				},
+				"businessDayConvention": "NONE"
+			},
+			"unadjustedDate": "2023-06-16"
+		},
+		"meta": {
+			"externalKey": "PurchaseDate",
+			"globalKey": "PurchaseDate"
 		}
+	}
+
+.. code-block:: Javascript
+	
+	"terminationDate": {
+		"adjustableDate": {
+			"dateAdjustments": {
+				"businessDayConvention": "NONE",
+					"meta": {
+						"externalKey": "RepurchaseDate",
+						"globalKey": "RepurchaseDate"
+					}
+				},
+			"unadjustedDate": "2023-06-17"
+		}
+	}
+	
+Repurchase transactions should also include tags to identify the purchase price and repurchase price. 
+In the ``interestRatePayout`` and purchase price is set on the ``priceQuantity`` and the ``initialPayment``:
+
+.. code-block:: Javascript
+
+	"priceQuantity": {
+		"meta": {
+			"externalKey": "PurchasePrice"
+		},
+		"quantitySchedule": {
+			"value": {
+				"unit": {
+					"currency": {
+						"value": "GBP"
+					}
+				},
+				"value": 9879046.8
+			}
+		},
+		"resolvedQuantity": {
+			"unit": {
+				"currency": {
+					"value": "GBP"
+				}
+			},
+			"value": 9879046.8
+		}
+	}
+	
+
+Repurchase agreements should also include the legal agreement object with reference to the GMRA or other private agreement by adding the 
+legalAgreementIdentification object:
+
+.. code-block:: Javascript
+
+	"contractDetails": {
+		"documentation": [
+			{
+				"legalAgreementIdentification": {
+					"agreementName": {
+						"masterAgreementType": {
+							"value": "GMRA"
+						}
+					},
+					"governingLaw": "GBEN",
+					"publisher": "ICMA",
+					"vintage": 2011
+				}
+			}
+		]
 	}
