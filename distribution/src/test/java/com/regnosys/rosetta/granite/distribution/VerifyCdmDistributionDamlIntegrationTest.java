@@ -16,7 +16,7 @@ class VerifyCdmDistributionDamlIntegrationTest {
 
     @Test
     void shouldVerifyCdmDistributionZipContainsExpectedFolders() throws IOException {
-        Optional<Path> distZipFile = getDistZipFile("target/cdm-distribution-daml-*.zip");
+        Optional<Path> distZipFile = getDistZipFile("target/distribution-daml-*.zip");
         assertTrue(distZipFile.isPresent(), "CDM distribution zip not found");
 
         Map<Path, Long> distZipContents = getFolderFileCount(distZipFile.get());
