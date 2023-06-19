@@ -157,7 +157,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JTextField cashCurrencyField;
 	private JTextField cashQuantityField;
 	private JTextField haircutField;
-	private JTextField termTypeField;
+	private JComboBox termTypeField;
 	private JComboBox terminationOptionField;
 	private JTextField noticePeriodField;
 	private JTextField deliveryMethodField;
@@ -187,12 +187,13 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JComboBox beneficiaryField;
 
 	private JTextField floatingRateReferenceField;
-	private JTextField floatingRateReferencePeriodField;
+	private JComboBox floatingRateReferencePeriodField;
 	private JTextField floatingRateReferenceMultiplierField;
-	private JTextField floatingRatePaymentFreqField;
+	private JComboBox floatingRatePaymentFreqField;
 	private JTextField floatingRatePaymentMultiplierField;
-	private JTextField floatingRateResetFreqField;
+	private JComboBox floatingRateResetFreqField;
 	private JTextField floatingRateResetMultiplierField;
+	private JTextField floatingRateField;
 	private JTextField floatingRateSpreadField;
 	private JComboBox settlementAgentOptionField;
 
@@ -540,6 +541,18 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		rateTypeField.setPreferredSize(new Dimension(170, 20));
 		rateTypePanel.add(rateTypeLabel);
 		rateTypePanel.add(rateTypeField);
+
+		rateTypeField.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					rateTypeFieldEvent(rateTypeField.getSelectedItem().toString());
+				}
+			}
+		});
+
 		panel.add(rateTypePanel);
 
 		//Repo Rate
@@ -547,7 +560,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		JLabel repoRateLabel = new JLabel("Repo Rate:",JLabel.LEFT);
 		repoRateLabel.setPreferredSize(new Dimension(150, 15));
 		repoRateField = new JTextField(15);
-		repoRateField.setText(".65");
+		repoRateField.setText("4.65");
 		repoRatePanel.add(repoRateLabel);
 		repoRatePanel.add(repoRateField);
 		panel.add(repoRatePanel);
@@ -596,11 +609,19 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			}
 		});
 
+
+		//Term Type
+
 		JPanel termTypePanel = new JPanel(new GridBagLayout());
 		JLabel termTypeLabel = new JLabel("Term Type:",JLabel.LEFT);
 		termTypeLabel.setPreferredSize(new Dimension(150, 15));
-		termTypeField = new JTextField(15);
-		termTypeField.setText("FIXED");
+
+		String[] termTypeChoices = { "FIXED", "OPEN"};
+		termTypeField = new JComboBox<String>(termTypeChoices);
+		termTypeField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		termTypeField.setPreferredSize(new Dimension(170, 20));
+
+		termTypeField.setSelectedItem("FIXED");
 		termTypePanel.add(termTypeLabel);
 		termTypePanel.add(termTypeField);
 		panel.add(termTypePanel);
@@ -913,16 +934,23 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		floatingRateReferencePanel.add(floatingRateReferenceLabel);
 		floatingRateReferencePanel.add(floatingRateReferenceField);
+		floatingRateReferenceField.setEnabled(false);
 		panel2.add(floatingRateReferencePanel);
 
 		//Floating Rate Reference Period
 		JPanel floatingRateReferencePeriodPanel = new JPanel(new GridBagLayout());
 		JLabel floatingRateReferencePeriodLabel = new JLabel("Floating Rate Period:",JLabel.LEFT);
 		floatingRateReferencePeriodLabel.setPreferredSize(new Dimension(150, 15));
-		floatingRateReferencePeriodField = new JTextField(15);
+
+		String[] referencePeriods = { "DAYS", "WEEKS", "MONTHS"};
+		floatingRateReferencePeriodField = new JComboBox<String>(referencePeriods);
+		floatingRateReferencePeriodField .setAlignmentX(Component.LEFT_ALIGNMENT);
+		floatingRateReferencePeriodField.setPreferredSize(new Dimension(170, 20));
+
 
 		floatingRateReferencePeriodPanel.add(floatingRateReferencePeriodLabel);
 		floatingRateReferencePeriodPanel.add(floatingRateReferencePeriodField);
+		floatingRateReferencePeriodField.setEnabled(false);
 		panel2.add(floatingRateReferencePeriodPanel);
 
 
@@ -940,10 +968,15 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		JPanel floatingRatePaymentFreqPanel = new JPanel(new GridBagLayout());
 		JLabel floatingRatePaymentFreqLabel = new JLabel("Floating Payment Freq:",JLabel.LEFT);
 		floatingRatePaymentFreqLabel.setPreferredSize(new Dimension(150, 15));
-		floatingRatePaymentFreqField = new JTextField(15);
+
+		String[] paymentPeriods = { "DAY", "WEEK", "MONTH"};
+		floatingRatePaymentFreqField = new JComboBox<String>(paymentPeriods);
+		floatingRatePaymentFreqField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		floatingRatePaymentFreqField.setPreferredSize(new Dimension(170, 20));
 
 		floatingRatePaymentFreqPanel.add(floatingRatePaymentFreqLabel);
 		floatingRatePaymentFreqPanel.add(floatingRatePaymentFreqField);
+		floatingRatePaymentFreqField.setEnabled(false);
 		panel2.add(floatingRatePaymentFreqPanel);
 
 		//Floating Payment Multiplier
@@ -954,16 +987,20 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		floatingRatePaymentMultiplierPanel.add(floatingRatePaymentMultiplierLabel);
 		floatingRatePaymentMultiplierPanel.add(floatingRatePaymentMultiplierField);
+		floatingRatePaymentMultiplierField.setEnabled(false);
 		panel2.add(floatingRatePaymentMultiplierPanel);
 
 		//Floating Reset Frequency
 		JPanel floatingRateResetFreqPanel = new JPanel(new GridBagLayout());
 		JLabel floatingRateResetFreqLabel = new JLabel("Floating Reset Freq:",JLabel.LEFT);
 		floatingRateResetFreqLabel.setPreferredSize(new Dimension(150, 15));
-		floatingRateResetFreqField = new JTextField(15);
+		floatingRateResetFreqField = new JComboBox<String>(referencePeriods);
+		floatingRateResetFreqField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		floatingRateResetFreqField.setPreferredSize(new Dimension(170, 20));
 
 		floatingRateResetFreqPanel.add(floatingRateResetFreqLabel);
 		floatingRateResetFreqPanel.add(floatingRateResetFreqField);
+		floatingRateResetFreqField.setEnabled(false);
 		panel2.add(floatingRateResetFreqPanel);
 
 		//Floating Reset Multiplier
@@ -974,7 +1011,32 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		floatingRateResetMultiplierPanel.add(floatingRateResetMultiplierLabel);
 		floatingRateResetMultiplierPanel.add(floatingRateResetMultiplierField);
+		floatingRateResetMultiplierField.setEnabled(false);
 		panel2.add(floatingRateResetMultiplierPanel);
+
+		//Floating Reference Rate
+		JPanel floatingRatePanel = new JPanel(new GridBagLayout());
+		JLabel floatingRateLabel = new JLabel("Reference Rate:",JLabel.LEFT);
+		floatingRateLabel.setPreferredSize(new Dimension(150, 15));
+		floatingRateField = new JTextField(15);
+
+		floatingRatePanel.add(floatingRateLabel);
+		floatingRatePanel.add(floatingRateField);
+		floatingRateField.setEnabled(false);
+		panel2.add(floatingRatePanel);
+
+		floatingRateField.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.EMPTY_SET);
+		floatingRateField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				super.keyPressed(e);
+				if ((e.getKeyChar() == KeyEvent.VK_TAB) || (e.getKeyChar() == KeyEvent.VK_ENTER)) {
+					//System.out.print("Tab Pressed");
+					updateTotalsXPrice();
+				}
+			}
+		});
+
 
 		//Spread
 		JPanel floatingRateSpreadPanel = new JPanel(new GridBagLayout());
@@ -984,7 +1046,20 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		floatingRateSpreadPanel.add(floatingRateSpreadLabel);
 		floatingRateSpreadPanel.add(floatingRateSpreadField);
+		floatingRateSpreadField.setEnabled(false);
 		panel2.add(floatingRateSpreadPanel);
+
+		floatingRateSpreadField.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.EMPTY_SET);
+		floatingRateSpreadField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				super.keyPressed(e);
+				if ((e.getKeyChar() == KeyEvent.VK_TAB) || (e.getKeyChar() == KeyEvent.VK_ENTER)) {
+					//System.out.print("Tab Pressed");
+					updateTotalsXPrice();
+				}
+			}
+		});
 
 
 
@@ -1149,7 +1224,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		
 		//Repo Rate
-		repoRateField.setText(".65");
+		repoRateField.setText("4.65");
 
 
 		//Cash Currency
@@ -1162,7 +1237,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 
 		//Term Type
-		termTypeField.setText("FIXED");
+		termTypeField.setSelectedItem("FIXED");
 
 
 		
@@ -1178,6 +1253,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		//Purchase Price
 		purchasePriceField.setText("9879046.80");
 
+		rateTypeField.setSelectedItem("FIXED");
+		rateTypeFieldEvent("FIXED");
 
 		//Repurchase Price
 		repurchasePriceField.setText("9879155.06");
@@ -1378,6 +1455,15 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			String purchasePriceStr = formatter.format(pp);
 			purchasePriceField.setText(purchasePriceStr);
 
+			if(this.rateTypeField.getSelectedItem().toString().equals("FLOAT")) {
+
+				Double refrate = Double.parseDouble(this.floatingRateField.getText());
+				Double spread = Double.parseDouble(this.floatingRateSpreadField.getText());
+				Double reporate = (double) Math.round((refrate + spread/100.0)*100)/100;
+				this.repoRateField.setText(reporate.toString());
+
+			}
+
 
 			Double rr = Double.valueOf(repoRateField.getText().replaceAll(",","").trim());
 			Double rp = pp  + (pp * (daysBetween/360.00 * rr/100.00));
@@ -1434,7 +1520,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String repoRateStr = this.repoRateField.getText();
 		String cashCurrencyStr = this.cashCurrencyField.getText();
 		String haircutStr = this.haircutField.getText();
-		String termTypeStr = this.termTypeField.getText();
+		String termTypeStr = this.termTypeField.getSelectedItem().toString();
 		String terminationOptionStr = this.terminationOptionField.getSelectedItem().toString();
 		String noticePeriodStr = this.noticePeriodField.getText();
 		String deliveryMethodStr = this.deliveryMethodField.getText();
@@ -1457,6 +1543,14 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String businessCenter = this.businessCenterOptionField.getSelectedItem().toString();
 		String execVenueCode = this.venueCodeOptionField.getSelectedItem().toString();
 		String execVenueScheme = "MIC";
+
+		String floatingRateReferenceStr = this.floatingRateReferenceField.getText();
+		String floatingRateReferencePeriodStr = this.floatingRateReferencePeriodField.getSelectedItem().toString();
+		String floatingRateReferenceMultiplierStr = this.floatingRateReferenceMultiplierField.getText();
+		String floatingRateResetFreqStr = this.floatingRateResetFreqField.getSelectedItem().toString();
+		String floatingRateResetMultiplierStr = this.floatingRateResetMultiplierField.getText();
+		String floatingRatePaymentFreqStr = this.floatingRatePaymentFreqField.getSelectedItem().toString();
+		String floatingRatePaymentMultiplierStr = this.floatingRatePaymentMultiplierField.getText();
 
 		//Set settlement agent
 		CItem settlementAgent= (CItem) this.settlementAgentOptionField.getSelectedItem();
@@ -1498,7 +1592,10 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		map.buildEnumMap(cdmMap);
 
 		deliveryMethodStr = cdmMap.get(deliveryMethodStr);
-
+		floatingRateReferencePeriodStr = cdmMap.get(floatingRateReferencePeriodStr);
+		floatingRateResetFreqStr = cdmMap.get(floatingRateResetFreqStr);
+		floatingRatePaymentFreqStr = cdmMap.get(floatingRatePaymentFreqStr);
+		floatingRateReferenceStr = cdmMap.get(floatingRateReferenceStr);
 
 		RepoLifeCycle repoExecution = new RepoLifeCycle();
 
@@ -1508,9 +1605,9 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		repurchaseDateStr,				// repurchaseDateStr
 		tradeUTIStr,  					// tradeUTIStr
 		buyerLEIStr, 					// buyerLEIStr,
-				buyerNameStr,			// buyerNameStr
+		buyerNameStr,			// buyerNameStr
 		sellerLEIStr, 					// sellerLEIStr
-				sellerNameStr,
+		sellerNameStr,
 		collateralDescriptionStr,		// collateralDescriptionStr
 		collateralISINStr,				// collateralISINStr
 		collateralQuantityStr,			// collateralQuantitySt
@@ -1539,21 +1636,28 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		agreementIdentifierStr,
 		agreementEffectiveDate,
 		agreementUrl,
-				businessCenter,
-				execVenueCode,
-				execVenueScheme,
-				settlementAgentLEIStr,
-				settlementAgentNameStr,
-				ccpLeiStr,
-				ccpNameStr,
-				csdParticipantLeiStr,
-				csdParticipantNameStr,
-				brokerLeiStr,
-				brokerNameStr,
-				tripartyLeiStr,
-				tripartyNameStr,
-				clearingMemberLeiStr,
-				clearingMemberNameStr
+		businessCenter,
+		execVenueCode,
+		execVenueScheme,
+		settlementAgentLEIStr,
+		settlementAgentNameStr,
+		ccpLeiStr,
+		ccpNameStr,
+		csdParticipantLeiStr,
+		csdParticipantNameStr,
+		brokerLeiStr,
+		brokerNameStr,
+		tripartyLeiStr,
+		tripartyNameStr,
+		clearingMemberLeiStr,
+		clearingMemberNameStr,
+		floatingRateReferenceStr,
+		floatingRateReferencePeriodStr,
+		floatingRateReferenceMultiplierStr,
+		floatingRateResetFreqStr,
+		floatingRateResetMultiplierStr,
+		floatingRatePaymentFreqStr,
+		floatingRatePaymentMultiplierStr
 		);
 		
 
@@ -1701,5 +1805,93 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 	public void initRepoWorkflow(){}
 
+	public void rateTypeFieldEvent(String selectedRateType){
 
+		if (selectedRateType.equals("FLOAT")){
+
+			this.floatingRateReferenceField.setText("SONIA");
+			this.floatingRateReferenceField.setEnabled(true);
+			this.floatingRateReferenceField.setBackground(Color.WHITE);
+
+			this.floatingRateReferencePeriodField.setSelectedItem("DAYS");
+			this.floatingRateReferencePeriodField.setEnabled(true);
+			this.floatingRateReferencePeriodField.setBackground(Color.WHITE);
+
+			this.floatingRateReferenceMultiplierField.setText("1");
+			this.floatingRateReferenceMultiplierField.setEnabled(true);
+			this.floatingRateReferenceMultiplierField.setBackground(Color.WHITE);
+
+			this.floatingRatePaymentFreqField.setSelectedItem("MONTH");
+			this.floatingRatePaymentFreqField.setEnabled(true);
+			this.floatingRatePaymentFreqField.setBackground(Color.WHITE);
+
+			this.floatingRatePaymentMultiplierField.setText("1");
+			this.floatingRatePaymentMultiplierField.setEnabled(true);
+			this.floatingRatePaymentMultiplierField.setBackground(Color.WHITE);
+
+			this.floatingRateResetFreqField.setSelectedItem("DAYS");
+			this.floatingRateResetFreqField.setEnabled(true);
+			this.floatingRateResetFreqField.setBackground(Color.WHITE);
+
+			this.floatingRateResetMultiplierField.setText("1");
+			this.floatingRateResetMultiplierField.setEnabled(true);
+			this.floatingRateResetMultiplierField.setBackground(Color.WHITE);
+
+			this.floatingRateField.setText("4.43");
+			this.floatingRateField.setEnabled(true);
+			this.floatingRateField.setBackground(Color.WHITE);
+
+			this.floatingRateSpreadField.setText("2");
+			this.floatingRateSpreadField.setEnabled(true);
+			this.floatingRateSpreadField.setBackground(Color.WHITE);
+
+			Double refrate = Double.parseDouble(this.floatingRateField.getText());
+			Double spread = Double.parseDouble(this.floatingRateSpreadField.getText());
+
+			Double reporate = (double) Math.round((refrate + spread/100.0)*100)/100;
+
+			this.repoRateField.setText(reporate.toString());
+
+
+		}else{
+			this.floatingRateReferenceField.setText("");
+			this.floatingRateReferenceField.setEnabled(false);
+			this.floatingRateField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRateReferencePeriodField.setSelectedItem("");
+			this.floatingRateReferencePeriodField.setEnabled(false);
+			this.floatingRateReferencePeriodField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRateReferenceMultiplierField.setText("");
+			this.floatingRateReferenceMultiplierField.setEnabled(false);
+			this.floatingRateReferenceMultiplierField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRatePaymentFreqField.setSelectedItem("");
+			this.floatingRatePaymentFreqField.setEnabled(false);
+			this.floatingRatePaymentFreqField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRatePaymentMultiplierField.setText("");
+			this.floatingRatePaymentMultiplierField.setEnabled(false);
+			this.floatingRatePaymentMultiplierField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRateResetFreqField.setSelectedItem("");
+			this.floatingRateResetFreqField.setEnabled(false);
+			this.floatingRateResetFreqField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRateResetMultiplierField.setText("");
+			this.floatingRateResetMultiplierField.setEnabled(false);
+			this.floatingRateResetMultiplierField.setBackground(Color.LIGHT_GRAY);
+
+			this.floatingRateField.setText("");
+			this.floatingRateField.setEnabled(false);
+			this.floatingRateField.setBackground(Color.WHITE);
+
+			this.floatingRateSpreadField.setText("");
+			this.floatingRateSpreadField.setEnabled(false);
+			this.floatingRateSpreadField.setBackground(Color.WHITE);
+
+			this.repoRateField.setText("4.65");
+
+		}
+	}
 }

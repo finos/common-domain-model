@@ -291,7 +291,14 @@ public class RepoLifeCycle {
 			String  tripartyLeiStr,
 			String  tripartyNameStr,
 			String  clearingMemberLeiStr,
-			String  clearingMemberNameStr
+			String  clearingMemberNameStr,
+			String floatingRateReferenceStr,
+			String floatingRateReferencePeriodStr,
+			String floatingRateReferenceMultiplierStr,
+			String floatingRateResetFreqStr,
+			String floatingRateResetMultiplierStr,
+			String floatingRatePaymentFreqStr,
+			String floatingRatePaymentMultiplierStr
     ) throws JsonProcessingException {
 
         //Create_ExecutionInstruction instruction = new Create_ExecutionInstruction.Create_ExecutionInstructionDefault();
@@ -303,9 +310,9 @@ public class RepoLifeCycle {
 		repurchaseDateStr,				// repurchaseDateStr
 		tradeUTIStr,  					// tradeUTIStr
 		buyerLEIStr, 					// buyerLEIStr
-				buyerNameStr,
+		buyerNameStr,
 		sellerLEIStr, 					// sellerLEIStr
-				sellerNameStr,
+		sellerNameStr,
 		collateralDescriptionStr,		// collateralDescriptionStr,
 		collateralISINStr,				// collateralISINStr
 		collateralQuantityStr,			// collateralQuantityStr
@@ -334,21 +341,28 @@ public class RepoLifeCycle {
 		agreementIdentifierStr,
 		agreementEffectiveDate,
 		agreementUrl,
-				businessCenter,
-				execVenueCode,
-				execVenueScheme,
-				settlementAgentLEIStr,
-				settlementAgentNameStr,
-				ccpLeiStr,
-				ccpNameStr,
-				csdParticipantLeiStr,
-				csdParticipantNameStr,
-				brokerLeiStr,
-				brokerNameStr,
-				tripartyLeiStr,
-				tripartyNameStr,
-				clearingMemberLeiStr,
-				clearingMemberNameStr
+		businessCenter,
+		execVenueCode,
+		execVenueScheme,
+		settlementAgentLEIStr,
+		settlementAgentNameStr,
+		ccpLeiStr,
+		ccpNameStr,
+		csdParticipantLeiStr,
+		csdParticipantNameStr,
+		brokerLeiStr,
+		brokerNameStr,
+		tripartyLeiStr,
+		tripartyNameStr,
+		clearingMemberLeiStr,
+		clearingMemberNameStr,
+		floatingRateReferenceStr,
+		floatingRateReferencePeriodStr,
+		floatingRateReferenceMultiplierStr,
+		floatingRateResetFreqStr,
+		floatingRateResetMultiplierStr,
+		floatingRatePaymentFreqStr,
+		floatingRatePaymentMultiplierStr
 		);
 
 

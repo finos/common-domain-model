@@ -46,6 +46,7 @@ import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
+import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
@@ -193,14 +194,21 @@ public class RepoExecutionCreation{
 				String settlementAgentNameStr,
 				String ccpLeiStr,
 				String ccpNameStr,
-				String  csdParticipantLeiStr,
-				String  csdParticipantNameStr,
-				String  brokerLeiStr,
-				String  brokerNameStr,
-				String  tripartyLeiStr,
-				String  tripartyNameStr,
-				String  clearingMemberLeiStr,
-				String  clearingMemberNameStr
+				String csdParticipantLeiStr,
+				String csdParticipantNameStr,
+				String brokerLeiStr,
+				String brokerNameStr,
+				String tripartyLeiStr,
+				String tripartyNameStr,
+				String clearingMemberLeiStr,
+				String clearingMemberNameStr,
+				String floatingRateReferenceStr,
+				String floatingRateReferencePeriodStr,
+				String floatingRateReferenceMultiplierStr,
+				String floatingRateResetFreqStr,
+				String floatingRateResetMultiplierStr,
+				String floatingRatePaymentFreqStr,
+				String floatingRatePaymentMultiplierStr
 	) throws JsonProcessingException {
 		
 		RepoExecutionCreation rc = new RepoExecutionCreation();
@@ -277,7 +285,8 @@ public class RepoExecutionCreation{
 
 		Product repoProduct = createRepoProduct(effectiveDate, terminationDate, repoRate, haircut , cashCurrencyStr,
 				cashQuantity, repurchaseQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice,
-				repoRate, collateralISINStr, "", businessCenter, deliveryMethodStr, purchaseDateStr, repurchaseDateStr,settlementAgentNameStr);
+				repoRate, collateralISINStr, "", businessCenter, deliveryMethodStr, purchaseDateStr, repurchaseDateStr,settlementAgentNameStr,rateTypeStr, termTypeStr,
+				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr);
 
 		String execType;
 
@@ -320,7 +329,17 @@ public class RepoExecutionCreation{
 			String deliveryMethodStr,
 			String purchaseDateStr,
 			String repurchaseDateStr,
-			String settlementAgentNameStr){
+			String settlementAgentNameStr,
+			String rateType,
+			String termType,
+			String floatingRateReferenceStr,
+			String floatingRateReferencePeriodStr,
+			String floatingRateReferenceMultiplierStr,
+			String floatingRateResetFreqStr,
+			String floatingRateResetMultiplierStr,
+			String floatingRatePaymentFreqStr,
+			String floatingRatePaymentMultiplierStr
+			){
 		
 		BigDecimal repoRateBD = new BigDecimal(repoRate);
 		BigDecimal haircutBD = new BigDecimal(haircut);
@@ -328,7 +347,8 @@ public class RepoExecutionCreation{
 		ContractualProduct contractualRepoProduct = createContractualRepoProduct(
 							effectiveDate, terminationDate, repoRateBD, haircutBD, cashCurrency,
 							cashQuantity, repurchaseQuantity,collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
-							rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,purchaseDateStr,repurchaseDateStr,settlementAgentNameStr
+							rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,purchaseDateStr,repurchaseDateStr,settlementAgentNameStr,rateType, termType,
+				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr
 				);
 		
 		return Product.builder()
@@ -357,7 +377,16 @@ public class RepoExecutionCreation{
 			String deliveryMethodStr,
 			String purchaseDateStr,
 			String repurchaseDateStr,
-			String settlementAgentNameStr
+			String settlementAgentNameStr,
+			String rateType,
+			String termType,
+			String floatingRateReferenceStr,
+			String floatingRateReferencePeriodStr,
+			String floatingRateReferenceMultiplierStr,
+			String floatingRateResetFreqStr,
+			String floatingRateResetMultiplierStr,
+			String floatingRatePaymentFreqStr,
+			String floatingRatePaymentMultiplierStr
 	) {
         return ContractualProduct.builder()
 				.addProductTaxonomy(ProductTaxonomy.builder()
@@ -367,7 +396,8 @@ public class RepoExecutionCreation{
                 .setEconomicTerms(createEconomicTerms(effectiveDate, terminationDate, repoRateBD, haircutBD,
 						cashCurrency, cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity,
 						collteralCleanPrice, collateralDirtyPrice, rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,
-				purchaseDateStr, repurchaseDateStr,settlementAgentNameStr))
+						purchaseDateStr, repurchaseDateStr,settlementAgentNameStr, rateType, termType,
+						floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr))
 				.build();
 
     }
@@ -391,8 +421,19 @@ public class RepoExecutionCreation{
 			String deliveryMethodStr,
 			String purchaseDateStr,
 			String repurchaseDateStr,
-			String settlementAgentNameStr
+			String settlementAgentNameStr,
+			String rateType,
+			String termType,
+			String floatingRateReferenceStr,
+			String floatingRateReferencePeriodStr,
+			String floatingRateReferenceMultiplierStr,
+			String floatingRateResetFreqStr,
+			String floatingRateResetMultiplierStr,
+			String floatingRatePaymentFreqStr,
+			String floatingRatePaymentMultiplierStr
 			){
+
+		EconomicTerms ecterms = null;
 
 		BusinessCenterEnum businessCenterEnum = BusinessCenterEnum.valueOf(businessCenter);
 
@@ -417,27 +458,56 @@ public class RepoExecutionCreation{
 						.setGlobalKey("PurchaseDate"))
 				.build();
 
-		return EconomicTerms.builder()
-				.setEffectiveDate(effectiveAdjustableDate)
-				.setPayout(Payout.builder()
-						.addInterestRatePayout(createFixedRateRepoPayout(effectiveDate, terminationDate,repoRateBD, cashCurrency,
-								cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
-								rate, collateralISINStr, scheme, deliveryMethodStr, purchaseDateStr, repurchaseDateStr, settlementAgentNameStr))
-						.addAssetPayout(createRepoCollateralPayout(deliveryMethodStr, effectiveAdjustableDate, collateralISINStr)))
-				.setTerminationDate(AdjustableOrRelativeDate.builder()
-						.setAdjustableDate(AdjustableDate.builder()
-								.setUnadjustedDate(terminationDate)
-								.setDateAdjustments(BusinessDayAdjustments.builder()
-										.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
-								.setMeta(MetaFields.builder()
-									.setScheme(scheme)
-									.setExternalKey("RepurchaseDate")
-									.setGlobalKey("RepurchaseDate")))))
-				.setCollateral(Collateral.builder()
-						.setCollateralProvisions(CollateralProvisions.builder()
-								.setEligibleCollateral(createRepoHairCut(haircutBD))))
-				.build();
+		if(rateType.equals("FIXED")) {
 
+			ecterms = EconomicTerms.builder()
+					.setEffectiveDate(effectiveAdjustableDate)
+					.setPayout(Payout.builder()
+							.addInterestRatePayout(createFixedRateRepoPayout(effectiveDate, terminationDate, repoRateBD, cashCurrency,
+									cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
+									rate, collateralISINStr, scheme, deliveryMethodStr, purchaseDateStr, repurchaseDateStr, settlementAgentNameStr))
+							.addAssetPayout(createRepoCollateralPayout(deliveryMethodStr, effectiveAdjustableDate, collateralISINStr)))
+					.setTerminationDate(AdjustableOrRelativeDate.builder()
+							.setAdjustableDate(AdjustableDate.builder()
+									.setUnadjustedDate(terminationDate)
+									.setDateAdjustments(BusinessDayAdjustments.builder()
+											.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+											.setMeta(MetaFields.builder()
+													.setScheme(scheme)
+													.setExternalKey("RepurchaseDate")
+													.setGlobalKey("RepurchaseDate")))))
+					.setCollateral(Collateral.builder()
+							.setCollateralProvisions(CollateralProvisions.builder()
+									.setEligibleCollateral(createRepoHairCut(haircutBD))))
+					.build();
+
+		} else if (rateType.equals("FLOAT")){
+
+			ecterms = EconomicTerms.builder()
+					.setEffectiveDate(effectiveAdjustableDate)
+					.setPayout(Payout.builder()
+							.addInterestRatePayout(createFloatingRateRepoPayout(effectiveDate, terminationDate, repoRateBD, cashCurrency,
+									cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
+									rate, collateralISINStr, scheme, deliveryMethodStr, purchaseDateStr, repurchaseDateStr, settlementAgentNameStr,
+									floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr))
+							.addAssetPayout(createRepoCollateralPayout(deliveryMethodStr, effectiveAdjustableDate, collateralISINStr)))
+					.setTerminationDate(AdjustableOrRelativeDate.builder()
+							.setAdjustableDate(AdjustableDate.builder()
+									.setUnadjustedDate(terminationDate)
+									.setDateAdjustments(BusinessDayAdjustments.builder()
+											.setBusinessDayConvention(BusinessDayConventionEnum.NONE)
+											.setMeta(MetaFields.builder()
+													.setScheme(scheme)
+													.setExternalKey("RepurchaseDate")
+													.setGlobalKey("RepurchaseDate")))))
+					.setCollateral(Collateral.builder()
+							.setCollateralProvisions(CollateralProvisions.builder()
+									.setEligibleCollateral(createRepoHairCut(haircutBD))))
+					.build();
+
+		}
+
+			return ecterms;
 	}
 	private List<EligibleCollateralSpecification> createRepoHairCut(BigDecimal haircut) {
 
@@ -526,11 +596,6 @@ public class RepoExecutionCreation{
 		{
 
 			IcmaRepoUtil ru = new IcmaRepoUtil();
-			if (deliveryMethodStr.equals("DVP"))
-				deliveryMethodStr = "DELIVERY_VERSUS_PAYMENT";
-			String settlementAgentType;
-
-
 
         	return InterestRatePayout.builder()
                 .setPriceQuantity(createResolveableLoanPriceQuantity(
@@ -617,6 +682,121 @@ public class RepoExecutionCreation{
                 .build());
     }
 
+
+	private InterestRatePayout createFloatingRateRepoPayout(
+			Date effectiveDate,
+			Date terminationDate,
+			BigDecimal fixedRate,
+			String cashCurrency,
+			double cashQuantity,
+			double repurchaseQuantity,
+			String collateralCurrency,
+			double collateralQuantity,
+			double collteralCleanPrice,
+			double collateralDirtyPrice,
+			double rate,
+			String collateralISINStr,
+			String scheme,
+			String deliveryMethodStr,
+			String purchaseDateStr,
+			String repurchaseDateStr,
+			String settlementAgent,
+			String floatingRateReferenceStr,
+			String floatingRateReferencePeriodStr,
+			String floatingRateReferenceMultiplierStr,
+			String floatingRateResetFreqStr,
+			String floatingRateResetMultiplierStr,
+			String floatingRatePaymentFreqStr,
+			String floatingRatePaymentMultiplierStr
+	)
+	{
+
+		IcmaRepoUtil ru = new IcmaRepoUtil();
+
+		Integer floatingRateReferenceMultiplierValue = Integer.parseInt(floatingRateReferenceMultiplierStr);
+		Integer floatingRateResetMultiplierValue = Integer.parseInt(floatingRateResetMultiplierStr);
+		Integer floatingRatePaymentMultiplierValue = Integer.parseInt(floatingRatePaymentMultiplierStr);
+
+
+		return InterestRatePayout.builder()
+				.setPriceQuantity(createResolveableLoanPriceQuantity(
+						cashCurrency,
+						cashQuantity,
+						scheme))
+				.setPrincipalPayment(PrincipalPayments.builder()
+						.setInitialPayment(Boolean.TRUE)
+						.setFinalPayment(Boolean.TRUE)
+						.setIntermediatePayment(Boolean.FALSE)
+						.setPrincipalPaymentSchedule(PrincipalPaymentSchedule.builder()
+								.setInitialPrincipalPayment(PrincipalPayment.builder()
+										.setPrincipalAmount(Money.builder()
+												.setValue(BigDecimal.valueOf(cashQuantity))
+												.setUnit(UnitType.builder()
+														.setCurrencyValue(cashCurrency))))
+								.setFinalPrincipalPayment(PrincipalPayment.builder()
+										.setPrincipalAmount(Money.builder()
+												.setValue(BigDecimal.valueOf(repurchaseQuantity))
+												.setUnit(UnitType.builder()
+														.setCurrencyValue(cashCurrency))))
+								.build())
+						.build())
+				.setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())
+				.setCalculationPeriodDates(CalculationPeriodDates.builder()
+						.setEffectiveDate(AdjustableOrRelativeDate.builder()
+								.setAdjustableDate(AdjustableDate.builder()
+										.setUnadjustedDate(effectiveDate)
+										.setDateAdjustments(BusinessDayAdjustments.builder()
+												.setBusinessDayConvention(BusinessDayConventionEnum.NONE))))
+						.setTerminationDate(AdjustableOrRelativeDate.builder()
+								.setAdjustableDate(AdjustableDate.builder()
+										.setUnadjustedDate(terminationDate)
+										.setDateAdjustments(BusinessDayAdjustments.builder()
+												.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+												.setBusinessCenters(BusinessCenters.builder()
+														.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+																.setExternalReference("primaryBusinessCenters"))
+														.addBusinessCenter(
+																FieldWithMetaBusinessCenterEnum.builder().setValue(BusinessCenterEnum.EUTA).build())))))
+						.setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
+								.setRollConvention(RollConventionEnum._3)
+								.setPeriodMultiplier(floatingRateResetMultiplierValue)
+								.setPeriod(PeriodExtendedEnum.valueOf(floatingRateResetFreqStr)))
+						.setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
+								.setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
+								.setBusinessCenters(BusinessCenters.builder()
+										.setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
+												.setExternalReference("primaryBusinessCenters")))))
+				.setPaymentDates(PaymentDates.builder()
+						.setPayRelativeTo(PayRelativeToEnum.CALCULATION_PERIOD_END_DATE)
+						.setPaymentFrequency(Frequency.builder()
+								.setPeriodMultiplier(floatingRatePaymentMultiplierValue)
+								.setPeriod(PeriodExtendedEnum.valueOf(floatingRatePaymentFreqStr))
+								.build())
+						.build())
+				.setRateSpecification(RateSpecification.builder()
+						.setFloatingRate(FloatingRateSpecification.builder()
+								.setRateOptionValue(FloatingRateOption.builder()
+										.setFloatingRateIndexValue(FloatingRateIndexEnum.valueOf(floatingRateReferenceStr))
+										.setIndexTenor(Period.builder()
+												.setPeriod(PeriodEnum.valueOf(floatingRateReferencePeriodStr))
+												.setPeriodMultiplier(floatingRateReferenceMultiplierValue)))))
+
+				.setPayerReceiver(PayerReceiver.builder()
+						.setPayer(CounterpartyRoleEnum.PARTY_1)
+						.setReceiver(CounterpartyRoleEnum.PARTY_2))
+				.setSettlementTerms(SettlementTerms.builder()
+						.addCashSettlementTerms(CashSettlementTerms.builder()
+								.setCashSettlementMethod(CashSettlementMethodEnum.CASH_PRICE_METHOD))
+						.setSettlementType(SettlementTypeEnum.CASH)
+						.setTransferSettlementType(TransferSettlementEnum.valueOf(deliveryMethodStr))
+						.setSettlementCurrency(FieldWithMetaString.builder()
+								.setValue(cashCurrency)
+								.setMeta(MetaFields.builder()
+										.setScheme(scheme)).build())
+						.setSettlementDate(SettlementDate.builder()
+								.setAdjustableOrRelativeDate(ru.createAdjustableOrAdjustedOrRelativeDate(purchaseDateStr)))
+						.build());
+	}
 
 	private ResolvablePriceQuantity createResolveableLoanPriceQuantity(
 			String cashCurrencyStr,

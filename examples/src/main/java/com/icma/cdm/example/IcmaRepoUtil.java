@@ -507,6 +507,19 @@ class CdmEnumMap{
 
 		map.put("DVP", "DELIVERY_VERSUS_PAYMENT");
 
+		map.put("DAYS", "D");
+		map.put("WEEKS", "W");
+		map.put("MONTHS", "M");
+		map.put("YEARS", "Y");
+
+		map.put("DAY", "D");
+		map.put("WEEK", "W");
+		map.put("MONTH", "M");
+		map.put("YEAR", "Y");
+
+		map.put("SONIA", "GBP_SONIA");
+		map.put("ESTR", "EUR_EUROSTR");
+
 		return map;
 	}
 
