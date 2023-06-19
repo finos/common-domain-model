@@ -713,11 +713,12 @@ Many different financial taxonomies may be used by various segments of the finan
 
 .. code-block:: Haskell
 
- type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
-	
-	name string (0..1) 
+ type TaxonomyValue: 
+ 
+	name string (0..1)
 		[metadata scheme]
 	classification TaxonomyClassification (0..*)
+
 	condition ValueExists:
 		name exists or classification exists
 	 
@@ -858,9 +859,10 @@ Haircuts and margin adjustments are set on the ``collateralProvision`` attribute
 
 
  type CollateralProvisions:
+
     collateralType CollateralTypeEnum (1..1)
-        [docReference ICMA GMRA namingConvention "marginType"]
-    eligibleCollateral EligibleCollateralSchedule (0..*) 
+		[docReference ICMA GMRA namingConvention "marginType"]
+    eligibleCollateral EligibleCollateralSpecification (0..*)
     substitutionProvisions SubstitutionProvisions (0..1)
 
 
