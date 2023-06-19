@@ -859,7 +859,6 @@ Haircuts and margin adjustments are set on the ``collateralProvision`` attribute
 
 
  type CollateralProvisions:
-
     collateralType CollateralTypeEnum (1..1)
 		[docReference ICMA GMRA namingConvention "marginType"]
     eligibleCollateral EligibleCollateralSpecification (0..*)
