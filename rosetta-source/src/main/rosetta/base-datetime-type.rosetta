@@ -245,3 +245,23 @@ type CalculationPeriodFrequency extends Frequency: <"A class to specify the freq
 	condition FpML_ird_60: <"FpML validation rule ird-60 - Context: CalculationPeriodFrequency. When the period is 'T', the rollConvention must be 'NONE'.">
 		if period = PeriodExtendedEnum -> T
 		then rollConvention = RollConventionEnum -> NONE
+
+type CalculationFrequency: <"Represents the parameters for describing how often something (such as collateral interest) is to be calculated.">
+    period  Period(1..1)    <"Specifies the time period at which calculation is performed, e.g. 1 month.">
+    monthOfYear number(0..1) <"Specifies the month of the year if used.">
+    dayOfMonth number(0..1) <"Specifies the day of the month if used.">
+    dayOfWeek DayOfWeekEnum(0..1) <"Specifies the day of the week if used.">
+    weekOfMonth number(0..1) <"Specifies the week of the month if used.">
+    offsetDays number(1..1) <"Specifies how many days from the trigger event should the payment occur.">
+    dateLocation BusinessCenterTime(1..1)  <"Specifies where is the time measured.">
+    businessCenter BusinessCenterEnum(0..*) <"Specifies the business center for adjustment of calculation period.">
+
+    condition Moy : if monthOfYear exists then monthOfYear <= 12
+    condition Dom : if dayOfMonth exists then dayOfMonth <= 31
+    condition Wom : if weekOfMonth exists then weekOfMonth <= 5
+
+	condition MoyTerm : if monthOfYear exists then (period->period = PeriodEnum->Y) 
+	condition DomTerm : if dayOfMonth exists then (period->period = PeriodEnum->M)
+	condition DowTerm : if dayOfWeek exists then (period->period = PeriodEnum->W)
+	condition WomTerm : if weekOfMonth exists then (period->period = PeriodEnum->M)
+
