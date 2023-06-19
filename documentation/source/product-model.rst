@@ -855,15 +855,6 @@ Haircut and Margin
 Most repo trades include a haircut or margin adjustment to the collateral value that affords the collateral holder a level of risk protection in the case of default and the value of the collateral is lower than the loan value. 
 Haircuts and margin adjustments are set on the ``collateralProvision`` attribute under ``economicTerms->collateral->collateralProvisions``. 
 
-.. code-block:: Haskell
-
- type CollateralProvisions:
-    collateralType CollateralTypeEnum (1..1)
-		[docReference ICMA GMRA namingConvention "marginType"]
-    eligibleCollateral EligibleCollateralSpecification (0..*)
-    substitutionProvisions SubstitutionProvisions (0..1)
-
-
 Haircuts in json format appear as:
 
 .. code-block:: Javascript
