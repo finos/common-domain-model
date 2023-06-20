@@ -19,7 +19,11 @@ As agreed with legal and process SMEs, the structural definitions of the `Transa
 
 - The substitution provisions are optional item and represent the modality of the trigger events, who is to Substitute and the description of the substitution provisions which for now are represented with a `AdditionalBespokeTerm` data type.
 
-- A new type AdditionalBespokeTerm was added to allow fo the association of a specific name to a set of bespoke terms.
+- The labels referencing the various ISDA definitions in `ContractualDefinitionsEnum` have been adjusted to folllow the same pattern. The corresponding FpML synonym mappings have been adjusted.
+  
+- The following publisher of legal agreement have been added in the `LegalAgreementPublisherEnum`: EMTA, TheFXCommittee and ISDAClearstream
+
+- A new type `AdditionalBespokeTerm` was added to allow fo the association of a specific name to a set of bespoke terms.
   
 For clarity, whenever some attribute of type string have been added created or refactored as part of this release, the name of that attribute was made explicit in that regards by including the annotation “bespoke” in their name. For instance :
 - `extraordinaryEvents`->`additionalBespokeTerms`
@@ -28,4 +32,4 @@ For clarity, whenever some attribute of type string have been added created or r
 
 #### _Review directions_
 
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above.
+In the CDM Portal, select the Textual Browser and search for the model elements mentioned above.
