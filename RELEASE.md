@@ -1,39 +1,31 @@
-# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation*
+# *Infrastructure - Dependency Updates*
 
 _Background_
 
-The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
+The representation of operational clauses for extra-ordinarary events and substitutions terms have been repositioned from the description of the economic terms to a new type `TransactionAdditionalTerms` inserted as an attribute of the legal `Agreement` that characterises the contract details of a `Trade`. The representation of these clauses in the legal agreement will be particularly be helpful in the digital representation of OTC Trade Long Form Confirmations.
+
+As agreed with legal and process SMEs, the structural definitions of the `TransactionAdditionalTerms` is layed out similarly to the ISDA definition grouping. The representation of `equityAdditionalTerms` and    `foreignExchangeAdditionalTerms` have been detailled based on the ISDA definitions for equity and Fx asset classes respectively. Addditional terms associated to commodity, credit, interest rate and digital assets have been inserted as placeholders and wll be expanded in future work. 
 
 #### _What is being released?_
 
-- Added types:
-  - CalculationFrequency
-  - CollateralInterestCalculationParameters - to calculate the amount of interest owing
-  - CollateralInterestParameters - including interestCalculationFrequency, interestCalculationParameters, interestHandlingParameters
-  - CollateralFloatingRate - parameters that define the floating interest rate to be used
-  - CollateralInterestHandlingParameters -parameters to support the operational processing of collateral interest amount
-  - CollateralInterestFrequency - rules about how often and when interest should be calculated
+- `TransactionAdditionalTerms` is created as a new attribute of the `Agreement` type, with the following features: 
+    - `equityAdditionalTerms` with the corresponding extraordinary Events (prior existing type, removed from EconomicTerms), determination Terms and substitution provisions.
+    - `foreignExchangeAdditionalTerms` with the corresponding disruptionEvents` and `determinationTerms`
+    - `commoditiesAdditionalTerms` left as a placeholder string type
+    - `interestRateAdditionalTerms` left as a placeholder string type
+    - `digitalAssetAdditionalTerms` left as a placeholder string type
 
-- Added enumerations:
-  - CompoundingTypeEnum - how and whether compounding is done
-  - RoundingFrequencyEnum - how often within a period rounding is done
-  - AlternativeToInterestAmountEnum - how alternatives to interest are specified
-  - CollateralInterestHandlingEnum - whether interest is to be transferred or adjusted
-  - DeliveryAmountElectionEnum
+- The determination terms are described by the type `DeterminationRolesAndTerms`. It relies on  `DeterminationRoleEnum`, with the parties role i.e. `CalculationAgent`, `HedgingParty`, `DeterminingParty`. TThe determinating party and the disputing party are annotated with the enum `CounterpartyRoleEnum`. 
 
-- Updated
-  - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
-  - FloatingRate - including factoring out FloatingRateBase
+- The substitution provisions are optional item and represent the modality of the trigger events, who is to Substitute and the description of the substitution provisions which for now are represented with a `AdditionalBespokeTerm` data type.
 
-For more detail see also https://github.com/finos/common-domain-model/issues/2193
+- A new type AdditionalBespokeTerm was added to allow fo the association of a specific name to a set of bespoke terms.
+  
+For clarity, whenever some attribute of type string have been added created or refactored as part of this release, the name of that attribute was made explicit in that regards by including the annotation “bespoke” in their name. For instance :
+- `extraordinaryEvents`->`additionalBespokeTerms`
+- `determinationTerms`->`fallbackLanguageBespokeTerms`
+- `substitutionProvisions`->`substitutionBespokeTerms`
 
 #### _Review directions_
 
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
-
-- `base-datetime-enum`
-- `base-datetime-type` 
-- `mapping-fpml-confirmation-tradestate-synonyms`
-- `product-asset-type`
-- `product-collateral-enum`
-- `product-collateral-type`  
+In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above.
