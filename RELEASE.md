@@ -1,4 +1,4 @@
-# *Infrastructure - Dependency Updates*
+# *Legal Agreement Mode - Extraordinary Events and Substitution Clauses*
 
 _Background_
 
