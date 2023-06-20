@@ -1,4 +1,4 @@
-# *Legal Agreement Mode - Extraordinary Events and Substitution Clauses*
+# *Legal Agreement Model - Extraordinary Events and Substitution Clauses*
 
 _Background_
 
