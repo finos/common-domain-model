@@ -1,39 +1,14 @@
-# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation*
+# *Infrastructure - Dependency Updates*
 
-_Background_
+_What is being released?_
 
-The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
+This release updates the `rosetta-dsl` dependency:
 
-#### _What is being released?_
+- Versions:
+  - `7.10.0` Java code-generation update to allow the default condition implementation to be overridden (via Guice) by implementors, similar to how function implementations can be overridden. See also https://github.com/REGnosys/rosetta-dsl/issues/587 for more details.
 
-- Added types:
-  - CalculationFrequency
-  - CollateralInterestCalculationParameters - to calculate the amount of interest owing
-  - CollateralInterestParameters - including interestCalculationFrequency, interestCalculationParameters, interestHandlingParameters
-  - CollateralFloatingRate - parameters that define the floating interest rate to be used
-  - CollateralInterestHandlingParameters -parameters to support the operational processing of collateral interest amount
-  - CollateralInterestFrequency - rules about how often and when interest should be calculated
+This release contains no changes to the model or test expectations.
 
-- Added enumerations:
-  - CompoundingTypeEnum - how and whether compounding is done
-  - RoundingFrequencyEnum - how often within a period rounding is done
-  - AlternativeToInterestAmountEnum - how alternatives to interest are specified
-  - CollateralInterestHandlingEnum - whether interest is to be transferred or adjusted
-  - DeliveryAmountElectionEnum
+_Review directions_
 
-- Updated
-  - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
-  - FloatingRate - including factoring out FloatingRateBase
-
-For more detail see also https://github.com/finos/common-domain-model/issues/2193
-
-#### _Review directions_
-
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
-
-- `base-datetime-enum`
-- `base-datetime-type` 
-- `mapping-fpml-confirmation-tradestate-synonyms`
-- `product-asset-type`
-- `product-collateral-enum`
-- `product-collateral-type`  
+CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
