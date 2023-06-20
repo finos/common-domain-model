@@ -157,8 +157,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-daml-src</id>
@@ -239,8 +239,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-typescript-src</id>
@@ -302,8 +302,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-scala-src</id>
@@ -383,8 +383,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-golang-src</id>
@@ -464,8 +464,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-csharp8-src</id>
@@ -537,7 +537,7 @@
                                         <artifactItem>
                                             <groupId>com.regnosys.rosetta.code-generators</groupId>
                                             <artifactId>c-sharp</artifactId>
-                                            <version>${rosetta.bundle.version}</version>
+                                            <version>${rosetta.code-gen.version}</version>
                                             <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
@@ -560,8 +560,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-csharp9-src</id>
@@ -632,7 +632,7 @@
                                         <artifactItem>
                                             <groupId>com.regnosys.rosetta.code-generators</groupId>
                                             <artifactId>c-sharp</artifactId>
-                                            <version>${rosetta.bundle.version}</version>
+                                            <version>${rosetta.code-gen.version}</version>
                                             <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
@@ -655,8 +655,8 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eclipse.xtext</groupId>
-                        <artifactId>xtext-maven-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>generate-kotlin-src</id>
@@ -727,11 +727,106 @@
                                         <artifactItem>
                                             <groupId>com.regnosys.rosetta.code-generators</groupId>
                                             <artifactId>kotlin</artifactId>
-                                            <version>${rosetta.bundle.version}</version>
+                                            <version>${rosetta.code-gen.version}</version>
                                             <type>jar</type>
                                         </artifactItem>
                                     </artifactItems>
                                     <includes>kotlin-pom.xml</includes>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>false</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>python</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-python-src</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceRoots>
+                                        <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+                                    </sourceRoots>
+                                    <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <languages>
+                                        <language>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+                                            <outputConfigurations>
+                                                <!-- Python output folder -->
+                                                <outputConfiguration>
+                                                    <name>SRC_GEN_PYTHON_OUTPUT</name>
+                                                    <outputDirectory>src/generated/python</outputDirectory>
+                                                </outputConfiguration>
+                                            </outputConfigurations>
+                                        </language>
+                                    </languages>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-src-generated-python</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/src/generated/python</directory>
+                                            <includes>
+                                                <include>**/*.py</include>
+                                                <include>**/*.toml</include>
+                                            </includes>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>cdm-code-gen-python-resources</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.regnosys.rosetta.code-generators</groupId>
+                                            <artifactId>python</artifactId>
+                                            <version>${rosetta.code-gen.version}</version>
+                                            <type>jar</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <includes>rosetta_runtime-1.0.0-py3-none-any.whl</includes>
                                     <overWriteReleases>false</overWriteReleases>
                                     <overWriteSnapshots>false</overWriteSnapshots>
                                     <overWriteIfNewer>true</overWriteIfNewer>
@@ -980,8 +1075,8 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.eclipse.xtext</groupId>
-                <artifactId>xtext-maven-plugin</artifactId>
+                <groupId>com.regnosys.rosetta</groupId>
+                <artifactId>rosetta-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>default-cli</id>

@@ -1,26 +1,39 @@
-# _Product Model - FpML synonym mappings of underlier for Equity Option Baskets_
+# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation*
 
 _Background_
 
-An issue was identified with the underlier mapping from FpML to CDM for Equity Option Basket products. The mapping from CDM was not generating an underlier and its corresponding baskets for these products and therefore some samples were not accurately qualified.
+The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
 
-This release addresses this mapping issue, correctly generating the underlier and its corresponding baskets.
+#### _What is being released?_
 
-_What is being released?_
+- Added types:
+  - CalculationFrequency
+  - CollateralInterestCalculationParameters - to calculate the amount of interest owing
+  - CollateralInterestParameters - including interestCalculationFrequency, interestCalculationParameters, interestHandlingParameters
+  - CollateralFloatingRate - parameters that define the floating interest rate to be used
+  - CollateralInterestHandlingParameters -parameters to support the operational processing of collateral interest amount
+  - CollateralInterestFrequency - rules about how often and when interest should be calculated
 
-_Translate_
+- Added enumerations:
+  - CompoundingTypeEnum - how and whether compounding is done
+  - RoundingFrequencyEnum - how often within a period rounding is done
+  - AlternativeToInterestAmountEnum - how alternatives to interest are specified
+  - CollateralInterestHandlingEnum - whether interest is to be transferred or adjusted
+  - DeliveryAmountElectionEnum
 
-FpML synonym mappings added to populate CDM attribute `optionPayout -> underlier -> basket` with FpML path `equityOption -> underlyer -> basket` for Equity Option products with baskets.
+- Updated
+  - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
+  - FloatingRate - including factoring out FloatingRateBase
 
-_Review directions_
+For more detail see also https://github.com/finos/common-domain-model/issues/2193
 
-In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+#### _Review directions_
 
-In the CDM Portal, select Ingestion and review the following samples:
+In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
 
-fpml-5-10/incomplete-products/equity-options
-
-- eqd ex08 basket long form
-- eqd ex20 nested basket
-- eqd ex21 flat weight basket
-- eqd ex26 mixed asset basket
+- `base-datetime-enum`
+- `base-datetime-type` 
+- `mapping-fpml-confirmation-tradestate-synonyms`
+- `product-asset-type`
+- `product-collateral-enum`
+- `product-collateral-type`  
