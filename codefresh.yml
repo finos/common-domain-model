@@ -25,7 +25,34 @@ steps:
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
 
-  ReleaseProperties:
+#  ReleaseProperties:
+#    stage: 'setup'
+#    title: Setup release build
+#    image: alpine/git
+#    when:
+#      condition:
+#        all:
+#          releaseNameNotDefined: "${{TAG_REPO}} == true"
+#    commands:
+#      - cf_export RELEASE_NAME=${{TAG_NAME}}
+#      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg"
+#      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+#
+#  SnapshotProperties:
+#    stage: 'setup'
+#    title: Setup snapshot build
+#    image: alpine/git
+#    when:
+#      condition:
+#        all:
+#          releaseNameNotDefined: "${{TAG_REPO}} == false"
+#    commands:
+#      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
+#      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg"
+#      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+
+
+  ReleaseTestProperties:
     stage: 'setup'
     title: Setup release build
     image: alpine/git
@@ -34,22 +61,10 @@ steps:
         all:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
-      - cf_export RELEASE_NAME=${{TAG_NAME}}
+      - cf_export RELEASE_NAME=4.0.0-staging.0
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
-
-  SnapshotProperties:
-    stage: 'setup'
-    title: Setup snapshot build
-    image: alpine/git
-    when:
-      condition:
-        all:
-          releaseNameNotDefined: "${{TAG_REPO}} == false"
-    commands:
-      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+      - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -DskipTests"
 
   Build:
     stage: 'build'
