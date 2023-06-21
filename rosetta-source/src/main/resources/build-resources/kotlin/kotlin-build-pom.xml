@@ -16,6 +16,56 @@
     <name>cdm-kotlin</name>
     <url>https://www.finos.org/common-domain-model</url>
 
+    <scm>
+        <developerConnection>scm:git:https://github.com/finos/common-domain-model</developerConnection>
+        <connection>scm:git:git://github.com/finos/common-domain-model.git</connection>
+        <tag>HEAD</tag>
+        <url>https://github.com/finos/common-domain-model</url>
+    </scm>
+
+    <description>The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source.</description>
+
+    <organization>
+        <name>FINOS</name>
+        <url>https://finos.org</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Community Specification License 1.0</name>
+            <url>https://github.com/finos/common-domain-model/blob/master/LICENSE.md</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>minesh-s-patel</id>
+            <name>Minesh Patel</name>
+            <email>infra@regnosys.com</email>
+            <url>http://github.com/minesh-s-patel</url>
+            <organization>REGnosys</organization>
+            <organizationUrl>https://regnosys.com</organizationUrl>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Maintainer</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>hugohills-regnosys</id>
+            <name>Hugo Hills</name>
+            <email>infra@regnosys.com</email>
+            <url>http://github.com/hugohills-regnosys</url>
+            <organization>REGnosys</organization>
+            <organizationUrl>https://regnosys.com</organizationUrl>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Maintainer</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <properties>
         <gpg.keyname>configured-by-release-profile</gpg.keyname>
         <repoServerHost>oss.sonatype.org</repoServerHost>
@@ -29,6 +79,20 @@
         <apache.commons.lang3.version>3.1</apache.commons.lang3.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>gpg</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
@@ -68,29 +132,46 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                        <configuration>
-                            <keyname>${gpg.keyname}</keyname>
-                            <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jetbrains.dokka</groupId>
+                    <artifactId>dokka-maven-plugin</artifactId>
+                    <version>1.8.20</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>javadocJar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                            <configuration>
+                                <keyname>${gpg.keyname}</keyname>
+                                <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <dependencies>
