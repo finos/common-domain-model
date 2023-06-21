@@ -28,6 +28,9 @@ public class Validation extends AbstractExample {
 	@Inject
 	private RosettaTypeValidator validator;
 
+	@Inject
+	private PayoutDayCountFraction condition;
+
 	@Override
 	public void example() {
 		var fixedRatePayout = InterestRatePayoutCreation.getFixedRatePayout(BigDecimal.valueOf(0.05));
@@ -58,7 +61,7 @@ public class Validation extends AbstractExample {
 
 		// Individual Validators can be invoked for further debugging
 		//
-		var validationResult = new PayoutDayCountFraction()
+		var validationResult = condition
 				.validate(RosettaPath.valueOf("InterestRatePayout"), Payout.builder().addInterestRatePayout(fixedRatePayout).build());
 
 		System.out.println("\nSingle validation result:\n" + validationResult);
