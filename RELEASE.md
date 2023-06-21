@@ -22,15 +22,15 @@ In order to use the latest version of CDM in a [Maven](https://maven.apache.org)
 
 Going forward from this release, the "LATEST" value can be substituted for with any of the subqequent [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases). 
 
-For implemntation of CDM releases prior to today's release, dependencies in implementers' projects can still point to the version in [Artifactory](https://regnosys.jfrog.io/ui/repos/tree/General/libs-snapshot/com/isda/cdm) as they do today.
+For implementation of CDM releases prior to today's release, dependencies in implementers' projects can still point to the version in [Artifactory](https://regnosys.jfrog.io/ui/repos/tree/General/libs-snapshot/com/isda/cdm) as they do today.
 
 #### _CDM as Java Examples_
 
 Examples of how you can use the CDM can be found in GitHub: [CDM GitHub Examples](https://github.com/finos/common-domain-model/tree/master/examples).
 
-#### _CDM as PYTHON_
+#### _CDM as Python_
 
-CDM as PYHON is available as a set of `.tar.gz` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/).
+CDM as Python is available as a set of `.tar.gz` file containing `.whl` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/).
 
 #### _CDM as DAML_
 
