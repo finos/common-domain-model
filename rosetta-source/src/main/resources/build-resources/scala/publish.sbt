@@ -23,7 +23,7 @@ ThisBuild / developers := List(
   )
 )
 
-ThisBuild / description := The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source."
+ThisBuild / description := "The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source."
 ThisBuild / licenses := List(
   licenses += "Community Specification License 1.0" -> url("https://github.com/finos/common-domain-model/blob/master/LICENSE.md")
 )
