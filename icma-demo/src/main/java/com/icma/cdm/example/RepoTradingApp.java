@@ -1179,7 +1179,6 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		loadNewTrade();
 
-
 	}
 	
 	public void loadNewTrade() {
@@ -1220,11 +1219,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		
 		//Collateral
-		collateralDescriptionField.setText("GILT .5 22/07/2022");
+		collateralDescriptionField.setText("GILT .625 31/07/2035");
 
 
 		//Collateral ISIN
-		collateralISINField.setText("GB00BD0PCK97");
+		collateralISINField.setText("GB00BMGR2916");
 
 		
 		//Collateral Quantity
@@ -1232,15 +1231,15 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 
 		//Collateral Price
-		collateralCleanPriceField.setText("100.75");
+		collateralCleanPriceField.setText("91.06");
 
 
 		//Collateral Dirty Price
-		collateralDirtyPriceField.setText("100.8066");
+		collateralDirtyPriceField.setText("91.8066");
 
 
 		//Collateral Adjusted Value
-		collateralAdjustedValueField.setText("1008066.00");
+		collateralAdjustedValueField.setText("918066.00");
 
 		//Collateral Currency
 		collateralCurrencyField.setText("GBP");
@@ -1273,16 +1272,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String termsDaysStr = intFormat.format(daysBetween);
 		termDaysField.setText(termsDaysStr);
 
-		//Purchase Price
-		purchasePriceField.setText("9879046.80");
 
 		settlementAgentOptionField.setSelectedIndex(1);
 
 		rateTypeField.setSelectedItem("FIXED");
 		rateTypeFieldEvent("FIXED");
-
-		//Repurchase Price
-		repurchasePriceField.setText("9879155.06");
 
 		agreementNameField.setText("GMRA");
 
@@ -1292,6 +1286,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		this.afterTradeStateStr = null;
 		this.beforeTradeStateStr = null;
 		this.tradeStateStr = null;
+
+		updateTotalsXPrice();
 
 		this.initRepoWorkflow();
 
