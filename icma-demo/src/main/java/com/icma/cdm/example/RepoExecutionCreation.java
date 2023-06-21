@@ -283,10 +283,12 @@ public class RepoExecutionCreation{
 
 		//System.out.println("Purchase Date:" + zdtWithZoneOffset);
 
-		zdtWithZoneOffset = ZonedDateTime.parse(repurchaseDateStr, formatter);
-		zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
-		Date terminationDate = of(zdtWithZoneOffset.getYear(),zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
-		//System.out.println("Repurchase Date:" + zdtWithZoneOffset);
+		Date terminationDate = null;
+		if(termTypeStr.equals("FIXED")) {
+			zdtWithZoneOffset = ZonedDateTime.parse(repurchaseDateStr, formatter);
+			zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
+			terminationDate = of(zdtWithZoneOffset.getYear(), zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth());
+		}
 
 		Product repoProduct = createRepoProduct(effectiveDate, terminationDate, repoRate, haircut , cashCurrencyStr,
 				cashQuantity, repurchaseQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice,

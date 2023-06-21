@@ -827,6 +827,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		settlementAgentOptionField.addItem(new CItem("",""));
 		settlementAgentOptionField.addItem(new CItem("Euroclear Bank","549300OZ46BRLZ8Y6F65"));
 		settlementAgentOptionField.addItem(new CItem("BNP Paribas Securities Services","549300WCGB70D06XZS54"));
+		settlementAgentOptionField.addItem(new CItem("Clearstream Bank Frankfurt","549300298FD7AS4PPU70"));
+		settlementAgentOptionField.addItem(new CItem("Euroclear UKI (CREST)","549300OZ46BRLZ8Y6F65"));
+		settlementAgentOptionField.addItem(new CItem("Bank of New York Mellon","HPFHU0OQ28E4N0NFVK49"));
+
+
 
 		settlementAgentOptionField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		settlementAgentOptionField.setPreferredSize(new Dimension(170, 20));
@@ -1172,6 +1177,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		frame.setVisible( true );
 
+		loadNewTrade();
+
 
 	}
 	
@@ -1204,7 +1211,9 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		formattedDateTimeString = endDateTime.format(formatter);
 		repurchaseDateField.setText(formattedDateTimeString);
 
-		
+		buyerLEIField.setSelectedIndex(1);
+		sellerLEIField.setSelectedIndex(2);
+
 		//UTI
 		tradeUTIField.setText("ICMA202303231000178");
 
@@ -1266,6 +1275,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 		//Purchase Price
 		purchasePriceField.setText("9879046.80");
+
+		settlementAgentOptionField.setSelectedIndex(1);
 
 		rateTypeField.setSelectedItem("FIXED");
 		rateTypeFieldEvent("FIXED");
@@ -1921,8 +1932,23 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			this.repurchasePriceField.setText("");
 			this.repurchasePriceField.setEnabled(true);
 			this.repurchasePriceField.setBackground(Color.WHITE);
+
+			//Repurchase Date
+			this.RDzonedDateTime = PDzonedDateTime.plusDays(1);
+			this.RDformattedDateTimeString = RDzonedDateTime.format(formatter);
+			this.repurchaseDateField.setText(RDformattedDateTimeString);
+
+			this.repurchaseDateField.setEnabled(true);
+			this.repurchaseDateField.setBackground(Color.WHITE);
+
+
 			updateTotalsXPrice();
 		}else{
+
+			this.repurchaseDateField.setText("");
+			this.repurchaseDateField.setEnabled(false);
+			this.repurchaseDateField.setBackground(Color.LIGHT_GRAY);
+
 			this.repurchasePriceField.setEnabled(false);
 			this.repurchasePriceField.setBackground(Color.LIGHT_GRAY);
 
