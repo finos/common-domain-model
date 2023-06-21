@@ -25,15 +25,6 @@ ThisBuild / developers := List(
 
 ThisBuild / description := "The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source."
 ThisBuild / licenses := List(
-  licenses += "Community Specification License 1.0" -> url("https://github.com/finos/common-domain-model/blob/master/LICENSE.md")
+  "Community Specification License 1.0" -> new URL("https://github.com/finos/common-domain-model/blob/master/LICENSE.md")
 )
 ThisBuild / homepage := Some(url("https://www.finos.org/common-domain-model"))
-
-// Remove all additional repository other than Maven Central from POM
-ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-ThisBuild / publishMavenStyle := true
