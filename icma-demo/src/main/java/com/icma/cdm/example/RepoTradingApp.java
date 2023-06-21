@@ -628,6 +628,19 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		panel.add(termTypePanel);
 
 
+		termTypeField.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.EMPTY_SET);
+		termTypeField.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					termTypeFieldEvent(termTypeField.getSelectedItem().toString());
+				}
+			}
+		});
+
+
 		//Termination Option
 		String[] terminationChoices = { "","Early Termination", "Evergreen", "Extendible"};
 		JPanel terminationOptionPanel = new JPanel(new GridBagLayout());
@@ -1892,6 +1905,21 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			this.floatingRateSpreadField.setBackground(Color.WHITE);
 
 			this.repoRateField.setText("4.65");
+
+		}
+
+	}
+
+	public void termTypeFieldEvent(String selectedTermType) {
+
+		if (selectedTermType.equals("FIXED")) {
+			this.repurchasePriceField.setText("");
+			this.repurchasePriceField.setEnabled(true);
+			this.repurchasePriceField.setBackground(Color.WHITE);
+			updateTotalsXPrice();
+		}else{
+			this.repurchasePriceField.setEnabled(false);
+			this.repurchasePriceField.setBackground(Color.LIGHT_GRAY);
 
 		}
 	}
