@@ -168,7 +168,8 @@ steps:
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
           - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
           - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
-          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
 
       DeployCSharp8:
         stage: 'build'
