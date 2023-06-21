@@ -245,6 +245,7 @@ public class RepoLifeCycle {
             String tradeDateStr,
             String purchaseDateStr,
             String repurchaseDateStr,
+			String firmTradeId,
             String tradeUTIStr,
             String buyerLEIStr,
 			String buyerNameStr,
@@ -309,6 +310,7 @@ public class RepoLifeCycle {
 		tradeDateStr,					// tradeDateStr = .getText();
 		purchaseDateStr,				// purchaseDateStr
 		repurchaseDateStr,				// repurchaseDateStr
+		firmTradeId,
 		tradeUTIStr,  					// tradeUTIStr
 		buyerLEIStr, 					// buyerLEIStr
 		buyerNameStr,

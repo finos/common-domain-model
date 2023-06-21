@@ -1611,15 +1611,20 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		floatingRatePaymentFreqStr = cdmMap.get(floatingRatePaymentFreqStr);
 		floatingRateReferenceStr = cdmMap.get(floatingRateReferenceStr);
 
+
+		String tid = "ICMA"+tradeDateStr+executionTimeField.getText();
+		tradeIdField.setText(tid);
+		String firmTradeId = tid;
 		RepoLifeCycle repoExecution = new RepoLifeCycle();
 
 		String businessEvent = repoExecution.RepoExecution(
 		tradeDateStr,					// tradeDateStr = .getText();
 		purchaseDateStr,				// purchaseDateStr
 		repurchaseDateStr,				// repurchaseDateStr
+		firmTradeId,					// Firm Trade ID
 		tradeUTIStr,  					// tradeUTIStr
 		buyerLEIStr, 					// buyerLEIStr,
-		buyerNameStr,			// buyerNameStr
+		buyerNameStr,					// buyerNameStr
 		sellerLEIStr, 					// sellerLEIStr
 		sellerNameStr,
 		collateralDescriptionStr,		// collateralDescriptionStr

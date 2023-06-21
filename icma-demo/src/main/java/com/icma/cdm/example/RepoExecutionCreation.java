@@ -155,6 +155,7 @@ public class RepoExecutionCreation{
 				String tradeDateStr,
 				String purchaseDateStr,
 				String repurchaseDateStr,
+				String firmTradeIdStr,
 				String tradeUTIStr,
 				String buyerLEIStr,
 				String buyerNameStr,
@@ -226,12 +227,15 @@ public class RepoExecutionCreation{
 						ru.createTradeDate(zdtWithZoneOffset.getYear(), zdtWithZoneOffset.getMonthValue(), zdtWithZoneOffset.getDayOfMonth()));
 		
 		TradeIdentifier tradeIdentifier = ru.createRepoTradeIdentifier(tradeUTIStr, "UnqTradIdr", "5493000SCC07UI6DB380");
+		TradeIdentifier firmTradeIdentifer = ru.createRepoTradeIdentifier(firmTradeIdStr, "UnqTradIdr", sellerLEIStr);
+
+		List<TradeIdentifier> tradeIdentifierList = List.of(tradeIdentifier , firmTradeIdentifer);
 
 		//Party 1 is defined in the interest rate payout model as the payer and thus represents the repo seller also referred to as the collateral giver.
         Party party1 = ru.createRepoParty(sellerLEIStr,"LEI",sellerNameStr);
 				
 		//Party 2 is defined in the interest rate payout model as the receiver and thus represents the repo buyer also referred to as the collateral taker.
-        Party party2 = ru.createRepoParty(sellerLEIStr,"LEI",buyerNameStr);
+        Party party2 = ru.createRepoParty(buyerLEIStr,"LEI",buyerNameStr);
 
 		Party settlementAgent = ru.createRepoParty(settlementAgentLEIStr,"LEI",settlementAgentNameStr);
 		Party ccp = ru.createRepoParty(ccpLeiStr,"LEI",ccpNameStr);
@@ -307,7 +311,7 @@ public class RepoExecutionCreation{
 			.addPartyRoles(partyRoles)
 			.setExecutionDetails(executionDetails)
 			.setTradeDate(tradeDate)
-			.addTradeIdentifier(tradeIdentifier)
+			.addTradeIdentifier(tradeIdentifierList)
 			.build();
 	}
 	
