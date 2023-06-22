@@ -10,5 +10,6 @@ Below are some of the high-level contributions that CDM 4.0 includes, more detai
  - Product Model – Qualification (composable derivatives product qualification based on ISDA taxonomy v2)
  - Product Model - Inflation Swaps - calculationMethod and calculationStyle  (added to Common Domain Model)
  - Renaming of a root data type from EligibleCollateralSchedule to EligibleCollateralSpecification to indicate more general utility of model
- - Legal Documentation & Collateral – Eligible Collateral Schedule Builder Function 
+ - Legal Documentation & Collateral – Eligible Collateral Schedule Builder Function
+ - Legal Documentation & Collateral – Document-agnostic Cash Collateral Interest model harmonised with existing Floating Rate model
  - Workflow Model - Representation of approvals for a Workflowstep  (added to Common Domain Model)
