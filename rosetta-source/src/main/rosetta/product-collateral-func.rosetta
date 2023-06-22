@@ -1,0 +1,22 @@
+namespace cdm.product.collateral
+version "${project.version}"
+
+
+func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
+
+    inputs:
+        instruction EligibleCollateralSpecificationInstruction (1..1)
+    output:
+        specification EligibleCollateralSpecification (1..1)
+
+    add specification -> criteria:
+        instruction -> variable
+            extract MergeEligibleCollateralCriteria(item, instruction->common)
+
+func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
+
+    inputs:
+        criteria1 EligibleCollateralCriteria (1..1)
+        criteria2 EligibleCollateralCriteria (1..1)
+    output:
+        criteria EligibleCollateralCriteria (1..1)

@@ -1,0 +1,15 @@
+namespace cdm.product.common
+version "${project.version}"
+
+import cdm.product.asset.*
+
+func InterestRatePayoutCurrency:
+    inputs:
+        interestRatePayouts InterestRatePayout (0..*) <"List of interest rate payouts.">
+    output:
+        currency string (0..*) <"List of currencies collected from the payouts.">
+
+    add currency: <"Adds quantitySchedule -> initialQuantity -> unitOfAmount -> currency to the list.">
+        interestRatePayouts -> priceQuantity -> quantitySchedule -> unit -> currency
+    add currency: <"Adds fxLinkedNotionalSchedule -> varyingNotionalCurrency to the list.">
+        interestRatePayouts -> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency
