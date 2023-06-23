@@ -1,61 +1,15 @@
-# *Infrastructure - CDM Artifacts published to Maven Central*
+# *CDM Version 4.0*
 
-#### _What is being released?_
+CDM 4.0, a production release, is the culmination of Common Domain Model (CDM) development releases from the first half of 2023 since CDM was made an open-source project at FINOS. This release sees the contribution of the Repo model and separation of legal content in CDM, which was completed in development in preparation for open sourcing now released in production. Notable other additions to the CDM project are a new Python Distribution of CDM and associated code generator, enhancements to the product qualifications and an eligible collateral specification model. There are also several technical changes since version 3.0 related to bug fixes, dependencies and synonym mappings.
 
-As part of the CDM migration to FINOS, all generated artifacts are now being published to Maven Central. The intention to make this change was presented to CDM community, and noted in the CDM transition document ["Common Domain Model becoming Open Source @ FINOS"](https://assets.isda.org/media/6fac704a/081f5537.pdf), earlier this year. This is a positive step for the CDM community and realizes a demand from implementers that the project has noted for some time.
-
-#### _Downloading Source Code_
-
-Previously, only the latest CDM source code was available to download from the CDM Portal. After this release, the open source code is only available to be downloaded from [CDM GitHub](https://github.com/finos/common-domain-model). However, additional to the latest version, previously released versions are tagged and can be downloaded from [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases) also.
-
-#### _CDM as Java_
-
-In order to use the latest version of CDM in a [Maven](https://maven.apache.org) project, the following dependency needs to be added to the project pom.xml:
-
-```
-<dependency>
-  <groupId>org.finos.cdm</groupId>
-  <artifactId>cdm-java</artifactId>
-  <version>LATEST</version>
-</dependency>
-```
-
-Going forward from this release, the "LATEST" value can be substituted for with any of the subqequent [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases). 
-
-For implementation of CDM releases prior to today's release, dependencies in implementers' projects can still point to the version in [Artifactory](https://regnosys.jfrog.io/ui/repos/tree/General/libs-snapshot/com/isda/cdm) as they do today.
-
-#### _CDM as Java Examples_
-
-Examples of how you can use the CDM can be found in GitHub: [CDM GitHub Examples](https://github.com/finos/common-domain-model/tree/master/examples).
-
-#### _CDM as Python_
-
-CDM as Python is available as a set of `.tar.gz` file containing `.whl` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/).
-
-#### _CDM as DAML_
-
-CDM as DAML is available as a set of `.dar` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-daml/).
-
-#### _CDM as Scala_
-
-CDM as Scala is available as a `.jar` file published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/).
-
-#### _CDM as C# 8.0_
-
-CDM as C# 8.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp8/).
-
-#### _CDM as C# 9.0_
-
-CDM as C# 9.0 is available as a `tar.gz` file containing compiled `.dll` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp9/).
-
-#### _CDM as Go_
-
-CDM as Go is available as a `tar.gz` file containing the `.go` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-golang/).
-
-#### _CDM as TypeScript_
-
-CDM as TypeScript is available as a `tar.gz` file containing the `.ts` files published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-typescript/).
-
-#### _CDM as Kotlin_
-
-CDM as Kotlin is available as a `.jar` file published [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-kotlin/).
+Below are some of the high-level contributions that CDM 4.0 includes, more detail and additional contribution release notes can be found in the releases section of the CDM documentation:
+ - CDM Distribution - Python Code Generation
+ - CDM Distribution - Java artifacts published to Maven Central
+ - Infrastructure - Dependency Updates   
+ - Product Model - Currency Enums (automated generation of ISO 4217 enum lists)
+ - Product Model – Qualification (composable derivatives product qualification based on ISDA taxonomy v2)
+ - Product Model - Inflation Swaps - calculationMethod and calculationStyle  (added to Common Domain Model)
+ - Renaming of a root data type from EligibleCollateralSchedule to EligibleCollateralSpecification to indicate more general utility of model
+ - Legal Documentation & Collateral – Eligible Collateral Schedule Builder Function
+ - Legal Documentation & Collateral – Document-agnostic Cash Collateral Interest model harmonised with existing Floating Rate model
+ - Workflow Model - Representation of approvals for a Workflowstep  (added to Common Domain Model)
