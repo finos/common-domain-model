@@ -107,10 +107,10 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 
 	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
 		Reference.ReferenceBuilder reference = Optional.of(floatingLeg)
-				.map(InterestRatePayoutBuilder::getRateSpecification)
-				.map(RateSpecificationBuilder::getFloatingRate)
-				.map(FloatingRateBuilder::getRateOption)
-				.map(ReferenceWithMetaFloatingRateOptionBuilder::getReference)
+				.map(b -> b.getRateSpecification())
+				.map(b -> b.getFloatingRate())
+				.map(b -> b.getRateOption())
+				.map(b -> b.getReference())
 				.orElse(null);
 		mapping.setRosettaValue(reference);
 		mapping.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(mapping.getRosettaPath(), "interestRatePayout", 1));
