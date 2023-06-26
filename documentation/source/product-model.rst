@@ -458,7 +458,6 @@ The CDM specifies the various sets of possible remaining economic terms using th
    dateAdjustments BusinessDayAdjustments (0..1)
    payout Payout (1..1)
    terminationProvision TerminationProvision (0..1)
-   extraordinaryEvents ExtraordinaryEvents (0..1)
    calculationAgent CalculationAgent (0..1)
    nonStandardisedTerms boolean (0..1)
    collateral Collateral (0..1)
