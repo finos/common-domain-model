@@ -1,15 +1,12 @@
-# *Infrastructure - Dependency Updates*
+# *CDM Model - Version 5.0.0-dev.0*
 
 _What is being released?_
 
-This release updates the following dependencies:
+This release contains the FINOS CDM `5.0.0-dev.0` development version.
 
-* `rosetta-dsl` - `7.8.0`: Logging implementations removed from classpath to allow Java users of the CDM to select their own logging implementation
+Development Guidelines have been developed which describe how version management will be handled across the Development version and Production version.
 
-* `rosetta-bundle` - `6.6.0`: Includes a fix for the model enum generator (a scheme import test) specific for Microsoft Windows
+_Review Directions_
 
-This release contains no changes to the model or test expectations.
-
-_Review directions_
-
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+- In the CDM Portal, navigate to Downloads and review the FINOS CDM `5.0.0-dev.0` Java artefacts.
+- In the CDM Portal, navigate to Documentation and then to Development Guidelines > Version Management section, or directly at: https://cdm.docs.rosetta-technology.io/source/contribution.html#version-management, to review the development practices.
