@@ -8,6 +8,8 @@ import Feature from '../components/feature';
 import { features } from '../components/feature-config';
 import FeaturesTwo from '../components/featuresTwo';
 import { featuresTwo } from '../components/featuresTwo-config';
+import FeaturesTwoHeader from '../components/featuresTwoHeader';
+import { featuresTwoHeader } from '../components/featuresTwoHeader-config';
 
 function Home() {
   const context = useDocusaurusContext();
@@ -26,27 +28,33 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
-              to={'https://finos.org/'}>
-              FINOS Website
-            </Link>
-            <Link
-              className={classnames(
-                'button button--outline button--secondary button--lg',
-                styles.getStarted
-              )}
-              to={'https://github.com/finos'}>
+              to={'https://github.com/finos/common-domain-model'}>
               GITHUB
             </Link>
           </div>
         </div>
       </header>
       <main>
-        {features && features.length && (
-          <section className={styles.features}>
+        {featuresTwoHeader && featuresTwoHeader.length && (
+                <section className={styles.members}>
+                  <div className="container">
+
+                      {featuresTwoHeader.map((props, idx) => (
+                        <FeaturesTwoHeader key={idx} {...props} />
+                      ))}
+
+                  </div>
+                </section>
+              )}
+        {featuresTwo && featuresTwo.length && (
+          <section className={styles.members}>
             <div className="container">
+              <div className="row row--center">
+                <h2></h2>
+              </div>
               <div className="row">
-                {features.map((props, idx) => (
-                  <Feature key={idx} {...props} />
+                {featuresTwo.map((props, idx) => (
+                  <FeaturesTwo key={idx} {...props} />
                 ))}
               </div>
             </div>

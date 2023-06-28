@@ -9,10 +9,10 @@ const projectSlug = 'project-blueprint'
 const copyrightOwner = 'FINOS'
 
 module.exports = {
-  title: `FINOS ${projectName}`,
+  title: `${projectName}`,
   url: 'https://finos.org',
   baseUrl: '/',
-  favicon: 'img/favicon/favicon-finos.ico',
+  favicon: 'img/favicon/favicon.ico',
   projectName: `FINOS ${projectName}`,
   organizationName: 'FINOS',
   customFields: {
@@ -22,10 +22,10 @@ module.exports = {
   stylesheets: ['https://fonts.googleapis.com/css?family=Overpass:400,400i,700'],
   themeConfig: {
     navbar: {
-      title: `FINOS ${projectName}`,
+      title: `${projectName}`,
       logo: {
         alt: 'FINOS Logo',
-        src: 'img/favicon/favicon-finos.ico',
+        src: 'img/favicon/favicon.ico',
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
@@ -40,7 +40,7 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} ${projectName} - ${copyrightOwner}`,
       logo: {
         alt: 'FINOS Logo',
-        src: 'img/favicon/favicon-finos.ico',
+        src: 'img/favicon/favicon.ico',
         href: 'https://finos.org'
       },
       links: [
@@ -54,40 +54,6 @@ module.exports = {
             {
               label: 'About FINOS',
               to: 'docs/about-finos',
-            }
-          ]
-        },
-        {
-          title: 'FINOS',
-          items: [
-            {
-              label: 'FINOS Website',
-              to: 'https://www.finos.org/',
-            },
-            {
-              label: 'Community Handbook',
-              to: 'https://community.finos.org/',
-            },
-            {
-              label: 'Community Governance',
-              to: 'https://community.finos.org/docs/governance/#community-governance',
-            }
-          ]
-        },
-        {
-          title: 'About FINOS',
-          items: [
-            {
-              label: 'FINOS Projects on GitHub',
-              to: 'https://github.com/finos',
-            },
-            {
-              label: 'Engage the FINOS Community',
-              to: 'https://www.finos.org/engage-with-our-community',
-            },
-            {
-              label: 'FINOS News and Events',
-              to: 'https://www.finos.org/news-and-events',
             }
           ]
         },
