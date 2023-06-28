@@ -113,7 +113,7 @@ be extended further to operate to wider processes.
 
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
-collateral for the purpose of constructing eligible collateral schedules
+collateral for the purpose of constructing eligible collateral specifications,
 including representation of additional attributes for regulatory risk
 and credit factors. For the purpose of understanding the principle,
 these can be divided into the following categories:
@@ -209,7 +209,7 @@ or not.
 The combination of these terms allows a wide variety of eligible
 collateral types to be represented and structure can be used to identify
 individual collateral types or a group of collateral assets for
-inclusion in an eligible collateral schedule.
+inclusion in specifying eligible collateral schedule details.
 
 
 Identifying Eligible Collateral using the CDM Data Structure
@@ -736,7 +736,7 @@ Collateral Taxonomy (Used within Asset Criteria)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is understood that data used to determine asset types used in
-eligible collateral schedules can often refer to common structured
+specifying eligible collateral information can often refer to common structured
 standard pre-defined taxonomy sources. Although the purpose of the CDM
 is to encourage one standard representation of data for asset types,
 there are circumstances where assets are organised and labelled into
@@ -821,7 +821,7 @@ list:
 
 The cardinality for these enumeration lists (0..*) denotes that multiple
 values can be provided so several categories can be applied to a line of
-data expressed in an eligibility schedules/ profile.
+data expressed in an eligibility profile.
 
 The final attribute in ``CollateralTaxonomyValue``,
 ``nonEnumeratedTaxonomyValue``, offers additional data
