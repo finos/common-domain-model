@@ -20,8 +20,7 @@ function Home() {
       description={`${siteConfig.tagline}`}>
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
-          <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className={classnames('hero--subtitle')}>{siteConfig.tagline}</p>
+          <img className={styles.featureImage} src='img/logos/2022_CDM_Horizontal.svg' alt='Common Domain Model Logo' />
           <div className={styles.buttons}>
             <Link
               className={classnames(
@@ -36,7 +35,7 @@ function Home() {
       </header>
       <main>
         {featuresTwoHeader && featuresTwoHeader.length && (
-                <section className={styles.members}>
+                <section className={styles.features}>
                   <div className="container">
 
                       {featuresTwoHeader.map((props, idx) => (
