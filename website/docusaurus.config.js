@@ -10,10 +10,10 @@ const copyrightOwner = 'FINOS'
 
 module.exports = {
   title: `${projectName}`,
-  url: 'https://finos.org',
+  url: 'https://www.cdm.finos.org',
   baseUrl: '/',
   favicon: 'img/favicon/favicon.ico',
-  projectName: `FINOS ${projectName}`,
+  projectName: `${projectName}`,
   organizationName: 'FINOS',
   customFields: {
     repoUrl: `https://github.com/finos/${projectSlug}`,
@@ -24,8 +24,8 @@ module.exports = {
     navbar: {
       title: `${projectName}`,
       logo: {
-        alt: 'FINOS Logo',
-        src: 'img/favicon/favicon.ico',
+        alt: 'CDM Logo',
+        src: 'img/cdm-logo/Icon/2022_CDM_Icon_WHT.png',
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
@@ -39,9 +39,9 @@ module.exports = {
     footer: {
       copyright: `Copyright © ${new Date().getFullYear()} ${projectName} - ${copyrightOwner}`,
       logo: {
-        alt: 'FINOS Logo',
-        src: 'img/favicon/favicon.ico',
-        href: 'https://finos.org'
+        alt: 'CDM Logo',
+        src: 'img/cdm-logo/Icon/2022_CDM_Icon_WHT.png',
+        href: 'https://www.finos.org/common-domain-model'
       },
       links: [
         {
