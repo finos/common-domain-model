@@ -52,20 +52,6 @@ function Home() {
             </div>
           </section>
         )}
-        {featuresTwo && featuresTwo.length && (
-          <section className={styles.members}>
-            <div className="container">
-              <div className="row row--center">
-                <h2></h2>
-              </div>
-              <div className="row">
-                {featuresTwo.map((props, idx) => (
-                  <FeaturesTwo key={idx} {...props} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
       </main>
     </Layout>
   );
