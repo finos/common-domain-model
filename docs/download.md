@@ -1,5 +1,5 @@
 ---
-title: Download
+title: Download Source Code
 ---
 
 The CDM source code is open source and can be downloaded from [\_CDM
@@ -26,13 +26,12 @@ In order to use the CDM in a [Maven](https://maven.apache.org) project,
 the following dependency needs to be added to the project pom.xml:
 
 ---
-**Note:**
+**dependency**
 
-<dependency>   
+  
     <groupId>org.finos.cdm</groupId>   
     <artifactId>cdm-java</artifactId>   
     <version>LATEST</version>
-</dependency>
 
 ---
 
