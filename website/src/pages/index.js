@@ -27,7 +27,7 @@ function Home() {
                 styles.getStarted
               )}
               to={'https://finos.org/'}>
-              GET STARTED
+              FINOS Website
             </Link>
             <Link
               className={classnames(

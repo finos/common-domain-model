@@ -2,7 +2,7 @@
 
 
 // Replace 'project-blueprint' with {project name}
-const projectName = 'Project Blueprint'
+const projectName = 'Common Domain Model'
 // Replace 'project-blueprint' with {project name}
 const projectSlug = 'project-blueprint'
 // Replace 'FINOS' with {name of copyright owner}
@@ -10,7 +10,6 @@ const copyrightOwner = 'FINOS'
 
 module.exports = {
   title: `FINOS ${projectName}`,
-  tagline: `FINOS ${projectName}`, 
   url: 'https://finos.org',
   baseUrl: '/',
   favicon: 'img/favicon/favicon-finos.ico',
@@ -30,8 +29,6 @@ module.exports = {
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
-        {to: 'docs/roadmap', label: 'Roadmap', position: 'right'},
-        {to: 'docs/team', label: 'Team', position: 'right'},
         {
           href: 'https://github.com/finos/',
           label: 'GitHub',
@@ -53,14 +50,6 @@ module.exports = {
             {
               label: 'Getting Started',
               to: 'docs/home',
-            },
-            {
-              label: 'Roadmap',
-              to: 'docs/roadmap',
-            },
-            {
-              label: 'Team',
-              to: 'docs/team',
             },
             {
               label: 'About FINOS',

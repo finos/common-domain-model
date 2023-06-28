@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const featuresTwo = [
-    {
+   /* {
         title: <>Feature 1</>,
         imageUrl: '/img/finos/finos-blue.png',
         description: (
@@ -21,5 +21,5 @@ export const featuresTwo = [
         description: (
             <><span>...</span></>
         ),
-    }
+    }*/
 ];
