@@ -143,19 +143,16 @@ mechanism to write and use code generators.
 
 ## CDM Applications
 
-An eco-system of CDM-based application components from software
-providers exists in order to support the adoption of CDM and the
-implementation of CDM-based production systems by industry participants.
-These applications may be open source software or licensed under
-commercial terms. In particular:
+An ecosystem of CDM-based application components from software providers
+exists in order to support the adoption of CDM and the implementation of
+CDM-based production systems by industry participants. These
+applications may be open source software or licensed under commercial
+terms. In particular:
 
--   The [CDM Portal](https://portal.cdm.rosetta-technology.io) provides a user interface allowing users to
-    navigate through and download the CDM.
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
-    Rosetta DSL, that provides an *editable* version of the CDM Portal.
-    It allows the industry community to directly participate in the CDM
-    development by contributing code to the CDM. Please refer to the
-    [Rosetta Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
+    Rosetta DSL, that provides the cumminity with a free and easy way to
+    contribute code to the CDM. Please refer to the [Rosetta
+    Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
 ---
 **Note:**

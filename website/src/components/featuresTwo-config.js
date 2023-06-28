@@ -2,24 +2,21 @@ import React from 'react';
 
 export const featuresTwo = [
     {
-        title: <>Feature 1</>,
-        imageUrl: '/img/finos/finos-blue.png',
+        title: <>ENHANCE INTEROPERABILITY & STRAIGHT THROUGH PROCESSING</>,
         description: (
-            <><span>...</span></>
+            <>FINOS CDM enables interoperability between systems/services, removing burden of setting up connections to different systems/entities, laying groundwork for STP</>
         ),
     },
     {
-        title: <>Feature 2</>,
-        imageUrl: '/img/finos/finos-blue.png',
+        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
         description: (
-            <><a href='docs'>...</a></>
+            <>FINOS CDM promotes transparency and alignment between regulators and market participants.</>
         ),
     },
     {
-        title: <>Feature 3</>,
-        imageUrl: '/img/finos/finos-blue.png',
+        title: <>CREATES AN ENVIRONMENT FOR INNOVATION IN FINANCIAL MARKETS</>,
         description: (
-            <><span>...</span></>
+            <>FINOS CDM will speed up development of new solutions for the market by allowing providers to focus on what they specialize in rather than requiring them to interpret and represent market events and processes individually.</>
         ),
     }
 ];

@@ -14,9 +14,9 @@ export default function FeaturesTwo({imageUrl, title, description}) {
             )}
             <h3>{title}</h3>
             <div className={classnames(styles.featuresCTA)}>
-                <ul>
-                    <li>{description}</li>
-                </ul>
+
+                   {description}
+
             </div>
         </div>
     );
