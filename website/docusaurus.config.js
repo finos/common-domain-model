@@ -30,7 +30,7 @@ module.exports = {
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {
-          href: 'https://github.com/finos/',
+          href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
         }
