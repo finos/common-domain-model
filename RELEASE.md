@@ -1,15 +1,12 @@
-# *Infrastructure - Dependency Updates*
+# *CDM Model - Version 5.0.0-dev.0*
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
+This release contains the FINOS CDM `5.0.0-dev.0` development version.
 
-- Version `7.4.0`:
-    - Rosetta models generated from an xsd
-    - Bug fix related to code-generated Java that avoids keyword clashes
+Development Guidelines have been developed which describe how version management will be handled across the Development version and Production version.
 
-This release contains no changes to the model or test expectations.
+_Review Directions_
 
-_Review directions_
-
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+- In the CDM Portal, navigate to Downloads and review the FINOS CDM `5.0.0-dev.0` Java artefacts.
+- In the CDM Portal, navigate to Documentation and then to Development Guidelines > Version Management section, or directly at: https://cdm.docs.rosetta-technology.io/source/contribution.html#version-management, to review the development practices.
