@@ -1,14 +1,27 @@
-# *Infrastructure - Dependency Updates*
+# *Maintenance*
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
+This release is purely a syntactical change and does not contain any functional changes to the model.
 
-- Versions:
-  - `7.10.0` Java code-generation update to allow the default condition implementation to be overridden (via Google Guice) by implementors, similar to how function implementations can be overridden. See also https://github.com/REGnosys/rosetta-dsl/issues/587 for more details.
+Deprecated usages of the type name in conditions have been removed.
+For example, the condition `ReferenceAgency` on the type `MultipleCreditNotations` has been rewritten from
+```
+if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+then MultipleCreditNotations -> referenceAgency exists
+```
+to
+```
+if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+then referenceAgency exists
+```
 
-This release contains no changes to the model or test expectations.
+This will ease the upgrade to future DSL versions.
 
-_Review directions_
+_Review Directions_
 
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+Four conditions have been rewritten to remove the deprecated syntax:
+- Type `ResolvablePriceQuantity`, condition `QuantityMultiplier`.
+- Type `AgencyRatingCriteria`, condition `ReferenceAgency`.
+- Type `MultipleCreditNotations`, condition `ReferenceAgency`.
+- Type `WorkflowStep`, condition `WorkflowStepStatus`.
