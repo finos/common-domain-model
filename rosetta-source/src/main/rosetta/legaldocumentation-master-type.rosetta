@@ -7,7 +7,37 @@ import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
+import cdm.base.staticdata.party.*
+
 type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
+    clause MasterAgreementClause (1..*) <"Clauses that have had elections made against them in this Master Agreement. There must be at least one clause defined in the agreement.">
+    
+type MasterAgreementClause: <"Defines clauses that make up a Master Agreement">
+    identifer MasterAgreementClauseIdentifierEnum (1..1) <"Unique identifier for the clause">
+    name string (0..1) <"Optional textual description of the clause.">
+    party Party (0..*) <"Optional party. This can be required for umbrella agreements where a clause may need to be assigned to a specific party on the agreement. ">
+    variant MasterAgreementClauseVariant (1..*) <"Allows multiple variants to be defined for a clause. This needs to be an array as some clauses can specify different variants for different parties. At least one variant must be specified for a clause.">
+
+type MasterAgreementClauseVariant: <"Sets the details for a specific variant associated to a clause in a Master Agreement">
+    identifier MasterAgreementVariantIdentifierEnum (1..1) <"Unique identifier for this variant">
+    name string (0..1) <"Optional textual description of the variant.">
+    party Party (0..*) <"Optional Party. This can be used where a clause needs to assign different variants to different parties on the agreement.">
+    partyRole PartyRole (0..*) <"Optional Party Role. This can be used where a clause needs to assign a different variant to the different parties on the agreement based upon their role.">
+    variableSet MasterAgreementVariableSet (0..*) <"For some variants of some clauses additional details are required to work out what has been elected. This array can be used to define the name and value of these variables. Please refer to the agreement documentation for more details of the variables that are available for any clause.">
+
+type MasterAgreementVariableSet: <"Defines a type where additional variables associated to clauses and their variants can be described.">
+    variableSet MasterAgreementVariableSet (0..*) <"For some variants a table of variables is required. To support this use case we need to be able to specify variables within variables. Including a variable set here gives us infinite nesting opportunities - realistically we are only ever expecting that a table would need to be defined for any particular clause, so we would expect two levels of nesting as a maximum i.e. variableSet->variableSet->name/value.">
+    name string (0..1) <"The name of the variable">
+    value string (0..1) <"The value for this variable">
+
+    condition VariableSetExists: <"If we have a variableSet then we must not have any name/value pairs at this level.">
+        if variableSet exists then name is absent and value is absent
+
+    condition NameMustExist: <"If we have a name then we must also have a value.">
+        if name exists then value exists
+
+    condition ValueMustExist: <"If we have a value then we must also have a name.">
+        if value exists then name exists
 
 type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
 
