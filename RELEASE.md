@@ -1,27 +1,13 @@
-# *Maintenance*
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
-This release is purely a syntactical change and does not contain any functional changes to the model.
+This release updates the rosetta-dsl dependency:
 
-Deprecated usages of the type name in conditions have been removed.
-For example, the condition `ReferenceAgency` on the type `MultipleCreditNotations` has been rewritten from
-```
-if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then MultipleCreditNotations -> referenceAgency exists
-```
-to
-```
-if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then referenceAgency exists
-```
-
-This will ease the upgrade to future DSL versions.
+- Version upgrades included:
+  - 8.0.0: this version is a step towards the harmonisation of the expression syntax in rules and functions. No changes are required in the CDM. See release notes at https://github.com/REGnosys/rosetta-dsl/releases/tag/8.0.0
+  - 8.1.0: this version contains various patches to improve model validation while editing the model. No changes are required in the CDM. See release notes at https://github.com/REGnosys/rosetta-dsl/releases/tag/8.1.0
 
 _Review Directions_
 
-Four conditions have been rewritten to remove the deprecated syntax:
-- Type `ResolvablePriceQuantity`, condition `QuantityMultiplier`.
-- Type `AgencyRatingCriteria`, condition `ReferenceAgency`.
-- Type `MultipleCreditNotations`, condition `ReferenceAgency`.
-- Type `WorkflowStep`, condition `WorkflowStepStatus`.
+CDM Java implementors should update their maven pom.xml to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
