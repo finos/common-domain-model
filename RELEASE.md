@@ -1,27 +1,15 @@
-# *Maintenance*
+# *Product Model - Forward Payout*
 
 _What is being released?_
 
-This release is purely a syntactical change and does not contain any functional changes to the model.
+This release updates the `ForwardPayout` to extend `PayoutBase` to make it consistent with all other payouts.
 
-Deprecated usages of the type name in conditions have been removed.
-For example, the condition `ReferenceAgency` on the type `MultipleCreditNotations` has been rewritten from
-```
-if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then MultipleCreditNotations -> referenceAgency exists
-```
-to
-```
-if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then referenceAgency exists
-```
-
-This will ease the upgrade to future DSL versions.
+The `settlementTerms` attribute has been removed from `ForwardPayout` as it an attribute of `PayoutBase`.
 
 _Review Directions_
 
-Four conditions have been rewritten to remove the deprecated syntax:
-- Type `ResolvablePriceQuantity`, condition `QuantityMultiplier`.
-- Type `AgencyRatingCriteria`, condition `ReferenceAgency`.
-- Type `MultipleCreditNotations`, condition `ReferenceAgency`.
-- Type `WorkflowStep`, condition `WorkflowStepStatus`.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+This release does not meaningfully change any existing mapping expectations:
+
+- In the serialised JSON, the attribute ordering has changed due to the `settlementTerms` attribute change, however this has no meaningful impact on the representation of the model. 
