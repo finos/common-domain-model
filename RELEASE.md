@@ -17,7 +17,7 @@ As agreed with legal and process SMEs, the structural definitions of the `Transa
 
 - The determination terms are described by the type `DeterminationRolesAndTerms`. They rely on `DeterminationRoleEnum`, with the party roles i.e. `CalculationAgent`, `HedgingParty`, `DeterminingParty`. The determining party and the disputing party are annotated with the enum `CounterpartyRoleEnum`. 
 
-- The substitution provisions for the underlier willl be optional item and will annotate whom may substitute, what the trigger events are and the description of the substitution provisions themselves represented with an `AdditionalBespokeTerm` data type.
+- The substitution provisions for the underlier willl be optional items and will annotate whom may substitute, what the trigger events are document the substitution provisions themselves represented with an `AdditionalBespokeTerm` data type.
 
 - The labels referencing the various ISDA definitions in `ContractualDefinitionsEnum` have been adjusted to follow the same pattern. The corresponding FpML synonym mappings have been adjusted.
   
