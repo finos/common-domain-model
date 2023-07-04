@@ -207,7 +207,7 @@ additionally apply to filter whether a piece of collateral is eligible
 or not.
 
 The combination of these terms allows a wide variety of eligible
-collateral types to be represented and structure can be used to identify
+collateral types to be represented and a structure can be used to identify
 individual collateral types or a group of collateral assets for
 inclusion in specifying eligible collateral schedule details.
 
