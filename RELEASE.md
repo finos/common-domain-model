@@ -25,6 +25,8 @@ As agreed with legal and process SMEs, the structural definitions of the `Transa
 
 - A new type `AdditionalBespokeTerm` was added to allow for the association of a specific name to a set of bespoke terms.
   
+- The FpML mapping to extraordinary events previously pointing to trade details have been temporarily deactivated. They will be adjusted in a second phase to point to the details of the `TransactionAdditionalTerms`.
+  
 For clarity, whenever an attribute of type string was added created or refactored as part of this release, the name of that attribute was made explicit in that regard by including the annotation “bespoke” in their name. For instance:
 - `extraordinaryEvents`->`additionalBespokeTerms`
 - `determinationTerms`->`fallbackLanguageBespokeTerms`
