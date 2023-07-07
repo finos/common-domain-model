@@ -162,7 +162,7 @@ class Fpml510ProjectionMapperTest {
 	@ParameterizedTest(name = "{1}")
 	@MethodSource("fpmlDocumentFiles")
 	<T extends Document> void shouldIngestContractAndBuildFpmlDocument(URL fpmlUrl, String name, Class<T> fpmlDocument, Expectations expectations) throws JAXBException, IOException, URISyntaxException {
-		System.out.println("---------------------- Running Test for file: " + name + " ----------------------");
+		LOGGER.debug("---------------------- Running Test for file: " + name + " ----------------------");
 		IngestionReport<TradeState> ingestionReport = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(fpmlUrl));
 		TradeState tradeState = ingestionReport.getRosettaModelInstance();
 		assertNotNull(tradeState);
