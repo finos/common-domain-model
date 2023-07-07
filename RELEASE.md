@@ -1,4 +1,4 @@
-# *Infrastructure - Dependency Updates* and *Product Model - Forward Payout*
+# *Infrastructure - Dependency Updates*
 
 _What is being released?_
 
@@ -7,7 +7,9 @@ This release updates the rosetta-dsl dependency:
 - Version upgrade includes:
   - 8.2.0: new operations have been added to convert strings into enum values (`to-enum`), numbers (`to-number`/`to-int`), and time values (`to-time`). Additionally, converting enum values or values of a basic type into a string can be performed via the new operation `to-string`. No changes are required in the CDM. See release notes for examples and details: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.2.0
 
-This release also updates the `ForwardPayout` to extend `PayoutBase` to make it consistent with all other payouts.
+# *Product Model - Forward Payout*
+
+This release updates the `ForwardPayout` to extend `PayoutBase` to make it consistent with all other payouts.
 
 The `settlementTerms` attribute has been removed from `ForwardPayout` as it is an attribute of `PayoutBase`.
 
