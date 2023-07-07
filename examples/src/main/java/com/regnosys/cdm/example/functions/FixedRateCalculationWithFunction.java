@@ -20,7 +20,7 @@ import static org.hamcrest.number.BigDecimalCloseTo.closeTo;
  * An illustration of how to pass pre-defined inputs into a calculation via custom function implementations
  */
 public class FixedRateCalculationWithFunction extends AbstractExample {
-	
+
 	@Inject private FixedAmount fixedAmount;
 	
 	@Override
@@ -47,7 +47,6 @@ public class FixedRateCalculationWithFunction extends AbstractExample {
 
         // Make assertions on the calculation results
         //
-        System.out.println(fixedAmountResult);
         assertThat("Computed fixed amount matches expectation",
                 fixedAmountResult, closeTo(new BigDecimal("750000.0000"), new BigDecimal("0.005")));
 	}

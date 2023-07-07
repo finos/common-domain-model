@@ -3,6 +3,8 @@ package com.regnosys.cdm.example;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -16,6 +18,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
  * serialised format.
  */
 public class EnumSerialisation extends AbstractExample {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnumSerialisation.class);
 
     @Override
     public void example() throws RuntimeException {
@@ -25,12 +28,12 @@ public class EnumSerialisation extends AbstractExample {
         ObjectMapper rosettaObjectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 
         // Check an instance of an enumeration without a displayName
-        System.out.println("Example of enum without a displayName");
+        LOGGER.info("Example of enum without a displayName");
         checkSerialisation(rosettaObjectMapper, DayCountFractionEnum.ACT_360);
 
-        System.out.println("-------------------------------------------------");
+        LOGGER.info("-------------------------------------------------");
 
-        System.out.println("Example of enum with a displayName");
+        LOGGER.info("Example of enum with a displayName");
         // Check an instance of an enumeration with a displayName
         // DJ_CDX_EM_ displayName "DJ.CDX.EM " <"Broker Confirmation Type for CDS Index trades relating to Dow Jones CDX.EM index series.">
         checkSerialisation(rosettaObjectMapper, DayCountFractionEnum.ACT_365L);
@@ -43,14 +46,14 @@ public class EnumSerialisation extends AbstractExample {
             //
             String json = rosettaObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(myEnum);
 
-            System.out.println("Enum: " + myEnum.name());
-            System.out.println("Serialise to JSON: " + json);
+            LOGGER.info("Enum: " + myEnum.name());
+            LOGGER.info("Serialise to JSON: " + json);
 
             // Deserialise back to Java
             //
             DayCountFractionEnum deserializedObject = rosettaObjectMapper.readValue(json, myEnum.getClass());
 
-            System.out.println("Deserialised Enum: " + deserializedObject.name());
+            LOGGER.info("Deserialised Enum: " + deserializedObject.name());
 
             // Compare the original and deserialised CDM Java objects
             //

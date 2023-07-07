@@ -4,9 +4,8 @@ _What is being released?_
 
 This release updates the rosetta-dsl dependency:
 
-- Version upgrades included:
-  - 8.0.0: this version is a step towards the harmonisation of the expression syntax in rules and functions. No changes are required in the CDM. See release notes at https://github.com/REGnosys/rosetta-dsl/releases/tag/8.0.0
-  - 8.1.0: this version contains various patches to improve model validation while editing the model. No changes are required in the CDM. See release notes at https://github.com/REGnosys/rosetta-dsl/releases/tag/8.1.0
+- Version upgrade includes:
+  - 8.2.0: new operations have been added to convert strings into enum values (`to-enum`), numbers (`to-number`/`to-int`), and time values (`to-time`). Additionally, converting enum values or values of a basic type into a string can be performed via the new operation `to-string`. No changes are required in the CDM. See release notes for examples and details: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.2.0
 
 _Review Directions_
 

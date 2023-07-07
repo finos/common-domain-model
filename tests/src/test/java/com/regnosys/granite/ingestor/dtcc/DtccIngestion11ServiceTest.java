@@ -12,12 +12,15 @@ import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
 import org.isda.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep>{
+class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion11ServiceTest.class);
 
 	private static final String DTCC_11_0_FILES_DIR = "cdm-sample-files/dtcc-11-0/";
 
@@ -51,11 +54,11 @@ class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep>{
 
 	@SuppressWarnings("unused")
 	private void toPrintExcelExport(MappingReport mappingReport) {
-		System.out.println("\nSuccesses -----------------------------------------------------------------\n");
-		mappingReport.getSuccesses().stream().map(this::toExcelExportString).forEach(System.out::println);
+		LOGGER.info("\nSuccesses -----------------------------------------------------------------\n");
+		mappingReport.getSuccesses().stream().map(this::toExcelExportString).forEach(LOGGER::info);
 
-		System.out.println("\nFailures -----------------------------------------------------------------\n");
-		mappingReport.getFailures().stream().map(this::toExcelExportString).forEach(System.out::println);
+		LOGGER.info("\nFailures -----------------------------------------------------------------\n");
+		mappingReport.getFailures().stream().map(this::toExcelExportString).forEach(LOGGER::info);
 	}
 
 	private String toExcelExportString(MappingResult r) {
