@@ -36,8 +36,8 @@ func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data type
 
     set counterparty:
         counterparties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+            filter role = roleEnumToExtract
+            then only-element
 
 func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
 	inputs:
@@ -48,8 +48,8 @@ func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data 
 
     set ancillaryParty:
         ancillaryParties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+            filter role = roleEnumToExtract
+            then only-element
 
 func ReplaceParty: <"Removes the old party, and adds the new party.">
 	inputs:
@@ -61,8 +61,8 @@ func ReplaceParty: <"Removes the old party, and adds the new party.">
 
     add updatedParties:
         parties
-            extract [ if item = oldParty then newParty else item ]
-            distinct
+            extract (if item = oldParty then newParty else item)
+            then distinct
 
 func Create_PayerReceiver:
 	inputs:
@@ -83,7 +83,7 @@ func FilterPartyRole: <"Filters the list of partyRoles based on the provided par
 
 	add filteredPartyRoles:
 	    partyRoles
-	        filter [ item -> role = partyRoleEnum ]
+	        filter role = partyRoleEnum
 
 func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the provided partyRoleEnum.">
 	inputs:
@@ -94,4 +94,4 @@ func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the p
 
 	add filteredRelatedParties:
 	    relatedParties
-	        filter [ item -> role = partyRoleEnum ]
+	        filter role = partyRoleEnum

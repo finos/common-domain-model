@@ -453,24 +453,27 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ indexTenor
 			[value "indexTenor" maps 2]
 
-	FloatingRate:
+    FloatingRateBase:
 	 	[meta "id"]
 		+ rateOption
 			[meta "floatingRateIndex"]
-		+ floatingRateMultiplierSchedule
-			[value "floatingRateMultiplierSchedule"]
 		+ spreadSchedule
 			[value "spreadSchedule"]
-		+ rateTreatment
-			[value "rateTreatment"]
 		+ capRateSchedule
 			[value "capRateSchedule"]
 		+ floorRateSchedule
 			[value "floorRateSchedule"]
+
+	FloatingRate:
+		+ floatingRateMultiplierSchedule
+			[value "floatingRateMultiplierSchedule"]
+		+ rateTreatment
+			[value "rateTreatment"]
 	 	+ calculationParameters
 			[value "calculationParameters"]
 		+ fallbackRate
 			[value "fallbackRate"]
+
 
 	FloatingRateSpecification:
 		+ finalRateRounding
@@ -2108,6 +2111,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			// For FX Option
 			[hint "putCurrencyAmount"]
 			[hint "callCurrencyAmount"]
+ 			// For FX:
+			[hint "exchangedCurrency1"]
+			[hint "exchangedCurrency2"]
 		+ payerReceiver
 			[value "exchangedCurrency1"]
 			[value "exchangedCurrency2"]
@@ -2413,8 +2419,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "features"]
 			[hint "averagingMethod"]
 		+ underlier
-			[value "singleUnderlyer" path "underlyer"]
-			[value "basket" path "underlyer"]
+			[value "singleUnderlyer" path "underlyer", "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond", "index"]
 			[hint "swap"]
 			[hint "creditDefaultSwap"]
@@ -2430,6 +2435,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "equityValuation" path "equityExercise"]
 		+ schedule
 			[value "schedule"]
+
+    ForwardPayout:
+        [meta "id"]
+        - payerReceiver
+        + payerReceiver
+			[value "ignore"]
+        - priceQuantity
+        + priceQuantity
+            [value "ignore"]
 
 	SecurityLeg:
 		[meta "id"]
@@ -2568,9 +2582,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "notionalAmount"]
 			// For Credit Option:
 			[hint "notionalReference"]
-			// For FX:
-			[hint "exchangedCurrency1"]
-			[hint "exchangedCurrency2"]
 			// For Repo:
 			[value "nearLeg"]
 			// For Commodity
@@ -2811,7 +2822,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
 			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
-			[hint "fxVarianceSwap"]
+        	        [hint "fxVarianceSwap"]
 			[hint "fxVolatilitySwap"]
 			// Other
 			[value "commoditySwap"]
