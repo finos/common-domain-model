@@ -61,13 +61,42 @@ module.exports = {
           title: 'CDM Working Groups',
           items: [
             {
-              label: '...',
+              label: 'Contribution Review Working Group',
               to: '...',
             },
             {
-              label: '...',
+              label: 'Collateral Working Group',
+              to: '...',
+            },
+            {
+              label: 'Technology Architecture Working Group',
+              to: '...',
+            },
+            {
+              label: 'Structured Products Working Group',
               to: '...',
             }
+          ]
+        },
+        {
+          title: 'More CDM Working Groups',
+          items: [
+            {
+              label: 'FINOS CDM Steering Working Group',
+              to: '...',
+            },
+            {
+              label: 'ISLA CDM Working Group (Securities Lending)',
+              to: 'https://www.islaemea.org/working-groups/',
+            },
+            {
+              label: 'ISLA CDM Trading Working Group (Securities Lending)',
+              to: 'https://www.islaemea.org/working-groups/',
+            },
+            {
+              label: 'ISLA Document Digitisation Working Group (GMSLA)',
+              to: 'https://www.islaemea.org/working-groups/',
+            },
           ]
         },
         {
