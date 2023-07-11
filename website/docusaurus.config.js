@@ -4,7 +4,7 @@
 // Replace 'project-blueprint' with {project name}
 const projectName = 'Common Domain Model'
 // Replace 'project-blueprint' with {project name}
-const projectSlug = 'project-blueprint'
+const projectSlug = 'common-domain-model'
 // Replace 'FINOS' with {name of copyright owner}
 const copyrightOwner = 'FINOS'
 
@@ -54,6 +54,61 @@ module.exports = {
             {
               label: 'About FINOS',
               to: 'docs/about-finos',
+            }
+          ]
+        },
+        {
+          title: 'CDM Working Groups',
+          items: [
+            {
+              label: '...',
+              to: '...',
+            },
+            {
+              label: '...',
+              to: '...',
+            }
+          ]
+        },
+        {
+          title: 'Consume',
+          items: [
+            {
+              label: 'Releases',
+              to: 'https://github.com/finos/common-domain-model/releases',
+            },
+            {
+              label: 'FAQ',
+              to: 'https://github.com/finos/common-domain-model/issues/2058',
+            },
+            {
+              label: 'CDM Java Distribution Guidelines',
+              to: 'http://localhost:3001/docs/cdm-guidelines',
+            },
+            {
+              label: 'Download Source Code',
+              to: 'http://localhost:3001/docs/download',
+            }
+          ]
+        },
+        {
+          title: 'FINOS',
+          items: [
+            {
+              label: 'FINOS Website',
+              to: 'https://www.finos.org',
+            },
+            {
+              label: 'FINOS GitHub Org',
+              to: 'github.com/finos',
+            },
+            {
+              label: 'CDM GitHub Repo',
+              to: 'https://www.finos.org/common-domain-model',
+            },
+            {
+              label: 'CDM Launch Press Release',
+              to: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
             }
           ]
         },

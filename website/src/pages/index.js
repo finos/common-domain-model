@@ -27,6 +27,14 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
+              to={'http://localhost:3001/docs/home'}>
+              DOCS
+            </Link>
+            <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
               to={'https://github.com/finos/common-domain-model'}>
               GITHUB
             </Link>
