@@ -13,7 +13,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
 import com.rosetta.model.lib.process.PostProcessor;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -53,7 +53,7 @@ class FunctionTest {
 
 	@BeforeAll
 	static void setup() {
-		Module module = Modules.override(new CdmRuntimeModule())
+		Module module = Modules.override(new ModelRuntimeModule())
 			.with(new AbstractModule() {
 				@Override
 				protected void configure() {

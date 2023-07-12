@@ -2,9 +2,9 @@ package com.regnosys.cdm.example;
 
 import cdm.product.asset.functions.ResolveRateIndex;
 import com.regnosys.cdm.example.functions.impls.NoOpResolveRateIndexImpl;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 
-public class DemoCdmRuntimeModule extends CdmRuntimeModule {
+public class DemoCdmRuntimeModule extends ModelRuntimeModule {
 
 	@Override
 	protected void configure() {

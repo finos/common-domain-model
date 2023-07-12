@@ -35,7 +35,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ class SecLendingFunctionInputCreationTest {
 
     @BeforeAll
     static void setup() {
-        Module module = Modules.override(new CdmRuntimeModule())
+        Module module = Modules.override(new ModelRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
                     protected void configure() {

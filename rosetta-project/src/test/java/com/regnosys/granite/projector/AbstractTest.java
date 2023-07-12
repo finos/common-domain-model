@@ -3,7 +3,7 @@ package com.regnosys.granite.projector;
 import com.google.inject.Module;
 import com.google.inject.*;
 import com.google.inject.util.Modules;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractTest {
@@ -22,7 +22,7 @@ public class AbstractTest {
 				bindTestingMocks(binder());
 			}
 		};
-		return Modules.override(new CdmRuntimeModule()).with(module);
+		return Modules.override(new ModelRuntimeModule()).with(module);
 	}
 
 	protected void bindTestingMocks(Binder binder) {

@@ -4,7 +4,7 @@ import cdm.event.common.TradeState;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -20,7 +20,7 @@ public class Fpml510IncompleteProductIngestionServiceTest extends IngestionTest<
 
 	@BeforeAll
 	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		ModelRuntimeModule runtimeModule = new ModelRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToTradeState();
 	}

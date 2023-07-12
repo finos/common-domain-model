@@ -9,7 +9,7 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingReport;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
 
 	@BeforeAll
 	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		ModelRuntimeModule runtimeModule = new ModelRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		dtcc11IngestionService = IngestionFactory.getInstance().getDtcc11();
 	}

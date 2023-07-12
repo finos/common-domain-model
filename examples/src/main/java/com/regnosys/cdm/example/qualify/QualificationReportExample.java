@@ -8,9 +8,7 @@ import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationResult;
 import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.process.PostProcessStep;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.ModelRuntimeModule;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +25,7 @@ public class QualificationReportExample {
         TradeState tradeState = RosettaObjectMapper.getNewRosettaObjectMapper().readValue(resource, TradeState.class);
 
 
-        Injector injector = Guice.createInjector(new CdmRuntimeModule());
+        Injector injector = Guice.createInjector(new ModelRuntimeModule());
         QualifyProcessorStep qualifyProcessorStep = injector.getInstance(QualifyProcessorStep.class);
 
         QualificationReport qualificationReport = qualifyProcessorStep.runProcessStep(tradeState.getType(), tradeState.toBuilder());
