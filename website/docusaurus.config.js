@@ -62,19 +62,19 @@ module.exports = {
           items: [
             {
               label: 'Contribution Review Working Group',
-              to: '...',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
             },
             {
               label: 'Collateral Working Group',
-              to: '...',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
             },
             {
               label: 'Technology Architecture Working Group',
-              to: '...',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
             },
             {
               label: 'Structured Products Working Group',
-              to: '...',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
             }
           ]
         },
@@ -83,19 +83,19 @@ module.exports = {
           items: [
             {
               label: 'FINOS CDM Steering Working Group',
-              to: '...',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
             },
             {
               label: 'ISLA CDM Working Group (Securities Lending)',
-              to: 'https://www.islaemea.org/working-groups/',
+              href: 'https://www.islaemea.org/working-groups/',
             },
             {
               label: 'ISLA CDM Trading Working Group (Securities Lending)',
-              to: 'https://www.islaemea.org/working-groups/',
+              href: 'https://www.islaemea.org/working-groups/',
             },
             {
               label: 'ISLA Document Digitisation Working Group (GMSLA)',
-              to: 'https://www.islaemea.org/working-groups/',
+              href: 'https://www.islaemea.org/working-groups/',
             },
           ]
         },
@@ -104,19 +104,19 @@ module.exports = {
           items: [
             {
               label: 'Releases',
-              to: 'https://github.com/finos/common-domain-model/releases',
+              href: 'https://github.com/finos/common-domain-model/releases',
             },
             {
               label: 'FAQ',
-              to: 'https://github.com/finos/common-domain-model/issues/2058',
+              href: 'https://github.com/finos/common-domain-model/issues/2058',
             },
             {
               label: 'CDM Java Distribution Guidelines',
-              to: 'http://localhost:3001/docs/cdm-guidelines',
+              to: 'docs/cdm-guidelines',
             },
             {
               label: 'Download Source Code',
-              to: 'http://localhost:3001/docs/download',
+              to: 'docs/download',
             }
           ]
         },
@@ -125,19 +125,19 @@ module.exports = {
           items: [
             {
               label: 'FINOS Website',
-              to: 'https://www.finos.org',
+              href: 'https://www.finos.org',
             },
             {
               label: 'FINOS GitHub Org',
-              to: 'github.com/finos',
+              href: 'https://www.github.com/finos',
             },
             {
               label: 'CDM GitHub Repo',
-              to: 'https://www.finos.org/common-domain-model',
+              href: 'https://www.finos.org/common-domain-model',
             },
             {
               label: 'CDM Launch Press Release',
-              to: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
+              href: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
             }
           ]
         },
