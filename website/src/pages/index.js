@@ -25,7 +25,7 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
-              to={'http://localhost:3001/docs/home'}>
+              to={'docs/home'}>
               DOCS
             </Link>
             <Link
