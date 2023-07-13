@@ -16,13 +16,13 @@ import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
-import com.rosetta.model.lib.ModelConfig;
+import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
 import org.isda.cdm.processor.CdmReferenceConfig;
 import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 
-@ModelConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
+@ModuleConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
 public class ModelRuntimeModule extends AbstractModule {
 
 	@Override
