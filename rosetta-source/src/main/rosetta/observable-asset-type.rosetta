@@ -9,6 +9,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.mapping.config.*
+import cdm.product.template.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
     [deprecated]
@@ -210,6 +211,8 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 	currency2 string (1..1) <"The second currency specified when a pair of currencies is to be evaluated.">
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
+    settlementRateOption SettlementRateOption (0..1) <"Defines the settlement rate option to use for fixing in case of cash settlement. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
+
 
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
     [deprecated]
@@ -476,3 +479,77 @@ type DividendApplicability: <"The parameters which define whether dividends are 
 	optionsExchangeDividends boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
 	additionalDividends boolean (0..1)<"If present and true, then additional dividends are applicable.">
 	allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
+    dividendReinvestment cdm.product.asset.DividendPayoutRatio (0..*) <"Specifies the dividend reinvestment percentage per each underlying.">
+
+type NewObservationBasis: <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made.">
+  [metadata key]
+  observableValue NewObservableValue (0..*) <"Specifies the Observable to be observed for a Price.">
+  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made.">
+  
+  condition AggregationMethodExists :
+  if observableValue -> product -> basket exists 
+  or observableValue count >1 
+  then observationConditions ->aggregationFeatures exists
+
+type NewObservableValue extends NewObservable : <"Defines in a generic manner a value that is effectively observed, which may be either a Price or an Amount.">
+  price PriceSchedule (0..*) <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
+  quantity QuantitySchedule (0..*) <"Specifies a quantity as a single value to be associated to a financial product, for example a transfer amount resulting from a trade. This data type extends QuantitySchedule and requires that only the single amount value exists.">
+  payerReceiver PayerReceiver (0..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
+
+type NewObservable: 
+  [metadata key]
+  rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+  [metadata location]
+  currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+  [metadata location]
+  product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+  payoutObservableTermsReference PayoutObservableTermsReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
+  [metadata location]
+  payoutUnderlierReference PayoutObservableTermsReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
+  [metadata location]
+
+  condition: one-of
+
+  condition UnderlierIsProduct :
+  if payoutUnderlierReference exists
+  then product only exists
+
+type PayoutObservableTermsReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
+  [metadata key]
+  rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+  currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+  product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+
+type NewObservationConditions extends NewSingleObservationConditions: <"Defines the observationDates with the related multiple aggregation method when multiple observationConditions exist.">
+  observationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dates on which the multiple observations shall occurr.">
+  aggregationFeatures New2AggregationFeatures (0..1)
+  embeddedObservationConditions NewObservationConditions (0..*) <"Specifies that aggregationFeatures functional effect is to aggregate the multiple outputs defined with such embeddedObservationConditions">
+
+  condition ObservationDateOrDates:
+  required choice observationDates, observationDate
+
+type NewSingleObservationConditions: <"Specifies the conditions how the observation shall be made.">
+  observationDate AdjustableOrRelativeDate (0..1) <"Defines the particular date on which the observation is effectively made.">
+  observationRoundingMethod Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
+  observationDeterminationMethod NewDeterminationMethodEnum (0..1) <"The enumerated values to specify the method according to which an Amount or a Price or a date is determined.">
+  observationTime NewObservationTime (0..1) <"Defines the particular time on which the observation is effectively made.">
+  observationSource NewInformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+
+type NewInformationProviderSource: <"Describes the data sourced from a Provider i.e. when the data is sourced as gross from such Provider, thus with no processing or calculation about it by the Party that is using such data. In case Provider data has been transformed by a Party in any manner, then the source of such data source shall be defibed in InformationPartySource.">
+
+  primarySource InformationSource (1..1)
+  secondarySource InformationSource (0..1)
+
+type NewInformationPartySource: <"Describes the data sourced from a Party i.e. when the data is an output resulting from any Party internal calculation, thus without presuming neither about the calculation method used nor about the original sources of input data and related Providers if any. In case a Party is using Provider data as gross from the Provider i.e. without transforming such data in any manner, then the source of such data shall be defibed in InformationExternalSource.">
+
+  sourcePartyName Party (0..1) <"The Party who is providing the data.">
+  sourcePartyRole PartyRoleEnum (0..1) <"The role of the Party who is providing the data instead of Provider.">
+
+type NewInformationSource: <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+
+  providerExternalData NewInformationProviderSource (0..1) <"Describes the data sourced from a Provider i.e. when the data is sourced as gross from such Provider, thus with no processing or calculation about it by the Party that is using such data. In case Provider data has been transformed by a Party in any manner, then the source of such data source shall be defibed in InformationPartySource.">
+  partyInternalData NewInformationPartySource (0..1) <"Describes the data sourced from a Party i.e. when the data is an output resulting from any Party internal calculation, thus without presuming neither about the calculation method used nor about the original sources of input data and related Providers if any. In case a Party is using Provider data as gross from the Provider i.e. without transforming such data in any manner, then the source of such data shall be defibed in InformationExternalSource.">
+
+  condition: one-of
+
+
