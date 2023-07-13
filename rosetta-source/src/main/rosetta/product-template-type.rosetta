@@ -261,7 +261,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 	performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
 	assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
     structuredPayout New2Payout (0..*) <".....................">
-    genericPayout New2StructuredPayout (0..*)  <".....................">
+    genericPayout GenericPayout (0..*)  <".....................">
 
 	condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
 	    if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total then
@@ -935,6 +935,7 @@ type New2PerformancePayout extends New2StructuredPayoutBase:
   [metadata key]
   corePayout NewReturnTerms (0..*)
   multipleCorePayoutAggregationMethod NewObservationConditions (0..1)
+  underlier New2Payout (1..1)
 
   condition MultipleAggregationExists:
   if corePayout count > 1 
@@ -1120,6 +1121,8 @@ type New2StructuredPayoutBase extends PayoutBase :
   fxFeature FxFeature (0..*) <"Specifies whether FX Feature embedded in the Payout Leg applies to the related Payout as Composite or Quanto or CrossCurrency. ">
   structuredFeatures New2StructuredFeatures (0..1) <"Define a core set of optional features for structuring the Payout e.g. make its existence contigent via knockCondition, bounds its value via capFloorBarrier, leverage its value via multipler or delevrage it via divisor .">
 
+
+
 type NewSpreadRateReturn:
   longPositionRate NewRateSpecification (1..1)
   shortPositiontRate NewRateSpecification (1..1)
@@ -1137,7 +1140,7 @@ type New2ObservationBasis extends NewObservationBasis:
   structuredFeatures New2StructuredFeatures (0..1)
 
 type New3ObservationBasis extends New2ObservationBasis:
-  genericPayout New2StructuredPayout (0..1)
+  genericPayout GenericPayout (0..1)
 
   condition : 
   required choice observableValue, genericPayout
@@ -1182,12 +1185,13 @@ type NewRebalancing:
   rebalancingConditions New2Knock (1..*)
   rebalancingEffectiveDates AdjustableRelativeOrPeriodicDates (1..1)
 
-type New2StructuredPayout extends New2StructuredPayoutBase:
-  denominatorValue New2StructuredPayout (0..*)
-  numeratorValue New2StructuredPayout (0..*)
+type GenericPayout extends New2StructuredPayoutBase:
+  denominatorValue GenericPayout (0..*)
+  numeratorValue GenericPayout (0..*)
   denominatorAggregation NewObservationConditions (0..1)
   numeratorAggregation NewObservationConditions (0..1)
   ratioAggregation NewObservationConditions (0..1)
+  underlier NewProduct (0..1)
 
 type New2StructuredFeatures: <"Define a core set of optional features for structuring the parent object e.g. make its existence contigent via knockCondition, bounds its value via capFloorBarrier, leverage its value via multipler or delevrage it via divisor .">
   knockCondition New2Knock (0..*) <"Specifies that the parent object is contigent i.e. is deemed to exist (or not to exist) by default until the trigger is knocked Out (or knocked In). For clarity, Knock-In means that the Object to which Knock is applicable is deemed not to exist by default i.e. having no economic effect, unless the Knock is activated in accordance with triggerTerms and observationTerms, that resulting in the Object coming into existence ; reversely Knock-Out means that the related Object is deemed to exist by default i.e. having economic effect, unless Knock is activated, that resulting in the object going out of existence, thus loosing any economic effect. The duration of the existence or non-existence of the related Object once the Knock-In or Knock-Out has been activated e.g. knocked once for all or during the knocked day and then reset in previous state, etc. is specified with knockEffectDuration.">

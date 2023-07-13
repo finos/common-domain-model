@@ -503,9 +503,9 @@ type NewObservable:
   currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
   [metadata location]
   product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
-  payoutObservableTermsReference PayoutObservableTermsReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
+  payoutObservableReference PayoutObservableReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
   [metadata location]
-  payoutUnderlierReference PayoutObservableTermsReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
+  payoutUnderlierReference PayoutObservableReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
   [metadata location]
 
   condition: one-of
@@ -514,7 +514,7 @@ type NewObservable:
   if payoutUnderlierReference exists
   then product only exists
 
-type PayoutObservableTermsReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
+type PayoutObservableReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
   [metadata key]
   rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
   currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
@@ -524,9 +524,15 @@ type NewObservationConditions extends NewSingleObservationConditions: <"Defines 
   observationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dates on which the multiple observations shall occurr.">
   aggregationFeatures New2AggregationFeatures (0..1)
   embeddedObservationConditions NewObservationConditions (0..*) <"Specifies that aggregationFeatures functional effect is to aggregate the multiple outputs defined with such embeddedObservationConditions">
+  payoutObservationConditionReference PayoutObservationConditionReference (0..1)
+  [metadata location]
 
   condition ObservationDateOrDates:
-  required choice observationDates, observationDate
+  required choice observationDates, observationDate, payoutObservationConditionReference 
+
+type PayoutObservationConditionReference:
+    [metadata key]
+    observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made.">
 
 type NewSingleObservationConditions: <"Specifies the conditions how the observation shall be made.">
   observationDate AdjustableOrRelativeDate (0..1) <"Defines the particular date on which the observation is effectively made.">
