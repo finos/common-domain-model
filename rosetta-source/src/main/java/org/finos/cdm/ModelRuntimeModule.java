@@ -22,7 +22,7 @@ import com.rosetta.model.lib.validation.ValidatorFactory;
 import org.isda.cdm.processor.CdmReferenceConfig;
 import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 
-@ModelConfig(model="org.finos.cdm", type="Rosetta")
+@ModelConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
 public class ModelRuntimeModule extends AbstractModule {
 
 	@Override
