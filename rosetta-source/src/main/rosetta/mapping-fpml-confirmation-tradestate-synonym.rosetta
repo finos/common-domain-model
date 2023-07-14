@@ -831,16 +831,36 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 	PrincipalPayments:
 	 	[value "PrincipalExchanges" meta "id"]
 		+ initialPayment
-			[value "initialExchange"]
+			[value "initialExchange" path "principalExchanges"]
 			[set to False when "knownAmountSchedule" exists]
 		+ finalPayment
-			[value "finalExchange"]
+			[value "finalExchange" path "principalExchanges"]
 			[set to True when "knownAmountSchedule" exists]
 		+ intermediatePayment
-			[value "intermediateExchange"]
+			[value "intermediateExchange" path "principalExchanges"]
 			[set to False when "knownAmountSchedule" exists]
 		+ principalPaymentSchedule
 		    [value "cashflows" mapper "PrincipalPaymentSchedule"]
+        + principalPaymentDescriptions
+            [hint "principalExchangeDescriptions"]
+
+    PrincipalPaymentSchedule:
+        + initialPrincipalPayment
+            [value "principalExchangeDescriptions" set when "principalExchanges->initialExchange" = True]
+		+ finalPrincipalPayment
+            [value "principalExchangeDescriptions" set when "principalExchanges->finalExchange" = True]
+		+ intermediatePrincipalPayment
+            [value "principalExchangeDescriptions" set when "principalExchanges->intermediateExchange" = True]
+
+    PrincipalPayment:
+        + principalPaymentDescriptionDate
+            [value "principalExchangeDate" meta "id"]
+        + determinationMethod
+            [value "determinationMethod" path "principalExchangeAmount"]
+        + amountRelativeTo
+            [value "amountRelativeTo" path "principalExchangeAmount" meta "href"]
+        + principalAmount
+            [value "principalAmount" path "principalExchangeAmount"]
 
 	QuotedCurrencyPair:
 		+ currency1
@@ -2649,7 +2669,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "dividendLeg"]
 			[value "fxVarianceSwap"]
 			[value "fxVolatilitySwap"]
-			[value "returnLeg"]
+			[value "returnLeg", "principalExchangeFeatures"]
 
 	Product:
 		+ contractualProduct

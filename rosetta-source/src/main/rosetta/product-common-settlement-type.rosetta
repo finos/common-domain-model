@@ -8,6 +8,7 @@ import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.credit.*
 
 import cdm.observable.asset.*
+import cdm.observable.common.*
 
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
@@ -340,12 +341,13 @@ type PrincipalPayments: <"A class defining which principal exchanges occur for t
 	initialPayment boolean (1..1) <"A true/false flag to indicate whether there is an initial exchange of principal on the effective date.">
 	finalPayment boolean (1..1) <"A true/false flag to indicate whether there is a final exchange of principal on the termination date.">
 	intermediatePayment boolean (1..1) <"A true/false flag to indicate whether there are intermediate or interim exchanges of principal during the term of the swap.">
-	varyingLegNotionalCurrency string (0..*) <"Indicate the Payout legs which nominal amount may vary in regards of FX Fixing dates as determined in the product terms.">
+    varyingLegNotionalCurrency string (0..*) <"Indicate the Payout legs which nominal amount may vary in regards of FX Fixing dates as determined in the product terms.">
 	principalPaymentSchedule PrincipalPaymentSchedule (0..1) <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
+    principalPaymentDescriptions PrincipalPaymentSchedule (0..1) <"Specifies each of the characteristics of the principal exchange cashflows, in terms of paying/receiving counterparties, amounts and dates.">
 
 type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchanges and related role of the parties when known.">
     initialPrincipalPayment PrincipalPayment (0..1) <"Principal Payment made at Trade inception.">
-    intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
+    intermediatePrincipalPayment PrincipalPayment (0..*) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
     finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
 
 type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
@@ -355,9 +357,16 @@ type PrincipalPayment: <"Any kind of principal payments when the amount is known
     principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
     discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
     presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
+    principalPaymentDescriptionDate AdjustableOrRelativeDate (0..1) <"Date on which each of the principal exchanges will take place. This date is either explictly stated, or is defined by reference to another date in the swap document.">
+    determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which the principal amount is determined.">
+    amountRelativeTo Money (0..1) <"Reference to an amount defined elsewhere in the document.">
+		[metadata reference]
+
+    condition PrincipalDate:
+       	optional choice principalPaymentDate, principalPaymentDescriptionDate
 
     condition PrincipalAmount:
-    	required choice principalAmount, presentValuePrincipalAmount
+    	required choice principalAmount, presentValuePrincipalAmount, determinationMethod, amountRelativeTo
 
     condition DiscountFactor:
     	if presentValuePrincipalAmount exists

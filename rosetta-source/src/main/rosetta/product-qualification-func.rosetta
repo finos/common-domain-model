@@ -609,6 +609,26 @@ func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as
 		// qualifies that underlier is a security (single name)
 		performancePayout -> underlier -> basket only exists
 
+func Qualify_EquitySwap_ZeroStrike: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has both priceReturnTerms and dividendReturnTerms, 5) with principalPaymentDescriptions and 6) there are no option features.">
+	[qualification Product]
+	inputs: economicTerms EconomicTerms (1..1)
+	output: is_product boolean (1..1)
+
+	set is_product:
+    	// qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
+		Qualify_BaseProduct_EquitySwap(economicTerms) = True and
+
+		// qualifies that there is a single leg of performance type
+		economicTerms -> payout -> performancePayout only exists and
+		economicTerms -> payout -> performancePayout count = 1 and
+
+		// qualifies that there is a performancePayout with dividendReturnTerms and another with priceReturnTerms
+        economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists and 
+        economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms exists and
+
+        // qualifies that there is a PrincipalPaymentDescriptions element
+        economicTerms -> payout -> performancePayout -> principalPayment -> principalPaymentDescriptions exists
+
 func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging.">//
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
