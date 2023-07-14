@@ -20,7 +20,7 @@ import org.eclipse.xtext.common.TerminalsStandaloneSetup;
 import org.fpml.fpml_5.confirmation.DataDocument;
 import org.fpml.fpml_5.confirmation.Document;
 import org.fpml.fpml_5.confirmation.RequestClearing;
-import org.finos.cdm.ModelRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -145,7 +145,7 @@ class Fpml510ProjectionMapperTest {
 
 	@BeforeAll
 	static void globalSetUp() {
-		ModelRuntimeModule runtimeModule = new ModelRuntimeModule();
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		injector = Guice.createInjector(runtimeModule);
 		initialiseIngestionFactory(runtimeModule);
 		ingestionService = IngestionFactory

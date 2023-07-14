@@ -23,7 +23,7 @@ import org.isda.cdm.processor.CdmReferenceConfig;
 import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
 
 @ModuleConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
-public class ModelRuntimeModule extends AbstractModule {
+public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {

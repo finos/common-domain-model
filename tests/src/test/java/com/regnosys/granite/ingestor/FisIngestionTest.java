@@ -7,7 +7,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
-import org.finos.cdm.ModelRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -30,7 +30,7 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
     @BeforeAll
     static void setup() {
-		ModelRuntimeModule runtimeModule = new ModelRuntimeModule();
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
         initialiseIngestionFactory(ENV_INSTANCE_NAME, ENV_FILE, runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
         ingestionService = IngestionFactory.getInstance(ENV_INSTANCE_NAME).getFis();
     }

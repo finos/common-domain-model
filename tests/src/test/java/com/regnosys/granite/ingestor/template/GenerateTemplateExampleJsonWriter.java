@@ -23,7 +23,7 @@ import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.metafields.MetaAndTemplateFields;
-import org.finos.cdm.ModelRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class GenerateTemplateExampleJsonWriter {
 
 	public void init(String[] args) throws IOException {
 		// Guice Injection
-		Module runtimeModule = new ModelRuntimeModule();
+		Module runtimeModule = new CdmRuntimeModule();
 		Injector injector = Guice.createInjector(runtimeModule);
 		injector.injectMembers(this);
 
