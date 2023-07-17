@@ -1,4 +1,4 @@
-f# CDM&trade; Generated Java Usage Examples
+# CDM&trade; Generated Java Usage Examples
 
 This project demonstrates functionality of the generated code artifacts of the Common Domain Model&trade; 
 
