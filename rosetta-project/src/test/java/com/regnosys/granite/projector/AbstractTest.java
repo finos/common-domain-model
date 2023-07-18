@@ -3,7 +3,7 @@ package com.regnosys.granite.projector;
 import com.google.inject.Module;
 import com.google.inject.*;
 import com.google.inject.util.Modules;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeEach;
 
 public class AbstractTest {
