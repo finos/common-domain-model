@@ -1,6 +1,7 @@
 # CDM Contribution Roadmap from ICMA, ISDA, & ISLA
     
-    [Expectations as at 12th July 2023 CDM Steering WG meeting]
+[Expectations as at 12th July 2023 CDM Steering WG meeting]
+
 ## International Capital Markets Association (ICMA)
   * Enhancements to CDM for Repo and Bonds that are focused on adoption:
       - Repo trading and lifecycle examples and demo
@@ -29,16 +30,16 @@
           - ETD positions
               - Target for initial contribution c. late Aug 2023
       - Commodity derivatives
-				  - Support for financially settled and physically settled commodity derivatives
-	 			  -	Mostly implemented as enhancements to CommodityPayout
-          - Target for initial contribution c. Sept 2023
+	  - Support for financially settled and physically settled commodity derivatives
+	  - Mostly implemented as enhancements to CommodityPayout
+              - Target for initial contribution c. Sept 2023
       - Valuation and Collateral
           - Enhancements to existing models and new types
           - Target for initial contribution c. Sept 2023
       - Additional new features may also needed:
           - dynamic code list validation
-          -	min/max on quantity schedules
-  *	On-going support and maintenance of CDM to support ISDA needs
+          - min/max on quantity schedules
+  * On-going support and maintenance of CDM to support ISDA needs
       -	Minor enhancements to collateral model
    	  - Possible minor enhancements to the Legal Agreement model to support additions to internal ISDA models for Credit Support Annex (CSA) versions and elections which are built on CDM
       - Timing on these minor enhancements above is TBD
