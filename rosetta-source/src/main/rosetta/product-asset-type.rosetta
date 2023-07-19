@@ -442,7 +442,7 @@ type PriceReturnTerms:
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
 
-	valuation ValuationTerms (1..1) <"Contains all non-date valuation information.">
+	valuationTerms ValuationTerms (1..1) <"Contains all non-date valuation information.">
 	annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
 	dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
 	equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
@@ -478,7 +478,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 		then exchangeTradedContractNearest -> productIdentifier exists
 
 	condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
-		if valuation -> futuresPriceValuation = True then exchangeTradedContractNearest exists
+		if valuationTerms -> futuresPriceValuation = True then exchangeTradedContractNearest exists
 
 	condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
 		required choice volatilityStrikePrice, varianceStrikePrice
