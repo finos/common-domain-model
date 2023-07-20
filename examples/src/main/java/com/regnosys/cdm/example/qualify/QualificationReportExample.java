@@ -8,9 +8,7 @@ import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationResult;
 import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.process.PostProcessStep;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 
 import java.io.IOException;
 import java.net.URL;
