@@ -1,17 +1,14 @@
-# *Addition of Valuation object in CDM*
+# *Event Model - Representation of trade valuations *
 
 _What is being released?_
 
-This release includes the `Valuation` object in the CDM to allow for modelling of `Valuation` based reporting rules.
+This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations. . 
 
 _Review Directions_
 
-In the CDM Portal, select the textual view and 
-1. scroll to cdm > event > common > type File and inspect
+In the CDM Portal, select the textual view or graphical view and inspect:
 
-  - `Valuation` Object
-  - inclusion of type valuationHistory under `TradeState`
+  - the structural definition of the `Valuation` data type and associated enum type  `ValuationTypeEnum`, `ValuationSourceEnum`
+  - The insertion of the valuationHistory attribute for the `TradeState` data type
 
-2. scroll to cdm > event > common > enum File and inspect
-  - `ValuationTypeEnum`
-  - `ValuationSourceEnum`
+
