@@ -2,8 +2,7 @@
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+This release updates the bundle dependency version.  The bundle dependency comprises a number of dependencies that are released together as a bundle, including [rosetta-common](https://github.com/REGnosys/rosetta-common) and [rosetta-code-generators](https://github.com/REGnosys/rosetta-code-generators).
 
-- Version upgrade includes:
-  - 8.3.0: Java annotation added to allow config to be found programmatically. No changes are required in the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.0
-  - 8.3.1: Validator code generation bug fixed. No changes are required in the CDM. For further details see DSL issue https://github.com/REGnosys/rosetta-dsl/issues/597
+- Bundle version upgrade includes:
+  - 7.4.0: Java function memoization that significantly improves function execution time by caching repeating function calls that share the same signature. No changes are required in the CDM.
