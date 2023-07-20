@@ -2,7 +2,15 @@
 
 _What is being released?_
 
-This release updates the bundle dependency version.  The bundle dependency comprises a number of dependencies that are released together as a bundle, including [rosetta-common](https://github.com/REGnosys/rosetta-common) and [rosetta-code-generators](https://github.com/REGnosys/rosetta-code-generators).
+This release includes the Valuation object in the CDM to allow for modelling of Valuation based reporting rules.
 
-- Bundle version upgrade includes:
-  - 7.4.0: Java function memoization that significantly improves function execution time by caching repeating function calls that share the same signature. No changes are required in the CDM.
+_Review Directions_
+In the CDM Portal, select the textual view and scroll to cdm > event > common and 
+1. in Type File, inspect
+
+  - Valuation Object
+  - inclusion of type valuationHistory under TradeState
+
+2. in enum File, inspect
+  - ValuationTypeEnum
+  - ValuationSourceEnum
