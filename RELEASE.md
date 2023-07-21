@@ -1,9 +1,15 @@
-# *Infrastructure - Dependency Updates*
+# *Event Model - Representation of trade valuations*
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations.
+Additionally, the existing `valuation` type present in `ReturnsTermsBase` is renamed as `valuationTerms`
 
-- Version upgrade includes:
-  - 8.3.0: Java annotation added to allow config to be found programmatically. No changes are required in the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.0
-  - 8.3.1: Validator code generation bug fixed. No changes are required in the CDM. For further details see DSL issue https://github.com/REGnosys/rosetta-dsl/issues/597
+_Review Directions_
+
+In the CDM Portal, select the textual view or graphical view and inspect:
+
+  - the structural definition of the `Valuation` data type and associated enum type `ValuationTypeEnum`, `ValuationSourceEnum`
+  - the insertion of the valuationHistory attribute for the `TradeState` data type
+  - renaming of existing `Valuation` type to `ValuationTerms`
+  - renaming of existing `valuation` attribute in `ReturnTermsBases` to `valuationTerms`
