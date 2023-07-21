@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
@@ -114,7 +115,44 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
 	strike OptionStrike (0..1) <"Specifies the strike of the option on credit default swap.">
 	exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
 
-type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type ExchangeTradedProduct extends ProductBase:
+    future FuturePayout (0..1) <"The instrument details of the exchange traded future">
+    option OptionPayoutBase(0..1) <"The instrument details of the exchange-traded option">
+
+    condition: one-of
+    
+type FuturePayout extends PayoutBase:
+	underlier Product (1..1) <"The product underlying the option.  For a future, the underlying product is typically an index, an equity, or a commodity.">
+    expirationDate date(1..1) <"The maturity date of the future">
+    dayCountFraction DayCountFractionEnum(0..1) <"The day counting convention used (for IR futures)">
+
+
+type OptionPayoutBase extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+
+
+	underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
+	exerciseTerms Exercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
+
+
+
+
+type OptionPayout extends OptionPayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+
+
+	buyerSeller BuyerSeller (1..1)
+	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
+	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
+	schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+
+	condition ClearedPhysicalSettlementExists:
+		if settlementTerms -> physicalSettlementTerms exists
+		    and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
+		    and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+		then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
+
+
+type OptionPayoutOld extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
 
 	buyerSeller BuyerSeller (1..1)
@@ -736,6 +774,24 @@ type StrikeSpread: <"A class for defining a strike spread feature.">
 
 	upperStrike OptionStrike (1..1) <"Upper strike in a strike spread.">
 	upperStrikeNumberOfOptions number (1..1) <"Number of options at the upper strike price in a strike spread.">
+
+
+type Exercise: <"A class defining the exercise period for an   together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
+	[metadata key]
+
+    style OptionExerciseStyleEnum(0..1) <"Whether the option has a single exercise, multiple exercise dates, or a continuous range of exercise">
+    strike OptionStrike (0..1) <"Specifies the strike of the option">
+	commencementDate AdjustableOrRelativeDate (0..1) <"The first day of the exercise period for an American style option.">
+    exerciseDates AdjustableOrRelativeDates (0..1) <"The dates that define the Bermuda option exercise dates and the expiration date. The last specified date is assumed to be the expiration date. The dates can either be specified as a series of explicit dates and associated adjustments or as a series of dates defined relative to another schedule of dates, for example, the calculation period start dates. Where a relative series of dates are defined the first and last possible exercise dates can be separately specified.">
+	expirationDate AdjustableOrRelativeDate (0..1) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
+	relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
+	earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
+	latestExerciseTime BusinessCenterTime (0..1 ) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
+	expirationTime BusinessCenterTime (0..1) <"The latest time for exercise on expirationDate.">
+	expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
+	multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
+	exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
+    exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
 
 type AmericanExercise: <"A class defining the exercise period for an American style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
 	[metadata key]
