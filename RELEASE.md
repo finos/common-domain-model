@@ -1,8 +1,15 @@
-# *Infrastructure - Dependency Updates*
+# *Event Model - Representation of trade valuations*
 
 _What is being released?_
 
-This release updates the bundle dependency version.  The bundle dependency comprises a number of dependencies that are released together as a bundle, including [rosetta-common](https://github.com/REGnosys/rosetta-common) and [rosetta-code-generators](https://github.com/REGnosys/rosetta-code-generators).
+This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations.
+Additionally, the existing `valuation` type present in `ReturnsTermsBase` is renamed as `valuationTerms`
 
-- Bundle version upgrade includes:
-  - 7.4.0: Java function memoization that significantly improves function execution time by caching repeating function calls that share the same signature. No changes are required in the CDM.
+_Review Directions_
+
+In the CDM Portal, select the textual view or graphical view and inspect:
+
+  - the structural definition of the `Valuation` data type and associated enum type `ValuationTypeEnum`, `ValuationSourceEnum`
+  - the insertion of the valuationHistory attribute for the `TradeState` data type
+  - renaming of existing `Valuation` type to `ValuationTerms`
+  - renaming of existing `valuation` attribute in `ReturnTermsBases` to `valuationTerms`
