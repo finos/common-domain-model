@@ -1,15 +1,32 @@
-# *Event Model - Representation of trade valuations*
+# *Floating Rate Index Reference Data model - Extended FloatingRateIndexDefinition*
 
-_What is being released?_
+_What is being released_
 
-This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations.
-Additionally, the existing `valuation` type present in `ReturnsTermsBase` is renamed as `valuationTerms`
+_Background:_
+- The CDM Floating Rate Index Definition model was developed in the summer of 2021
+- Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
 
+_Goal:_
+- Update the CDM model to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet
+
+_FROs Metadata extensions_
+
+Updated `FloatingRateIndexStyleEnum` type with: 
+
+- Changed existing value from `Other displayName "Other FRO"` to  `Other displayName "Other"`
+- Added new value `SpecifiedFormula displayName "Specified Formula"`
+
+Updated `FloatingRateIndexCalculationMethodEnum` type with:
+
+- Changed existing `Average  displayName "Overnight Average"` to `Average displayName "Overnight Averaging"`
+- Added new value `Compounded displayName "Compounded Index"`
+- Added new value `AllInCompounded displayName "All-In Compounded Index"`
+    
+Changed `FloatingRateIndexIndentification` type with:
+
+- Fixed typo from `FloatingRateIndexI(n)dentification` to `FloatingRateIndexIdentification`
+
+       
 _Review Directions_
 
-In the CDM Portal, select the textual view or graphical view and inspect:
-
-  - the structural definition of the `Valuation` data type and associated enum type `ValuationTypeEnum`, `ValuationSourceEnum`
-  - the insertion of the valuationHistory attribute for the `TradeState` data type
-  - renaming of existing `Valuation` type to `ValuationTerms`
-  - renaming of existing `valuation` attribute in `ReturnTermsBases` to `valuationTerms`
+In the CDM Portal, select the Textual Browser and search and inspect the `FloatingRateIndexDefinition` type
