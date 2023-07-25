@@ -23,7 +23,7 @@ import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.metafields.MetaAndTemplateFields;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
