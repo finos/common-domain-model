@@ -28,15 +28,15 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 The following Working Groups are currently activated or about to be setup for this project:
 
-* [Contribution Review Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11547016/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
-* [Collateral Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11547285/CDM-for-Collateral-Initiatives-factsheet.1.pdf)
-* [Technology Architecture Working Group](https://github.com/eteridvalishvili/common-domain-model/files/11546939/CDM.Technology.Architecture.WG.ToR.v1.2.4.pdf).
-* [Structured Products Working Group](https://www.finos.org/finos-community-calendar)
-* [FINOS CDM Steering Working Group](https://www.finos.org/finos-community-calendar)
+* [Contribution Review Working Group]
+* [Collateral Working Group]
+* [Technology Architecture Working Group]
+* [Structured Products Working Group]
+* [FINOS CDM Steering Working Group](https://github.com/finos/common-domain-model#2-working-groups)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
-* ICMA CDM SteerCo for repo and bonds
+* [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
@@ -46,25 +46,25 @@ Changes to the CDM may be proposed by CDM Working Groups, individual corporate c
 
 **2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
-**2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Contribution Review Working Group as a proposed “Pre-Draft” contribution.
+**2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
-* Participants of the CDM Contribution Review Working Group approve DRAFT specification releases.
-* Maintainers of the CDM Contribution Review Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
+* Participants of the CDM Steering Working Group approve DRAFT specification releases.
+* Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
 
-**2.2.0 CDM Contribution Review Working Group.** The CDM Contribution Review Working Group will review and approve completed Working Group formation proposals per 2.1.0.
+**2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
-**2.2.1 CDM Contribution Review Working Group Purpose:** The Contribution Review Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Contribution Review Working Group may approve or establish additional working groups.
+**2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
-**2.2.2 Appointment of CDM Contribution Review Working Group Maintainers:**
+**2.2.2 Appointment of CDM Steering Working Group Maintainers:**
 
 * At the launch of the project, up to two initial Maintainers will be nominated by ICMA, ISDA, and ISLA (collectively, the “trade associations”).
 * Additional CDM Contribution Review Group  Maintainers may be proposed by Participants. Proposed maintainers will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
     * Proven experience in data modelling and/or software development in financial markets.
     * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
 
-**2.2.3 CDM Contribution Review Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Contribution Review Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+**2.2.3 CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
-**2.2.4 CDM Contribution Review Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
+**2.2.4 CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
 ## CDM Design Principles
 
@@ -107,6 +107,12 @@ Finally, another great way to interact with the community is to attend the bi-we
 **Need help?**
 
 Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+
+## Roadmap
+
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under Roadmap.md.
+
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
 
 ## Contributing
