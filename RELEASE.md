@@ -4,7 +4,7 @@ _What is being released?_
 
 Third party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
-- Guava dependency (group id `com.google.guava`, artifact id `guava`) upgraded to version 32.0.1-jre remove vulnerability in earlier versions [CVE-2023-2976](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2976) - 
+- Guava dependency (group id `com.google.guava`, artifact id `guava`) upgraded to version 32.0.1-jre remove vulnerability in earlier versions [CVE-2023-2976](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2976)
 
 # *Infrastructure - Dependency Updates*
 
