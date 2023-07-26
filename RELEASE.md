@@ -1,3 +1,16 @@
-# *Infrastructure - Build Pipeline Bug Fix*
+# *Infrastructure - Security Update*
 
-This release fixes the automated build and release pipeline to ensure unit test failures are correctly reported.  The issue was introduced as part of the recent 4.0.0 release.  For further information see GitHub issue https://github.com/finos/common-domain-model/issues/2252.
+_What is being released?_
+
+Third party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
+
+- Guava dependency (group id `com.google.guava`, artifact id `guava`) upgraded to version 32.0.1-jre as earlier versions had vulnerability, see [CVE-2023-2976](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2976) for further details
+
+# *Infrastructure - Dependency Update*
+
+_What is being released?_
+
+This release updates the bundle dependency version.  The bundle dependency comprises a number of dependencies that are released together as a bundle, including [rosetta-common](https://github.com/REGnosys/rosetta-common) and [rosetta-code-generators](https://github.com/REGnosys/rosetta-code-generators).
+
+- Bundle version upgrade includes:
+    - 6.8.2: Bug fix related to the processing of JSON schemas for ingestion. This update does not affect the model or test expectations.
