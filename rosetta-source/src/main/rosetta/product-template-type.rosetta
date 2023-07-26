@@ -260,6 +260,8 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 	cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
 	performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
 	assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
+    structuredPayout New2Payout (0..*) <".....................">
+    genericPayout GenericPayout (0..*)  <".....................">
 
 	condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
 	    if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total then
@@ -536,10 +538,20 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
 	mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">
 	optionalEarlyTermination OptionalEarlyTermination (0..1) <"An option for either or both parties to terminate the swap at fair value.">
 	optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
+    autocallableProvision NewAutocallableProvision (0..1) <"Specifies that an existence condition is attached to the whole Trade, which means the existence of the Trade is contigent i.e. the Trade is deemed to exist by default i.e. having economic effect, unless Knock is activated, that resulting in the Trade being early terminated.">
+    callableProvision OptionalEarlyTermination (0..1) <"A data defining: the right of a party to cancel a swap transaction on the specified exercise dates.">
+
+    condition AutocallableMeansKnockOutOnly:
+    autocallableProvision -> knockType = NewKnockTypeEnum -> KnockOut
 
 	condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
 		(mandatoryEarlyTermination exists or optionalEarlyTermination exists)
 			or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
+
+type NewAutocallableProvision extends NewKnock : <"Specifies that an existence condition is attached to the whole Trade, which means the existence of the Trade is contigent i.e. the Trade is deemed to exist by default i.e. having economic effect, unless Knock is activated, that resulting in the Trade being early terminated.">
+  settlementDate SettlementDate (1..1) <"A data defining the settlement date(s), together with applicable adjustments, or as a date relative to some other (anchor) date, or as any date in a range of contiguous business days. This data type provides a level of abstraction on top of the different legacy methods used to specify a settlement / payment date, which vary across product types, asset classes and delivery types.">
+  earlyRedemptionPayout NewPayoutOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+
 
 type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
 	[metadata key]
@@ -666,9 +678,9 @@ type FxFeature: <"A type for defining FX Features.">
 	referenceCurrency string (1..1) <"Specifies the reference currency of the trade.">
 		[metadata id]
 		[metadata scheme]
-	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
+	composite Composite (0..1) <"If 'Composite' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price  Strike Price) / (Strike Price  Settlement Price) x Multiplier provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
 	quanto Quanto (0..1) <"If 'Quanto' is specified as the Settlement Type in the relevant Transaction Supplement, an amount, as determined by the Calculation Agent in accordance with the Section 8.2 of the Equity Definitions.">
-crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price – Strike Price) / (Strike Price – Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
+crossCurrency Composite (0..1) <"If 'Cross-Currency' is specified as the Settlement Type in the relevant Transaction Supplement, an amount in the Settlement Currency, determined by the Calculation Agent as being equal to the number of Options exercised or deemed exercised, multiplied by: (Settlement Price  Strike Price) / (Strike Price  Settlement Price) x Multiplier x one unit of the Reference Currency converted into an amount in the Settlement Currency using the rate of exchange of the Settlement Currency as quoted on the Reference Price Source on the Valuation Date, provided that if the above is equal to a negative amount the Option Cash Settlement Amount shall be deemed to be zero.">
 	condition FxFeatureChoice: <" Choice rule to represent an FpML choice construct.">
 		required choice composite, quanto, crossCurrency
 
@@ -913,3 +925,281 @@ type EvergreenProvision: <"Specifies a transaction which automatically extends f
 	noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
+
+type New2Payout:<"...">
+  optionPayout New2OptionPayout (0..1)
+  interestRatePayout New2InterestRatePayout (0..1)
+  performancePayout New2PerformancePayout (0..1)
+
+type New2PerformancePayout extends New2StructuredPayoutBase:
+  [metadata key]
+  corePayout NewReturnTerms (0..*)
+  multipleCorePayoutAggregationMethod NewObservationConditions (0..1)
+  underlier New2Payout (1..1)
+
+  condition MultipleAggregationExists:
+  if corePayout count > 1 
+  then multipleCorePayoutAggregationMethod->aggregationFeatures exists
+
+type NewReturnTerms:
+  priceReturn NewGenericPriceReturn (0..*)
+  varianceReturn NewVarianceReturn (0..*)
+  volatilityReturn NewVolatilityReturn (0..*)
+  correlationReturn NewCorrelationReturn (0..*)
+  multipleReturnAggregationMethod NewObservationConditions (0..1)
+
+  condition MultipleAggregationExists:
+  if priceReturn count > 1 
+  or varianceReturn count > 1 
+  or volatilityReturn count > 1 
+  or correlationReturn count > 1 
+  then multipleReturnAggregationMethod->aggregationFeatures exists
+
+type NewGenericPriceReturn:
+  returnRatioMinusStrike NewPriceReturn (1..1)
+  strikeMinusReturnRatio NewPriceReturn (0..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type New2DifferentialBasis:
+  strikeMinusPrice New2StrikeDifferential (0..1)
+  priceMinusStrike New2StrikeDifferential (0..1)
+
+  condition : one-of
+
+type New2StrikeDifferential:
+  strike NewObservationBasis (1..1)
+  observablePrice NewObservationBasis (1..1)
+
+type NewPriceReturn:
+  returnRatio NewReturnRatio (1..*)
+  returnStrike NewObservationBasis (0..1)
+  multipleReturnRatioAggregationMethod NewObservationConditions (0..1)
+
+  condition MultipleRatioExists:
+  if returnRatio count > 1 
+  then multipleReturnRatioAggregationMethod->aggregationFeatures exists
+
+type NewReturnRatio:
+  ratioDenominator NewObservationBasis (1..1)
+  ratioNumerator NewObservationBasis (1..1)
+
+type NewVarianceReturn:
+  volatilityStrike NewObservationBasis (0..1)
+  varianceStrike NewObservationBasis (1..1)
+  realisedVariance NewReturnBase (1..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type NewVolatilityReturn:
+  volatilityStrike NewObservationBasis (1..1)
+  realisedVolatility NewReturnBase (1..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+ 
+type NewCorrelationReturn:
+  correlationStrike NewObservationBasis (1..1)
+  realisedCorrelation NewReturnBase (1..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type NewReturnBase extends NewObservationBasis:
+  naturalLogOfPriceReturn NewReturnRatio (0..*) <"To further custom the type of return involved in the final payout, for the purpose of structuring such return e.g. say the return involved in the realized volatility is made of worst of price basket components prices, or of geometrical means of the basket components prices, etc.">
+  squaredNaturalLogOfPriceReturn NewReturnRatio (0..*) <"To further custom the type of return involved in the final payout, for the purpose of structuring such return e.g. say the return involved in the realized volatility is made of worst of price basket components prices, or of geometrical means of the basket components prices.">
+  multipleReturnRatioAggregationMethod NewObservationConditions (0..1)
+  valuation Valuation (1..1) <"Contains all non-date valuation information.">
+  annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
+  dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
+  equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
+  sharePriceDividendAdjustment boolean (0..1) <"Indicates whether the price of shares is adjusted for dividends or not.">
+  expectedN int (1..1) <"Expected number of trading days.">
+  initialLevel number (0..1) <"Contract will strike off this initial level. Providing just the initialLevel without initialLevelSource, infers that this is AgreedInitialPrice - a specified Initial Index Level.">
+  initialLevelSource DeterminationMethodEnum (0..1) <"In this context, this is AgreedInitialPrice - a specified Initial Index Level.">
+  meanAdjustment boolean (0..1) <"Specifies whether Mean Adjustment is applicable or not in the calculation of the Realized Volatility, Variance or Correlation">
+  performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+
+  condition InitialLevelOrInitialLevelSource: <"At least one of initialLevel and initialLevelSource must be present, or both">
+    if initialLevel is absent then initialLevelSource exists
+    and if initialLevelSource is absent then initialLevel exists
+
+  condition PositiveExpectedN: <"The number of expected trading dates must be positive">
+    expectedN > 0
+
+ condition EitherNaturalOrSquaredFunctionExists :
+  optional choice naturalLogOfPriceReturn, squaredNaturalLogOfPriceReturn
+ 
+ condition MultipleReturnRatioAggregationMethod :
+    if naturalLogOfPriceReturn exists or squaredNaturalLogOfPriceReturn exists
+    then multipleReturnRatioAggregationMethod exists
+
+type New2InterestRatePayout extends New2StructuredPayoutBase:
+  [metadata key]
+  corePayout NewRateSpecification (0..*) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
+  dayCountFraction cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
+  [metadata scheme]
+  calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
+  paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
+  resetDates ResetDates (0..1) <"The reset dates schedule, i.e. the dates on which the new observed index value is applied for each period and the interest rate hence begins to accrue.">
+  averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
+  discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">
+  compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">
+  cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">
+  stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">
+  bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
+  fixedAmount calculation (0..1) <"Fixed Amount Calculation">
+  floatingAmount calculation (0..1) <"Floating Amount Calculation">
+  multipleCorePayoutAggregationMethod NewObservationConditions (0..1)
+
+  condition MultipleAggregationExists:
+  if corePayout count > 1 
+  then multipleCorePayoutAggregationMethod->aggregationFeatures exists
+
+type New2OptionPayout extends New2StructuredPayoutBase:
+ [metadata key]
+  optionType NewOptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
+  optionStyle OptionStyle (1..1) <"The option exercise can be of American style, Bermuda style or European style. The FpML implementation makes use of a substitution group.">
+  corePayout New2OptionExplicitFormula (1..*) <"Generic definition of an optionPayout explicit formula, set out in two types, whether the variable argument depends of a Differential basis or a Performance basis."> 
+  exerciseProcedure ExerciseProcedure (1..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
+  underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+  multipleCorePayoutAggregationMethod NewObservationConditions (0..1)
+  
+  condition Put:
+  if optionType = NewOptionTypeEnum -> Put then corePayout->maxOfZeroAndDifferential->strikeMinusPrice exists or corePayout->maxOfZeroAndReturn->strikeMinusReturnRatio exists
+
+  condition Call:
+  if optionType = NewOptionTypeEnum -> Call then corePayout->maxOfZeroAndDifferential->priceMinusStrike exists or corePayout->maxOfZeroAndReturn->returnRatioMinusStrike exists
+
+  condition MultipleAggregationExists:
+  if corePayout count > 1 
+  then multipleCorePayoutAggregationMethod->aggregationFeatures exists
+
+type New2OptionExplicitFormula: <"Generic definition of an optionPayout explicit formula, set out in two types, whether the variable argument depends of a Differential basis or a Performance basis."> 
+
+  maxOfZeroAndDifferential New2DifferentialBasis (0..1)
+  maxOfZeroAndReturn NewGenericPriceReturn (0..1)
+
+  condition : 
+  required choice maxOfZeroAndDifferential, maxOfZeroAndReturn
+
+type NewPayoutOrigin : <"Defines the origin to the value as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+  optionPayout New2OptionPayout (0..1)
+  [metadata reference]
+  interestRatePayout New2InterestRatePayout (0..1)
+  [metadata reference]
+  performancePayout New2PerformancePayout (0..1)
+  [metadata reference]
+
+type NewProduct: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+  [metadata key]
+
+  contractualProduct ContractualProduct (0..1) <"Specifies the contractual product's economic terms, product identifier, and product taxonomy.">
+  index Index (0..1) <"Identifies an index by referencing a product identifier.">
+  loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
+  commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
+    [metadata address "pointsTo"=Observable->commodity]
+  security Security (0..1) <"Identifies a security by referencing a product identifier and a security type, plus an optional set of attributes.">
+  basket NewBasket (0..1) <"Identifies a custom basket by referencing a product identifier and its constituents.">
+  futuresPriceValuation boolean (0..1) <"When applicable, then the observable price shall be the Official Settlement Price on the relevant derivative market i.e. the Related Exchange. Unless otherwise specified, Futures Price Valuation shall only apply to the Observation End Date.">
+  exchange string (0..1) <"Defines the main spot Exchange to look at for any spot price observation related to the observable or underlier product.">
+  relatedExchange string (0..*) <"Defines the main Derivatives Exchange to look at for any derivatoves price observation related to the observable or underlier product ; in case multiple would exist, either list them all one by one, else All Exchanges election could be used in regards to relevant ISDA Definitions or any other applicable related documentation that the Trade may refer to.">
+  digitalAsset ProductBase (0..1) <"Identifies an digital asset by referencing a product identifier.">
+
+type NewKnock: <"Specifies that an existence condition is attached to the parent object, which means the economic effect of the object is contigent i.e. depending whether the related trigger is knocked. There are two types of existence conditions, either knock-In or Knock-Out : Knock-In means that the Object to which Knock is applicable is deemed not to exist by default i.e. having no economic effect, unless the Knock is activated in accordance with triggerTerms and observationTerms, that resulting in the Object coming into existence ; reversely Knock-Out means that the related Object is deemed to exist by default i.e. having economic effect, unless Knock is activated, that resulting in the object going out of existence, thus loosing any economic effect. The duration of the existence or non-existence of the related Object once the Knock-In or Knock-Out has been activated e.g. knocked once for all or during the knocked day and then reset in previous state, etc. is specified with knockEffectDuration.">
+
+  knockType NewKnockTypeEnum (1..1) <"Specifies whether effect of the Knock trigger being met is to activate i.e. when Knock-In or to disactivate i.e. when Knock-Out the Object to which the Knock is relative to.">
+  triggerTerms NewTriggerTerms (1..*) <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
+  observationTerms NewObservationBasis (1..1) <"The basic set of terms for an observation to be defined in an exhaustive manner the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr and the observationConditions further define HOW the observation shall be made.">
+  knockEffectDuration Frequency (1..1) <"The duration of the existence or non-existence of the related Object once the Knock-In or Knock-Out has been activated e.g. 1T standing for 1 'Term' would indicate a 'one touch' effect that is to say if knocked once, this means once for all until trade is terminated, else 1D would indicate the effect exists for the knocking day only, then this coupled with a daily observation would correspond to daily knock being reset e.g. that would represent the same as bounded variance involved in corridor varswap as an example, etc.">
+//   knockEffectDurationType NewEffectivenessDurationType (1..1) <"The duration of the existence or non-existence of the related Object once the Knock-In or Knock-Out has been activated e.g. knocked once for all or during the knocked day and then reset in previous state, etc.">
+
+type NewTriggerTerms : <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
+  triggerLevel NewObservableValue (1..1)
+  coreObservableTriggerCondition TriggerTypeEnum (1..1) <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
+  multipleObservableTriggerCondition NewMultipleObservableConditionEnum (0..1) <"Further specifies the coreObservableCondition when multiple observable values shall be taken into account for determining whether the triggerLevel is deemed to have been knocked or not.">
+
+type New2StructuredPayoutBase extends PayoutBase : 
+  //[metadata key]
+  valuationTerms ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation dates.">
+  observationTerms NewObservationBasis (1..1) <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made.">
+  paymentTerms PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
+  fxFeature FxFeature (0..*) <"Specifies whether FX Feature embedded in the Payout Leg applies to the related Payout as Composite or Quanto or CrossCurrency. ">
+  structuredFeatures New2StructuredFeatures (0..1) <"Define a core set of optional features for structuring the Payout e.g. make its existence contigent via knockCondition, bounds its value via capFloorBarrier, leverage its value via multipler or delevrage it via divisor .">
+
+
+
+type NewSpreadRateReturn:
+  longPositionRate NewRateSpecification (1..1)
+  shortPositiontRate NewRateSpecification (1..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type NewBasket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
+  basketConstituent NewObservable (1..*) <"Identifies the constituents of the basket">
+
+type New2Ratio:
+  ratioDenominator New3ObservationBasis (1..1)
+  ratioNumerator New3ObservationBasis (1..1)
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type New2ObservationBasis extends NewObservationBasis:
+  structuredFeatures New2StructuredFeatures (0..1)
+
+type New3ObservationBasis extends New2ObservationBasis:
+  genericPayout GenericPayout (0..1)
+
+  condition : 
+  required choice observableValue, genericPayout
+
+type New2CumulativeKnock:
+  cumulativeKnockCondition New2Knock (0..*)
+
+type New2Knock extends NewKnock:<"Specifies that an existence condition is attached to the parent object, which means the economic effect of the object is contigent i.e. depending whether the related trigger is knocked.">
+  cumulativeKnockCondition New2Knock (0..*) <"Defines additional Knock Conditions which are cumulative in regards of the root parent Knock Condition i.e. respective triggers for both Knock Conditions, the root one and the cumulative one, must be met for the purpose of having an effect. From a logical perspective, a cumulativeKnockCondition has the meaning of an 'AND' condition. As an indication, for the purpose of defining additional Knock Conditions with logical meaning of an 'OR' condition i.e. either is sufficient to have an effect, one should define multiple Knock at the same root level.">
+
+type New2Multiplier extends New2ObservationBasis:
+  dayCountFraction cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction.">
+  numberOfDaysInObservationPeriod boolean (0..1) <"The multiplier value is the number of days observed in the relevant Observation Period.">
+  numberOfKnockedObservations int (0..1) <"The multiplier value is the number of times a Knock Condition is met.">
+
+ condition MultiplierValueIsFixedOrObservable:
+ required choice observableValue, dayCountFraction, numberOfDaysInObservationPeriod, numberOfKnockedObservations
+
+  condition KnockedObservations:
+  if numberOfKnockedObservations exists 
+  then structuredFeatures -> knockCondition exists
+
+type New2AggregationFeatures: <"The basic mathematical commutative functions, to represent the calculation method for aggregating multiple values into a single value, either per time series or per observable series.">
+  datesAggregationPerGivenObservable NewBasicCommutativeFunctionsEnum (0..1) <"The calculation method per time series i.e. for aggregating multiple dated values into a single value, per each given observable.">
+  observablesAggregationPerGivenDate NewBasicCommutativeFunctionsEnum (0..1) <"The calculation method per observable series i.e. for aggregating multiple observable values into a single value, per each given observation date.">
+  averagingMethod AveragingCalculationMethod (0..1) <"Defines the ways in which multiple values can be aggregated into a single value.">
+  rankingAggregationPerGivenDate NewRankingMethod (0..1) <"Defines that one or several values shall be selected in regards of their rank in the value series e.g. the 2nd and/or the 3rd and/or the 'nth' when sorting either from lowest to the highest value in the series, or vice-versa.">
+  
+  condition AveragingMethodologyExists :
+  if datesAggregationPerGivenObservable = NewBasicCommutativeFunctionsEnum -> Average
+  or observablesAggregationPerGivenDate = NewBasicCommutativeFunctionsEnum -> Average
+  then averagingMethod exists
+
+  condition OnlyOneMethodExists:
+  optional choice rankingAggregationPerGivenDate, observablesAggregationPerGivenDate, datesAggregationPerGivenObservable
+
+type NewRankingMethod : <"Defines that one or several values shall be selected in regards of their rank in the value series e.g. the 2nd and/or the 3rd and/or the 'nth' when sorting either from lowest to the highest value in the series, or vice-versa.">
+  nthFromMinToMax int (0..*) <"Defines that one or several values shall be selected if being the 'nth' value, when sorting it from the lowest to the highest value in the series">
+  nthFromMaxToMin int (0..*) <"Defines that one or several values shall be selected if being the 'nth' value, when sorting it from the highest to the lowest value in the series">
+
+type NewRebalancing:
+  rebalancingConditions New2Knock (1..*)
+  rebalancingEffectiveDates AdjustableRelativeOrPeriodicDates (1..1)
+
+type GenericPayout extends New2StructuredPayoutBase:
+  denominatorValue GenericPayout (0..*)
+  numeratorValue GenericPayout (0..*)
+  denominatorAggregation NewObservationConditions (0..1)
+  numeratorAggregation NewObservationConditions (0..1)
+  ratioAggregation NewObservationConditions (0..1)
+  underlier NewProduct (0..1)
+
+type New2StructuredFeatures: <"Define a core set of optional features for structuring the parent object e.g. make its existence contigent via knockCondition, bounds its value via capFloorBarrier, leverage its value via multipler or delevrage it via divisor .">
+  knockCondition New2Knock (0..*) <"Specifies that the parent object is contigent i.e. is deemed to exist (or not to exist) by default until the trigger is knocked Out (or knocked In). For clarity, Knock-In means that the Object to which Knock is applicable is deemed not to exist by default i.e. having no economic effect, unless the Knock is activated in accordance with triggerTerms and observationTerms, that resulting in the Object coming into existence ; reversely Knock-Out means that the related Object is deemed to exist by default i.e. having economic effect, unless Knock is activated, that resulting in the object going out of existence, thus loosing any economic effect. The duration of the existence or non-existence of the related Object once the Knock-In or Knock-Out has been activated e.g. knocked once for all or during the knocked day and then reset in previous state, etc. is specified with knockEffectDuration.">
+  capFloorBarrier NewBarrier (0..*) <"Specifies that the parent object value is bounded as a lowest level when barrierType is a Floor, else as a highest level when it is a Cap. For clarity, a Cap represents a function which resulting value is the Minimum between the barrierLevel and the value of the related Object ; a Floor represents a function which resulting value is the Maximum between the barrierLevel and the value of the related Object.">
+  multiplier New2Multiplier (0..*)
+  divisor New2Multiplier (0..*)
+
+type NewBarrier: <"Defines a function which resulting value is bounded as a lowest level when barrierType is a Floor, else as a highest level when it is a Cap. For clarity, a Cap represents a function which resulting value is the Minimum between the barrierLevel and the value of the related Object ; reversely a Floor represents a function which resulting value is the Maximum between the barrierLevel and the value of the related Object.">
+	barrierType CapFloorEnum (1..1) <"The enumerated values to specify whether the barrierLevel is a Cap or Floor : ">
+	barrierLevel NewObservationBasis (1..1) <"The value of the Cap or Floor level.">
+	barrierKnockCondition NewKnock (0..1) <"Specifies whether a Knock Condition is attached to the Barrier, which means economic effect of the Barrier is contigent i.e. depending whether the related trigger is knocked.">
