@@ -1,4 +1,4 @@
-# _CDM - Zero-Strike equity swaps Release Notes_
+# _CDM - Zero-Strike equity swaps_
 
 _Background_
 
