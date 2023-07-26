@@ -43,7 +43,6 @@ function Home() {
         {featuresTwoHeader && featuresTwoHeader.length && (
                 <section className={styles.features}>
                   <div className="container">
-
                       {featuresTwoHeader.map((props, idx) => (
                         <FeaturesTwoHeader key={idx} {...props} />
                       ))}
@@ -55,7 +54,7 @@ function Home() {
           <section className={styles.members}>
             <div className="container">
               <div className="row row--center">
-                <h2></h2>
+              <h2>WHAT IS THE PURPOSE OF THE CDM?</h2>
               </div>
               <div className="row">
                 {featuresTwo.map((props, idx) => (
