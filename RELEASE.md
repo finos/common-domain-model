@@ -6,7 +6,7 @@ Third party software libraries updated to comply with the “Common Vulnerabilit
 
 - Guava dependency (group id `com.google.guava`, artifact id `guava`) upgraded to version 32.0.1-jre as earlier versions had vulnerability, see [CVE-2023-2976](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2976) for further details
 
-# *Infrastructure - Dependency Updates*
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
