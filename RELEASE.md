@@ -1,15 +1,20 @@
-# *Event Model - Representation of trade valuations*
+# _Natural Person and NaturalPersonRole circular reference_
+
+_Background_
+
+An issue regarding a circular reference inside the `NaturalPerson` type was recently found in the model.
+`NaturalPerson` contains a list of `NaturalPersonRole`, which has a reference back to the containing type `NaturalPerson`, causing a circular reference in the model.
+This release fixes this issue.
 
 _What is being released?_
 
-This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations.
-Additionally, the existing `valuation` type present in `ReturnsTermsBase` is renamed as `valuationTerms`
+- Minor changes to `NaturalPerson` type.
 
-_Review Directions_
+_Data types_
 
-In the CDM Portal, select the textual view or graphical view and inspect:
+- `personRole` attribute of type `NaturalPersonRole` removed from `NaturalPerson`.
 
-  - the structural definition of the `Valuation` data type and associated enum type `ValuationTypeEnum`, `ValuationSourceEnum`
-  - the insertion of the valuationHistory attribute for the `TradeState` data type
-  - renaming of existing `Valuation` type to `ValuationTerms`
-  - renaming of existing `valuation` attribute in `ReturnTermsBases` to `valuationTerms`
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
