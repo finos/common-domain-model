@@ -34,7 +34,7 @@ can be built.
 
 ## How Does It Work
 
-The data and proces model definitions of the CDM are systematically
+The data and process model definitions of the CDM are systematically
 translated into executable code using purpose-built code generation
 technology. The CDM executable code is available in a number of modern,
 widely adopted and freely available programming languages and is
