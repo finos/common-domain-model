@@ -1,11 +1,30 @@
-# *Infrastructure - Dependency Updates*
+# *Floating Rate Index Reference Data model - Extended FloatingRateIndexDefinition*
+
+_Background_
+- The CDM Floating Rate Index Definition model was developed in the summer of 2021
+- Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
 
 _What is being released?_
 
-This release updates the rosetta-dsl and the rosetta-bundle dependencies:
+The CDM model is being updated to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet.
 
-- rosetta-dsl:
-    - 8.3.2: various patches to address static compilation issues and issues with model validation of cardinality, and to improve indentation of auto-formatting. No changes are required in the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.2
-    - 8.3.3: various patches to address static compilation issues and issues with model validation of cardinality. No changes are required in the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.3
-- rosetta-bundle:
-    - 7.5.4: a patch for the Python code generator. For further details see https://github.com/REGnosys/rosetta-code-generators/issues/230.
+FROs Metadata extensions
+
+Updated `FloatingRateIndexStyleEnum` type with: 
+
+- Changed existing value from `Other displayName "Other FRO"` to  `Other displayName "Other"`
+- Added new value `SpecifiedFormula displayName "Specified Formula"`
+
+Updated `FloatingRateIndexCalculationMethodEnum` type with:
+
+- Changed existing `Average  displayName "Overnight Average"` to `Average displayName "Overnight Averaging"`
+- Added new value `Compounded displayName "Compounded Index"`
+- Added new value `AllInCompounded displayName "All-In Compounded Index"`
+    
+Changed `FloatingRateIndexIndentification` type with:
+
+- Fixed typo from `FloatingRateIndexI(n)dentification` to `FloatingRateIndexIdentification`
+
+_Review Directions_
+
+In the CDM Portal, select the Textual Browser and search and inspect the `FloatingRateIndexDefinition` type
