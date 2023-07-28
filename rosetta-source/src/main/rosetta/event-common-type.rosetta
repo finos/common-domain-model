@@ -178,8 +178,19 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 type ObservationEvent: <"Specifies the necessary information to create any observation event.">
 	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
 	corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
+    extraordinaryEvents ExtraordinaryEvents (0..1)
+    dividendsObservation NewDividendsObservations (0..1) <"To record observations of dividends.">
+    marketDataObservation NewObservationBasis (0..1) <"To record any types of observation in generic manner i.e. without predeterming the intent or the usage of the observation ; which may possibly result of an Event Qualifier, that also taking into consideration the Event composable model in regards of which intent or usage of a Market Data Observation embedded with another Event might be further determined.">
+    valuationDataObservation NewObservationBasis (0..1) <"To record any types of observation used within business background of pricing, risk moniroting, valuation, parameters consensus, etc. As an example, record the Dated Values on same date series for two distinct Observable products may represent the pairs of prices per each date, with the intent to document the data used to calculate the correlation factor for these two Observable product. And as regards the correlation factor per se, this may be represented by an Observable product being a basket which components is composed by the pair of the related Observable products. Other usages are possible to describe volatility surfaces or cubes, etc. or simply to associate the valuation of a contractual product, either as unit Price or as Position Valuation via Quantity, etc.">
+    payoutEventObservation NewPayoutObservation (0..1) <"To record any Events that result from the Payout, whether stand-alone observations e.g. fixing observations, knocked triggers, or payout outputs i.e. mainly payout amount whether cash or physically settled, by specifying any relevant observed values for documenting the related calculation details e.g. not only the fixing observations but also the current notional quantity and specific payout components to describe the payout formula.">
 
 	condition: one-of
+
+type NewPayoutObservation: 
+    genericPayoutEvent NewGenericPayout (0..1)
+    structuredPayoutEvent New2Payout (0..1)
+
+    condition: one-of
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
 	[metadata key]

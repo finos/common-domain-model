@@ -483,56 +483,67 @@ type DividendApplicability: <"The parameters which define whether dividends are 
 
 type NewObservationBasis: <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made.">
   [metadata key]
-  observableValue NewObservableValue (0..*) <"Specifies the Observable to be observed for a Price.">
-  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made.">
-  
-  condition AggregationMethodExists :
-  if observableValue -> product -> basket exists 
-  or observableValue count >1 
-  then observationConditions ->aggregationFeatures exists
+  observableValue NewObservableValue (0..*) <"Specifies the Observable to be observed. As an indication, the metadata address will necessarily point to the coreObservationTerms, since the only object of a same type with a metadata location for being resolved is an attribute of coreObservationTerms.">
+  [metadata address]
+  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made. As an indication, the metadata address will necessarily point to the coreObservationTerms, since the only object of a same type with a metadata location for being resolved is an attribute of coreObservationTerms.">
+  [metadata address]
 
-type NewObservableValue extends NewObservable : <"Defines in a generic manner a value that is effectively observed, which may be either a Price or an Amount.">
+type NewCoreObservationBasis: <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made.">
+  [metadata key]
+  observableValue NewObservableValue (0..*) <"Specifies the Observable to be observed">
+  [metadata location]
+  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made.">
+  [metadata location]
+
+type NewObservableValue : <"Defines in a generic manner a value that is effectively observed, which may be either a Price or an Amount.">
+  observable NewObservable (1..1)
   price PriceSchedule (0..*) <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
+    [metadata address]
   quantity QuantitySchedule (0..*) <"Specifies a quantity as a single value to be associated to a financial product, for example a transfer amount resulting from a trade. This data type extends QuantitySchedule and requires that only the single amount value exists.">
+    [metadata address]
+  structuredFeatures cdm.product.template.New2StructuredFeatures (0..1)
+  rebalancingFeatures cdm.product.template.NewRebalancing (0..1)
   payerReceiver PayerReceiver (0..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
+  bespokeItemDescription AdditionalBespokeTerm (0..1)
 
 type NewObservable: 
   [metadata key]
   rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
-  [metadata location]
+  [metadata address]
   currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
-  [metadata location]
+  [metadata address]
   product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
-  payoutObservableReference PayoutObservableReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
-  [metadata location]
-  payoutUnderlierReference PayoutObservableReference (0..1) <"To reference an Observable already defined in the primary ObservationTerms attached at Payout root level.">
-  [metadata location]
-
+  [metadata address]
   condition: one-of
 
-  condition UnderlierIsProduct :
-  if payoutUnderlierReference exists
-  then product only exists
-
-type PayoutObservableReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
-  [metadata key]
-  rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
-  currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
-  product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+//type PayoutObservableReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
+  //[metadata key]
+ // rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+  //[metadata address]
+ // currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+ // [metadata address]
+ // product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+ // [metadata address]
 
 type NewObservationConditions extends NewSingleObservationConditions: <"Defines the observationDates with the related multiple aggregation method when multiple observationConditions exist.">
-  observationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dates on which the multiple observations shall occurr.">
-  aggregationFeatures New2AggregationFeatures (0..1)
+  observationDates AdjustableOrRelativeDates (0..1) <"Specifies the dates on which the multiple observations shall occurr.">
+  observationPeriodDates PeriodicDates  (0..1) <"Specifies the periods inside which the multiple observations shall occurr.">
+  calculationPeriodDates cdm.product.common.schedule.CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+  aggregationFeatures New2AggregationFeatures (0..1) <"The basic mathematical commutative functions, to represent the calculation method for aggregating multiple values into a single value, either per time series or per observable series.">
   embeddedObservationConditions NewObservationConditions (0..*) <"Specifies that aggregationFeatures functional effect is to aggregate the multiple outputs defined with such embeddedObservationConditions">
-  payoutObservationConditionReference PayoutObservationConditionReference (0..1)
-  [metadata location]
 
   condition ObservationDateOrDates:
-  required choice observationDates, observationDate, payoutObservationConditionReference 
+  required choice observationDates, observationDate
 
-type PayoutObservationConditionReference:
-    [metadata key]
-    observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made.">
+//type New3ObservationConditions extends NewSingleObservationConditions: <"Defines the observationDates with the related multiple aggregation method when multiple observationConditions exist.">
+  //observationDates AdjustableOrRelativeDates (0..1) <"Specifies the dates on which the multiple observations shall occurr.">
+ // observationPeriodDates PeriodicDates  (0..1) <"Specifies the periods inside which the multiple observations shall occurr.">
+  //calculationPeriodDates cdm.product.common.schedule.CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+ // aggregationFeatures New3AggregationFeatures (0..1) <"The basic mathematical commutative functions, to represent the calculation method for aggregating multiple values into a single value, either per time series or per observable series.">
+ // embeddedObservationConditions NewObservationConditions (0..*) <"Specifies that aggregationFeatures functional effect is to aggregate the multiple outputs defined with such embeddedObservationConditions">
+
+ // condition ObservationDateOrDates:
+ // required choice observationDates, observationDate
 
 type NewSingleObservationConditions: <"Specifies the conditions how the observation shall be made.">
   observationDate AdjustableOrRelativeDate (0..1) <"Defines the particular date on which the observation is effectively made.">
