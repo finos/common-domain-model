@@ -1,30 +1,10 @@
-# *Floating Rate Index Reference Data model - Extended FloatingRateIndexDefinition*
-
-_Background_
-- The CDM Floating Rate Index Definition model was developed in the summer of 2021
-- Additional versions of the ISDA 2021 Interest Rate Definitions (V2, V3,…) have added more metadata to be included as part of the index definition
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-The CDM model is being updated to support the latest version of the ISDA Floating Rate Options Metadata spreadsheet.
+This release updates the rosetta-dsl dependency:
 
-FROs Metadata extensions
-
-Updated `FloatingRateIndexStyleEnum` type with: 
-
-- Changed existing value from `Other displayName "Other FRO"` to  `Other displayName "Other"`
-- Added new value `SpecifiedFormula displayName "Specified Formula"`
-
-Updated `FloatingRateIndexCalculationMethodEnum` type with:
-
-- Changed existing `Average  displayName "Overnight Average"` to `Average displayName "Overnight Averaging"`
-- Added new value `Compounded displayName "Compounded Index"`
-- Added new value `AllInCompounded displayName "All-In Compounded Index"`
-    
-Changed `FloatingRateIndexIndentification` type with:
-
-- Fixed typo from `FloatingRateIndexI(n)dentification` to `FloatingRateIndexIdentification`
-
-_Review Directions_
-
-In the CDM Portal, select the Textual Browser and search and inspect the `FloatingRateIndexDefinition` type
+- rosetta-dsl:
+  - 8.3.5: Bug fix related to filtering of items that are null. This change has no impact on the CDM model or test expectations.  For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.5
+- rosetta-bundle:
+  - 7.5.9: Latest FpML scheme (2.14) published 2023-07-28.  This change updates the model for enum `FloatingRateIndexEnum` with new values `MXN_TIIE_ON`, `MXN_TIIE_ON_OIS_Compound`, `ZAR_ZARONIA` and `ZAR_ZARONIA_OIS_Compound` as per the FpML scheme 2.14.
