@@ -1,10 +1,12 @@
 package cdm.product.common.settlement.processor;
 
+import cdm.observable.asset.PriceComposite;
 import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.SpreadTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.template.Composite;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;

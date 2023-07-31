@@ -1,10 +1,12 @@
 package cdm.product.common.settlement.processor;
 
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceComposite;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Key;
@@ -42,11 +44,12 @@ public class PriceQuantityHelper {
 	 * Creates a Price instance that can be referenced, e.g. the meta key is added with the DOCUMENT scope.
 	 */
 	public static FieldWithMetaPriceScheduleBuilder toReferencablePriceBuilder(
-			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
+			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceTypeEnum priceType, ArithmeticOperationEnum operator) {
 		FieldWithMetaPriceScheduleBuilder priceBuilder = FieldWithMetaPriceSchedule.builder()
 				.setValue(Price.builder()
 						.setValue(price)
-						.setPriceExpression(priceExpression)
+						.setPriceType(priceType)
+						.setOperator(operator)
 						.setUnit(unitOfAmount)
 						.setPerUnitOf(perUnitOfAmount));
 		priceBuilder.getOrCreateMeta().addKey(Key.builder().setScope("DOCUMENT"));
