@@ -45,19 +45,6 @@ module.exports = {
       },
       links: [
         {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Getting Started',
-              to: 'docs/home',
-            },
-            {
-              label: 'About FINOS',
-              to: 'docs/about-finos',
-            }
-          ]
-        },
-        {
           title: 'CDM Working Groups',
           items: [
             {
@@ -103,6 +90,10 @@ module.exports = {
           title: 'Consume',
           items: [
             {
+              label: 'CDM GitHub Repo',
+              href: 'https://www.finos.org/common-domain-model',
+            },
+            {
               label: 'Releases',
               href: 'https://github.com/finos/common-domain-model/releases',
             },
@@ -117,6 +108,10 @@ module.exports = {
             {
               label: 'Download Source Code',
               to: 'docs/download',
+            },
+            {
+              label: 'CDM Launch Press Release',
+              href: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
             }
           ]
         },
@@ -132,12 +127,8 @@ module.exports = {
               href: 'https://www.github.com/finos',
             },
             {
-              label: 'CDM GitHub Repo',
-              href: 'https://www.finos.org/common-domain-model',
-            },
-            {
-              label: 'CDM Launch Press Release',
-              href: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
+              label: 'About FINOS',
+              to: 'docs/about-finos',
             }
           ]
         },
