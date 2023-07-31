@@ -49,7 +49,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 					PriceTypeEnum priceType = PriceTypeEnum.INTEREST_RATE;
 
 					FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder fieldWithPriceScheduleBuilder =
-							toReferencablePriceBuilder(floorRate, unitType, unitType, priceType, operator);
+							toReferencablePriceBuilder(floorRate, unitType, unitType, priceType, operator, null);
 					PriceSchedule.PriceScheduleBuilder priceScheduleBuilder = fieldWithPriceScheduleBuilder.getValue();
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break
