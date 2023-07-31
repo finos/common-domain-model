@@ -132,7 +132,7 @@ module.exports = {
             },
             {
               label: 'About FINOS',
-              to: 'docs/about-finos',
+              to: 'https://www.finos.org/about-us',
             }
           ]
         },
