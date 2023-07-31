@@ -9,7 +9,7 @@ export const featuresTwo = [
         imageUrl: '/img/feature-images/share.svg',
     },
     {
-        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
+        title: <>DELIVERS BETTER REGULATORY OVERSIGHT<br/></>,
         imageUrl: '/img/feature-images/book-open.svg',
         description: (
             <>FINOS CDM promotes transparency and alignment between regulators and market participants.</>
