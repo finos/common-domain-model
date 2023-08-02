@@ -1,4 +1,4 @@
-# *Event/Product Model - FpML 5.13 Schema*
+# *Event / Product Model - FpML 5.13 Schema*
 
 _What is being released?_
 
