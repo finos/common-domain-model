@@ -1,10 +1,9 @@
-# *Infrastructure - Dependency Update*
+# *Event / Product Model - FpML 5.13 Schema*
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+This release updates the FpML schema used for FpML to CDM ingestion. The version has been updated from `5.13 First Working Draft` to `5.13 Second Working Draft`.  For further details, visit https://www.fpml.org/spec/fpml-5-13-2-wd-2/.
 
-- rosetta-dsl:
-  - 8.3.5: Bug fix related to filtering of items that are null. This change has no impact on the CDM model or test expectations.  For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.5
-- rosetta-bundle:
-  - 7.5.9: Latest FpML scheme (2.14) published 2023-07-28.  This change updates the model for enum `FloatingRateIndexEnum` with new values `MXN_TIIE_ON`, `MXN_TIIE_ON_OIS_Compound`, `ZAR_ZARONIA` and `ZAR_ZARONIA_OIS_Compound` as per the FpML scheme 2.14.
+_Review Directions_
+
+This change has no impact on the model or test expectations.
