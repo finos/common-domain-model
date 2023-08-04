@@ -6,7 +6,7 @@ This release extends the FpML mapping coverage for Commodity derivatives product
 
 _What is being released?_
 
-- FpML mappings havev been introduced to address the settlement type of Commodity products
+- FpML mappings have been introduced to address the settlement type of Commodity products
 
 _Review directions_
 
