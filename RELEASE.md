@@ -2,11 +2,11 @@
 
 _Background_
 
-This release updates and extends the FpML mapping coverage for the Commodity products.
+This release extends the FpML mapping coverage for Commodity derivatives products.
 
 _What is being released?_
 
-- FpML mappings added that updates the settlement type for Commodity products
+- FpML mappings havev been introduced to address the settlement type of Commodity products
 
 _Review directions_
 
