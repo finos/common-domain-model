@@ -101,7 +101,15 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.filter(price -> unitTypeEquals(price.getUnit(), unitOfAmount))
 				.filter(price -> unitTypeEquals(price.getPerUnitOf(), perUnitOfAmount))
 				.filter(price -> Objects.equals(price.getPriceType(), priceTypeEnum))
-				.filter(price -> Objects.equals(price.getComposite().toBuilder().prune(), composite.toBuilder().prune()))
+				.filter(price -> {
+					if (price.getComposite() == null && composite == null) {
+						return true;
+					}
+					if (price.getComposite() == null || composite == null) {
+						return false;
+					}
+                    return Objects.equals(price.getComposite().toBuilder().prune(), composite.toBuilder().prune());
+                })
 				.findFirst();
 	}
 
