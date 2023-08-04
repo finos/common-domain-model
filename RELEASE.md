@@ -1,4 +1,4 @@
-# _Commodity Model - Commodity Classification_
+# _Product Model - Product Classication for Commodity Products_
 
 _Background_
 
@@ -24,4 +24,4 @@ _Data types_
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect each of the changes listed above.
