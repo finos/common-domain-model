@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-== Copyright (c) 2022 All rights reserved. 
+== Copyright (c) 2022-2023 All rights reserved. 
 == Financial Products Markup Language is subject to the FpML public license. 
 == A copy of this license is available at http://www.fpml.org/license/license.html
 -->
@@ -3045,6 +3045,14 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  <xsd:complexType name="LoanContractList">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A list of loan contracts.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="contract" type="LoanContract" maxOccurs="unbounded" />
+    </xsd:sequence>
+  </xsd:complexType>
   <xsd:complexType name="LoanContractMaturityChange">
     <xsd:annotation>
       <xsd:documentation xml:lang="en">An event representing a change of maturity date on a one or more outstanding loan contracts.</xsd:documentation>
@@ -3097,6 +3105,14 @@
         <xsd:attribute name="href" type="xsd:IDREF" use="required" />
       </xsd:extension>
     </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="LoanContractsReference">
+    <xsd:annotation>
+      <xsd:documentation xml:lang="en">A list of references to loan contracts.</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="loanContractReference" type="LoanContractReference" maxOccurs="unbounded" />
+    </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="LoanContractSummary">
     <xsd:annotation>
@@ -4935,25 +4951,15 @@
     <xsd:complexContent>
       <xsd:extension base="AbstractLoanServicingEvent">
         <xsd:sequence>
-          <xsd:element name="currentContracts">
+          <xsd:element name="currentContracts" type="LoanContractsReference">
             <xsd:annotation>
               <xsd:documentation xml:lang="en">A list of references to all contracts whose rates are resetting or that are terminating as part of a rollover event.</xsd:documentation>
             </xsd:annotation>
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="loanContractReference" type="LoanContractReference" maxOccurs="unbounded" />
-              </xsd:sequence>
-            </xsd:complexType>
           </xsd:element>
-          <xsd:element name="newContracts">
+          <xsd:element name="newContracts" type="LoanContractList">
             <xsd:annotation>
               <xsd:documentation xml:lang="en">A list of all contracts whose rates are resetting or that are initiating as part of the rollover event.</xsd:documentation>
             </xsd:annotation>
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="contract" type="LoanContract" maxOccurs="unbounded" />
-              </xsd:sequence>
-            </xsd:complexType>
           </xsd:element>
         </xsd:sequence>
       </xsd:extension>
