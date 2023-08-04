@@ -1,10 +1,17 @@
-# *Infrastructure - Dependency Update*
+# *Product Model - FpML synonym mappings for Commodity settlement type*
+
+_Background_
+
+This release extends the FpML mapping coverage for Commodity derivatives products.
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+- FpML mappings have been introduced to address the settlement type of Commodity products
 
-- rosetta-dsl:
-  - 8.3.5: Bug fix related to filtering of items that are null. This change has no impact on the CDM model or test expectations.  For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.3.5
-- rosetta-bundle:
-  - 7.5.9: Latest FpML scheme (2.14) published 2023-07-28.  This change updates the model for enum `FloatingRateIndexEnum` with new values `MXN_TIIE_ON`, `MXN_TIIE_ON_OIS_Compound`, `ZAR_ZARONIA` and `ZAR_ZARONIA_OIS_Compound` as per the FpML scheme 2.14.
+_Review directions_
+
+In the CDM Portal, select Ingestion and review the samples in the following test packs:
+
+- fpml-5-10 > products > commodity
+- fpml-5-10 > incomplete-products > commodity
+- fpml-5-12 > products > commodity
