@@ -1,17 +1,27 @@
-# *Product Model - FpML synonym mappings for Commodity settlement type*
+# _Commodity Model - Commodity Classification_
 
 _Background_
 
-This release extends the FpML mapping coverage for Commodity derivatives products.
+The CDM model's classification of commodities does not provide support
+for the commodity classification requirements of EMIR Refit's and ISDA's
+commodity taxonomies. This release adds a generic representation of
+commodity classifications compatible with both the former two and other
+classification systems.
 
 _What is being released?_
 
-- FpML mappings have been introduced to address the settlement type of Commodity products
+- Added support for several different commodity classifications.
+- Added support for hierarchical, multi-layered commodity taxonomies.
+
+
+_Data types_
+
+- Removed elements `commodityBase` and `subCommodity` from type `CommodityReferenceFramework`.
+- Added repeatable element `commodityClassification` from type `CommodityReferenceFramework`.
+- Added conditions for type `CommodityReferenceFramework` controlling the new added elements.
+- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
+- Added element `ordinal` to type `TaxonomyClassification`.
 
 _Review directions_
 
-In the CDM Portal, select Ingestion and review the samples in the following test packs:
-
-- fpml-5-10 > products > commodity
-- fpml-5-10 > incomplete-products > commodity
-- fpml-5-12 > products > commodity
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
