@@ -130,7 +130,7 @@ type CashPrice: <"Specifies the nature of a cash price either as a fee type, cas
 type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spor rate (FX).">
     operand number (1..1) <"The 2nd value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). The 2nd operand is called 'operand' to distinguish it from the 1st one which is the price anchor.">
-    operator ArithmeticOperationEnum (1..1) <"Specifies the arithmetic operator via an enumeration.">
+    arithmeticOperator ArithmeticOperationEnum (1..1) <"Specifies the arithmetic operator via an enumeration.">
     operandType PriceOperandEnum (0..1) <"Optionally qualifies the type of operand: e.g. accrued or forward point.">
 
 type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial instrument in a trade as a schedule of measures. A price generically expresses the value of an exchange as a ratio: it measures the amount of one thing needed to be exchanged for 1 unit of another thing (e.g. cash in a specific currency in exchange for a bond or share). This generic representation can be used to support any type of financial price beyond just cash price: e.g. an interest rate, a foreign exchange rate, etc. This data type is generically based on a schedule and can also be used to represent a price as a single value.">
@@ -140,7 +140,7 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     priceType PriceTypeEnum (1..1)
  	priceExpression PriceExpressionEnum (0..1)
     composite PriceComposite (0..1)
-    operator ArithmeticOperationEnum (0..1)
+    arithmeticOperator ArithmeticOperationEnum (0..1)
     cashPrice CashPrice (0..1)
  	
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
@@ -168,7 +168,7 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
         then unit -> currency exists
     
     condition Choice: <"The price can be specified mutually exclusively as a cashflow, an operator (e.g. a spread or multiplier), or a composite.">
- 		optional choice cashPrice, operator, composite
+ 		optional choice cashPrice, arithmeticOperator, composite
  	
     condition CashPrice: <"If a cash price type is specified, the price type must be cash, otherwise it must be non-cash.">
  		if cashPrice exists then priceType = PriceTypeEnum -> CashPrice

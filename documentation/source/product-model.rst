@@ -193,7 +193,7 @@ The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with t
    priceType PriceTypeEnum (1..1)
    priceExpression PriceExpressionEnum (0..1)
    composite PriceComposite (0..1)
-   operator ArithmeticOperationEnum (0..1)
+   arithmeticOperator ArithmeticOperationEnum (0..1)
    cashPrice CashPrice (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.

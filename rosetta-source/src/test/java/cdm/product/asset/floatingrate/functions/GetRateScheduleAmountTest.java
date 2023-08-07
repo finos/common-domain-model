@@ -55,7 +55,7 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 				.setUnit(UnitType.builder().setCurrencyValue("USD"))
 				.setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
 				.setPriceType(PriceTypeEnum.INTEREST_RATE)
-				.setOperator(ArithmeticOperationEnum.ADD);
+				.setArithmeticOperator(ArithmeticOperationEnum.ADD);
 	}
 
 	private void check(double expected, BigDecimal actual) {

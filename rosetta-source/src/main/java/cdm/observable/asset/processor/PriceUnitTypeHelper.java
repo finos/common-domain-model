@@ -210,8 +210,8 @@ public class PriceUnitTypeHelper {
     protected boolean updatePackageSpread(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
         if (valueSynonymPath.endsWith("quote", "value")) {
             PriceTypeEnum priceType = builder.getPriceType();
-            ArithmeticOperationEnum operator = builder.getOperator();
-            if (priceType == PriceTypeEnum.INTEREST_RATE && operator == ArithmeticOperationEnum.ADD) {
+            ArithmeticOperationEnum arithmeticOperator = builder.getArithmeticOperator();
+            if (priceType == PriceTypeEnum.INTEREST_RATE && arithmeticOperator == ArithmeticOperationEnum.ADD) {
                 Optional<Mapping> unitMapping = getPackageSpreadCurrency(valueSynonymPath.getParent());
                 Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
                 return unit.map(u -> {

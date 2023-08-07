@@ -490,7 +490,7 @@ class FunctionInputCreationTest {
                                         .setValue(BigDecimal.valueOf(0.0020))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
-                                        .setOperator(ArithmeticOperationEnum.ADD)
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
                                         .setPriceType(PriceTypeEnum.INTEREST_RATE))));
 
         TradeState tradeState = getQuantityChangeEquitySwapTradeState();
@@ -1423,7 +1423,7 @@ class FunctionInputCreationTest {
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                .setOperator(ArithmeticOperationEnum.ADD)))
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .setEffectiveDate(Date.of(2000, 10, 3))))
                 .prune();
 
@@ -1459,7 +1459,7 @@ class FunctionInputCreationTest {
                                                 .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                .setOperator(ArithmeticOperationEnum.ADD)))
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .addPriceQuantity(PriceQuantity.builder()
                                         .setObservable(Observable.builder()
                                                 .setRateOptionValue(FloatingRateOption.builder()
@@ -1475,7 +1475,7 @@ class FunctionInputCreationTest {
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                .setOperator(ArithmeticOperationEnum.ADD)))
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .setEffectiveDate(Date.of(2018, 6, 19))))
                 .prune();
 

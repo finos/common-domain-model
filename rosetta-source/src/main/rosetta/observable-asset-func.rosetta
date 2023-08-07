@@ -7,7 +7,7 @@ func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
         prices PriceSchedule (0..*) <"List of prices to filter.">
         priceType PriceTypeEnum (1..1) <"The price type to filter by: asset price, cash price, exchange rate etc.">
-        operator ArithmeticOperationEnum (0..*) <"Optionally filter based on the type of operator, e.g. if price is specified as a spread or a multiplier. Several operators can be passed as arguments (e.g. [ Add, Subtract ]).">
+        arithmeticOperator ArithmeticOperationEnum (0..*) <"Optionally filter based on the type of operator, e.g. if price is specified as a spread or a multiplier. Several operators can be passed as arguments (e.g. [ Add, Subtract ]).">
         // priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
         // grossOrNet GrossOrNetEnum (0..1) <"Optionally filter between gross / net price.">
         // cashPriceType CashPriceTypeEnum (0..1) <"Optionally filter by type of cash price: fee or premium.">
@@ -45,8 +45,8 @@ func FilterPrice: <"Filter list of prices based on price type.">
             //     then item -> priceExpression -> spreadType = spreadType
             //     else True
             then filter
-                if operator exists
-                then operator contains item -> operator
+                if arithmeticOperator exists
+                then arithmeticOperator contains item -> arithmeticOperator
                 else True
             then only-element
 
@@ -58,7 +58,7 @@ func Create_Price: <"Populates a price object based on inputs.">
         priceType PriceTypeEnum (1..1)
         priceExpression PriceExpressionEnum (0..1)
         composition PriceComposite (0..1)
-        operator ArithmeticOperationEnum (0..1)
+        arithmeticOperator ArithmeticOperationEnum (0..1)
         cashPrice CashPrice (0..1)
  	output:
         price Price (1..1)
@@ -69,7 +69,7 @@ func Create_Price: <"Populates a price object based on inputs.">
     set price -> priceType: priceType
     set price -> priceExpression: priceExpression
     set price -> composite: composition
-    set price -> operator: operator
+    set price -> arithmeticOperator: arithmeticOperator
     set price -> cashPrice: cashPrice
 
 func Create_PriceSchedule: <"Populates a price schedule object based on inputs.">
@@ -80,7 +80,7 @@ func Create_PriceSchedule: <"Populates a price schedule object based on inputs."
         priceType PriceTypeEnum (1..1)
         priceExpression PriceExpressionEnum (0..1)
         composition PriceComposite (0..1)
-        operator ArithmeticOperationEnum (0..1)
+        arithmeticOperator ArithmeticOperationEnum (0..1)
         cashPrice CashPrice (0..1)
  	
     output:
@@ -92,7 +92,7 @@ func Create_PriceSchedule: <"Populates a price schedule object based on inputs."
     set price -> priceType: priceType
     set price -> priceExpression: priceExpression
     set price -> composite: composition
-    set price -> operator: operator
+    set price -> arithmeticOperator: arithmeticOperator
     set price -> cashPrice: cashPrice
 
 func Create_Money: <"Create Money with given amount and currency.">

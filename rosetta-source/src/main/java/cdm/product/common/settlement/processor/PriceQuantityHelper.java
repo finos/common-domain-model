@@ -44,12 +44,12 @@ public class PriceQuantityHelper {
 	 * Creates a Price instance that can be referenced, e.g. the meta key is added with the DOCUMENT scope.
 	 */
 	public static FieldWithMetaPriceScheduleBuilder toReferencablePriceBuilder(
-			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceTypeEnum priceType, ArithmeticOperationEnum operator, PriceComposite priceComposite) {
+			BigDecimal price, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceTypeEnum priceType, ArithmeticOperationEnum arithmeticOperator, PriceComposite priceComposite) {
 		FieldWithMetaPriceScheduleBuilder priceBuilder = FieldWithMetaPriceSchedule.builder()
 				.setValue(Price.builder()
 						.setValue(price)
 						.setPriceType(priceType)
-						.setOperator(operator)
+						.setArithmeticOperator(arithmeticOperator)
 						.setComposite(priceComposite)
 						.setUnit(unitOfAmount)
 						.setPerUnitOf(perUnitOfAmount));

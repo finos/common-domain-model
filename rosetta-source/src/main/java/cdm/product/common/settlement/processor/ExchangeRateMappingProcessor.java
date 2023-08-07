@@ -56,7 +56,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			String amount = String.valueOf(mapping.getXmlValue());
 			updateMappings(synonymPath, mappedModelPath, amount);
 			priceCompositeBuilder.setOperand(new BigDecimal(amount));
-			priceCompositeBuilder.setOperator(ArithmeticOperationEnum.ADD);
+			priceCompositeBuilder.setArithmeticOperator(ArithmeticOperationEnum.ADD);
 			priceCompositeBuilder.setOperandType(PriceOperandEnum.FORWARD_POINT);
 		});
 
