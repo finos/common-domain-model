@@ -571,6 +571,7 @@ type Product:
     [metadata address "pointsTo"=Observable->commodity]
   security Security (0..1)
   basket Basket (0..1)
+  exchangeTradedProduct ExchangeTradedProduct (0..1)
 
   condition: one-of
 ```
@@ -838,13 +839,11 @@ The underlier attribute on types `OptionPayout`, `ForwardPayout` and
 corresponding products option, forward, and equity swap.
 
 ``` Haskell
-type OptionPayout extends PayoutBase:
-  [metadata key]
+type OptionPayout extends OptionPayoutBase:
   buyerSeller BuyerSeller (1..1)
-  optionType OptionTypeEnum (0..1)
   feature OptionFeature (0..1)
-  exerciseTerms OptionExercise (1..1)
-  underlier Product (1..1)
+  observationTerms ObservationTerms (0..1)
+  schedule CommoditySchedule (0..1)
 ```
 
 This nesting of the product component is another example of a composable

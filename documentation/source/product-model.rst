@@ -388,6 +388,7 @@ A financial product is an instrument that is used to transfer financial risk bet
      [metadata address "pointsTo"=Observable->commodity]
    security Security (0..1)
    basket Basket (0..1)
+   exchangeTradedProduct ExchangeTradedProduct (0..1)
 
    condition: one-of
 
@@ -584,13 +585,11 @@ The underlier attribute on types ``OptionPayout``, ``ForwardPayout`` and ``Equit
 
 .. code-block:: Haskell
 
- type OptionPayout extends PayoutBase:
-   [metadata key]
-   buyerSeller BuyerSeller (1..1)
-   optionType OptionTypeEnum (0..1)
-   feature OptionFeature (0..1)
-   exerciseTerms OptionExercise (1..1)
-   underlier Product (1..1)
+ type OptionPayout extends OptionPayoutBase:
+  buyerSeller BuyerSeller (1..1)
+  feature OptionFeature (0..1)
+  observationTerms ObservationTerms (0..1)
+  schedule CommoditySchedule (0..1)
 
 This nesting of the product component is another example of a composable product model. One use case is an interest rate swaption for which the high-level product uses the ``OptionPayout`` type and underlier is an Interest Rate Swap composed of two ``InterestRatePayout`` types. Similiarly, the product underlying an Equity Swap composed of an ``InterestRatePayout`` and an ``EquityPayout`` would be a non-contractual product: an equity security.
 

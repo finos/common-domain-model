@@ -318,7 +318,7 @@ public class Fpml510ProjectionMapper {
 											.ifPresent(swaption::setSwap);
 										Optional.ofNullable(o.getExerciseTerms())
 											.ifPresent(e -> {
-												getEuropeanExercise(e).map(objectFactory::createEuropeanExercise).ifPresent(swaption::setExercise);
+												getEuropeanExercise((OptionExercise) e).map(objectFactory::createEuropeanExercise).ifPresent(swaption::setExercise);
 												getExerciseProcedure(e.getExerciseProcedure(), o.getBuyerSeller(), t.getCounterparty(), t.getAncillaryParty())
 													.ifPresent(swaption::setExerciseProcedure);
 											});
