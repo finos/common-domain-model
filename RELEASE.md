@@ -1,8 +1,8 @@
 # *Product Model - Price Components*
 
 ## _Background_
-- A price that consists of 2 additive components (e.g. clean + accrued) is represented in different ways depending on the use case. 
-- This change introduces a single pattern intended simplify the model and facilitate re-usability and extensibility.
+- A price that consists of two additive components (e.g. clean + accrued) is represented in different ways depending on the use case. 
+- This change introduces a single pattern intended to simplify the model and facilitate re-usability and extensibility.
 
 ## _What is being released?_
 
@@ -21,13 +21,13 @@ type PriceComposite: <"Defines the inputs required to calculate a price as a sim
 
 Updated `PriceSchedule` type with:
 - Added above field `composite PriceComposite (0..1)`
-- Updated `priceExpression` to use `PriceExpressionEnum` instead of old `PriceExpression` type
+- Updated `priceExpression` to use `PriceExpressionEnum` instead of obsolete `PriceExpression` type
 - Added new field `AllInCompounded displayName "All-In Compounded Index"`
 - Added new field `priceType PriceTypeEnum (1..1)`
 - Added new field `arithmeticOperator ArithmeticOperationEnum (0..1)`
 
 ### Supporting Changes
-A number of functions and synonyms have had to change to support this change. 
+A number of functions and synonyms have been modified to support this change. 
 
 The function changes can be found in the following namespaces:
 - `cdm.event.common` 
@@ -44,4 +44,4 @@ The supporting synonym changes can be found in the following namespaces:
 
 ## _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect the `PriceSchedule` and `PriceComposite` type. For the function and synonym changes please see the above listed files in the supporting changes section.
+In the CDM Portal, select the Textual Browser and search and inspect the `PriceSchedule` and `PriceComposite` types. For the function and synonym changes please see the above listed files in the supporting changes section.
