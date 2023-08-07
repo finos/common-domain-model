@@ -26,7 +26,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 ### Active Working Groups
 
-The following Working Groups are currently activated or about to be setup for this project:
+The following Working Groups are currently activated or about to be set up for this project:
 
 * [Contribution Review Working Group]
 * [Collateral Working Group]
