@@ -119,7 +119,17 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 
     condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
         if commodityClassification -> value -> classification -> ordinal exists
-        then (commodityClassification -> value -> classification -> ordinal = commodityClassification -> value -> classification -> ordinal distinct)
+        then DifferentOrdinalsCondition
+
+// This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
+func DifferentOrdinalsCondition:
+    inputs:
+        commodityReference CommodityReferenceFramework (1..1)
+    output:
+        result boolean (1..1)
+    set result: (commodityReference -> commodityClassification -> value
+                                extract [ classification -> ordinal = classification -> ordinal distinct ]
+                            all = True)
 
 type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
