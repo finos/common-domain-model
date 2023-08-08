@@ -9,22 +9,13 @@
 ### Type Changes
 The core changes can be found in the following types both located in the `cdm.observable.asset` namespace.
 
-Added `PriceComposite` type:
-
-```
-type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
-     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spor rate (FX).">
-     operand number (1..1) <"The 2nd value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). The 2nd operand is called 'operand' to distinguish it from the 1st one which is the price anchor.">
-     arithmeticOperator ArithmeticOperationEnum (1..1) <"Specifies the arithmetic operator via an enumeration.">
-     operandType PriceOperandEnum (0..1) <"Optionally qualifies the type of operand: e.g. accrued or forward point.">
-```
+Added `PriceComposite` type which defines the inputs required to calculate a price as a simple composite of 2 other values.
 
 Updated `PriceSchedule` type with:
-- Added above field `composite PriceComposite (0..1)`
+- Added new field `priceType` of type  `PriceTypeEnum (1..1)`
+- Added new field `arithmeticOperator` of type `ArithmeticOperationEnum (0..1)`
+- Adde new field `composite` of type  `PriceComposite (0..1)`
 - Updated `priceExpression` to use `PriceExpressionEnum` instead of obsolete `PriceExpression` type
-- Added new field `AllInCompounded displayName "All-In Compounded Index"`
-- Added new field `priceType PriceTypeEnum (1..1)`
-- Added new field `arithmeticOperator ArithmeticOperationEnum (0..1)`
 
 ### Supporting Changes
 A number of functions and synonyms have been modified to support this change. 
