@@ -6,7 +6,6 @@ import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.Trade;
@@ -105,7 +104,7 @@ public class FxSwapContractCreation {
                                         .setCurrencyValue(currency1Str))
                                 .setPerUnitOf(UnitType.builder()
                                         .setCurrencyValue(currency2Str))
-                                .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE)))
+                                .setPriceType(PriceTypeEnum.EXCHANGE_RATE))
                 )
                 .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                         .setMeta(MetaFields.builder()

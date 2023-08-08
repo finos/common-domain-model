@@ -10,9 +10,14 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.util.Modules;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.postprocess.pathduplicates.PathCollector;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.rosetta.RosettaRuntimeModule;
+import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
@@ -22,7 +27,9 @@ import com.regnosys.rosetta.common.util.UrlUtils;
 import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.metafields.MetaAndTemplateFields;
+import org.eclipse.xtext.common.TerminalsStandaloneSetup;
 import org.finos.cdm.CdmRuntimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +47,14 @@ import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeStat
  * Generates sample json for com.regnosys.cdm.example.template.TemplateExample.
  */
 public class GenerateTemplateExampleJsonWriter {
+	private static final String INSTANCE_NAME = "target/FpML_5_10";
 
 	@Inject RosettaTypeValidator validator;
 	@Inject QualifyProcessorStep qualifyProcessorStep;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenerateTemplateExampleJsonWriter.class);
 	private static final String SAMPLE_PATH = "cdm-sample-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.xml";
+	private Injector injector;
 
 	public static void main(String[] args) throws IOException {
 		new GenerateTemplateExampleJsonWriter().init(args);
@@ -54,24 +63,34 @@ public class GenerateTemplateExampleJsonWriter {
 	public void init(String[] args) throws IOException {
 		// Guice Injection
 		Module runtimeModule = new CdmRuntimeModule();
-		Injector injector = Guice.createInjector(runtimeModule);
+		injector = Guice.createInjector(runtimeModule);
+		initialiseIngestionFactory(runtimeModule);
 		injector.injectMembers(this);
 
 		String outputPath = Arrays.stream(args).findFirst().orElse("target/template/");
 		LOGGER.info("Output path {}", outputPath);
 
-		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-		IngestionFactory.init(
-				runtimeModule,
-				globalKeyProcessStep,
-				new ReKeyProcessStep(globalKeyProcessStep),
-				qualifyProcessorStep,
-				new PathCollector<>(),
-				validator);
+		IngestionService ingestionService = IngestionFactory
+				.getInstance(INSTANCE_NAME)
+				.getService("FpML_5_Confirmation_To_TradeState");
 
-		IngestionReport<TradeState> ingest = getFpml5ConfirmationToTradeState()
-			.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
+		IngestionReport<TradeState> ingest = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
 		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
+	}
+
+	private void initialiseIngestionFactory(Module moduleRuntimeModule) {
+		IngestionFactory.init(INSTANCE_NAME,
+				GenerateTemplateExampleJsonWriter.class.getClassLoader(),
+				setupRuntimeModules(moduleRuntimeModule),
+				IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
+	}
+
+	private Module setupRuntimeModules(Module modelRuntimeModule) {
+		TerminalsStandaloneSetup.doSetup();
+		Module combinedModules = Modules.combine(modelRuntimeModule, new RosettaRuntimeModule());
+		injector = Guice.createInjector(combinedModules);
+		(new RosettaStandaloneSetup()).register(injector);
+		return combinedModules;
 	}
 
 	private void generateTemplateExamples(TradeState tradeState, String outFolder) throws IOException {
