@@ -137,7 +137,7 @@ public class TestObjectsFactory {
 								.setValue(BigDecimal.valueOf(cleanPrice))
 								.setUnit(UnitType.builder()
 										.setCurrencyValue(tradedCurrency))
-								.setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE))))
+								.setPriceType(PriceTypeEnum.ASSET_PRICE)))
 				.addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
 						.setMeta(MetaFields.builder().addKey(Key.builder()
 								.setScope("DOCUMENT")
