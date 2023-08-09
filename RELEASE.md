@@ -2,15 +2,11 @@
 
 _Background_
 
-The CDM model's classification of commodities does not provide support
-for the commodity classification requirements of EMIR Refit's and ISDA's
-commodity taxonomies. This release adds a generic representation of
-commodity classifications compatible with both the former two and other
-classification systems.
+The CDM classification of commodities does not include support for the commodity classification requirements of commodity taxonomies such as those for EMIR and ISDA. This release adds a generic representation of commodity classifications compatible with several classification systems including these two.
 
 _What is being released?_
 
-- Added support for several different commodity classifications.
+- Added support for several, different commodity classifications.
 - Added support for hierarchical, multi-layered commodity taxonomies.
 
 
