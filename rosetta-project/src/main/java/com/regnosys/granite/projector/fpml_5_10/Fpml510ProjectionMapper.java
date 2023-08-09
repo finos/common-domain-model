@@ -49,6 +49,7 @@ import com.rosetta.model.metafields.ReferenceWithMetaDate;
 import org.fpml.fpml_5.confirmation.CalculationAgent;
 import org.fpml.fpml_5.confirmation.Currency;
 import org.fpml.fpml_5.confirmation.EuropeanExercise;
+import cdm.product.template.Exercise;
 import org.fpml.fpml_5.confirmation.ExerciseNotice;
 import org.fpml.fpml_5.confirmation.ExerciseProcedure;
 import org.fpml.fpml_5.confirmation.FxFixingDate;
@@ -318,7 +319,7 @@ public class Fpml510ProjectionMapper {
 											.ifPresent(swaption::setSwap);
 										Optional.ofNullable(o.getExerciseTerms())
 											.ifPresent(e -> {
-												getEuropeanExercise((OptionExercise) e).map(objectFactory::createEuropeanExercise).ifPresent(swaption::setExercise);
+												getEuropeanExercise(e).map(objectFactory::createEuropeanExercise).ifPresent(swaption::setExercise);
 												getExerciseProcedure(e.getExerciseProcedure(), o.getBuyerSeller(), t.getCounterparty(), t.getAncillaryParty())
 													.ifPresent(swaption::setExerciseProcedure);
 											});
@@ -552,10 +553,8 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private Optional<EuropeanExercise> getEuropeanExercise(OptionExercise cdmOptionExercise) {
-		return Optional.ofNullable(cdmOptionExercise)
-			.map(OptionExercise::getOptionStyle)
-			.map(OptionStyle::getEuropeanExercise)
+	private Optional<EuropeanExercise> getEuropeanExercise(Exercise cdmExercise) {
+		return Optional.ofNullable(cdmExercise)
 			.map(e -> {
 				EuropeanExercise europeanExercise = objectFactory.createEuropeanExercise();
 				getExternalKey(e.getMeta()).ifPresent(europeanExercise::setId);
@@ -563,7 +562,6 @@ public class Fpml510ProjectionMapper {
 				// TODO ExerciseFee
 
 				Optional.ofNullable(e.getExpirationDate())
-					.stream().flatMap(Collection::stream).findFirst()
 					.flatMap(this::getAdjustableOrRelativeDate)
 					.ifPresent(europeanExercise::setExpirationDate);
 
