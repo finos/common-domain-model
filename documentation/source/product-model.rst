@@ -189,8 +189,12 @@ The ``PriceSchedule`` data type extends the ``MeasureSchedule`` data type with t
 .. code-block:: Haskell
 
  type PriceSchedule extends MeasureSchedule:
-   priceExpression PriceExpression (1..1)
    perUnitOf UnitType (0..1)
+   priceType PriceTypeEnum (1..1)
+   priceExpression PriceExpressionEnum (0..1)
+   composite PriceComposite (0..1)
+   arithmeticOperator ArithmeticOperationEnum (0..1)
+   cashPrice CashPrice (0..1)
 
 Note that the conditions for this data type are excluded from the snippet above for purposes of brevity.
 
