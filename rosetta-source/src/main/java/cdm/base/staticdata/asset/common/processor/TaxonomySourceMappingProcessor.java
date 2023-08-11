@@ -32,7 +32,7 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
                     updateSchemeAndSource(xmlPath, productTaxonomyBuilder);
 
                     // If unset, set to OTHER
-                    if (productTaxonomyBuilder.getSource() == null) {
+                    if ( productTaxonomyBuilder.getValue() != null && productTaxonomyBuilder.getSource() == null) {
                         productTaxonomyBuilder.setSource(TaxonomySourceEnum.OTHER);
                     }
                 });
@@ -40,12 +40,19 @@ public class TaxonomySourceMappingProcessor extends MappingProcessor {
     protected void updateSchemeAndSource(Path xmlPath, ProductTaxonomyBuilder productTaxonomyBuilder) {
         setValueAndUpdateMappings(xmlPath.addElement("productTypeScheme"),
                 xmlValue -> {
-                    // Update scheme
-                    productTaxonomyBuilder.getOrCreateValue().getOrCreateName().getOrCreateMeta().setScheme(xmlValue);
-                    // Update taxonomySource
-                    productTaxonomyBuilder.setSource(getTaxonomySourceEnum(xmlValue));
+                    if ("http://www.fpml.org/coding-scheme/esma-emir-refit-crypto-asset-indicator".equals(xmlValue)) {
+                        // If the value is equal to the ignored value, set productTaxonomy to null
+                        productTaxonomyBuilder.setValue(null);
+                    } else {
+                        // Update scheme
+                        productTaxonomyBuilder.getOrCreateValue().getOrCreateName().getOrCreateMeta().setScheme(xmlValue);
+                        // Update taxonomySource
+                        productTaxonomyBuilder.setSource(getTaxonomySourceEnum(xmlValue));
+                    }
                 });
     }
+
+
     protected TaxonomySourceEnum getTaxonomySourceEnum(String scheme) {
         if (scheme.contains("www.fpml.org/coding-scheme/product-taxonomy")) {
             return TaxonomySourceEnum.ISDA;
