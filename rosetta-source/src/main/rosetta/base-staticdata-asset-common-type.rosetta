@@ -81,6 +81,16 @@ type Commodity extends ProductBase: <"Identifies a specific commodity by referen
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
 
+    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
+        if productTaxonomy -> value -> classification count > 1
+        then productTaxonomy -> value -> classification -> ordinal exists
+
+    condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
+        if productTaxonomy -> value -> classification -> ordinal exists
+        then (productTaxonomy -> value
+                extract [ classification -> ordinal = classification -> ordinal distinct ]
+            all = True)
+            
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
     priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
@@ -102,8 +112,6 @@ type DeliveryDateParameters: <"Specifies a specific date or the parameters for i
         optional choice deliveryNearby, deliveryDate
 
 type CommodityReferenceFramework: <"Specifies the type of commodity.">
-    commodityClassification Taxonomy (0..*) <"Identifies a commodity using one or several identification systems (ex.: EMIR Refit Table 4 of the Annex to the Comission Implementing Regulation C(2022) 3588, ISDA 2005 Commodity Definitions SubAnnex A, etc.) with any number of hierarchical layers.">
-        [metadata scheme]
     commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
     capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
     weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
@@ -112,24 +120,6 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 
     condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
         optional choice capacityUnit, weatherUnit
-
-    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
-        if commodityClassification -> value -> classification count > 1
-        then commodityClassification -> value -> classification -> ordinal exists
-
-    condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
-        if commodityClassification -> value -> classification -> ordinal exists
-        then DifferentOrdinalsCondition
-
-// This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
-func DifferentOrdinalsCondition:
-    inputs:
-        commodityReference CommodityReferenceFramework (1..1)
-    output:
-        result boolean (1..1)
-    set result: (commodityReference -> commodityClassification -> value
-                                extract [ classification -> ordinal = classification -> ordinal distinct ]
-                            all = True)
 
 type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
