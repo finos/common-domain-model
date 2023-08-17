@@ -2,22 +2,17 @@
 
 _Background_
 
-The CDM model's classification of commodities does not provide support
-for the commodity classification requirements of EMIR Refit's and ISDA's
-commodity taxonomies. This release changes the `ProductTaxonomy` structure 
-in order to allow for it to accommodate a generic representation of 
-commodity classifications compatible with ISDA's, EMIR's and other commodity
-classification systems.
+The classification of commodity products represented with the type `CommodityReferenceFramework` under a has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
+The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position for the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
 
 _What is being released?_
 
-- Added support for several different commodity classifications.
 - Added support for hierarchical, multi-layered commodity taxonomies.
-
+- Removed the redundant commodity classification documented within the commodity  reference framework
 
 _Data types_
 
-- Removed elements `commodityBase` and `subCommodity` from type `CommodityReferenceFramework`.
+- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
 - Added conditions for type `Commodity` controlling the new added elements.
 - Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
 - Added element `ordinal` to type `TaxonomyClassification`.
