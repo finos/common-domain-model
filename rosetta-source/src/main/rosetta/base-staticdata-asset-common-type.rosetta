@@ -59,7 +59,15 @@ type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy sourc
 
         condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
         if  value -> classification -> ordinal exists
-        then (value
+        then DifferentOrdinalsCondition
+
+// This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
+func DifferentOrdinalsCondition:
+    inputs:
+        taxonomy Taxonomy (1..1)
+    output:
+        result boolean (1..1)
+   set result: (taxonomy -> value
                 extract [ classification -> ordinal = classification -> ordinal distinct ] = True)
 
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
