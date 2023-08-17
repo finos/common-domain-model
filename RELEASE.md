@@ -13,7 +13,8 @@ _What is being released?_
 _Data types_
 
 - Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the new added elements.
+- Added conditions for type `Commodity` controlling the newly added elements.
+- Added condition for type `Taxonomy` controlling the newly added elements.
 - Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
 - Added element `ordinal` to type `TaxonomyClassification`.
 
