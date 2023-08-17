@@ -2,12 +2,12 @@
 
 _Background_
 
-The classification of commodity products represented with the type `CommodityReferenceFramework` under a has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
+The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
 The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position for the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
 
 _What is being released?_
 
-- Added support for hierarchical, multi-layered commodity taxonomies.
+- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" type and attributes of it.
 - Removed the redundant commodity classification documented within the commodity  reference framework
 
 _Data types_
