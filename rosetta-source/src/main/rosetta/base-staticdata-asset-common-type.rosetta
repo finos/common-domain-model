@@ -57,6 +57,11 @@ type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy sourc
     source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
     value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
 
+        condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
+        if  value -> classification -> ordinal exists
+        then (value
+                extract [ classification -> ordinal = classification -> ordinal distinct ] = True)
+
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
         [metadata scheme]
@@ -85,20 +90,10 @@ type Commodity extends ProductBase: <"Identifies a specific commodity by referen
         if productTaxonomy -> value -> classification count > 1
         then productTaxonomy -> value -> classification -> ordinal exists
 
-    condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
-        if productTaxonomy -> value -> classification -> ordinal exists
-        then DifferentOrdinalsCondition
+    condition ValueSource:<"Requires that value and source are present when product taxonomy is present"> 
+        if productTaxonomy exists 
+        then (productTaxonomy -> source exists and productTaxonomy -> value exists)
 
- // This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
-func DifferentOrdinalsCondition:
-    inputs:
-        commodity Commodity (1..1)
-    output:
-        result boolean (1..1)
-   set result: (commodity -> productTaxonomy -> value
-       extract [ classification -> ordinal = classification -> ordinal distinct ]
-       all = True)
-            
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
     priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
