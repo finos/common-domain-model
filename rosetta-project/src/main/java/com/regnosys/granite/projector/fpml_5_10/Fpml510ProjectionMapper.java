@@ -610,8 +610,7 @@ public class Fpml510ProjectionMapper {
 			.map(Collection::stream).orElse(Stream.of())
 			.map(FieldWithMetaPriceSchedule::getValue)
 			.filter(p -> Optional.ofNullable(p)
-				.map(PriceSchedule::getPriceExpression)
-				.map(PriceExpression::getPriceType)
+				.map(PriceSchedule::getPriceType)
 				.map(t -> t == PriceTypeEnum.CASH_PRICE)
 				.orElse(false))
 			.findFirst();

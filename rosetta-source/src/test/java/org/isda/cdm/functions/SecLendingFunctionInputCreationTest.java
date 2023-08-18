@@ -109,8 +109,6 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
-
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
                         .addQuantity(Quantity.builder()
@@ -126,15 +124,12 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 8)
         );
 
-        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
-
         ReturnInstruction returnInstruction = ReturnInstruction.builder()
                 .addQuantity(Quantity.builder()
                         .setValue(BigDecimal.valueOf(200000))
@@ -148,9 +143,8 @@ class SecLendingFunctionInputCreationTest {
                 returnInstruction,
                 Date.of(2020, 10, 21));
 
-        WhitespaceAgnosticAssert.assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
@@ -327,11 +321,8 @@ class SecLendingFunctionInputCreationTest {
                         )))
                 .build();
 
-        BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
-
-        WhitespaceAgnosticAssert.assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
-                "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", actualBillingInstruction);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
     }
 
     private BillingRecordInstruction createBillingRecordInstruction(TradeState transferTradeState, Date billingStartDate, Date billingEndDate, Date settlementDate, List<Observation> observations) {

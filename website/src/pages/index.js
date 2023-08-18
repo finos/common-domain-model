@@ -4,8 +4,6 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
-import Feature from '../components/feature';
-import { features } from '../components/feature-config';
 import FeaturesTwo from '../components/featuresTwo';
 import { featuresTwo } from '../components/featuresTwo-config';
 import FeaturesTwoHeader from '../components/featuresTwoHeader';
@@ -27,6 +25,14 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
+              to={'docs/home'}>
+              DOCS
+            </Link>
+            <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
               to={'https://github.com/finos/common-domain-model'}>
               GITHUB
             </Link>
@@ -37,7 +43,6 @@ function Home() {
         {featuresTwoHeader && featuresTwoHeader.length && (
                 <section className={styles.features}>
                   <div className="container">
-
                       {featuresTwoHeader.map((props, idx) => (
                         <FeaturesTwoHeader key={idx} {...props} />
                       ))}
@@ -49,7 +54,7 @@ function Home() {
           <section className={styles.members}>
             <div className="container">
               <div className="row row--center">
-                <h2></h2>
+              <h2>WHAT IS THE PURPOSE OF THE CDM?</h2>
               </div>
               <div className="row">
                 {featuresTwo.map((props, idx) => (
