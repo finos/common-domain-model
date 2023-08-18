@@ -1,38 +1,25 @@
-# *Product Model - Price Components*
+# _Commodity Model - Commodity Classification_
 
-## _Background_
-- A price that consists of two additive components (e.g. clean + accrued) is represented in different ways depending on the use case. 
-- This change introduces a single pattern intended to simplify the model and facilitate re-usability and extensibility.
+_Background_
 
-## _What is being released?_
+The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
 
-### Type Changes
-The core changes can be found in the following types both located in the `cdm.observable.asset` namespace.
+The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
 
-Added `PriceComposite` type which defines the inputs required to calculate a price as a simple composite of 2 other values.
+_What is being released?_
 
-Updated `PriceSchedule` type with:
-- Added new field `priceType` of type  `PriceTypeEnum (1..1)`
-- Added new field `arithmeticOperator` of type `ArithmeticOperationEnum (0..1)`
-- Adde new field `composite` of type  `PriceComposite (0..1)`
-- Updated `priceExpression` to use `PriceExpressionEnum` instead of obsolete `PriceExpression` type
+- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
+- Removed the redundant commodity classification documented within the commodity  reference framework
 
-### Supporting Changes
-A number of functions and synonyms have been modified to support this change. 
+_Data types_
 
-The function changes can be found in the following namespaces:
-- `cdm.event.common` 
-- `cdm.event.qualification`
-- `cdm.observable.asset`
-- `cdm.observable.event`
-- `cdm.product.asset`
-- `cdm.product.template`
+- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
+- Added conditions for type `Commodity` controlling the newly added elements.
+- Added condition for type `Taxonomy` controlling the newly added elements.
+- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
+- Added element `ordinal` to type `TaxonomyClassification`.
 
-The supporting synonym changes can be found in the following namespaces:
-- `cdm.mapping.fpml.confirmation.tradestate`
-- `cdm.mapping.fpml.confirmation.workflowstep`
-- `cdm.mapping.ore`
+_Review directions_
 
-## _Review Directions_
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-In the CDM Portal, select the Textual Browser and search and inspect the `PriceSchedule` and `PriceComposite` types. For the function and synonym changes please see the above listed files in the supporting changes section.
