@@ -6,9 +6,11 @@ export const featuresTwo = [
         description: (
             <>FINOS CDM enables interoperability between systems/services, removing burden of setting up connections to different systems/entities, laying groundwork for STP</>
         ),
+        imageUrl: '/img/feature-images/share.svg',
     },
     {
-        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
+        title: <>DELIVERS BETTER REGULATORY OVERSIGHT<br/><br/></>,
+        imageUrl: '/img/feature-images/book-open.svg',
         description: (
             <>FINOS CDM promotes transparency and alignment between regulators and market participants.</>
         ),
@@ -18,5 +20,6 @@ export const featuresTwo = [
         description: (
             <>FINOS CDM will speed up development of new solutions for the market by allowing providers to focus on what they specialize in rather than requiring them to interpret and represent market events and processes individually.</>
         ),
+        imageUrl: '/img/feature-images/bulb.svg',
     }
 ];
