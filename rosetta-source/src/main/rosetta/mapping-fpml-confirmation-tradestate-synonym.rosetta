@@ -171,7 +171,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ dividendApplicability
 			[value "amount" set when path = "volatilityLeg"]
-		+ valuation
+		+ valuationTerms
 			[value "valuation" set when path = "volatilityLeg"]
 		// Volatility specific
 		+ volatilityStrikePrice
@@ -188,7 +188,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ dividendApplicability
 			[value "amount" set when path = "varianceLeg"]
-		+ valuation
+		+ valuationTerms
 			[value "valuation" set when path = "varianceLeg"]
 		// Variance specific
 		+ varianceStrikePrice
@@ -210,7 +210,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		// Common for variance, volatility and correlation (ReturnTermsBase)
 		+ dividendApplicability
 			[value "amount" set when path = "correlationLeg"]
-		+ valuation
+		+ valuationTerms
 			[value "valuation" set when path = "correlationLeg"]
 		// Correlation specific
 		+ correlationStrikePrice
@@ -257,7 +257,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ lowerBarrier
 			[value "lowerBarrier"]
 
-	Valuation:
+	ValuationTerms:
 		+ futuresPriceValuation
 			[value "futuresPriceValuation"]
 		+ optionsPriceValuation
@@ -775,9 +775,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + datedValue
             [value "step"]
             [value "fixedPriceStep"]
-
-	PriceExpression:
- 		+ priceType
+        + priceType
  			[set to PriceTypeEnum->InterestRate when path = "fixedRateSchedule"]
  			[set to PriceTypeEnum->InterestRate when "fixedRate" exists]
 			[set to PriceTypeEnum->InterestRate when "initialRate" exists]
@@ -805,23 +803,21 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to PriceTypeEnum->InterestRate when path = "calculation->spread"]
  			// For Commodity Option
  			[set to PriceTypeEnum->AssetPrice when "strikePricePerUnit->amount" exists]
- 		+ spreadType
- 			[set to SpreadTypeEnum->Spread when "spread" exists]
- 			[set to SpreadTypeEnum->Spread when "floatingRateCalculation->spread" exists]
- 			[set to SpreadTypeEnum->Spread when path = "spreadSchedule"]
- 			[set to SpreadTypeEnum->Spread when path = "floatingRateIndex"]
- 			[set to SpreadTypeEnum->Spread when path = "calculation->spread"]
+        + arithmeticOperator
+ 			[set to ArithmeticOperationEnum->Add when "spread" exists]
+ 			[set to ArithmeticOperationEnum->Add when "floatingRateCalculation->spread" exists]
+ 			[set to ArithmeticOperationEnum->Add when path = "spreadSchedule"]
+ 			[set to ArithmeticOperationEnum->Add when path = "floatingRateIndex"]
+ 			[set to ArithmeticOperationEnum->Add when path = "calculation->spread"]
  			// FX: SpreadTypeEnum->Spread when "spotRate" exists is set by ExchangeRate mapper
 			// FX: SpreadTypeEnum->Base when "forwardPoints" exists is set by ExchangeRate mapper
-			[set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
-			[set to SpreadTypeEnum->Base when "referencePrice" exists]
-		+ capFloor
- 			[set to CapFloorEnum->Floor when path = "floorRateSchedule"]
- 			[set to CapFloorEnum->Cap when path = "capRateSchedule"]
- 		+ grossOrNet
- 			[set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
+			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]	
+            // [set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
+			// [set to SpreadTypeEnum->Base when "referencePrice" exists]
+            // [set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
 
-	 CashPrice:
+	CashPrice:
  		+ cashPriceType
  			[set to CashPriceTypeEnum->Fee when path = "fixedLeg->fixedPrice"]
  			[set to CashPriceTypeEnum->Fee when path = "bulletPayment->payment->paymentAmount"]
@@ -907,6 +903,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 	SettlementBase:
 		[meta "id"]
 		+ settlementType
+            [value "settlementCurrency" mapper "SettlementType"]
+            [value "settlementCurrency" path "exercise" mapper "SettlementType"]
 			[value "settlementType"]
 			[value "settlementType" path "equityExercise"]
 			[set to SettlementTypeEnum->Cash when "cashSettlementTerms" exists]
@@ -2111,6 +2109,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			// For FX Option
 			[hint "putCurrencyAmount"]
 			[hint "callCurrencyAmount"]
+ 			// For FX:
+			[hint "exchangedCurrency1"]
+			[hint "exchangedCurrency2"]
 		+ payerReceiver
 			[value "exchangedCurrency1"]
 			[value "exchangedCurrency2"]
@@ -2433,6 +2434,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ schedule
 			[value "schedule"]
 
+    ForwardPayout:
+        [meta "id"]
+        - payerReceiver
+        + payerReceiver
+			[value "ignore"]
+        - priceQuantity
+        + priceQuantity
+            [value "ignore"]
+
 	SecurityLeg:
 		[meta "id"]
 		+ settlementDate
@@ -2570,9 +2580,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "notionalAmount"]
 			// For Credit Option:
 			[hint "notionalReference"]
-			// For FX:
-			[hint "exchangedCurrency1"]
-			[hint "exchangedCurrency2"]
 			// For Repo:
 			[value "nearLeg"]
 			// For Commodity

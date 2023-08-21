@@ -1,9 +1,8 @@
 package cdm.product.common.settlement.processor;
 
-import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.PriceSchedule;
-import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.SpreadTypeEnum;
+import cdm.base.math.ArithmeticOperationEnum;
+import cdm.base.math.MeasureBase;
+import cdm.observable.asset.*;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -37,29 +36,39 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
 		PriceQuantity.PriceQuantityBuilder priceQuantityBuilder = (PriceQuantity.PriceQuantityBuilder) parent;
+		@SuppressWarnings("unchecked")
 		List<FieldWithMetaPriceScheduleBuilder> priceBuilders = emptyIfNull((List<FieldWithMetaPriceScheduleBuilder>) builders);
 		UnitTypeBuilder unitOfAmount = getUnit(priceBuilders);
 		UnitTypeBuilder perUnitOfAmount = getPerUnitOf(priceBuilders);
 
 		AtomicInteger priceIndex = new AtomicInteger(priceBuilders.size());
 
-		getBuilder(synonymPath.addElement("spotRate"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.BASE))
-				.ifPresent(priceQuantityBuilder::addPrice);
-		getBuilder(synonymPath.addElement("forwardPoints"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.SPREAD))
-				.ifPresent(priceQuantityBuilder::addPrice);
-		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, getPriceExpression(SpreadTypeEnum.SPREAD))
-				.ifPresent(priceQuantityBuilder::addPrice);
-	}
+		PriceComposite.PriceCompositeBuilder priceCompositeBuilder = PriceComposite.builder();
+		getNonNullMapping(getMappings(), synonymPath.addElement("spotRate")).ifPresent(mapping -> {
+			Path mappedModelPath = toPath(getModelPath());
+			String amount = String.valueOf(mapping.getXmlValue());
+			updateMappings(synonymPath, mappedModelPath, amount);
+			priceCompositeBuilder.setBaseValue(new BigDecimal(amount));
+		});
 
-	private PriceExpression.PriceExpressionBuilder getPriceExpression(SpreadTypeEnum base) {
-		return PriceExpression.builder().setPriceType(PriceTypeEnum.EXCHANGE_RATE).setSpreadType(base);
+		getNonNullMapping(getMappings(), synonymPath.addElement("forwardPoints")).ifPresent(mapping -> {
+			Path mappedModelPath = toPath(getModelPath());
+			String amount = String.valueOf(mapping.getXmlValue());
+			updateMappings(synonymPath, mappedModelPath, amount);
+			priceCompositeBuilder.setOperand(new BigDecimal(amount));
+			priceCompositeBuilder.setArithmeticOperator(ArithmeticOperationEnum.ADD);
+			priceCompositeBuilder.setOperandType(PriceOperandEnum.FORWARD_POINT);
+		});
+
+		getBuilder(synonymPath.addElement("pointValue"), priceIndex, unitOfAmount, perUnitOfAmount, priceCompositeBuilder.build())
+				.ifPresent(priceQuantityBuilder::addPrice);
 	}
 
 	private Optional<FieldWithMetaPriceScheduleBuilder> getBuilder(Path synonymPath,
-			AtomicInteger priceIndex,
-			UnitTypeBuilder unitOfAmount,
-			UnitTypeBuilder perUnitOfAmount,
-			PriceExpression priceExpression) {
+																   AtomicInteger priceIndex,
+																   UnitTypeBuilder unitOfAmount,
+																   UnitTypeBuilder perUnitOfAmount,
+																   PriceComposite priceComposite) {
 		return getNonNullMapping(getMappings(), synonymPath).map(mapping -> {
 			// update price index to ensure unique model path, otherwise any references will break
 			Path mappedModelPath = toPath(getModelPath()).addElement("value");
@@ -68,19 +77,21 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 			return toReferencablePriceBuilder(new BigDecimal(amount),
 					unitOfAmount,
 					perUnitOfAmount,
-					priceExpression);
+					PriceTypeEnum.EXCHANGE_RATE,
+					null,
+					priceComposite);
 		});
 	}
 
 	private UnitTypeBuilder getUnit(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(p -> p.getUnit())
+				.map(MeasureBase.MeasureBaseBuilder::getUnit)
 				.orElse(null);
 	}
 
 	private UnitTypeBuilder getPerUnitOf(List<FieldWithMetaPriceScheduleBuilder> priceBuilders) {
 		return getExchangeRatePrice(priceBuilders)
-				.map(p -> p.getPerUnitOf())
+				.map(PriceSchedule.PriceScheduleBuilder::getPerUnitOf)
 				.orElse(null);
 	}
 
@@ -88,8 +99,7 @@ public class ExchangeRateMappingProcessor extends MappingProcessor {
 		return priceBuilders.stream()
 				.map(FieldWithMetaPriceScheduleBuilder::getValue)
 				.filter(p -> Optional.ofNullable(p)
-						.map(PriceSchedule::getPriceExpression)
-						.map(PriceExpression::getPriceType)
+						.map(PriceSchedule::getPriceType)
 						.map(PriceTypeEnum.EXCHANGE_RATE::equals)
 						.orElse(false))
 				.findFirst();

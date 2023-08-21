@@ -429,10 +429,14 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
 		if basketPercentage exists
 		then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
-type ForwardPayout: <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
+type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
 	[metadata key]
+
 	underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
-	settlementTerms SettlementTerms (1..1) <"Settlement terms for the underlier that include the settlement date, settlement method etc.">
+
+	condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
+		if underlier -> foreignExchange exists
+		then settlementTerms exists
 
 	condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
 		if underlier -> foreignExchange exists then

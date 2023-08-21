@@ -82,9 +82,9 @@
 
         <repoServerHost>oss.sonatype.org</repoServerHost>
 
-        <rosetta.bundle.version>6.7.0</rosetta.bundle.version>
+        <rosetta.bundle.version>7.5.10</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>7.10.0</rosetta.dsl.version>
+        <rosetta.dsl.version>8.3.5</rosetta.dsl.version>
 
         <xtext.version>2.27.0</xtext.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
@@ -92,6 +92,7 @@
         <jsoup.version>1.15.3</jsoup.version>
         <jaxb.version>2.3.1</jaxb.version>
         <slf4j-api.version>2.0.7</slf4j-api.version>
+        <guava.version>32.0.1-jre</guava.version>
 
         <!-- test -->
         <junit.version>5.9.1</junit.version>
@@ -118,6 +119,7 @@
         <sphinx-maven-plugin.version>2.2.2</sphinx-maven-plugin.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
     </properties>
 
     <profiles>
@@ -283,6 +285,32 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>log4j:log4j</exclude>
+                                        <exclude>org.apache.logging.log4j:log4j-core</exclude>
+                                        <exclude>ch.qos.reload4j:reload4j</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencyManagement>
@@ -364,6 +392,21 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <!-- test -->
             <dependency>

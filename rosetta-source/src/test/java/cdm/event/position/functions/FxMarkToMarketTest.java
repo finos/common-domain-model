@@ -4,7 +4,6 @@ import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.*;
@@ -83,8 +82,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                                                 .setValue(BigDecimal.valueOf(1.234))
                                                 .setUnit(UnitType.builder().setCurrencyValue(curr1))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
-                                                .setPriceExpression(PriceExpression.builder()
-                                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))))
+                                                .setPriceType(PriceTypeEnum.EXCHANGE_RATE)))))
                 .build();
     }
 

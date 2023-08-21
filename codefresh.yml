@@ -24,6 +24,7 @@ steps:
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
+      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
 
   ReleaseProperties:
     stage: 'setup'
@@ -114,14 +115,18 @@ steps:
         title: Python build
         fail_fast: false
         image: python:3.10-alpine
-        working_directory: ./rosetta-source/target/classes/cdm/python
+        working_directory: ./rosetta-source
         shell: sh
         commands:
-          - python3 -m pip install pydantic
+          - python3 -m pip install "pydantic==1.*"
           - python3 -m pip install jsonpickle
-          - python3 -m pip install rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-1.0.0-py3-none-any.whl
           - |-
-            python3 -m pip wheel --no-deps --only-binary :all: .
+            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./target/classes/cdm/python ./target/classes/cdm/python
+          - python3 -m pip install ./target/classes/cdm/python/python_cdm-*-py3-none-any.whl
+          - python3 -m pip install pytest
+          - pytest ./src/test/python/
+          - rm -rf ./src/test/python/serialization/__pycache__ ./src/test/python/semantics/__pycache__
 
   DeployParallelTasks:
     stage: 'build'
@@ -229,8 +234,8 @@ steps:
         commands:
           - bash -c "${{GPG_IMPORT_COMMAND}}"
           - cd target/classes/cdm/python
-          - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rosetta_runtime-*-py3-none-any.whl
-          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-python ${{RELEASE_NAME}} tar.gz
+          - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
+          - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
@@ -243,8 +248,7 @@ steps:
           - master
       condition:
         any:
-          BuildSnapshotFailed: steps.BuildSnapshot.result == 'error'
-          buildReleaseFailed: steps.BuildRelease.result == 'error'
+          mvnBuildFailed: steps.Build.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
@@ -276,8 +280,7 @@ steps:
     when:
       condition:
         any:
-          normalBuildFailure: steps.BuildSnapshot.result == 'failure'
-          releaseBuildFailure: steps.BuildRelease.result == 'failure'
+          mvnBuildFailure: steps.Build.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
@@ -301,7 +304,7 @@ steps:
     when:
       condition:
         all:
-          buildPassed: steps.BuildRelease.result == 'success'
+          buildPassed: steps.Build.result == 'success'
           isRelease: "${{TAG_REPO}}"
     commands:
       - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
@@ -319,7 +322,7 @@ steps:
           - master
       condition:
         all:
-          buildPassed: steps.BuildSnapshot.result == 'success'
+          buildPassed: steps.Build.result == 'success'
           variableDefined: "${{TAG_REPO}} == false"
           skipNextBuild: "${{SKIP_NEXT_BUILD}} == false"
     commands:

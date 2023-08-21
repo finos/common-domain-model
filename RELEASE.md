@@ -1,27 +1,25 @@
-# *Maintenance*
+# _Commodity Model - Commodity Classification_
+
+_Background_
+
+The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
+
+The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
 
 _What is being released?_
 
-This release is purely a syntactical change and does not contain any functional changes to the model.
+- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
+- Removed the redundant commodity classification documented within the commodity  reference framework
 
-Deprecated usages of the type name in conditions have been removed.
-For example, the condition `ReferenceAgency` on the type `MultipleCreditNotations` has been rewritten from
-```
-if MultipleCreditNotations -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then MultipleCreditNotations -> referenceAgency exists
-```
-to
-```
-if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-then referenceAgency exists
-```
+_Data types_
 
-This will ease the upgrade to future DSL versions.
+- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
+- Added conditions for type `Commodity` controlling the newly added elements.
+- Added condition for type `Taxonomy` controlling the newly added elements.
+- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
+- Added element `ordinal` to type `TaxonomyClassification`.
 
-_Review Directions_
+_Review directions_
 
-Four conditions have been rewritten to remove the deprecated syntax:
-- Type `ResolvablePriceQuantity`, condition `QuantityMultiplier`.
-- Type `AgencyRatingCriteria`, condition `ReferenceAgency`.
-- Type `MultipleCreditNotations`, condition `ReferenceAgency`.
-- Type `WorkflowStep`, condition `WorkflowStepStatus`.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
