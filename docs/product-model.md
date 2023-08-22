@@ -523,11 +523,6 @@ type SettlementBase:
      [metadata scheme]
    settlementDate SettlementDate (0..1)
    settlementCentre SettlementCentreEnum (0..1)
-     [deprecated]
-   settlementParty Party (0..*)
-     [metadata reference]
-   settlementPartyRole PartyRole (0..*)
-     [metadata reference]
    settlementProvision SettlementProvision (0..1)
    standardSettlementStyle StandardSettlementStyleEnum (0..1)
 ```
