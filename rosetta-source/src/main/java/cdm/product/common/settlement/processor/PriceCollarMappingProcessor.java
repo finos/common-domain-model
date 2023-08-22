@@ -45,7 +45,7 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 				getNonNullMapping(getMappings(), getModelPath(), subPath, "floorRateSchedule", "initialValue").ifPresent(frm -> {
 					UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
 					BigDecimal floorRate = new BigDecimal(String.valueOf(frm.getXmlValue()));
-					ArithmeticOperationEnum operator = ArithmeticOperationEnum.MIN; //floor
+					ArithmeticOperationEnum operator = ArithmeticOperationEnum.MAX; // floor
 					PriceTypeEnum priceType = PriceTypeEnum.INTEREST_RATE;
 
 					FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder fieldWithPriceScheduleBuilder =
