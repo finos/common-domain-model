@@ -12,7 +12,6 @@ import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
 import cdm.observable.asset.FloatingRateOption;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
 import cdm.product.asset.FixedRateSpecification;
@@ -140,8 +139,7 @@ public class InterestRatePayoutCreation {
                                                         .setValue(fixedRate)
                                                         .setUnit(UnitType.builder().setCurrencyValue(CURRENCY_EUR))
                                                         .setPerUnitOf(UnitType.builder().setCurrencyValue(CURRENCY_EUR))
-                                                        .setPriceExpression(PriceExpression.builder()
-                                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)))))))
+                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))))))
                 .setPayerReceiver(PayerReceiver.builder()
                         .setPayer(CounterpartyRoleEnum.PARTY_2)
                         .setReceiver(CounterpartyRoleEnum.PARTY_1))

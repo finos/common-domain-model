@@ -1,15 +1,25 @@
-# *Event Model - Representation of trade valuations*
+# _Commodity Model - Commodity Classification_
+
+_Background_
+
+The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
+
+The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
 
 _What is being released?_
 
-This release introduces the `Valuation` data type that will document the valuation details of a trade during its life cycle. The history of all the valuations will be inscribed in the new `ValuationHistory` attribute of a `TradeState`.  Future work will explore how to codify the state transitions for valuations.
-Additionally, the existing `valuation` type present in `ReturnsTermsBase` is renamed as `valuationTerms`
+- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
+- Removed the redundant commodity classification documented within the commodity  reference framework
 
-_Review Directions_
+_Data types_
 
-In the CDM Portal, select the textual view or graphical view and inspect:
+- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
+- Added conditions for type `Commodity` controlling the newly added elements.
+- Added condition for type `Taxonomy` controlling the newly added elements.
+- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
+- Added element `ordinal` to type `TaxonomyClassification`.
 
-  - the structural definition of the `Valuation` data type and associated enum type `ValuationTypeEnum`, `ValuationSourceEnum`
-  - the insertion of the valuationHistory attribute for the `TradeState` data type
-  - renaming of existing `Valuation` type to `ValuationTerms`
-  - renaming of existing `valuation` attribute in `ReturnTermsBases` to `valuationTerms`
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
