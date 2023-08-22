@@ -653,7 +653,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "underlyerPrice"]
 			// For FX:
 			[hint "spotRate"]
-			[value "exchangeRate" mapper "ExchangeRate"]
+			[value "exchangeRate"]
 			// For Repo:
 			[value "fixedRateSchedule"]
 			[value "floatingRateCalculation"]
@@ -809,13 +809,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to ArithmeticOperationEnum->Add when path = "spreadSchedule"]
  			[set to ArithmeticOperationEnum->Add when path = "floatingRateIndex"]
  			[set to ArithmeticOperationEnum->Add when path = "calculation->spread"]
- 			// FX: SpreadTypeEnum->Spread when "spotRate" exists is set by ExchangeRate mapper
-			// FX: SpreadTypeEnum->Base when "forwardPoints" exists is set by ExchangeRate mapper
-			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
  			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]	
-            // [set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
-			// [set to SpreadTypeEnum->Base when "referencePrice" exists]
-            // [set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
+
+    PriceComposite:
+        + baseValue
+            [value "spotRate"]
+        + operand
+            [value "forwardPoints"]
+        + arithmeticOperator
+            [set to ArithmeticOperationEnum -> Add when "forwardPoints" exists]
+        + operandType
+            [set to PriceOperandEnum -> ForwardPoint when "forwardPoints" exists]
 
 	CashPrice:
  		+ cashPriceType
