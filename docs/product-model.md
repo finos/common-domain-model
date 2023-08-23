@@ -516,15 +516,15 @@ type SettlementTerms extends SettlementBase:
 
 ``` Haskell
 type SettlementBase:
-   [metadata key]
-   settlementType SettlementTypeEnum (1..1)
-   transferSettlementType TransferSettlementEnum (0..1)
-   settlementCurrency string (0..1)
-     [metadata scheme]
-   settlementDate SettlementDate (0..1)
-   settlementCentre SettlementCentreEnum (0..1)
-   settlementProvision SettlementProvision (0..1)
-   standardSettlementStyle StandardSettlementStyleEnum (0..1)
+  [metadata key]
+  settlementType SettlementTypeEnum (1..1)
+  transferSettlementType TransferSettlementEnum (0..1)
+  settlementCurrency string (0..1)
+    [metadata scheme]
+  settlementDate SettlementDate (0..1)
+  settlementCentre SettlementCentreEnum (0..1)
+  settlementProvision SettlementProvision (0..1)
+  standardSettlementStyle StandardSettlementStyleEnum (0..1)
 ```
 
 ## BuyerSeller
