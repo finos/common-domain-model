@@ -54,9 +54,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 	
     referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">
-    indexReferenceInformation IndexReferenceInformation (0..1) <"This attribute contains all the terms relevant to the underlying Index.">
-    additionalIndexReferenceInformation AdditionalIndexReferenceInformation (0..1) <"This attribute contains all the additional terms relevant to defining the Credit DefaultSwap Index.">
-
+    indexReferenceInformation CreditIndexReferenceInformation (0..1) <"This attribute contains all the terms relevant to the Sunderlying Index.">
     basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">
 	additionalTerm string (0..*) <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">
 		[metadata scheme]
@@ -64,10 +62,10 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
 	modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">
 
 	condition GeneralTermsChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice referenceInformation, indexReferenceInformation, additionalIndexReferenceInformation, basketReferenceInformation
+		required choice referenceInformation, indexReferenceInformation, basketReferenceInformation
 
 	condition FpML_cd_41: <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
-		if additionalIndexReferenceInformation -> tranche is absent
+		if indexReferenceInformation -> tranche is absent
 		then modifiedEquityDelivery is absent
 
 	condition FpML_cd_42: <"FpML validation rule cd-42 - If basketReferenceInformation does not exist, then substitution must not exist.">
@@ -238,23 +236,13 @@ type FloatingAmountProvisions:
 	wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
 	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
-type IndexReferenceInformation: <"A class defining information related to Index.">
-    [metadata key]
-    indexName string (0..1)  <"The name of the index expressed as a free format string with an associated scheme.">
-		[metadata scheme]
-	indexId string (0..*) <"A index identifier (e.g. RED pair code).">
-		[metadata scheme]
-	indexAnnexSource IndexAnnexSourceEnum (0..1) <"A index series annex source.">
-		[metadata scheme]
-    
-    condition RequiredIndexInformation: <"Choice rule to represent an index.">
-		required choice indexName, indexId
-
-type AdditionalIndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
+type CreditIndexReferenceInformation extends IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
 	[metadata key]
 	indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
-	indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
+    indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
 	indexAnnexDate date (0..1) <"A CDS index series annex date.">
+    indexAnnexSource IndexAnnexSourceEnum (0..1) <"A CDS index series annex source.">
+	[metadata scheme]
 	excludedReferenceEntity ReferenceInformation (0..*) <"Excluded reference entity.">
 	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
 	settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
@@ -642,8 +630,8 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
 	initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">
 	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
 	calculationMethod InflationCalculationMethodEnum (0..1) <"Indicates how to use the inflation index to calculate the payment (e.g. Ratio, Return, Spread). Added for Inflation Asset Swap">
-	calculationStyle InflationCalculationStyleEnum (0..1) <"Indicates the style of how the inflation index calculates the payment (e.g. YearOnYear, ZeroCoupon).
-">
+	calculationStyle InflationCalculationStyleEnum (0..1) <"Indicates the style of how the inflation index calculates the payment (e.g. YearOnYear, ZeroCoupon).">
+    finalPrincipalExchangeCalculation FinalPrincipalExchangeCalculationEnum (0..1) <"To be specified only for products that embed a redemption payment.">
 
 
 type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
