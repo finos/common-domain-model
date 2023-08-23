@@ -1,25 +1,13 @@
-# _Commodity Model - Commodity Classification_
+# Release Notes for PR https://github.com/finos/common-domain-model/pull/2160
 
-_Background_
-
-The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
-
-The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
-
-_What is being released?_
-
-- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
-- Removed the redundant commodity classification documented within the commodity  reference framework
-
-_Data types_
-
-- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the newly added elements.
-- Added condition for type `Taxonomy` controlling the newly added elements.
-- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
-- Added element `ordinal` to type `TaxonomyClassification`.
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
+## Changes Made:
+#### Updated Readme.md and fixed issues in cdm.finos.org.
+- Updated Governance.md and Code of Conduct with links replaced by Terms of Reference PDFs, now located in the "docs" directory.
+- Added relative links in the readme to ensure they work seamlessly after merging.
+- Included Common Domain Model in the Open Source at FINOS PDF in the Readme.md section.
+- Added a roadmap section for upcoming releases.
+- Edited the "Getting Involved" section.
+- Updated icons for cdm.finos.org.
+- Updated the banner for cdm.finos.org.
+- Refined the text to explain what Common Domain Model (CDM) is and its benefits.
+- Included a PDF document explaining what CDM is.
