@@ -1,25 +1,23 @@
-# _Commodity Model - Commodity Classification_
+# *CDM Model - Addition of new type to capture Reference Index Information*
 
 _Background_
 
-The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
-
-The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
+A CDM gap has been identified with regards to information pertaining to Index involved in a transaction. Currently, there’s a no CDM object which can capture the name of the underlying index. This release updates CDM and add a generic type `IndexReferenceInformation` which can be used to supply and capture index name and id.
 
 _What is being released?_
 
-- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
-- Removed the redundant commodity classification documented within the commodity  reference framework
+New CDM type to capture `IndexReferenceInformation` 
 
-_Data types_
+_Review Directions_
+In CDM, In textual view, 
+	open static data > asset > common > type and review:
 
-- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the newly added elements.
-- Added condition for type `Taxonomy` controlling the newly added elements.
-- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
-- Added element `ordinal` to type `TaxonomyClassification`.
+	- Addition of `IndexReferenceInformation` as type
+	- Addition of indexName and indexId attributes under `IndexReferenceInformation`
 
-_Review directions_
+	open cdm > observable > asset > type and review:
+	- Addition of indexInformation attribute under FloatingRateOption
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
+	open cdm > product > asset > type and review:
+	- renaming of IndexReferenceInformation to CreditIndexReferenceInformation
+	- removal of indexName and indexId attributes from IndexReferenceInformation
