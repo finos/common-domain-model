@@ -152,12 +152,34 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
  		optional choice cashPrice, arithmeticOperator, composite
  	
     condition CashPrice: <"If a cash price type is specified, the price type must be cash, otherwise it must be non-cash.">
- 		if cashPrice exists then priceType = PriceTypeEnum -> CashPrice
-        else priceType <> PriceTypeEnum -> CashPrice
+ 		if cashPrice exists
+ 		then priceType = PriceTypeEnum -> CashPrice
 
     condition ArithmeticOperator: <"Operator must not be subtract or divide.">
         arithmeticOperator <> ArithmeticOperationEnum -> Subtract
         and arithmeticOperator <> ArithmeticOperationEnum -> Divide
+
+    condition PositiveAssetPrice: <"Requires that per FpML rules, the FX rate must be a positive value.">
+         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
+             and arithmeticOperator is absent
+         then value > 0
+
+    condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
+         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
+             and composite exists
+         then composite -> baseValue > 0
+
+    condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price or an interest rate.">
+        if arithmeticOperator = ArithmeticOperationEnum -> Add
+        then priceType = PriceTypeEnum -> AssetPrice or priceType = PriceTypeEnum -> InterestRate
+
+    condition ForwardPoint: <"If composite operand type is ForwardPoint then the price type must be ExchangeRate.">
+        if composite -> operandType = PriceOperandEnum -> ForwardPoint
+        then priceType = PriceTypeEnum -> ExchangeRate
+
+    condition AccruedInterest: <"If composite operand type is AccruedInterest then the price type must be AssetPrice.">
+        if composite -> operandType = PriceOperandEnum -> AccruedInterest
+        then priceType = PriceTypeEnum -> AssetPrice
 
 type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
 
