@@ -131,14 +131,15 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
         then unit is absent and perUnitOf is absent
         else unit exists and perUnitOf exists
 
-    condition PositiveFXRate: <"Requires that per FpML rules, the FX rate must be a positive value.">
-        if priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice
-        then value > 0
+    condition PositiveAssetPrice: <"Requires that per FpML rules, the FX rate must be a positive value.">
+         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
+             and arithmeticOperator is absent
+         then value > 0
 
     condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-        if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
-            and composite -> baseValue exists
-        then composite -> baseValue > 0
+         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
+             and composite -> baseValue exists
+         then composite -> baseValue > 0
 
     condition PositiveCashPrice: <"Requires that any price expressed as a cash price and generating a cashflow must be positive">
         if priceType = PriceTypeEnum -> CashPrice
@@ -158,16 +159,6 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     condition ArithmeticOperator: <"Operator must not be subtract or divide.">
         arithmeticOperator <> ArithmeticOperationEnum -> Subtract
         and arithmeticOperator <> ArithmeticOperationEnum -> Divide
-
-    condition PositiveAssetPrice: <"Requires that per FpML rules, the FX rate must be a positive value.">
-         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
-             and arithmeticOperator is absent
-         then value > 0
-
-    condition PositiveSpotRate: <"Requires that per FpML rules, the spot rate must be a positive value, for example for FX or Commodities.">
-         if ( priceType = PriceTypeEnum -> ExchangeRate or priceType = PriceTypeEnum -> AssetPrice )
-             and composite exists
-         then composite -> baseValue > 0
 
     condition SpreadPrice: <"A spread type can only be specified when the price type is an asset price or an interest rate.">
         if arithmeticOperator = ArithmeticOperationEnum -> Add
