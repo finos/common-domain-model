@@ -44,4 +44,4 @@ _Background_
 
 _What is being released?_
 
-This enhancement adds `tradeDateTime` to `Trade` and `ExecutionInstruction`.
+This enhancement adds optional attribute `tradeDateTime` to `Trade` and `ExecutionInstruction`.
