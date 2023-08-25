@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Minor enhancement to add `TripartyAgentEnum` to `PartyRoleEnum`.
+Minor enhancement to add `TripartyAgent` and  `TripartyCustodian` Enum values to `PartyRoleEnum`.
 
 # *Event Model - Add Trade Date Time*
 
