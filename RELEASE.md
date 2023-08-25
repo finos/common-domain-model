@@ -1,4 +1,4 @@
-# *Party Model - Triparty Agent Enumeration*
+# *Party Model - Triparty Agent and Triparty Custodian*
 
 _What is being released?_
 
