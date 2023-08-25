@@ -2,13 +2,14 @@
 
 _Background_
 
-A CDM gap has been identified with regards to information pertaining to Index involved in a transaction. Currently, there’s a no CDM object which can capture the name of the underlying index. This release updates CDM and add a generic type `IndexReferenceInformation` which can be used to supply and capture index name and id.
+A gap has been identified in the CDM regarding reference index information. Currently, there is no CDM object which can capture the name of the underlying index. 
 
 _What is being released?_
 
-New CDM type to capture `IndexReferenceInformation` 
+This release adds a generic type `IndexReferenceInformation` which can be used to supply and capture index name and id. New CDM type to capture `IndexReferenceInformation` 
 
 _Review Directions_
+
 In CDM, In textual view, 
 	open static data > asset > common > type and review:
 
