@@ -1,14 +1,13 @@
-# *Infrastructure - Dependency Updates*
+# _Event Model - Add Repo Reprice Function._
+
+_Background_
+
+In the repo market it is common for countparties to agree to set a new price on collateral to adjust exposure. When th ecollateral
+is repriced a the collateral amount or cash amount is adjusted. This release includes a new function to support the repricing lifecycle 
+event. 
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency:
-
-- Versions:
-    - `7.5.4` Fixed DSL issue related to `typeAlias` - see https://github.com/REGnosys/rosetta-dsl/issues/554 
-
-This release contains no changes to the model or test expectations.
-
-_Review directions_
-
-CDM Java implementors should update their maven `pom.xml` to the latest CDM maven artefact (groupId com.isda, artifactId cdm) and recompile.
+A new function `Create_RepricePrimitiveInstruction` is added that accepts inputs of a new collateral price, collateral quantity or cash
+amount. The new function adjusts the amounts and returns a primitive instruction that is used together with a business event to
+modify the trade and trade state.
