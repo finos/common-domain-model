@@ -36,6 +36,10 @@ _What is being released?_
 
 Minor enhancement to add `TripartyAgentEnum` to `PartyRoleEnum`.
 
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect changes mentioned above.
+
 # *Event Model - Trade Date Time*
 
 _Background_
@@ -45,3 +49,7 @@ _Background_
 _What is being released?_
 
 This enhancement adds optional attribute `tradeTime` to types `Trade` and `ExecutionInstruction`.
+
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect changes mentioned above.
