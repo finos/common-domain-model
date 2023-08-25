@@ -118,11 +118,11 @@ type PriceComposite: <"Defines the inputs required to calculate a price as a sim
 type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial instrument in a trade as a schedule of measures. A price generically expresses the value of an exchange as a ratio: it measures the amount of one thing needed to be exchanged for 1 unit of another thing (e.g. cash in a specific currency in exchange for a bond or share). This generic representation can be used to support any type of financial price beyond just cash price: e.g. an interest rate, a foreign exchange rate, etc. This data type is generically based on a schedule and can also be used to represent a price as a single value.">
 
 	perUnitOf UnitType (0..1) <"Provides an attribute to define the unit of the thing being priced. For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
-    priceType PriceTypeEnum (1..1)
- 	priceExpression PriceExpressionEnum (0..1)
-    composite PriceComposite (0..1)
-    arithmeticOperator ArithmeticOperationEnum (0..1)
-    cashPrice CashPrice (0..1)
+    priceType PriceTypeEnum (1..1) <"Specifies the price type as an enumeration: interest rate, exchange rate, asset price etc. This attribute is mandatory so that prices can always be clasiffied according to their type. The price type implies some constraints on the price's units.">
+ 	priceExpression PriceExpressionEnum (0..1) <"(Optionally) Specifies whether the price is expressed in absolute or percentage terms.">
+    composite PriceComposite (0..1) <"(Optionally) Specifies the underlying price components if the price can be expressed as a composite: e.g. dirty price = clean price + accrued.">
+    arithmeticOperator ArithmeticOperationEnum (0..1) <"(Optionally) When the price is to be understood as an operator to apply to an observable, i.e. a spread, multiplier or min/max.">
+    cashPrice CashPrice (0..1) <"(Optionally when the price type is cash) Additional attributes that further define a cash price, e.g. what type of fee it is.">
  	
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
         if priceType = PriceTypeEnum -> Variance
