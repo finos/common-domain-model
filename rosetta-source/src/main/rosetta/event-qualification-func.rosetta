@@ -91,7 +91,7 @@ func Qualify_OpenOfferClearedTrade:
         and openTradeStates count = 2
         and (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists
         and openTradeStates
-            map [
+            extract [
                 item -> trade -> tradableProduct -> counterparty -> partyReference <> beforeTradeState -> trade -> tradableProduct -> counterparty -> partyReference
                 and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
                 and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
@@ -321,15 +321,15 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
 
 	alias beforePrice: <"Only works in the case of a single trade lot and price.">
 		beforeTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
-		    extract [ item -> value ]
-		    only-element
+		    filter perUnitOf -> financialUnit = FinancialUnitEnum -> Share
+		    then extract value
+		    then only-element
 
 	alias afterPrice: <"Only works in the case of a single trade lot and price.">
 		afterTradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-		    filter [ item -> perUnitOf -> financialUnit = FinancialUnitEnum -> Share ]
-		    extract [ item -> value ]
-		    only-element
+		    filter perUnitOf -> financialUnit = FinancialUnitEnum -> Share
+		    then extract value
+		    then only-element
 
 	alias currencyAmountUnchanged:
 		if beforeCurrencyAmount exists and afterCurrencyAmount exists then
@@ -376,7 +376,12 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 	    and before -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex
 
 	alias spread:
-		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> InterestRate, empty, empty, empty, empty, empty, SpreadTypeEnum -> Spread )
+		FilterPrice(
+            after -> tradeLot -> priceQuantity -> price,
+            PriceTypeEnum -> InterestRate,
+            [ ArithmeticOperationEnum -> Add, ArithmeticOperationEnum -> Subtract ]
+            /*, empty, empty, empty, empty, empty, SpreadTypeEnum -> Spread*/
+            )
 
 	alias adjustmentSpreadAdded:
 		if spread exists

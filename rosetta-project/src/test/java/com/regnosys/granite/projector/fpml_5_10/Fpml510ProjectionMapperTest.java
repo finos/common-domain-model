@@ -4,19 +4,23 @@ import cdm.event.common.TradeState;
 import com.google.common.io.Resources;
 import com.google.inject.Module;
 import com.google.inject.*;
+import com.google.inject.util.Modules;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
+import com.regnosys.rosetta.RosettaRuntimeModule;
+import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.PostProcessStep;
+import org.eclipse.xtext.common.TerminalsStandaloneSetup;
 import org.fpml.fpml_5.confirmation.DataDocument;
 import org.fpml.fpml_5.confirmation.Document;
 import org.fpml.fpml_5.confirmation.RequestClearing;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -158,7 +162,7 @@ class Fpml510ProjectionMapperTest {
 	@ParameterizedTest(name = "{1}")
 	@MethodSource("fpmlDocumentFiles")
 	<T extends Document> void shouldIngestContractAndBuildFpmlDocument(URL fpmlUrl, String name, Class<T> fpmlDocument, Expectations expectations) throws JAXBException, IOException, URISyntaxException {
-		System.out.println("---------------------- Running Test for file: " + name + " ----------------------");
+		LOGGER.debug("---------------------- Running Test for file: " + name + " ----------------------");
 		IngestionReport<TradeState> ingestionReport = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(fpmlUrl));
 		TradeState tradeState = ingestionReport.getRosettaModelInstance();
 		assertNotNull(tradeState);
@@ -220,11 +224,19 @@ class Fpml510ProjectionMapperTest {
 			.collect(Collectors.toList());
 	}
 
-	private static void initialiseIngestionFactory(Module Fpml510ProjectionMapperTest) {
+	private static void initialiseIngestionFactory(Module moduleRuntimeModule) {
 		IngestionFactory.init(INSTANCE_NAME,
 				Fpml510ProjectionMapperTest.class.getClassLoader(),
-				Fpml510ProjectionMapperTest,
+				setupRuntimeModules(moduleRuntimeModule),
 				IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
+	}
+
+	private static Module setupRuntimeModules(Module modelRuntimeModule) {
+		TerminalsStandaloneSetup.doSetup();
+		Module combinedModules = Modules.combine(new Module[]{modelRuntimeModule, new RosettaRuntimeModule()});
+		injector = Guice.createInjector(new Module[]{combinedModules});
+		(new RosettaStandaloneSetup()).register(injector);
+		return combinedModules;
 	}
 
 	static class Expectations {

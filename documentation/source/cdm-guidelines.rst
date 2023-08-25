@@ -21,18 +21,19 @@ Prerequisites
 Introduction
 ---------------
 
-* The CDM in Java is built using `maven`_ and is published using the REGnosys artifactory. The repository can be accessed using the maven settings file that is included in the cdm sources jar or by copying the repository information to your own settings.
+* The CDM in Java is built using `maven`_ and is published to Maven Central.
 
-* The CDM in Java code, a related set of examples, and a video tutorial accessing the code and loading the examples are available in the `CDM Portal`_:
+Setup
+-----
+In order to use the CDM in a Maven project, the following dependency needs to be addeed to the project pom.xml:
 
-Download page for zip files of the Java code and examples
-
-.. figure:: images/cdm-portal.png
-
-* Direct links:
-    `ISDA CDM as Java Code`_
-
-    `ISDA CDM as Java Examples`_
+```
+<dependency>
+  <groupId>org.finos.cdm</groupId>
+  <artifactId>cdm-java</artifactId>
+  <version>LATEST</version>
+</dependency>
+```
 
 Tutorials
 
@@ -56,7 +57,7 @@ The first step is to initialise the injector. There are two options:
 Initialising the Injector, Option 1: Using provided CdmRuntimeModule
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-The CDM distribution comes with a pre-built CDM module that can be used to create an injector. It provides bindings to required classes (ModelObjectValidator and QualifyFunctionFactory) as well as binding in implementations for several CDM functions such as Abs, Sum
+The CDM java distribution comes with a pre-built CDM module that can be used to create an injector. It provides bindings to required classes (ModelObjectValidator and QualifyFunctionFactory) as well as binding in implementations for several CDM functions such as Abs, Sum
 
 .. code-block:: Java
 

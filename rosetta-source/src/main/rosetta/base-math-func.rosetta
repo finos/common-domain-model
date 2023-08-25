@@ -82,7 +82,7 @@ func CompareQuantityByUnitOfAmount:
             extract q1 [
                 FilterQuantity( quantity2, unitOfAmount )
                     extract q2 [ CompareNumbers( q1 -> value, op, q2 -> value ) ]
-            ] flatten
+            ] then flatten
             all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
@@ -94,7 +94,7 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
 
     add filteredQuantities:
         quantities
-            filter [ item -> unit = unit ]
+            filter item -> unit = unit
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
@@ -105,7 +105,7 @@ func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
 
     add filteredQuantities:
         quantities
-            filter [ item -> unit -> currency = currency ]
+            filter item -> unit -> currency = currency
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
     inputs:
@@ -115,7 +115,7 @@ func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit t
 
     add filteredQuantities:
         quantities
-            filter [ item -> unit -> currency exists ]
+            filter item -> unit -> currency exists
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
@@ -126,7 +126,7 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
 
     add filteredQuantities:
         quantities
-            filter [ item -> unit -> financialUnit = financialUnit ]
+            filter item -> unit -> financialUnit = financialUnit
 
 func Create_NonNegativeQuantity: <"Create a non-negative quantity with given amount and unit of amount.">
 	inputs:
@@ -196,7 +196,7 @@ func VectorScalarOperation: <"Generates a result vector by applying the supplied
 
 	add result:
         left
-            extract [ ArithmeticOperation( item, arithmeticOp, rightOrDefault ) ]
+            extract ArithmeticOperation(item, arithmeticOp, rightOrDefault)
 
 func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1. For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease. The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n]. The resulting list will have the one more element than the supplied list of factors.">
     inputs:

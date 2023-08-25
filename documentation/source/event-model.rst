@@ -67,6 +67,8 @@ The ``Trade`` data type defines the outcome of a financial transaction between p
    tradeIdentifier TradeIdentifier (1..*)
    tradeDate date (1..1)
      [metadata id]
+   tradeTime TimeZone (0..1)
+     [metadata id]	 
    tradableProduct TradableProduct (1..1)
    party Party (0..*)
    partyRole PartyRole (0..*)
@@ -323,7 +325,7 @@ The split function iterates on each element of the breakdown and applies the cor
    
    add splitTrade:
      breakdown
-       extract [ Create_TradeState( item, originalTrade ) ]
+       extract Create_TradeState(item, originalTrade)
 			
 Examples of how primitive operators work are illustrated below.
 
@@ -356,6 +358,8 @@ Therefore, the execution function does not take any before state as input and al
    partyRoles PartyRole (0..*)
    executionDetails ExecutionDetails (1..1)
    tradeDate date (1..1)
+       [metadata id]
+   tradeTime TimeZone (0..1)
        [metadata id]
    tradeIdentifier TradeIdentifier (1..*)
    collateral Collateral (0..1)
@@ -541,7 +545,7 @@ A business event is *atomic*, i.e. its primitive components cannot happen indepe
 Event Qualification
 """""""""""""""""""
 
-**The CDM qualifies lifecycle events as a function of their primitive components** rather than explicitly declaring the event type. The CDM uses the same approach for event qualification as for product qualification and is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotatation.
+**The CDM qualifies lifecycle events as a function of their primitive components** rather than explicitly declaring the event type. The CDM uses the same approach for event qualification as for product qualification and is based on a set of Event Qualification functions. These functions are identified with a ``[qualification BusinessEvent]`` annotation.
 
 Event Qualification functions apply a taxonomy-specific business logic to identify if the state-transition attributes values, which are embedded in the primitive event components, match the specified criteria for the event named in that taxonomy. Like Product Qualification functions, the Event Qualification function name is prefixed with the word ``Qualify_`` followed by the taxonomy name.
 
@@ -569,8 +573,6 @@ One distinction with the product approach is that the ``intent`` qualification i
 If all the statements above are true, then the function evaluates to True. In this case, the event is determined to be qualified as the event type referenced by the function name.
 
 The output of the qualification function is used to populate the ``eventQualifier`` attribute of the ``BusinessEvent`` object, similar to how product qualification works. An implementation of the CDM would call all of the Event Qualification functions following the creation of each event and then insert the appropriate value or provide an exception message.
-
-.. note:: The type of the ``eventQualifier`` attribute in ``BusinessEvent``, called ``eventType``, is a *meta-type* that indicates that its value is meant to be populated using some functional logic. That functional logic must be represented by a qualification function annotated with ``[qualification BusinessEvent]``, as in the example above. This mechanism is further detailed in the Rosetta DSL documentation.
 
 Intent
 """"""

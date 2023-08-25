@@ -1,8 +1,7 @@
 package cdm.product.common.settlement.processor;
 
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.DatedValue;
-import cdm.observable.asset.CapFloorEnum;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
@@ -46,11 +45,11 @@ public class PriceCollarMappingProcessor extends MappingProcessor {
 				getNonNullMapping(getMappings(), getModelPath(), subPath, "floorRateSchedule", "initialValue").ifPresent(frm -> {
 					UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
 					BigDecimal floorRate = new BigDecimal(String.valueOf(frm.getXmlValue()));
-					PriceExpression.PriceExpressionBuilder priceExpression = PriceExpression.builder()
-							.setPriceType(PriceTypeEnum.INTEREST_RATE)
-							.setCapFloor(CapFloorEnum.FLOOR);
+					ArithmeticOperationEnum operator = ArithmeticOperationEnum.MIN; //floor
+					PriceTypeEnum priceType = PriceTypeEnum.INTEREST_RATE;
+
 					FieldWithMetaPriceSchedule.FieldWithMetaPriceScheduleBuilder fieldWithPriceScheduleBuilder =
-							toReferencablePriceBuilder(floorRate, unitType, unitType, priceExpression);
+							toReferencablePriceBuilder(floorRate, unitType, unitType, priceType, operator, null);
 					PriceSchedule.PriceScheduleBuilder priceScheduleBuilder = fieldWithPriceScheduleBuilder.getValue();
 					// update price index, e.g. floorRate and capRate were previously mapped to the same field so the price index
 					// must be incremented otherwise any references will break

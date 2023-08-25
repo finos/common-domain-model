@@ -11,3 +11,4 @@ A new function `Create_SubstitutionPrimitiveInstruction` is added that accepts i
 amounts and price, and returns a new primitive instruction that can be used to execute a business event. In the case where
 there was a contractual agreement to substitute collateral the original trade remains with reference to it's contract, identifiers, and 
 other details. There is a also a new qualification function `Qualify_Substitution` that validates the results meet the substitution criteria.
+
