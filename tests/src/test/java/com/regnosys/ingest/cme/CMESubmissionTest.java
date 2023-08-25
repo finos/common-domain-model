@@ -1,6 +1,6 @@
-package com.regnosys.granite.ingestor.ore;
+package com.regnosys.ingest.cme;
 
-import cdm.event.common.TradeState;
+import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
@@ -14,12 +14,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-class OreTradeTest extends IngestionTest<TradeState>{
+class CMESubmissionTest extends IngestionTest<WorkflowStep>{
 
-	private static final String ORE_1_0_39_FILES_DIR = "cdm-sample-files/ore-1-0-39/";
+	private static final String CME_SUBMISSION_1_17_FILES_DIR = "cdm-sample-files/cme-submission-irs-1-0/";
 
 	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-			.add(Resources.getResource(ORE_1_0_39_FILES_DIR + "expectations.json"))
+			.add(Resources.getResource(CME_SUBMISSION_1_17_FILES_DIR + "expectations.json"))
 			.build();
 	
 	private static IngestionService ingestionService;
@@ -28,12 +28,12 @@ class OreTradeTest extends IngestionTest<TradeState>{
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getOre1039();
+		ingestionService = IngestionFactory.getInstance().getCmeSubmissionIrs1();
 	}
 	
 	@Override
-	protected Class<TradeState> getClazz() {
-		return TradeState.class;
+	protected Class<WorkflowStep> getClazz() {
+		return WorkflowStep.class;
 	}
 
 	@Override

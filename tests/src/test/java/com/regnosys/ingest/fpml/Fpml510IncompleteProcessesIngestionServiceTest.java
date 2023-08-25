@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor;
+package com.regnosys.ingest.fpml;
 
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
@@ -15,13 +15,13 @@ import java.util.stream.Stream;
 
 import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
-public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowStep> {
+public class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
-	private static final String BASE_DIR = "cdm-sample-files/native-cdm-events/";
+	private static final String INCOMPLETE_PROCESSES = "cdm-sample-files/fpml-5-10/incomplete-processes/";
 
 	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-		.add(Resources.getResource(BASE_DIR + "expectations.json"))
-		.build();
+			.add(Resources.getResource(INCOMPLETE_PROCESSES + "expectations.json"))
+			.build();
 
 	private static IngestionService ingestionService;
 
@@ -31,7 +31,7 @@ public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowS
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToWorkflowStep();
 	}
-
+	
 	@Override
 	protected Class<WorkflowStep> getClazz() {
 		return WorkflowStep.class;

@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.functions;
+package com.regnosys.functions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;

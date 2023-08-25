@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.fpml;
+package com.regnosys.ingest.fpml;
 
 import cdm.event.common.TradeState;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 
 import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
-public class Fpml510ProductIngestionServiceTest extends IngestionTest<TradeState> {
+public class Fpml510IncompleteProductIngestionServiceTest extends IngestionTest<TradeState> {
 
-	private static final String BASE_DIR = "cdm-sample-files/fpml-5-10/products/";
+	private static final String INCOMPLETE_BASE = "cdm-sample-files/fpml-5-10/incomplete-products/";
 
 	private static IngestionService ingestionService;
 
@@ -24,7 +24,7 @@ public class Fpml510ProductIngestionServiceTest extends IngestionTest<TradeState
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToTradeState();
 	}
-	
+
 	@Override
 	protected Class<TradeState> getClazz() {
 		return TradeState.class;
@@ -37,6 +37,6 @@ public class Fpml510ProductIngestionServiceTest extends IngestionTest<TradeState
 
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFromPath(BASE_DIR);
+		return readExpectationsFromPath(INCOMPLETE_BASE);
 	}
 }

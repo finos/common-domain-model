@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.schemaimport;
+package com.regnosys.schemaimport;
 
 import com.regnosys.testing.schemaimport.SchemeImportInjectorProvider;
 import com.regnosys.testing.schemaimport.SchemeImporterTestHelper;

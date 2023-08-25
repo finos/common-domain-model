@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.fpml;
+package com.regnosys.ingest.fpml;
 
 import cdm.event.common.TradeState;
 import com.google.common.collect.ImmutableList;
