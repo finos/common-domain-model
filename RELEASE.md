@@ -1,4 +1,4 @@
-# *CDM Model - Addition of new type to capture Reference Index Information*
+# *CDM Model - Reference Index Information*
 
 _Background_
 
