@@ -2,11 +2,11 @@
 
 _Background_
 
-This release resolves FpML mapping regressions that were identified following recent model improvements related to price components (see [#2183](https://github.com/finos/common-domain-model/issues/2183)) released in version [5.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.13). 
+FpML mapping regressions were identified following recent model improvements related to price components (see [#2183](https://github.com/finos/common-domain-model/issues/2183)) released in version [5.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.13). 
 
 _What is being released?_
 
-FpML mapping synonyms updated for FX and Cap / Floor products.
+This release resolves the mapping regressions and updates FpML mapping synonyms for FX and Cap / Floor products.
 
 _Review directions_
 
@@ -36,7 +36,11 @@ _What is being released?_
 
 Minor enhancement to add `TripartyAgentEnum` to `PartyRoleEnum`.
 
-# *Event Model - Add Trade Date Time*
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect changes mentioned above.
+
+# *Event Model - Trade Date Time*
 
 _Background_
 
@@ -45,3 +49,7 @@ _Background_
 _What is being released?_
 
 This enhancement adds optional attribute `tradeTime` to types `Trade` and `ExecutionInstruction`.
+
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect changes mentioned above.
