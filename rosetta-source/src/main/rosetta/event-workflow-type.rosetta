@@ -59,15 +59,15 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
 	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
 		
 	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextEvent -> instruction is absent and WorkflowStep -> rejected is absent)
+		(businessEvent exists and nextEvent -> instruction is absent and rejected is absent)
 		or
-		(WorkflowStep -> nextEvent -> instruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
+		(nextEvent -> instruction exists and businessEvent is absent and rejected is absent)
 		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> nextEvent is absent)
+		(rejected exists and businessEvent is absent and nextEvent is absent)
         or
-        (WorkflowStep -> proposedEvent exists and WorkflowStep -> nextEvent is absent and WorkflowStep -> rejected is absent)
+        (proposedEvent exists and nextEvent is absent and rejected is absent)
 		or
-		(WorkflowStep -> previousWorkflowStep exists and action = ActionEnum->Cancel)
+		(previousWorkflowStep exists and action = ActionEnum->Cancel)
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 

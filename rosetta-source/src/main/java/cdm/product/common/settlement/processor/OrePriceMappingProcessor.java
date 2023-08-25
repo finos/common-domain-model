@@ -1,8 +1,6 @@
 package cdm.product.common.settlement.processor;
 
 import cdm.base.math.UnitType;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -47,8 +45,7 @@ public class OrePriceMappingProcessor extends MappingProcessor {
 	}
 
 	private boolean filterPriceType(PriceSchedule.PriceScheduleBuilder price, PriceTypeEnum priceType) {
-		return Optional.ofNullable(price.getPriceExpression())
-				.map(PriceExpression::getPriceType)
+		return Optional.ofNullable(price.getPriceType())
 				.map(priceType::equals)
 				.orElse(false);
 	}

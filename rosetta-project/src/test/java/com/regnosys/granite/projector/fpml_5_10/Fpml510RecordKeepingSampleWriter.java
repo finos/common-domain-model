@@ -38,7 +38,6 @@ public class Fpml510RecordKeepingSampleWriter {
 			walk.filter(Files::isRegularFile)
 				.filter(this::isXmlFile)
 				.forEach(inFile -> {
-					System.out.println(inFile);
 					try {
 						DataDocument dataDocument = Fpml510Marshaller.unmarshal(DataDocument.class, toResourcesPath(inFile));
 						String fileContent = writeFileContent(dataDocument);

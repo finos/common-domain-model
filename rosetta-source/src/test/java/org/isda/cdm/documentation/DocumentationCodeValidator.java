@@ -7,6 +7,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DocumentationCodeValidator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationCodeValidator.class);
 
 	public static final List<String> ANNOTATIONS = Lists.newArrayList(
 			"synonym",
@@ -53,14 +56,14 @@ public class DocumentationCodeValidator {
 
         List<String> codeBlocks = getCodeBlocks().collect(Collectors.toList());
         Stream<String> illegalCodeBlocks = extractInvalidCode(codeBlocks, "code-block")
-                .peek(System.out::println);
+                .peek(LOGGER::info);
 
         List<String> snippets = getSnippets().collect(Collectors.toList());
         Stream<String> illegalSnippets = extractInvalidCode(snippets, "code-snippets")
-                .peek(System.out::println);
+                .peek(LOGGER::info);
 
         if (Streams.concat(illegalCodeBlocks,illegalSnippets).count() > 0) {
-            System.err.println("ERROR found illegal syntax in code block/snippet. Run this script with --fix-up flag to sanitise.");
+            LOGGER.error("ERROR found illegal syntax in code block/snippet. Run this script with --fix-up flag to sanitise.");
             System.exit(1);
         }
 
@@ -68,10 +71,10 @@ public class DocumentationCodeValidator {
         long invalidSnippets = validate(snippets, model);
 
         if (invalidCodeBlocks > 0) {
-            System.err.println("Found "+invalidCodeBlocks+" code-blocks that don't match model text.");
+            LOGGER.error("Found "+invalidCodeBlocks+" code-blocks that don't match model text.");
         }
         if (invalidSnippets > 0) {
-            System.err.println("Found ["+invalidSnippets+"] code-snippets that don't match model text.");
+            LOGGER.error("Found ["+invalidSnippets+"] code-snippets that don't match model text.");
         }
         if (invalidCodeBlocks + invalidSnippets != 0) {
         	System.exit(1);
@@ -91,7 +94,7 @@ public class DocumentationCodeValidator {
 	                            .replaceAll(whitespaceRegex, "");
 	                    return !model.contains(cleaned);
 	                })
-	                .peek(System.out::println);
+	                .peek(LOGGER::info);
 
 	        return invalidCode.count();
 	}
@@ -143,7 +146,7 @@ public class DocumentationCodeValidator {
 		files.addAll(loadFiles(snippetPath, ".snippet"));
         files.forEach( file -> {
             String sanitised = illegalSyntaxRegex.matcher(file.content).replaceAll(""); 
-            System.out.println("Sanitising [${file.path}]");
+            LOGGER.info("Sanitising [{}]", file);
             try {
 				Files.write(file.path, sanitised.getBytes(StandardCharsets.UTF_8));
 			} catch (IOException e) {
@@ -186,7 +189,7 @@ public class DocumentationCodeValidator {
 		 DocumentationCodeValidator validator = new DocumentationCodeValidator(docPath, snippetPath, modelPath);
 
 	    if (fixUp) {
-	        System.out.println("WARNING Running in fix-up mode, this will sanitise documentation .rst and .snippets files in-place.");
+	        LOGGER.warn("Running in fix-up mode, this will sanitise documentation .rst and .snippets files in-place.");
 	        validator.fixUp();
 	    }
 

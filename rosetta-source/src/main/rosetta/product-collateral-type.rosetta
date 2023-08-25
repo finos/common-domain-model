@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.math.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
@@ -11,6 +12,8 @@ import cdm.base.staticdata.asset.common.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.event.common.*
+
+import cdm.product.asset.FloatingRateBase
 
 type Collateral: <"A type for defining the obligations of the counterparty subject to credit support requirements.">
 
@@ -55,8 +58,8 @@ type AgencyRatingCriteria: <"Represents a class to specify multiple credit notat
 	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
 	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
-		if AgencyRatingCriteria -> mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-		then AgencyRatingCriteria -> referenceAgency exists
+		if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+		then referenceAgency exists
 
 type CollateralValuationTreatment: <"Specification of the valuation treatment for the specified collateral.">
 
@@ -197,3 +200,108 @@ type EligibleCollateralSpecificationInstruction:
 
     common EligibleCollateralCriteria (1..1)
     variable EligibleCollateralCriteria (1..*)
+
+// collateral interest calculation parameters
+
+type DistributionAndInterestPayment: <"A class to specify the Distributions and Interest Payment provisions applicable to the collateral agreement.">
+	interestParameters CollateralInterestParameters(0..*)  <"Represents the interest parameters for the various currencies, margin types, posting parties.">
+
+type CollateralInterestParameters: <"Represents the floating interest calculation and distribution parameters for a single currency.">
+    postingParty CounterpartyRoleEnum(0..1) <"Represents the party to which these parameters apply (the applicable party).  In other words, if the parameters are different depending on which party is posting/holding the collateral, for which party to the Collateral Agreement (Party 1 or Party 2) that is posting the collateral do these parameters apply?">
+    marginType CollateralMarginTypeEnum (0..1) <"Specifies the type of margin for which interest is being calculated, if the parameters are different depending on type of margin (initial or variation).">
+    currency string(0..1) <"Specifies the currency for which the parameters are captured.">
+    interestCalculationParameters CollateralInterestCalculationParameters(0..1) <"Represents the basic interest calculation parameters.">
+    interestCalculationFrequency  CalculationFrequency(0..1) <"Represents how often and when interest is calculated.">
+    interestHandlingParameters CollateralInterestHandlingParameters(0..1)  <"Represents the parameters describing how and when interest transfer occurs.">
+
+type CollateralInterestCalculationParameters: <"Represents parameters for calculating the amount the floating interest calculation, e.g.  for a single currency or defaults for all currencies.">
+    fixedRate number(0..1) <"Specifies the applicable fixed rate  if used.">
+    floatingRate CollateralAgreementFloatingRate (0..1) <"Specifies the floating interest rate to be used.">
+    inBaseCurrency boolean(1..1) <"If True, specifies that the interest transfers should be converted to base currency equivalent, or if False specifies that the transfer should be in the currency of the collateral.">
+    compoundingType CompoundingTypeEnum(0..1) <"Specifies the type of compounding to be applied (None, Business, Calendar).">
+    compoundingBusinessCenter BusinessCenterEnum(0..*) <"Specifies the applicable business centers for compounding.">
+    dayCountFraction DayCountFractionEnum(1..1) <"Specifies the day count fraction to use for that currency.">
+    rounding Rounding(0..1) <"Specifies the rounding rules for settling in that currency.">
+    roundingFrequency RoundingFrequencyEnum(0..1) <"Specifies when/how often is rounding applied?">
+    withholdingTaxRate number(0..1) <"Specifies the withholding tax rate if a withholding tax is applicable.">
+
+    condition  InterestRate: required choice fixedRate, floatingRate
+    condition DCF:  dayCountFraction = DayCountFractionEnum->ACT_360 or dayCountFraction = DayCountFractionEnum->ACT_365_FIXED
+    condition CompoundingBC1:  if compoundingType = CompoundingTypeEnum->Business then compoundingBusinessCenter exists
+    condition CompoundingBC2:  if compoundingType <> CompoundingTypeEnum->Business then compoundingBusinessCenter is absent
+
+
+type CollateralAgreementFloatingRate extends FloatingRateBase: <"Represents the parameters needed to calculate the floating rate paid on collateral holdings.">
+    negativeInterest boolean (1..1) <"Specifies how negative rates should be applied.  If rates go negative, should the payment be reversed (true) or zeroed out (false)?">
+    compressibleSpread boolean( 1..1) <"Specifies how spreads should be applied in a low/negative rate environment.  If true, spread is applied only if rate is positive.">
+
+    /*  Following is a table that shows how to apply the negativeInterest and compressibleSpread indicators
+    Abbreviations:   
+    PP : Posting party
+    HP : Holding Party
+	Rate : index rate prior to application of any spread
+	Spread : amount of spread added to the rate
+
+                Negative Interest / Compressible Spread
+Rate    Spread  TRUE/TRUE       FALSE/FALSE     TRUE/FALSE      FALSE/TRUE
+ 1.00    0.50   HP Pays 1.5     HP Pays 1.5     HP Pays 1.5     HP Pays 1.5 
+ 1.00    (0.50) HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ 1.00    (1.00) No Payment      No Payment      No Payment      No Payment  
+ 1.00    (1.25) PP Pays 0.25    No Payment      PP Pays 0.25    No Payment  
+ -       0.50   HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ -       (0.50) PP Pays 0.5     No Payment      PP Pays 0.5     No Payment  
+ (1.00)  0.50   PP Pays 1.0     No Payment      PP Pays 0.5     No Payment  
+ (1.00)  (0.50) PP Pays 1.0     No Payment      PP Pays 1.5     No Payment  
+ (1.00)  (1.00) PP Pays 1.0     No Payment      PP Pays 2.0     No Payment  
+ (1.00)  1.00   PP Pays 1.0     No Payment      No Payment      No Payment  
+ (1.00)  1.25   PP Pays 1.0     HP Pays 0.25    HP Pays 0.25    No Payment  
+    */
+
+type CollateralInterestHandlingParameters: <"Represents parameters that describe how calculated interest amounts are handled, i.e. are they transferred/distributed, or is the collateral balance adjusted, is netting done, and any other special handling.">
+    interestPaymentHandling CollateralInterestHandlingEnum (1..1) <"Specifies how the collateral interest is to be handled.">
+    paymentBusinessCenter BusinessCenterEnum(0..*) <"Specifies applicable business centers for payments.">
+    netPostedAndHeldInterest boolean(1..1) <"Indicates whether to net Held and Posted Interest Payments (i.e. whether interest payable for a period can be netted with interest receivable).">
+    netInterestWithMarginCalls boolean (1..1) <"Indicates whether the interest amount may be offset against any margin call deliver or return amounts?   (aka 'net payments' indicator).">
+    includeAccrualInMarginCalc boolean(1..1) <"Indicates whether or not to include the open interest accrual in the margin calculation.">
+    accrueInterestOnUnsettledInterest boolean(0..1) <"Indicates whether interest accruing on unsettled interest amount is included (continues to be accrued) in the following period.">
+    onFullReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a full return of collateral occurs.">
+    onPartialReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a partial return collateral occurs.">
+    interestAmountApplication InterestAmountApplication (0..1) <"The application of Interest Amount with respect to the Delivery Amount and the Return Amount.">
+    interestRolloverLimit NumberBound(0..1) <"Specifies the level below which the interest will be rolled over.">
+    writeoffLimit NumberBound(0..1) <"Specifies the level below which the interest will be written off; if omitted write-off is not applicable.">
+    alternativeToInterestAmount AlternativeToInterestAmountEnum (0..1) <"Specifies the alternative to interest amounts.">
+    alternativeProvision string (0..1) <"Specifies an alternative to interest amount, when the alternative provision clause is specified.">
+    cutoffTime time(0..1)  <"Specifies the time of day that interest needs to be confirmed by.">
+    notification CollateralInterestNotification(0..1) <"Specifies the terms describing notification requirements.">
+
+    condition  Alternative: if alternativeToInterestAmount = AlternativeToInterestAmountEnum->Other then alternativeProvision exists 
+    condition Alternative2: if alternativeToInterestAmount <> AlternativeToInterestAmountEnum->Other then alternativeProvision is absent
+
+type CollateralInterestNotification: <"Represents the parameters describing when notifications should be made for required collateral interest transfers.">
+    trigger string(1..1)   <"Specifies what triggers notification (should be enum) Interest Statement Frequency, Period End Date.">
+    offset number(1..1) <"Specifies the number of days before (negative) or after (positive) the trigger event.">
+    notificationTime time(1..1) <"Specifies the time of day that the notification should occur.">
+    notificationDayType DayTypeEnum(1..1) <"The type of days on which notification should occur.">
+
+type InterestAmountApplication: <"A class to specify the application of Interest Amount with respect to the Delivery Amount and the Return Amount.">
+
+    returnAmount ReturnAmount (1..1) <"The application of Interest Amount with respect the Return Amount.">
+    deliveryAmount DeliveryAmount (1..1) <"The application of Interest Amount with respect the Delivery Amount.">
+
+type ReturnAmount: <"A class to specify the application of Interest Amount with respect the Return Amount.">
+
+    includesDefaultLanguage boolean (0..1) <"Default language is included when True, and excluded when False.">
+    customElection string (0..1) <"Custom election that might be specified by the parties to the agreement.">
+
+    condition CustomElection: <"A data rule to specify that when a custom election exists then default language should not be included.">
+        if customElection exists then includesDefaultLanguage = False
+
+type DeliveryAmount: <"A class to specify the application of Interest Amount with respect the Delivery Amount.">
+
+    standardElection DeliveryAmountElectionEnum (0..1) <"The standard election as specified by an enumeration.">
+    customElection string (0..1) <"The custom election that might be specified by the parties to the agreement.">
+
+    condition: one-of
+
+
+

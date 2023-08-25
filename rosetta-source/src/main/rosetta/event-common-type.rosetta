@@ -103,6 +103,8 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
 	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
 	tradeDate date (1..1) <"Denotes the trade/execution date.">
 	    [metadata id]
+	tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
+        [metadata id]
 	tradeIdentifier TradeIdentifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
 	collateral Collateral (0..1) <"Detail the collateral requirement anticipated with the transaction.">
 
@@ -144,7 +146,7 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
 
 	condition PriceQuantity:
-		priceQuantity -> price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate
+		priceQuantity -> price -> priceType contains PriceTypeEnum -> InterestRate
 		and priceQuantity -> observable -> rateOption exists
 		and priceQuantity -> quantity is absent
 
@@ -173,6 +175,7 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
 	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
 	observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
+    valuationHistory Valuation (0..*)
 
 type ObservationEvent: <"Specifies the necessary information to create any observation event.">
 	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
@@ -250,12 +253,24 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
 	identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">	
 
+type Valuation: <"Defines the value of an investment, asset, or security">
+    amount Money (1..1) <"Current value of the outstanding contract">
+    timestamp zonedDateTime (1..1) <"Date and time of the last valuation marked to market, provided by the central counterparty (CCP) or calculated using the current or last available market price of the inputs.">
+    method ValuationTypeEnum (0..1) <"Method used for the valuation of the transaction by the valuation party.">
+    source ValuationSourceEnum (0..1) <"Source of the valuation of the transaction by the valuation party.">
+    delta number (0..1) <"The ratio of the change in the price of a derivative transaction to the change in the price of the underlying. This field is applicable only to options and swaptions.">
+
+    condition ValuationType: <"The below condition ensures one and only one of the two attributes: 'Valuation Method' or 'Valuation Source' is allowed. Valuation of a trade or a portfolio is either internally calculated (via M2Market or M2Model methods) or supplied from an external source (e.g Central Counterparty's Valuation). Valuation cannot be based upon internal calculations and external source at the same time.">
+        required choice method, source
+
 type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
 	[metadata key]
 		[docReference ICMA GMRA namingConvention "Transaction"
 			provision "As defined in the GMRA, paragraph 1(a) and 1(b) Referring to the agreement between Buyer and Seller in which a Seller agrees to sell Securities against the payment of the purchase price by Buyer to Seller, with a simultaneous agreement by Buyer to sell to Seller Equivalent Securities at a future date. May be a Repurchase Transaction or Buy/Sell Back Transaction."]
 	tradeIdentifier TradeIdentifier (1..*) <"Represents the identifier(s) that uniquely identify a trade for an identity issuer. A trade can include multiple identifiers, for example a trade that is reportable to both the CFTC and ESMA, and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
 	tradeDate date (1..1) <"Specifies the date which the trade was agreed.">
+        [metadata id]
+	tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
         [metadata id]
 	tradableProduct TradableProduct (1..1) <"Represents the financial instrument The corresponding FpML construct is the product abstract element and the associated substitution group.">
 	party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent.">
