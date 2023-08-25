@@ -2,7 +2,7 @@
 
 _Background_
 
-This release resolves FpML mapping regressions that were identified following recent model improvements related to price components in version [5.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.13). 
+This release resolves FpML mapping regressions that were identified following recent model improvements related to price components (see [#2183](https://github.com/finos/common-domain-model/issues/2183)) released in version [5.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.13). 
 
 _What is being released?_
 
