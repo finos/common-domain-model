@@ -1,4 +1,4 @@
-package org.isda.cdm.util;
+package com.regnosys.ingest;
 
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
