@@ -1,5 +1,6 @@
 version: '1.0'
 stages:
+  - setup
   - build
   - distribute
   - finalise
@@ -7,14 +8,27 @@ steps:
 
   main_clone:
     title: Cloning main repository...
+    stage: 'setup'
     type: git-clone
     git: github
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
-  TagReleaseName:
-    stage: 'build'
-    title: Setup RELEASE_NAME variable with tag
+  SetProperties:
+    stage: 'setup'
+    title: Setup build
+    image: alpine/git
+    commands:
+      - cf_export REPO_PATH=${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}
+      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}"
+      - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
+      - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
+      - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
+      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
+
+  ReleaseProperties:
+    stage: 'setup'
+    title: Setup release build
     image: alpine/git
     when:
       condition:
@@ -22,51 +36,32 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
-  BranchReleaseName:
-    stage: 'build'
-    title: Setup RELEASE_NAME variable with branch name
+  SnapshotProperties:
+    stage: 'setup'
+    title: Setup snapshot build
     image: alpine/git
     when:
       condition:
         all:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
-      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}
+      - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
-  BuildNormal:
+  Build:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+    image: maven:3.8.2-jdk-11
     working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
     commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -U -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
-      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*" -x "isda-demo/target/*"
-      - mvn -U -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python
-
-  BuildRelease:
-    stage: 'build'
-    title: Maven build for release
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules
-      - mvn -s /settings.xml clean install -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
-      - zip -r isda-demo/target/isda-demo-${{RELEASE_NAME}}.zip ./isda-demo/ -x "*.git/*" -x "*.versionsBackup*"
-      - mvn -s /settings.xml deploy -P daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full
+      - bash -c "${{GPG_IMPORT_COMMAND}}"
+      - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
+      - mvn ${{MVN_DEPLOY_FLAGS}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
   BuildParallelTasks:
     stage: 'build'
@@ -91,6 +86,8 @@ steps:
         commands:
           - sbt compile
           - sbt package
+          - sbt doc
+          - sbt packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -118,14 +115,18 @@ steps:
         title: Python build
         fail_fast: false
         image: python:3.10-alpine
-        working_directory: ./rosetta-source/target/classes/cdm/python
+        working_directory: ./rosetta-source
         shell: sh
         commands:
-          - python3 -m pip install pydantic
+          - python3 -m pip install "pydantic==1.*"
           - python3 -m pip install jsonpickle
-          - python3 -m pip install rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-1.0.0-py3-none-any.whl
           - |-
-            python3 -m pip wheel --no-deps --only-binary :all: .
+            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./target/classes/cdm/python ./target/classes/cdm/python
+          - python3 -m pip install ./target/classes/cdm/python/python_cdm-*-py3-none-any.whl
+          - python3 -m pip install pytest
+          - pytest ./src/test/python/
+          - rm -rf ./src/test/python/serialization/__pycache__ ./src/test/python/semantics/__pycache__
 
   DeployParallelTasks:
     stage: 'build'
@@ -135,218 +136,107 @@ steps:
         stage: 'build'
         title: DAML deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target
           - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-daml ${{RELEASE_NAME}} tar.gz
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-daml-${{RELEASE_NAME}}.pom
       DeployScala:
         stage: 'build'
         title: Scala deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/scala
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
+          - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       DeployCSharp8:
         stage: 'build'
         title: CSharp8 deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm/csharp8/NetStandard.2.1
           - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp8 ${{RELEASE_NAME}} tar.gz
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp8-${{RELEASE_NAME}}.pom
       DeployCSharp9:
         stage: 'build'
         title: CSharp9 deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm/csharp9/Net.5.0
           - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp9 ${{RELEASE_NAME}} tar.gz
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp9-${{RELEASE_NAME}}.pom
       DeployTypeScript:
         stage: 'build'
         title: TypeScript deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm
           - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-typescript ${{RELEASE_NAME}} zip
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-typescript-${{RELEASE_NAME}}.pom
       DeployGo:
         stage: 'build'
         title: Go deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm
           - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-golang ${{RELEASE_NAME}} tar.gz
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-golang-${{RELEASE_NAME}}.pom
       DeployKotlin:
         stage: 'build'
         title: Kotlin deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+        image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/kotlin
-          - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-          - mvn -s /settings.xml -f kotlin-pom.xml clean deploy
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm/kotlin
+          - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+          - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy -P gpg
       DeployPython:
         stage: 'build'
         title: Python deploy
         fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/python
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
         shell: bash
         commands:
-          - zip cdm-python-${{RELEASE_NAME}}.zip python_cdm-*-py3-none-any.whl rosetta_runtime-*-py3-none-any.whl
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-python-${{RELEASE_NAME}}.zip -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=zip -DgeneratePom=true
-
-  BuildJavaDocs:
-    stage: 'build'
-    title: Javadocs build and deploy
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    commands:
-      - cd rosetta-source
-      - mvn -s /settings.xml javadoc:jar
-      - mvn -s /settings.xml javadoc:jar
-      - cd ..
-      - curl -X PUT -u ${{ARTIFACTORY_USER}}:${{ARTIFACTORY_API_KEY}} -T rosetta-source/target/cdm-${{RELEASE_NAME}}-javadoc.jar "https://regnosys.jfrog.io/artifactory/libs-snapshot-local/com/isda/cdm/${{RELEASE_NAME}}/cdm-${{RELEASE_NAME}}-javadoc.jar"
-
-  BuildDistributionNormal:
-    stage: 'distribute'
-    title: Maven distribution build
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isNotRelease: "${{TAG_REPO}} == false"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - cd cdm-distribution
-      - mvn -U -s /settings.xml clean deploy -P distribute
-
-  BuildDistributionRelease:
-    stage: 'distribute'
-    title: Maven distribution build for release
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./
-    when:
-      condition:
-        all:
-          isRelease: "${{TAG_REPO}}"
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - cd cdm-distribution
-      - mvn -U -s /settings.xml clean deploy -P distribute,distribute-full
-
-  DistributeDaml:
-    stage: 'distribute'
-    title: Maven DAML distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f daml-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f daml-pom.xml clean deploy
-
-  DistributeScala:
-    stage: 'distribute'
-    title: Maven Scala distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
-
-  DistributeCSharp8:
-    stage: 'distribute'
-    title: Maven CSharp8 distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
-
-  DistributeCSharp9:
-    stage: 'distribute'
-    title: Maven CSharp9 distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
-
-  DistributeTypeScript:
-    stage: 'distribute'
-    title: Maven TypeScript distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f typescript-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f typescript-pom.xml clean deploy
-
-  DistributeGo:
-    stage: 'distribute'
-    title: Maven Golang distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f golang-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f golang-pom.xml clean deploy
-
-  DistributeKotlin:
-    stage: 'distribute'
-    title: Maven Kotlin distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f kotlin-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f kotlin-pom.xml clean deploy
-
-  DistributePython:
-    stage: 'distribute'
-    title: Maven Python distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f python-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f python-pom.xml clean deploy
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd target/classes/cdm/python
+          - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
+          - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
     stage: 'finalise'
@@ -358,8 +248,7 @@ steps:
           - master
       condition:
         any:
-          buildNormalFailed: steps.BuildNormal.result == 'error'
-          buildReleaseFailed: steps.BuildRelease.result == 'error'
+          mvnBuildFailed: steps.Build.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
           buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
@@ -373,17 +262,6 @@ steps:
           deployGoFailed: steps.DeployGo.result == 'error'
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
           deployPythonFailed: steps.DeployPython.result == 'error'
-          buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
-          distributeNormalFailed: steps.BuildDistributionNormal.result == 'error'
-          distributeReleaseFailed: steps.BuildDistributionRelease.result == 'error'
-          distributeDamlFailed: steps.DistributeDaml.result == 'error'
-          distributeScalaFailed: steps.DistributeScala.result == 'error'
-          distributeTypeScriptFailed: steps.DistributeTypeScript.result == 'error'
-          distributeCSharp8Failed: steps.DistributeCSharp8.result == 'error'
-          distributeCSharp9Failed: steps.DistributeCSharp9.result == 'error'
-          distributeGoFailed: steps.DistributeGo.result == 'error'
-          distributeKotlinFailed: steps.DistributeKotlin.result == 'error'
-          distributeJavaDocsFailed: steps.DistributeJavaDocs.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -402,8 +280,7 @@ steps:
     when:
       condition:
         any:
-          normalBuildFailure: steps.BuildNormal.result == 'failure'
-          releaseBuildFailure: steps.BuildRelease.result == 'failure'
+          mvnBuildFailure: steps.Build.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
@@ -417,17 +294,6 @@ steps:
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
           pythonDeployFailure: steps.DeployPython.result == 'failure'
-          javaDocsBuildFailure: steps.BuildJavaDocs.result == 'failure'
-          distributeNormalFailure: steps.BuildDistributionNormal.result == 'failure'
-          distributeReleaseFailure: steps.BuildDistributionRelease.result == 'failure'
-          distributeDamlFailure: steps.DistributeDaml.result == 'failure'
-          distributeScalaFailure: steps.DistributeScala.result == 'failure'
-          distributeTypeScriptFailure: steps.DistributeTypeScript.result == 'failure'
-          distributeCSharp8Failure: steps.DistributeCSharp8.result == 'failure'
-          distributeCSharp9Failure: steps.DistributeCSharp9.result == 'failure'
-          distributeGoFailure: steps.DistributeGo.result == 'failure'
-          distributeKotlinFailure: steps.DistributeKotlin.result == 'failure'
-          distributeJavaDocsFailure: steps.DistributeJavaDocs.result == 'failure'
     commands:
       - exit 1
 
@@ -438,7 +304,7 @@ steps:
     when:
       condition:
         all:
-          buildPassed: steps.BuildRelease.result == 'success'
+          buildPassed: steps.Build.result == 'success'
           isRelease: "${{TAG_REPO}}"
     commands:
       - echo This is a release build, tag repos with release name [${{RELEASE_NAME}}]
@@ -456,7 +322,7 @@ steps:
           - master
       condition:
         all:
-          buildPassed: steps.BuildNormal.result == 'success'
+          buildPassed: steps.Build.result == 'success'
           variableDefined: "${{TAG_REPO}} == false"
           skipNextBuild: "${{SKIP_NEXT_BUILD}} == false"
     commands:
