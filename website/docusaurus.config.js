@@ -107,7 +107,7 @@ module.exports = {
             },
             {
               label: 'What Is The CDM?',
-              href: 'docs/what_is_the_cdm.pdf',
+              to: 'docs/what_is_the_cdm.pdf',
             },
             {
               label: 'CDM Java Distribution Guidelines',
