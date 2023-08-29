@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor;
+package com.regnosys.ingest.fis;
 
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;

@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.fpml;
+package com.regnosys.ingest.fpml;
 
 import cdm.event.common.TradeState;
 import com.google.common.collect.ImmutableList;
@@ -13,20 +13,25 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
+import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
-class InvalidProductTest extends IngestionTest<TradeState> {
+public class Fpml512ProductIngestionServiceTest extends IngestionTest<TradeState> {
 
-	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fpml-5-10/invalid-products/";
+	private static final String COMMODITY_DIR = "cdm-sample-files/fpml-5-12/products/commodity/";
+	private static final String CREDIT_DIR = "cdm-sample-files/fpml-5-12/products/credit/";
+	private static final String RATES_DIR = "cdm-sample-files/fpml-5-12/products/rates/";
+	private static final String EQUITY_DIR = "cdm-sample-files/fpml-5-12/products/equity/";
+	private static final String FX_DIR = "cdm-sample-files/fpml-5-12/products/fx/";
+	private static final String REPO_DIR = "cdm-sample-files/fpml-5-12/products/repo/";
 
-	/*
-	 * Validation logic is supposed to result in a False outcome.
-	 * Those tests which result in a True outcome need to have their associated data rule evaluated and corrected.
-	 * The file names correspond to the data rules that are being tested.
-	 */
 	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-			.add(Resources.getResource(SAMPLE_FILES_DIR + "expectations.json"))
-			.build();
+		.add(Resources.getResource(COMMODITY_DIR + "expectations.json"))
+		.add(Resources.getResource(CREDIT_DIR + "expectations.json"))
+		.add(Resources.getResource(RATES_DIR + "expectations.json"))
+		.add(Resources.getResource(EQUITY_DIR + "expectations.json"))
+		.add(Resources.getResource(FX_DIR + "expectations.json"))
+		.add(Resources.getResource(REPO_DIR + "expectations.json"))
+		.build();
 
 	private static IngestionService ingestionService;
 
@@ -36,7 +41,7 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToTradeState();
 	}
-
+	
 	@Override
 	protected Class<TradeState> getClazz() {
 		return TradeState.class;
