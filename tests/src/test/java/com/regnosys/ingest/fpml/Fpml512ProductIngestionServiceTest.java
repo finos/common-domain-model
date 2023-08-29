@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
+import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
 public class Fpml512ProductIngestionServiceTest extends IngestionTest<TradeState> {
 
