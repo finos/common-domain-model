@@ -157,7 +157,13 @@ public class RepoLegalAgreementCreation {
 			String agreementUrl
 	) throws JsonProcessingException {
 
-		Integer vintage = Integer.parseInt(agreementVintageStr);
+		Integer vintage;
+
+		try{
+			vintage = Integer.parseInt(agreementVintageStr);
+		} catch (NumberFormatException e) {
+			vintage = 0;
+		}
 
 		LegalAgreement lga;
 

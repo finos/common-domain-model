@@ -47,6 +47,8 @@ import cdm.event.common.*;
 import cdm.event.common.functions.*;
 import cdm.event.common.metafields.ReferenceWithMetaTradeState;
 import cdm.event.position.PositionStatusEnum;
+import cdm.event.qualification.functions.Qualify_ContractFormation;
+import cdm.event.qualification.functions.Qualify_Execution;
 import cdm.event.workflow.*;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legaldocumentation.common.LegalAgreement;
@@ -300,7 +302,8 @@ public class RepoLifeCycle {
 			String floatingRateResetFreqStr,
 			String floatingRateResetMultiplierStr,
 			String floatingRatePaymentFreqStr,
-			String floatingRatePaymentMultiplierStr
+			String floatingRatePaymentMultiplierStr,
+			String transactionTypeStr
     ) throws JsonProcessingException {
 
         //Create_ExecutionInstruction instruction = new Create_ExecutionInstruction.Create_ExecutionInstructionDefault();
@@ -365,7 +368,8 @@ public class RepoLifeCycle {
 		floatingRateResetFreqStr,
 		floatingRateResetMultiplierStr,
 		floatingRatePaymentFreqStr,
-		floatingRatePaymentMultiplierStr
+		floatingRatePaymentMultiplierStr,
+		transactionTypeStr
 		);
 
 
@@ -375,12 +379,6 @@ public class RepoLifeCycle {
 		PrimitiveInstruction repoPrimitiveInstruction = PrimitiveInstruction.builder()
 				.setExecution(repoExecutionInstruction);
 
-		//Create an instruction from primitive. Before state is null
-		Instruction instruction = Instruction.builder()
-				.setPrimitiveInstruction(repoPrimitiveInstruction)
-				.setBefore(null)
-				.build();
-
 		Date effectiveDate = repoExecutionInstruction.getProduct().getContractualProduct().getEconomicTerms().getEffectiveDate().getAdjustableDate().getUnadjustedDate();
 		Date eventDate = repoExecutionInstruction.getProduct().getContractualProduct().getEconomicTerms().getEffectiveDate().getAdjustableDate().getUnadjustedDate();
 
@@ -388,6 +386,30 @@ public class RepoLifeCycle {
 		injector.injectMembers(repoExecution);
 		TradeState tradeState = repoExecution.evaluate(repoExecutionInstruction);
 
+		//Create an instruction from primitive. Before state is null
+		Instruction instruction = Instruction.builder()
+				.setPrimitiveInstruction(repoPrimitiveInstruction)
+				.setBefore(null)
+				.build();
+
+		List<Instruction> instructionList = List.of(instruction);
+
+		Create_BusinessEvent rx= new Create_BusinessEvent.Create_BusinessEventDefault();
+		injector.injectMembers(rx);
+		BusinessEvent businessEvent = rx.evaluate(instructionList, null, eventDate, effectiveDate);
+
+		Qualify_Execution.Qualify_ExecutionDefault qe = new Qualify_Execution.Qualify_ExecutionDefault();
+		injector.injectMembers(qe);
+
+		Boolean result = qe.evaluate(businessEvent);
+
+		if(result)
+			System.out.println("Qualify Execution Successful");
+		else
+			System.out.println("Qualify Execution Failed");
+
+
+		//Begin Contract Formation
 		RepoLegalAgreementCreation rlg = new RepoLegalAgreementCreation();
 		LegalAgreement repoLegalAgreement = rlg.createLegalAgreementObject(
 				agreementNameStr,
@@ -413,29 +435,38 @@ public class RepoLifeCycle {
 		String repoExecutionInstructionJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(instruction);
 		System.out.println(repoExecutionInstructionJson);
 
-		List<Instruction> instructionList = List.of(instruction);
+		instructionList = List.of(instruction);
 
 		Create_ContractFormation.Create_ContractFormationDefault cf = new Create_ContractFormation.Create_ContractFormationDefault();
 		injector.injectMembers(cf);
 		TradeState afterTradeState = cf.evaluate(contractFormationInstruction, tradeState);
 
-		PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstruction = PrimitiveInstruction.builder();
+		//PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstruction = PrimitiveInstruction.builder();
 
 		Create_Instruction ci = new Create_Instruction.Create_InstructionDefault();
 		injector.injectMembers(ci);
-		instructionList = List.of(ci.evaluate(afterTradeState, primitiveInstruction));
+		instructionList = List.of(ci.evaluate(afterTradeState, repoPrimitiveInstruction));
 
 		Create_BusinessEvent be= new Create_BusinessEvent.Create_BusinessEventDefault();
 		injector.injectMembers(be);
-		BusinessEvent businessEvent = be.evaluate(instructionList, null, eventDate, effectiveDate);
+		businessEvent = be.evaluate(instructionList, null, eventDate, effectiveDate);
 
+		Qualify_ContractFormation.Qualify_ContractFormationDefault qcf = new Qualify_ContractFormation.Qualify_ContractFormationDefault();
+		injector.injectMembers(qcf);
+		result = qcf.evaluate(businessEvent);
+
+		if(result)
+			System.out.println("Qualify Contract Formation Successful");
+		else
+			System.out.println("Qualify Contract Formation Failed");
 
 		String repoBusinesseventJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(businessEvent);
 
-		return repoBusinesseventJson;
-		
 
-		
+		return repoBusinesseventJson;
+
+
+
     }
 
 

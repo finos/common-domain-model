@@ -21,60 +21,22 @@
 
 package com.icma.cdm.example;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-
 import cdm.base.datetime.*;
-import cdm.base.datetime.AdjustableDate;
-import cdm.base.datetime.AdjustableDates;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.daycount.DayCountFractionEnum;
-import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
-import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
+import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
+import cdm.base.staticdata.asset.common.ProductIdentifier;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.*;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.Trade;
+import cdm.event.common.BusinessEvent;
 import cdm.event.common.TradeIdentifier;
-import cdm.event.common.ExecutionDetails;
-import cdm.event.common.*;
-import cdm.observable.asset.Observable;
-import cdm.product.asset.*;
-import cdm.product.collateral.*;
-import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.schedule.PayRelativeToEnum;
-import cdm.product.common.schedule.PaymentDates;
-import cdm.product.common.schedule.RateSchedule;
-import cdm.product.common.settlement.ResolvablePriceQuantity;
+import cdm.event.common.TradeState;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
-import cdm.product.common.settlement.*;
-import cdm.product.template.*;
+import cdm.product.common.settlement.PriceQuantity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
@@ -83,43 +45,27 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.GlobalKey;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.meta.Key;
-import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import com.rosetta.model.lib.meta.Reference;
-import com.rosetta.model.lib.records.Date;
-import org.joda.time.DateTime;
 
-
+import javax.swing.*;
 import java.io.File;
-import java.io.FileWriter;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
-import static com.rosetta.model.lib.records.Date.of;
-
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
+import java.math.BigDecimal;
 import java.nio.file.Paths;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.rosetta.model.lib.records.Date.of;
 
 public class IcmaRepoUtil {
 
@@ -146,7 +92,7 @@ public class IcmaRepoUtil {
 		return globalKey.getMeta().getGlobalKey();
 	}
 
-	private TradeState tradeState;
+	//private TradeState tradeState;
 
 
 	public FieldWithMetaDate createTradeDate(int y, int m, int d) {
@@ -177,24 +123,41 @@ public class IcmaRepoUtil {
 	}
 
 	public Party createRepoParty(String partyId, String scheme, String pName) {
-		return addGlobalKey(Party.class,
-				Party.builder()
-						.addPartyId(PartyIdentifier.builder()
-								.setIdentifierValue(partyId)
-								.setMeta(MetaFields.builder().setScheme(scheme).build())
-								.build())
-						.setNameValue(pName)
-						.build());
+
+		Party party;
+
+		if ((partyId.equals("")) && (pName.equals("")))
+			party = null;
+		else{
+			party = addGlobalKey(Party.class,
+					Party.builder()
+							.addPartyId(PartyIdentifier.builder()
+									.setIdentifierValue(partyId)
+									.setMeta(MetaFields.builder()
+											.setScheme(scheme).build())
+									.build())
+							.setNameValue(pName)
+							.build());
+		}
+		return party;
 	}
 
 	public PartyRole createRepoPartyRole(Party party, String reference, String role) {
-		return PartyRole.builder()
-				.setPartyReference(ReferenceWithMetaParty.builder()
-						.setGlobalReference(getGlobalReference(party))
-						.setExternalReference(reference)
-						.build())
-				.setRole(PartyRoleEnum.valueOf(role))
-				.build();
+
+		PartyRole partyRole;
+
+		if (party == null )
+			partyRole = null;
+		else {
+			partyRole = PartyRole.builder()
+					.setPartyReference(ReferenceWithMetaParty.builder()
+							.setGlobalReference(getGlobalReference(party))
+							.setExternalReference(reference)
+							.build())
+					.setRole(PartyRoleEnum.valueOf(role))
+					.build();
+		}
+		return partyRole;
 	}
 
 	public Counterparty createRepoCounterparty(Party party, String role) {
@@ -508,6 +471,8 @@ class CdmEnumMap{
 	public Map buildEnumMap(Map<String, String> map) {
 
 		map.put("DVP", "DELIVERY_VERSUS_PAYMENT");
+		map.put("TP", "DELIVERY_VERSUS_PAYMENT");
+		map.put("FOP", "FREE_OF_PAYMENT");
 
 		map.put("DAYS", "D");
 		map.put("WEEKS", "W");
@@ -521,6 +486,9 @@ class CdmEnumMap{
 
 		map.put("SONIA", "GBP_SONIA");
 		map.put("ESTR", "EUR_EUROSTR");
+
+		map.put("Repurchase Agreement", "REPURCHASE_AGREEMENT");
+		map.put("Buy/Sell-back Agreement", "BUY/SELL_BACK_AGREEMENT");
 
 		return map;
 	}

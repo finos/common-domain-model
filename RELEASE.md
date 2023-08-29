@@ -1,39 +1,26 @@
-# *Collateral Model - Collateral Interest: Enhanced Calculation and Handling Representation*
+# _Examples - Add Repo Demo to Examples._
 
 _Background_
 
-The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
+ICMA's CDM for Repo and Bonds initiative is intended to support the digitalization of the 
+repo market through the adoption of a standardized domain model and lifecycle events based on 
+industry best practices and standards.  
+
+The repo elements of the model were designed with participation and contribution 
+of the ICMA CDM for Repo and Bonds Steering Committee.
+
+Repo lifecycle events are supported through a set of functions that accept
+a small set of inputs to auto-generate primitive instructions needed to execute
+business events. Repo lifecycle events include, rolling, re-rating, interium payments, 
+pair-off and shaping.
 
 #### _What is being released?_
 
-- Added types:
-  - CalculationFrequency
-  - CollateralInterestCalculationParameters - to calculate the amount of interest owing
-  - CollateralInterestParameters - including interestCalculationFrequency, interestCalculationParameters, interestHandlingParameters
-  - CollateralFloatingRate - parameters that define the floating interest rate to be used
-  - CollateralInterestHandlingParameters -parameters to support the operational processing of collateral interest amount
-  - CollateralInterestFrequency - rules about how often and when interest should be calculated
+This release includes a working trading application in Java that demonstrates how to create 
+repurchase transactions using CDM objects and functions. The demo includes creating 
+a new repurchase transaction, rolling, re-rating, terminating, and interest payments
+using CDM `PrimitiveInstruction` objects and `Create_BusinessEvent` and other functions.
 
-- Added enumerations:
-  - CompoundingTypeEnum - how and whether compounding is done
-  - RoundingFrequencyEnum - how often within a period rounding is done
-  - AlternativeToInterestAmountEnum - how alternatives to interest are specified
-  - CollateralInterestHandlingEnum - whether interest is to be transferred or adjusted
-  - DeliveryAmountElectionEnum
-
-- Updated
-  - DistributionAndInterestPayment – including a choice of the prior model or 0..* of a new CollateralInterestParameters type
-  - FloatingRate - including factoring out FloatingRateBase
-
-For more detail see also https://github.com/finos/common-domain-model/issues/2193
-
-#### _Review directions_
-
-In the CDM Portal, select the Textual Browser and search for the updated descriptions related to the CDM interest model mentioned above, which span across the following namespaces:
-
-- `base-datetime-enum`
-- `base-datetime-type` 
-- `mapping-fpml-confirmation-tradestate-synonyms`
-- `product-asset-type`
-- `product-collateral-enum`
-- `product-collateral-type`  
+To run this demo, rebuild the sources in com.icma.cdm.example, open the class RepoTradingApp and
+run main(). Examples of creating CDM objects and executing business events can be found in the IcmaRepoUtil,
+RepoExecutionCreation, and RepoLifeCycle files.

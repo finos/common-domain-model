@@ -46,6 +46,7 @@ import cdm.base.math.QuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
+import cdm.base.staticdata.asset.common.metafields.FieldWithMetaAssetClassEnum;
 import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -106,7 +107,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.rosetta.model.lib.records.Date.of;
 
@@ -210,7 +213,8 @@ public class RepoExecutionCreation{
 				String floatingRateResetFreqStr,
 				String floatingRateResetMultiplierStr,
 				String floatingRatePaymentFreqStr,
-				String floatingRatePaymentMultiplierStr
+				String floatingRatePaymentMultiplierStr,
+				String transactionType
 	) throws JsonProcessingException {
 		
 		RepoExecutionCreation rc = new RepoExecutionCreation();
@@ -231,31 +235,66 @@ public class RepoExecutionCreation{
 
 		List<TradeIdentifier> tradeIdentifierList = List.of(tradeIdentifier , firmTradeIdentifer);
 
+		List<Party> parties = new ArrayList<Party>();
 		//Party 1 is defined in the interest rate payout model as the payer and thus represents the repo seller also referred to as the collateral giver.
         Party party1 = ru.createRepoParty(sellerLEIStr,"LEI",sellerNameStr);
+		parties.add(party1);
 				
 		//Party 2 is defined in the interest rate payout model as the receiver and thus represents the repo buyer also referred to as the collateral taker.
         Party party2 = ru.createRepoParty(buyerLEIStr,"LEI",buyerNameStr);
+		parties.add(party2);
 
 		Party settlementAgent = ru.createRepoParty(settlementAgentLEIStr,"LEI",settlementAgentNameStr);
+		parties.add(settlementAgent);
+
 		Party ccp = ru.createRepoParty(ccpLeiStr,"LEI",ccpNameStr);
+		parties.add(ccp);
+
 		Party csdparticipant = ru.createRepoParty(csdParticipantLeiStr,"LEI",csdParticipantNameStr);
+		parties.add(csdparticipant);
+
 		Party broker = ru.createRepoParty(brokerLeiStr,"LEI",brokerNameStr);
+		parties.add(broker);
+
 		Party triparty = ru.createRepoParty(tripartyLeiStr,"LEI",tripartyNameStr);
+		parties.add(triparty);
+
 		Party clearingMember = ru.createRepoParty(clearingMemberLeiStr,"LEI",clearingMemberNameStr);
+		parties.add(clearingMember);
 
-		List<Party> parties = List.of(party1, party2, settlementAgent,ccp, csdparticipant,broker,triparty,clearingMember);
+		while (parties.remove(null));
 
-		PartyRole partyRole1 = ru.createRepoPartyRole(party1, buyerLEIStr, "SELLER");
-		PartyRole partyRole2 = ru.createRepoPartyRole(party2, sellerLEIStr,"BUYER");
+		//List<Party> parties = List.of(party1, party2, settlementAgent,ccp, csdparticipant,broker,triparty,clearingMember);
+
+		List<PartyRole> partyRoles = new ArrayList<PartyRole>();
+
+		PartyRole party1Role = ru.createRepoPartyRole(party1, buyerLEIStr, "SELLER");
+		partyRoles.add(party1Role);
+
+		PartyRole party2Role = ru.createRepoPartyRole(party2, sellerLEIStr,"BUYER");
+		partyRoles.add(party2Role);
+
 		PartyRole settlementAgentRole = ru.createRepoPartyRole(settlementAgent, settlementAgentLEIStr, "SETTLEMENT_AGENT");
-		PartyRole ccpRole = ru.createRepoPartyRole(ccp, ccpLeiStr, "CLEARING_ORGANIZATION");
-		PartyRole  tripartyRole = ru.createRepoPartyRole(triparty, tripartyLeiStr, "CLEARING_ORGANIZATION");
-		PartyRole  brokerRole = ru.createRepoPartyRole(broker, brokerLeiStr, "EXECUTING_BROKER");
-		PartyRole  clearingMemberRole = ru.createRepoPartyRole(clearingMember, clearingMemberLeiStr, "CLEARING_CLIENT");
-		PartyRole  csdParticipantRole = ru.createRepoPartyRole(csdparticipant, csdParticipantLeiStr, "CLEARING_CLIENT");
+		partyRoles.add(settlementAgentRole);
 
-		List<PartyRole> partyRoles = List.of(partyRole1, partyRole2, settlementAgentRole,ccpRole,csdParticipantRole,brokerRole,tripartyRole,clearingMemberRole);
+		PartyRole ccpRole = ru.createRepoPartyRole(ccp, ccpLeiStr, "CLEARING_ORGANIZATION");
+		partyRoles.add(ccpRole);
+
+		PartyRole  tripartyRole = ru.createRepoPartyRole(triparty, tripartyLeiStr, "CLEARING_ORGANIZATION");
+		partyRoles.add(tripartyRole);
+
+		PartyRole  brokerRole = ru.createRepoPartyRole(broker, brokerLeiStr, "EXECUTING_BROKER");
+		partyRoles.add(brokerRole);
+
+		PartyRole  clearingMemberRole = ru.createRepoPartyRole(clearingMember, clearingMemberLeiStr, "CLEARING_CLIENT");
+		partyRoles.add(clearingMemberRole);
+
+		PartyRole  csdParticipantRole = ru.createRepoPartyRole(csdparticipant, csdParticipantLeiStr, "CLEARING_CLIENT");
+		partyRoles.add(csdParticipantRole);
+
+		while (partyRoles.remove(null));
+
+		//List<PartyRole> partyRoles = List.of(partyRole1, partyRole2, settlementAgentRole,ccpRole,csdParticipantRole,brokerRole,tripartyRole,clearingMemberRole);
 		
 		Counterparty counterparty1 = ru.createRepoCounterparty(party1, "PARTY_1");
 		Counterparty counterparty2 = ru.createRepoCounterparty(party2, "PARTY_2");
@@ -283,7 +322,8 @@ public class RepoExecutionCreation{
 
 		//System.out.println("Purchase Date:" + zdtWithZoneOffset);
 
-		Date terminationDate = null;
+		Date terminationDate = null; //An open repo has a null termination date
+
 		if(termTypeStr.equals("FIXED")) {
 			zdtWithZoneOffset = ZonedDateTime.parse(repurchaseDateStr, formatter);
 			zdtInLocalTimeline = zdtWithZoneOffset.withZoneSameInstant(ZoneId.systemDefault());
@@ -293,7 +333,8 @@ public class RepoExecutionCreation{
 		Product repoProduct = createRepoProduct(effectiveDate, terminationDate, repoRate, haircut , cashCurrencyStr,
 				cashQuantity, repurchaseQuantity, collateralCurrencyStr, collateralQuantity, collateralCleanPrice, collateralDirtyPrice,
 				repoRate, collateralISINStr, "", businessCenter, deliveryMethodStr, purchaseDateStr, repurchaseDateStr,settlementAgentNameStr,rateTypeStr, termTypeStr,
-				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr);
+				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr,
+				floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr, transactionType);
 
 		String execType;
 
@@ -345,7 +386,8 @@ public class RepoExecutionCreation{
 			String floatingRateResetFreqStr,
 			String floatingRateResetMultiplierStr,
 			String floatingRatePaymentFreqStr,
-			String floatingRatePaymentMultiplierStr
+			String floatingRatePaymentMultiplierStr,
+			String transactionType
 			){
 		
 		BigDecimal repoRateBD = new BigDecimal(repoRate);
@@ -355,8 +397,8 @@ public class RepoExecutionCreation{
 							effectiveDate, terminationDate, repoRateBD, haircutBD, cashCurrency,
 							cashQuantity, repurchaseQuantity,collateralCurrency, collateralQuantity, collteralCleanPrice, collateralDirtyPrice,
 							rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,purchaseDateStr,repurchaseDateStr,settlementAgentNameStr,rateType, termType,
-				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr, floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr
-				);
+				floatingRateReferenceStr, floatingRateReferencePeriodStr, floatingRateReferenceMultiplierStr, floatingRateResetFreqStr, floatingRateResetMultiplierStr,
+				floatingRatePaymentFreqStr, floatingRatePaymentMultiplierStr, transactionType);
 		
 		return Product.builder()
 					.setContractualProduct(contractualRepoProduct)
@@ -393,13 +435,17 @@ public class RepoExecutionCreation{
 			String floatingRateResetFreqStr,
 			String floatingRateResetMultiplierStr,
 			String floatingRatePaymentFreqStr,
-			String floatingRatePaymentMultiplierStr
+			String floatingRatePaymentMultiplierStr,
+			String transactionType
 	) {
         return ContractualProduct.builder()
 				.addProductTaxonomy(ProductTaxonomy.builder()
 					.setSource(TaxonomySourceEnum.valueOf("CFI"))
 					.setValue(TaxonomyValue.builder()
-							.setNameValue("LRSTXD")))
+							.setNameValue("LRSTXD"))
+						.setPrimaryAssetClass(FieldWithMetaAssetClassEnum.builder()
+								.setValue(AssetClassEnum.MONEY_MARKET))
+						.setProductQualifier(transactionType))
                 .setEconomicTerms(createEconomicTerms(effectiveDate, terminationDate, repoRateBD, haircutBD,
 						cashCurrency, cashQuantity, repurchaseQuantity, collateralCurrency, collateralQuantity,
 						collteralCleanPrice, collateralDirtyPrice, rate, collateralISINStr, scheme,businessCenter,deliveryMethodStr,
@@ -602,6 +648,7 @@ public class RepoExecutionCreation{
 		)
 		{
 
+
 			IcmaRepoUtil ru = new IcmaRepoUtil();
 
         	return InterestRatePayout.builder()
@@ -717,6 +764,7 @@ public class RepoExecutionCreation{
 			String floatingRatePaymentMultiplierStr
 	)
 	{
+
 
 		IcmaRepoUtil ru = new IcmaRepoUtil();
 

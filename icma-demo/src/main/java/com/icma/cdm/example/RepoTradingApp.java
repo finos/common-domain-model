@@ -19,107 +19,25 @@
  ******************************************************************************/
 package com.icma.cdm.example;
 
+import cdm.event.common.TradeState;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
-
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.swing.border.Border;
-
-import cdm.base.datetime.*;
-import cdm.base.datetime.AdjustableDate;
-import cdm.base.datetime.AdjustableDates;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.daycount.DayCountFractionEnum;
-import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
-import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.math.NonNegativeQuantitySchedule;
-import cdm.base.math.UnitType;
-import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
-import cdm.base.staticdata.identifier.AssignedIdentifier;
-import cdm.base.staticdata.identifier.Identifier;
-import cdm.base.staticdata.identifier.TradeIdentifierTypeEnum;
-import cdm.base.staticdata.party.*;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.*;
-import cdm.event.common.ExecutionInstruction;
-import cdm.event.common.Trade;
-import cdm.event.common.TradeIdentifier;
-import cdm.event.common.ExecutionDetails;
-import cdm.event.common.*;
-import cdm.product.asset.*;
-import cdm.product.collateral.*;
-import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.schedule.PayRelativeToEnum;
-import cdm.product.common.schedule.PaymentDates;
-import cdm.product.common.schedule.RateSchedule;
-import cdm.product.common.settlement.ResolvablePriceQuantity;
-import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
-import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
-import cdm.product.common.settlement.*;
-import cdm.product.template.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.icma.cdm.example.util.ResourcesUtils;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.GlobalKey;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.meta.Key;
-import com.rosetta.model.lib.meta.Reference;
-import com.rosetta.model.lib.process.PostProcessStep;
-import com.rosetta.model.lib.records.Date;
-import com.rosetta.model.metafields.FieldWithMetaDate;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
-import com.rosetta.model.lib.meta.Reference;
-import com.rosetta.model.lib.records.Date;
-import com.icma.cdm.example.util.ResourcesUtils;
-
-import com.icma.cdm.example.IcmaRepoUtil;
-
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cdm.event.common.functions.Create_RollPrimitiveInstruction;
-import org.isda.cdm.CdmRuntimeModule;
-
-import static com.rosetta.model.lib.records.Date.of;
 
 public class RepoTradingApp extends JFrame implements ActionListener{
 	
@@ -161,7 +79,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JComboBox termTypeField;
 	private JComboBox terminationOptionField;
 	private JTextField noticePeriodField;
-	private JTextField deliveryMethodField;
+	private JComboBox deliveryMethodField;
 	private JComboBox  substitutionAllowedField;
 	private JComboBox  rateTypeField;
 	private JTextField dayCountFractionField;
@@ -207,9 +125,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	private JTextField firmLeiField;
 	private JTextField firmCapacityField;
 
-	private JTextField agreementNameField;
+	private JComboBox agreementNameField;
 
 	private JTextField agreementVersionField;
+
+	private JTextField otherAgreementNameField;
 
 	private JTextField tradeIdField;
 	private JTextField statusField;
@@ -286,7 +206,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		frame = new JFrame( "ICMA CDM Repo Demo" );
 		frame.setLayout(new FlowLayout(FlowLayout.LEFT));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize( 800, 800 );
+		frame.setSize( 700, 800 );
 
 		JPanel logoPanel = new JPanel();
 		try{
@@ -667,11 +587,15 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		panel.add(noticePeriodPanel);		
 		
 		//Delivery Method
+		String[] deliveryMethodChoices = { "DVP", "TP"};
 		JPanel deliveryMethodPanel = new JPanel(new GridBagLayout());
 		JLabel deliveryMethodLabel = new JLabel("Delivery Method:",JLabel.LEFT);
 		deliveryMethodLabel.setPreferredSize(new Dimension(150, 15));
-		deliveryMethodField = new JTextField(15);
-		deliveryMethodField.setText("DVP");
+
+		deliveryMethodField = new JComboBox<String>(deliveryMethodChoices);
+		deliveryMethodField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		deliveryMethodField.setPreferredSize(new Dimension(170, 20));
+
 		deliveryMethodPanel.add(deliveryMethodLabel);
 		deliveryMethodPanel.add(deliveryMethodField);
 		panel.add(deliveryMethodPanel);		
@@ -1084,14 +1008,19 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 
 
 		//AgreementName
+		String[] agreementChoices = { "GMRA", "MMRA", "BIAG", "GMSLA","OTHER"};
 		JPanel agreementNamePanel = new JPanel(new GridBagLayout());
 		JLabel agreementNameLabel = new JLabel("Agreement Name:",JLabel.LEFT);
 		agreementNameLabel.setPreferredSize(new Dimension(150, 15));
-		agreementNameField = new JTextField(15);
-		agreementNameField.setText("GMRA");
+
+		agreementNameField = new JComboBox<String>(agreementChoices);
+		agreementNameField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		agreementNameField.setPreferredSize(new Dimension(170, 20));
+
 		agreementNamePanel.add(agreementNameLabel);
 		agreementNamePanel.add(agreementNameField);
 		panel2.add(agreementNamePanel);
+
 
 		//Agreement Version
 		JPanel agreementVersionPanel = new JPanel(new GridBagLayout());
@@ -1102,6 +1031,17 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		agreementVersionPanel.add(agreementVersionLabel);
 		agreementVersionPanel.add(agreementVersionField);
 		panel2.add(agreementVersionPanel);
+
+		//Other AgreementName
+		JPanel otherAgreementNamePanel = new JPanel(new GridBagLayout());
+		JLabel otherAgreementNameLabel = new JLabel("Other Agreement:",JLabel.LEFT);
+		otherAgreementNameLabel.setPreferredSize(new Dimension(150, 15));
+		otherAgreementNameField = new JTextField(15);
+
+		otherAgreementNameField.setText("");
+		otherAgreementNamePanel.add(otherAgreementNameLabel);
+		otherAgreementNamePanel.add(otherAgreementNameField);
+		panel2.add(otherAgreementNamePanel);
 
 		//Trade ID
 		JPanel tradeIdPanel = new JPanel(new GridBagLayout());
@@ -1131,11 +1071,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		GridBagConstraints apgbc = new GridBagConstraints();
 		apgbc.gridy = 0;
 		apgbc.anchor = gbc.PAGE_END;
-		actionPanel.setSize( 800, 200 );
+		actionPanel.setSize( 700, 200 );
 		//actionPanel.setBorder(blackline);
 
 		JPanel actionBtnPanel = new JPanel(new GridLayout(2,4));
-		actionBtnPanel.setSize( 800, 200 );
+		actionBtnPanel.setSize( 700, 200 );
 
 		newTradeBtn = new JButton("New Trade");
 		newTradeBtn.addActionListener(this);
@@ -1278,7 +1218,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		rateTypeField.setSelectedItem("FIXED");
 		rateTypeFieldEvent("FIXED");
 
-		agreementNameField.setText("GMRA");
+		agreementNameField.setSelectedItem("GMRA");
 
 		agreementVersionField.setText("2011");
 
@@ -1501,6 +1441,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 	
 	public String bookTrade()throws IOException{
 
+		String transactionTypeStr = cdmMap.get(transactionTypeField.getSelectedItem().toString());
 
 		String tdt = this.tradeDateField.getText();
 		String tradeDateStr = tdt.replaceAll("\\s", "") + "T00:00:00.000+00:00";
@@ -1530,6 +1471,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 			throw new IOException("Seller cannot be empty");
 		}
 
+
+
 		String collateralDescriptionStr = this.collateralDescriptionField.getText();
 		String collateralISINStr = this.collateralISINField.getText();
 		
@@ -1544,7 +1487,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String termTypeStr = this.termTypeField.getSelectedItem().toString();
 		String terminationOptionStr = this.terminationOptionField.getSelectedItem().toString();
 		String noticePeriodStr = this.noticePeriodField.getText();
-		String deliveryMethodStr = this.deliveryMethodField.getText();
+		String deliveryMethodStr = this.deliveryMethodField.getSelectedItem().toString();
 		String substitutionAllowedStr = this.substitutionAllowedField.getSelectedItem().toString();
 		String rateTypeStr = this.rateTypeField.getSelectedItem().toString();
 		String dayCountFractionStr = this.dayCountFractionField.getText();
@@ -1553,7 +1496,7 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		String repurchasePriceStr = this.repurchasePriceField.getText().replaceAll(",","").trim();
 
 		//Predefined Values
-		String agreementNameStr = this.agreementNameField.getText();
+		String agreementNameStr = this.agreementNameField.getSelectedItem().toString();
 		String agreementGoverningLawStr = "England";
 		String agreementVintageStr = this.agreementVersionField.getText();
 		String agreementPublisherStr = "ICMA";
@@ -1607,6 +1550,11 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		CItem triparty= (CItem) this.tripartyField.getSelectedItem();
 		String tripartyNameStr = triparty.getClabel();
 		String tripartyLeiStr = triparty.getCValue();
+
+		if((deliveryMethodStr.equals("TP")) && (tripartyNameStr.equals(""))) {
+			JOptionPane.showMessageDialog(this, "Triparty Agent cannot be empty", "Alert", JOptionPane.INFORMATION_MESSAGE);
+			throw new IOException("Triparty Agent cannot be empty");
+		}
 
 		//Enum Mapping
 		CdmEnumMap map = new CdmEnumMap();
@@ -1683,7 +1631,8 @@ public class RepoTradingApp extends JFrame implements ActionListener{
 		floatingRateResetFreqStr,
 		floatingRateResetMultiplierStr,
 		floatingRatePaymentFreqStr,
-		floatingRatePaymentMultiplierStr
+		floatingRatePaymentMultiplierStr,
+		transactionTypeStr
 		);
 		
 
