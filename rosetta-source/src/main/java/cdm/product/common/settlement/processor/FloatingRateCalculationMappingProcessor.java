@@ -31,9 +31,9 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
  * FpML mapper required due to issues with multiple rates (e.g. cap / floor / spread) to the same PriceQuantity.price.
  */
 @SuppressWarnings("unused")
-public class CapFloorMappingProcessor extends MappingProcessor {
+public class FloatingRateCalculationMappingProcessor extends MappingProcessor {
 
-    public CapFloorMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+    public FloatingRateCalculationMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
     }
 
@@ -45,15 +45,24 @@ public class CapFloorMappingProcessor extends MappingProcessor {
 
                     getNonNullMapping(getMappings(), subPath, "capRateSchedule", "initialValue")
                             .ifPresent(m ->
-                                    addCapFloorPrice(subPath, priceQuantityBuilder, m, ArithmeticOperationEnum.MIN));
+                                    addPrice(subPath, priceQuantityBuilder, m, ArithmeticOperationEnum.MIN));
 
                     getNonNullMapping(getMappings(), subPath, "floorRateSchedule", "initialValue")
                             .ifPresent(m ->
-                                    addCapFloorPrice(subPath, priceQuantityBuilder, m, ArithmeticOperationEnum.MAX));
+                                    addPrice(subPath, priceQuantityBuilder, m, ArithmeticOperationEnum.MAX));
+                });
+
+        subPath("swapStream", synonymPath)
+                .ifPresent(subPath -> {
+                    PriceQuantityBuilder priceQuantityBuilder = (PriceQuantityBuilder) parent;
+
+                    getNonNullMapping(getMappings(), subPath, "floatingRateMultiplierSchedule", "initialValue")
+                            .ifPresent(m ->
+                                    addPrice(subPath, priceQuantityBuilder, m, ArithmeticOperationEnum.MULTIPLY));
                 });
     }
 
-    private void addCapFloorPrice(Path subPath, PriceQuantityBuilder priceQuantityBuilder, Mapping mapping, ArithmeticOperationEnum operator) {
+    private void addPrice(Path subPath, PriceQuantityBuilder priceQuantityBuilder, Mapping mapping, ArithmeticOperationEnum operator) {
         UnitTypeBuilder unitType = toCurrencyUnitType(subPath);
         BigDecimal rate = new BigDecimal(String.valueOf(mapping.getXmlValue()));
         PriceTypeEnum priceType = PriceTypeEnum.INTEREST_RATE;
