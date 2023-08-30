@@ -9,6 +9,9 @@ industry best practices and standards.
 The repo elements of the model were designed with participation and contribution 
 of the ICMA CDM for Repo and Bonds Steering Committee.
 
+_Background_
+
+
 Repo lifecycle events are supported through a set of functions that accept
 a small set of inputs to auto-generate primitive instructions needed to execute
 business events. Repo lifecycle events include, rolling, re-rating, interium payments, 

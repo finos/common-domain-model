@@ -239,7 +239,7 @@ public class PriceUnitTypeHelper {
         // unit of amount
         builder.setUnit(unit);
         // per unit of amount
-        if (builder.getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
+        if (builder.getArithmeticOperator() != ArithmeticOperationEnum.MULTIPLY) {
             builder.setPerUnitOf(perUnitOf);
         }
     }

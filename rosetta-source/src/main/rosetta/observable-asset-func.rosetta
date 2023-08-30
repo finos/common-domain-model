@@ -7,13 +7,8 @@ func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
         prices PriceSchedule (0..*) <"List of prices to filter.">
         priceType PriceTypeEnum (1..1) <"The price type to filter by: asset price, cash price, exchange rate etc.">
-        arithmeticOperator ArithmeticOperationEnum (0..*) <"Optionally filter based on the type of operator, e.g. if price is specified as a spread or a multiplier. Several operators can be passed as arguments (e.g. [ Add, Subtract ]).">
-        // priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
-        // grossOrNet GrossOrNetEnum (0..1) <"Optionally filter between gross / net price.">
-        // cashPriceType CashPriceTypeEnum (0..1) <"Optionally filter by type of cash price: fee or premium.">
-        // cleanOrDirty CleanOrDirtyPriceEnum (0..1) <"Optionally filter by clean / dirty price.">
-        // capFloor CapFloorEnum (0..1) <"Optionally filter by type of interest rate cap / floor.">
-        // spreadType SpreadTypeEnum (0..1) <"Optionally filter by type of spread / base price.">
+        arithmeticOperators ArithmeticOperationEnum (0..*) <"Optionally filter based on the type of operator, e.g. if price is specified as a spread or a multiplier. Several operators can be passed as arguments (e.g. [ Add, Subtract ]).">
+        priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
     output:
         price PriceSchedule (0..1)
 
@@ -21,32 +16,12 @@ func FilterPrice: <"Filter list of prices based on price type.">
         prices
             filter item -> priceType = priceType
             then filter
+                if arithmeticOperators exists
+                then arithmeticOperators contains item -> arithmeticOperator
+                else True
+            then filter
                 if priceExpression exists
                 then item -> priceExpression = priceExpression
-                else True
-            // then filter
-            //     if grossOrNet exists
-            //     then item -> priceExpression -> grossOrNet = grossOrNet
-            //     else True
-            // then filter
-            //     if cashPriceType exists
-            //     then item -> priceExpression -> cashPrice -> cashPriceType = cashPriceType
-            //     else True
-            // then filter
-            //     if cleanOrDirty exists
-            //     then item -> priceExpression -> cleanOrDirty = cleanOrDirty
-            //     else True
-            // then filter
-            //     if capFloor exists
-            //     then item -> priceExpression -> capFloor = capFloor
-            //     else True
-            // then filter
-            //     if spreadType exists
-            //     then item -> priceExpression -> spreadType = spreadType
-            //     else True
-            then filter
-                if arithmeticOperator exists
-                then arithmeticOperator contains item -> arithmeticOperator
                 else True
             then only-element
 
