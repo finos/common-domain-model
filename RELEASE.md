@@ -1,25 +1,8 @@
-# _Commodity Model - Commodity Classification_
-
-_Background_
-
-The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
-
-The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
-- Removed the redundant commodity classification documented within the commodity  reference framework
+This release updates the rosetta-dsl dependency:
 
-_Data types_
-
-- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the newly added elements.
-- Added condition for type `Taxonomy` controlling the newly added elements.
-- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
-- Added element `ordinal` to type `TaxonomyClassification`.
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
+- rosetta-dsl:
+    - 8.4.0: Introduces a new functional interface for running and tabulating reports. This change has no functional impact on the CDM model or test expectations. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.4.0
