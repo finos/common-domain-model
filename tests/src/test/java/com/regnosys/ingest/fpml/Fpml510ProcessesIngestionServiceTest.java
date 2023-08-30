@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.fpml;
+package com.regnosys.ingest.fpml;
 
 import cdm.event.workflow.WorkflowStep;
 import com.google.common.collect.ImmutableList;
@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.net.URL;
 import java.util.stream.Stream;
 
-import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
+import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
 public class Fpml510ProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
