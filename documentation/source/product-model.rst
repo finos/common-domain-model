@@ -727,11 +727,12 @@ Many different financial taxonomies may be used by various segments of the finan
 .. code-block:: Haskell
 
  type TaxonomyClassification:
-	 className string (0..1)
-	 value string (1..1)
-	 description string (0..1)
-	 ordinal int (0..1)
-	
+     className string (0..1)
+     value string (1..1)
+     description string (0..1)
+     ordinal int (0..1)
+
+
 The ``ProductTaxonomy`` data structure and an instance of a CDM object (`serialised`_ into JSON) are shown below:
 
 .. code-block:: Haskell
