@@ -1,4 +1,4 @@
-package com.regnosys.granite.ingestor.template;
+package com.regnosys.template;
 
 import cdm.base.staticdata.asset.common.Security;
 import cdm.event.common.TradeState;
@@ -13,7 +13,6 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
-import com.regnosys.ingest.test.framework.ingestor.postprocess.pathduplicates.PathCollector;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.rosetta.RosettaRuntimeModule;
@@ -40,8 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-
-import static org.isda.cdm.util.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
 /**
  * Generates sample json for com.regnosys.cdm.example.template.TemplateExample.

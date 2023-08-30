@@ -1,4 +1,4 @@
-package org.isda.cdm.util;
+package com.regnosys.util;
 
 import com.google.common.collect.ImmutableList;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
