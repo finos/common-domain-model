@@ -1,25 +1,20 @@
-# _Commodity Model - Commodity Classification_
+# _Event Model - CME and FpML synonym mappings for submitted For Clearing timestamp_
 
 _Background_
 
-The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
-
-The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
+The synonym mappings to the CME and FpML messagge element `submittedForClearing` in CDM were incorrectly pointing to the CDM enum value `clearingSubmissionDateTime` in the `EventTimestampQualificationEnum` data type. These mappings should be pointing to the `clearingReceiptDateTime` enum value. This contribution addresses this issue.
 
 _What is being released?_
 
-- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
-- Removed the redundant commodity classification documented within the commodity  reference framework
-
-_Data types_
-
-- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the newly added elements.
-- Added condition for type `Taxonomy` controlling the newly added elements.
-- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
-- Added element `ordinal` to type `TaxonomyClassification`.
+- Updated  FpML and CME synonym mappings for `submittedForClearing` message element to point to `clearingReceiptDateTime`.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect each of the changes described above.
+In the CDM Portal, select the Ingestion panel and review the following samples:
 
+- cme-cleared-confirm-1-17/CME_ClearedConfirm_1_17
+- Basis-ex01-LIBOR-vs-SOFR
+- FRA-ex02
+- IRS-ex02-Fixed-Float
+- IRS-ex09-OIS

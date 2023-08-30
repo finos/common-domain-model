@@ -900,7 +900,7 @@ type ProductBase:
 The data types that extend from ProductBase are Index, Commodity, Loan,
 and Security. Index and Commodity do not have any additional attributes.
 In the case of Commodity, the applicable product identifiers are the
-FINOS definitions for reference benchmarks. Loan and Security both have a
+ISDA definitions for reference benchmarks. Loan and Security both have a
 set of additional attributes, as shown below:
 
 ``` Haskell
