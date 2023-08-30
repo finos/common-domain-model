@@ -120,6 +120,9 @@
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+
+        <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
+        <maven-javadoc-plugin.option></maven-javadoc-plugin.option>
     </properties>
 
     <profiles>
@@ -133,6 +136,16 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>Java 12-</id>
+            <activation>
+                <jdk>(,12]</jdk>
+            </activation>
+            <properties>
+                <!-- This property is only necessary when building with Java 12 or lower versions. -->
+                <maven-javadoc-plugin.option>--no-module-directories</maven-javadoc-plugin.option>
+            </properties>
         </profile>
     </profiles>
 
