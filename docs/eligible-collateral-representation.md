@@ -93,10 +93,10 @@ be extended further to operate to wider processes.
 
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
-collateral for the purpose of constructing eligible collateral schedules
-including representation of additional attributes for regulatory risk
-and credit factors. For the purpose of understanding the principle,
-these can be divided into the following categories:
+collateral for the purpose of constructing eligible collateral
+specifications, including representation of additional attributes for
+regulatory risk and credit factors. For the purpose of understanding the
+principle, these can be divided into the following categories:
 
 -   Issuer Identification
 -   Asset Identification
@@ -178,9 +178,9 @@ additionally apply to filter whether a piece of collateral is eligible
 or not.
 
 The combination of these terms allows a wide variety of eligible
-collateral types to be represented and structure can be used to identify
-individual collateral types or a group of collateral assets for
-inclusion in an eligible collateral schedule.
+collateral types to be represented and a structure can be used to
+identify individual collateral types or a group of collateral assets for
+inclusion in specifying eligible collateral schedule details.
 
 # Identifying Eligible Collateral using the CDM Data Structure
 
@@ -648,12 +648,12 @@ example (Moodys), you would express `mismatchResolution` \>
 ## Collateral Taxonomy (Used within Asset Criteria)
 
 It is understood that data used to determine asset types used in
-eligible collateral schedules can often refer to common structured
-standard pre-defined taxonomy sources. Although the purpose of the CDM
-is to encourage one standard representation of data for asset types,
-there are circumstances where assets are organised and labelled into
-categories, such as by regulators. In some circumstances, it may be a
-requirement to refer to these identifiable sources. In the CDM, these
+specifying eligible collateral information can often refer to common
+structured standard pre-defined taxonomy sources. Although the purpose
+of the CDM is to encourage one standard representation of data for asset
+types, there are circumstances where assets are organised and labelled
+into categories, such as by regulators. In some circumstances, it may be
+a requirement to refer to these identifiable sources. In the CDM, these
 taxonomy sources can be referenced in a consistent representation.
 
 The CDM allows the definition of, and reference to, certain taxonomy
@@ -723,7 +723,7 @@ list:
 
 The cardinality for these enumeration lists (0..\*) denotes that
 multiple values can be provided so several categories can be applied to
-a line of data expressed in an eligibility schedules/ profile.
+a line of data expressed in an eligibility profile.
 
 The final attribute in `CollateralTaxonomyValue`,
 `nonEnumeratedTaxonomyValue`, offers additional data expression outside
