@@ -621,9 +621,9 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         FilterPrice(
             instruction -> tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price,
             PriceTypeEnum -> AssetPrice,
+            empty,
             empty
-            /*, empty, empty, empty, empty, empty*/
-            )
+        )
 
 	condition ShareUnits:
 		if instruction -> quantity exists
@@ -706,9 +706,9 @@ func SecurityFinanceCashSettlementAmount:
         FilterPrice(
             tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> price,
             PriceTypeEnum -> AssetPrice,
+            empty,
             empty
-            /*, empty, empty, empty, empty, empty*/
-            )
+        )
 
 	alias marginRatio:
 		if collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> haircutPercentage exists
@@ -1902,10 +1902,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 			interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency,
 			settlementDate,
 			interestRatePayout -> payerReceiver,
-			Create_CashflowType(
-				ScheduledTransferEnum -> NetInterest,
-				empty, empty, empty
-				),
+			Create_CashflowType( ScheduledTransferEnum -> NetInterest, empty, empty ),
 			empty
 			)
 
@@ -1986,14 +1983,12 @@ func Create_CashflowType:
 	inputs:
 		transferType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
 		cashPrice CashPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
- 		grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
  		priceExpression PriceExpressionEnum (0..1)
 	output:
 		cashflowType CashflowType (1..1)
 
 	set cashflowType -> cashflowType: transferType
 	set cashflowType -> cashPrice: cashPrice
-	set cashflowType -> grossOrNet: grossOrNet
 	set cashflowType -> priceExpression: priceExpression
 
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
