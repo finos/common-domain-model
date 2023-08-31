@@ -100,7 +100,7 @@ public class DocumentationCodeValidator {
 	}
 
 	private Stream<String> getCodeBlocks() throws IOException {
-        Stream<String> docs = loadFiles(docPath, ".rst").stream().map(f->f.content);
+        Stream<String> docs = loadFiles(docPath, ".md").stream().map(f->f.content);
 
 		Stream<String> codeBlocks = docs.flatMap (codeBlockRegex::results)
                 .map(MatchResult::group);
@@ -181,8 +181,8 @@ public class DocumentationCodeValidator {
 		 
 		 CommandLine cmd = new DefaultParser().parse(options, args);
 		 
-		 String docPath = cmd.getOptionValue("doc-path","documentation/source");
-		 String snippetPath = cmd.getOptionValue("snippet-path","documentation/source/code-snippets");
+		 String docPath = cmd.getOptionValue("doc-path","docs");
+		 String snippetPath = cmd.getOptionValue("snippet-path","docs/code-snippets");
 		 String modelPath = cmd.getOptionValue("model-path","rosetta-source/src/main/rosetta");
 		 boolean fixUp = cmd.hasOption("fix-up");
 		 
