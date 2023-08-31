@@ -232,7 +232,7 @@ for defining a legal agreement in the CDM. This data type extends the
 agreement. There are three non-inherited components to `LegalAgreement`,
 as shown in the code snippet below:.
 
-``` .. code-block:: Haskell
+``` Haskell
 type LegalAgreement extends LegalAgreementBase:
   [metadata key]
    [rootType]
@@ -251,7 +251,7 @@ agreement solely through the specification of the agreement
 identification features, as represented in the `LegalAgreementBase`
 abstract data type, which is illustrated below:
 
-``` .. code-block:: Haskell
+``` Haskell
 type LegalAgreementBase:
   agreementDate date (0..1)
   effectiveDate date (0..1)
@@ -295,7 +295,7 @@ entities associated with the umbrella agreement.
 
 The below snippet represents the `UmbrellaAgreement` data type.
 
-``` .. code-block:: Haskell
+``` Haskell
 type UmbrellaAgreement:
   isApplicable boolean (1..1)
   language string (0..1)
@@ -308,7 +308,7 @@ type UmbrellaAgreement:
 the CDM. There are two components to agreement terms, as shown in the
 code snippet below:
 
-``` .. code-block:: Haskell
+``` Haskell
 type AgreementTerms:
   agreement Agreement (1..1)
   clauseLibrary boolean (0..1)
@@ -324,7 +324,7 @@ contained within the legal agreement. It contains a set of encapsulated
 data types, each containing the elections used to define a specific
 group of agreements.
 
-``` .. code-block:: Haskell
+``` Haskell
 type Agreement:
   creditSupportAgreementElections CreditSupportAgreementElections (0..1)
   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
@@ -341,13 +341,13 @@ either `Party1` or `Party2` through the association of a
 `CounterpartyRoleEnum` value is then used to specify elections
 throughout the rest of the document.
 
-``` .. code-block:: Haskell
+``` Haskell
 enum CounterpartyRoleEnum:
   Party1
   Party2
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type Counterparty:
   role CounterpartyRoleEnum (1..1)
   partyReference Party (1..1)
@@ -415,7 +415,7 @@ by the CDM:
 -   FINOS 2016 CSA for VM (Title Transfer -- Irish Law)
 -   FINOS 2016 CSA for VM (Title Transfer -- French Law)
 
-``` .. code-block:: Haskell
+``` Haskell
 condition AgreementVerification:
   if agreementTerms -> agreement -> securityAgreementElections exists
   then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
@@ -437,7 +437,7 @@ exchange eligible collateral information accurately and efficiently in
 digital form. The `EligibleCollateral` data type is a root type with one
 attribute, as shown below:
 
-``` .. code-block:: Haskell
+``` Haskell
 type EligibleCollateralSpecification:
    [rootType]
    [metadata key]
@@ -464,18 +464,18 @@ eligible collateral model. These components are assembled under the
 `postingObligationElection` component of the credit support agreement
 elections described above.
 
-``` .. code-block:: Haskell
+``` Haskell
 type EligibleCollateralCriteria extends CollateralCriteriaBase:
    treatment CollateralTreatment (1..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type CollateralCriteriaBase:
    issuer IssuerCriteria (0..*)
    asset AssetCriteria (0..*)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type IssuerCriteria:
   issuerType CollateralIssuerType (0..*)
   issuerCountryOfOrigin string (0..*)
@@ -486,7 +486,7 @@ type IssuerCriteria:
   counterpartyOwnIssuePermitted boolean (0..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type AssetCriteria:
   collateralAssetType AssetType (0..*)
   assetCountryOfOrigin string (0..*)
@@ -502,7 +502,7 @@ type AssetCriteria:
   listing ListingType (0..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type CollateralTreatment:
   valuationTreatment CollateralValuationTreatment (0..1)
   concentrationLimit ConcentrationLimit (0..*)

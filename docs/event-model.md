@@ -81,7 +81,7 @@ represents the input and output of any state transition. Therefore, all
 trade-related information that can change throughout the trade lifecycle
 are representing within `TradeState`.
 
-``` .. code-block:: Haskell
+``` Haskell
 type TradeState:
   [metadata key]
   [rootType]
@@ -110,7 +110,7 @@ date, transacting parties, and settlement terms. Some attributes, such
 as the parties, may already be defined in a workflow step or business
 event and can simply be referenced in `Trade`.
 
-``` .. code-block:: Haskell
+``` Haskell
 type Trade:
   [metadata key]
   tradeIdentifier TradeIdentifier (1..*)
@@ -151,7 +151,7 @@ execution type. Not all trades will have been 'executed', such as
 those created from a Swaption Exercise event. In those cases, the
 `executionDetails` attributes on `Trade` is expected to be empty.
 
-``` .. code-block:: Haskell
+``` Haskell
 type ExecutionDetails:
   [metadata key]
   executionType ExecutionTypeEnum (1..1)
@@ -168,7 +168,7 @@ type ExecutionDetails:
 `ContractDetails` are only applicable to trades on contractual products
 and are typically provided at or prior to trade confirmation.
 
-``` .. code-block:: Haskell
+``` Haskell
 type ContractDetails:
   [metadata key]
   documentation LegalAgreement (0..*)
@@ -183,7 +183,7 @@ Trade's life cycle. Trades have many state dimensions, all of which are
 represented here. For example, states useful for position keeping are
 represented alongside those needed for regulatory reporting.
 
-``` .. code-block:: Haskell
+``` Haskell
 type State:
   closedState ClosedState (0..1)
   positionState PositionStatusEnum (0..1)
@@ -202,7 +202,7 @@ second resulting `TradeState` is the original contract, now marked as
 The `ClosedState` data type (enclosed within `State`) captures this
 closed state and defines the reason for closure.
 
-``` .. code-block:: Haskell
+``` Haskell
 enum ClosedStateEnum:
   Allocated
   Cancelled
@@ -240,7 +240,7 @@ lag applies. Depending on the trade's economic properties, a reset may
 also depend on several observation values based on some aggregation
 method - e.g. a compounded interest rate based on daily fixings.
 
-``` .. code-block:: Haskell
+``` Haskell
 type Reset:
   [metadata key]
   resetValue Price (1..1)
@@ -251,7 +251,7 @@ type Reset:
   averagingMethodology AveragingCalculation (0..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type Observation:
   [rootType]
   [metadata key]
@@ -266,7 +266,7 @@ asset, including cash, from one party to another. The `Transfer` object
 is associated to an enumeration to qualify the status that the transfer
 is in, from instruction to settlement or rejection.
 
-``` .. code-block:: Haskell
+``` Haskell
 type TransferState:
   [metadata key]
   [rootType]
@@ -274,14 +274,14 @@ type TransferState:
   transferStatus TransferStatusEnum (0..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type Transfer extends TransferBase:
   settlementOrigin SettlementOrigin (0..1)
   resetOrigin Reset (0..1)
   transferExpression TransferExpression (1..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type TransferBase:
   identifier Identifier (0..*)
     [metadata scheme]
@@ -328,7 +328,7 @@ of the primitive operator. The business logic of primitive functions is
 fully implemented. An example of primitive function, for the
 `PartyChange` primitive, is illustrated below.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_PartyChange:
   inputs:
     counterparty Counterparty (1..1)
@@ -348,7 +348,7 @@ operator is associated to a primitive instruction data type that
 contains the function's required parameters as attributes - illustrated
 below using the same `PartyChange` example.
 
-``` .. code-block:: Haskell
+``` Haskell
 type PartyChangeInstruction:
   counterparty Counterparty (1..1)
   ancillaryParty AncillaryParty (0..1)
@@ -362,7 +362,7 @@ contains one instruction attribute for each of the possible nine
 primitive instruction types - aligned onto the nine fundamental
 primitive operators.
 
-``` .. code-block:: Haskell
+``` Haskell
 type PrimitiveInstruction:
   contractFormation ContractFormationInstruction (0..1)
   execution ExecutionInstruction (0..1)
@@ -407,7 +407,7 @@ present, must always be applied first, the order does not affect the
 outcome because each primitive operator impacts a different part of the
 trade state.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_TradeState:
   inputs:
     primitiveInstruction PrimitiveInstruction (0..1)
@@ -446,12 +446,12 @@ the corresponding primitive instruction to each copy of the original
 trade using the `Create_TradeState` function. The size of that breakdown
 directs the size of the split.
 
-``` .. code-block:: Haskell
+``` Haskell
 type SplitInstruction:
   breakdown PrimitiveInstruction (1..*)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_Split:
   inputs:
     breakdown PrimitiveInstruction (1..*)
@@ -481,7 +481,7 @@ Therefore, the execution function does not take any before state as
 input and all the trade details are contained in the execution
 instruction input.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_Execution:
   inputs:
     instruction ExecutionInstruction (1..1)
@@ -489,7 +489,7 @@ func Create_Execution:
     execution TradeState (1..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type ExecutionInstruction:
   product Product (1..1)
   priceQuantity PriceQuantity (1..*)
@@ -519,7 +519,7 @@ reference some higher-order legal documentation governing the
 transaction - usually a *master agreement*. This legal documentation
 information is provided in the contract formation instruction input.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_ContractFormation:
   inputs:
     instruction ContractFormationInstruction (1..1)
@@ -528,7 +528,7 @@ func Create_ContractFormation:
     contractFormation TradeState (1..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type ContractFormationInstruction:
   legalAgreement LegalAgreement (0..*)
 ```
@@ -558,7 +558,7 @@ to the `resetHistory` attribute of a given `TradeState`. The reset
 instruction specifies the payout that is subject to the reset, via a
 reference. A reset does not modify the underlying `Trade` object.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_Reset:
   inputs:
     instruction ResetInstruction (1..1)
@@ -567,7 +567,7 @@ func Create_Reset:
     reset TradeState (1..1)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type ResetInstruction:
   payout Payout (1..1)
     [metadata reference]
@@ -591,7 +591,7 @@ transfer.
     the single, final settlement that is based on all the past floating
     rate resets in the case of a compounding floating zero-coupon swap.
 
-``` .. code-block:: Haskell
+``` Haskell
 type TransferInstruction:
   transferState TransferState (0..*)
 ```
@@ -608,7 +608,7 @@ Business events are built according to the following principles:
     *intent* qualifier associated with the business event. The inferred
     value is populated in the `eventQualifier` attribute.
 
-``` .. code-block:: Haskell
+``` Haskell
 type BusinessEvent extends EventInstruction:
   [metadata key]
   [rootType]
@@ -617,7 +617,7 @@ type BusinessEvent extends EventInstruction:
   after TradeState (0..*)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 type Instruction:
   [rootType]
   primitiveInstruction PrimitiveInstruction (0..1)
@@ -767,7 +767,7 @@ information in certain cases. To this effect, the Event Qualification
 function allows to specify that when present, the intent must have a
 specified value, as illustrated by the below example.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Qualify_Termination:
   [qualification BusinessEvent]
   inputs:
@@ -816,7 +816,7 @@ uniquely infer a lifecycle event.
 The description of each possible enumeration value provides an
 illustration of how this attribute is used.
 
-``` .. code-block:: Haskell
+``` Haskell
 enum EventIntentEnum:
    Allocation
    CashFlow
@@ -881,7 +881,7 @@ automated and manual steps. A workflow may involve only one step.
 The CDM supports a workflow's audit trail by providing lineage from one
 step to another in that workflow.
 
-``` .. code-block:: Haskell
+``` Haskell
 type WorkflowStep:
   [metadata key]
   [rootType]
@@ -928,7 +928,7 @@ attribute.
 Validation components are in place to check that the `businessEvent` and
 `proposedEvent` attributes are mutually exclusive.
 
-``` .. code-block:: Haskell
+``` Haskell
 type EventInstruction:
   intent EventIntentEnum (0..1)
   corporateActionIntent CorporateActionTypeEnum (0..1)
@@ -968,7 +968,7 @@ entry references and not reflective of negotiated changes to a contract.
 The `messageInformation` attribute defines details for delivery of the
 message containing the workflow steps.
 
-``` .. code-block:: Haskell
+``` Haskell
 type MessageInformation:
   messageId string (1..1)
     [metadata scheme]
@@ -997,7 +997,7 @@ The CDM adopts a generic approach to represent timestamp information,
 consisting of a `dateTime` and a `qualification` attributes, with the
 latter specified through an enumeration value.
 
-``` .. code-block:: Haskell
+``` Haskell
 type EventTimestamp:
   dateTime zonedDateTime (1..1)
   qualification EventTimestampQualificationEnum (1..1)
@@ -1035,7 +1035,7 @@ that is used throughout the product and event models. The event
 identifier information comprises the `assignedIdentifier` and an
 `issuer`, which may be provided as a reference or via a scheme.
 
-``` .. code-block:: Haskell
+``` Haskell
 type Identifier:
   [metadata key]
   issuerReference Party (0..1)

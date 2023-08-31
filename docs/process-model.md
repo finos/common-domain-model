@@ -147,7 +147,7 @@ then the roll convention cannot be a weekday. A machine readable and
 executable definition of that specification is provided in the CDM, as a
 `condition` attached to the `CalculationPeriodFrequency` type:
 
-``` .. code-block:: Haskell
+``` Haskell
 condition FpML_ird_57:
   if period = PeriodExtendedEnum -> M or period = PeriodExtendedEnum -> Y
   then rollConvention <> RollConventionEnum -> NONE
@@ -451,7 +451,7 @@ The CDM expressions of `FixedAmount` and `FloatingAmount` are similar in
 structure: a calculation formula that reflects the terms of the FINOS
 2006 Definitions and the arguments associated with the formula.
 
-``` .. code-block:: Haskell
+``` Haskell
 func FloatingAmount:
   [calculation]
   inputs:
@@ -494,7 +494,7 @@ the logic and write unique code for these rules. Instead, it provides a
 machine-readable expression that generates executable code, such as the
 example below:
 
-``` .. code-block:: Haskell
+``` Haskell
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
    [calculation]
 
@@ -528,7 +528,7 @@ The CalculationPeriod function receives the `CalculationPeriodDates` and
 the current date as the inputs and produces the `CalculationPeriodData`
 as the output, as shown below:
 
-``` .. code-block:: Haskell
+``` Haskell
 func CalculationPeriod:
   inputs:
     calculationPeriodDates CalculationPeriodDates (1..1)
@@ -546,7 +546,7 @@ a new template that is not yet in use across the industry).
 
 Some of those calculations are presented below:
 
-``` .. code-block:: Haskell
+``` Haskell
 func EquityCashSettlementAmount:
     inputs:
         tradeState TradeState (1..1)
@@ -579,7 +579,7 @@ func EquityCashSettlementAmount:
         equityPerformancePayout as-key
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 func RateOfReturn:
    inputs:
        initialPrice PriceSchedule (1..1)
@@ -609,7 +609,7 @@ as normalised in the *ISLA best practice handbook*
 
 The data type and function to generate a Security Lending Invoice:
 
-``` .. code-block:: Haskell
+``` Haskell
 type SecurityLendingInvoice:
   [rootType]
   [metadata key]
@@ -621,7 +621,7 @@ type SecurityLendingInvoice:
   billingSummary BillingSummary (1..*)
 ```
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_SecurityLendingInvoice:
    inputs:
      instruction BillingInstruction (1..1)
@@ -705,7 +705,7 @@ period and the start of the next.
 These above steps are codified in the `Create_Reset` function, which
 defines how the `Reset` instance should be constructed.
 
-``` .. code-block:: Haskell
+``` Haskell
 func Create_Reset:
     inputs:
         instruction ResetInstruction (1..1)
@@ -746,7 +746,7 @@ Specifying precisely which attributes from `PerformancePayout` should be
 used to resolve the equity price is important to ensure consistent
 equity price resolution for all model adopters.
 
-``` .. code-block:: Haskell
+``` Haskell
 func ResolvePerformanceObservationIdentifiers:
     inputs:
         payout PerformancePayout (1..1)
@@ -785,7 +785,7 @@ func ResolvePerformanceObservationIdentifiers:
 their market data systems. It specifies the input types and the output
 type, which ensures the integrity of the observed value.
 
-``` .. code-block:: Haskell
+``` Haskell
 func ResolveObservation:
     inputs:
         identifiers ObservationIdentifier (1..*)
@@ -798,7 +798,7 @@ The construction of the `Reset` in our scenario then becomes trivial,
 once the equity price has been retrieved, as the equity price and reset
 date are simply assigned to the corresponding attributes on the `Reset`.
 
-``` .. code-block:: Haskell
+``` Haskell
 func ResolvePerformanceReset:
     inputs:
         performancePayout PerformancePayout (1..1)
