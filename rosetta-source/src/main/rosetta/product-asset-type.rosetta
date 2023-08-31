@@ -8,6 +8,7 @@ import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.credit.*
+import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
 import cdm.observable.event.*
@@ -21,21 +22,43 @@ import cdm.observable.asset.calculatedrate.*
 import cdm.mapping.config.*
 
 type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
-	[metadata key]
-	averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
-	commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
-	pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
+    [metadata key]
+    averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+    commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
+    pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
     schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
+    calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
+    underlier Product (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
+    delivery CommodityDeliveryInformation (0..1) <"Contains the information relative to the delivery of the commodity.">
 
-	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		priceQuantity exists
+    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+        priceQuantity exists
 
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
-		required choice schedule, calculationPeriodDates
+        required choice schedule, calculationPeriodDates
+
+type CommodityDeliveryInformation: <"Contains the information relative to the delivery of the commodity.">
+
+    periods CommodityDeliveryPeriods (0..1) <"Defines the periods of delivery, including the delivery profile.">
+    location LocationIdentifier (0..*) <"Defines the location of the delivery of the commodity.">
+
+type CommodityDeliveryPeriods extends DeliveryDateParameters: <"Defines the periods of delivery, including the delivery profile.">
+
+    profile CommodityDeliveryProfile (0..*) <"Defines the delivery profile of the commodity, including the load type and the delivery intervals.">
+
+type CommodityDeliveryProfile: <"Defines the delivery profile of the commodity, including the load type and the delivery intervals.">
+
+    loadType LoadTypeEnum (0..1) <"Identification of the delivery profile.">
+    block CommodityDeliveryProfileBlock (0..*) <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
+    bankHolidaysExcluded boolean (0..1) <"Specifies whether the dates defined include holidays or not.">
+
+	type CommodityDeliveryProfileBlock:
+
+    startTime time (0..1) <"The start time of the delivery interval for each block or shape.">
+    endTime time (0..1) <"The end time of the delivery interval for each block or shape.">
+    daysOfWeek DayOfWeekEnum (0..7) <"The days of the week of the delivery.">
 
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
 	[metadata key]
