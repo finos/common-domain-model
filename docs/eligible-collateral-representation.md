@@ -194,7 +194,7 @@ define collateral Asset and Issuer characterises
 The data type `AssetCriteria` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
 
-``` Haskell
+``` .. code-block:: Haskell
 type AssetCriteria:
   collateralAssetType AssetType (0..*)
   assetCountryOfOrigin string (0..*)
@@ -259,7 +259,7 @@ complex types, for example:
 The data type `IssuerCriteria` is used to specify the issuer of a
 collateral asset, this includes the following data attributes:
 
-``` Haskell
+``` .. code-block:: Haskell
 type IssuerCriteria:
   issuerType CollateralIssuerType (0..*)
   issuerCountryOfOrigin string (0..*)
@@ -370,7 +370,7 @@ floor (lower bound) to the identified asset, issuer or attributes. There
 are two options that allow this to be represented in value or percentage
 terms as follows:
 
-``` Haskell
+``` .. code-block:: Haskell
 type ConcentrationLimit:
   concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
   valueLimit MoneyRange (0..1)
@@ -528,7 +528,7 @@ applied to the following data attributes:
 Data type `AgencyRatingCriteria` Allows specification of the following
 related information to eligible collateral
 
-``` Haskell
+``` .. code-block:: Haskell
 type AgencyRatingCriteria:
   qualifier QuantifierEnum (1..1)
   creditNotation CreditNotation (1..*)
@@ -544,7 +544,7 @@ type AgencyRatingCriteria:
     the asset or issuer. This expands to offer further granularity for
     details relating to the credit details
 
-``` Haskell
+``` .. code-block:: Haskell
 type CreditNotation:
   agency CreditRatingAgencyEnum (1..1)
   notation string (1..1)
@@ -607,7 +607,7 @@ type CreditNotation:
     -   Average
     -   Second Best
 
-``` Haskal
+``` .. code-block:: Haskal
 enum CreditNotationMismatchResolutionEnum:
    Lowest
    Highest
@@ -855,7 +855,7 @@ HAIRCUT
 To extend this example further a digital JSON output extract of the same
 details is show here:
 
-``` Javascript
+``` .. code-block:: Javascript
 {
 "criteria": [{
    "asset": [{

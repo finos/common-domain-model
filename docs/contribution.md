@@ -1336,7 +1336,7 @@ Example of how a code snippet should be edited in the documentation:
 
 And the result will be rendered as:
 
-``` Haskell
+``` .. code-block:: Haskell
 type Party:
   [metadata key]
   partyId PartyIdentifier (1..*)

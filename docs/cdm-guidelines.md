@@ -57,7 +57,7 @@ used to create an injector. It provides bindings to required classes
 (ModelObjectValidator and QualifyFunctionFactory) as well as binding in
 implementations for several CDM functions such as Abs, Sum
 
-``` Java
+``` .. code-block:: Java
 Injector injector = Guice.createInjector(new CdmRuntimeModule()));
 ```
 
@@ -67,7 +67,7 @@ To build a custom injector that is not based on the CDM's runtime
 module, first create a Guice module with a minimum of the two bindings
 shown belows:
 
-``` Java
+``` .. code-block:: Java
 public class GenericModule extends AbstractModule {
 
   @Override
@@ -81,7 +81,7 @@ public class GenericModule extends AbstractModule {
 Once this module has been built it can be used to create the custom
 injector.
 
-``` Java
+``` .. code-block:: Java
 Injector injector = Guice.createInjector(new GenericModule()));
 ```
 
@@ -93,7 +93,7 @@ Keys are automatically generated using hash algorithms. The model
 objects can be post-processed with Global Keys and qualified by using
 the injector created in the previous step to run the code shown below:
 
-``` Java
+``` .. code-block:: Java
 Contract cdmInstance = buildCdmInstance();
 Contract.ContractBuilder builder = cdmInstance.toBuilder();
 keyProcessor.runProcessStep(Contract.class, builder);
@@ -105,7 +105,7 @@ Contract updatedCdmInstance = builder.build();
 In order to validate the CDM instance, it is necessary to create a
 RosettaTypeValidator and post process the instance as follows:
 
-``` Java
+``` .. code-block:: Java
 RosettaTypeValidator validator = injector.getInstance(RosettaTypeValidator.class);
 ValidationReport validationReport = validator.runProcessStep(cdmInstance.getClass(), cdmInstance.toBuilder());
 if (validationReport.success()) {

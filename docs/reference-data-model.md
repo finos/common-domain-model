@@ -17,7 +17,7 @@ party would be a legal entity (even if not formally specified as such).
 The `LegalEntity` type is used when only a legal entity reference is
 appropriate i.e. the value would never be that of a natural person.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Party:
   [metadata key]
   partyId PartyIdentifier (1..*)
@@ -30,7 +30,7 @@ type Party:
   contactInformation ContactInformation (0..1)
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type NaturalPerson:
   [metadata key]
   personId PersonIdentifier (0..*)
@@ -44,7 +44,7 @@ type NaturalPerson:
   dateOfBirth date (0..1)
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type LegalEntity:
   [metadata key]
   entityId string (0..*)

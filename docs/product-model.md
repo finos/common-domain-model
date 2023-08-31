@@ -35,7 +35,7 @@ quantity, and other details necessary to complete an execution of a
 security or a negotiated contract between two counterparties. Tradable
 products are represented by the `TradableProduct` type.
 
-``` Haskell
+``` .. code-block:: Haskell
 type TradableProduct:
    product Product (1..1)
    tradeLot TradeLot (1..*)
@@ -77,20 +77,20 @@ without having to reference specific parties. This means that the same
 product can now be defined in a party-agnostic way and used to represent
 transactions between potentially many different parties.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Counterparty:
   role CounterpartyRoleEnum (1..1)
   partyReference Party (1..1)
     [metadata reference]
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 enum CounterpartyRoleEnum:
   Party1
   Party2
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type Party:
   [metadata key]
   partyId PartyIdentifier (1..*)
@@ -145,7 +145,7 @@ entered.
 For each trade lot, the quantity and price are represented by an
 attribute called `priceQuantity`.
 
-``` Haskell
+``` .. code-block:: Haskell
 type TradeLot:
   lotIdentifier Identifier (0..*)
   priceQuantity PriceQuantity (1..*)
@@ -175,7 +175,7 @@ the case of composite products, are part of a data type called
 -   a date, which indicates when these price and quantity become
     effective
 
-``` Haskell
+``` .. code-block:: Haskell
 type PriceQuantity:
   [metadata key]
   price PriceSchedule (0..*)
@@ -254,13 +254,13 @@ attributes are optional. Various other data types that extend
 for instance, a `Measure` requires the `value` attribute to be present
 (but `unit` is still optional because a measure could be unit-less).
 
-``` Haskell
+``` .. code-block:: Haskell
 type MeasureBase:
   value number (0..1)
   unit UnitType (0..1)
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type Measure extends MeasureBase:
 
   condition ValueExists:
@@ -270,7 +270,7 @@ type Measure extends MeasureBase:
 The `UnitType` data type used to defined the `unit` attribute requires
 the definition of units using one of five defined types:
 
-``` Haskell
+``` .. code-block:: Haskell
 type UnitType:
   capacityUnit CapacityUnitEnum (0..1)
   weatherUnit WeatherUnitEnum (0..1)
@@ -291,7 +291,7 @@ a set of date and value pair attributes represented by the `DatedValue`
 type. In that structure, the existing `value` attribute can still be
 omitted but, when present, represents the schedule's initial value.
 
-``` Haskell
+``` .. code-block:: Haskell
 type MeasureSchedule extends MeasureBase:
   datedValue DatedValue (0..*)
 
@@ -311,7 +311,7 @@ The `PriceSchedule` data type extends the `MeasureSchedule` data type
 with the addition of the `priceExpression` and `perUnitOf` attributes,
 which together further qualify the price.
 
-``` Haskell
+``` .. code-block:: Haskell
 type PriceSchedule extends MeasureSchedule:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
@@ -327,7 +327,7 @@ snippet above for purposes of brevity.
 The `Price` data type further constrains the `PriceSchedule` data type
 by requiring the `datedValue` attribute to be absent.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Price extends PriceSchedule:
   condition AmountOnlyExists:
     value exists and datedValue is absent
@@ -337,7 +337,7 @@ Consider the example below for the initial price of the underlying
 equity in a single-name Equity Swap, which is a net price of 37.44 USD
 per Share:
 
-``` Javascript
+``` .. code-block:: Javascript
 "price": [
   {
     "value": {
@@ -383,7 +383,7 @@ requires the `unit` attribute to exist, i.e. a quantity cannot be
 unit-less. The `NonNegativeQuantitySchedule` data type further
 constrains it by requiring that all the values are non-negative.
 
-``` Haskell
+``` .. code-block:: Haskell
 type QuantitySchedule extends MeasureSchedule:
   multiplier Measure (0..1)
   frequency Frequency (0..1)
@@ -394,7 +394,7 @@ type QuantitySchedule extends MeasureSchedule:
       unit exists
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
 
   condition NonNegativeQuantity_amount:
@@ -414,7 +414,7 @@ of the WTI Crude Oil futures contract on the CME. Each contract
 represents 1,000 barrels, therefore the total quantity of the trade is
 for 200,000 barrels.
 
-``` Javascript
+``` .. code-block:: Javascript
 "quantity": [
   {
     "value": {
@@ -456,7 +456,7 @@ The Observable data type requires the specification of either a
 `productIdentifier`, or `currencypair`. This choice constraint is
 supported by specifying a one-of condition, as shown below:
 
-``` Haskell
+``` .. code-block:: Haskell
 type Observable:
   [metadata key]
   rateOption FloatingRateOption (0..1)
@@ -512,13 +512,13 @@ non-deliverable FX forward will use the `cashSettlementTerms` attribute
 to represent the parameters of the non-deliverable settlement, such as
 the observable FX fixing to use.
 
-``` Haskell
+``` .. code-block:: Haskell
 type SettlementTerms extends SettlementBase:
   cashSettlementTerms CashSettlementTerms (0..*)
   physicalSettlementTerms PhysicalSettlementTerms (0..1)
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type SettlementBase:
   [metadata key]
   settlementType SettlementTypeEnum (1..1)
@@ -539,7 +539,7 @@ pays what. That direction is captured by the `BuyerSeller` data type,
 that uses the normalised `CounterpartyRoleEnum` enumeration to specify
 who is the buyer and seller, respectively.
 
-``` Haskell
+``` .. code-block:: Haskell
 type BuyerSeller:
   buyer CounterpartyRoleEnum (1..1)
   seller CounterpartyRoleEnum (1..1)
@@ -563,7 +563,7 @@ risk between two parties. Financial products are represented in the
 meaning that for a single Tradable Product, there can only be one
 Product.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Product:
   [metadata key]
   contractualProduct ContractualProduct (0..1)
@@ -649,7 +649,7 @@ below:
 In the CDM, contractual products are represented by the
 `ContractualProduct` type:
 
-``` Haskell
+``` .. code-block:: Haskell
 type ContractualProduct extends ProductBase:
    [metadata key]
    [metadata template]
@@ -671,7 +671,7 @@ date adjustments, and early termination provisions. A valid population
 of this type is constrained by a set of conditions which are not shown
 here in the interests of brevity.
 
-``` Haskell
+``` .. code-block:: Haskell
 type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
@@ -693,7 +693,7 @@ combined to compose a product. For example, an Equity Swap can be
 composed by combining an `InterestRatePayout` and an
 `PerformancePayout`.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Payout:
   [metadata key]
   interestRatePayout InterestRatePayout (0..*)
@@ -714,7 +714,7 @@ This data type provides a common structure for attributes such as
 quantity, price, settlement terms and the payer/receiver direction which
 are expected to be common across many payouts.
 
-``` Haskell
+``` .. code-block:: Haskell
 type PayoutBase:
   payerReceiver PayerReceiver (1..1)
   priceQuantity ResolvablePriceQuantity (0..1)
@@ -739,7 +739,7 @@ The list of payouts that extend _PayoutBase_ are:
 
 For example:
 
-``` Haskell
+``` .. code-block:: Haskell
 type InterestRatePayout extends PayoutBase:
    [metadata key]
    rateSpecification RateSpecification (0..1)
@@ -779,7 +779,7 @@ other inputs: e.g. an exchange rate for the foreign leg in a
 Cross-Currency Swap or a share price for the funding leg of an Equity
 Swap.
 
-``` Haskell
+``` .. code-block:: Haskell
 type ResolvablePriceQuantity:
   [metadata key]
   resolvedQuantity Quantity (0..1)
@@ -816,7 +816,7 @@ Other model structures use the `[metadata address]` to point to
 `PriceQuantity->price`. An example include the `price` attribute in the
 `RateSchedule` data type, which is illustrated below:
 
-``` Haskell
+``` .. code-block:: Haskell
 type RateSchedule:
   price PriceSchedule (1..1)
     [metadata address "pointsTo"=PriceQuantity->price]
@@ -828,7 +828,7 @@ There are a number of components that are reusable across several payout
 types. For example, the `CalculationPeriodDates` class describes the
 inputs for the underlying schedule of a stream of payments.
 
-``` Haskell
+``` .. code-block:: Haskell
 type CalculationPeriodDates:
   [metadata key]
   effectiveDate AdjustableOrRelativeDate (0..1)
@@ -848,7 +848,7 @@ The underlier attribute on types `OptionPayout`, `ForwardPayout` and
 `EquityPayout` allows for any product to be used as the underlier for a
 corresponding products option, forward, and equity swap.
 
-``` Haskell
+``` .. code-block:: Haskell
 type OptionPayout extends PayoutBase:
   [metadata key]
   buyerSeller BuyerSeller (1..1)
@@ -902,7 +902,7 @@ the merging tools. See
 The abstract data type ProductBase serves as a base for all products
 that have an identifier, as illustrated below:
 
-``` Haskell
+``` .. code-block:: Haskell
 type ProductBase:
   productTaxonomy ProductTaxonomy (0..*)
   productIdentifier ProductIdentifier (0..*)
@@ -914,7 +914,7 @@ In the case of Commodity, the applicable product identifiers are the
 ISDA definitions for reference benchmarks. Loan and Security both have a
 set of additional attributes, as shown below:
 
-``` Haskell
+``` .. code-block:: Haskell
 type Loan extends ProductBase:
   borrower LegalEntity (0..*)
   lien string (0..1)
@@ -926,7 +926,7 @@ type Loan extends ProductBase:
     [metadata scheme]
 ```
 
-``` Haskell
+``` .. code-block:: Haskell
 type Security extends ProductBase:
   securityType SecurityTypeEnum (1..1)
   debtType DebtType (0..1)
@@ -978,7 +978,7 @@ using a `synonym` annotation displayed under the function output. An
 example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
-``` Haskell
+``` .. code-block:: Haskell
 func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
    [qualification Product]
    inputs: economicTerms EconomicTerms (1..1)
@@ -1032,7 +1032,7 @@ multitude of taxonomies without adding any specific identity to data
 types in the model, a Taxonomy type is used to identify the source and
 attributes any particular taxonomy structure.
 
-``` Haskell
+``` .. code-block:: Haskell
 type Taxonomy:
    source TaxonomySourceEnum (0..1)
    value TaxonomyValue (0..1)
@@ -1040,7 +1040,7 @@ type Taxonomy:
 
 `TaxonomyValue` has been expanded to represent a complex type:
 
-``` Haskell
+``` .. code-block:: Haskell
 type TaxonomyValue: 
 
    name string (0..1)
@@ -1054,7 +1054,7 @@ type TaxonomyValue:
 `TaxonomyClassification` is also a complex type that support a
 hierarchical structure of any depth:
 
-``` Haskell
+``` .. code-block:: Haskell
 type TaxonomyClassification:
     className string (0..1)
     value string (1..1)
@@ -1065,7 +1065,7 @@ type TaxonomyClassification:
 The `ProductTaxonomy` data structure and an instance of a CDM object
 ([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON) are shown below:
 
-``` Haskell
+``` .. code-block:: Haskell
 type ProductTaxonomy extends Taxonomy:
     primaryAssetClass AssetClassEnum (0..1)
         [metadata scheme]
@@ -1083,7 +1083,7 @@ type ProductTaxonomy extends Taxonomy:
         optional choice value, productQualifier
 ```
 
-``` Javascript
+``` .. code-block:: Javascript
 "productTaxonomy": [
   {
     "primaryAssetClass": {
