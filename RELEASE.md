@@ -1,20 +1,15 @@
-# _Event Model - CME and FpML synonym mappings for submitted For Clearing timestamp_
+# _Product Model - FpML Synonym Mappings for Commodity Spread_
 
 _Background_
 
-The synonym mappings to the CME and FpML messagge element `submittedForClearing` in CDM were incorrectly pointing to the CDM enum value `clearingSubmissionDateTime` in the `EventTimestampQualificationEnum` data type. These mappings should be pointing to the `clearingReceiptDateTime` enum value. This contribution addresses this issue.
+Currently, the CDM attribute `priceType` is incorrectly being populated with `INTEREST_RATE` for Commodity spreads. This is inadequate since the spread is an asset price.
 
 _What is being released?_
 
-- Updated  FpML and CME synonym mappings for `submittedForClearing` message element to point to `clearingReceiptDateTime`.
+This release updates and extends the FpML mapping coverage for the product model to map the correct price. 
+
+- Mappings added to populate CDM attribute `priceType` with `ASSET_PRICE` for commodity spreads.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes described above.
-In the CDM Portal, select the Ingestion panel and review the following samples:
-
-- cme-cleared-confirm-1-17/CME_ClearedConfirm_1_17
-- Basis-ex01-LIBOR-vs-SOFR
-- FRA-ex02
-- IRS-ex02-Fixed-Float
-- IRS-ex09-OIS
+- In the CDM Portal, select the Textual Browser and inspect the change listed above.
