@@ -1,4 +1,4 @@
-# _FpML Mappings - Updated TaxonomySource Mapper_
+# *FpML Mappings - Taxonomy Source*
 
 _Background_
 
