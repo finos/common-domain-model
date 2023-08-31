@@ -634,13 +634,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 	PriceQuantity:
 		+ price
 			// For Swap Stream
-			[value "calculation" path "calculationPeriodAmount"]
+			[value "calculation" path "calculationPeriodAmount" mapper "FloatingRateCalculation"]
 			[value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
 			[value "spreadSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
-			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			// For FRAs:
+            // For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
 			[value "fixedAmountCalculation"]
@@ -652,8 +649,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "underlyerPrice"]
 			// For FX:
-			[hint "spotRate"]
-			[value "exchangeRate" mapper "ExchangeRate"]
+			[value "exchangeRate"]
 			// For Repo:
 			[value "fixedRateSchedule"]
 			[value "floatingRateCalculation"]
@@ -743,7 +739,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "initialRate" mapper "PriceUnitType"]
             [value "initialValue" mapper "PriceUnitType"]
             [value "rate" maps 2 mapper "PriceUnitType"]
-            [value "spotRate" mapper "PriceUnitType"]
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
             [value "fixedRate" mapper "PriceUnitType"]
@@ -783,9 +778,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to PriceTypeEnum->InterestRate when "floatingRateCalculation->spread" exists]
  			[set to PriceTypeEnum->InterestRate when path = "spreadSchedule"]
  			[set to PriceTypeEnum->InterestRate when path = "floatingRateIndex"]
- 			[set to PriceTypeEnum->InterestRate when path = "floorRateSchedule"]
- 			[set to PriceTypeEnum->InterestRate when path = "capRateSchedule"]
- 			[set to PriceTypeEnum->MultiplierOfIndexValue when path = "floatingRateMultiplierSchedule"]
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
@@ -797,7 +789,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
  			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption->strike"]
- 			[set to PriceTypeEnum->ExchangeRate when path = "fxOption" and "spotRate" exists]
  			// For Commodity Swaps
  			[set to PriceTypeEnum->CashPrice when path = "fixedLeg->fixedPrice"]
  			[set to PriceTypeEnum->InterestRate when path = "calculation->spread"]
@@ -809,13 +800,19 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to ArithmeticOperationEnum->Add when path = "spreadSchedule"]
  			[set to ArithmeticOperationEnum->Add when path = "floatingRateIndex"]
  			[set to ArithmeticOperationEnum->Add when path = "calculation->spread"]
- 			// FX: SpreadTypeEnum->Spread when "spotRate" exists is set by ExchangeRate mapper
-			// FX: SpreadTypeEnum->Base when "forwardPoints" exists is set by ExchangeRate mapper
-			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
- 			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]	
-            // [set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
-			// [set to SpreadTypeEnum->Base when "referencePrice" exists]
-            // [set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
+ 			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Multiply when path = "floatingRateMultiplierSchedule"]
+
+    PriceComposite:
+        + baseValue
+            [value "spotRate"]
+        + operand
+            [value "forwardPoints"]
+        + arithmeticOperator
+            [set to ArithmeticOperationEnum -> Add when "forwardPoints" exists]
+        + operandType
+            [set to PriceOperandEnum -> ForwardPoint when "forwardPoints" exists]
 
 	CashPrice:
  		+ cashPriceType
@@ -1222,6 +1219,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "rate"]
 			[hint "spread"]
 			[hint "strikePricePerUnit"]
+			[hint "spotRate"]
 		+ strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -2397,6 +2395,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ strike
 			[value "strike"]
 			[hint "strikePricePerUnit"]
+			[hint "spotRate"]
 		+ exerciseProcedure
 			[value "physicalExercise"]
 			[value "exerciseProcedure"]
@@ -2774,7 +2773,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "nearLeg"]
 			[value "farLeg"]
 			[value "fxSingleLeg"]
-			[hint "spotRate"] // for Spot on FX Option (Barrier)
 			// Other
 			[value "repo"]
 			[value "floatingLeg"]
@@ -2820,7 +2818,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
 			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
-        	        [hint "fxVarianceSwap"]
+			[hint "fxVarianceSwap"]
 			[hint "fxVolatilitySwap"]
 			// Other
 			[value "commoditySwap"]
