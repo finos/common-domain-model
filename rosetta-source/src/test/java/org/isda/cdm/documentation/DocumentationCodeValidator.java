@@ -37,7 +37,10 @@ public class DocumentationCodeValidator {
     private final String lineCommentRegex = "[^:]\\/\\/.*$";
     private final String whitespaceRegex = "\\s+";
     private final Pattern illegalSyntaxRegex = Pattern.compile(annotationRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
-	private static final PatternStreamer codeBlockRegex = new PatternStreamer("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
+	private static final PatternStreamer xxcodeBlockRegex = new PatternStreamer("(``` \\w+?$.*```$)");
+	private static final PatternStreamer oldcodeBlockRegex = new PatternStreamer("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
+	private static final PatternStreamer codeBlockRegex = new PatternStreamer("(``` .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
+
 
 	private String modelPath;
 	private String docPath;
