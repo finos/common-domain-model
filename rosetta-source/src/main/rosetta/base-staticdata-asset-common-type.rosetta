@@ -5,9 +5,7 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-
 import cdm.observable.asset.*
-
 import cdm.product.template.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
@@ -86,6 +84,15 @@ type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which i
     condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
         optional choice value, productQualifier
 
+type IndexReferenceInformation: <"A class defining information related to Index">
+    indexName string (0..1)  <"The name of the index expressed as a free format string with an associated scheme.">
+		[metadata scheme]
+	indexId string (0..*) <"An index identifier (e.g. RED pair code).">
+		[metadata scheme]
+
+    condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
+		required choice indexName, indexId
+        
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
 type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
