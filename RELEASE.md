@@ -6,13 +6,13 @@ A gap has been identified in the CDM regarding reference index information. Curr
 
 _What is being released?_
 
-This release adds a generic type `IndexReferenceInformation` which can be used to supply and capture index name and id, and includes the following updates:
+This release modifies existing CDM type `IndexReferenceInformation` to capture generic 'index name & id' and separates specific credit reference information
+The release includes the following changes:
 
-- Added type `IndexReferenceInformation`
+- Type `IndexReferenceInformation` is splitted into generic `IndexReferenceInformation` and credit specific `CreditIndexReferenceInformation`
 - Added indexName and indexId attributes under `IndexReferenceInformation`
-- Added indexInformation attribute under FloatingRateOption
-- Renamed IndexReferenceInformation to CreditIndexReferenceInformation
-- Removed indexName and indexId attributes from IndexReferenceInformation
+- Moved other specific credit reference attributes to `CreditIndexReferenceInformation`
+- Added `indexReferenceInformation` attribute under type FloatingRateOption
 
 _Review Directions_
 
