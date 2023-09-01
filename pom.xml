@@ -82,9 +82,9 @@
 
         <repoServerHost>oss.sonatype.org</repoServerHost>
 
-        <rosetta.bundle.version>7.5.10</rosetta.bundle.version>
+        <rosetta.bundle.version>7.6.1</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>8.3.5</rosetta.dsl.version>
+        <rosetta.dsl.version>8.4.0</rosetta.dsl.version>
 
         <xtext.version>2.27.0</xtext.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
@@ -120,6 +120,9 @@
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+
+        <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
+        <maven-javadoc-plugin.option></maven-javadoc-plugin.option>
     </properties>
 
     <profiles>
@@ -133,6 +136,16 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>Java 12-</id>
+            <activation>
+                <jdk>(,12]</jdk>
+            </activation>
+            <properties>
+                <!-- This property is only necessary when building with Java 12 or lower versions. -->
+                <maven-javadoc-plugin.option>--no-module-directories</maven-javadoc-plugin.option>
+            </properties>
         </profile>
     </profiles>
 
