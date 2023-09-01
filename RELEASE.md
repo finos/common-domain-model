@@ -1,15 +1,15 @@
-# _Product Model - FpML Synonym Mappings for Commodity Spread_
+# *FpML Mappings - Taxonomy Source*
 
 _Background_
 
-Currently, the CDM attribute `priceType` is incorrectly being populated with `INTEREST_RATE` for Commodity spreads. This is inadequate since the spread is an asset price.
+The recently introduced coverage for crypto-based indicator in FpML uses the same element from which CDM sources the taxonomy value. This release updates the taxonomy mapper so that only actual taxonomy values are mapped into the taxonomy structure. This avoids duplication since the crypto-based indicator is placed elsewhere in the model.
 
 _What is being released?_
 
-This release updates and extends the FpML mapping coverage for the product model to map the correct price. 
-
-- Mappings added to populate CDM attribute `priceType` with `ASSET_PRICE` for commodity spreads.
+- Updated `TaxonomySourceMappingProcessor` to ignore values coming from the particular FpML scheme related to the crypto indicator.
 
 _Review directions_
 
-- In the CDM Portal, select the Textual Browser and inspect the change listed above.
+Download one of the full CDM distributions (Java or Python).
+
+In a code processor, inspect the element `TaxonomySourceMappingProcessor` for changes.
