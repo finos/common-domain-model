@@ -427,11 +427,11 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
 		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
 			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
+			and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
 	condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999Credit
+		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
@@ -441,7 +441,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
             and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
 
 	condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
+		if contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
 		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
 	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
@@ -480,6 +480,17 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
 	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
         if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists then
             FpmlIrd8( tradableProduct, account ) = True
+
+    condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
+		if contractDetails->documentation->agreementTerms->agreement->transactionAdditionalTerms->equityAdditionalTerms->extraordinaryEvents exists then
+		     tradableProduct->product ->contractualProduct->economicTerms->payout-> performancePayout -> returnTerms -> priceReturnTerms exists // and performancePayout underlier must be security
+            or tradableProduct->product ->contractualProduct->economicTerms->payout -> optionPayout -> underlier -> security exists
+
+    condition DisruptionEventsDeterminingParty:
+	    if contractDetails->documentation->agreementTerms->agreement->transactionAdditionalTerms->equityAdditionalTerms->extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
+		then tradableProduct->ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+		and if tradableProduct->ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+		then contractDetails->documentation->agreementTerms->agreement->transactionAdditionalTerms->equityAdditionalTerms-> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
 
 type ExecutionDetails: <"Defines specific attributes that relate to trade executions.">
 	[metadata key]
