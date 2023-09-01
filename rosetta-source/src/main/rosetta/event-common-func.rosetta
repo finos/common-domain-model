@@ -1197,8 +1197,8 @@ func ToMoney:
 	output:
 		money Money (1..1)
 
-	assign-output money -> value: quantity -> value
-    assign-output money -> unit -> currency: quantity -> unit -> currency
+	set money -> value: quantity -> value
+    set money -> unit -> currency: quantity -> unit -> currency
 
 func Create_BillingSummary: <"Creates a billing summary to be included in a Security Lending Billing Invoice.">
 
@@ -1268,13 +1268,13 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
 	alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
 	    Create_PriceQuantity( empty, changeQuantity, empty )
 
-	assign-output repurchaseInstruction -> intent:
+	set repurchaseInstruction -> intent:
 		EventIntentEnum -> Repurchase
 		
-	assign-output repurchaseInstruction -> instruction -> before:
+	set repurchaseInstruction -> instruction -> before:
 		tradeState
 
-	assign-output repurchaseInstruction -> instruction -> primitiveInstruction -> quantityChange:
+	set repurchaseInstruction -> instruction -> primitiveInstruction -> quantityChange:
 		Create_QuantityChangeInstruction( [changePriceQuantity], QuantityChangeDirectionEnum->Replace, empty )
 	
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
