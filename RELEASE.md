@@ -1,25 +1,15 @@
-# _Commodity Model - Commodity Classification_
+# *FpML Mappings - Taxonomy Source*
 
 _Background_
 
-The classification of commodity products represented with the type `CommodityReferenceFramework` has been deemed insufficently granular for the various product taxonomies used by practitioners for example the ESMA classification and ISDA's product taxonomies. This release upgrades the `ProductTaxonomy` type to accommodate a more generic representation of commodity classifications compatible with any classification systems.
-
-The `productTaxonomy` attribute inherited from the `ProductBase` type with the `Commodity` type was also observed as the adequate  position to document the classification rather than duplicate the information within the  `referenceFramework` of the `commodityProductDefinition` attribute.
+The recently introduced coverage for crypto-based indicator in FpML uses the same element from which CDM sources the taxonomy value. This release updates the taxonomy mapper so that only actual taxonomy values are mapped into the taxonomy structure. This avoids duplication since the crypto-based indicator is placed elsewhere in the model.
 
 _What is being released?_
 
-- Added support for hierarchical, multi-layered commodity taxonomies by making changes to the the "Taxonomy" types.
-- Removed the redundant commodity classification documented within the commodity  reference framework
-
-_Data types_
-
-- Removed elements `commodityBase` and `subCommodity` from the type `CommodityReferenceFramework`.
-- Added conditions for type `Commodity` controlling the newly added elements.
-- Added condition for type `Taxonomy` controlling the newly added elements.
-- Cardinality for element `className` in type `TaxonomyClassification` changed to optional.
-- Added element `ordinal` to type `TaxonomyClassification`.
+- Updated `TaxonomySourceMappingProcessor` to ignore values coming from the particular FpML scheme related to the crypto indicator.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+Download one of the full CDM distributions (Java or Python).
 
+In a code processor, inspect the element `TaxonomySourceMappingProcessor` for changes.
