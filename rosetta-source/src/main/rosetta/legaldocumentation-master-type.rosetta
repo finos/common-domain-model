@@ -32,12 +32,19 @@ type TransactionAdditionalTerms: <"Additional specification for the extraordinar
 	interestRateAdditionalTerms string (0..1)
 	digitalAssetAdditionalTerms string (0..1)
 
-type EquityAdditionalTerms: <"TransactionAdditionalTerms whi.ch apply to Equity asset class.">
+type EquityAdditionalTerms: <"Transaction AdditionalTerms that apply to Equity asset class.">
 	extraordinaryEvents ExtraordinaryEvents (0..1)
 	determinationTerms DeterminationRolesAndTerms (1..*)
-	substitutionProvisions UnderlierSubstitutionProvision (0..*)
+	substitutionProvision UnderlierSubstitutionProvision (0..1)
 
 type UnderlierSubstitutionProvision: <"Where parties describe any substitution terms.">
+	whoMaySubstitute CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
+	substitutionBeSpokeTerms AdditionalBespokeTerm (0..*) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
+	substitutionTriggerEvents ExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
+	disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
+
+    condition DisputingPartyCannotHaveOriginalRole:
+    whoMaySubstitute all <> disputingParty
 
 type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
     mergerEvents EquityCorporateEvents (0..1) <"Per the 2018 ISDA CDM Equity Confirmation for Security Equity Swap">
@@ -88,3 +95,7 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
 	condition DisruptionEventsDeterminingParty:
 		if determiningParty exists then
 		    determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+
+type AdditionalBespokeTerm: <"A type for documenting additional clause that cannot yet be represented with the model and yet needed for a digital representation of the agreement">
+    name string (0..1) <"The  name associated to this clause ">
+    description string (1..1)<"Content of this bespoke clause">
