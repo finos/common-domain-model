@@ -38,9 +38,11 @@ public class DocumentationCodeValidator {
     private final String whitespaceRegex = "\\s+";
     private final Pattern illegalSyntaxRegex = Pattern.compile(annotationRegex+"|"+definitionRegex+"|"+lineCommentRegex, Pattern.MULTILINE);
 	private static final PatternStreamer oldcodeBlockRegex = new PatternStreamer("(\\.\\. code-block:: .*\\s+$)((\\n[ \\t]+.*|\\s)+)");
-	private static final PatternStreamer codeBlockRegex = new PatternStreamer("(``` .*\\s+$)((\\n[ \\t]*.*|\\s)+)");
+	private static final PatternStreamer xxxcodeBlockRegex = new PatternStreamer("(``` .*\\s+$)((\\n[ \\t]*.*|\\s)+)");
 
-	/*
+	private static final PatternStreamer codeBlockRegex = new PatternStreamer("```\\s*\\w+\\s*.*?```");
+
+	/* before
 .. code-block:: Haskell
 
  type TradeState:
@@ -51,17 +53,9 @@ public class DocumentationCodeValidator {
    resetHistory Reset (0..*)
    transferHistory TransferState (0..*)
 	*/
-/*
+/*after
 
-``` Haskell
-type TradeState:
-  [metadata key]
-  [rootType]
-  trade Trade (1..1)
-  state State (0..1)
-  resetHistory Reset (0..*)
-  transferHistory TransferState (0..*)
-```
+
 */
 	private String modelPath;
 	private String docPath;
