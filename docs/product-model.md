@@ -979,16 +979,15 @@ example is provided below for the qualification of a Zero-Coupon
 Fixed-Float Inflation Swap:
 
 ``` Haskell
-func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Inflation Swap with a single accrual period based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg and more than one payment, and 2) without cross-currency features.">
-   [qualification Product]
-   inputs: economicTerms EconomicTerms (1..1)
-   output: is_product boolean (1..1)
-           [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]       
-   set is_product:
-		Qualify_BaseProduct_Inflation(economicTerms) = True
-        and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
-		and Qualify_SubProduct_FixedFloat(economicTerms) = True
-		and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
+  [qualification Product]
+  inputs: economicTerms EconomicTerms (1..1)
+  output: is_product boolean (1..1)
+  set is_product:
+    Qualify_BaseProduct_Inflation(economicTerms) = True
+    and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
+    and Qualify_SubProduct_FixedFloat(economicTerms) = True
+    and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 ```
 
 If all the statements above are true, then the function evaluates to
