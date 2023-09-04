@@ -983,6 +983,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   [qualification Product]
   inputs: economicTerms EconomicTerms (1..1)
   output: is_product boolean (1..1)
+    [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
