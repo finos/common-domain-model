@@ -76,7 +76,7 @@ Contributions to the CDM have to comply with the following set of design princip
 
 ## CDM development guidelines 
 
-The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.finos.org/docs/contribution).
 
 ## Getting involved 
 
@@ -111,7 +111,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).
 
-To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](https://cdm.finos.org/docs/contribution).
 
 NOTE: Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA.
 
@@ -138,7 +138,7 @@ Steps:
 
 ## Documentation
 
-The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.docs.rosetta-technology.io/source/contribution.html#documentation-style-guide)
+The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/contribution#documentation-style-guide)
 
 
 _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the FINOS Clabot tool (or [EasyCLA](https://community.finos.org/docs/governance/Software-Projects/easycla)). Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA.
