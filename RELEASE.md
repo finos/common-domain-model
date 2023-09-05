@@ -11,3 +11,4 @@
 - Updated the banner for cdm.finos.org.
 - Refined the text to explain what Common Domain Model (CDM) is and its benefits.
 - Included a PDF document explaining what CDM is.
+
