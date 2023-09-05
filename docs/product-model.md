@@ -525,8 +525,6 @@ type SettlementBase:
   transferSettlementType TransferSettlementEnum (0..1)
   settlementCurrency string (0..1)
     [metadata scheme]
-    [docReference ICMA GMRA namingConvention "Contractual Currency"
-        provision "As defined in GMRA paragraph 2(k)/ paragraph 7(a) All the payments made in respect of the Purchase Price or the Repurchase Price of any Transaction shall be made in the currency of the Purchase Price (the Contractual Currency) save as provided in paragraph 10(d)(ii). Notwithstanding the foregoing, the payee of any money may, at its option, accept tender thereof in any other currency, provided, however, that, to the extent permitted by applicable law, the obligation of the payer to pay such money will be discharged only to the extent of the amount of the Contractual Currency that such payee may, consistent with normal banking procedures, purchase with such other currency (after deduction of any premium and costs of exchange) for delivery within the customary delivery period for spot transactions in respect of the relevant currency."]
   settlementDate SettlementDate (0..1)
   settlementCentre SettlementCentreEnum (0..1)
   settlementProvision SettlementProvision (0..1)
