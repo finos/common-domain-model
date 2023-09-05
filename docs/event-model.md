@@ -116,6 +116,8 @@ type Trade:
   tradeIdentifier TradeIdentifier (1..*)
   tradeDate date (1..1)
     [metadata id]
+  tradeTime TimeZone (0..1)
+    [metadata id]
   tradableProduct TradableProduct (1..1)
   party Party (0..*)
   partyRole PartyRole (0..*)
@@ -499,6 +501,8 @@ type ExecutionInstruction:
   partyRoles PartyRole (0..*)
   executionDetails ExecutionDetails (1..1)
   tradeDate date (1..1)
+      [metadata id]
+  tradeTime TimeZone (0..1)
       [metadata id]
   tradeIdentifier TradeIdentifier (1..*)
   collateral Collateral (0..1)

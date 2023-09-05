@@ -76,4 +76,3 @@ The Clause Libraries for the 3 trading associations, ISLA, ISDA and ICMA, have b
 In discussion with D2LT it was determined that a maximum of 3 digits – in conjunction with the document publisher and document name – would be required to represent a clause uniquely. This allows up to 999 clauses to be represented in a single document from a single publisher. 
 
 Similarly, a maximum of 2 additional digits would be required to support the representation of variants for each clause. This structure will allow up to 99 different variants to be defined for a single clause.
-
