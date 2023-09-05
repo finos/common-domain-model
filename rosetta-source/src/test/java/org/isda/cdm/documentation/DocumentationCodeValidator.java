@@ -29,15 +29,13 @@ import java.util.stream.Stream;
 public class DocumentationCodeValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationCodeValidator.class);
 
-    public static final List<String> ANNOTATIONS = Lists.newArrayList(
-            "synonym",
-            "docReference");
+    public static final List<String> ANNOTATIONS = Lists.newArrayList("docReference");
     private final String annotationRegex = "\\[(" + Joiner.on('|').join(ANNOTATIONS) + ") [^\\]]*\\]";
     private final String definitionRegex = "<\"[\\s\\S]*?\">";
     private final String lineCommentRegex = "[^:]\\/\\/.*$";
     private final String whitespaceRegex = "\\s+";
     private final Pattern illegalSyntaxRegex = Pattern.compile(annotationRegex + "|" + definitionRegex + "|" + lineCommentRegex, Pattern.MULTILINE);
-    private static final PatternStreamer codeBlockRegex = new PatternStreamer("(```\\s*\\w+\\s*.*?```\")((\\n[ \\t]*.*|\\s)+)");
+    private static final PatternStreamer codeBlockRegex = new PatternStreamer("```.*?```");
 
     private String modelPath;
     private String docPath;
