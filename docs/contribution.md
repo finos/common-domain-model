@@ -1211,6 +1211,9 @@ The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `
 _Review directions_
 
 In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
+
+Inspect Pull Request: [#1101](https://github.com/finos/common-domain-model/pull/1101)
+
 ```
 
 The MD editing syntax in which release notes are written is a standard
