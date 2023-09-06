@@ -2,10 +2,11 @@
 
 _Background_
 
-A new party role is needed to uniquely identify if a party is acting as a compression service provider, since the existing party roles are not sufficient to identify if a counterparty is acting as a third-party service provider or CCP for the compression event.
-This release will allow us to identify a counterparty acting as a compression service provider.
+The existing party roles are not sufficient to identify if a counterparty is acting as a third-party service provider or CCP for the compression event. A new party role is needed to uniquely identify if a party is acting as a compression service provider.
 
 _What is being released?_
+
+This release provides the ability to identify a counterparty acting as a compression service provider by updating the relevant enumeration.
 
 _Enumerations_
 
@@ -13,4 +14,4 @@ _Enumerations_
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser and inspect the change identified above.
