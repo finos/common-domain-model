@@ -1171,7 +1171,7 @@ are a critical component of the distribution of that release. Release
 notes are edited in the *Mark-Down (MD)* syntax, which is then rendered
 into Html in the various channels where the release is published.
 
-1.  release notes should begin with a high-level headline of the part of
+1.  Release notes should begin with a high-level headline of the part of
     the model being changed, followed by "--" and a short headline
     description
     1.  For example: "# Legal Agreement Model - Collateral Agreement
@@ -1181,12 +1181,13 @@ into Html in the various channels where the release is published.
     change, for example, the data type and attributes should be named
     and the before/after states of the model explained, along with a
     justification in which the issue is summarised.
-3.  If the release notes describe mapping rules, there should be
+3.  They should also embed a link to the Pull Request containing the change, to enable users to inspect those changes in details.
+4.  If the release notes describe mapping rules, there should be
     explicit information about the examples affected and the change in
     resulting values for those examples.
-4.  If the release is documentation, it should specify exactly where the
+5.  If the release is documentation, it should specify exactly where the
     document was changed and why.
-5.  Special formatting rules related to use of the MD mark-up language:
+6.  Special formatting rules related to use of the MD mark-up language:
     1.  Headline should begin with a `#`, as in the above example, so
         that it appears correctly formatted in Html
     2.  `*` before and after text (no space) for bold
