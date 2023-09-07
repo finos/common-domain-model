@@ -1,8 +1,39 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Commodity Payout - Delivery features_
+
+_Background_
+
+EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
+- 2.119. Delivery point or zone
+- 2.120. Interconnection Point 
+- 2.121. Load type
+- 2.122. Delivery interval start time
+- 2.123. Delivery interval end time
+- 2.124. Delivery start date 
+- 2.125. Delivery end date
+- 2.127. Days of the week
+This release addresses the representation of these features accross the commodity payout.
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+- Model component for European electricity and gas commodity delivery fields, with the exception of duration, delivery capacity and price quantity interval.
 
-- rosetta-dsl:
-    - 8.4.1: A patch for the Java implementation of key word `extract` when given an input of single cardinality. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.4.1.
+_Data types_
+
+- Added type `LocationIdentifier`.
+- Added attribute `delivery` of the type `CommodityDeliveryInformation` to `CommodityPayout` type.
+- Added type `CommodityDeliveryInformation`.
+- Added type `CommodityDeliveryPeriods`.
+- Added type `CommodityDeliveryProfile`.
+- Added type `CommodityDeliveryProfileBlock`.
+- Added attribute `deliveryPeriod` of the type `CommodityDeliveryPeriods` to type `SchedulePeriod`.
+
+_Enumerations_
+
+- Added enumeration `CommodityLocationIdentifierTypeEnum`.
+- Added enumeration `LoadTypeEnum`.
+
+
+_Review directions_
+
+- In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+- Inpect the pull request [2380](https://github.com/finos/common-domain-model/pull/2380)
