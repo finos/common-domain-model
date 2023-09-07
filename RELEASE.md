@@ -1,4 +1,4 @@
-# _Exchange Traded Derivatives support - Extended SecurityTypeEnum and ForwardPayout_
+# _Product Model - Exchange Traded Derivatives - Extended SecurityTypeEnum and ForwardPayout_
 
 _Background:_
 - Exchanged Traded Derivatives (ETDs) are in scope for EMIR Regulatory Reporting
@@ -21,3 +21,5 @@ _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above. Specifically, select 
 the Textual Browser and search and inspect the `SecurityTypeEnum` and `ForwardPayout` types.
+
+Inspect Pull Request: [#2342](https://github.com/finos/common-domain-model/pull/2342)
