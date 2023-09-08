@@ -1,4 +1,4 @@
-# _PTRR - Compression Service Provider Party Role_
+# _CDM Party Role - Compression Service Provider_
 
 _Background_
 
