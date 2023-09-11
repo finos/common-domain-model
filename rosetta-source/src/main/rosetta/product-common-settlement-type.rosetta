@@ -32,7 +32,6 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
  	cashflowType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
  	cashPrice CashPrice (0..1) <"Type of cashflow corresponding to a non-scheduled event, where a price must be agreed between the parties.">
- 	grossOrNet GrossOrNetEnum (0..1) <"Whether the cashflow is gross, net or a commission, if any.">
  	priceExpression PriceExpressionEnum (0..1)
  	
 	condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
@@ -301,11 +300,12 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 	settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
 	effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
-	condition RateOptionObservable: <"When the observable is a rate option, the price type must correspond to one of the interest rate price expressions.">
-	    if observable -> rateOption exists and price exists
-	    then 
-			price -> priceExpression -> priceType contains PriceTypeEnum -> InterestRate or
-			price-> priceExpression -> priceType contains PriceTypeEnum -> MultiplierOfIndexValue
+	condition RateOptionObservable: <"When the observable is a rate option, the price type must be interest rate and the arithmetic operator must be specified.">
+	    RateOptionObservableCondition
+
+	condition ObservableExists: <"When the arithmetic operator is specified, then an observable must be specified.">
+	    if price -> arithmeticOperator exists
+        then observable exists
 
 	condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
 		if buyerSeller exists then settlementTerms exists

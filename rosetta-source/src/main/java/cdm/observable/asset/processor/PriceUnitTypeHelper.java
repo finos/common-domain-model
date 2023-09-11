@@ -1,12 +1,11 @@
 package cdm.observable.asset.processor;
 
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.SpreadTypeEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -42,7 +41,7 @@ public class PriceUnitTypeHelper {
     }
 
     public boolean mapUnitType(Path synonymPath, PriceSchedule.PriceScheduleBuilder priceScheduleBuilder) {
-        if (!Optional.ofNullable(priceScheduleBuilder.getPriceExpression()).map(PriceExpression::getPriceType).isPresent()) {
+        if (!Optional.ofNullable(priceScheduleBuilder.getPriceType()).isPresent()) {
             return false;
         }
         return
@@ -189,8 +188,7 @@ public class PriceUnitTypeHelper {
 
     protected boolean updatePackagePrice(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
         if (valueSynonymPath.endsWith("quote", "value")) {
-            Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
-            PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
+            PriceTypeEnum priceType = builder.getPriceType();
             if (priceType == PriceTypeEnum.CASH_PRICE) {
                 Path quoteSynonymPath = valueSynonymPath.getParent();
                 Path currencySynonymPath = quoteSynonymPath.addElement("currency");
@@ -211,10 +209,9 @@ public class PriceUnitTypeHelper {
 
     protected boolean updatePackageSpread(PriceSchedule.PriceScheduleBuilder builder, Path valueSynonymPath) {
         if (valueSynonymPath.endsWith("quote", "value")) {
-            Optional<PriceExpression.PriceExpressionBuilder> priceExpression = Optional.ofNullable(builder.getPriceExpression());
-            PriceTypeEnum priceType = priceExpression.map(PriceExpression::getPriceType).orElse(null);
-            SpreadTypeEnum spreadType = priceExpression.map(PriceExpression::getSpreadType).orElse(null);
-            if (priceType == PriceTypeEnum.INTEREST_RATE && spreadType == SpreadTypeEnum.SPREAD) {
+            PriceTypeEnum priceType = builder.getPriceType();
+            ArithmeticOperationEnum arithmeticOperator = builder.getArithmeticOperator();
+            if (priceType == PriceTypeEnum.INTEREST_RATE && arithmeticOperator == ArithmeticOperationEnum.ADD) {
                 Optional<Mapping> unitMapping = getPackageSpreadCurrency(valueSynonymPath.getParent());
                 Optional<UnitType.UnitTypeBuilder> unit = unitMapping.map(this::toCurrencyUnitType);
                 return unit.map(u -> {
@@ -242,7 +239,7 @@ public class PriceUnitTypeHelper {
         // unit of amount
         builder.setUnit(unit);
         // per unit of amount
-        if (builder.getPriceExpression().getPriceType() != PriceTypeEnum.MULTIPLIER_OF_INDEX_VALUE) {
+        if (builder.getArithmeticOperator() != ArithmeticOperationEnum.MULTIPLY) {
             builder.setPerUnitOf(perUnitOf);
         }
     }

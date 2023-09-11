@@ -376,7 +376,12 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
 	    and before -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> rateOption -> floatingRateIndex
 
 	alias spread:
-		FilterPrice( after -> tradeLot -> priceQuantity -> price, PriceTypeEnum -> InterestRate, empty, empty, empty, empty, empty, SpreadTypeEnum -> Spread )
+		FilterPrice(
+            after -> tradeLot -> priceQuantity -> price,
+            PriceTypeEnum -> InterestRate,
+            [ ArithmeticOperationEnum -> Add, ArithmeticOperationEnum -> Subtract ],
+            empty
+        )
 
 	alias adjustmentSpreadAdded:
 		if spread exists

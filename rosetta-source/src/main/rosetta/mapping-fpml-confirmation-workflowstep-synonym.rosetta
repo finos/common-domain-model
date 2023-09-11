@@ -140,11 +140,9 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
     Price:
         + value
             [value "value" mapper "PriceUnitType"]
-
-    PriceExpression:
         + priceType
             [value "measureType"]
-        + spreadType
+        + arithmeticOperator
             [value "measureType"]
 
     EventTimestamp:
@@ -156,7 +154,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "cleared" path "trade->tradeHeader->partyTradeInformation->timestamps"]
         + qualification
             [set to EventTimestampQualificationEnum -> eventCreationDateTime when path = "header->creationTimestamp"]
-            [set to EventTimestampQualificationEnum -> clearingSubmissionDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->submittedForClearing"]
+            [set to EventTimestampQualificationEnum -> clearingReceiptDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->submittedForClearing"]
             [set to EventTimestampQualificationEnum -> clearingDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->cleared"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation->executionDateTime"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
@@ -226,6 +224,10 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
 
     enums
 
+    ArithmeticOperationEnum:
+        + Add
+            [value "PackageSpread"]
+
     FeeTypeEnum:
         + BrokerageCommission
 			[value "BrokerageCommission"]
@@ -240,9 +242,5 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
         + CashPrice
             [value "PackagePrice"]
         + InterestRate
-            [value "PackageSpread"]
-
-    SpreadTypeEnum:
-        + Spread
             [value "PackageSpread"]
 }
