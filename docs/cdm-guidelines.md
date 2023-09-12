@@ -29,7 +29,8 @@ needs to be addeed to the project pom.xml:
 <dependency>
    <groupId>org.finos.cdm</groupId>
    <artifactId>cdm-java</artifactId>
-   <version>LATEST</version> </dependency>
+   <version>LATEST</version>
+</dependency>
 ```
 
 -   The CDM model objects are classified into namespaces (cdm.base,
