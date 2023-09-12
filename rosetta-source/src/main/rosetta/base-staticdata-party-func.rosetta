@@ -1,32 +1,6 @@
 namespace cdm.base.staticdata.party : <"Basic party concepts: legal entity, natural person, contact details, buyer / payer and all related enums.">
 version "${project.version}"
 
-func Create_Counterparty: <"Constructs a Counterparty given a party and a counterparty enum value.">
-	inputs:
-		party Party (1..1)
-		role CounterpartyRoleEnum (1..1)
-	output:
-		counterparty Counterparty (1..1)
-
-	set counterparty -> partyReference: <"Party serves the role of a key.">
-		party as-key
-
-	set counterparty -> role:
-		role
-
-func Create_PartyRole: <"Constructs a PartyRole given a party and party role enumeration value.">
-	inputs:
-		party Party (1..1)
-		role PartyRoleEnum (1..1)
-	output:
-		partyRole PartyRole (1..1)
-
-	set partyRole -> partyReference:
-		party
-
-	set partyRole -> role:
-		role
-
 func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
 	inputs:
 		counterparties Counterparty (1..*) <"The list of counterparties to filter.">
@@ -63,16 +37,6 @@ func ReplaceParty: <"Removes the old party, and adds the new party.">
         parties
             extract (if item = oldParty then newParty else item)
             then distinct
-
-func Create_PayerReceiver:
-	inputs:
-		payer CounterpartyRoleEnum (0..1)
-		receiver CounterpartyRoleEnum (0..1)
-	output:
-		payerReceiver PayerReceiver (1..1)
-
-	set payerReceiver -> payer: payer
-	set payerReceiver -> receiver: receiver
 
 func FilterPartyRole: <"Filters the list of partyRoles based on the provided partyRoleEnum.">
 	inputs:
