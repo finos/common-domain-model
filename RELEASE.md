@@ -2,9 +2,9 @@
 
 _What is being released?_
 
-This release updates the rosetta-dsl dependency:
+This release updates the rosetta-dsl dependency.
 
-- rosetta-dsl:
+Version updates include:
   - 8.5.0: Introduces constructor syntax to instantiate data types and records. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.5.0.
   - 8.5.1: Patches including Java 8 compatibility for the generated Java code, and support for lists of basic types and enums in reports. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.5.1.
 
