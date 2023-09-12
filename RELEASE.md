@@ -2,15 +2,15 @@
 
 _Background_
 
-The existing party roles are not sufficient to identify if a counterparty is acting as a third-party service provider or CCP for the compression event. A new party role is needed to uniquely identify if a party is acting as a compression service provider.
+The existing party roles are not sufficient to identify if a counterparty is acting as a third-party service provider or CCP for the compression event. A new party role enum value is needed to uniquely identify a party acting as a compression service provider in the context of the business event.
 
 _What is being released?_
 
-This release provides the ability to identify a counterparty acting as a compression service provider by updating the relevant enumeration.
+This release provides the ability to associate a party as a compression service provider.
 
 _Enumerations_
 
-- Updated `PartyRoleEnum` enumeration with new `CompressionServiceProvider` value to represent counterparties acting as compression service providers.
+- Augmented the `PartyRoleEnum` enumeration with new `CompressionServiceProvider` value to represent counterparties acting as compression service providers.
 
 _Review directions_
 
