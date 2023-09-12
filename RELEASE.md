@@ -1,4 +1,4 @@
-# _CDM Party Role - Compression Service Provider_
+# _Event Model -  Enhancements for Party Role Enum - Service Provider_
 
 _Background_
 
@@ -15,3 +15,5 @@ _Enumerations_
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the change identified above.
+
+Inspect Pull Request: [#2369](https://github.com/finos/common-domain-model/pull/2369)
