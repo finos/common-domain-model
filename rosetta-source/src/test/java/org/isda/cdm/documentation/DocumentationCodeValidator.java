@@ -85,6 +85,7 @@ public class DocumentationCodeValidator {
                 .filter(_code -> !_code.contains("``` Javascript"))
                 .filter(_code -> !_code.contains("``` Java"))
                 .filter(_code -> !_code.contains("``` JSON"))
+                .filter(_code -> !_code.contains("``` xml"))
                 .filter(_code -> {
                     String cleaned = _code
                             .replaceAll(".*```.*", "")

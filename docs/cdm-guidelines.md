@@ -13,7 +13,7 @@ version of CDM. Topics covered are listed below:
 
 # Prerequisites
 
--   Java SDK 8
+-   Java SDK 8 or higher
 
 # Introduction
 
@@ -25,13 +25,13 @@ version of CDM. Topics covered are listed below:
 In order to use the CDM in a Maven project, the following dependency
 needs to be addeed to the project pom.xml:
 
-`` ` <dependency>   <groupId>org.finos.cdm</groupId>   <artifactId>cdm-java</artifactId>   <version>LATEST</version> </dependency> ``\`
-
-Tutorials
-
-![](/img/cdm-tutorials.png)
-
-Direct link: [Tutorials](https://vimeo.com/359012532)
+``` xml
+<dependency>
+   <groupId>org.finos.cdm</groupId>
+   <artifactId>cdm-java</artifactId>
+   <version>LATEST</version>
+</dependency>
+```
 
 -   The CDM model objects are classified into namespaces (cdm.base,
     cdm.base.staticdata, etc). These namespaces translate into Java

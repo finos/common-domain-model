@@ -10,7 +10,7 @@ The culmination of this work is the addition of new structures to the model that
 
 _Model Changes_
 
-This PR adds new types under the existing ```MasterAgreementSchedule``` type which will allow the representation of legal agreement clauses with their associated election criteria. These additional criteria include clause variants and any variables that are required to define the elections agreed upon for that clause.
+This PR adds new types under the existing `MasterAgreementSchedule` type which will allow the representation of legal agreement clauses with their associated election criteria. These additional criteria include clause variants and any variables that are required to define the elections agreed upon for that clause.
 
 The types have been created to be generic and do not enforce any specific clause naming convention. The actual legal text from the document is not expected to be held in the model or in the actual data that is included in the object. The model uses clause and variant identifiers to reference textual data that is held outside of the model itself. 
 
@@ -18,51 +18,51 @@ The identifiers themselves can be defined by the publisher of a legal document t
 
 _Data Types_
 
-- Added ```MasterAgreementClause```
+- Added `MasterAgreementClause`
    - Holds all data that is required to define the election made for a specific clause in the master agreement
-   - The ```identifier``` is a unique id for this clause (see the ```MasterAgreementClauseIdentifierEnum``` for more details). It is associated to the publisher of the document, the document itself and the clause.
-   - The ```name``` is an optional string which can be used to hold the name of this clause
-   - The ```counterparty``` is optional but can be used to specify which of the counterparties on the agreement the clause applies to.
-   - The ```otherParty``` is optional but can be used for umbrella agreements where it is necessary to define specific clauses as applicable to specific parties.
-   - The ```variant``` defines what variant of the clause has been elected. The variant must be specified, and for certain clauses it is possible that multiple variants can be elected.
-- Added ```MasterAgreementClauseVariant```
+   - The `identifier` is a unique id for this clause (see the `MasterAgreementClauseIdentifierEnum` for more details). It is associated to the publisher of the document, the document itself and the clause.
+   - The `name` is an optional string which can be used to hold the name of this clause
+   - The `counterparty` is optional but can be used to specify which of the counterparties on the agreement the clause applies to.
+   - The `otherParty` is optional but can be used for umbrella agreements where it is necessary to define specific clauses as applicable to specific parties.
+   - The `variant` defines what variant of the clause has been elected. The variant must be specified, and for certain clauses it is possible that multiple variants can be elected.
+- Added `MasterAgreementClauseVariant`
   - Holds all the details of the variant of the clause that has been elected
-  - The ```identifier``` is a unique id for this variant (see the ```MasterAgreementVariantIdentifierEnum``` for more details). It is associated to the publisher of the document, the document itself, the clause from that document and the variant.
-  - The ```name``` is an optional string which can be used to hold the name of this variant
-  - The ```counterparty``` is optional but can be used where it is necessary for a clause to assign a variant to a specific counterparty on the agreement.
-  - The ```otherParty``` is optional and can be used to assign variants to different parties who may or may not be one of the counterparties on the agreement.
-  - The optional ```variableSet``` array is where any additional data required to define the criteria of the election can be held (see ```MasterAgreementVariableSet```). 
-- Added ```MasterAgreementVariableSet```
+  - The `identifier` is a unique id for this variant (see the `MasterAgreementVariantIdentifierEnum` for more details). It is associated to the publisher of the document, the document itself, the clause from that document and the variant.
+  - The `name` is an optional string which can be used to hold the name of this variant
+  - The `counterparty` is optional but can be used where it is necessary for a clause to assign a variant to a specific counterparty on the agreement.
+  - The `otherParty` is optional and can be used to assign variants to different parties who may or may not be one of the counterparties on the agreement.
+  - The optional `variableSet` array is where any additional data required to define the criteria of the election can be held (see `MasterAgreementVariableSet`). 
+- Added `MasterAgreementVariableSet`
   - An array to hold any additional details that are required to define the election for a clause/variant.
   - This is presented as a name/value pair and also includes a call to itself, allowing infinite nesting capabilities. This is required as some clauses require the entry of tables of values rather than just single values.
   - Conditions are included to ensure either a name/value pair or a variableSet is represented, never both.
   - A condition to only allow two levels of nesting (i.e. support the modelling of a table of data) has also been included.
-- Updated ```MasterAgreementSchedule```
-  - A new item ```clause``` of type ```MasterAgreementClause``` has been added
+- Updated `MasterAgreementSchedule`
+  - A new item `clause` of type `MasterAgreementClause` has been added
 
 _Enumerated Lists_
 
-- ```PartyRoleEnum```
+- `PartyRoleEnum`
   - 3 new entries have been made to this enumerated list: BeneficialOwner, Borrower and Lender
   - Not specifically required for this development, these items were suggested in Issue #2158.
-- ```MasterAgreementClauseIdentifierEnum```
+- `MasterAgreementClauseIdentifierEnum`
   - An enumerated list of clause identifiers
   - Clause identifiers are used so that we do not need to define specific types in the model to represent individual clauses.
   - The identifier is designed to be used to reference data and text that is outside of the model. This keeps copyrighted material outside of the model and also prevents large amounts of text being put into the model.
   - Identifier structure is: publisher_document_clauseId
 Where:
-	publisher is ```legalAgreementIdentification -> publisher```
-	document is ```legalAgreementIdentification -> agreementName -> masterAgreementType```
+	publisher is `legalAgreementIdentification -> publisher`
+	document is `legalAgreementIdentification -> agreementName -> masterAgreementType`
 	clauseId is the unique 3 digit code assigned to this clause in the Clause Library (see below note on Clause Libraries)
   - The structure uses underscores “_” to separate each component of the id. Separating out each component also makes it easier for an application to convert the id into a URI for use in an API call.
-- ```MasterAgreementVariantIdentifierEnum```
+- `MasterAgreementVariantIdentifierEnum`
   - An enumerated list of variant identifiers
   - Variant identifiers are used so that we do not need to define specific types in the model to represent each variant related to all clauses.
   - The identifier is designed to be used to reference data and text that is outside of the model.
   - Identifier structure is: publisher_document_clauseId_variantId
 Where:
-	publisher is ```legalAgreementIdentification -> publisher```
-	document is ```legalAgreementIdentification -> agreementName -> masterAgreementType```
+	publisher is `legalAgreementIdentification -> publisher`
+	document is `legalAgreementIdentification -> agreementName -> masterAgreementType`
 	clauseId is the unique 3 digit code assigned to this clause in the Clause Library
 	variantId is the unique 2 digit code assigned to this variant of the associated clause in the Clause Library (see below note on Clause Libraries)
   - The structure uses underscores “_” to separate each component of the id. Separating out each component makes it easier for an application to convert the id into a URI for use in an API call. 
@@ -77,3 +77,4 @@ In discussion with D2LT it was determined that a maximum of 3 digits – in conj
 
 Similarly, a maximum of 2 additional digits would be required to support the representation of variants for each clause. This structure will allow up to 99 different variants to be defined for a single clause.
 
+Inspect Pull Request: [#2340](https://github.com/finos/common-domain-model/pull/2340)
