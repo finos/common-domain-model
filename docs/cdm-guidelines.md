@@ -13,7 +13,7 @@ version of CDM. Topics covered are listed below:
 
 # Prerequisites
 
--   Java SDK 8
+-   Java SDK 11
 
 # Introduction
 
