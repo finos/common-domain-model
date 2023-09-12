@@ -25,7 +25,7 @@ version of CDM. Topics covered are listed below:
 In order to use the CDM in a Maven project, the following dependency
 needs to be addeed to the project pom.xml:
 
-``` 
+``` xml
 <dependency>
    <groupId>org.finos.cdm</groupId>
    <artifactId>cdm-java</artifactId>
