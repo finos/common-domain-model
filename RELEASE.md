@@ -11,6 +11,8 @@ Version updates include:
 
 The model has been simplified by replacing construction functions (typically of the form `Create_<TypeName>`) with an appropriate constructor expression. There are no functional changes, so the test expectations stay the same.
 
+The changes can be reviewed in PR [#2381](https://github.com/finos/common-domain-model/pull/2381).
+
 # _Modelling Master Agreements_
 
 _Background_
