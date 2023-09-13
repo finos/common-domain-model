@@ -5,12 +5,7 @@
 ## International Capital Markets Association (ICMA)
   * Enhancements to CDM for Repo and Bonds that are focused on adoption:
       - Repo trading and lifecycle examples and demo
-      - Clearing and settlement workflows in collaboration with ICMA European Repo and Collateral Council (ERCC)
-      - External Standard/Protocol mapping to CDM (e.g., FIX/SWIFT/ISO)
-      - SCoRE Tri-party workflows
       - SFTR and US OFR Repo reporting workflows
-      - CDM Legal Agreement Model to support Global Master Repurchase Agreement (GMRA)
-      - Incorporate the ICMA Bond Data Taxonomy into the CDM
 ​
 ## International Securities Lending Association (ISLA)
   * Focus on continued documentation of what has already been contributed - both technical and business cases to aid further adoption
