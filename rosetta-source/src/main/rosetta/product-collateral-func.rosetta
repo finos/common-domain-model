@@ -1,9 +1,9 @@
 namespace cdm.product.collateral
 version "${project.version}"
 
+import cdm.base.staticdata.asset.common.*
 
 func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
-
     inputs:
         instruction EligibleCollateralSpecificationInstruction (1..1)
     output:
@@ -11,12 +11,155 @@ func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligibl
 
     add specification -> criteria:
         instruction -> variable
-            extract MergeEligibleCollateralCriteria(item, instruction->common)
+            extract MergeEligibleCollateralCriteria(item, instruction -> common)
 
 func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
-
     inputs:
         criteria1 EligibleCollateralCriteria (1..1)
         criteria2 EligibleCollateralCriteria (1..1)
     output:
         criteria EligibleCollateralCriteria (1..1)
+
+
+func CheckEligibility:
+    inputs:
+        specifications EligibleCollateralSpecification (1..*)
+        assetCountry string (1..1)
+        assetType AssetTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
+        issuerType IssuerTypeEnum (1..1)
+        maturity number (1..1)
+    output:
+        eligibilityResult CheckEligibilityResult (0..1)
+
+   alias eligibleSpecifications: specifications 
+       then filter Get_AssetCountryOfOrigin = assetCountry
+       then filter Get_AssetTypeE = assetType
+       then filter Get_IssuerType = issuerType
+       then filter Get_SecurityType = securityType
+       then filter maturity > Get_MaturityLowerBound
+       then filter maturity < Get_MaturityUpperBound
+   
+   add eligibilityResult -> eligibleSummary: eligibleSpecifications then extract Create_ScheduleSummary
+   add eligibilityResult -> specification: eligibleSpecifications 
+   set eligibilityResult -> isEligible: eligibleSpecifications count > 0
+
+// func ReadableEligibility:
+//     inputs:
+//         specification EligibleCollateralSpecification (1..1)
+//     output:
+//         readable string (1..1)
+
+//     alias summary: Create_ScheduleSummary(specification)
+
+//     set readable:  
+//             summary -> assetCountryOfOrigin
+//             + ' ' 
+//             + summary -> assetType
+//             + ' ' 
+//             + // res 
+//             // + ' '
+//             +
+//             summary -> issuerType
+//             + ' ' 
+//             + summary -> haircutPercentage
+
+
+
+func Create_ScheduleSummary:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        scheduleSummary ScheduleSummary (1..1)
+
+    set scheduleSummary -> assetCountryOfOrigin: Get_AssetCountryOfOrigin(specification)
+    set scheduleSummary -> assetType: Get_AssetTypeE(specification)
+    set scheduleSummary -> securityType: Get_SecurityType(specification)
+    set scheduleSummary -> maturityLower: Get_MaturityLowerBound(specification)
+    set scheduleSummary -> maturityUpper: Get_MaturityUpperBound(specification)
+    set scheduleSummary -> issuerType: Get_IssuerType(specification)
+    set scheduleSummary -> haircutPercentage: Get_HaircutPercentage(specification)
+
+type CheckEligibilityResult:
+    eligibleSummary ScheduleSummary (1..*)
+    specification EligibleCollateralSpecification (1..*)
+    isEligible boolean (1..1)
+
+type ScheduleSummary:
+    assetCountryOfOrigin string (1..1)
+    assetType AssetTypeEnum (1..1)
+    securityType SecurityTypeEnum (1..1)
+    maturityLower number (1..1)
+    maturityUpper number (1..1)
+    issuerType IssuerTypeEnum (1..1)
+    haircutPercentage number (1..1)
+
+func Get_AssetCountryOfOrigin:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        assetCountryOfOrigin string (1..1)
+
+    set assetCountryOfOrigin:
+        if specification -> criteria -> asset -> assetCountryOfOrigin exists
+        then specification -> criteria -> asset -> assetCountryOfOrigin first
+        else if specification -> criteria -> asset -> denominatedCurrency exists
+        then specification -> criteria -> asset -> denominatedCurrency first
+
+func Get_SecurityType:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        securityTypeEnum SecurityTypeEnum (1..1)
+    
+    set securityTypeEnum: 
+        specification -> criteria -> asset -> collateralAssetType -> securityType first
+
+func Get_AssetTypeE:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        assetType AssetTypeEnum (1..1)
+    
+    set assetType: 
+        specification -> criteria -> asset -> collateralAssetType -> assetType first
+
+func Get_MaturityLowerBound:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        maturity number (1..1)
+
+    set maturity: 
+        specification -> criteria -> asset -> maturityRange -> lowerBound -> period -> periodMultiplier first *1.0
+
+
+func Get_MaturityUpperBound:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        maturity number (1..1)
+
+    set maturity: 
+        specification -> criteria -> asset -> maturityRange -> upperBound -> period -> periodMultiplier first *1.0
+
+
+func Get_IssuerType:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        issuerType IssuerTypeEnum (1..1)
+
+    set issuerType:
+        if specification -> criteria -> issuer exists
+        then specification -> criteria -> issuer -> issuerType -> issuerType first
+
+func Get_HaircutPercentage:
+    inputs:
+        specification EligibleCollateralSpecification (1..1)
+    output:
+        haircutPercentage number (1..1)
+
+    set haircutPercentage: (specification -> criteria -> treatment -> valuationTreatment -> haircutPercentage * 100)
+
+
