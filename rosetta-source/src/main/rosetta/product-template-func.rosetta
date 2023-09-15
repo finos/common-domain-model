@@ -9,17 +9,6 @@ import cdm.observable.asset.*
 import cdm.observable.common.*
 
 import cdm.product.common.*
-import cdm.product.common.settlement.*
-
-func Create_TradeLot:
-    inputs:
-        lotIdentifier Identifier (0..*) <"The lot Identifiers.">
-        priceQuantity PriceQuantity (1..*) <"List of PriceQuantity.">
-    output:
-        tradeLot TradeLot (1..1)
-
-    add tradeLot -> lotIdentifier: lotIdentifier
-    add tradeLot -> priceQuantity: priceQuantity
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
 	inputs:
@@ -73,10 +62,18 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
             extract unitOfAmount [
                 CompareQuantityByUnitOfAmount(
                     tradeLot1 -> priceQuantity -> quantity
-                        extract Create_NonNegativeQuantity(item -> value, item -> unit),
+                        extract NonNegativeQuantity {
+                            value: item -> value,
+                            unit: item -> unit,
+                            ...
+                        },
                     op,
                     tradeLot2 -> priceQuantity -> quantity
-                        extract Create_NonNegativeQuantity( item -> value, item -> unit),
+                        extract NonNegativeQuantity {
+                            value: item -> value, 
+                            unit: item -> unit,
+                            ...
+                        },
                     unitOfAmount
                 )
             ]
@@ -119,28 +116,3 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
 		accounts Account (0..*)
 	output:
 		success boolean (1..1) <"Validation result">
-
-func Create_TradableProduct: <"Creates a new TradableProduct with the given inputs.">
-	inputs:
-		product Product (1..1) <"The product to set.">
-		tradeLot TradeLot (1..*) <"The settlement instructions to set, including price, quantity and settlement terms (if any).">
-		counterparty Counterparty (2..2) <"The counterparties to set.">
-		ancillaryParty AncillaryParty (0..*) <"The ancillary parties to set.">
-		adjustment NotionalAdjustmentEnum (0..1) <"The adjustment to set.">
-	output:
-		tradableProduct TradableProduct (1..1)
-
-	set tradableProduct -> product:
-         product
-
-    add tradableProduct -> tradeLot:
-        tradeLot
-
-    add tradableProduct -> counterparty:
-        counterparty
-
-    add tradableProduct -> ancillaryParty:
-        ancillaryParty
-
-    set tradableProduct -> adjustment:
-        adjustment
