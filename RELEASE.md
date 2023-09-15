@@ -14,3 +14,5 @@ The following function updates have been made in the `cdm.product.qualification`
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+Inspect Pull Request: https://github.com/finos/common-domain-model/pull/2392
