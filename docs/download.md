@@ -75,7 +75,7 @@ CDM as Go is available as a `tar.gz` file containing the `.go` files published
 CDM as TypeScript is available as a `zip` file containing the `.ts` files published
 [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-typescript/versions).
 
-# CDM as Kotlin
+## CDM as Kotlin
 
 CDM as Kotlin is available as a `.jar` file published
 [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/versions).
@@ -85,7 +85,7 @@ CDM as Kotlin is available as a `.jar` file published
 CDM as Excel is available as a `zip` file containing CDM Types, Attributes and Enums in a `.xlsx`file
 [here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel/versions).
 
-# CDM Event Specification Module as DAML
+## CDM Event Specification Module as DAML
 
 CDM Event Specification Module as DAML is available
 [here](https://github.com/digital-asset/lib-cdm-event-specification-module/versions).
