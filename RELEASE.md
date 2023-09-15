@@ -1,16 +1,16 @@
-# *CDM Distribution - Code Generation - CDM in Excel format*
+# *Product Model - Qualification - Bond Forwards*
+
+_Background_
+
+This release expands the coverage of the composable product qualification to include bond forwards.
 
 _What is being released?_
 
-This release introduces Excel code generation functionality.
+The following function updates have been made in the `cdm.product.qualification` namespace:
 
-The Excel distribution includes:
-- .xlsx file containing all data types, enums and descriptions in a table
+- Updated `Qualify_AssetClass_InterestRate` to include Bond Forward use case
+- Added `Qualify_InterestRate_ForwardBond` to qualify when a forward payout with a debt security underlier exists 
 
 _Review directions_
 
-In the CDM documentation, go to Downloads (https://cdm.finos.org/docs/download/), and download CDM as Excel.
-
-Unzip and review the .xlsx file.
-
-Inspect Pull Request: [#2386](https://github.com/finos/common-domain-model/pull/2386)
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
