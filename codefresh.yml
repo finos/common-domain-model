@@ -239,7 +239,7 @@ steps:
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
       DeployExcel:
         stage: 'build'
-        title: EXCEL deploy
+        title: Excel deploy
         fail_fast: false
         image: maven:3.8.2-jdk-11
         working_directory: ./rosetta-source/
@@ -251,9 +251,9 @@ steps:
           - base64 -d encoded.model.xlsx > model.xlsx
           - rm encoded.model.xlsx
           - cd ../
-          - tar -cvzf cdm-excel-${{RELEASE_NAME}}.tar.gz excel
-          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} tar.gz
-          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
+          - tar -cvzf cdm-excel-${{RELEASE_NAME}}.zip excel
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} zip
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
     stage: 'finalise'
