@@ -88,3 +88,9 @@ CDM as Kotlin is available as a `.jar` file published
 
 CDM Event Specification Module as DAML is available
 [here](https://github.com/digital-asset/lib-cdm-event-specification-module).
+
+## CDM as Excel
+
+CDM as Excel is available as a `tar.gz` file containing CDM Types, Attributes 
+and Enums in a `.xlsx`file
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel).
