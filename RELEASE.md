@@ -1,16 +1,18 @@
-# *Infrastructure - Security Update*
+# *Product Model - Qualification - Bond Forwards*
+
+_Background_
+
+This release expands the coverage of the composable product qualification to include bond forwards.
 
 _What is being released?_
 
-Third party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
+The following function updates have been made in the `cdm.product.qualification` namespace:
 
-- Guava dependency (group id `com.google.guava`, artifact id `guava`) upgraded to version 32.0.1-jre as earlier versions had vulnerability, see [CVE-2023-2976](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-2976) for further details
+- Updated `Qualify_AssetClass_InterestRate` to include Bond Forward use case
+- Added `Qualify_InterestRate_ForwardBond` to qualify when a forward payout with a debt security underlier exists
 
-# *Infrastructure - Dependency Update*
+_Review directions_
 
-_What is being released?_
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-This release updates the bundle dependency version.  The bundle dependency comprises a number of dependencies that are released together as a bundle, including [rosetta-common](https://github.com/REGnosys/rosetta-common) and [rosetta-code-generators](https://github.com/REGnosys/rosetta-code-generators).
-
-- Bundle version upgrade includes:
-    - 6.8.2: Bug fix related to the processing of JSON schemas for ingestion. This update does not affect the model or test expectations.
+Inspect Pull Request: [#2395](https://github.com/finos/common-domain-model/pull/2395)
