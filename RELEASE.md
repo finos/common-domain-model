@@ -1,8 +1,4 @@
-# _Event Model -  Enhancements for Party Role Enum - Service Provider_
-
-_Background_
-
-The existing party roles are not sufficient to identify if a counterparty is acting as a third-party service provider or CCP for the compression event. A new party role enum value is needed to uniquely identify a party acting as a compression service provider in the context of the business event.
+# _Infrastructure - Dependency Update_
 
 ## Changes Made:
 #### Updated Readme.md and fixed issues in cdm.finos.org.
@@ -16,14 +12,13 @@ The existing party roles are not sufficient to identify if a counterparty is act
 - Refined the text to explain what Common Domain Model (CDM) is and its benefits.
 - Included a PDF document explaining what CDM is.
 
-This release provides the ability to associate a party as a compression service provider.
+This release updates the rosetta-dsl dependency.
 
-_Enumerations_
+Version updates include:
+- 8.6.0: Adds annotations to the generated Java code that capture information to better serialise from and to the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.0.
+- 8.6.1: Fixes parsing bugs, one related to the `only exists` operation, one responsible for making validation of Rosetta files order dependent. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.1.
+- 8.6.2: Adds the display name to the annotations of enum values in the generated Java code. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.2.
 
-- Augmented the `PartyRoleEnum` enumeration with new `CompressionServiceProvider` value to represent counterparties acting as compression service providers.
+There are no changes to the model, so the test expectations remain the same.
 
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect the change identified above.
-
-Inspect Pull Request: [#2369](https://github.com/finos/common-domain-model/pull/2369)
+The changes can be reviewed in PR [#2160](https://github.com/finos/common-domain-model/pull/2160).
