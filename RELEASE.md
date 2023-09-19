@@ -1,4 +1,17 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Commodity Payout - Delivery features_
+
+_Background_
+
+EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
+
+- 2.119. Delivery point or zone
+- 2.120. Interconnection Point
+- 2.121. Load type
+- 2.122. Delivery interval start time
+- 2.123. Delivery interval end time
+- 2.127. Days of the week
+
+The present release adds CDM model support for the information necessary for the reporting of these fields.
 
 ## Changes Made:
 #### Updated Readme.md and fixed issues in cdm.finos.org.
@@ -12,13 +25,24 @@
 - Refined the text to explain what Common Domain Model (CDM) is and its benefits.
 - Included a PDF document explaining what CDM is.
 
-This release updates the rosetta-dsl dependency.
+- Model support for European electricity and gas commodity delivery fields, with the exception of duration, delivery capacity and price quantity interval.
 
-Version updates include:
-- 8.6.0: Adds annotations to the generated Java code that capture information to better serialise from and to the CDM. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.0.
-- 8.6.1: Fixes parsing bugs, one related to the `only exists` operation, one responsible for making validation of Rosetta files order dependent. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.1.
-- 8.6.2: Adds the display name to the annotations of enum values in the generated Java code. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.6.2.
+_Data types_
 
-There are no changes to the model, so the test expectations remain the same.
+- Added type `LocationIdentifier`.
+- Added attribute `delivery` of the type `CommodityDeliveryInformation` to `CommodityPayout` type.
+- Added type `CommodityDeliveryInformation`.
+- Added type `CommodityDeliveryPeriods`.
+- Added type `CommodityDeliveryProfile`.
+- Added type `CommodityDeliveryProfileBlock`.
+- Added attribute `deliveryPeriod` of the type `CommodityDeliveryPeriods` to type `SchedulePeriod`.
+
+_Enumerations_
+
+- Added enumeration `CommodityLocationIdentifierTypeEnum`.
+- Added enumeration `LoadTypeEnum`.
+
+
+_Review directions_
 
 The changes can be reviewed in PR [#2160](https://github.com/finos/common-domain-model/pull/2160).
