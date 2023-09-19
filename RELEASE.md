@@ -13,3 +13,5 @@ Furthermore, it introduces mapping coverage to facilitate the ingestion of FpML 
 _Review directions_
 
 In the CDM Portal, select the Textual Browser, navigate to the CDM file cdm/mapping/fpml/confirmation/workflowstep/synonym, and inspect each of the changes identified above.
+
+PR: https://github.com/finos/common-domain-model/pull/2376
