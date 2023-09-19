@@ -11,7 +11,8 @@ EMIR Refit requires the reporting of delivery information for European electrici
 - 2.124. Delivery start date 
 - 2.125. Delivery end date
 - 2.127. Days of the week
-This release addresses the representation of these features accross the commodity payout.
+
+- This release addresses the representation of these features accross the commodity payout.
 
 _What is being released?_
 
@@ -31,7 +32,6 @@ _Enumerations_
 
 - Added enumeration `CommodityLocationIdentifierTypeEnum`.
 - Added enumeration `LoadTypeEnum`.
-
 
 _Review directions_
 
