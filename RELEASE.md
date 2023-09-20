@@ -1,4 +1,4 @@
-# _CDM Event Model - FpML Synonym Mappings for Ingested Events_
+# _Event Model - FpML Synonym Mappings for Ingested Events_
 
 _Background_
 
@@ -12,6 +12,6 @@ Furthermore, it introduces mapping coverage to facilitate the ingestion of FpML 
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser, navigate to the CDM file cdm/mapping/fpml/confirmation/workflowstep/synonym, and inspect each of the changes identified above.
+In the CDM Portal, select the Textual Browser, navigate to the file cdm/mapping/fpml/confirmation/workflowstep/synonym, and inspect the changes identified above.
 
 PR: https://github.com/finos/common-domain-model/pull/2376
