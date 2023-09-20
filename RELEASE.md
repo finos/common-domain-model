@@ -9,7 +9,10 @@ _What is being released?_
 The following function updates have been made in the `cdm.product.qualification` namespace:
 
 - Updated `Qualify_AssetClass_InterestRate` to include Bond Forward use case
-- Added `Qualify_InterestRate_ForwardBond` to qualify when a forward payout with a debt security underlier exists 
+- Added `Qualify_InterestRate_Forward_Debt` to qualify when a forward payout with a debt security underlier exists, as per the ISDA Taxonomy 
+- Updated `Qualify_AssetClass_Equity` to include Bond Forward use case
+- Added `Qualify_BaseProduct_EquityForward` to qualify a product as having the ISDA Taxonomy Asset Class classification Equity and Base Product Classification Forward
+
 
 _Review directions_
 
