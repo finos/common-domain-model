@@ -1,39 +1,17 @@
-# _Product Model - Commodity Payout - Delivery features_
+# _Event Model - FpML Synonym Mappings for Ingested Events_
 
 _Background_
 
-EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
-
-- 2.119. Delivery point or zone
-- 2.120. Interconnection Point
-- 2.121. Load type
-- 2.122. Delivery interval start time
-- 2.123. Delivery interval end time
-- 2.127. Days of the week
-
-The present release adds CDM model support for the information necessary for the reporting of these fields.
+This release introduces mapping support for ingested FpML messages representing events, in alignment with the recommendation of the CDM Architecture and Review Committee to capture the event under the intent flag.
 
 _What is being released?_
 
-- Model support for European electricity and gas commodity delivery fields, with the exception of duration, delivery capacity and price quantity interval.
+The release enhances the FpML mapping coverage for  terminating events, extending the mapping of the CDM `intent` flag with the following values of the `EventIntentEnum`: `NOVATION`, `COMPRESSION`, `OPTION_EXERCISE`, `ALLOCATION` and `CREDIT_EVENT`.
 
-_Data types_
-
-- Added type `LocationIdentifier`.
-- Added attribute `delivery` of the type `CommodityDeliveryInformation` to `CommodityPayout` type.
-- Added type `CommodityDeliveryInformation`.
-- Added type `CommodityDeliveryPeriods`.
-- Added type `CommodityDeliveryProfile`.
-- Added type `CommodityDeliveryProfileBlock`.
-- Added attribute `deliveryPeriod` of the type `CommodityDeliveryPeriods` to type `SchedulePeriod`.
-
-_Enumerations_
-
-- Added enumeration `CommodityLocationIdentifierTypeEnum`.
-- Added enumeration `LoadTypeEnum`.
-
+Furthermore, it introduces mapping coverage to facilitate the ingestion of FpML messages representing Option Exercises.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-- Inpect the pull request [2380](https://github.com/finos/common-domain-model/pull/2380)
+In the CDM Portal, select the Textual Browser, navigate to the file cdm/mapping/fpml/confirmation/workflowstep/synonym, and inspect the changes identified above.
+
+PR: https://github.com/finos/common-domain-model/pull/2376
