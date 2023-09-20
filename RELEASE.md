@@ -8,6 +8,6 @@ _Review directions_
 
 In the CDM Portal, select the Ingestion panel and review the following samples:
 
-- fpml-5-12/products/equity/eqs ex04 zero strike long form
+- fpml-5-12/products/incomplete-products/eqs ex04 zero strike long form
 
 PR: https://github.com/finos/common-domain-model/pull/2397
