@@ -26,6 +26,7 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
 	output: is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
+    alias forwardUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
 
     set is_product:
         economicTerms -> payout -> interestRatePayout only exists
@@ -37,7 +38,7 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
         )
         or (
             economicTerms -> payout -> forwardPayout only exists
-            and economicTerms -> payout -> forwardPayout only-element -> underlier -> security -> securityType = SecurityTypeEnum -> Debt
+            and forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
         )
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
@@ -68,6 +69,7 @@ func Qualify_AssetClass_Equity:
     output: is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
+    alias forwardUnderlier: economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         ( economicTerms -> payout -> performancePayout -> underlier extract [Qualify_UnderlierProduct_Equity(item)] all = True
@@ -82,6 +84,9 @@ func Qualify_AssetClass_Equity:
         )
         or ( economicTerms -> payout -> optionPayout only exists
             and if optionUnderlier exists then Qualify_UnderlierProduct_Equity (optionUnderlier) = True
+        )
+        or ( economicTerms -> payout -> forwardPayout only exists
+            and if forwardUnderlier exists then Qualify_UnderlierProduct_Equity (forwardUnderlier) = True
         )
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
@@ -613,6 +618,13 @@ func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as
 
 		// qualifies that underlier is a security (single name)
 		performancePayout -> underlier -> basket only exists
+
+func Qualify_BaseProduct_EquityForward: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Forward.">
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+        and economicTerms -> payout -> forwardPayout only exists
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging.">//
 	[qualification Product]
@@ -1216,12 +1228,12 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
         // qualifies the underlyer of the option as a debt security
 		and optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Debt
 
-func Qualify_InterestRate_ForwardBond: <"Qualifies a product as Interest Rate Bond Forward.">
+func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate Bond Forward based on economic terms, which is defined as a transaction in which one party agrees to pay an agreed price for a specified amount of a bond of an issuer or a basket of bonds of several issuers at a future date and the other party agrees to pay a price for the same amount of the same bond to be set on a specified date in the future. The payment calculation is based on the amount of the bond and can be physically-settled (where delivery occurs in exchange for payment) or cash-settled (where settlement occurs based on the difference between the agreed forward price and the prevailing market price at the time of settlement).">
     [qualification Product]
-    inputs:
-        economicTerms EconomicTerms (1..1)
-    output:
-        is_product boolean (1..1)
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+        [synonym ISDA_Taxonomy_v1 value "InterestRate_Forward_Debt"]
+        [synonym ISDA_Taxonomy_v2 value "InterestRate_Forward_Debt"]
     alias forwardPayout: economicTerms -> payout -> forwardPayout
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
