@@ -43,10 +43,13 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
 
     EventInstruction:
         + intent
+            [value "terminatingEvent"]
             [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
             [set to EventIntentEnum -> Clearing when "intentToClear" = True]
             [set to EventIntentEnum -> ContractFormation when "trade" exists]
             [set to EventIntentEnum -> Novation when "novation" exists]
+            [set to EventIntentEnum -> OptionExercise when "optionExercise" exists]
+		
         + instruction
             [merge "termination"]
             [merge "amendment"]
@@ -55,6 +58,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [merge "party"]
             [merge "account"]
             [merge "quote"]
+            [merge "optionExercise"]
         + eventDate
             // [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "agreementDate" path "amendment" maps 2 dateFormat "yyyy-MM-ddz"]
@@ -64,6 +68,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "novationDate" path "novation" maps 2]           
             // [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "novationTradeDate" path "novation" maps 2]
+            [value "exerciseDate" path "optionExercise"]
         + effectiveDate
             [value "effectiveDate" path "tradingEvent"]
             [value "effectiveDate" path "termination" maps 2 dateFormat "yyyy-MM-ddz"]
@@ -79,6 +84,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "novation"]
             [value "amendment"]
             [hint "trade", "party", "account", "quote"]
+            [value "optionExercise"]
 
     PrimitiveInstruction:
         + contractFormation
@@ -102,6 +108,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
         + transfer
             [value "termination"]
             [value "amendment"]
+            [value "optionExercise"]
         + indexTransition
             [value "ignore"]
         + stockSplit
@@ -227,6 +234,19 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
     ArithmeticOperationEnum:
         + Add
             [value "PackageSpread"]
+    
+    EventIntentEnum:
+        + Novation
+            [value "Novation"]
+        + Compression
+            [value "PortfolioCompression"]
+            [value "Netting"]
+        + OptionExercise
+            [value "Exercise"]
+        + Allocation
+            [value "Allocation"]
+        + CreditEvent
+            [value "CreditEvent"]
 
     FeeTypeEnum:
         + BrokerageCommission
