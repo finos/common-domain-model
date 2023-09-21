@@ -53,7 +53,7 @@ Changes to the CDM may be proposed by CDM Working Groups, individual corporate c
 
 **2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
-**2.2.2 Appointment of CDM Steering Working Group Maintainers:**
+**2.2.2 Appointment of CDM Maintainers:**
 
 * Maintainers can be of one of two types: Organisational Representative (OrgRep) or Private individual. Private individuals are maintainers in their own right, acting on their own volition and not representing another legal entity. OrgReps are appointed by their organisation, acting on behalf and for that organisation. In this case it is the organisation which will be subject to any vote on maintainer membership. Organisations are recommended to appoint at least two representatives for coverage purposes. Those representatives can be changed at any time, without any voting process by other maintainers or community Participants, by the organisation in order to cater for staff changes. 
 A list of Maintainers along with their type will be kept visible within the governance documentation provided on the repo and mini-site.
@@ -62,7 +62,7 @@ A list of Maintainers along with their type will be kept visible within the gove
     * Proven experience in data modelling and/or software development in financial markets.
     * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
 
-*Private individuals and Organisations may choose to rescind their maintainership at will but must notify the other maintainers. OrgReps may be replaced by their organisations at any time. Any entity who has chosen to rescind their maintainership, but then at a later time would like to re-join the maintainer team, is subject to the voting process outlined above. Additionally any OrgRep who has been replaced by their organisation, but wishes to remain a maintainer as a Private Individual will also need to go through the voting process)
+*Private individuals and Organisations may choose to rescind their maintainership at will but must notify the other maintainers. OrgReps may be replaced by their organisations at any time. Any entity who has chosen to rescind their maintainership, but then at a later time would like to re-join the maintainer team, is subject to the voting process outlined above. Additionally any OrgRep who has been replaced by their organisation, but wishes to remain a maintainer as a Private Individual will also need to go through the voting process
 
 **2.2.3 CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
