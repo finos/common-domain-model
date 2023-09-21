@@ -13,9 +13,8 @@ The following function updates have been made in the `cdm.product.qualification`
 - Updated `Qualify_AssetClass_Equity` to include Bond Forward use case
 - Added `Qualify_BaseProduct_EquityForward` to qualify a product as having the ISDA Taxonomy Asset Class classification Equity and Base Product Classification Forward
 
-
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-Inspect Pull Request: [#2392](https://github.com/finos/common-domain-model/pull/2392)
+Inspect Pull Request: https://github.com/finos/common-domain-model/pull/2392
