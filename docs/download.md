@@ -42,48 +42,48 @@ the CDM can be found in GitHub: [CDM GitHub Examples](https://github.com/finos/c
 
 ## CDM as Python
 
-CDM as Python is available as a `.zip` file published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/versions). Then click on the `Browse` button for latest version.
+CDM as Python is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python/versions). Then click on the `Browse` button for latest version available as `.tar.gz` file .
 
 ## CDM as DAML
 
-CDM as DAML is available as a set of `tar.gz` files published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-daml/versions). Then click on the `Browse` button for latest version.
+CDM as DAML is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-daml/versions). Then click on the `Browse` button for latest version available as `.tar.gz` file containing compiled `.dar` files.
 
 ## CDM as Scala
 
-CDM as Scala is available as a `.jar` file published 
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/versions). Then click on the `Browse` button for latest version.
+CDM as Scala is published 
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/versions). Then click on the `Browse` button for latest version available as `.jar` file .
 
 ## CDM as C# 8.0
 
-CDM as C# 8.0 is available as a `tar.gz` file containing compiled `.dll` files published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp8/versions). Then click on the `Browse` button for latest version.
+CDM as C# 8.0 is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp8/versions). Then click on the `Browse` button for latest version available as a `tar.gz` file containing compiled `.dll` files.
 
 ## CDM as C# 9.0
 
-CDM as C# 9.0 is available as a `tar.gz` file containing compiled `.dll` files published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp9/versions). Then click on the `Browse` button for latest version.
+CDM as C# 9.0 is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-csharp9/versions). Then click on the `Browse` button for latest version available as a `tar.gz` file containing compiled `.dll` files.
 
 ## CDM as Go
 
-CDM as Go is available as a `tar.gz` file containing the `.go` files published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-golang/versions). Then click on the `Browse` button for latest version.
+CDM as Go is files published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-golang/versions). Then click on the `Browse` button for latest version available as a `tar.gz` file containing the `.go`
 
 ## CDM as TypeScript
 
-CDM as TypeScript is available as a `zip` file containing the `.ts` files published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-typescript/versions). Then click on the `Browse` button for latest version.
+CDM as TypeScript is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-typescript/versions). Then click on the `Browse` button for latest version available as a `zip` file containing the `.ts` files .
 
 ## CDM as Kotlin
 
-CDM as Kotlin is available as a `.jar` file published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/versions). Then click on the `Browse` button for latest version.
+CDM as Kotlin is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-scala/versions). Then click on the `Browse` button for latest version available as a `.jar` file.
 
 ## CDM as Excel
 
-CDM as Excel is available as a `zip` file containing CDM Types, Attributes and Enums in a `.xlsx` file
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel/versions). Then click on the `Browse` button for latest version.
+CDM as Excel is published
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel/versions). Then click on the `Browse` button for latest version available as a `zip` file containing CDM Types, Attributes and Enums in a `.xlsx` file.
 
 ## CDM Event Specification Module as DAML
 
