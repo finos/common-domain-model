@@ -10,8 +10,24 @@ The standard is developed through the [Community Specification](https://communit
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
-### Roles
+Committee members or any user of CDM within the community can propose
+amendments in accordance with the following process:
 
+![](/img/CDM-Development-Process.png)
+
+A proposal can be defined at a conceptual level or a logical level (i.e.
+in code). In each case, the proposal must be developed in line with the
+CDM [design-principles](/docs/cdm-overview#design-principles) and
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
+to FINOS staff and the Architecture & Review Committee for approval. In
+some instances, the proposal may not be immediately approved but may be
+assigned to an existing or new Working Group for the purpose of
+reviewing, revising or extending the proposal.
+
+Once approved, the amendment will be scheduled to be merged with the
+CDM's main code branch by the CDM Maintainers.
+
+### Roles
 The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
@@ -55,23 +71,6 @@ Contributions to the CDM have to comply with the following set of design princip
 ## CDM development guidelines 
 
 The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
-
-Committee members or any user of CDM within the community can propose
-amendments in accordance with the following process:
-
-![](/img/CDM-Development-Process.png)
-
-A proposal can be defined at a conceptual level or a logical level (i.e.
-in code). In each case, the proposal must be developed in line with the
-CDM [design-principles](/docs/cdm-overview#design-principles) and
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
-to FINOS staff and the Architecture & Review Committee for approval. In
-some instances, the proposal may not be immediately approved but may be
-assigned to an existing or new Working Group for the purpose of
-reviewing, revising or extending the proposal.
-
-Once approved, the amendment will be scheduled to be merged with the
-CDM's main code branch by the CDM Maintainers.
 
 ## Version Management
 
