@@ -58,6 +58,10 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 **2.2.4 CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements.
 
+Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
+
+![alt_text](documentation/source/images/finos-cdm-governance-structure.png "image_tooltip")
+
 ## CDM Design Principles
 
 Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
