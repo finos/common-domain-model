@@ -58,8 +58,7 @@ the development of the CDM in open source.
 
 ## Scope
 
-The product scope of the CDM includes OTC derivatives, cash securities,
-securities financing, and commodities.
+The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
 # CDM Components
 
