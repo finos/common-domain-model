@@ -60,7 +60,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
-![alt_text](documentation/source/images/finos-cdm-governance-structure.png "image_tooltip")
+![alt_text](website/static/img/finos-cdm-governance-structure.png "image_tooltip")
 
 ## CDM Design Principles
 
