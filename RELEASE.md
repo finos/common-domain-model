@@ -10,4 +10,4 @@ Version updates include:
 
 There are no changes to the model, so the test expectations remain the same.
 
-The changes can be reviewed in PR [#2394](https://github.com/finos/common-domain-model/pull/2394).
+The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2410.
