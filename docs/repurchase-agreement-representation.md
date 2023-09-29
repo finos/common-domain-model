@@ -4,7 +4,7 @@ title: Repurchase Transaction Representation in the CDM
 
 # Background
 
-The ICMA CDM for Repo and Bonds initiative is intended to support the
+The FINOS CDM for Repo and Bonds initiative is intended to support the
 digitalization of the repo market through the adoption of a standardized
 domain model and lifecycle events based on industry best practices and
 standards.
@@ -13,7 +13,7 @@ The ICMA promotes adoption of CDM by organizing working groups and
 workshops on proof-of-concept projects and integration.
 
 The repo elements of the model were designed with participation and
-contribution of the ICMA CDM for Repo and Bonds Steering Committee.
+contribution of the FINOS CDM for Repo and Bonds Steering Committee.
 
 # Introduction
 
@@ -70,7 +70,7 @@ The scope of the CDM Repo initiative was intended to define:
 
 # Repo Product Model
 
-Building upon the ISDA CDM, the Repo CDM added new data types,
+Building upon the CDM, the Repo CDM added new data types,
 attributes and events needed to create fixed term, open and floating
 rate repos, and execute various lifecycle events.
 
