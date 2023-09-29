@@ -83,7 +83,7 @@ CDM as Kotlin is published
 ## CDM as Excel
 
 CDM as Excel is published
-[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel/versions). Then click on the `Browse` button for latest version available as a `zip` file containing CDM Types, Attributes and Enums in a `.xlsx` file.
+[here](https://central.sonatype.com/artifact/org.finos.cdm/cdm-excel/versions). Then click on the `Browse` button for latest version available as a `.xlsx` file containing CDM Types, Attributes and Enums.
 
 ## CDM Event Specification Module as DAML
 
