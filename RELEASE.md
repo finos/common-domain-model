@@ -1,13 +1,13 @@
-# _Product Model - FpML Test Pack_
+# *CDM Distribution - Code Generation - CDM in Excel format*
 
 _What is being released?_
 
-This release moves FpML samples that have incomplete mapping coverage from the `fpml-5-12 > products > equity` folder to the `fpml-5-12 > incomplete-products > equity` folder.
+This release changes to the deployed Excel code generation from zipped folder to .xlsx file. Instructions on the download page has been updated to be clearer for users to follow. 
 
 _Review directions_
 
-In the CDM Portal, select the Ingestion panel and review the following samples:
+In the CDM documentation, go to Downloads (https://cdm.finos.org/docs/download/), and download CDM as Excel.
 
-- fpml-5-12/incomplete-products/equity/eqs ex04 zero strike long form
+review the .xlsx file.
 
-PR: https://github.com/finos/common-domain-model/pull/2397
+Inspect Pull Request: https://github.com/finos/common-domain-model/pull/2403
