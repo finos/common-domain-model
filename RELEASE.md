@@ -1,13 +1,13 @@
-# _Product Model - FpML Test Pack_
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release moves FpML samples that have incomplete mapping coverage from the `fpml-5-12 > products > equity` folder to the `fpml-5-12 > incomplete-products > equity` folder.
+This release updates the rosetta-dsl dependency.
 
-_Review directions_
+Version updates include:
+- 8.7.0: Fixes bug that occurs when `extract` returns `empty`. For further details see DSL issue: https://github.com/REGnosys/rosetta-dsl/issues/655.
+- 8.8.0: Syntax update that allows `func` to call a `reporting rule`. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.0.
 
-In the CDM Portal, select the Ingestion panel and review the following samples:
+There are no changes to the model, so the test expectations remain the same.
 
-- fpml-5-12/incomplete-products/equity/eqs ex04 zero strike long form
-
-PR: https://github.com/finos/common-domain-model/pull/2397
+The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2410.
