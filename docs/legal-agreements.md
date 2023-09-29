@@ -27,7 +27,7 @@ by the specific parties. The standard published forms may anticipate
 that the parties will choose from pre-defined elections in a published
 form, or create their own bespoke amendments.
 
-The FINOS Master Agreement is an internationally recognised document
+The ISDA Master Agreement is an internationally recognised document
 which is used to provide certain legal and credit protection for parties
 who enter into OTC derivatives. Parties that execute agreements for OTC
 derivatives are expected to have bi-lateral Master Agreements with each
@@ -96,7 +96,7 @@ representation are summarized below:
     legal definition).
 
 The scope of the CDM legal agreement model includes all of the types of
-FINOS credit support documents. The legal agreement model is explained
+ISDA credit support documents. The legal agreement model is explained
 below, including examples and references to these types of documents.
 
 The topics covered in this section are listed below:
@@ -130,18 +130,18 @@ The legal agreement model in the CDM comprises the following features:
     -   ISDA 2016 Phase One Credit Support Deed ("CSD") (Security
         Interest -- English Law)
     -   ISDA 2016 Phase One CSA (Loan -- Japanese Law)
-    -   ISDA 2016 FINOS-Clearstream Collateral Transfer Agreement ("CTA")
+    -   ISDA 2016 ISDA-Clearstream Collateral Transfer Agreement ("CTA")
         (New York law and Multi Regime English Law) and Security
         Agreement
-    -   ISDA 2016 FINOS-Euroclear CTA (New York law and Multi Regime
+    -   ISDA 2016 ISDA-Euroclear CTA (New York law and Multi Regime
         English Law) and Security Agreement
     -   ISDA 2018 CSA (Security Interest -- New York Law)
     -   ISDA 2018 CSD (Security Interest -- English Law)
     -   ISDA 2019 Bank Custodian CTA and Security Agreement (English
         Law, New York Law)
-    -   ISDA 2019 FINOS-Clearstream CTA and Security Agreement
+    -   ISDA 2019 ISDA-Clearstream CTA and Security Agreement
         (Luxembourg Law -- Security-provider or Security-taker name)
-    -   ISDA 2019 FINOS-Euroclear CTA and Security Agreement
+    -   ISDA 2019 ISDA-Euroclear CTA and Security Agreement
 
     **Variation Margin Agreements**
 
