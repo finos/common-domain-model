@@ -906,6 +906,7 @@ that have an identifier, as illustrated below:
 type ProductBase:
   productTaxonomy ProductTaxonomy (0..*)
   productIdentifier ProductIdentifier (0..*)
+  productContractDetails ProductContractDetails (0..1)
 ```
 
 The data types that extend from ProductBase are Index, Commodity, Loan,

@@ -1,39 +1,20 @@
-# _Product Model - Commodity Payout - Delivery features_
+# *Product Model - ProductBase - ContractDetails*
 
 _Background_
 
-EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
-
-- 2.119. Delivery point or zone
-- 2.120. Interconnection Point
-- 2.121. Load type
-- 2.122. Delivery interval start time
-- 2.123. Delivery interval end time
-- 2.127. Days of the week
-
-The present release adds CDM model support for the information necessary for the reporting of these fields.
+This release addresses a gap in the product model that did not include a reference to the legal agreements that define the product. 
+The CDM only included contract details at the trade level which can only be added after execution. Product offerings, especially 
+primary issuance, exchange traded products and swap execution facilities offer products to be traded with pre-defined legal agreements
 
 _What is being released?_
 
-- Model support for European electricity and gas commodity delivery fields, with the exception of duration, delivery capacity and price quantity interval.
+The following function updates have been made in the `cdm.base.staticdata.common.type` namespace:
 
-_Data types_
-
-- Added type `LocationIdentifier`.
-- Added attribute `delivery` of the type `CommodityDeliveryInformation` to `CommodityPayout` type.
-- Added type `CommodityDeliveryInformation`.
-- Added type `CommodityDeliveryPeriods`.
-- Added type `CommodityDeliveryProfile`.
-- Added type `CommodityDeliveryProfileBlock`.
-- Added attribute `deliveryPeriod` of the type `CommodityDeliveryPeriods` to type `SchedulePeriod`.
-
-_Enumerations_
-
-- Added enumeration `CommodityLocationIdentifierTypeEnum`.
-- Added enumeration `LoadTypeEnum`.
+- Added `ContractDeatils` to `ProductBase` to be used to define the legal agreements associated with a product. 
 
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-- Inpect the pull request [2380](https://github.com/finos/common-domain-model/pull/2380)
+In the CDM Portal, select the Textual Browser and inspect the changes identified above.
+
+Inspect Pull Request: https://github.com/finos/common-domain-model/pull/2419
