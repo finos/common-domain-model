@@ -1,4 +1,4 @@
-# *Product Model - ProductBase - ContractDetails*
+# *Product Model - ProductBase - productContractDetails*
 
 _Background_
 
