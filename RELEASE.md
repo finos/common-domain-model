@@ -10,7 +10,7 @@ _What is being released?_
 
 The following function updates have been made in the `cdm.base.staticdata.common.type` namespace:
 
-- Added `ContractDeatils` to `ProductBase` to be used to define the legal agreements associated with a product. 
+- Added `productContractDetails` to `ProductBase` to be used to define the legal agreements associated with a product. 
 
 
 _Review directions_
