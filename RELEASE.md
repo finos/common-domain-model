@@ -12,9 +12,6 @@ The following function updates have been made in the `cdm.base.staticdata.common
 
 - Added `productContractDetails` to `ProductBase` to be used to define the legal agreements associated with a product. 
 
-
-_Review directions_
-
 In the CDM Portal, select the Textual Browser and inspect the changes identified above.
 
 Inspect Pull Request: https://github.com/finos/common-domain-model/pull/2419
