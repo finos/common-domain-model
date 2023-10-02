@@ -906,6 +906,7 @@ that have an identifier, as illustrated below:
 type ProductBase:
   productTaxonomy ProductTaxonomy (0..*)
   productIdentifier ProductIdentifier (0..*)
+          [metadata address "pointsTo"=Observable->productIdentifier]
   productContractDetails ProductContractDetails (0..1)
 ```
 
