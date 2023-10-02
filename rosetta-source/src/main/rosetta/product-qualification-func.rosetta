@@ -852,7 +852,6 @@ func Qualify_BaseProduct_Inflation: <"Qualifies a product as having the Base Pro
 func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Product classification Fixed Float">
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
-
 	set is_product:
 	 	(economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1)
@@ -860,12 +859,10 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
 		(economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate count = 1
 	        and economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1)
 		or
-		((economicTerms -> payout -> interestRatePayout -> rateSpecification -> fixedRate is absent
-			and economicTerms -> payout -> interestRatePayout -> principalPayment -> finalPayment only-element = True)
-	        and (economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
-			or economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1))
-
-
+		((economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
+		or economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1)
+            	and (economicTerms -> payout -> interestRatePayout
+            	filter item -> priceQuantity exists and item -> rateSpecification is absent then count = 1))
 
 func Qualify_SubProduct_FixedFixed: <"Qualifies a product as having the Sub Product classification Fixed Float">
 	inputs: economicTerms EconomicTerms (1..1)
@@ -1019,7 +1016,7 @@ func Qualify_InterestRate_IRSwap_Basis: <"Qualifies a product as a Basis (Float-
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_OIS(economicTerms) = False
 
-func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Zero Coupon Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg, 2) where the fixed leg represents only one singular payment agreed upon execution (not accrued) and to be made at maturity, 3) where the floating leg is not based on an OIS index and 4) without any inflation features or cross-currency features.">
+func Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Zero Coupon Interest Rate Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one floating leg, 2) where the fixed leg represents only one singular payment agreed upon execution and to be made at maturity, 3) where the floating leg is not based on an OIS index and 4) without any inflation features or cross-currency features.">
 	[qualification Product]
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
@@ -1116,7 +1113,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_YearOn_Year: <"Qualifies a pr
         and Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon (economicTerms) = False
         and Qualify_InterestRate_InflationSwap_Basis_YearOn_Year (economicTerms) = False
 */
-func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg, 2) where the fixed leg represents only one singular payment agreed upon execution (not accrued) and to be made at maturity, 3) where the inflation leg features an inflation rate and 4) without cross-currency features.">
+func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon: <"Qualifies a product as a Fixed-Float Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one fixed and one inflation rate leg, 2) where the fixed leg represents only one singular payment agreed upon execution and to be made at maturity, 3) where the inflation leg features an inflation rate and 4) without cross-currency features.">
 	[qualification Product]
 
 	inputs: economicTerms EconomicTerms (1..1)
@@ -1142,7 +1139,7 @@ func Qualify_InterestRate_InflationSwap_Basis_YearOn_Year: <"Qualifies a product
 		and Qualify_SubProduct_Basis(economicTerms) = True
 		and Qualify_Transaction_YoY(economicTerms) = True
 
-func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon: <"Qualifies a product as a Basis (Float-Float) Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one floating interest rate leg and one inflation interest rate leg, 2) where the floating leg is not based on an OIS index, 3) where the inflation leg features an inflation rate, 4) with the accrued interest of the inflation interest rate payout is made at maturity into a singular payment and 5) without cross-currency features.">
+func Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon: <"Qualifies a product as a Basis (Float-Float) Inflation Swap based on the economic terms and the following criteria: 1) An interest rate product with one floating interest rate leg and one inflation interest rate leg, 2) where the floating leg is not based on an OIS index, 3) where the inflation leg features an inflation rate, 4) where the interest of the inflation interest rate payout is made at maturity into a singular payment and 5) without cross-currency features.">
 	[qualification Product]
 
 	inputs: economicTerms EconomicTerms (1..1)
