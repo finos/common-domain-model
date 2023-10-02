@@ -3,7 +3,7 @@
 _Background_
 
 The qualification function for a zero-coupon swap is too restrictive in CDM, since it requires that all the `interestRate` Payout legs should feature one unique payment at Term. Normally a zero coupon only points out that at least one leg has a unique payment made at term.
-This release fixes this, along with some inaccurate provisions of qualifying functions regarding zero-coupon swaps. This release also removes the use of conditional synonym mappings from FpML to CDM of the `PrincipalPayments` element for Zero-Coupon Swaps with Known Amount cases, which has been deprecated.
+This release fixes this, along with some inaccurate provisions of qualifying functions regarding zero-coupon swaps. This release also removes the use of conditional synonym mappings from FpML to CDM of the `PrincipalPayments` element for Zero-Coupon Swaps with Known Amount cases, which has been deprecated. The `Qualify_SubProduct_FixedFloat` qualification function has also been updated to not require the use of this `PrincipalPayments` element.
 
 _What is being released?_
 
@@ -13,6 +13,7 @@ _What is being released?_
 _Qualification_
 
 - Updated `Qualify_Transaction_ZeroCoupon` function to accurately qualify Zero-Coupon swaps.
+- Updated `Qualify_SubProduct_FixedFloat` function to accurately qualify Zero-Coupon swaps with Known Amount.
 - Updated the provision of `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon`, `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon` functions to accurately describe the qualified products.
 
 _Translate_
