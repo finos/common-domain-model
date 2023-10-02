@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release changes to the deployed Excel code generation from zipped folder to .xlsx file. Instructions on the download page has been updated to be clearer for users to follow. 
+This release changes the deployed Excel code generation from zipped folder to .xlsx file. Instructions on the download page has been updated to be clearer for users to follow. 
 
 _Review directions_
 
