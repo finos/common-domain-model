@@ -7,6 +7,7 @@ import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
+import cdm.legaldocumentation.common.*
 
 type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
 
@@ -41,6 +42,8 @@ type ProductBase: <"Serves as an abstract class to specify a product using a pro
     productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
         [metadata address "pointsTo"=Observable->productIdentifier]
+	productContractDetails ProductContractDetails (0..1) <"Represents contractual and legal agreements that define the product. The product contractual information may be superceded by trade contract details.">
+
 
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
 
@@ -298,3 +301,10 @@ type PriceSource: <"Specifies a publication that provides the commodity price, i
 		if priceSourceHeading exists
 		then priceSourceLocation exists
         
+type ProductContractDetails:
+	[metadata key]
+	documentation LegalAgreement (0..*) <"Represents the legal document(s) that governs the product terms, 
+	either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those 
+	documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+	governingLaw GoverningLawEnum (0..1) <"Represents the law governing of the product terms.">
+		[metadata scheme]
