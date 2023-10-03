@@ -8,32 +8,6 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
-type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
-
-    changeInLaw boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions: ">
-    failureToDeliver boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions">
-    insolvencyFiling boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions">
-    hedgingDisruption boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions">
-    increasedCostOfHedging boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions">
-    foreignOwnershipEvent boolean (0..1) <"Per ISDA Def ">
-    lossOfStockBorrow boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions:">
-    maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
-    increasedCostOfStockBorrow boolean (0..1) <"Per 2002 ISDA Equity Derivatives Definitions">
-    initialStockLoanRate number (0..1) <"Specifies the initial stock loan per ISDA Def. A percentage of 5% is represented as 0.05.">
-    determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
-
-	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if maximumStockLoanRate exists then
-		    maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
-
-	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if initialStockLoanRate exists then
-		    initialStockLoanRate >= 0 and initialStockLoanRate <= 1
-
-	condition DisruptionEventsDeterminingParty:
-		if determiningParty exists then
-		    determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
-
 type Trigger: <"Trigger point at which feature is effective.">
 
 	level number (0..1) <"The trigger level.">
@@ -53,20 +27,6 @@ type TriggerEvent: <"Observation point for trigger.">
 	triggerDates DateList (0..1) <"The trigger Dates.">
 	trigger Trigger (1..1) <"The trigger level">
 	featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">
-
-type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
-
-	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">
-
-	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">
-	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">
-
-type Representations:
-
-	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
-	agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">
-	indexDisclaimer boolean (0..1) <"If present and true, then index disclaimer is applicable.">
-	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
 
 type CreditEvents: <"A class to specify the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
 	[metadata key]
