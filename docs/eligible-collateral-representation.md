@@ -136,8 +136,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-![image](/img/collateral-asset-identifier-tree.png){width="6.85159in"
-height="3.24844in"}
+![image](/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
@@ -161,8 +160,7 @@ or CUSIP or a standard taxonomy source.
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-![image](/img/cdm-graphical-ecs.png){width="6.26806in"
-height="1.1083in"}
+![image](/img/cdm-graphical-ecs.png)
 
 The Asset type is used to specify criteria related to the nature of the
 asset, such as its type (cash, debt, equity, or other), its country of
