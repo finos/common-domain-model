@@ -1,11 +1,12 @@
 namespace cdm.product.qualification
 version "${project.version}"
 
-import cdm.product.template.*
-import cdm.mapping.config.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.mapping.config.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 isProduct root EconomicTerms;
 
@@ -24,15 +25,20 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
 	inputs: economicTerms EconomicTerms (1..1)
 	output: is_product boolean (1..1)
 
-    alias underlier: economicTerms -> payout -> optionPayout only-element -> underlier
-	
+    alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
+    alias forwardUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
+
     set is_product:
-        economicTerms -> payout -> interestRatePayout only exists 
+        economicTerms -> payout -> interestRatePayout only exists
         or (
-            economicTerms -> payout -> optionPayout only exists 
-            and ( underlier -> security -> securityType = SecurityTypeEnum -> Debt 
-                or if underlier exists then Qualify_AssetClass_InterestRate(underlier -> contractualProduct -> economicTerms) = True
+            economicTerms -> payout -> optionPayout only exists
+            and ( optionUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
+                or if optionUnderlier exists then Qualify_AssetClass_InterestRate(optionUnderlier -> contractualProduct -> economicTerms) = True
             )
+        )
+        or (
+            economicTerms -> payout -> forwardPayout only exists
+            and forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
         )
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
@@ -63,6 +69,7 @@ func Qualify_AssetClass_Equity:
     output: is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
+    alias forwardUnderlier: economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         ( economicTerms -> payout -> performancePayout -> underlier extract [Qualify_UnderlierProduct_Equity(item)] all = True
@@ -77,6 +84,10 @@ func Qualify_AssetClass_Equity:
         )
         or ( economicTerms -> payout -> optionPayout only exists
             and if optionUnderlier exists then Qualify_UnderlierProduct_Equity (optionUnderlier) = True
+        )
+        or ( economicTerms -> payout -> forwardPayout only exists
+            and forwardUnderlier exists
+            and Qualify_UnderlierProduct_Equity (forwardUnderlier)
         )
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
@@ -608,6 +619,13 @@ func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as
 
 		// qualifies that underlier is a security (single name)
 		performancePayout -> underlier -> basket only exists
+
+func Qualify_BaseProduct_EquityForward: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Forward.">
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+        and economicTerms -> payout -> forwardPayout only exists
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging.">//
 	[qualification Product]
@@ -1210,6 +1228,17 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
 	 	and economicTerms -> payout -> optionPayout only exists
         // qualifies the underlyer of the option as a debt security
 		and optionPayout -> underlier -> security -> securityType all = SecurityTypeEnum -> Debt
+
+func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate Bond Forward based on economic terms, which is defined as a transaction in which one party agrees to pay an agreed price for a specified amount of a bond of an issuer or a basket of bonds of several issuers at a future date and the other party agrees to pay a price for the same amount of the same bond to be set on a specified date in the future.">
+    [qualification Product]
+    inputs: economicTerms EconomicTerms (1..1)
+    output: is_product boolean (1..1)
+        [synonym ISDA_Taxonomy_v1 value "InterestRate_Forward_Debt"]
+        [synonym ISDA_Taxonomy_v2 value "InterestRate_Forward_Debt"]
+    alias forwardPayout: economicTerms -> payout -> forwardPayout only-element
+    set is_product:
+        Qualify_AssetClass_InterestRate(economicTerms) = True
+            and forwardPayout -> underlier -> security only exists
 
 func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
 	[qualification Product]

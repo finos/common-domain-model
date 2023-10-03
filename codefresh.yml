@@ -36,7 +36,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
   SnapshotProperties:
@@ -49,7 +49,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
   Build:
@@ -237,6 +237,23 @@ steps:
           - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
           - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
+      DeployExcel:
+        stage: 'build'
+        title: Excel deploy
+        fail_fast: false
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
+        shell: bash
+        commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd src/generated/excel
+          - mv model.xlsx encoded.model.xlsx
+          - base64 -d encoded.model.xlsx > model.xlsx
+          - rm encoded.model.xlsx
+          - cd ../
+          - tar -cvzf cdm-excel-${{RELEASE_NAME}}.zip excel
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} zip
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
     stage: 'finalise'
@@ -262,6 +279,7 @@ steps:
           deployGoFailed: steps.DeployGo.result == 'error'
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
           deployPythonFailed: steps.DeployPython.result == 'error'
+          deployExcelFailed: steps.DeployExcel.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -294,6 +312,7 @@ steps:
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
           pythonDeployFailure: steps.DeployPython.result == 'failure'
+          excelDeployFailure: steps.DeployExcel.result == 'failure'
     commands:
       - exit 1
 

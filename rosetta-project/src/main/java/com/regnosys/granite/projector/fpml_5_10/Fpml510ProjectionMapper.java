@@ -841,7 +841,7 @@ public class Fpml510ProjectionMapper {
 		return Optional.ofNullable(settlementRateOption)
 			.map(s -> {
 				SettlementRateOption rateOption = objectFactory.createSettlementRateOption();
-				Optional.ofNullable(s.getValue()).map(Objects::toString).ifPresent(rateOption::setValue);
+				Optional.ofNullable(s.getValue()).map(Enum::name).ifPresent(rateOption::setValue);
 				return rateOption;
 			});
 	}
@@ -1223,7 +1223,7 @@ public class Fpml510ProjectionMapper {
 				CalculationPeriodFrequency calculationPeriodFrequency = objectFactory.createCalculationPeriodFrequency();
 				getBigInteger(f.getPeriodMultiplier()).ifPresent(calculationPeriodFrequency::setPeriodMultiplier);
 				Optional.ofNullable(f.getPeriod()).map(Enum::name).ifPresent(calculationPeriodFrequency::setPeriod);
-				Optional.ofNullable(f.getRollConvention()).map(Objects::toString).ifPresent(calculationPeriodFrequency::setRollConvention);
+				Optional.ofNullable(f.getRollConvention()).map(Enum::name).ifPresent(calculationPeriodFrequency::setRollConvention);
 				return calculationPeriodFrequency;
 			});
 	}
@@ -1234,7 +1234,7 @@ public class Fpml510ProjectionMapper {
 				PaymentDates paymentDates = objectFactory.createPaymentDates();
 				getExternalKey(d.getMeta()).ifPresent(paymentDates::setId);
 				getPaymentFrequency(d.getPaymentFrequency()).ifPresent(paymentDates::setPaymentFrequency);
-				Optional.ofNullable(d.getPayRelativeTo()).map(Objects::toString).map(PayRelativeToEnum::valueOf).ifPresent(paymentDates::setPayRelativeTo);
+				Optional.ofNullable(d.getPayRelativeTo()).map(Enum::name).map(PayRelativeToEnum::valueOf).ifPresent(paymentDates::setPayRelativeTo);
 				getBusinessDayAdjustments(d.getPaymentDatesAdjustments()).ifPresent(paymentDates::setPaymentDatesAdjustments);
 				getOffset(d.getPaymentDaysOffset()).ifPresent(paymentDates::setPaymentDaysOffset);
 				return paymentDates;
@@ -1257,7 +1257,7 @@ public class Fpml510ProjectionMapper {
 				ResetDates resetDates = objectFactory.createResetDates();
 				getExternalKey(d.getMeta()).ifPresent(resetDates::setId);
 				getCalculationPeriodDatesReference(d.getCalculationPeriodDatesReference()).ifPresent(resetDates::setCalculationPeriodDatesReference);
-				Optional.ofNullable(d.getResetRelativeTo()).map(Objects::toString).map(ResetRelativeToEnum::valueOf).ifPresent(resetDates::setResetRelativeTo);
+				Optional.ofNullable(d.getResetRelativeTo()).map(Enum::name).map(ResetRelativeToEnum::valueOf).ifPresent(resetDates::setResetRelativeTo);
 				getFixingDates(d.getFixingDates()).ifPresent(resetDates::setFixingDates);
 				getResetFrequency(d.getResetFrequency()).ifPresent(resetDates::setResetFrequency);
 				getBusinessDayAdjustments(d.getResetDatesAdjustments()).ifPresent(resetDates::setResetDatesAdjustments);
@@ -1298,7 +1298,7 @@ public class Fpml510ProjectionMapper {
 				getPeriodEnum(d.getPeriod()).ifPresent(fixingDates::setPeriod);
 				Fpml510ProjectionMapper.this.getDayTypeEnum(d.getDayType()).ifPresent(fixingDates::setDayType);
 				Optional.ofNullable(d.getBusinessDayConvention())
-					.map(Objects::toString)
+					.map(Enum::name)
 					.map(BusinessDayConventionEnum::valueOf)
 					.ifPresent(fixingDates::setBusinessDayConvention);
 				getBusinessCenters(d.getBusinessCenters()).ifPresent(fixingDates::setBusinessCenters);
@@ -1349,7 +1349,7 @@ public class Fpml510ProjectionMapper {
 				getDayCountFraction(p.getDayCountFraction()).ifPresent(calculation::setDayCountFraction);
 				getFutureValueNotional(p.getPriceQuantity()).ifPresent(calculation::setFutureValueNotional);
 				Optional.ofNullable(p.getCompoundingMethod())
-					.map(Objects::toString)
+					.map(Enum::name)
 					.map(CompoundingMethodEnum::valueOf)
 					.ifPresent(calculation::setCompoundingMethod);
 				return calculation;
