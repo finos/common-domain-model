@@ -27,7 +27,7 @@ by the specific parties. The standard published forms may anticipate
 that the parties will choose from pre-defined elections in a published
 form, or create their own bespoke amendments.
 
-The FINOS Master Agreement is an internationally recognised document
+The ISDA Master Agreement is an internationally recognised document
 which is used to provide certain legal and credit protection for parties
 who enter into OTC derivatives. Parties that execute agreements for OTC
 derivatives are expected to have bi-lateral Master Agreements with each
@@ -45,7 +45,7 @@ cost of replacing the defaulted transactions (for which margin is called
 "variation margin") and the risk of further loss before the default can
 be closed out (called "initial margin" or "independent amount").
 
-There are several different types of FINOS credit support document,
+There are several different types of ISDA credit support document,
 reflecting variation and initial margin, regulatory requirements and
 terms for legal relationships under different legal jurisdictions. The
 key components of the suite of credit support documents are summarized
@@ -96,7 +96,7 @@ representation are summarized below:
     legal definition).
 
 The scope of the CDM legal agreement model includes all of the types of
-FINOS credit support documents. The legal agreement model is explained
+ISDA credit support documents. The legal agreement model is explained
 below, including examples and references to these types of documents.
 
 The topics covered in this section are listed below:
@@ -111,8 +111,8 @@ The topics covered in this section are listed below:
 
 The legal agreement model in the CDM comprises the following features:
 
--   **Composable and normalised model representation** of the FINOS
-    agreements. The terms of an FINOS agreement can be defined by
+-   **Composable and normalised model representation** of the ISDA
+    agreements. The terms of an ISDA agreement can be defined by
     identification of the published base document, and the elections or
     amendments made to that base in a specific legal agreement. There
     are distinct versions of the published agreements for jurisdiction
@@ -125,36 +125,36 @@ The legal agreement model in the CDM comprises the following features:
 
     **Initial Margin Agreements**
 
-    -   FINOS 2016 Phase One Credit Support Annex ("CSA") (Security
+    -   ISDA 2016 Phase One Credit Support Annex ("CSA") (Security
         Interest -- New York Law)
-    -   FINOS 2016 Phase One Credit Support Deed ("CSD") (Security
+    -   ISDA 2016 Phase One Credit Support Deed ("CSD") (Security
         Interest -- English Law)
-    -   FINOS 2016 Phase One CSA (Loan -- Japanese Law)
-    -   FINOS 2016 FINOS-Clearstream Collateral Transfer Agreement ("CTA")
+    -   ISDA 2016 Phase One CSA (Loan -- Japanese Law)
+    -   ISDA 2016 ISDA-Clearstream Collateral Transfer Agreement ("CTA")
         (New York law and Multi Regime English Law) and Security
         Agreement
-    -   FINOS 2016 FINOS-Euroclear CTA (New York law and Multi Regime
+    -   ISDA 2016 ISDA-Euroclear CTA (New York law and Multi Regime
         English Law) and Security Agreement
-    -   FINOS 2018 CSA (Security Interest -- New York Law)
-    -   FINOS 2018 CSD (Security Interest -- English Law)
-    -   FINOS 2019 Bank Custodian CTA and Security Agreement (English
+    -   ISDA 2018 CSA (Security Interest -- New York Law)
+    -   ISDA 2018 CSD (Security Interest -- English Law)
+    -   ISDA 2019 Bank Custodian CTA and Security Agreement (English
         Law, New York Law)
-    -   FINOS 2019 FINOS-Clearstream CTA and Security Agreement
+    -   ISDA 2019 ISDA-Clearstream CTA and Security Agreement
         (Luxembourg Law -- Security-provider or Security-taker name)
-    -   FINOS 2019 FINOS-Euroclear CTA and Security Agreement
+    -   ISDA 2019 ISDA-Euroclear CTA and Security Agreement
 
     **Variation Margin Agreements**
 
-    -   FINOS 2016 CSA for Variation Margin ("VM") (Security Interest -
+    -   ISDA 2016 CSA for Variation Margin ("VM") (Security Interest -
         New York Law)
-    -   FINOS 2016 CSA for VM (Title Transfer -- English Law)
-    -   FINOS 2016 CSA for VM (Loan -- Japanese Law)
-    -   FINOS 2016 CSA for VM (Title Transfer -- Irish Law)
-    -   FINOS 2016 CSA for VM (Title Transfer -- French Law)
+    -   ISDA 2016 CSA for VM (Title Transfer -- English Law)
+    -   ISDA 2016 CSA for VM (Loan -- Japanese Law)
+    -   ISDA 2016 CSA for VM (Title Transfer -- Irish Law)
+    -   ISDA 2016 CSA for VM (Title Transfer -- French Law)
 
     **Master Agreement Schedule**
 
-    -   FINOS 2002 Master Agreement Schedule (Partial agreement
+    -   ISDA 2002 Master Agreement Schedule (Partial agreement
         representation)
 
 -   **Composable and normalised model representation** of the eligible
@@ -164,27 +164,27 @@ The legal agreement model in the CDM comprises the following features:
 -   **Linking of legal agreement into a trade object** through the CDM
     referencing mechanism.
 
--   **Mapping to FINOS Create derivative documentation negotiation
-    platform** : Synonyms identified as belonging to `FINOS_Create_1_0`
+-   **Mapping to ISDA Create derivative documentation negotiation
+    platform** : Synonyms identified as belonging to `ISDA_Create_1_0`
     have been defined to establish mappings that support automated
-    transformation of FINOS Create documents into objects that are
+    transformation of ISDA Create documents into objects that are
     compliant with the CDM.
 
     -   The mapping between the two models through the use of Synonyms
         validated that all the necessary permutations of elections and
         data associated with the supported agreements have been
         replicated in the CDM
-    -   Ingestion of JSON sample files generated from FINOS Create for
+    -   Ingestion of JSON sample files generated from ISDA Create for
         samples of executed documents has been implemented in the CDM
-        Portal to demonstrate this capability between FINOS Create and
+        Portal to demonstrate this capability between ISDA Create and
         the CDM.
     -   More details on Synonyms are provided in the Mapping (Synonym)
         section of this document.
 
 ---
 **Note:**
-The CDM supports the FINOS CSA for Variation Margin, but this document is
-not yet represented in FINOS Create - the CDM representation of this
+The CDM supports the ISDA CSA for Variation Margin, but this document is
+not yet represented in ISDA Create - the CDM representation of this
 document is tested with alternative external sample data.
 
 ---
@@ -212,7 +212,7 @@ agreements are described below:
 -   **Normalisation of the data representation**
     -   Strong data type attributes such as numbers, Boolean, or
         enumerations are used where possible to create a series of
-        normalised elections within terms used in FINOS documentation and
+        normalised elections within terms used in ISDA documentation and
         create a data representation of the legal agreement that is
         machine readable and executable. This approach allows CDM users
         to define normalised elections into a corresponding legal
@@ -282,7 +282,7 @@ identification of some of the key terms of those agreements.
 The `LegalAgreementType` attribute is used to map related agreement
 terms that are embedded as part of a transaction message converted from
 another model structure, such as FpML. For example, this attribute may
-reference an FINOS Master Agreement, which is not modelled or mapped in
+reference an ISDA Master Agreement, which is not modelled or mapped in
 the CDM `LegalAgreement` data type.
 
 ---
@@ -401,19 +401,19 @@ to a credit support agreement and can be used to define any of the
 Initial Margin or Variation Margin Credit Support Agreements supported
 by the CDM:
 
--   FINOS 2016 Phase One Credit Support Annex ("CSA") for Initial Margin
+-   ISDA 2016 Phase One Credit Support Annex ("CSA") for Initial Margin
     ("IM") (Security Interest -- New York Law)
--   FINOS 2016 Phase One Credit Support Deed ("CSD") for IM (Security
+-   ISDA 2016 Phase One Credit Support Deed ("CSD") for IM (Security
     Interest -- English Law)
--   FINOS 2016 Phase One CSA for IM (Loan -- Japanese Law)
--   FINOS 2018 CSA for IM (Security Interest -- New York Law)
--   FINOS 2018 CSD for IM (Security Interest -- English Law)
--   FINOS 2016 CSA for Variation Margin ("VM") (Security Interest - New
+-   ISDA 2016 Phase One CSA for IM (Loan -- Japanese Law)
+-   ISDA 2018 CSA for IM (Security Interest -- New York Law)
+-   ISDA 2018 CSD for IM (Security Interest -- English Law)
+-   ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New
     York Law)
--   FINOS 2016 CSA for VM (Title Transfer -- English Law)
--   FINOS 2016 CSA for VM (Loan -- Japanese Law)
--   FINOS 2016 CSA for VM (Title Transfer -- Irish Law)
--   FINOS 2016 CSA for VM (Title Transfer -- French Law)
+-   ISDA 2016 CSA for VM (Title Transfer -- English Law)
+-   ISDA 2016 CSA for VM (Loan -- Japanese Law)
+-   ISDA 2016 CSA for VM (Title Transfer -- Irish Law)
+-   ISDA 2016 CSA for VM (Title Transfer -- French Law)
 
 ``` Haskell
 condition AgreementVerification:

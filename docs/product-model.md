@@ -7,8 +7,7 @@ Products Markup Language (FpML), which is widely used in the OTC
 Derivatives market. For example, the CDM type `PayerReceiver` is
 equivalent to the FpML PayerReceiver.model. Both of these are data
 structures used frequently throughout each respective model. In other
-cases, the CDM data structure is more normalised, per requirements from
-the CDM Design Working Group. For example, price and quantity are
+cases, the CDM data structure is more normalised, per Development Guidelines. For example, price and quantity are
 represented in a single type, `TradableProduct`, which is shared by all
 products. Another example is the use of a composable product model
 whereby:
@@ -970,9 +969,9 @@ inferred. The Product Qualification function name in the CDM begins with
 the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
-The CDM implements the FINOS Product Taxonomy v2.0 to qualify contractual
+The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
 products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the FINOS Product Taxonomy v1.0, the equivalent
+prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
 name from that taxonomy is also systematically indicated in the CDM,
 using a `synonym` annotation displayed under the function output. An
 example is provided below for the qualification of a Zero-Coupon
@@ -1012,7 +1011,7 @@ Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix
 is part of the function name. Credit Default products are qualified, but
-not down to the full level of detail. The FINOS Product Taxonomy v2.0
+not down to the full level of detail. The ISDA Product Taxonomy v2.0
 references the FpML *transaction type* field instead of just the product
 features, whose possible values are not publicly available and hence not
 positioned as a CDM enumeration.
@@ -1100,11 +1099,11 @@ type ProductTaxonomy extends Taxonomy:
       },
       "value": "InterestRate:IRSwap:FixedFloat"
     }
-    "taxonomySource": "FINOS"
+    "taxonomySource": "ISDA"
   },
   {
     "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "FINOS"
+    "taxonomySource": "ISDA"
   }
 ]
 ```
