@@ -330,6 +330,7 @@ type Agreement:
   collateralTransferAgreementElections CollateralTransferAgreementElections (0..1)
   securityAgreementElections SecurityAgreementElections (0..1)
   masterAgreementSchedule MasterAgreementSchedule (0..1)
+  transactionAdditionalTerms TransactionAdditionalTerms (0..1)
   condition: one-of
 ```
 
