@@ -8,53 +8,6 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
-type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
-
-	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">
-	failureToDeliver boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Failure to Deliver | Where the underlying is shares and the transaction is physically settled, then, if true, a failure to deliver the shares on the settlement date will not be an event of default for the purposes of the master agreement.">
-	insolvencyFiling boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Insolvency Filing | If true, then insolvency filing is applicable.">
-	hedgingDisruption boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Hedging Disruption | If true, then hedging disruption is applicable.">
-	increasedCostOfHedging boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Hedging | If true, then increased cost of hedging is applicable.">
-	foreignOwnershipEvent boolean (0..1) <"If true, then foreign ownership event is applicable.">
-	lossOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Loss of Stock Borrow | If true, then loss of stock borrow is applicable.">
-	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
-	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
-
-	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if maximumStockLoanRate exists then
-		    maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
-
-	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if initialStockLoanRate exists then
-		    initialStockLoanRate >= 0 and initialStockLoanRate <= 1
-
-	condition DisruptionEventsDeterminingParty:
-		if determiningParty exists then
-		    determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
-
-type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
-
-	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
-	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
-	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
-	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
-	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
-	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
-	representations Representations (0..1)
-	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
-	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
-
-	condition ExtraordinaryEventsChoice: <"condition to represent an FpML choice construct.">
-		required choice additionalDisruptionEvents, failureToDeliver
-
-type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
-
-	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
-	indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
-	indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">
-
 type Trigger: <"Trigger point at which feature is effective.">
 
 	level number (0..1) <"The trigger level.">
@@ -74,20 +27,6 @@ type TriggerEvent: <"Observation point for trigger.">
 	triggerDates DateList (0..1) <"The trigger Dates.">
 	trigger Trigger (1..1) <"The trigger level">
 	featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">
-
-type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
-
-	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">
-
-	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">
-	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">
-
-type Representations:
-
-	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
-	agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">
-	indexDisclaimer boolean (0..1) <"If present and true, then index disclaimer is applicable.">
-	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
 
 type CreditEvents: <"A class to specify the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
 	[metadata key]
