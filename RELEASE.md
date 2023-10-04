@@ -36,4 +36,4 @@ _Review directions_
 
 In the CDM Portal, select the textual view or the graphical representation and inspect the structural definitions of the data type mentioned above.
 
-PR: https://github.com/finos/common-domain-model/pull/2401
+PR: https://github.com/finos/common-domain-model/pull/2424
