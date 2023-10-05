@@ -1,12 +1,12 @@
-# *CDM Distribution - Code Generation - CDM in Excel format*
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-This release changes the deployed Excel code generation from a zipped folder to an .xlsx file. Instructions on the download page have been updated to be clearer for users to follow. 
+This release updates the `rosetta-dsl` dependency.
 
-_Review directions_
+Version updates include:
+- `rosetta-dsl` 8.8.1: Changes to support serialisation to XML. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.1.
 
-In the CDM documentation, go to Downloads (https://cdm.finos.org/docs/download/), and download CDM as Excel.
+There are no changes to the model, so the test expectations remain the same.
 
-- Review the .xlsx file.
-- Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2403
+The changes can be reviewed in PR #2410.
