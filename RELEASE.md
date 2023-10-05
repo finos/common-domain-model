@@ -1,6 +1,8 @@
 # _Product Model - Refactoring of Extraordinary Events and Substitution Provisions_
 
-It was agreed with the CDM ARC in early 2023 that the description and determination of extraordinary events and substitution provisions do not pertain to economic terms of a financial products but should rather be positioned within the legal agreement that conditions the performance of the transaction. Accordingly the following changes have been addressed to enrich the representation of legal `Agreement` with additional terms at transaction level `TransactionAdditionalTerms`. This new data type will encompass the data effectively used to draft OTC Trade Long Form Confirmations. For each asset class the data set will describe:
+_Background_
+
+The description and determination of extraordinary events and substitution provisions do not pertain to economic terms of a financial products but should rather be positioned within the legal agreement that conditions the performance of the transaction. Accordingly the representation of legal `Agreement` has been enhanced  with additional terms at transaction level with  `TransactionAdditionalTerms`. This new data type will encompass the data effectively used to draft OTC Trade Long Form Confirmations. For each asset class the data set will describe:
 1.	`ExtraordinaryEvents`, as previously an attribute of `EconomicTerms`,
 2.	`DeterminationRolesAndTerms`, representing the roles of the parties determining the occurrence of the extraordinary events
 3.	UnderlierSubstitutionProvision, describing the terms of a substitution of the underlier(s)
