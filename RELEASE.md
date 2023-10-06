@@ -16,9 +16,9 @@ _What is being released?_
 The description of Extraordinary events has been abstracted from the economic terms and the `TransactionAdditionalTerms` data type has been added as a new attribute of `Agreement`, with the following attributes:
 1.	`equityAdditionalTerms` – attributes : extraordinaryEvents (prior existing type, removed from EconomicTerms), `determinationTerms and substitutionProvisions
 2.	`foreignExchangeAdditionalTerms` – attributes : `disruptionEvents` and `determinationTerms`
-3.	`commoditiesAdditionalTerms` – string type (“place holder” object)
-4.	`interestRateAdditionalTerms` – string type (“place holder” object)
-5.	`digitalAssetAdditionalTerms` – string type (“place holder” object)
+3.	`commoditiesAdditionalTerms` – string type (“placeholder” object)
+4.	`interestRateAdditionalTerms` – string type (“placeholder” object)
+5.	`digitalAssetAdditionalTerms` – string type (“placeholder” object)
 
 `SubstitutionProvisions` is an optional item, mainly made of a role definition by re-using again `CounterpartyRoleEnum` with label `whoToSubstitute`, and the description of the substitution provisions as such is of type string.
 
@@ -28,9 +28,9 @@ This type has been used for the following new attribute:
 2.	`ExtraordinaryEvents` -> `additionalDisruptionEvents` -> `additionalBespokeTerms`
 3.	`UnderlierSubstitutionProvision` -> `substitutionBespokeTerms`
 
-The description of certain existing data type has been simplified to remove the overlaps with existing ISDA documents, for example `AdditionalDisruptionEvents`.
+The descriptions of certain existing data types have been simplified to remove the overlaps with existing ISDA documents, for example `AdditionalDisruptionEvents`.
 
-The values of the Enum `ContractualDefinitionsEnum` have been aligned with the title of the documents they are referring to. The corresponding FpML synonym mapping have been adjusted.
+The values of the Enum `ContractualDefinitionsEnum` have been aligned with the title of the documents they are referring to. The corresponding FpML synonym mappings have been adjusted.
 
 References to the Emerging Markets Traders Association and the Foreign Exchange Committee have been added to the `LegalAgreementPublisherEnum`.
 
