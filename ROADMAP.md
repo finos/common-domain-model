@@ -25,21 +25,20 @@
 ## International Swaps and Derivatives Association (ISDA)
   * Enhancements to CDM to support Digital Regulatory Reporting (DRR):
       - Exchange traded derivatives (ETD)
-          - ETD transactions (new type of product for CDM)
-              - Target for initial contribution c. late July/early Aug 2023
+          - ETD transactions (new type of product for CDM) - COMPLETED
           - ETD positions
-              - Target for initial contribution c. late Aug 2023
-      - Commodity derivatives
+              - Target for initial contribution on position state- MVP for EMIR Reporting by late Oct
+              - Model enhancement to state transition of a position to support position reporting- November
+      - Commodity derivatives- MVP for EMIR Reporting by late Oct
 	  - Support for financially settled and physically settled commodity derivatives
-	  - Mostly implemented as enhancements to CommodityPayout
-              - Target for initial contribution c. Sept 2023
-      - Valuation and Collateral
-          - Enhancements to existing models and new types
-          - Target for initial contribution c. Sept 2023
+      - Trade Valuation
+          - Enhancements to existing models and new types- COMPLETED
+          - Representation of trade valuation report event- TBC, Potential for November
+      - Margin Reporting- Completed for reporting use cases
       - Additional new features may also needed:
           - dynamic code list validation
           - min/max on quantity schedules
   * On-going support and maintenance of CDM to support ISDA needs
       -	Minor enhancements to collateral model
-   	  - Possible minor enhancements to the Legal Agreement model to support additions to internal ISDA models for Credit Support Annex (CSA) versions and elections which are built on CDM
-      - Timing on these minor enhancements above is TBD
+      -	Possible minor enhancements to the Legal Agreement model to support additions to internal ISDA models for Credit Support Annex (CSA) versions and elections which are built on CDM
+      - Estimate for contribution of these is Q1 2024
