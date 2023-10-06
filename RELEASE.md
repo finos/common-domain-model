@@ -2,7 +2,9 @@
 
 _Background_
 
-The description and determination of extraordinary events and substitution provisions do not pertain to economic terms of a financial products but should rather be positioned within the legal agreement that conditions the performance of the transaction. Accordingly the representation of legal `Agreement` has been enhanced  with additional terms at transaction level with  `TransactionAdditionalTerms`. This new data type will encompass the data effectively used to draft OTC Trade Long Form Confirmations. For each asset class the data set will describe:
+The description and determination of extraordinary events and substitution provisions do not pertain to economic terms of financial products. They should be positioned within the legal agreement that conditions the performance of the transaction. 
+
+Accordingly, the representation of legal `Agreement` needs to be enhanced with additional terms at transaction level with  `TransactionAdditionalTerms`. This new data type will encompass the data effectively used to draft OTC Trade Long Form Confirmations. For each asset class the data set will describe:
 1.	`ExtraordinaryEvents`, as previously an attribute of `EconomicTerms`,
 2.	`DeterminationRolesAndTerms`, representing the roles of the parties determining the occurrence of the extraordinary events
 3.	UnderlierSubstitutionProvision, describing the terms of a substitution of the underlier(s)
@@ -11,7 +13,7 @@ The `EquityAdditionalTerms` was designed per the ISDA Equity Derivatives Definit
 
 _What is being released?_
 
-The description of Extraordinary events has been abstracted from the economic terms and the `TransactionAdditionalTerms` data type  has been added as a new attribute of `Agreement`, with the following attributes :
+The description of Extraordinary events has been abstracted from the economic terms and the `TransactionAdditionalTerms` data type has been added as a new attribute of `Agreement`, with the following attributes:
 1.	`equityAdditionalTerms` – attributes : extraordinaryEvents (prior existing type, removed from EconomicTerms), `determinationTerms and substitutionProvisions
 2.	`foreignExchangeAdditionalTerms` – attributes : `disruptionEvents` and `determinationTerms`
 3.	`commoditiesAdditionalTerms` – string type (“place holder” object)
@@ -30,7 +32,7 @@ The description of certain existing data type has been simplified to remove the 
 
 The values of the Enum `ContractualDefinitionsEnum` have been aligned with the title of the documents they are referring to. The corresponding FpML synonym mapping have been adjusted.
 
-References to the Emerging Markets Traders Association and the Foreign Exchange Committee haven added to the `LegalAgreementPublisherEnum`.
+References to the Emerging Markets Traders Association and the Foreign Exchange Committee have been added to the `LegalAgreementPublisherEnum`.
 
 The FpML synonym mapping for extraordinary events and sub-components have been removed temporarily and will be reintroduced in a second part.
 
