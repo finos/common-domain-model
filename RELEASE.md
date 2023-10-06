@@ -22,7 +22,7 @@ The description of Extraordinary events has been abstracted from the economic te
 
 `SubstitutionProvisions` is an optional item, mainly made of a role definition by re-using again `CounterpartyRoleEnum` with label `whoToSubstitute`, and the description of the substitution provisions as such is of type string.
 
-A new generic type `Clause` has been used to introduce to document digitally bespoke Terms, that cannot be modelled for now in CDM but are critically needed to foster CDM implementation.
+A new generic type `Clause` has been introduced to document digitally bespoke Terms, that cannot be modelled for now in CDM but are critically needed to foster CDM implementation.
 This type has been used for the following new attribute:
 1.	`ExtraordinaryEvents` -> `additionalBespokeTerms`
 2.	`ExtraordinaryEvents` -> `additionalDisruptionEvents` -> `additionalBespokeTerms`
