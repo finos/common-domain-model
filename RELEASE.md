@@ -42,4 +42,4 @@ _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-PR: 
+PR: https://github.com/finos/common-domain-model/pull/2437
