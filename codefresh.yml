@@ -248,12 +248,10 @@ steps:
           - bash -c "${{GPG_IMPORT_COMMAND}}"
           - cd src/generated/excel
           - mv model.xlsx encoded.model.xlsx
-          - base64 -d encoded.model.xlsx > model.xlsx
+          - base64 -d encoded.model.xlsx > cdm-excel-${{RELEASE_NAME}}.xlsx
           - rm encoded.model.xlsx
-          - cd ../
-          - tar -cvzf cdm-excel-${{RELEASE_NAME}}.zip excel
-          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} zip
-          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} xlsx
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.xlsx  -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
     stage: 'finalise'
