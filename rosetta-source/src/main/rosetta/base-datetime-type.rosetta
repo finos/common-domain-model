@@ -21,11 +21,11 @@ type AdjustableDates: <"A class for defining a series of dates that shall be sub
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 	adjustedDate date (0..*) <"The date(s) once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
 
 	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
 		 if adjustedDate is absent then
 			unadjustedDate exists and dateAdjustments exists
-
 
 type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	[metadata key]
@@ -34,6 +34,7 @@ type AdjustableOrAdjustedDate: <"A class for defining a date that shall be subje
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
 
 	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
 		 if adjustedDate is absent then
@@ -46,6 +47,7 @@ type AdjustableOrAdjustedOrRelativeDate: <"This Rosetta class specifies the date
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 		[metadata id]
 	relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
 
 	condition AdjustedDate: <"This data rule extends the data rule AdjustableOrAdjustedDate_adjustedDate by specifying logic applicable to the relative date.">
 		adjustedDate exists
@@ -58,6 +60,7 @@ type AdjustableOrRelativeDate: <"A class giving the choice between defining a da
 
 	adjustableDate AdjustableDate (0..1) <"A date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	relativeDate AdjustedRelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
 
 	condition AdjustableOrRelativeDateChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice adjustableDate, relativeDate
@@ -67,6 +70,7 @@ type AdjustableOrRelativeDates: <"A class giving the choice between defining a s
 
 	adjustableDates AdjustableDates (0..1) <"A series of dates that shall be subject to adjustment if they would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
 	relativeDates RelativeDates (0..1) <"A series of dates specified as some offset to another series of dates (the anchor dates).">
+    
 
 	condition AdjustableOrRelativeDatesChoice: <"Choice rule to represent an FpML choice construct.">
 		required choice adjustableDates, relativeDates
@@ -173,6 +177,32 @@ type RelativeDateOffset extends Offset: <"A class defining a date (referred to a
 	dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
 		[metadata reference]
 	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+    dateIsRelativeTo NewDateRelativeToEnum (0..1) <"The enumerated values to specify the date as relative to a particular type of date defined elsewhere, either as an Object present in the Trade or in any relevant documentation to which the Trade may refer to, in an explicit or implicit manner e.g. ISDA Definitions, Master Confirmation Agreement, etc.">
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
+
+    condition RelativeDate: 
+    optional choice dateRelativeTo, dateIsRelativeTo
+
+type NewObservationTime: <"The time on which a value is observed">
+    time BusinessCenterTime (0..1) <"The observation time.">
+    timePeriod NewTimePeriod (0..1) <"The observation time is a lengh of time i.e. a Time Period defined between a start time and en end time.">
+    timeType NewTimeTypeEnum (0..1) <"The observation time is relative to a concept, defined somewhere else, either in another Trade object, else in ISDA or Master Confirmation or any documentation the Trade may refer to where such concept would be defined">
+
+    condition ObservationTimeChoice: one-of
+
+    condition ObservationTimeTypeChoice: 
+        timeType <> NewTimeTypeEnum -> ObservationTime
+
+type NewTimePeriod: <"An interval of time inside which a value is observed">
+    startTime BusinessCenterTime (0..1) <"The observation start time of the Time Period.">
+    endTime BusinessCenterTime (0..1) <"The observation end time of the Time Period.">
+    timeType NewTimeTypeEnum (0..1) <"The observation time is relative to a concept, defined somewhere else, either in another Trade object, else in ISDA or Master Confirmation or any documentation the Trade may refer to where such concept would be defined">
+
+    condition TimePeriodHasTwoBoundaries:
+    startTime exists and endTime exists and timeType is absent
+    or startTime exists and timeType exists and endTime is absent
+    or endTime exists and timeType exists and startTime is absent
+
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
 	time time (1..1) <"The observation time.">
@@ -212,6 +242,7 @@ type PeriodicDates: <"A class for specifying a calculation period schedule.">
 	periodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
 	periodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	dayType DayTypeEnum (0..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+    schedulesCalculationResult AdjustableDates (0..1) <"Where to record the output date series actually calculated for the purpose of producing the schedules, based on the schedules parameters and input e.g. start date, end date, anchor dates, frequency, roll, etc.">
 
 type CalculationPeriodFrequency extends Frequency: <"A class to specify the frequency at which calculation period end dates occur within the regular part of the calculation period schedule and their roll date convention.">
 
