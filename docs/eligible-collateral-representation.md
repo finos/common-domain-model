@@ -136,8 +136,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-![image](/img/collateral-asset-identifier-tree.png){width="6.85159in"
-height="3.24844in"}
+![image](/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
@@ -161,8 +160,7 @@ or CUSIP or a standard taxonomy source.
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-![image](/img/cdm-graphical-ecs.png){width="6.26806in"
-height="1.1083in"}
+![image](/img/cdm-graphical-ecs.png)
 
 The Asset type is used to specify criteria related to the nature of the
 asset, such as its type (cash, debt, equity, or other), its country of
@@ -670,8 +668,8 @@ taxonomy source.
 -   The data attribute `taxonomySource` must be specified and will
     provide the following options through the enumerations list:
     -   CFI (The ISO 10962 Classification of Financial Instruments code)
-    -   FINOS (The FINOS product taxonomy)
-    -   ICAD (FINOS Collateral Asset Definition Identifier code)
+    -   ISDA (The ISDA product taxonomy)
+    -   ICAD (ISDA Collateral Asset Definition Identifier code)
     -   EU EMIR Eligible Collateral Asset Class (European Union Eligible
         Collateral Assets classification categories based on EMIR
         Uncleared Margin Rules)
@@ -683,7 +681,7 @@ taxonomy source.
         Margin Rules published by the CFTC and the US Prudential
         Regulators)
 
-The options CFI, FINOS and ICAD would be further expressed with the
+The options CFI, ISDA and ICAD would be further expressed with the
 flexible data *'string'* representation through data type
 `ProductTaxonomy`.
 
