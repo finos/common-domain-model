@@ -18,7 +18,6 @@ import cdm.product.template.*
 import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
 import cdm.observable.asset.calculatedrate.*
-
 import cdm.mapping.config.*
 
 type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
@@ -39,26 +38,59 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
         required choice schedule, calculationPeriodDates
 
-type CommodityDeliveryInformation: <"Contains the information relative to the delivery of the commodity.">
+    condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
+        if delivery -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if delivery -> periods -> profile -> block -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
 
+    condition PriceTimeIntervalQuantity: <"Checks that only one of the representations of price time interval quantity is present simultaneously.">
+        if schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity exists
+        then delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+
+type CommodityDeliveryInformation: <"Contains the information relative to the delivery of the commodity.">
     periods CommodityDeliveryPeriods (0..1) <"Defines the periods of delivery, including the delivery profile.">
     location LocationIdentifier (0..*) <"Defines the location of the delivery of the commodity.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
 
-type CommodityDeliveryPeriods extends DeliveryDateParameters: <"Defines the periods of delivery, including the delivery profile.">
-
+type CommodityDeliveryPeriods: <"Defines the periods of delivery, including the delivery profile.">
     profile CommodityDeliveryProfile (0..*) <"Defines the delivery profile of the commodity, including the load type and the delivery intervals.">
+    startDate date (0..1) <"Delivery start date">
+    endDate date (0..1) <"Delivery end date">
+
+type CommodityScheduleDeliveryPeriods extends CommodityDeliveryPeriods:
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
 
 type CommodityDeliveryProfile: <"Defines the delivery profile of the commodity, including the load type and the delivery intervals.">
-
     loadType LoadTypeEnum (0..1) <"Identification of the delivery profile.">
     block CommodityDeliveryProfileBlock (0..*) <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
-    bankHolidaysExcluded boolean (0..1) <"Specifies whether the dates defined include holidays or not.">
+    bankHolidaysTreatment BankHolidayTreatmentEnum (0..1) <"Specifies whether the dates defined include holidays or not.">
 
-type CommodityDeliveryProfileBlock: <"Defines a block in a delivery profile of a commodity, including the days of the week and the delivery start and end time.">
-
+type CommodityDeliveryProfileBlock:
     startTime time (0..1) <"The start time of the delivery interval for each block or shape.">
     endTime time (0..1) <"The end time of the delivery interval for each block or shape.">
-    daysOfWeek DayOfWeekEnum (0..7) <"The days of the week of the delivery.">
+    dayOfWeek DayOfWeekEnum (0..7) <"The days of the week of the delivery.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
 
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
