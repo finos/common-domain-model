@@ -1,6 +1,4 @@
 # CDM Contribution Roadmap from ICMA, ISDA, & ISLA
-    
-[Expectations as at 12th July 2023 CDM Steering WG meeting]
 
 ## International Capital Markets Association (ICMA)
   * Enhancements to CDM for Repo and Bonds that are focused on adoption:
@@ -13,15 +11,18 @@
       - Incorporate the ICMA Bond Data Taxonomy into the CDM
 ​
 ## International Securities Lending Association (ISLA)
-  * Focus on continued documentation of what has already been contributed - both technical and business cases to aid further adoption
-      - ISLA will continue to chair Technology Architecture WG and support whatever is raised on that forum
-      - Contribution of structure of the GMSLA in form of a digitised Clause Library
-          - Awaiting approval through CDM Contribution Review WG - Contributed at end of H1
-  * Expected contributions in Q3
+  * Focus on continued documentation of what has already been contributed - both technical and business cases created and distributed
+  * ISLA will continue to chair Technology Architecture WG and support whatever is raised on that forum, including
+    - Serialisation
+    - Reference Data Lists
+    - Versioning and Change Control
+    - Release Process
+  * Contribution of structure of the GMSLA in form of a digitised Clause Library - merged into model in September
+  * Gap analysis of existing settlement processes in relation to partial and failed settlements
+  * Expected contributions in Q3/Q4
       - *Locate* process (closely related to *Availability* process contributed earlier in H1)
-      - *Evergreen* and *Extendible* events (an enhancement of work contributed earlier this year)
       - Interest from one member to explore the collateral schedules and how they can be implemented with their tri-party counterparts. Workshops likely to follow related to CDM Collateral WG output
-​
+
 ## International Swaps and Derivatives Association (ISDA)
   * Enhancements to CDM to support Digital Regulatory Reporting (DRR):
       - Exchange traded derivatives (ETD)
