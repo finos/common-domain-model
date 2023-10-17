@@ -1,43 +1,45 @@
-# _Product Model - Refactoring of Extraordinary Events and Substitution Provisions_
+# _Commodity Payout - Commodity Delivery (II)_
 
 _Background_
 
-The description and determination of extraordinary events and substitution provisions do not pertain to economic terms of financial products. They should be positioned within the legal agreement that conditions the performance of the transaction. 
+EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
 
-Accordingly, the representation of legal `Agreement` needs to be enhanced with additional terms at transaction level with  `TransactionAdditionalTerms`. This new data type will encompass the data effectively used to draft OTC Trade Long Form Confirmations. For each asset class the data set will describe:
-1.	`ExtraordinaryEvents`, as previously an attribute of `EconomicTerms`,
-2.	`DeterminationRolesAndTerms`, representing the roles of the parties determining the occurrence of the extraordinary events
-3.	UnderlierSubstitutionProvision, describing the terms of a substitution of the underlier(s)
+- 2.122. Delivery interval start time
+- 2.123. Delivery interval end time
+- 2.124. Delivery start date
+- 2.125. Delivery end date
+- 2.127. Days of the week
+- 2.128. Delivery capacity
+- 2.129. Quantity unit
+- 2.130. Price/time interval quantity
+- 2.131. Currency of the price/time interval quantity
 
-The `EquityAdditionalTerms` was designed per the ISDA Equity Derivatives Definitions 2002.  The `foreignExchangeAdditionalTerms` has been released mainly per the 1998 FX and Currency Option Definitions.  The  `commoditiesAdditionalTerms`, `interestRateAdditionalTerm`, `digitalAssetAdditionalTerms` have been created as placeholder strings, until related terms are digitized as well in CDM.
+The present release adds CDM model support for the information necessary for the reporting of these fields.
 
 _What is being released?_
 
-The description of Extraordinary events has been abstracted from the economic terms and the `TransactionAdditionalTerms` data type has been added as a new attribute of `Agreement`, with the following attributes:
-1.	`equityAdditionalTerms` – attributes : extraordinaryEvents (prior existing type, removed from EconomicTerms), `determinationTerms and substitutionProvisions
-2.	`foreignExchangeAdditionalTerms` – attributes : `disruptionEvents` and `determinationTerms`
-3.	`commoditiesAdditionalTerms` – string type (“placeholder” object)
-4.	`interestRateAdditionalTerms` – string type (“placeholder” object)
-5.	`digitalAssetAdditionalTerms` – string type (“placeholder” object)
+- Model support for European electricity and gas commodity delivery fields, with the exception of 2.126. Duration.
 
-`SubstitutionProvisions` is an optional item, mainly made of a role definition by re-using again `CounterpartyRoleEnum` with label `whoToSubstitute`, and the description of the substitution provisions as such is of type string.
+_Data types_
 
-A new generic type `Clause` has been introduced to document digitally bespoke Terms, that cannot be modelled for now in CDM but are critically needed to foster CDM implementation.
-This type has been used for the following new attribute:
-1.	`ExtraordinaryEvents` -> `additionalBespokeTerms`
-2.	`ExtraordinaryEvents` -> `additionalDisruptionEvents` -> `additionalBespokeTerms`
-3.	`UnderlierSubstitutionProvision` -> `substitutionBespokeTerms`
+- Updated condition `PositiveCashPrice` for type `PriceSchedule`.
+- Added conditions `DeliveryCapacity` and `PriceTimeIntervalQuantity` to type `CommodityPayout`.
+- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryInformation`.
+- Added elements `startDate` and `endDate` of type `date` to type `CommodityDeliveryPeriods`.
+- Renamed element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `bankHolidaysTreatment`.
+- Changed type of element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `BankHolidayTreatmentEnum`.
+- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryProfileBlock`.
+- Added element `priceTimeIntervalQuantity` of type `Price` to type `CommodityDeliveryProfileBlock`.
+- Renamed element `daysOfWeek` in type `CommodityDeliveryProfileBlock` to `dayOfWeek`.
+- Added type `CommodityScheduleDeliveryPeriods`
+- Change type of element `deliveryPeriod` in type `SchedulePeriod` to `CommodityScheduleDeliveryPeriods`.
 
-The descriptions of certain existing data types have been simplified to remove the overlaps with existing ISDA documents, for example `AdditionalDisruptionEvents`.
+_Enumerations_
 
-The values of the Enum `ContractualDefinitionsEnum` have been aligned with the title of the documents they are referring to. The corresponding FpML synonym mappings have been adjusted.
-
-References to the Emerging Markets Traders Association and the Foreign Exchange Committee have been added to the `LegalAgreementPublisherEnum`.
-
-The FpML synonym mapping for extraordinary events and sub-components have been removed temporarily and will be reintroduced in a second part.
+- Added enumeration `BankHolidayTreatmentEnum`.
 
 _Review directions_
 
-In the CDM Portal, select the textual view or the graphical representation and inspect the structural definitions of the data type mentioned above.
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-PR: https://github.com/finos/common-domain-model/pull/2435
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2444
