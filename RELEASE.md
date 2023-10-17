@@ -1,45 +1,36 @@
-# _Commodity Payout - Commodity Delivery (II)_
+# _Rename product qualification for Securities Lending and Repo_
 
 _Background_
 
-EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
+The current product qualification rules do not distinguish between securities lending and repurchase agreement product types.  A future enhancement will refactor how `product` works and also introduce additional capabilities to the qualification functions to use additional attributes to support finer grained qualification (see Issue #2365).
 
-- 2.122. Delivery interval start time
-- 2.123. Delivery interval end time
-- 2.124. Delivery start date
-- 2.125. Delivery end date
-- 2.127. Days of the week
-- 2.128. Delivery capacity
-- 2.129. Quantity unit
-- 2.130. Price/time interval quantity
-- 2.131. Currency of the price/time interval quantity
-
-The present release adds CDM model support for the information necessary for the reporting of these fields.
+In the meantime, the current qualification rule for repurchase agreements - which is invoked also for securities lending products - will be renamed to be "SecuritiesFinancing" to more loosely differentiate both sets of products.
 
 _What is being released?_
 
-- Model support for European electricity and gas commodity delivery fields, with the exception of 2.126. Duration.
+- An updated product qualification rule:  `Qualify_RepurchaseAgreement` is renamed to `Qualify_SecuritiesFinancing`.
 
 _Data types_
 
-- Updated condition `PositiveCashPrice` for type `PriceSchedule`.
-- Added conditions `DeliveryCapacity` and `PriceTimeIntervalQuantity` to type `CommodityPayout`.
-- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryInformation`.
-- Added elements `startDate` and `endDate` of type `date` to type `CommodityDeliveryPeriods`.
-- Renamed element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `bankHolidaysTreatment`.
-- Changed type of element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `BankHolidayTreatmentEnum`.
-- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryProfileBlock`.
-- Added element `priceTimeIntervalQuantity` of type `Price` to type `CommodityDeliveryProfileBlock`.
-- Renamed element `daysOfWeek` in type `CommodityDeliveryProfileBlock` to `dayOfWeek`.
-- Added type `CommodityScheduleDeliveryPeriods`
-- Change type of element `deliveryPeriod` in type `SchedulePeriod` to `CommodityScheduleDeliveryPeriods`.
+No changes.
 
 _Enumerations_
 
-- Added enumeration `BankHolidayTreatmentEnum`.
+No changes.
+
+_Sample Files_
+
+The following JSON sample files have been updated to reflect the current modeling of securities lending products which is to have the collateral information inside the `Collateral` data type rather than inside `AssetPayout`.
+
+- create-security-lending-invoice-func-input.json
+- full-return-settlement-workflow-func-input.json
+- new-settlement-workflow-func-input.json
+- new-settlement-workflow-func-input.json
+- allocation/allocation-sec-lending-func-input.json
+- reallocation/reallocation-pre-settled-func-input.json
 
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2444
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2448
