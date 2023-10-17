@@ -1435,7 +1435,7 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
-func Qualify_SecuritiesFinancing:  <"Qualifies a product as generic Securities Financing; eg Securities Lending or Repurchase Agreement.">
+func Qualify_SecuritiesFinance:  <"Qualifies a product as generic Securities Finance; eg Securities Lending or Repurchase Agreement.">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -1503,13 +1503,3 @@ func Qualify_Commodity_Swaption: <"Qualifies a product as a Swaption that can be
                         economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms
                     ) = True)
 
-func Qualify_SecurityLendingAgreement: <"Qualifies a product as a Security Loan.">
-    [qualification Product]
-    inputs:
-        economicTerms EconomicTerms (1..1)
-    output:
-        is_product boolean (1..1)
-    set is_product:
-        economicTerms -> payout -> assetPayout exists
-            and economicTerms -> payout -> interestRatePayout exists
-            and economicTerms -> collateral exists
