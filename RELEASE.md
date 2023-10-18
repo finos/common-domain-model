@@ -1,54 +1,12 @@
-# _Commodity Payout - Commodity Delivery (II)_
+# *Infrastructure - Dependency Update*
 
-_Background_
+_What is being released?_
 
-EMIR Refit requires the reporting of delivery information for European electricity and gas commodity products, both physical and financial, in the form of the following fields:
+This release updates the `rosetta-dsl` dependency.
 
-- 2.122. Delivery interval start time
-- 2.123. Delivery interval end time
-- 2.124. Delivery start date
-- 2.125. Delivery end date
-- 2.127. Days of the week
-- 2.128. Delivery capacity
-- 2.129. Quantity unit
-- 2.130. Price/time interval quantity
-- 2.131. Currency of the price/time interval quantity
+Version updates include:
+- `rosetta-dsl` 8.8.3: Improves stability and performance of the Rosetta editor. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.3.
 
-The present release adds CDM model support for the information necessary for the reporting of these fields.
+There are no changes to the model, and test expectations remain the same.
 
-## Changes Made:
-#### Updated Readme.md and fixed issues in cdm.finos.org.
-- Updated Governance.md and Code of Conduct with links replaced by Terms of Reference PDFs, now located in the "docs" directory.
-- Added relative links in the readme to ensure they work seamlessly after merging.
-- Included Common Domain Model in the Open Source at FINOS PDF in the Readme.md section.
-- Added a roadmap section for upcoming releases.
-- Edited the "Getting Involved" section.
-- Updated icons for cdm.finos.org.
-- Updated the banner for cdm.finos.org.
-- Refined the text to explain what Common Domain Model (CDM) is and its benefits.
-- Included a PDF document explaining what CDM is.
-
-- Model support for European electricity and gas commodity delivery fields, with the exception of 2.126. Duration.
-
-_Data types_
-
-- Updated condition `PositiveCashPrice` for type `PriceSchedule`.
-- Added conditions `DeliveryCapacity` and `PriceTimeIntervalQuantity` to type `CommodityPayout`.
-- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryInformation`.
-- Added elements `startDate` and `endDate` of type `date` to type `CommodityDeliveryPeriods`.
-- Renamed element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `bankHolidaysTreatment`.
-- Changed type of element `bankHolidaysExcluded` in type `CommodityDeliveryProfile` to `BankHolidayTreatmentEnum`.
-- Added element `deliveryCapacity` of type `Quantity` to type `CommodityDeliveryProfileBlock`.
-- Added element `priceTimeIntervalQuantity` of type `Price` to type `CommodityDeliveryProfileBlock`.
-- Renamed element `daysOfWeek` in type `CommodityDeliveryProfileBlock` to `dayOfWeek`.
-- Added type `CommodityScheduleDeliveryPeriods`
-- Change type of element `deliveryPeriod` in type `SchedulePeriod` to `CommodityScheduleDeliveryPeriods`.
-
-_Enumerations_
-
-- Added enumeration `BankHolidayTreatmentEnum`.
-
-_Review directions_
-
-In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
-
+The changes can be reviewed in PR [#2430](https://github.com/finos/common-domain-model/pull/2430).
