@@ -57,7 +57,7 @@ The scope of the process model has two dimensions:
 
 **The CDM process model currently covers the post-trade lifecycle of
 securities, contractual products, and foreign exchange**. Generally, a
-process is in-scope when it is already covered in FINOS Documentation or
+process is in-scope when it is already covered in ISDA Documentation or
 other technical documents. For example, the following processes are all
 in scope:
 
@@ -541,7 +541,7 @@ func CalculationPeriod:
 The CDM process model includes calculations to support the equity
 performance concepts applied to reset and pay cashflows on Equity Swaps.
 Those calculations follow the definitions as normalised in the new *2018
-FINOS CDM Equity Confirmation for Security Equity Swap* (although this is
+ISDA CDM Equity Confirmation for Security Equity Swap* (although this is
 a new template that is not yet in use across the industry).
 
 Some of those calculations are presented below:

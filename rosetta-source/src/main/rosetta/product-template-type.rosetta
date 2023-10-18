@@ -48,16 +48,10 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
 	dateAdjustments BusinessDayAdjustments (0..1) <"The business day adjustment convention when it applies across all the payout components. This specification of the business day convention and financial business centers is used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
 	payout Payout (1..1) <"The payout specifies the future cashflow computation methodology which characterizes a financial product.">
 	terminationProvision TerminationProvision (0..1) <"Contains optional provisions pertaining to the termination characteristics of a contract.">
-	extraordinaryEvents ExtraordinaryEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Extraordinary Events.">
 	calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
 	nonStandardisedTerms boolean (0..1) <"Specifies, when boolean value is True, that additional economic terms exist that have not been included in the product representation.">
 	//ICMA-P2
 	collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
-
-	condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
-		if extraordinaryEvents exists then
-		    payout -> performancePayout -> returnTerms -> priceReturnTerms exists // and performancePayout underlier must be security
-            or payout -> optionPayout -> underlier -> security exists
 
 	condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
 		if payout -> creditDefaultPayout exists
@@ -353,13 +347,7 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
 		then product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
 		    or product -> contractualProduct -> economicTerms -> payout -> performancePayout exists
 
-  condition DisruptionEventsDeterminingParty:
-		if product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
-		then ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
-		and if ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
-		then product -> contractualProduct -> economicTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
-
-	condition PerformancePayout_ExtraordinaryDividendsParty:
+ condition PerformancePayout_ExtraordinaryDividendsParty:
 		if product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> dividendReturnTerms -> extraordinaryDividendsParty exists
 		then ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
 		and if ancillaryParty -> role contains AncillaryRoleEnum -> ExtraordinaryDividendsParty
