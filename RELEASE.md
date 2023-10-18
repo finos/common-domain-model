@@ -5,7 +5,7 @@ _What is being released?_
 This release updates the `rosetta-dsl` dependency.
 
 Version updates include:
-- `rosetta-dsl` 8.8.3: Improves stability and performance of the Rosetta editor. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.3.
+- `rosetta-dsl` 8.8.3: Improves stability and performance of the DSL. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.3.
 
 There are no changes to the model, and test expectations remain the same.
 
