@@ -1,12 +1,10 @@
-# *Infrastructure - Dependency Update*
+# Observable Model - Add Repo Purchaseprice and Repurchaseprice Reference
+
+_Background_
+
+`PriceSchedule` does not include a reference to the price type needed to identify the pruchase (initial) price and repurchase (final price) of a repo.
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency.
-
-Version updates include:
-- `rosetta-dsl` 8.8.3: Improves stability and performance of the DSL. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/8.8.3.
-
-There are no changes to the model, and test expectations remain the same.
-
-The changes can be reviewed in PR [#2460](https://github.com/finos/common-domain-model/pull/2460).
+This enhancement adds `priceScheduleReference` to `PriceSchedule` and `PriceScheduleReferenceEnum` values `PurchasePrice` and `RepurchasePrice`. These values can
+be set in the `tradeLot` for cash or asset price types.
