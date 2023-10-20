@@ -7,8 +7,7 @@ Products Markup Language (FpML), which is widely used in the OTC
 Derivatives market. For example, the CDM type `PayerReceiver` is
 equivalent to the FpML PayerReceiver.model. Both of these are data
 structures used frequently throughout each respective model. In other
-cases, the CDM data structure is more normalised, per requirements from
-the CDM Design Working Group. For example, price and quantity are
+cases, the CDM data structure is more normalised, per Development Guidelines. For example, price and quantity are
 represented in a single type, `TradableProduct`, which is shared by all
 products. Another example is the use of a composable product model
 whereby:
@@ -313,8 +312,12 @@ which together further qualify the price.
 
 ``` Haskell
 type PriceSchedule extends MeasureSchedule:
-  priceExpression PriceExpression (1..1)
   perUnitOf UnitType (0..1)
+  priceType PriceTypeEnum (1..1)
+  priceExpression PriceExpressionEnum (0..1)
+  composite PriceComposite (0..1)
+  arithmeticOperator ArithmeticOperationEnum (0..1)
+  cashPrice CashPrice (0..1)
 ```
 
 Note that the conditions for this data type are excluded from the
@@ -639,6 +642,8 @@ below:
     -   Any other OTC Options (incl. FX Options)
 -   **Securities Lending**:
     -   Single underlyer, cash collateralised, open/term security loan
+-   **Repurchase Agreements**:
+    -   Open Term, Fixed Term, Fixed Rate, Floating Rate
 
 In the CDM, contractual products are represented by the
 `ContractualProduct` type:
@@ -672,7 +677,6 @@ type EconomicTerms:
   dateAdjustments BusinessDayAdjustments (0..1)
   payout Payout (1..1)
   terminationProvision TerminationProvision (0..1)
-  extraordinaryEvents ExtraordinaryEvents (0..1)
   calculationAgent CalculationAgent (0..1)
   nonStandardisedTerms boolean (0..1)
   collateral Collateral (0..1)
@@ -719,10 +723,15 @@ type PayoutBase:
 The list of payouts that extend _PayoutBase_ are:
 
 -   `InterestRatePayout`
--   `EquityPayout`
+-   `CreditDefaultPayout`
 -   `OptionPayout`
--   `SecurityFinancePayout`
+-   `CommodityPayout`
+-   `ForwardPayout`
+-   `FixedPricePayout`
+-   `SecurityPayout`
 -   `Cashflow`
+-   `PerformancePayout`
+-   `AssetPayout`
 -   the `ProtectionTerms` data type encapsulated in
     `CreditDefaultPayout`
 
@@ -959,9 +968,9 @@ inferred. The Product Qualification function name in the CDM begins with
 the word `Qualify` followed by an underscore `_` and then the product
 type from the applicable taxonomy (also separated by underscores).
 
-The CDM implements the FINOS Product Taxonomy v2.0 to qualify contractual
+The CDM implements the ISDA Product Taxonomy v2.0 to qualify contractual
 products, foreign exchange, and repurchase agreements. Given the
-prevalence of usage of the FINOS Product Taxonomy v1.0, the equivalent
+prevalence of usage of the ISDA Product Taxonomy v1.0, the equivalent
 name from that taxonomy is also systematically indicated in the CDM,
 using a `synonym` annotation displayed under the function output. An
 example is provided below for the qualification of a Zero-Coupon
@@ -969,14 +978,15 @@ Fixed-Float Inflation Swap:
 
 ``` Haskell
 func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
-   [qualification Product]
-   inputs: economicTerms EconomicTerms (1..1)
-   output: is_product boolean (1..1)
-   set is_product:
-       Qualify_BaseProduct_Inflation(economicTerms) = True
-       and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
-       and Qualify_SubProduct_FixedFloat(economicTerms) = True
-       and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+  [qualification Product]
+  inputs: economicTerms EconomicTerms (1..1)
+  output: is_product boolean (1..1)
+    [synonym ISDA_Taxonomy_v2 value "InterestRate_IRSwap_Inflation"]
+  set is_product:
+    Qualify_BaseProduct_Inflation(economicTerms) = True
+    and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
+    and Qualify_SubProduct_FixedFloat(economicTerms) = True
+    and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 ```
 
 If all the statements above are true, then the function evaluates to
@@ -1000,7 +1010,7 @@ Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix
 is part of the function name. Credit Default products are qualified, but
-not down to the full level of detail. The FINOS Product Taxonomy v2.0
+not down to the full level of detail. The ISDA Product Taxonomy v2.0
 references the FpML *transaction type* field instead of just the product
 features, whose possible values are not publicly available and hence not
 positioned as a CDM enumeration.
@@ -1013,6 +1023,42 @@ and any additional product taxonomy information which may come from the
 originating document, such as FpML. In this case, taxonomy schemes may
 be associated to such product taxonomy information, which are also
 propagated in the `ProductTaxonomy` object.
+
+Many different financial taxonomies may be used by various segments of
+the financial industry to describe the same product. To support a
+multitude of taxonomies without adding any specific identity to data
+types in the model, a Taxonomy type is used to identify the source and
+attributes any particular taxonomy structure.
+
+``` Haskell
+type Taxonomy:
+   source TaxonomySourceEnum (0..1)
+   value TaxonomyValue (0..1)
+```
+
+`TaxonomyValue` has been expanded to represent a complex type:
+
+``` Haskell
+type TaxonomyValue: 
+
+   name string (0..1)
+       [metadata scheme]
+   classification TaxonomyClassification (0..*)
+
+   condition ValueExists:
+       name exists or classification exists
+```
+
+`TaxonomyClassification` is also a complex type that support a
+hierarchical structure of any depth:
+
+``` Haskell
+type TaxonomyClassification:
+    className string (0..1)
+    value string (1..1)
+    description string (0..1)
+    ordinal int (0..1)
+```
 
 The `ProductTaxonomy` data structure and an instance of a CDM object
 ([serialised](https://en.wikipedia.org/wiki/Serialization) into JSON) are shown below:
@@ -1052,11 +1098,11 @@ type ProductTaxonomy extends Taxonomy:
       },
       "value": "InterestRate:IRSwap:FixedFloat"
     }
-    "taxonomySource": "FINOS"
+    "taxonomySource": "ISDA"
   },
   {
     "productQualifier": "InterestRate_IRSwap_FixedFloat",
-    "taxonomySource": "FINOS"
+    "taxonomySource": "ISDA"
   }
 ]
 ```

@@ -93,10 +93,10 @@ be extended further to operate to wider processes.
 
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
-collateral for the purpose of constructing eligible collateral schedules
-including representation of additional attributes for regulatory risk
-and credit factors. For the purpose of understanding the principle,
-these can be divided into the following categories:
+collateral for the purpose of constructing eligible collateral
+specifications, including representation of additional attributes for
+regulatory risk and credit factors. For the purpose of understanding the
+principle, these can be divided into the following categories:
 
 -   Issuer Identification
 -   Asset Identification
@@ -136,8 +136,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-![image](/img/collateral-asset-identifier-tree.png){width="6.85159in"
-height="3.24844in"}
+![image](/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
@@ -161,8 +160,7 @@ or CUSIP or a standard taxonomy source.
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-![image](/img/cdm-graphical-ecs.png){width="6.26806in"
-height="1.1083in"}
+![image](/img/cdm-graphical-ecs.png)
 
 The Asset type is used to specify criteria related to the nature of the
 asset, such as its type (cash, debt, equity, or other), its country of
@@ -178,9 +176,9 @@ additionally apply to filter whether a piece of collateral is eligible
 or not.
 
 The combination of these terms allows a wide variety of eligible
-collateral types to be represented and structure can be used to identify
-individual collateral types or a group of collateral assets for
-inclusion in an eligible collateral schedule.
+collateral types to be represented and a structure can be used to
+identify individual collateral types or a group of collateral assets for
+inclusion in specifying eligible collateral schedule details.
 
 # Identifying Eligible Collateral using the CDM Data Structure
 
@@ -607,7 +605,7 @@ type CreditNotation:
     -   Average
     -   Second Best
 
-``` Haskal
+``` Haskell
 enum CreditNotationMismatchResolutionEnum:
    Lowest
    Highest
@@ -648,12 +646,12 @@ example (Moodys), you would express `mismatchResolution` \>
 ## Collateral Taxonomy (Used within Asset Criteria)
 
 It is understood that data used to determine asset types used in
-eligible collateral schedules can often refer to common structured
-standard pre-defined taxonomy sources. Although the purpose of the CDM
-is to encourage one standard representation of data for asset types,
-there are circumstances where assets are organised and labelled into
-categories, such as by regulators. In some circumstances, it may be a
-requirement to refer to these identifiable sources. In the CDM, these
+specifying eligible collateral information can often refer to common
+structured standard pre-defined taxonomy sources. Although the purpose
+of the CDM is to encourage one standard representation of data for asset
+types, there are circumstances where assets are organised and labelled
+into categories, such as by regulators. In some circumstances, it may be
+a requirement to refer to these identifiable sources. In the CDM, these
 taxonomy sources can be referenced in a consistent representation.
 
 The CDM allows the definition of, and reference to, certain taxonomy
@@ -670,8 +668,8 @@ taxonomy source.
 -   The data attribute `taxonomySource` must be specified and will
     provide the following options through the enumerations list:
     -   CFI (The ISO 10962 Classification of Financial Instruments code)
-    -   FINOS (The FINOS product taxonomy)
-    -   ICAD (FINOS Collateral Asset Definition Identifier code)
+    -   ISDA (The ISDA product taxonomy)
+    -   ICAD (ISDA Collateral Asset Definition Identifier code)
     -   EU EMIR Eligible Collateral Asset Class (European Union Eligible
         Collateral Assets classification categories based on EMIR
         Uncleared Margin Rules)
@@ -683,7 +681,7 @@ taxonomy source.
         Margin Rules published by the CFTC and the US Prudential
         Regulators)
 
-The options CFI, FINOS and ICAD would be further expressed with the
+The options CFI, ISDA and ICAD would be further expressed with the
 flexible data *'string'* representation through data type
 `ProductTaxonomy`.
 
@@ -723,7 +721,7 @@ list:
 
 The cardinality for these enumeration lists (0..\*) denotes that
 multiple values can be provided so several categories can be applied to
-a line of data expressed in an eligibility schedules/ profile.
+a line of data expressed in an eligibility profile.
 
 The final attribute in `CollateralTaxonomyValue`,
 `nonEnumeratedTaxonomyValue`, offers additional data expression outside

@@ -4,27 +4,11 @@ title: Development Guidelines
 
 # Governance
 
-The CDM is an open source project with a governance framework that
-regulates any contribution to its on-going development. A three-tiered
-committee structure pilots the development of the CDM:
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
 
-1.  The *CDM Executive Committee* is accountable for setting the
-    strategy, promoting adoption of the standard, and overseeing the
-    activity of the Working Groups and the Architecture & Review
-    Committee. Members are senior executives appointed by the FINOS Board
-    considering their strategic influence in the decision making at
-    their firm and active contribution to the development of the CDM.
-2.  The *CDM Architecture and Review Committee* is responsible for
-    specifying the technical and modelling guidelines and reviewing and
-    approving proposals for new modelling components introduced by the
-    CDM Working Groups. Members include subject matter experts, senior
-    technologists, as well as practitioners in business process, legal
-    documentation, and technical modelling.
-3.  The *CDM Working Groups* are assembled per subject matter or use
-    cases to actively develop and implement concretely targeted elements
-    of the CDM. Participants include FINOS members and non-members from
-    the CDM user community who commit time and effort for the
-    development and implementation of the CDM as a global standard.
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
+
+For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 Committee members or any user of CDM within the community can propose
 amendments in accordance with the following process:
@@ -42,6 +26,51 @@ reviewing, revising or extending the proposal.
 
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
+
+### Roles
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+
+* Maintainers - those who drive consensus within the working group
+* Editors - those who codify ideas into a formal specification
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+
+# Working Groups
+
+**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
+
+**2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
+
+* Participants of the CDM Steering Working Group approve DRAFT specification releases.
+* Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
+  
+**2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
+
+**2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
+
+**2.2.2 Appointment of CDM Steering Working Group Maintainers:**
+
+* At the launch of the project, up to two initial Maintainers will be nominated by ICMA, ISDA, and ISLA (collectively, the “trade associations”).
+* Additional CDM Steering Group Maintainers may be proposed by Participants. Proposed maintainers will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
+    * Proven experience in data modelling and/or software development in financial markets.
+    * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
+      
+**2.2.3 CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+
+**2.2.4 CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements.
+
+## CDM Design Principles
+
+Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
+
+* **Normalisation** through abstraction of common components
+* **Composability** where objects are composed and qualified from the bottom up
+* **Mapping** to existing industry messaging formats
+* **Embedded logic** to represent industry processes
+* **Modularisation** into logical layers \
+
+## CDM development guidelines 
+
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
 
 ## Version Management
 
@@ -1171,7 +1200,7 @@ are a critical component of the distribution of that release. Release
 notes are edited in the *Mark-Down (MD)* syntax, which is then rendered
 into Html in the various channels where the release is published.
 
-1.  release notes should begin with a high-level headline of the part of
+1.  Release notes should begin with a high-level headline of the part of
     the model being changed, followed by "--" and a short headline
     description
     1.  For example: "# Legal Agreement Model - Collateral Agreement
@@ -1181,12 +1210,13 @@ into Html in the various channels where the release is published.
     change, for example, the data type and attributes should be named
     and the before/after states of the model explained, along with a
     justification in which the issue is summarised.
-3.  If the release notes describe mapping rules, there should be
+3.  They should also embed a link to the Pull Request containing the change, to enable users to inspect those changes in details.
+4.  If the release notes describe mapping rules, there should be
     explicit information about the examples affected and the change in
     resulting values for those examples.
-4.  If the release is documentation, it should specify exactly where the
+5.  If the release is documentation, it should specify exactly where the
     document was changed and why.
-5.  Special formatting rules related to use of the MD mark-up language:
+6.  Special formatting rules related to use of the MD mark-up language:
     1.  Headline should begin with a `#`, as in the above example, so
         that it appears correctly formatted in Html
     2.  `*` before and after text (no space) for bold
@@ -1210,6 +1240,9 @@ The new enumerated values are `BrazilMarginRules`, `UnitedKingdomMarginRules`, `
 _Review directions_
 
 In the CDM Portal select the Textual Browser, search for ‘ApplicableRegime’ and ‘SubstitutedRegime’, click on the ‘RegulatoryRegimeEnum’ next to the ‘regime’ attribute and observe the expanded list of regimes, including the ones noted above.
+
+Inspect Pull Request: [#1101](https://github.com/finos/common-domain-model/pull/1101)
+
 ```
 
 The MD editing syntax in which release notes are written is a standard
