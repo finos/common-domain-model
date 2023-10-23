@@ -15,39 +15,37 @@ import cdm.product.collateral.*
 import cdm.event.workflow.*
 
 type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
-	
-	priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
-	product Product (1..1) <"The product underlying the position.">
-	cashBalance Money (0..1) <"The aggregate cost of proceeds">
- 	tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
- 		[metadata reference]
-	
+
+    priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
+    product Product (1..1) <"The product underlying the position.">
+    cashBalance Money (0..1) <"The aggregate cost of proceeds">
+    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+        [metadata reference]
+
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
-	[metadata key]
+    [metadata key]
 
-	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
-	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
+    positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
+    lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
 
-	condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
-		if lineage -> portfolioStateReference is absent
-		then positions is absent
-			and lineage -> eventReference is absent
+    condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
+        if lineage -> portfolioStateReference is absent
+        then positions is absent and lineage -> eventReference is absent
 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
-	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
-	totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
-	positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
-	party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
-		[metadata reference]
-	product Product (0..*) <"To aggregate based on a selection of products.">
-	productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
-	tradeReference Trade (0..*)
-	    [metadata reference]
+    dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
+    totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
+    positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
+    party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
+        [metadata reference]
+    product Product (0..*) <"To aggregate based on a selection of products.">
+    productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
+    tradeReference Trade (0..*)
+        [metadata reference]
 
 type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
-
-	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
-	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
+	  aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
+	  portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
 type InventoryBase: <"A data type that can be used to describe an inventory of securities.">
     inventoryRecord InventoryRecord (0..*) <"An array holding the list of inventory being described. Each element in the inventoryRecord array represents an individual piece of inventory i.e. a security.">

@@ -1,7 +1,5 @@
 # **Modelling Lender Availability and Borrower Locates**
-
 _Background_
-
 In securities lending a lender will broadcast their availability to lend specific securities to potential borrowers. This process allows borrowers to easily identify and select lenders who have the desired securities available for lending and can help facilitate trades more quickly and efficiently. 
 
 Borrowers will also send out requests to lenders looking to locate specific securities. This allows borrowers to confirm that they can acquire the security before proceeding with a short sale of that security.
@@ -56,3 +54,4 @@ _Review directions_
 
 - Review the changes in the model
 - Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2296
+
