@@ -1,10 +1,10 @@
-# _Parties on Eligible Collateral_
+# _Eligible Collateral Model - Applicable Party Attributes_
 
 _Background_
 
 This release addresses Issue [#2451](https://github.com/finos/common-domain-model/issues/2451) - Enabling party to be specificed in eligible collateral criteria.
 
-Currently the CDM allows to define which party of a legal agreement a set of information may apply to (both parties or one party). This applies to certain outcomes or posting obligations such as eligible collateral. The parties are identified alongside other key details within the data type `LegalAgreementBase`. Further in the data type `AgreementTerms`, each counterparty is assigned the pseudonym of Party1 or Party2 and then referred to through its pseudonym when specifying party elections.
+The CDM allows to define which party of a legal agreement a set of information may apply to (both parties or one party). This applies to certain outcomes or posting obligations such as eligible collateral. The parties are identified alongside other key details within the data type `LegalAgreementBase`. Further in the data type `AgreementTerms`, each counterparty is assigned the pseudonym of Party1 or Party2 and then referred to through its pseudonym when specifying party elections.
 
 Presently, the option to apply eligible collateral criteria to both parties or to one party in an eligible collateral list (such as a ‘schedule’) is only possible if associated with a legal agreement such as a CSA.​ The CDM requires the ability to apply this alternatively under the root data type `EligibleCollateralSpecification` so it can be applied independently of a CSA, to eligible collateral only.
 
