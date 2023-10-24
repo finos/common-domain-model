@@ -1,38 +1,19 @@
-# *Product Model - Price Components*
-
-## _Background_
-- A price that consists of two additive components (e.g. clean + accrued) is represented in different ways depending on the use case. 
-- This change introduces a single pattern intended to simplify the model and facilitate re-usability and extensibility.
+# *Product Model/ Collateral – ISO Country Code Enum and connection to Asset/Issuer Criteria *
 
 ## _What is being released?_
 
-### Type Changes
-The core changes can be found in the following types both located in the `cdm.observable.asset` namespace.
+A new enumeration list has been added to the CDM named `ISOCountryCodeEnum`
+The following changes have been made in the CDM to connect to this:
 
-Added `PriceComposite` type which defines the inputs required to calculate a price as a simple composite of 2 other values.
+1.	Data type `IssuerCriteria` attribute `issuerCountryOfOrigin`, string and metadata scheme removed `ISOCountryCodeEnum` added.
+2.	Data type `AssetCriteria` attribute `assetCountryOfOrigin`, string and metadata scheme removed `ISOCountryCodeEnum` added.
+   
+In addition, the following change has been made for connecting to ISO Currency codes: 
 
-Updated `PriceSchedule` type with:
-- Added new field `priceType` of type  `PriceTypeEnum (1..1)`
-- Added new field `arithmeticOperator` of type `ArithmeticOperationEnum (0..1)`
-- Adde new field `composite` of type  `PriceComposite (0..1)`
-- Updated `priceExpression` to use `PriceExpressionEnum` instead of obsolete `PriceExpression` type
+1.	Data type `AssetCriteria` attribute `denominatedCurrency`, string and metadata scheme removed `CurrencyCodeEnum` added.
 
-### Supporting Changes
-A number of functions and synonyms have been modified to support this change. 
-
-The function changes can be found in the following namespaces:
-- `cdm.event.common` 
-- `cdm.event.qualification`
-- `cdm.observable.asset`
-- `cdm.observable.event`
-- `cdm.product.asset`
-- `cdm.product.template`
-
-The supporting synonym changes can be found in the following namespaces:
-- `cdm.mapping.fpml.confirmation.tradestate`
-- `cdm.mapping.fpml.confirmation.workflowstep`
-- `cdm.mapping.ore`
 
 ## _Review Directions_
 
-In the CDM Portal, select the Textual Browser and search and inspect the `PriceSchedule` and `PriceComposite` types. For the function and synonym changes please see the above listed files in the supporting changes section.
+In the CDM Portal, select the Textual Browser and inspect the changes mentioned above. 
+
