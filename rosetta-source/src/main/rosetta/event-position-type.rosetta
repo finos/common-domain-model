@@ -61,12 +61,14 @@ type AvailableInventory: <"A data type that can be used to describe the inventor
     availableInventoryRecord AvailableInventoryRecord (0..*) <"An array holding the list of inventory being described. Each element in the inventoryRecord array represents an individual piece of inventory i.e. a security.">
 	
     condition ValidPartyRole: <"Restrict roles to be only those that would be associated to the overall list of availability">
-        if partyRole exists then
-            partyRole -> role any = PartyRoleEnum -> AgentLender 
-            or partyRole -> role any = PartyRoleEnum -> BeneficialOwner            
-            or partyRole -> role any = PartyRoleEnum -> Borrower
-            or partyRole -> role any = PartyRoleEnum -> Custodian
-            or partyRole -> role any = PartyRoleEnum -> Lender
+        partyRole
+            extract ( 
+                role = PartyRoleEnum -> AgentLender 
+                or role = PartyRoleEnum -> BeneficialOwner 
+                or role = PartyRoleEnum -> Borrower 
+                or role = PartyRoleEnum -> Custodian
+                or role = PartyRoleEnum -> Lender
+            ) then all = True
 
 type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of available inventory. This represents a single security and its associated criteria. The criteria are used to describe any restrictions on the securities.">
     expirationDateTime zonedDateTime (0..1) <"There may be a set period/time restriction associated to the security.">
@@ -80,13 +82,15 @@ type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of 
             interestRate -> priceType = PriceTypeEnum -> InterestRate
 
     condition ValidPartyRole: <"Restrict roles to be only those that would be associated to an individual piece of availability">
-        if partyRole exists then
-            partyRole -> role any = PartyRoleEnum -> AgentLender 
-            or partyRole -> role any = PartyRoleEnum -> BeneficialOwner            
-            or partyRole -> role any = PartyRoleEnum -> Custodian
-            or partyRole -> role any = PartyRoleEnum -> Lender
+        partyRole
+            extract ( 
+                role = PartyRoleEnum -> AgentLender 
+                or role = PartyRoleEnum -> BeneficialOwner 
+                or role = PartyRoleEnum -> Custodian
+                or role = PartyRoleEnum -> Lender
+            ) then all = True
 
-type SecurityLocate extends AvailableInventory: <"A locate is an approval from a broker that needs to be obtained prior to effecting a short sale in an equity security. Similar to SecurityAvailability, a borrower can request a single or multiple securities, but at least one must be requested.">
+type SecurityLocate extends AvailableInventory: <"A locate is an approval from a broker that needs to be obtained prior to effecting a short sale in an equity security. Similar to security availability, a borrower can request a single or multiple securities, but at least one must be requested.">
     
     condition RequestOneSecurityMinimum: <"A locate must request the availability of at least one security.">
         availableInventoryRecord exists
