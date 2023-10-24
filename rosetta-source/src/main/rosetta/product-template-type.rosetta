@@ -112,12 +112,41 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
     observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
     schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    delivery CommodityDeliveryInformation (0..1) <"Contains the information relative to the delivery of the commodity.">
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
                 and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout only exists
                 and underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
         then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
+
+    condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
+        if delivery -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if delivery -> periods -> profile -> block -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+
+    condition PriceTimeIntervalQuantity: <"Checks that only one of the representations of price time interval quantity is present simultaneously.">
+        if schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity exists
+        then delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
 
 type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
     [metadata key]
