@@ -1,4 +1,4 @@
-**Modelling Lender Availability and Borrower Locates**
+# *Modelling Lender Availability and Borrower Locates*
 
 _Background_
 In securities lending a lender will broadcast their availability to lend specific securities to potential borrowers. This process allows borrowers to easily identify and select lenders who have the desired securities available for lending and can help facilitate trades more quickly and efficiently. 
