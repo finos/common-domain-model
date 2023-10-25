@@ -781,10 +781,10 @@ func SecurityFinanceCashSettlementAmount:
             )
 
     alias marginRatio:
-        if collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> haircutPercentage exists
-        then 1 / (1.0 - collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> haircutPercentage)
-        else if collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> marginPercentage exists
-        then collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> marginPercentage
+        if collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage exists
+        then 1 / (1.0 - collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage)
+        else if collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> marginPercentage exists
+        then collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> marginPercentage
         else 1.0
 
     condition ShareUnitExists:
@@ -1232,15 +1232,15 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral
 
     alias haircutPercentage:
-        (1.0 - collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> haircutPercentage)
+        (1.0 - collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage)
 
     alias valuationPercentage: (1 / haircutPercentage)
 
     alias marginRatio:
-        if collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> haircutPercentage exists
+        if collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage exists
         then valuationPercentage
-        else if collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> marginPercentage exists
-        then collateral -> collateralProvisions -> eligibleCollateral -> criteria only-element -> treatment -> valuationTreatment -> marginPercentage
+        else if collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> marginPercentage exists
+        then collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> marginPercentage
         else 1.0
 
     alias billingQuantity:

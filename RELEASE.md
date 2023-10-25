@@ -49,4 +49,3 @@ _Review directions_
 
 - Review the changes in the model
 - Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2469
-
