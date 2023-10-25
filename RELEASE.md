@@ -1,6 +1,7 @@
 # *Modelling Lender Availability and Borrower Locates*
 
 _Background_
+
 In securities lending a lender will broadcast their availability to lend specific securities to potential borrowers. This process allows borrowers to easily identify and select lenders who have the desired securities available for lending and can help facilitate trades more quickly and efficiently. 
 
 Borrowers will also send out requests to lenders looking to locate specific securities. This allows borrowers to confirm that they can acquire the security before proceeding with a short sale of that security.
@@ -8,6 +9,7 @@ Borrowers will also send out requests to lenders looking to locate specific secu
 As part of the ongoing work into standardising pre-trade processes by the ISLA Trading Working Group, enhancements are being introduced to the model to support the representation of both lender availability and borrower locates.
 
 _Model Changes_
+
 The structures of lender availability and borrower locates are extremely similar. It has also been suggested that the structure of collateral inventory could be represented the same way. To this end new types have been added that can be extended to support multiple use cases.
 
 The `Inventory` type can be used to hold a list of securities. The term “Inventory” in the financial markets refers to the securities that a party has on hand and thus works well as a base class name.  
@@ -29,6 +31,7 @@ For the borrower locates use case, the `SecurityLocate` type is a new type that 
 The `SecurityLocate` type also contains a condition to ensure that the `availableInventoryRecord` item exists, as a locate must always request availability for at least one security.
 
 _Data Types_
+
 - Added `Inventory` type:
   - Includes new `inventoryRecord` type
 - Added `InventoryRecord` type:
@@ -45,5 +48,5 @@ _Data Types_
 _Review directions_
 
 - Review the changes in the model
-- Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2296
+- Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2469
 
