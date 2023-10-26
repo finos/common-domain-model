@@ -1,4 +1,4 @@
-# _Event Model - Repo partial delivery, reprice, adjust, and substitution._
+# _Event Model - Repo partial delivery, reprice, adjustment, and substitution._
 
 _Background_
 
