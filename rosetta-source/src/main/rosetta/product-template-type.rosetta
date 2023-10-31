@@ -440,6 +440,8 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
 
     underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
+    delivery CommodityDeliveryInformation (0..1) <"Contains the information relative to the delivery of the commodity.">
+    schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
         if underlier -> foreignExchange exists
@@ -458,6 +460,34 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
         if underlier -> foreignExchange exists
         then settlementTerms -> physicalSettlementTerms is absent
+
+    condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
+        if delivery -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if delivery -> periods -> profile -> block -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+
+    condition PriceTimeIntervalQuantity: <"Checks that only one of the representations of price time interval quantity is present simultaneously.">
+        if schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity exists
+        then delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
 
 type CommoditySchedule: <"A class that allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     schedulePeriod SchedulePeriod (1..*) <"Defines a period of a commodity schedule structure.">
