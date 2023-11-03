@@ -69,12 +69,6 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
     condition PositionBusinessEventOrBusinessEventChoice: <"Choice rule to control that either positionBusinessEvent is present or businessEvent is present, but not both at the same time.">
         required choice positionBusinessEvent, businessEvent
 
-    condition PreviousWorkflowStepCondition: <"This condition controls the following: If positionBusinessEvent is present, then the previousWorkflowStep cannot contain a businessEvent. Likewise, if businessEvent is present, then the previousWorkflowStep cannot contain a positionBusinessEvent.">
-        if positionBusinessEvent exists
-            then previousWorkflowStep -> businessEvent is absent
-        else if businessEvent exists
-            then previousWorkflowStep -> positionBusinessEvent is absent
-
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
     steps WorkflowStep (1..*)
