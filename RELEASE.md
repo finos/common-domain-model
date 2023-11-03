@@ -2,8 +2,6 @@
 
 _Background_
 
-The collateral interest calculation and handling representation, related data types and associated descriptions require enhancements for what is commonly negotiated in a Credit Support Annex (CSA) or other collateral agreements, to support vendor operational requirements.
-
 As part of the [FINOS BMO Hackathon](https://www.finos.org/hosted-events/2023-05-03-finos-hackathon-bmo-nyc) event in May 2023, a demonstation of a [use-case](https://github.com/finos/community/discussions/251) was created that showed the CDM can be used to check collateral eligibility against multiple jurisdictions’ minimum collateral requirements and specific eligible collateral schedules.
 
 The demonstation was successful has been codified into the CDM and the `CheckEligibilityByDetails` function. 
