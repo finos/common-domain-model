@@ -7,7 +7,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - David Shone, ISDA, Date of enrollment: 11th Oct 2023
 - Tom Healey, ICMA,  Date of enrollment: 10/16/2023
 - Gabriel Callsen, ICMA,  Date of enrollment: 10/16/2023
-- 
+- Benjamin Mourad, Standard Chartered Bank,  Date of enrollment: 5 Nov 2023
 - 
 -  
 - 
