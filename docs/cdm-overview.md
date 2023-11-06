@@ -58,8 +58,7 @@ the development of the CDM in open source.
 
 ## Scope
 
-The product scope of the CDM includes OTC derivatives, cash securities,
-securities financing, and commodities.
+The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
 # CDM Components
 
@@ -174,9 +173,3 @@ file in the CDM jar.
 
 For more details, please follow the
 [CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-
----
-**Note:**
-These guidelines are intended as a technical documentation for
-developers to make use of the Java distribution in their implementation.
----

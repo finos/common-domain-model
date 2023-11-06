@@ -116,6 +116,8 @@ type Trade:
   tradeIdentifier TradeIdentifier (1..*)
   tradeDate date (1..1)
     [metadata id]
+  tradeTime TimeZone (0..1)
+    [metadata id]
   tradableProduct TradableProduct (1..1)
   party Party (0..*)
   partyRole PartyRole (0..*)
@@ -500,6 +502,8 @@ type ExecutionInstruction:
   executionDetails ExecutionDetails (1..1)
   tradeDate date (1..1)
       [metadata id]
+  tradeTime TimeZone (0..1)
+      [metadata id]
   tradeIdentifier TradeIdentifier (1..*)
   collateral Collateral (0..1)
 ```
@@ -758,7 +762,7 @@ for the event named in that taxonomy. Like Product Qualification
 functions, the Event Qualification function name is prefixed with the
 word `Qualify_` followed by the taxonomy name.
 
-The CDM uses the FINOS taxonomy V2.0 leaf level to qualify the event. 22
+The CDM uses the ISDA taxonomy V2.0 leaf level to qualify the event. 23
 lifecycle events have currently been qualified as part of the CDM.
 
 One distinction with the product approach is that the `intent`

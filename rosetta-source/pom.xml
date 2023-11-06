@@ -26,44 +26,6 @@
                         <artifactId>maven-resources-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-documentation</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.parent.basedir}/documentation</directory>
-                                            <excludes>
-                                                <exclude>conf.py</exclude>
-                                            </excludes>
-                                            <filtering>false</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>amend-documentation-version</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.parent.basedir}/documentation</directory>
-                                            <includes>
-                                                <include>conf.py</include>
-                                            </includes>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>copy-release-notes</id>
                                 <phase>validate</phase>
                                 <goals>
@@ -97,22 +59,6 @@
                                     <classpathScope>test</classpathScope>
                                     <mainClass>org.isda.cdm.documentation.DocumentationCodeValidator</mainClass>
                                 </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>kr.motd.maven</groupId>
-                        <artifactId>sphinx-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceDirectory>${project.build.directory}/documentation-build/source</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/classes/cdm/modeldoc</outputDirectory>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -813,84 +759,37 @@
             </build>
         </profile>
         <profile>
-            <id>docs</id>
+            <id>excel</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy-documentation</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.parent.basedir}/documentation</directory>
-                                            <excludes>
-                                                <exclude>conf.py</exclude>
-                                            </excludes>
-                                            <filtering>false</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>amend-documentation-version</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/documentation-build</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.parent.basedir}/documentation</directory>
-                                            <includes>
-                                                <include>conf.py</include>
-                                            </includes>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>copy-release-notes</id>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/classes/release</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}</directory>
-                                            <includes>
-                                                <include>RELEASE.md</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>kr.motd.maven</groupId>
-                        <artifactId>sphinx-maven-plugin</artifactId>
-                        <configuration>
-                            <sourceDirectory>${project.build.directory}/documentation-build/source</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/classes/cdm/modeldoc</outputDirectory>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
+                                <id>generate-excel-src</id>
+                                <phase>generate-sources</phase>
                                 <goals>
                                     <goal>generate</goal>
                                 </goals>
+                                <configuration>
+                                    <sourceRoots>
+                                        <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+                                    </sourceRoots>
+                                    <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <languages>
+                                        <language>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+                                            <outputConfigurations>
+                                                <!-- Excel output folder -->
+                                                <outputConfiguration>
+                                                    <name>SRC_GEN_EXCEL_OUTPUT</name>
+                                                    <outputDirectory>src/generated/excel</outputDirectory>
+                                                </outputConfiguration>
+                                            </outputConfigurations>
+                                        </language>
+                                    </languages>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -912,9 +811,6 @@
                         </goals>
                         <configuration>
                             <filesets>
-                                <fileset>
-                                    <directory>documentation/build</directory>
-                                </fileset>
                                 <fileset>
                                     <directory>src/generated</directory>
                                     <includes>
@@ -1096,7 +992,7 @@
                     <sourcepath>
                         ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
                     </sourcepath>
-                    <additionalJOption>--no-module-directories</additionalJOption>
+                    <additionalJOption>${maven-javadoc-plugin.option}</additionalJOption>
                 </configuration>
                 <executions>
                     <execution>
@@ -1118,10 +1014,6 @@
         <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.regnosys.rosetta</groupId>
-            <artifactId>com.regnosys.rosetta.blueprint.lib</artifactId>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
