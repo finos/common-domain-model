@@ -23,7 +23,7 @@ type ContractBase: <"Encapsulates data features common to trade and position.">
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
         [metadata reference]
 
-type Position extends ContractBase: <"A Position describes the accumulated effect of a set of securities or financial transactions.">
+type CounterpartyPosition extends ContractBase: <"A Position describes the accumulated effect of a set of securities or financial transactions.">
 	positionIdentifier PositionIdentifier (0..*) <"Represents the identifier(s) that uniquely identify a position for an identity issuer. A position can include multiple identifiers, for example an internal position identifer and a UTI (Unique Trade Identifier).">
     openDateTime dateTime (0..1) <"The date and time when the position was opened.">
  	tradeReference TradeState (0..*) <"Reference to all the trades that constitute the position.">
@@ -32,16 +32,23 @@ type Position extends ContractBase: <"A Position describes the accumulated effec
     partyRole PartyRole (0..*) <"Represents the role each specified party takes in the position.">
     positionBase TradableProduct (1..1) <"Encapsulates the core constituents that characterize a position.">
 
+type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+
+    priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
+    product Product (1..1) <"The product underlying the position.">
+    cashBalance Money (0..1) <"The aggregate cost of proceeds">
+    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+        [metadata reference]
+
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
 	[metadata key]
 
-	position Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
+	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
 	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
 
 	condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
 		if lineage -> portfolioStateReference is absent
-		then position is absent
-			and lineage -> eventReference is absent
+		then positions is absent and lineage -> eventReference is absent
 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
 	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
