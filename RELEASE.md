@@ -1,12 +1,17 @@
-# *Infrastructure - Dependency Update*
+# *Collateral Model - Check Eligibility Function*
 
-_What is being released?_
+_Background_
 
-This release updates the `rosetta-dsl` dependency.
+As part of the [FINOS BMO Hackathon](https://www.finos.org/hosted-events/2023-05-03-finos-hackathon-bmo-nyc) event in May 2023, a demonstation of a [use-case](https://github.com/finos/community/discussions/251) was created that showed the CDM can be used to check collateral eligibility against multiple jurisdictions’ minimum collateral requirements and specific eligible collateral schedules.
 
-Version updates include:
-- `rosetta-dsl` 9.0.0: Removes dependencies to legacy closed-source blueprint infrastructure. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.0.
+The demonstation was successful has been codified into the CDM and the `CheckEligibilityByDetails` function. 
 
-There are no changes to the model, and test expectations remain the same.
+_Model Changes_
 
-The changes can be reviewed in PR [#2470](https://github.com/finos/common-domain-model/pull/2470).
+- Added new function/types:
+  - `CheckEligibilityByDetails` - Applys an `EligibilityQuery` to check against a set of given `EligibleCollateralSpecification` to determine which collateral meets the eligibility and can be used/posted for delivery.
+
+_Review directions_
+
+- Review the changes in the model
+- Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2439

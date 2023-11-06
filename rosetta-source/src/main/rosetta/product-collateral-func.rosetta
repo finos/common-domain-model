@@ -1,6 +1,11 @@
 namespace cdm.product.collateral
 version "${project.version}"
 
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.base.datetime.*
+import cdm.product.template.*
+
 func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
     inputs:
         instruction EligibleCollateralSpecificationInstruction (1..1)
@@ -12,8 +17,165 @@ func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligibl
             extract MergeEligibleCollateralCriteria(item, instruction -> common)
 
 func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
+
     inputs:
         criteria1 EligibleCollateralCriteria (1..1)
         criteria2 EligibleCollateralCriteria (1..1)
     output:
         criteria EligibleCollateralCriteria (1..1)
+
+
+func CheckEligibilityForProduct:
+    inputs:
+        specifications EligibleCollateralSpecification (1..*) <"Specifications that determine which collateral meets the eligibility and can be used/posted for delivery. For ICMA usecase - this is the basket(s). For ISDA usecase these are the Elegibility Schedule Lists.">
+        product Product (0..1)
+    output:
+        eligibilityResult CheckEligibilityResult (0..1)
+
+type EligibilityQuery: <"Query to check against an EligibleCollateralSpecification">
+    maturity number (1..1) <"Maturity in years">
+    collateralAssetType AssetType (1..1) <"The asset product type.">
+    assetCountryOfOrigin string (1..1) <"The asset country of origin.">
+    denominatedCurrency string (1..1) <"The underlying asset denominated currency.">
+    agencyRating AgencyRatingCriteria (1..1) <"The agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
+    issuerType CollateralIssuerType (1..1) <"Represents a filter based on the type of entity issuing the asset.">
+    issuerName LegalEntity (1..1) <"Specifies the issuing entity name or LEI.">
+
+func CheckEligibilityByDetails: <"This function when presented with a set of Asset and Issuer details to be potentially posted as collateral, will check against a set of given Eligibility Criteria or Basket (EligibleCollateralSpecification) to determine which collateral meets the eligibility and can be used/posted for delivery.">
+    inputs:
+        specification EligibleCollateralSpecification (1..1) <"Specifications that determine which collateral meets the eligibility and can be used/posted for delivery. For ICMA usecase - this is the basket(s). For ISDA usecase these are the Elegibility Schedule Lists.">
+        query EligibilityQuery (1..1) <"The eligibility query defines the criteria to filter the specifications that will be used to find the eligibility result. For ICMA usecase - The asset infomation related to potential collateral available in your inventory you can use for the Repo trade. For ISDA - the questions related to the asset infomation you can post as collateral. For ICMA usecase - The issuer infomation related to the potential collateral available in your inventory you can use for the Repo trade. For ISDA - the questions related to the issuer infomation you can post as collateral.">
+    output:
+        eligibilityResult CheckEligibilityResult (1..1)
+
+    alias matchingEligibleCriteria:
+        specification -> criteria
+            filter treatment -> isIncluded
+            then filter [
+                asset
+                    then filter CheckAssetCountryOfOrigin(assetCountryOfOrigin, query)
+                    then filter CheckAgencyRating(agencyRating, query)
+                    then filter CheckAssetType(collateralAssetType, query)
+                    then filter CheckDenominatedCurrency(denominatedCurrency, query)
+                    then filter CheckMaturity(maturityRange, query)
+                    then exists
+            ]
+            then filter [
+                issuer
+                    then filter CheckIssuerName(issuerName, query)
+                    then filter CheckIssuerType(issuerType, query)
+                    then exists
+            ]
+
+    set eligibilityResult -> isEligible: matchingEligibleCriteria count > 0
+    set eligibilityResult -> eligibilityQuery: query
+    set eligibilityResult -> specification: specification
+    add eligibilityResult -> matchingEligibleCriteria: matchingEligibleCriteria
+
+type CheckEligibilityResult: <"Result for the CheckEligibilityByDetails and CheckEligibilityForProduct functions">
+    isEligible boolean (1..1) <"True if the asset is eligible">
+    matchingEligibleCriteria EligibleCollateralCriteria (1..*) <"Eligible Collateral Criteria that matched the eligibility query">
+    eligibilityQuery EligibilityQuery (0..1) <"eligibility query was was checked against the eligible collateral specification">
+    specification EligibleCollateralSpecification (1..1) <"The eligible collateral specification that was queried">
+
+func CheckAssetCountryOfOrigin:
+    inputs:
+        assetCountryOfOrigin string (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual:
+        assetCountryOfOrigin is absent
+            or assetCountryOfOrigin contains query -> assetCountryOfOrigin
+
+func CheckAgencyRating:
+    inputs:
+        agencyRatings AgencyRatingCriteria (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual:
+        agencyRatings is absent
+            or (agencyRatings
+                then filter
+                    creditNotation -> notation contains query -> agencyRating -> creditNotation -> notation
+                then filter qualifier contains query -> agencyRating -> qualifier
+                then filter
+                    referenceAgency is absent
+                        or referenceAgency contains query -> agencyRating -> referenceAgency
+                then item exists
+                )
+
+func CheckAssetType:
+    inputs:
+        collateralAssetTypes AssetType (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual:
+        collateralAssetTypes is absent
+            or (collateralAssetTypes
+                then filter assetType contains query -> collateralAssetType -> assetType
+                then filter
+                    debtType is absent
+                        or debtType -> debtClass contains query -> collateralAssetType -> debtType -> debtClass
+                then filter
+                    securityType is absent
+                        or securityType contains query -> collateralAssetType -> securityType
+                then item exists
+                )
+
+func CheckDenominatedCurrency:
+    inputs:
+        denominatedCurrency string (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual:
+        denominatedCurrency is absent
+            or denominatedCurrency contains query -> denominatedCurrency
+
+func CheckMaturity:
+    inputs:
+        maturityRange PeriodRange (0..1)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    alias upperBoundCheck:
+        if maturityRange -> upperBound -> period is absent
+        then True
+        else if maturityRange -> upperBound -> inclusive or maturityRange -> upperBound -> inclusive is absent
+        then maturityRange -> upperBound -> period -> periodMultiplier >= query -> maturity
+        else maturityRange -> upperBound -> period -> periodMultiplier > query -> maturity
+
+    alias lowerBoundCheck:
+        if maturityRange -> lowerBound -> period is absent
+        then True
+        else if maturityRange -> lowerBound -> inclusive or maturityRange -> lowerBound -> inclusive is absent
+        then maturityRange -> lowerBound -> period -> periodMultiplier <= query -> maturity
+        else maturityRange -> lowerBound -> period -> periodMultiplier > query -> maturity
+
+    set isEqual: maturityRange is absent or (upperBoundCheck and lowerBoundCheck)
+
+func CheckIssuerName:
+    inputs:
+        issuerName LegalEntity (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual: issuerName is absent or issuerName contains query -> issuerName
+
+func CheckIssuerType:
+    inputs:
+        issuerType CollateralIssuerType (0..*)
+        query EligibilityQuery (1..1)
+    output:
+        isEqual boolean (1..1)
+
+    set isEqual: issuerType is absent or issuerType contains query -> issuerType
