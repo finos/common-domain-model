@@ -103,10 +103,9 @@ type Commodity extends ProductBase: <"Identifies a specific commodity by referen
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
 
-    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
-        if productTaxonomy -> value -> classification count > 1
-        then productTaxonomy -> value -> classification -> ordinal exists
-
+    condition OrdinalExists:  <"Requires that, if multiple classification attributes are present, they contain an  ordinal so that they can be sorted. The condition checks that the number of classfication attributes is the same as the number of ordinals. Since each classification attributes can only contain one ordinal attribute, the logic effectively enforces that whenever more than one classification attribute exists, all classification attributes will have an ordinal.">
+        OrdinalExists(productTaxonomy)
+        
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
         if productTaxonomy exists
         then (productTaxonomy -> source exists and productTaxonomy -> value exists)
