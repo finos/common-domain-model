@@ -17,3 +17,5 @@ In addition, the following change has been made for connecting to ISO Currency c
 
 In the CDM Portal, select the Textual Browser and inspect the changes mentioned above. 
 
+Changes can be review in PR: https://github.com/finos/common-domain-model/pull/2477
+
