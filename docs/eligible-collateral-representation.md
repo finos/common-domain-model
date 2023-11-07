@@ -195,10 +195,8 @@ collateral asset, this includes the following data attributes:
 ``` Haskell
 type AssetCriteria:
   collateralAssetType AssetType (0..*)
-  assetCountryOfOrigin string (0..*)
-    [metadata scheme]
-  denominatedCurrency string (0..*)
-    [metadata scheme]
+  assetCountryOfOrigin ISOCountryCodeEnum (0..*)
+  denominatedCurrency CurrencyCodeEnum (0..*)
   agencyRating AgencyRatingCriteria (0..*)
   maturityType MaturityTypeEnum (0..1)
   maturityRange PeriodRange (0..1)
@@ -260,8 +258,7 @@ collateral asset, this includes the following data attributes:
 ``` Haskell
 type IssuerCriteria:
   issuerType CollateralIssuerType (0..*)
-  issuerCountryOfOrigin string (0..*)
-    [metadata scheme]
+  issuerCountryOfOrigin ISOCountryCodeEnum (0..*)
   issuerName LegalEntity (0..*)
   issuerAgencyRating AgencyRatingCriteria (0..*)
   sovereignAgencyRating AgencyRatingCriteria (0..*)
