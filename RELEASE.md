@@ -1,4 +1,4 @@
-# *Product Model/ Collateral – ISO Country Code Enum and connection to Asset/Issuer Criteria *
+# *Product Model/ Collateral – ISO Country Code Enum and connection to Asset/Issuer Criteria*
 
 ## _What is being released?_
 
