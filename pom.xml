@@ -82,9 +82,9 @@
 
         <repoServerHost>oss.sonatype.org</repoServerHost>
 
-        <rosetta.bundle.version>7.5.10</rosetta.bundle.version>
+        <rosetta.bundle.version>9.0.0</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>8.3.5</rosetta.dsl.version>
+        <rosetta.dsl.version>9.0.0</rosetta.dsl.version>
 
         <xtext.version>2.27.0</xtext.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
@@ -116,10 +116,12 @@
         <cxf-xjc-plugin.version>3.3.1</cxf-xjc-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-        <sphinx-maven-plugin.version>2.2.2</sphinx-maven-plugin.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+
+        <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
+        <maven-javadoc-plugin.option></maven-javadoc-plugin.option>
     </properties>
 
     <profiles>
@@ -134,7 +136,24 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>Java 12-</id>
+            <activation>
+                <jdk>(,12]</jdk>
+            </activation>
+            <properties>
+                <!-- This property is only necessary when building with Java 12 or lower versions. -->
+                <maven-javadoc-plugin.option>--no-module-directories</maven-javadoc-plugin.option>
+            </properties>
+        </profile>
     </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.regnosys.rosetta</groupId>
+            <artifactId>com.regnosys.rosetta</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
@@ -242,11 +261,6 @@
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>kr.motd.maven</groupId>
-                    <artifactId>sphinx-maven-plugin</artifactId>
-                    <version>${sphinx-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
@@ -324,11 +338,6 @@
             <dependency>
                 <groupId>com.regnosys.rosetta</groupId>
                 <artifactId>com.regnosys.rosetta.lib</artifactId>
-                <version>${rosetta.dsl.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.regnosys.rosetta</groupId>
-                <artifactId>com.regnosys.rosetta.blueprint.lib</artifactId>
                 <version>${rosetta.dsl.version}</version>
             </dependency>
             <dependency>
@@ -503,11 +512,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven-jar-plugin.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>sphinx-maven-plugin</artifactId>
-                <version>${sphinx-maven-plugin.version}</version>
             </dependency>
             <!-- plugins END -->
         </dependencies>

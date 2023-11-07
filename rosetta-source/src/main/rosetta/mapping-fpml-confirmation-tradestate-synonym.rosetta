@@ -634,13 +634,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 	PriceQuantity:
 		+ price
 			// For Swap Stream
-			[value "calculation" path "calculationPeriodAmount"]
+			[value "calculation" path "calculationPeriodAmount" mapper "FloatingRateCalculation"]
 			[value "fixedRateSchedule" path "calculationPeriodAmount->calculation"]
 			[value "spreadSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "capRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			[value "floorRateSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation" mapper "PriceCollar"]
-			[value "floatingRateMultiplierSchedule" path "calculationPeriodAmount->calculation->floatingRateCalculation"]
-			// For FRAs:
+            // For FRAs:
 			[hint "fixedRate"]
 			// For Credit:
 			[value "fixedAmountCalculation"]
@@ -652,8 +649,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "floatingRateMultiplierSchedule" path "interestCalculation->floatingRateCalculation"]
 			[value "underlyerPrice"]
 			// For FX:
-			[hint "spotRate"]
-			[value "exchangeRate" mapper "ExchangeRate"]
+			[value "exchangeRate"]
 			// For Repo:
 			[value "fixedRateSchedule"]
 			[value "floatingRateCalculation"]
@@ -743,7 +739,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "initialRate" mapper "PriceUnitType"]
             [value "initialValue" mapper "PriceUnitType"]
             [value "rate" maps 2 mapper "PriceUnitType"]
-            [value "spotRate" mapper "PriceUnitType"]
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
             [value "fixedRate" mapper "PriceUnitType"]
@@ -783,9 +778,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to PriceTypeEnum->InterestRate when "floatingRateCalculation->spread" exists]
  			[set to PriceTypeEnum->InterestRate when path = "spreadSchedule"]
  			[set to PriceTypeEnum->InterestRate when path = "floatingRateIndex"]
- 			[set to PriceTypeEnum->InterestRate when path = "floorRateSchedule"]
- 			[set to PriceTypeEnum->InterestRate when path = "capRateSchedule"]
- 			[set to PriceTypeEnum->MultiplierOfIndexValue when path = "floatingRateMultiplierSchedule"]
  			[set to PriceTypeEnum->AssetPrice when "referencePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "strikePrice" exists]
  			[set to PriceTypeEnum->AssetPrice when "initialPrice->netPrice->amount" exists]
@@ -797,10 +789,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[set to PriceTypeEnum->CashPrice when path = "bulletPayment->payment->paymentAmount"]
  			[set to PriceTypeEnum->ExchangeRate when path = "exchangeRate" and "rate" exists]
  			[set to PriceTypeEnum->ExchangeRate when path = "fxOption->strike"]
- 			[set to PriceTypeEnum->ExchangeRate when path = "fxOption" and "spotRate" exists]
  			// For Commodity Swaps
  			[set to PriceTypeEnum->CashPrice when path = "fixedLeg->fixedPrice"]
- 			[set to PriceTypeEnum->InterestRate when path = "calculation->spread"]
+ 			[set to PriceTypeEnum->AssetPrice when path = "calculation->spread"]
  			// For Commodity Option
  			[set to PriceTypeEnum->AssetPrice when "strikePricePerUnit->amount" exists]
         + arithmeticOperator
@@ -809,13 +800,19 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to ArithmeticOperationEnum->Add when path = "spreadSchedule"]
  			[set to ArithmeticOperationEnum->Add when path = "floatingRateIndex"]
  			[set to ArithmeticOperationEnum->Add when path = "calculation->spread"]
- 			// FX: SpreadTypeEnum->Spread when "spotRate" exists is set by ExchangeRate mapper
-			// FX: SpreadTypeEnum->Base when "forwardPoints" exists is set by ExchangeRate mapper
-			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
- 			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]	
-            // [set to SpreadTypeEnum->Base when path = "fxOption" and "spotRate" exists]
-			// [set to SpreadTypeEnum->Base when "referencePrice" exists]
-            // [set to GrossOrNetEnum->Net when "initialPrice->netPrice->amount" exists]
+ 			[set to ArithmeticOperationEnum->Max when path = "floorRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Min when path = "capRateSchedule"]
+ 			[set to ArithmeticOperationEnum->Multiply when path = "floatingRateMultiplierSchedule"]
+
+    PriceComposite:
+        + baseValue
+            [value "spotRate"]
+        + operand
+            [value "forwardPoints"]
+        + arithmeticOperator
+            [set to ArithmeticOperationEnum -> Add when "forwardPoints" exists]
+        + operandType
+            [set to PriceOperandEnum -> ForwardPoint when "forwardPoints" exists]
 
 	CashPrice:
  		+ cashPriceType
@@ -1222,6 +1219,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "rate"]
 			[hint "spread"]
 			[hint "strikePricePerUnit"]
+			[hint "spotRate"]
 		+ strikeReference
 			[value "strikeReference" meta "href"]
 		+ referenceSwapCurve
@@ -1946,30 +1944,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "stepValue" maps 2]
             [value "quantity" set when path = "notionalStep"]
 
-	AdditionalDisruptionEvents:
-		+ changeInLaw
-			[value "changeInLaw"]
-		+ failureToDeliver
-			[value "failureToDeliver"]
-		+ insolvencyFiling
-			[value "insolvencyFiling"]
-		+ hedgingDisruption
-			[value "hedgingDisruption"]
-		+ increasedCostOfHedging
-			[value "increasedCostOfHedging"]
-		+ foreignOwnershipEvent
-			[value "foreignOwnershipEvent"]
-		+ lossOfStockBorrow
-			[value "lossOfStockBorrow"]
-		+ maximumStockLoanRate
-			[value "maximumStockLoanRate"]
-		+ increasedCostOfStockBorrow
-			[value "increasedCostOfStockBorrow"]
-		+ initialStockLoanRate
-			[value "initialStockLoanRate"]
-		+ determiningParty
-			[value "determiningPartyReference" mapper "DisruptionEventsDeterminingParty"]
-
 	DividendCurrency:
 		+ currency
 			[value "currency" meta "currencyScheme"]
@@ -1994,52 +1968,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "unadjustedEndDate"]
 			[value "dividendPeriodEffectiveDate" meta "href"]
 			[value "dividendPeriodEndDate" meta "href"]
-
-	EquityCorporateEvents:
-		+ shareForShare
-			[value "shareForShare"]
-		+ shareForOther
-			[value "shareForOther"]
-		+ shareForCombined
-			[value "shareForCombined"]
-
-	ExtraordinaryEvents:
-		+ mergerEvents
-			[value "mergerEvents"]
-		+ tenderOfferEvents
-			[value "tenderOfferEvents"]
-		+ compositionOfCombinedConsideration
-			[value "compositionOfCombinedConsideration"]
-		+ indexAdjustmentEvents
-			[value "indexAdjustmentEvents"]
-		+ additionalDisruptionEvents
-			[value "additionalDisruptionEvents"]
-		+ failureToDeliver
-			[value "failureToDeliver"]
-		+ representations
-			[value "representations"]
-		+ nationalizationOrInsolvency
-			[value "nationalisationOrInsolvency"]
-		+ delisting
-			[value "delisting"]
-
-	IndexAdjustmentEvents:
-		+ indexModification
-			[value "indexModification"]
-		+ indexCancellation
-			[value "indexCancellation"]
-		+ indexDisruption
-			[value "indexDisruption"]
-
-	Representations:
-		+ nonReliance
-			[value "nonReliance"]
-		+ agreementsRegardingHedging
-			[value "agreementsRegardingHedging"]
-		+ indexDisclaimer
-			[value "indexDisclaimer"]
-		+ additionalAcknowledgements
-			[value "additionalAcknowledgements"]
 
 	AssignedIdentifier:
         + identifier
@@ -2312,7 +2240,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "terminationDate" path "genericProduct"]
 		+ dateAdjustments
 			[value "dateAdjustments" path "generalTerms"]
-		+ extraordinaryEvents
 			[value "extraordinaryEvents"]
 		+ calculationAgent
 			[value "calculationAgent"]
@@ -2397,6 +2324,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ strike
 			[value "strike"]
 			[hint "strikePricePerUnit"]
+			[hint "spotRate"]
 		+ exerciseProcedure
 			[value "physicalExercise"]
 			[value "exerciseProcedure"]
@@ -2774,7 +2702,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "nearLeg"]
 			[value "farLeg"]
 			[value "fxSingleLeg"]
-			[hint "spotRate"] // for Spot on FX Option (Barrier)
 			// Other
 			[value "repo"]
 			[value "floatingLeg"]
@@ -2820,7 +2747,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "varianceOptionTransactionSupplement"]
 			[value "dividendSwapTransactionSupplement" path "dividendSwapOptionTransactionSupplement"]
 			[value "varianceSwapTransactionSupplement" path "varianceOptionTransactionSupplement"]
-        	        [hint "fxVarianceSwap"]
+			[hint "fxVarianceSwap"]
 			[hint "fxVolatilitySwap"]
 			// Other
 			[value "commoditySwap"]
@@ -3555,7 +3482,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		+ stepUpProvision
 			[value "stepUpProvision"]
 
-	IndexReferenceInformation:
+	CreditIndexReferenceInformation:
 	 	[value "IndexReferenceInformation" meta "id"]
 		+ indexName
 			[value "indexName" meta "indexNameScheme"]
@@ -3567,8 +3494,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "indexAnnexVersion"]
 		+ indexAnnexDate
 			[value "indexAnnexDate"]
-		+ indexAnnexSource
-			[value "indexAnnexSource" meta "indexAnnexSourceScheme"]
+        + indexAnnexSource
+        	[value "indexAnnexSource" meta "indexAnnexSourceScheme"]
 		+ excludedReferenceEntity
 			[value "excludedReferenceEntity"]
 		+ tranche
@@ -6046,40 +5973,40 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "SpreadExclusive"]
 
 	ContractualDefinitionsEnum:
-		+ ISDA1991
-			[value "ISDA1991"]
-		+ ISDA1993Commodity
-			[value "ISDA1993Commodity"]
-		+ ISDA1996Equity
-			[value "ISDA1996Equity"]
-		+ ISDA1997Bullion
-			[value "ISDA1997Bullion"]
-		+ ISDA1997GovernmentBond
-			[value "ISDA1997GovernmentBond"]
-		+ ISDA1998FX
-			[value "ISDA1998FX"]
-		+ ISDA1999Credit
-			[value "ISDA1999Credit"]
-		+ ISDA2000
-			[value "ISDA2000"]
-		+ ISDA2002Equity
-			[value "ISDA2002Equity"]
-		+ ISDA2003Credit
-			[value "ISDA2003Credit"]
-		+ ISDA2004Novation
-			[value "ISDA2004Novation"]
-		+ ISDA2005Commodity
-			[value "ISDA2005Commodity"]
-		+ ISDA2006
-			[value "ISDA2006"]
-		+ ISDA2006Inflation
-			[value "ISDA2006Inflation"]
-		+ ISDA2008Inflation
-			[value "ISDA2008Inflation"]
-		+ ISDA2011Equity
-			[value "ISDA2011Equity"]
-		+ ISDA2014Credit
-			[value "ISDA2014Credit"]
+        + ISDA1991InterestRate
+            [value "ISDA1991"]
+        + ISDA1993CommodityDerivatives
+            [value "ISDA1993Commodity"]
+        + ISDA1996EquityDerivatives
+            [value "ISDA1996Equity"]
+        + ISDA1997Bullion
+            [value "ISDA1997Bullion"]
+        + ISDA1997GovernmentBondOption
+            [value "ISDA1997GovernmentBond"]
+        + ISDA1998FxAndCurrencyOption
+            [value "ISDA1998FX"]
+        + ISDA1999CreditDerivatives
+            [value "ISDA1999Credit"]
+        + ISDA2000
+            [value "ISDA2000"]
+        + ISDA2002EquityDerivatives
+            [value "ISDA2002Equity"]
+        + ISDA2003CreditDerivatives
+            [value "ISDA2003Credit"]
+        + ISDA2004Novation
+            [value "ISDA2004Novation"]
+        + ISDA2005Commodity
+            [value "ISDA2005Commodity"]
+        + ISDA2006
+            [value "ISDA2006"]
+        + ISDA2006InflationDerivatives
+            [value "ISDA2006Inflation"]
+        + ISDA2008InflationDerivatives
+            [value "ISDA2008Inflation"]
+        + ISDA2011EquityDerivatives
+            [value "ISDA2011Equity"]
+        + ISDA2014CreditDerivatives
+            [value "ISDA2014Credit"]
 
 	ContractualSupplementTypeEnum:
 		+ ABX

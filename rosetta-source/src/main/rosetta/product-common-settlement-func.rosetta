@@ -22,25 +22,15 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list o
 
 	condition DirectionNotIncrease: direction <> QuantityChangeDirectionEnum -> Increase
 
-func Create_PriceQuantity: <"Populates a PriceQuantity object based on Price and/or Quantity inputs.">
-	inputs:
-		price PriceSchedule (0..*) <"List of prices">
-		quantity NonNegativeQuantitySchedule (0..*) <"List of quantities">
-		observable Observable (0..1)
-	output:
-		priceQuantity PriceQuantity (1..1) <"The PriceQuantity object populated from the Price and Quantity list inputs.">
+func RateOptionObservableCondition: <"Implementation for PriceQuantity.RateOptionObservable condition.">
+    inputs:
+        pq PriceQuantity (1..1)
+    output:
+        valid boolean (0..1)
 
-	add priceQuantity -> price: price
-	add priceQuantity -> quantity: quantity
-	set priceQuantity -> observable: observable
-
-
-func Create_ResolvablePriceQuantity: <"Populates a PriceQuantity object based on Price and/or Quantity inputs.">
-	inputs:
-		quantity NonNegativeQuantitySchedule (1..1)
-		price PriceSchedule (0..*)
-	output:
-		priceQuantity ResolvablePriceQuantity (1..1) <"The Resolvable PriceQuantity object populated from the Price and Quantity list inputs.">
-
-	set priceQuantity -> quantitySchedule: quantity
-	set priceQuantity -> priceSchedule: price
+    set valid:
+        if pq -> observable -> rateOption exists and pq -> price exists
+        then
+            pq -> price
+            extract [ priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists ]
+            all = True

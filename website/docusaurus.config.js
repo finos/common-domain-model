@@ -4,7 +4,7 @@
 // Replace 'project-blueprint' with {project name}
 const projectName = 'Common Domain Model'
 // Replace 'project-blueprint' with {project name}
-const projectSlug = 'project-blueprint'
+const projectSlug = 'common-domain-model'
 // Replace 'FINOS' with {name of copyright owner}
 const copyrightOwner = 'FINOS'
 
@@ -21,6 +21,10 @@ module.exports = {
   scripts: ['https://buttons.github.io/buttons.js'],
   stylesheets: ['https://fonts.googleapis.com/css?family=Overpass:400,400i,700'],
   themeConfig: {
+    colorMode: {
+      defaultMode: 'light',
+      disableSwitch: true
+    },
     navbar: {
       title: `${projectName}`,
       logo: {
@@ -45,15 +49,95 @@ module.exports = {
       },
       links: [
         {
-          title: 'Docs',
+          title: 'CDM Working Groups',
           items: [
             {
-              label: 'Getting Started',
-              to: 'docs/home',
+              label: 'Contribution Review Working Group',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+            },
+            {
+              label: 'Collateral Working Group',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+            },
+            {
+              label: 'Technology Architecture Working Group',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+            },
+            {
+              label: 'Structured Products Working Group',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+            }
+          ]
+        },
+        {
+          title: 'More CDM Working Groups',
+          items: [
+            {
+              label: 'FINOS CDM Steering Working Group',
+              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+            },
+            {
+              label: 'ISLA CDM Working Group (Securities Lending)',
+              href: 'https://www.islaemea.org/working-groups/',
+            },
+            {
+              label: 'ISLA CDM Trading Working Group (Securities Lending)',
+              href: 'https://www.islaemea.org/working-groups/',
+            },
+            {
+              label: 'ISLA Document Digitisation Working Group (GMSLA)',
+              href: 'https://www.islaemea.org/working-groups/',
+            },
+          ]
+        },
+        {
+          title: 'Consume',
+          items: [
+            {
+              label: 'CDM GitHub Repo',
+              href: 'https://www.finos.org/common-domain-model',
+            },
+            {
+              label: 'Releases',
+              href: 'https://github.com/finos/common-domain-model/releases',
+            },
+            {
+              label: 'FAQ',
+              href: 'https://github.com/finos/common-domain-model/issues/2058',
+            },
+            {
+              label: 'What Is The CDM?',
+              to: '/pdfs/what_is_the_cdm.pdf',
+              target: '_blank'
+            },
+            {
+              label: 'CDM Java Distribution Guidelines',
+              to: 'docs/cdm-guidelines',
+            },
+            {
+              label: 'Download Source Code',
+              to: 'docs/download',
+            },
+            {
+              label: 'CDM Launch Press Release',
+              href: 'https://www.finos.org/press/finos-launches-common-domain-model-project-in-partnership-with-isda-isla-and-icma',
+            }
+          ]
+        },
+        {
+          title: 'FINOS',
+          items: [
+            {
+              label: 'FINOS Website',
+              href: 'https://www.finos.org',
+            },
+            {
+              label: 'FINOS GitHub Org',
+              href: 'https://www.github.com/finos',
             },
             {
               label: 'About FINOS',
-              to: 'docs/about-finos',
+              to: 'https://www.finos.org/about-us',
             }
           ]
         },
@@ -67,7 +151,7 @@ module.exports = {
         docs: {
           path: '../docs',
           editUrl:
-            'https://github.com/finos/open-developer-platform/edit/master/website/',
+            'https://github.com/finos/common-domain-model/edit/master/website/',
           sidebarPath: require.resolve('./sidebars.js')
         },
         theme: {

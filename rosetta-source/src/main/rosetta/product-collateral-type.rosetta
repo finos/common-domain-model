@@ -36,7 +36,7 @@ type CollateralProvisions: <"Contains collateral attributes which can also inher
 
     collateralType CollateralTypeEnum (1..1) <"Enumerates the collateral types which are accepted by the Seller.">
 		[docReference ICMA GMRA namingConvention "marginType"]
-    eligibleCollateral EligibleCollateralSpecification (0..*) <"The eligible collateral as specified in relation to the transaction.">
+    eligibleCollateral EligibleCollateralCriteria (0..*) <"The eligible collateral as specified in relation to the transaction.">
     substitutionProvisions SubstitutionProvisions (0..1) <"The provisions for collateral substitutions such as how many and when they are allowed.">
 
 type SubstitutionProvisions: <"Defines collateral substitution provisions such as how many and with how much notice are substitutions allowed.">
@@ -101,12 +101,15 @@ type EligibleCollateralSpecification: <"Represents a set of criteria used to spe
 	[metadata key]
 
 	identifier Identifier (0..*) <"Specifies the identifier(s) to uniquely identify eligible collateral or a set of eligible collateral, such as a schedule or equivalant for an identity issuer.">
+    party Party (0..2) <"The parties associated with the specification.">
+    counterparty Counterparty (0..2) <"Specification of the roles of the counterparties to the specification.">
 	criteria EligibleCollateralCriteria (1..*) <"Represents a set of criteria used to specify eligible collateral.">
 
-type CollateralCriteriaBase: <"Represents a set of criteria used to specify and desribe collateral.">
+type CollateralCriteriaBase: <"Represents a set of criteria used to specify and describe collateral.">
 
-	issuer IssuerCriteria (0..*) <"Represents a filter based criterai related to the issuer.">
-	asset AssetCriteria (0..*) <"Represents a filter based on the criteria realted to the asset.">
+	issuer IssuerCriteria (0..*) <"Represents a filter based criteria related to the issuer.">
+	asset AssetCriteria (0..*) <"Represents a filter based on the criteria related to the asset.">
+        appliesTo CounterpartyRoleEnum (0..2) <"Specifies which of the two counterparties the criteria applies to (either one or both counterparties). This attribute is optional, in case the applicable party is already specified elsewhere within a party election.">
 
 type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a set of criteria used to specify eligible collateral.">
 
