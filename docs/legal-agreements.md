@@ -443,6 +443,8 @@ type EligibleCollateralSpecification:
    [rootType]
    [metadata key]
    identifier Identifier (0..*)
+   party Party (0..2)
+   counterparty Counterparty (0..2)
    criteria EligibleCollateralCriteria (1..*)
 ```
 
@@ -474,6 +476,7 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase:
 type CollateralCriteriaBase:
    issuer IssuerCriteria (0..*)
    asset AssetCriteria (0..*)
+   appliesTo CounterpartyRoleEnum (0..2)
 ```
 
 ``` Haskell

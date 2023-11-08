@@ -12,7 +12,7 @@ import cdm.base.staticdata.party.*
 
 type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
     clause MasterAgreementClause (1..*) <"Clauses that have had elections made against them in this Master Agreement. There must be at least one clause defined in the agreement.">
-    
+
 type MasterAgreementClause: <"Defines clauses that make up a Master Agreement">
     identifer MasterAgreementClauseIdentifierEnum (1..1) <"Unique identifier for the clause">
     name string (0..1) <"Optional textual description of the clause.">
@@ -36,8 +36,8 @@ type MasterAgreementVariableSet: <"Defines a type where additional variables ass
         if variableSet exists then name is absent and value is absent
 
     condition VariableSetNesting: <"We are only allowing two levels of nesting of variableSet for the time being. This is because we only need to support tables of data in the master agreement variants. This condition can be modified or deleted if we find we need more levels of nesting.">
-	if variableSet->variableSet exists then
-            variableSet->variableSet->variableSet is absent
+        if variableSet -> variableSet exists
+        then variableSet -> variableSet -> variableSet is absent
 
     condition NameMustExist: <"If we have a name then we must also have a value.">
         if name exists then value exists
@@ -78,7 +78,7 @@ type UnderlierSubstitutionProvision: <"Where parties describe any substitution t
     disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
 
     condition DisputingPartyCannotHaveOriginalRole:
-    whoMaySubstitute all <> disputingParty
+        whoMaySubstitute all <> disputingParty
 
 type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
     additionalBespokeTerms Clause (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
@@ -120,20 +120,20 @@ type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption
     determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
     additionalBespokeTerms Clause (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
     condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-        if maximumStockLoanRate exists then
-            maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
+        if maximumStockLoanRate exists
+        then maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
 
     condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-        if initialStockLoanRate exists then
-            initialStockLoanRate >= 0 and initialStockLoanRate <= 1
+        if initialStockLoanRate exists
+        then initialStockLoanRate >= 0 and initialStockLoanRate <= 1
 
     condition DisruptionEventsDeterminingParty:
-        if determiningParty exists then
-            determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+        if determiningParty exists
+        then determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
 
 type Clause: <"A type for documenting additional clause that cannot yet be represented with the model and yet needed for a digital representation of the agreement">
     identifier string (0..1) <"The  name or identifier associated to this clause ">
-    terms string (0..1)<"Content of this bespoke clause">
-    subcomponents Clause (0..*)<"Additional hierarchichal components of the clause if relevant">
-    condition: <"The Clause should describe at least the additional terms,  additional subcomponents or both"> 
+    terms string (0..1) <"Content of this bespoke clause">
+    subcomponents Clause (0..*) <"Additional hierarchichal components of the clause if relevant">
+    condition: <"The Clause should describe at least the additional terms,  additional subcomponents or both">
         optional choice terms, subcomponents

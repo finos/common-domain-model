@@ -6,11 +6,13 @@
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.   \
  \
-The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check License.md
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
 
 To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/Getting%20Started.md#best-practices) by completing a [Community Specification Contributor License Agreement](https://community.finos.org/docs/governance/Standards-Projects#ip-licensing-requirements) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
+
+Read more about project contribution guidelines, principles, frequently asked questions and the journey of [Common Domain Model into Open Source at FINOS](https://www.finos.org/hubfs/Accepted%20FINOS%20Edits_%20Common%20Domain%20Model%20into%20Open%20Source%20at%20FINOS.docx.pdf).
 
 ## Governance overview
 
@@ -24,17 +26,17 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 ### Active Working Groups
 
-The following Working Groups are currently activated or about to be setup for this project:
+The following Working Groups are currently activated or about to be set up for this project:
 
-* [Contribution Review Working Group](https://www.finos.org/finos-community-calendar)
-* [Collateral Working Group](https://www.finos.org/finos-community-calendar)
-* [Technology Architecture Working Group](https://www.finos.org/finos-community-calendar)
-* [Structured Products Working Group](https://www.finos.org/finos-community-calendar)
-* [FINOS CDM Steering Working Group](https://www.finos.org/finos-community-calendar)
+* [Contribution Review Working Group](/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
+* [Collateral Working Group](/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf)
+* [Technology Architecture Working Group](/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf)
+* [Structured Products Working Group](https://www.finos.org/calendar)
+* [FINOS CDM Steering Working Group](https://github.com/finos/common-domain-model#2-working-groups)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
-* ICMA CDM SteerCo for repo and bonds
+* [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
@@ -102,13 +104,19 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the bi-weekly CDM Contribution Review Working Group, monthly Collateral Working Group, monthly FINOS CDM Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). If you are using an outlook calender you can add the meetings to your calender directly by downloading the ics files shown [here.](https://github.com/eteridvalishvili/common-domain-model/tree/master/meeting-ics-files)
+Finally, another great way to interact with the community is to attend the bi-weekly CDM Contribution Review Working Group, monthly Collateral Working Group, monthly FINOS CDM Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 
 ### 
 **Need help?**
 
 Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+
+## Roadmap
+
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under Roadmap.md.
+
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
 
 ## Contributing
