@@ -1,4 +1,4 @@
-### Create Shaping Business Event
+### Create Partial Delivery Business Event
 
 #### New Execution
 - Execution is performed on `2021-3-18` between parties `Global Bank Inc (Seller)` and `UK Bank plc (Buyer)`

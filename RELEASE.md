@@ -12,14 +12,14 @@ it will be delivered.
 
 _What is being released?_
 
-A new function `Create_PartialDeliveryPrimitivenstruction` is added that accepts inputs of the delivered amount and undelivered amount. 
+A new function `Create_PartialDeliveryPrimitiveInstruction` is added that accepts inputs of the delivered amount and undelivered amount. 
 The function closes the existing trade and opens two new trades, one based on the delivered quantity and one based on the undelivered
 quantity. The function returns a primitive instruction that can be used to execute a business event. 
 There is a also a new qualification function `Qualify_PartialDelivery` that validates the results meet the partial delivery criteria.
 
 _Reprice and Adjustment
 
-Repricing and Adjustment are methods used to elimintate net exposures between counterparties. In both methods the original transaction is terminated
+Repricing and Adjustment are methods used to eliminate net exposures between counterparties. In both methods the original transaction is terminated
 and a new transaction is opened for the remaining term. In repricing, the purchase price of the new transaction is set equal to the market value of the
 collateral. The difference between the repurchase price of the terminated transaction and the purchase price of the new transaction is paid net. 
 
@@ -50,3 +50,5 @@ A new function `Create_SubstitutionPrimitiveInstruction` is added that accepts i
 amounts and price, and returns a new primitive instruction that can be used to execute a business event. In the case where
 there was a contractual agreement to substitute collateral the original trade remains with reference to it's contract, identifiers, and 
 other details. There is a also a new qualification function `Qualify_Substitution` that validates the results meet the substitution criteria.
+
+PR https://github.com/finos/common-domain-model/pull/2472
