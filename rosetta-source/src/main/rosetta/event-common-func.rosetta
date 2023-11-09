@@ -2052,7 +2052,7 @@ func Create_RepriceOrAdjustmentTermsChangeInstruction: <"Creates the relevant te
 	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
 		effectiveRepriceDate
 
-func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
+func Create_RepurchaseAdjustmentPrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
 	inputs:
 		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
 		newAllinPrice number(1..1) <"The collateral all-in price.">
@@ -2242,12 +2242,12 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
 		afterEconomicTerms exists and
 		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
 
-func Qualify_Adjustment: <"This qualification function is used to qualify adjustment of a contractual product with an interest rate payout and assetPayout.">
-	[qualification BusinessEvent]
+func Qualify_RepurchaseAdjustment: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
+	//[qualification BusinessEvent]
 	inputs:
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
-	
+
 	alias beforeTradableProduct: businessEvent -> instruction only-element -> before -> trade -> tradableProduct
     alias afterTradableProduct: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
 
@@ -2256,28 +2256,28 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
 		beforeTradableProduct -> tradeLot only-element -> priceQuantity
 		extract [ item -> price ]
 		then flatten
-		then  filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
-		then extract [ item ->  value ]
+		then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
+		then extract [ item -> value ]
 
 	alias afterTradePurchasePrice:
 		afterTradableProduct -> tradeLot only-element -> priceQuantity
 		extract [ item -> price ]
 		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
+		then filter [ item ->  priceType = PriceTypeEnum -> InterestRate ]
 		then extract [ item -> value ]
 
 	alias beforeTradeCollateralQuantity:
 		beforeTradableProduct -> tradeLot only-element -> priceQuantity
 		extract [ item -> price ]
 		then flatten
-		then filter [ item ->  priceType = PriceTypeEnum -> AssetPrice ]
-		then extract [ item ->  value ]
+		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
+		then extract [ item -> value ]
 
 	alias afterTradeCollateralQuantity:
 		afterTradableProduct -> tradeLot only-element -> priceQuantity
 		extract [ item -> price ]
 		then flatten
-		then filter [ item ->  priceType = PriceTypeEnum -> AssetPrice ]
+		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
 		then extract [ item ->  value ]
 
 	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
@@ -2285,13 +2285,14 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
 
 	set is_event:
 		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
+		beforeTradePurchasePrice exists and
+		afterTradePurchasePrice exists and
 		afterTradePurchasePrice  = beforeTradePurchasePrice and
 		beforeTradeCollateralQuantity <> afterTradeCollateralQuantity and
 		beforeEconomicterms exists and
 		afterEconomicTerms exists and
 		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
-
-
+		
 
 func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
 	inputs:
