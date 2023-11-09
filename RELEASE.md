@@ -3,7 +3,7 @@
 _What is being released?_
 
 A new enumeration list has been added to the Common Domain Model named `ISOCountryCodeEnum`.
-The following changes have been made in the CDM to connect to this:
+The following changes have been made in the CDM to connect to this (including replacing the string with the enum list in the following occurances):
 
 1.	Data type `IssuerCriteria` attribute `issuerCountryOfOrigin`, string and metadata scheme removed, `ISOCountryCodeEnum` added.
 2.	Data type `AssetCriteria` attribute `assetCountryOfOrigin`, string and metadata scheme removed, `ISOCountryCodeEnum` added.
