@@ -1,39 +1,60 @@
-# *Collateral Model - Check Eligibility Function*
+# _Exchange Traded Positions Model in CDM Core_
 
 _Background_
 
-As part of the [FINOS BMO Hackathon](https://www.finos.org/hosted-events/2023-05-03-finos-hackathon-bmo-nyc) event in May 2023, a demonstation of a [use-case](https://github.com/finos/community/discussions/251) was created that showed the CDM can be used to check collateral eligibility against multiple jurisdictions’ minimum collateral requirements and specific eligible collateral schedules.
+The CDM model does not currently support exchange traded positions
+within its framework. To that end, a collaborative effort has been made to model
+them within the framework of the CDM. This initiative has been a collective endeavor,
+drawing upon the expertise of SMEs. The primary objective has been to establish a
+representation of Exchange Traded Positions that aligns with the broader CDM. A
+working model has been reached which gathers consensus among member firms, and entails
+the creation of a root type `CounterpartyPositionState`, and a new type `CounterpartyPositionBusinessEvent`
+within the already existing `WorkflowStep` to document the state transition of a counterparty
+position in CDM.
 
-The demonstation was successful has been codified into the CDM and the `CheckEligibilityByDetails` function.
-
-_Model Changes_
-
-- Added new function/types:
-    - `CheckEligibilityByDetails` - Applys an `EligibilityQuery` to check against a set of given `EligibleCollateralSpecification` to determine which collateral meets the eligibility and can be used/posted for delivery.
-
-_Review directions_
-
-- Review the changes in the model
-- Inspect the Pull Request: https://github.com/finos/common-domain-model/pull/2439
-
-# *Product Model/ Collateral – ISO Country Code Enum and connection to Asset/Issuer Criteria*
 
 _What is being released?_
 
-A new enumeration list has been added to the Common Domain Model named `ISOCountryCodeEnum`.
-The following changes have been made in the CDM to connect to this (including replacing the string with the enum list in the following occurrences):
+- Support for exchange traded positions to CDM Core.
 
-1.	Data type `IssuerCriteria` attribute `issuerCountryOfOrigin`, string and metadata scheme removed, `ISOCountryCodeEnum` added.
-2.	Data type `AssetCriteria` attribute `assetCountryOfOrigin`, string and metadata scheme removed, `ISOCountryCodeEnum` added.
-   
-In addition, the following change has been made for connecting to ISO Currency codes: 
+_Data types_
 
-1.	Data type `AssetCriteria` attribute `denominatedCurrency`, string and metadata scheme removed, `CurrencyCodeEnum` added.
+- Added new `CounterpartyPositionState` root type.
+- `counterpartyPosition` attribute of type `CounterpartyPosition` added to `CounterpartyPositionState` type.
+- `state` attribute of type `State` added to `CounterpartyPositionState` type.
+- `observationHistory` attribute of type `ObservationEvent` added to `CounterpartyPositionState` type.
+- `valuationHistory` attribute of type `Valuation` added to `CounterpartyPositionState` type.
+- Added new `CounterpartyPositionBusinessEvent` type.
+- `intent` attribute of type `PositionEventIntentEnum` added to `CounterpartyPositionBusinessEvent` type.
+- `corporateActionIntent` attribute of type `CorporateActionTypeEnum` added to `CounterpartyPositionBusinessEvent` type.
+- `eventDate` attribute of type `date` added to `CounterpartyPositionBusinessEvent` type.
+- `effectiveDate` attribute of type `date` added to `CounterpartyPositionBusinessEvent` type.
+- `packageInformation` attribute of type `IdentifiedList` added to `CounterpartyPositionBusinessEvent` type.
+- `after` attribute of type `CounterpartyPositionState` added to `CounterpartyPositionBusinessEvent` type.
+- Added new `PositionIdentifier` type.
+- `identifierType` attribute of type `PositionIdentifierTypeEnum` added to `PositionIdentifier` type.
+- `valuationTiming` attribute of type `PriceTimingEnum` added to `Valuation` type.
+- `priceComponent` attribute of type `Price` added to `Valuation` type.
+- `counterpartyPositionBusinessEvent` attribute of type `CounterpartyPositionBusinessEvent` added to `WorkflowStep` type.
+- Added new `ContractBase` type.
+- `contractDetails` attribute of type `ContractDetails` added to `ContractBase` type.
+- `executionDetails` attribute of type `ExecutionDetails` added to `ContractBase` type.
+- `collateral` attribute of type `Collateral` added to `ContractBase` type.
+- Added new `CounterpartyPosition` type.
+- `positionIdentifier` attribute of type `PositionIdentifier` added to `CounterpartyPosition` type.
+- `openDateTime` attribute of type `dateTime` added to `CounterpartyPosition` type.
+- `tradeReference` attribute of type `TradeState` added to `CounterpartyPosition` type.
+- `party` attribute of type `Party` added to `CounterpartyPosition` type.
+- `partyRole` attribute of type `PartyRole` added to `CounterpartyPosition` type.
+- `positionBase` attribute of type `TradableProduct` added to `CounterpartyPosition` type.
+- Added condition `CounterpartyPositionBusinessEventOrBusinessEventChoice` to `WorkflowStep` type.
+- Added `[metadata key]` to `Collateral` type.
 
+_Enumerations_
 
-_Review Directions_
+- Added new `PositionEventIntentEnum` enumeration.
+- Added new `PriceTimingEnum` enumeration.
 
-In the CDM Portal, select the Textual Browser and inspect the changes mentioned above. 
+_Review directions_
 
-Changes can be review in PR: https://github.com/finos/common-domain-model/pull/2477
-
+In the CDM Portal, select the Textual Browser and inspect each of the changes listed above.
