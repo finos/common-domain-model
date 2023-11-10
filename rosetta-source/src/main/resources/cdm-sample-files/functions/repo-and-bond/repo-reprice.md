@@ -5,7 +5,7 @@
 - `10000000` notional of `GB00B24FF097` are sold with dirty price of `1.0075 GBP`, a repo rate of `0.4%` and haircut of `1%`
 - Purchase date is on `2021-3-19` and repurchase date `2021-3-22`
 
-#### On Demand Interest Payment Before Expiry
+#### Create Repo Reprice
 - A reprice (changing the all-in price of the collateral) occurs with a new all-in rate of 99.25. 
 - This results in a change in the cash value of the repo from 9,974,250 to 9,825,750. 
 - A reprice does not result in a change in collateral quantity, this can be performed using a repo adjustment.

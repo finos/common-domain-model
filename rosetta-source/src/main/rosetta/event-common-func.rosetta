@@ -2321,11 +2321,11 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
                     ...
                 }
 
-func Create_SubstitutionInstruction:<"Creates the terms change instruction that updates the payout with the new subsitution payout.">
+func Create_SubstitutionInstruction:<"Creates the terms change instruction that updates the payout with the new substitution payout.">
 	inputs:
-		contractualProduct ContractualProduct (1..1) <"The orginal contractual product to be used as the basis of the new trade.">
-		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-		newCollateralPortfolio CollateralPortfolio(1..1) <"New collateral portfolio to subtitute for the original collateral.">
+		contractualProduct ContractualProduct (1..1) <"The original contractual product to be used as the basis of the new trade.">
+		effectiveDate AdjustableOrRelativeDate (1..1) <"The effective date of the substitution.">
+		newCollateralPortfolio CollateralPortfolio(1..1) <"New collateral portfolio to substitute for the original collateral.">
 	output:
 		termsChangeInstruction TermsChangeInstruction (1..1)
 
@@ -2345,12 +2345,10 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 
 	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
 	alias openEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias closedTradeState: FilterClosedTradeStates( businessEvent -> after )
     
 	set is_event:
 		beforeEconomicterms exists and		
 		openEconomicTerms exists and
-		closedTradeState count = 1 and
 		openEconomicTerms -> payout <> beforeEconomicterms -> payout and
 		openEconomicTerms -> collateral <> beforeEconomicterms -> collateral and
 		openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate and

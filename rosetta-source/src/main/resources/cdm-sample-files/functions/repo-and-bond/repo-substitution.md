@@ -6,5 +6,5 @@
 - Purchase date is on `2021-3-19` and repurchase date `2021-3-22`
 
 #### Substitution
-- A substitution of collateral occurs that replaces `GB00B24FF097` with `'GB00BMGR2916' at a dirty price of 98.5 an amount of 10,228,426.
+- A substitution of collateral occurs that replaces `GB00B24FF097` with `GB00BMGR2916` at a dirty price of 98.5 an amount of 10,228,426.
 - The repo rate and all other terms of the contract remain the same.

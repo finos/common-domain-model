@@ -7,5 +7,5 @@
 
 #### Partial Delivery Event
 - On the day of the settlement on `2021-3-18`, the seller delivers `750000` notional of `GB00B24FF097`. 
-- Even though this delivery does not fulfill the required delivery amount the buy accepts the amount the trand is adjusted accordingly.
+- Even though this delivery does not fulfill the required delivery amount the buyer accepts the amount the trade is adjusted accordingly.
 - A separate trade is created for the remaining undelivered amount on a date and rate agreed by the buyer.
