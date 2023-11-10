@@ -1,4 +1,4 @@
-# _Rename product qualification for Securities Lending and Repo_
+# *Rename product qualification for Securities Lending and Repo*
 
 _Background_
 
