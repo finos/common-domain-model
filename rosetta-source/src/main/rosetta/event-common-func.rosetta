@@ -642,7 +642,8 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         transfer Transfer (1..1)
 
     alias assetPayout:
-        instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
+            collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
 
     alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
         FilterQuantityByFinancialUnit(
@@ -709,8 +710,10 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
     set transfer -> settlementDate -> adjustedDate: instruction -> date
 
     set transfer -> settlementOrigin -> assetPayout:
-        if instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
-        then instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        if instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
+            collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
+        then instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
+            collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
             as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
@@ -1227,7 +1230,8 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
+            collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral
@@ -1359,7 +1363,8 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
+                collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
                 and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
