@@ -63,9 +63,7 @@ public class CreateEligibleCollateralSpecificationFromInstructionTest extends Ab
                 .addIssuer(IssuerCriteria.builder()
                         .addIssuerType(CollateralIssuerType.builder()
                                 .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
-                        .addIssuerCountryOfOrigin(FieldWithMetaString.builder()
-                                .setValue("GB")
-                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/external/iso3166"))))
+                        .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
                 .build();
     }
 
