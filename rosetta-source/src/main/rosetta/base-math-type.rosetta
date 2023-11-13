@@ -19,6 +19,10 @@ type MeasureBase: <"Provides an abstract type to define a measure as a number as
 	value number (0..1) <"Specifies the value of the measure as a number. Optional because in a measure vector or schedule, this single value may be omitted.">
 	unit UnitType (0..1) <"Qualifies the unit by which the amount is measured. Optional because a measure may be unit-less (e.g. when representing a ratio between amounts in the same unit).">
 
+    	//condition UnitTypeObservationCountMustBeInteger: <"Requires that a unit type must be an integer number when the selected Enum value is ObservationCount.">
+	//	if unit-> financialUnit = FinancialUnitEnum -> ObservationCount
+       // then value = number -> integer
+
 type Measure extends MeasureBase: <"Defines a concrete measure as a number associated to a unit. It extends MeasureBase by requiring the value attribute to be present. A measure may be unit-less so the unit attribute is still optional.">
 
 	condition ValueExists: <"The value attribute must be present in a concrete measure.">
@@ -26,6 +30,11 @@ type Measure extends MeasureBase: <"Defines a concrete measure as a number assoc
 
 type MeasureSchedule extends MeasureBase: <"A set of measures, all in the same unit, where the values are defined through a schedule of steps. The initial value may be defined either as part of the steps, or using the single amount attribute.">
 	datedValue DatedValue (0..*) <"A schedule of step date and value pairs. On each step date the associated step value becomes effective. The step dates are used to order the steps by ascending order. This attribute is optional so the data type may be used to define a schedule with a single value.">
+    parametricDatedValue PeriodicDates (0..1) <"The schedule of step date and value pairs, when represented with parametric dates.">
+    datedValueAggregationMethod NewDatedValuesAggregationMethodEnum (0..1) <"Specifies the aggregation method between two consecutive values in dated value series.">
+
+    condition : 
+    optional choice datedValue, parametricDatedValue
 
 	condition ValueExists: <"A schedule may be specified as a single value or as a set of date-value pairs. Both attributes may be specified, in which case the single amount number is the initial value.">
 		value exists or datedValue exists

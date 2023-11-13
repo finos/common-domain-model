@@ -55,7 +55,8 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
 		[metadata reference]
 	quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
 	reset boolean (0..1) <"Whether the quantity is resettable">
-	futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
+	resetDate NewDateRelativeToEnum (0..1)
+    futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
 	priceSchedule PriceSchedule (0..*) <"A payout's price specified as a schedule, which may also contain a single value if that price is constant. There may be multiple prices specified for a single payout: e.g. a floating interest rate leg may specify a spread, a cap and/or floor and a multiplier. The price must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
 		[metadata address "pointsTo"=PriceQuantity->price]
 
@@ -226,12 +227,62 @@ type PhysicalSettlementTerms: <"Specifies Physical Settlement Terms characterist
 	predeterminedClearingOrganizationParty AncillaryRoleEnum (0..1) <"Specifies the clearing organization (CCP, DCO) to which the trade should be cleared.">
 	physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">
 	deliverableObligations DeliverableObligations (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable obligations.">
-	escrow boolean (0..1) <"If this element is specified and set to 'true', indicates that physical settlement must take place through the use of an escrow agent. (For Canadian counterparties this is always 'Not Applicable'. ISDA 2003 Term: Escrow.">
+	deliverableProduct cdm.product.template.NewProduct (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable product.The metadata location permits to reference this item in as need be, in entitlementProvisions.">
+    [metadata location]
+    escrow boolean (0..1) <"If this element is specified and set to 'true', indicates that physical settlement must take place through the use of an escrow agent. (For Canadian counterparties this is always 'Not Applicable'. ISDA 2003 Term: Escrow.">
 	sixtyBusinessDaySettlementCap boolean (0..1) <"If this element is specified and set to 'true', for a transaction documented under the 2003 ISDA Credit Derivatives Definitions, has the effect of incorporating the language set forth below into the confirmation. The section references are to the 2003 ISDA Credit Derivatives Definitions. Notwithstanding Section 1.7 or any provisions of Sections 9.9 or 9.10 to the contrary, but without prejudice to Section 9.3 and (where applicable) Sections 9.4, 9.5 and 9.6, if the Termination Date has not occurred on or prior to the date that is 60 Business Days following the Physical Settlement Date, such 60th Business Day shall be deemed to be the Termination Date with respect to this Transaction except in relation to any portion of the Transaction (an 'Affected Portion') in respect of which: (1) a valid notice of Buy-in Price has been delivered that is effective fewer than three Business Days prior to such 60th Business Day, in which case the Termination Date for that Affected Portion shall be the third Business Day following the date on which such notice is effective; or (2) Buyer has purchased but not Delivered Deliverable Obligations validly specified by Seller pursuant to Section 9.10(b), in which case the Termination Date for that Affected Portion shall be the tenth Business Day following the date on which Seller validly specified such Deliverable Obligations to Buyer.">
+    entitlementProvisions NewEntitlementProvisions (0..1)
 
 	condition PredeterminedClearingOrganizationParty:
 		if predeterminedClearingOrganizationParty exists
 		then predeterminedClearingOrganizationParty = AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
+
+type NewEntitlementProvisions: <"Specifies the rules and the results of related calculations for determining the number of deliverable units and related fractional amount, when taking into account rounding rules and denomination features, else when the deliverable quantity is not yet fixed at trade inception and will thus result from a specific calculation, possibly including contigent features e.g. as an example, when 'worst of' a basket should be delivered. Most common formulas to describe here are : grossPhysicalEntitlement = Notional Quantity / (Price x FX), roundedPhysicalEntitlement = roundingOf(entilementRatio) x denomination, where ratioEntitlement = grossEntitlement / denomination, and fractionalAmount = (grossPhysicalEntitlement - roundedPhysicalEntitlement) x (Price x FX) .">
+
+    deliverablePhysicalEntitlement int (0..1) <"The number of deliverable assets to be delivered. It is assumed such number is an integer. Further information about calculation method and related inputs for defining such number may be defined in physicalEntitlementPayout.">
+    payableFractionalCashAmount Money (0..1) <"The amount that is payable to compensate for rounding the gross number of deliverable assets to be delivered. Further information about calculation method and related inputs for defining such number may be defined in cashFractionalAmountPayout.">
+    physicalEntitlementPayout NewPhysicalEntitlementPayout (0..1) <"Defines the inputs and related formula for representing the the calculation of the deliverablePhysicalEntitlement.">
+    fractionalCashAmountPayout NewCashFractionalAmountPayout (0..1) <"Defines the inputs and related formula for representing the the calculation of the payableFractionalCashAmount.">
+
+
+type NewPhysicalEntitlementPayout:<"Defines the inputs and related formula for representing the the calculation of the deliverablePhysicalEntitlement.">
+    grossPhysicalEntitlement NewGrossPhysicalEntitlement (0..1) <"Defines the inputs for representing this formula: grossPhysicalEntitlement = Notional Quantity / (Price x FX). The metadata location exists for the purposed of referencing the grossPhysicalEntitlement if need be ; for instance in roundedPhysicalEntitlement, as well as in cashFractionalAmountPayout.">
+     [metadata location]
+    roundedPhysicalEntitlement NewRoundedPhysicalEntitlement (0..1)  <"Defines the inputs for representing this formula: roundedPhysicalEntitlement = roundingOf(entilementRatio) x denomination,  where: entitlementRatio = grossPhysicalEntitlement / denomination.">
+    [metadata location]
+
+type NewGrossPhysicalEntitlement: <"Defines the inputs for representing this formula: grossPhysicalEntitlement = Notional Quantity / (Price x FX). The metadata location exists for the purposed of referencing the grossEntitlementQuantity in the fractionalAmountCalculation, when any.">
+    notionalQuantity NonNegativeQuantitySchedule (1..1) <"The Notional Quantity, to use as an input to calculate the grossPhysicalEntitlement, in accordance to the related formula:  grossPhysicalEntitlement = Notional Quantity / (Price x FX). The metadata address exists for the purpose of referencing the relevant Notional Quantity, usually the Notional Amount that is the Principal Amount considerd for the Trade.">
+    [metadata address]
+    deliveryPrice_Divisor NewObservationBasis (1..1) <"The Price, and FX multiplier when need be, to use as an input to calculate the grossPhysicalEntitlement, in accordance to the related formula: grossPhysicalEntitlement = Notional Quantity / (Price x FX), where: Price may be further specified as need be, thanks to the ObservationConditions embedded in the ObservationBasis, and the FX may be defined via the Multiplier attibute, also embedded in the Structured Features of the ObservationBasis."> // Using here the ObservationBasis instead of simple Quantity would permit to benefit from more generic features in case the Notional Quantity is contigent, etc. However, as a first version if easier to begin with, using Quantity type instead would work //
+    [metadata location]
+    
+type NewRoundedPhysicalEntitlement: <"Defines the inputs for representing this formula: roundedPhysicalEntitlement = roundingOf(entilementRatio) x denomination,  where: entitlementRatio = grossPhysicalEntitlement / denomination.">
+    roundingOfEntilementRatio NewRoundingOfEntilementRatio (1..1) <"Defines the inputs for representing this formula: roundedPhysicalEntitlement = roundingOf(entilementRatio).">
+    denomination_Multiplier int (1..1) <"The Denomination. In case such term is absent from the Trade agreement, related value must be set to 1 by default.">
+
+type  NewRoundingOfEntilementRatio:<"Defines the inputs for representing this formula: roundedPhysicalEntitlement = roundingOf(entilementRatio).">
+
+    roundingParameters Rounding (1..1) <"Defines rounding rules and precision to be used in the rounding of the entitlementRatio.">
+    entilementRatio NewEntitlementRatio (1..1) <"Defines the inputs for representing this formula: entitlementRatio = grossPhysicalEntitlement / denomination.">
+
+type NewEntitlementRatio: <"Defines the inputs for representing this formula: entitlementRatio = grossPhysicalEntitlement / denomination.">
+
+    grossPhysicalEntitlement NewGrossPhysicalEntitlement (1..1) <"Defines the inputs for representing this formula: fractionalEntitlement = grossPhysicalEntitlement - roundedPhysicalEntitlement. The metadata address exists for the purposed of referencing the grossPhysicalEntitlement defined in physicalEntitlementPayout.">
+    [metadata address]
+    denomination_Divisor int (1..1) <"The Denomination. In case such term is absent from the Trade agreement, related value must be set to 1 by default.">
+
+type NewCashFractionalAmountPayout: <"Defines the inputs and related formula for representing the the calculation of the payableFractionalCashAmount i.e. fractionalCashAmount = (grossPhysicalEntitlement - roundedPhysicalEntitlement) x (Price x FX).">
+
+    grossEntitlementMinusRoundedEntitlement NewFractionalEntitlement (0..1) <"Defines the inputs for representing this formula: fractionalEntitlement = grossPhysicalEntitlement - roundedPhysicalEntitlement.">
+    deliveryPrice_Multiplier NewObservationBasis (1..1) <"The Price, and FX multiplier when need be, to use as an input to calculate the fractionalCashAmount = (grossPhysicalEntitlement - roundedPhysicalEntitlement) x (Price x FX). The metadata address exists for the purpose of referencing the delievryPrice defined in grossPhysicalEntitlement.">
+    [metadata address]
+
+type NewFractionalEntitlement : <"Defines the inputs for representing this formula: fractionalEntitlement = grossPhysicalEntitlement - roundedPhysicalEntitlement.">
+    grossPhysicalEntitlement NewGrossPhysicalEntitlement (1..1) <"Defines the inputs for representing this formula: entitlementRatio = grossPhysicalEntitlement / denomination. The metadata address exists for the purposed of referencing the grossPhysicalEntitlement defined in physicalEntitlementPayout.">
+    [metadata address]
+    roundedPhysicalEntitlement NewRoundedPhysicalEntitlement (1..1) <"Defines the inputs for representing this formula: roundedPhysicalEntitlement = roundingOf(entilementRatio) x denomination,  where: entitlementRatio = grossPhysicalEntitlement / denomination. The metadata address exists for the purposed of referencing the grossPhysicalEntitlement defined in physicalEntitlementPayout.">
+    [metadata address]
 
 type PercentageRule: <"A class defining a content model for a calculation rule defined as percentage of the notional amount.">
 
@@ -289,6 +340,12 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
 	condition PhysicalSettlementTerms: <"If the physical settlement terms are specified, then the settlementType can either be Physical, Election or CashOrPhysical">
 		if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
 		then settlementType <> SettlementTypeEnum -> Cash
+
+      //condition CashOrPhysicalContigent:
+  //if cashSettlementTypeKnockCondition exists 
+  //and physicalSettlementTypeKnockCondition exists
+ // then settlementType = SettlementTypeEnum -> CashOrPhysical
+
 
 type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
 	[metadata key]
@@ -352,9 +409,12 @@ type PrincipalPayment: <"Any kind of principal payments when the amount is known
     [metadata key]
     principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
     payerReceiver PayerReceiver (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
-    principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
+    principalAmount NonNegativeQuantitySchedule (0..1) <"When known at the time the transaction is made, the cash amount to be paid. The metadata address permits to reference original Notional Quantity that would be defined with metadata location in any related tradeLot->priceQuantity.">
+    [metadata address]
     discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
     presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
+    knockCondition cdm.product.template.New2Knock (0..*) <"Specifies that the parent object is contigent i.e. is deemed to exist (or not to exist) by default until the trigger is knocked Out (or knocked In).">
+    [metadata location]
 
     condition PrincipalAmount:
     	required choice principalAmount, presentValuePrincipalAmount
@@ -383,3 +443,4 @@ type SettlementProvision: <"Defines parameters that regulate a settlement, for i
 
 type ShapingProvision: <"Defines the applicable settlement limits that may require a settlement to be 'shaped', i.e. broken-down into smaller amounts.">
  	shapeSchedule Money (1..*) <"Defines applicable settlement limits in each currency.">
+
