@@ -890,6 +890,7 @@ type WorkflowStep:
   [metadata key]
   [rootType]
   businessEvent BusinessEvent (0..1)
+  counterpartyPositionBusinessEvent CounterpartyPositionBusinessEvent (0..1)
   proposedEvent EventInstruction (0..1)
   rejected boolean (0..1)
   approval WorkflowStepApproval (0..*)
