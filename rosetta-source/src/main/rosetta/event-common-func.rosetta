@@ -1424,7 +1424,7 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
                         direction: QuantityChangeDirectionEnum -> Replace,
                         lotIdentifier: empty
                     },
-                termsChange: Create_RollTermChangeInstruction(
+                termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
                             tradeState -> trade -> tradableProduct -> product -> contractualProduct,
                             effectiveRollDate,
                             terminationDate
@@ -1433,19 +1433,25 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
             }
         ]
 
-func Create_RollTermChangeInstruction: <"Creates the relevant terms change primitive instruction object for rolling a contractual product, which consists in the same terms as the original contractual product but with different effective and termination dates.">
+func Create_EffectiveOrTerminationDateTermChangeInstruction: <"Creates the relevant terms change primitive instruction object for rolling a contractual product, which consists in the same terms as the original contractual product but with different effective and termination dates.">
     inputs:
         contractualProduct ContractualProduct (1..1) <"The original contractual product to be rolled.">
-        effectiveRollDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-        terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
+        effectiveRollDate AdjustableOrRelativeDate (0..1) <"The date to close and open a new position.">
+        terminationDate AdjustableOrRelativeDate (0..1) <"The new termination date.">
     output:
         termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the roll, which is a terms change.">
 
     set termsChangeInstruction -> product -> contractualProduct: contractualProduct
+
     set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-        effectiveRollDate
+        if effectiveRollDate exists
+           then effectiveRollDate
+           else contractualProduct -> economicTerms -> effectiveDate
+
     set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-        terminationDate
+        if terminationDate exists
+           then terminationDate
+           else contractualProduct -> economicTerms -> terminationDate
 
 func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a single existing trade, (ii) entering into a new trade with the same details as the old trade, except for the effective and termination date where the effective date. The roll qualification does not make any assumption on the resulting quantity which may change compared to the original trade (it may only be partially rolled). The price is also likely different as market conditions may have evolved.">
     [qualification BusinessEvent]
@@ -1455,9 +1461,11 @@ func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a s
         is_event boolean (1..1)
 
     alias beforeEconomicterms:
-        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        ExtractBeforeEconomicTerms(businessEvent)
+
     alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        ExtractOpenEconomicTerms(businessEvent)
+
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     set is_event:
@@ -1514,6 +1522,7 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
             then flatten
             then filter priceType = PriceTypeEnum -> InterestRate
             then only-element
+
     alias newPrice: <"Create the new price object.">
         Price {
             value: newRate,
@@ -1526,6 +1535,7 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
             cashPrice: currentRatePrice -> cashPrice,
             datedValue: empty
         }
+
     alias newPriceQuantity: <"Create the new price quantity object.">
         PriceQuantity {
             price: newPrice,
@@ -1549,10 +1559,8 @@ func Create_OnDemandRateChangeTermsChangeInstruction: <"Creates a terms change i
     output:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
-    set termsChangeInstruction -> product -> contractualProduct: <"Keep the same contractual product as the original trade">
-        contractualProduct
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate: <"Updates the contractual product's effective date to be the new effective date.">
-        effectiveDate
+    set termsChangeInstruction:
+        Create_EffectiveOrTerminationDateTermChangeInstruction(contractualProduct, effectiveDate, empty)
 
 func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change event from the fact that the only primitive is the reset.">
     [qualification BusinessEvent]
@@ -1562,13 +1570,17 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
         is_event boolean (1..1)
 
     alias beforeTradableProduct:
-        businessEvent -> instruction only-element -> before -> trade -> tradableProduct
+         ExtractBeforeTradableProduct(businessEvent)
+
     alias beforeEconomicterms:
-        beforeTradableProduct -> product -> contractualProduct -> economicTerms
+        ExtractBeforeEconomicTerms(businessEvent)
+
     alias openTradableProduct:
         FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct
+
     alias openEconomicTerms:
-        openTradableProduct -> product -> contractualProduct -> economicTerms
+        ExtractOpenEconomicTerms(businessEvent)
+
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     alias beforePriceQuantityRateOnly: <"The rate value before. There must be 1 and only 1.">
@@ -1657,9 +1669,8 @@ func Create_CancellationTermChangeInstruction: <"Create a terms change instructi
     output:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
-    set termsChangeInstruction -> product -> contractualProduct: contractualProduct
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-        cancellationDate
+    set termsChangeInstruction:
+        Create_EffectiveOrTerminationDateTermChangeInstruction(contractualProduct, empty, cancellationDate)
 
 func Qualify_Cancellation: <"Qualification of an cancellation event.">
     [qualification BusinessEvent]
@@ -1670,8 +1681,9 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
 
     alias closedEconomicTerms:
         FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+
     alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
         businessEvent -> instruction -> before count = 1
@@ -1835,13 +1847,14 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
 		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
 		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
 		deliveredPriceQuantity PriceQuantity (1..*) <"The price and quantity of the delivered amount.">
-		undeliveredPriceQuantity PriceQuantity (1..*) <"The price and quantity of the remaining trade.">
 	output: 
 		instruction PrimitiveInstruction (1..1)
 
 	condition ContractualProduct: <"This function applies to contractual products only.">
 		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
 
+    set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
+        [Create_TerminationInstruction(tradeState)]
 
 	set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
 		[
@@ -1854,37 +1867,7 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
 		                    ...
 		                    }
         ]
-
-	add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
-		        [
-                    PrimitiveInstruction {
-                        quantityChange: QuantityChangeInstruction {
-                                change: undeliveredPriceQuantity,
-                                direction: QuantityChangeDirectionEnum -> Replace,
-                                lotIdentifier: empty
-                            },
-                        termsChange: Create_PartialDeliveryInstructionTermsChange(
-                                    tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                                    effectiveDate, terminationDate
-                                ),
-                        ...
-                    }
-                ]
 	
-func Create_PartialDeliveryInstructionTermsChange:
-	inputs:
-		contractualProduct ContractualProduct (1..1) <"The contractual product to be modifier.">
-		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
-	output:
-		termsChangeInstruction TermsChangeInstruction (1..1)
-
-	set termsChangeInstruction -> product -> contractualProduct:
-		contractualProduct
-	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-		effectiveDate
-	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-		terminationDate
 
 func Qualify_PartialDelivery: <"Qualification of a partial delivery which constitutes a change in quantity and open with the remaining quantity and termination date.">
 	[qualification BusinessEvent]
@@ -1892,90 +1875,34 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias openEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+    alias beforeEconomicterms:
+        ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms:
+        ExtractOpenEconomicTerms(businessEvent)
 
     alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
 
-	alias beforeTradableProduct: businessEvent -> instruction only-element -> before -> trade -> tradableProduct
-	alias afterTradableProduct: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
+    alias beforeTradableProduct:
+         ExtractBeforeTradableProduct(businessEvent)
 
-    alias oldPriceQuantity:
-        beforeTradableProduct -> tradeLot-> priceQuantity
+	alias afterTradableProduct:
+        ExtractAfterTradableProduct(businessEvent)
 
-    alias oldRatePrice: <"Filter interest rate price and make it into a single element">
-        oldPriceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then only-element
-
-    alias newPriceQuantity:
-        afterTradableProduct -> tradeLot-> priceQuantity
-
-    alias newRatePrice: <"Filter interest rate price and make it into a single element">
-        newPriceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then only-element
-
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
 	set is_event:
 		beforeEconomicterms exists and
 		openEconomicTerms exists and
-		openTrades count = 2 and
-        oldRatePrice = newRatePrice and
-		openEconomicTerms -> collateral = beforeEconomicterms -> collateral
+		openTrades count = 1 and
+		closedTradeState count = 1 and
+        openEconomicTerms -> payout -> interestRatePayout = beforeEconomicterms -> payout -> interestRatePayout and
+		openEconomicTerms -> collateral = beforeEconomicterms -> collateral and
+		openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate and
+		openEconomicTerms -> effectiveDate = beforeEconomicterms -> effectiveDate
 
 
-
-func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
-	inputs:
-		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
-		newAllinPrice number(1..1) <"The collateral all-in price.">
-		newCashValue number(0..1)<"The new collateral value.">
-		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
-	output:
-		instruction PrimitiveInstruction (0..1)
-
-	alias oldPriceQuantity:
-		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
-		
-	alias currentRatePrice: <"Filter interest rate price and make it into a single element">
-		oldPriceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then only-element
-		
-	alias newPrice: <"Create the new price object.">
-             Price {
-                    value: newAllinPrice,
-                    unit: currentRatePrice -> unit,
-                    perUnitOf: currentRatePrice -> perUnitOf,
-                    priceType: currentRatePrice -> priceType,
-                    priceExpression: currentRatePrice -> priceExpression,
-                    composite: currentRatePrice -> composite,
-                    arithmeticOperator: currentRatePrice -> arithmeticOperator,
-                    cashPrice: currentRatePrice -> cashPrice,
-                    datedValue: empty
-                }
-
-	condition ContractualProduct: <"This repricing function applies only to contractual products.">
-		tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
-		
-	condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
-		tradeState -> trade -> tradableProduct -> tradeLot count = 1
-	
-
-	set instruction: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-		if newCashValue exists then 
-			Create_ChangeRepurchasePriceInstruction( tradeState, newAllinPrice, newCashValue, effectiveRepriceDate )
-		else
-			empty
-		
-func Create_ChangeRepurchasePriceInstruction: <"This function is used when the cash amount and collateral amount need to be modified. Thus all parameters are required.">
+func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
 	inputs:
 		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
 		newAllinPrice number(1..1) <"The collateral new all-in price.">
@@ -2006,18 +1933,26 @@ func Create_ChangeRepurchasePriceInstruction: <"This function is used when the c
             cashPrice: currentRatePrice -> cashPrice,
             datedValue: empty
         }
-		
+
+	alias changeCashQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
+    			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+    				       extract  NonNegativeQuantitySchedule {
+                                value: newCashValue,
+                                unit: unit,
+                                        ...
+                            }
+    				then distinct
+
 	alias newPriceQuantity: <"Create the new price quantity object.">
             PriceQuantity {
                 price: [ newPrice ],
-                quantity: empty,
+                quantity: changeCashQuantity,
                 ...
             }
 	
 	set instruction -> split -> breakdown:
 		[ Create_TerminationInstruction( tradeState ) ]
 	
-
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
                     [
@@ -2027,60 +1962,45 @@ func Create_ChangeRepurchasePriceInstruction: <"This function is used when the c
                                     direction: QuantityChangeDirectionEnum -> Replace,
                                     lotIdentifier: empty
                                 },
-                            termsChange: Create_RepriceOrAdjustmentTermsChangeInstruction(
+                            termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
                                         tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                                        effectiveRepriceDate
+                                        effectiveRepriceDate,
+                                        empty
                                     ),
                             ...
                         }
                     ]
 
 
-		
-		
-func Create_RepriceOrAdjustmentTermsChangeInstruction: <"Creates the relevant terms change primitive instruction object for repricing a contractual product, which consists in the same terms as the original contractual product 
-											but with a new collateral price that may also result in modifing the cash or collateral quantity.">
-	inputs:
-		contractualProduct ContractualProduct (1..1) <"The original contractual product to be repriced.">
-		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-	output:
-		termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the repricing.">
-
-	set termsChangeInstruction -> product -> contractualProduct:
-		contractualProduct
-
-	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-		effectiveRepriceDate
-
-func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the the trade. Traction value and variation margin are processed separately as are transfers of cash and securities.">
+func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
 	inputs:
 		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
-		newAllinPrice number(1..1) <"The collateral all-in price.">
-		newAssetQuantity number(0..1) <"The collateral quantity.">
+		newAllinPrice number(1..1) <"The collateral new all-in price.">
+		newAssetQuantity number(1..1) <"The collateral new quantity.">
 		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
 	output:
-		instruction PrimitiveInstruction (0..1)
+		instruction PrimitiveInstruction (1..1)
 
 	alias oldPriceQuantity:
 		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
 		
-	alias currentRatePrice: <"Filter interest rate price and make it into a single element">
+	alias currentAssetPrice: <"Filter interest rate price and make it into a single element">
 		oldPriceQuantity
             extract price
             then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
+            then filter priceType = PriceTypeEnum -> AssetPrice
             then only-element
 		
 	alias newPrice: <"Create the new price object.">
 	        Price {
                     value: newAllinPrice,
-                    unit: currentRatePrice -> unit,
-                    perUnitOf: currentRatePrice -> perUnitOf,
-                    priceType: currentRatePrice -> priceType,
-                    priceExpression: currentRatePrice -> priceExpression,
-                    composite: currentRatePrice -> composite,
-                    arithmeticOperator: currentRatePrice -> arithmeticOperator,
-                    cashPrice: currentRatePrice -> cashPrice,
+                    unit: currentAssetPrice -> unit,
+                    perUnitOf: currentAssetPrice -> perUnitOf,
+                    priceType: currentAssetPrice -> priceType,
+                    priceExpression: currentAssetPrice -> priceExpression,
+                    composite: currentAssetPrice -> composite,
+                    arithmeticOperator: currentAssetPrice -> arithmeticOperator,
+                    cashPrice: currentAssetPrice -> cashPrice,
                     datedValue: empty
                 }
 
@@ -2097,7 +2017,7 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
 	alias newPriceQuantity: <"Create the new price quantity object.">
        PriceQuantity {
             price: [ newPrice ],
-            quantity: empty,
+            quantity: changeQuantity,
             ...
         }
 		
@@ -2108,70 +2028,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
 		tradeState -> trade -> tradableProduct -> tradeLot count = 1
 	
 			
-	//Create new instruction if the cash does not change but the collateral quantity changes.
-	set instruction -> quantityChange: <"Set primitive instruction to be only a quantity change instruction.">
-		if (newAssetQuantity exists) then
-		        QuantityChangeInstruction {
-                    change: [newPriceQuantity],
-                    direction: QuantityChangeDirectionEnum -> Replace,
-                    lotIdentifier: empty
-                }
-
-			
-			
-func Create_AdjustCollateralAmountInstruction: <"This function is used when the cash amount and collateral amount need to be modified. Thus all parameters are required.">
-	inputs:
-		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
-		newAllinPrice number(1..1) <"The collateral new all-in price.">
-		newAssetQuantity number(1..1) <"The collateral new quantity.">
-		effectiveRepriceDate AdjustableOrRelativeDate (1..1) <"The date to reprice the collateral">
-	output:
-		instruction PrimitiveInstruction (1..1)
-	
-	alias oldPriceQuantity:
-		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
-		
-	alias currentRatePrice: <"Filter interest rate price and make it into a single element">
-		oldPriceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then only-element
-		
-	alias newPrice: <"Create the new price object.">
-		        Price {
-                    value: newAllinPrice,
-                    unit: currentRatePrice -> unit,
-                    perUnitOf: currentRatePrice -> perUnitOf,
-                    priceType: currentRatePrice -> priceType,
-                    priceExpression: currentRatePrice -> priceExpression,
-                    composite: currentRatePrice -> composite,
-                    arithmeticOperator: currentRatePrice -> arithmeticOperator,
-                    cashPrice: currentRatePrice -> cashPrice,
-                    datedValue: empty
-                }
-
-	alias changeQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
-			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
-				       extract  NonNegativeQuantitySchedule {
-                            value: newAssetQuantity,
-                            unit: unit,
-                                    ...
-                        }
-				then distinct
-
-			
-	alias newPriceQuantity: <"Create the new price quantity object.">
-        PriceQuantity {
-            price: [ newPrice ],
-            quantity: empty,
-            ...
-        }
-
 	set instruction -> split -> breakdown:
 		[ Create_TerminationInstruction( tradeState ) ]
-	
-
 
         add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
                     [
@@ -2181,15 +2039,15 @@ func Create_AdjustCollateralAmountInstruction: <"This function is used when the 
                                     direction: QuantityChangeDirectionEnum -> Replace,
                                     lotIdentifier: empty
                                 },
-                            termsChange: Create_RepriceOrAdjustmentTermsChangeInstruction(
+                            termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
                                         tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                                        effectiveRepriceDate
+                                        effectiveRepriceDate,
+                                        empty
                                     ),
                             ...
                         }
                     ]
-		
-		
+
 		
 func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
 	[qualification BusinessEvent]
@@ -2197,40 +2055,29 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradableProduct: businessEvent -> instruction only-element -> before -> trade -> tradableProduct
-    alias afterTradableProduct: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
+    alias beforeTradableProduct:
+         ExtractBeforeTradableProduct(businessEvent)
 
+	alias afterTradableProduct:
+        ExtractAfterTradableProduct(businessEvent)
 
 	alias beforeTradePurchasePrice:
-		beforeTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
-		then extract [ item -> value ]
+        ExtractBeforeTradePurchasePrice(beforeTradableProduct)
 
 	alias afterTradePurchasePrice:
-		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item ->  priceType = PriceTypeEnum -> InterestRate ]
-		then extract [ item -> value ]
+	    ExtractAfterTradePurchasePrice(afterTradableProduct)
 
 	alias beforeTradeCollateralQuantity:
-		beforeTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-		then extract [ item -> value ]
+        ExtractBeforeTradeCollateralQuantity(beforeTradableProduct)
 
 	alias afterTradeCollateralQuantity:
-		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-		then extract [ item ->  value ]
+		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
 
-	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias afterEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+    alias beforeEconomicterms:
+        ExtractBeforeEconomicTerms(businessEvent)
+
+	alias afterEconomicTerms:
+	    ExtractAfterEconomicTerms(businessEvent)
 
 	set is_event:
 		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
@@ -2248,39 +2095,29 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeTradableProduct: businessEvent -> instruction only-element -> before -> trade -> tradableProduct
-    alias afterTradableProduct: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
+    alias beforeTradableProduct:
+         ExtractBeforeTradableProduct(businessEvent)
+
+	alias afterTradableProduct:
+        ExtractAfterTradableProduct(businessEvent)
 
 	alias beforeTradePurchasePrice:
-		beforeTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
-		then extract [ item -> value ]
+        ExtractBeforeTradePurchasePrice(beforeTradableProduct)
 
 	alias afterTradePurchasePrice:
-		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item ->  priceType = PriceTypeEnum -> InterestRate ]
-		then extract [ item -> value ]
+	    ExtractAfterTradePurchasePrice(afterTradableProduct)
 
 	alias beforeTradeCollateralQuantity:
-		beforeTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-		then extract [ item -> value ]
+        ExtractBeforeTradeCollateralQuantity(beforeTradableProduct)
 
 	alias afterTradeCollateralQuantity:
-		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
-		then flatten
-		then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-		then extract [ item ->  value ]
+		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
 
-	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias afterEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+    alias beforeEconomicterms:
+        ExtractBeforeEconomicTerms(businessEvent)
+
+	alias afterEconomicTerms:
+	    ExtractAfterEconomicTerms(businessEvent)
 
 	set is_event:
 		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
@@ -2330,12 +2167,12 @@ func Create_SubstitutionInstruction:<"Creates the terms change instruction that 
 	output:
 		termsChangeInstruction TermsChangeInstruction (1..1)
 
-	set termsChangeInstruction -> product -> contractualProduct:
-		contractualProduct
-	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-		effectiveDate
+	set termsChangeInstruction:
+            Create_EffectiveOrTerminationDateTermChangeInstruction(contractualProduct,effectiveDate, empty)
+
 	set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio:
 		newCollateralPortfolio
+
 
 
 func Qualify_Substitution: <"Qualification of a collateral substitution event.">
@@ -2344,9 +2181,12 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 	businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
-	alias beforeEconomicterms: businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-	alias openEconomicTerms: FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-    
+    alias beforeEconomicterms:
+        ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms:
+        ExtractOpenEconomicTerms(businessEvent)
+
 	set is_event:
 		beforeEconomicterms exists and		
 		openEconomicTerms exists and
@@ -2652,3 +2492,101 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
                 activityDate: empty, // TODO: set this property
                 ...
             }
+
+func ExtractBeforeEconomicTerms:
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+
+func ExtractAfterEconomicTerms:
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+
+
+func ExtractOpenEconomicTerms:
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+
+func ExtractBeforeTradableProduct:
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        tradableProduct TradableProduct (0..1)
+
+    set tradableProduct:
+        businessEvent -> instruction only-element -> before -> trade -> tradableProduct
+
+func ExtractAfterTradableProduct:
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        tradableProduct TradableProduct (0..1)
+
+    set tradableProduct:
+        FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
+
+func ExtractBeforeTradePurchasePrice:
+    inputs:
+        beforeTradableProduct TradableProduct (1..1)
+    output:
+        value number (0..*)
+
+    set value:
+        beforeTradableProduct -> tradeLot only-element -> priceQuantity
+        extract [ item -> price ]
+        then flatten
+        then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
+        then extract [ item -> value ]
+
+func ExtractAfterTradePurchasePrice:
+    inputs:
+        afterTradableProduct TradableProduct (1..1)
+    output:
+        value number (0..*)
+
+    set value:
+		afterTradableProduct -> tradeLot only-element -> priceQuantity
+		extract [ item -> price ]
+		then flatten
+		then filter [ item ->  priceType = PriceTypeEnum -> InterestRate ]
+		then extract [ item -> value ]
+
+func ExtractBeforeTradeCollateralQuantity:
+        inputs:
+            beforeTradableProduct TradableProduct (1..1)
+        output:
+            value number (0..*)
+
+        set value:
+            beforeTradableProduct -> tradeLot only-element -> priceQuantity
+            extract [ item -> price ]
+            then flatten
+            then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
+            then extract [ item -> value ]
+
+func ExtractAfterTradeCollateralQuantity:
+        inputs:
+            afterTradableProduct TradableProduct (1..1)
+        output:
+            value number (0..*)
+
+        set value:
+            afterTradableProduct -> tradeLot only-element -> priceQuantity
+            extract [ item -> price ]
+            then flatten
+            then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
+            then extract [ item -> value ]
