@@ -1902,7 +1902,7 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
 		openEconomicTerms -> effectiveDate = beforeEconomicterms -> effectiveDate
 
 
-func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
+func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the cash amount of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
 	inputs:
 		tradeState TradeState (1..1) <"The original trade state and trade to be repriced.">
 		newAllinPrice number(1..1) <"The collateral new all-in price.">
@@ -1934,6 +1934,7 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             datedValue: empty
         }
 
+
 	alias changeCashQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
     			tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
     				       extract  NonNegativeQuantitySchedule {
@@ -1952,7 +1953,6 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
 	
 	set instruction -> split -> breakdown:
 		[ Create_TerminationInstruction( tradeState ) ]
-	
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
                     [
