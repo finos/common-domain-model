@@ -68,8 +68,10 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
             return ProductIdTypeEnum.RIC;
         } else if (scheme.contains("Bloomberg")){
             return ProductIdTypeEnum.BBGID;
-        }else if (scheme.contains("commodity-reference-price")){
+        } else if (scheme.contains("commodity-reference-price")){
             return ProductIdTypeEnum.ISDACRP;
+        } else if (scheme.contains("iso4914")) {
+            return ProductIdTypeEnum.UPI;
         } else {
             return ProductIdTypeEnum.OTHER;
         }
