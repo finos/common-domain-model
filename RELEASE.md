@@ -1,4 +1,4 @@
-# *Product Model - FpML Synonym Mappings for UPI*
+# *Product Model - FpML Synonym Mappings for Unique Product Identifiers*
 
 _What is being released?_
 
