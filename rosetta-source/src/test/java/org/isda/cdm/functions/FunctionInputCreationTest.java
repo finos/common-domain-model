@@ -1876,11 +1876,10 @@ class FunctionInputCreationTest {
     void validatePartialDeliveryEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-effective-date.json");
-        AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-termination-date.json");
         List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
 
         Create_PartialDeliveryPrimitiveInstruction create_partialDeliveryPrimitiveInstruction = injector.getInstance(Create_PartialDeliveryPrimitiveInstruction.class);
-        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, effectiveDate, terminationDate,deliveredPriceQuantity).toBuilder();
+        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, effectiveDate, deliveredPriceQuantity).toBuilder();
 
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
                 .setBeforeValue(executionTradeState)

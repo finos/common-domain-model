@@ -1844,8 +1844,6 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
 func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruction for partial delivery of a repo transaction at settlement.">
 	inputs:
 		tradeState TradeState (1..1) <"The original trade to be closed.">
-		effectiveDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
-		terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
 		deliveredPriceQuantity PriceQuantity (1..*) <"The price and quantity of the delivered amount.">
 	output: 
 		instruction PrimitiveInstruction (1..1)
@@ -2073,6 +2071,12 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
 	alias afterTradeCollateralQuantity:
 		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
 
+	alias beforeTradeCollateralPrice:
+        ExtractBeforeTradeCollateralPrice(beforeTradableProduct)
+
+	alias afterTradeCollateralPrice:
+		ExtractAfterTradeCollateralPrice(afterTradableProduct)
+
     alias beforeEconomicterms:
         ExtractBeforeEconomicTerms(businessEvent)
 
@@ -2085,6 +2089,7 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
 		afterTradePurchasePrice exists and
 		afterTradePurchasePrice  <> beforeTradePurchasePrice and
 		beforeTradeCollateralQuantity = afterTradeCollateralQuantity and
+		beforeTradeCollateralPrice <> afterTradeCollateralPrice and
 		beforeEconomicterms exists and
 		afterEconomicTerms exists and
 		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
@@ -2113,6 +2118,12 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
 	alias afterTradeCollateralQuantity:
 		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
 
+	alias beforeTradeCollateralPrice:
+        ExtractBeforeTradeCollateralPrice(beforeTradableProduct)
+
+	alias afterTradeCollateralPrice:
+		ExtractAfterTradeCollateralPrice(afterTradableProduct)
+
     alias beforeEconomicterms:
         ExtractBeforeEconomicTerms(businessEvent)
 
@@ -2126,6 +2137,7 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
 		afterTradePurchasePrice exists and
 		afterTradePurchasePrice = beforeTradePurchasePrice and
 		beforeTradeCollateralQuantity <> afterTradeCollateralQuantity and
+		beforeTradeCollateralPrice <> afterTradeCollateralPrice and
 		beforeEconomicterms exists and
 		afterEconomicTerms exists and
 		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate and
@@ -2547,9 +2559,8 @@ func ExtractBeforeTradePurchasePrice:
 
     set value:
         beforeTradableProduct -> tradeLot only-element -> priceQuantity
-        extract [ item -> price ]
+        extract [ item -> quantity ]
         then flatten
-        then filter [ item -> priceType = PriceTypeEnum -> InterestRate ]
         then extract [ item -> value ]
 
 func ExtractAfterTradePurchasePrice:
@@ -2560,12 +2571,35 @@ func ExtractAfterTradePurchasePrice:
 
     set value:
 		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> price ]
+		extract [ item -> quantity ]
 		then flatten
-		then filter [ item ->  priceType = PriceTypeEnum -> InterestRate ]
 		then extract [ item -> value ]
 
 func ExtractBeforeTradeCollateralQuantity:
+        inputs:
+            beforeTradableProduct TradableProduct (1..1)
+        output:
+            value number (0..*)
+
+        set value:
+            beforeTradableProduct -> tradeLot only-element -> priceQuantity
+            extract [ item -> quantity ]
+            then flatten
+            then extract [ item -> value ]
+
+func ExtractAfterTradeCollateralQuantity:
+        inputs:
+            afterTradableProduct TradableProduct (1..1)
+        output:
+            value number (0..*)
+
+        set value:
+            afterTradableProduct -> tradeLot only-element -> priceQuantity
+            extract [ item -> quantity ]
+            then flatten
+            then extract [ item -> value ]
+
+func ExtractBeforeTradeCollateralPrice:
         inputs:
             beforeTradableProduct TradableProduct (1..1)
         output:
@@ -2578,7 +2612,7 @@ func ExtractBeforeTradeCollateralQuantity:
             then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
             then extract [ item -> value ]
 
-func ExtractAfterTradeCollateralQuantity:
+func ExtractAfterTradeCollateralPrice:
         inputs:
             afterTradableProduct TradableProduct (1..1)
         output:
