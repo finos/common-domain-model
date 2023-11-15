@@ -1441,6 +1441,9 @@ func Create_EffectiveOrTerminationDateTermChangeInstruction: <"Creates the relev
     output:
         termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the roll, which is a terms change.">
 
+    condition dateExists:
+        effectiveRollDate exists or terminationDate exists
+
     set termsChangeInstruction -> product -> contractualProduct: contractualProduct
 
     set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
@@ -1880,6 +1883,7 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
         ExtractOpenEconomicTerms(businessEvent)
 
     alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     alias beforeTradableProduct:
          ExtractBeforeTradableProduct(businessEvent)
@@ -1887,7 +1891,11 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
 	alias afterTradableProduct:
         ExtractAfterTradableProduct(businessEvent)
 
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+	alias beforeTradeCollateralQuantity:
+        ExtractTradeCollateralQuantity(beforeTradableProduct)
+
+	alias afterTradeCollateralQuantity:
+		ExtractTradeCollateralQuantity(afterTradableProduct)
 
 	set is_event:
 		beforeEconomicterms exists and
@@ -1896,6 +1904,7 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
 		closedTradeState count = 1 and
         openEconomicTerms -> payout -> interestRatePayout = beforeEconomicterms -> payout -> interestRatePayout and
 		openEconomicTerms -> collateral = beforeEconomicterms -> collateral and
+		beforeTradeCollateralQuantity > afterTradeCollateralQuantity and
 		openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate and
 		openEconomicTerms -> effectiveDate = beforeEconomicterms -> effectiveDate
 
@@ -1912,25 +1921,25 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
 	alias oldPriceQuantity:
 		tradeState -> trade -> tradableProduct -> tradeLot-> priceQuantity
 		
-	alias currentRatePrice: <"Filter interest rate price and make it into a single element">
+	alias currentAssetPrice: <"Filter interest rate price and make it into a single element">
 		oldPriceQuantity
             extract price
             then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
+            then filter priceType = PriceTypeEnum -> AssetPrice
             then only-element
 		
 	alias newPrice: <"Create the new price object.">
-        Price {
-            value: newAllinPrice,
-            unit: currentRatePrice -> unit,
-            perUnitOf: currentRatePrice -> perUnitOf,
-            priceType: currentRatePrice -> priceType,
-            priceExpression: currentRatePrice -> priceExpression,
-            composite: currentRatePrice -> composite,
-            arithmeticOperator: currentRatePrice -> arithmeticOperator,
-            cashPrice: currentRatePrice -> cashPrice,
-            datedValue: empty
-        }
+	        Price {
+                    value: newAllinPrice,
+                    unit: currentAssetPrice -> unit,
+                    perUnitOf: currentAssetPrice -> perUnitOf,
+                    priceType: currentAssetPrice -> priceType,
+                    priceExpression: currentAssetPrice -> priceExpression,
+                    composite: currentAssetPrice -> composite,
+                    arithmeticOperator: currentAssetPrice -> arithmeticOperator,
+                    cashPrice: currentAssetPrice -> cashPrice,
+                    datedValue: empty
+                }
 
 
 	alias changeCashQuantity:	<"Create distinct list of Quantity with value set to newAssetQuantity">
@@ -2029,7 +2038,7 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
 	set instruction -> split -> breakdown:
 		[ Create_TerminationInstruction( tradeState ) ]
 
-        add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
                     [
                         PrimitiveInstruction {
                             quantityChange: QuantityChangeInstruction {
@@ -2053,6 +2062,9 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
 		businessEvent BusinessEvent (1..1)
 	output: is_event boolean (1..1)
 
+    alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+
     alias beforeTradableProduct:
          ExtractBeforeTradableProduct(businessEvent)
 
@@ -2060,39 +2072,41 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
         ExtractAfterTradableProduct(businessEvent)
 
 	alias beforeTradePurchasePrice:
-        ExtractBeforeTradePurchasePrice(beforeTradableProduct)
+        ExtractTradePurchasePrice(beforeTradableProduct)
 
 	alias afterTradePurchasePrice:
-	    ExtractAfterTradePurchasePrice(afterTradableProduct)
+	    ExtractTradePurchasePrice(afterTradableProduct)
 
 	alias beforeTradeCollateralQuantity:
-        ExtractBeforeTradeCollateralQuantity(beforeTradableProduct)
+        ExtractTradeCollateralQuantity(beforeTradableProduct)
 
 	alias afterTradeCollateralQuantity:
-		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
+		ExtractTradeCollateralQuantity(afterTradableProduct)
 
 	alias beforeTradeCollateralPrice:
-        ExtractBeforeTradeCollateralPrice(beforeTradableProduct)
+        ExtractTradeCollateralPrice(beforeTradableProduct)
 
 	alias afterTradeCollateralPrice:
-		ExtractAfterTradeCollateralPrice(afterTradableProduct)
+		ExtractTradeCollateralPrice(afterTradableProduct)
 
     alias beforeEconomicterms:
         ExtractBeforeEconomicTerms(businessEvent)
 
-	alias afterEconomicTerms:
-	    ExtractAfterEconomicTerms(businessEvent)
+	alias openEconomicTerms:
+	    ExtractOpenEconomicTerms(businessEvent)
 
 	set is_event:
 		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
+		openTrades count = 1 and
+        closedTradeState count = 1 and
 		beforeTradePurchasePrice exists and
 		afterTradePurchasePrice exists and
 		afterTradePurchasePrice  <> beforeTradePurchasePrice and
 		beforeTradeCollateralQuantity = afterTradeCollateralQuantity and
 		beforeTradeCollateralPrice <> afterTradeCollateralPrice and
 		beforeEconomicterms exists and
-		afterEconomicTerms exists and
-		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+		openEconomicTerms exists and
+		openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
 
 func Qualify_Adjustment: <"This qualification function is used to qualify adjustment of the collateral amount when a transaction is repriced.">
 	[qualification BusinessEvent]
@@ -2107,41 +2121,41 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
         ExtractAfterTradableProduct(businessEvent)
 
 	alias beforeTradePurchasePrice:
-        ExtractBeforeTradePurchasePrice(beforeTradableProduct)
+        ExtractTradePurchasePrice(beforeTradableProduct)
 
 	alias afterTradePurchasePrice:
-	    ExtractAfterTradePurchasePrice(afterTradableProduct)
+	    ExtractTradePurchasePrice(afterTradableProduct)
 
 	alias beforeTradeCollateralQuantity:
-        ExtractBeforeTradeCollateralQuantity(beforeTradableProduct)
+        ExtractTradeCollateralQuantity(beforeTradableProduct)
 
 	alias afterTradeCollateralQuantity:
-		ExtractAfterTradeCollateralQuantity(afterTradableProduct)
+		ExtractTradeCollateralQuantity(afterTradableProduct)
 
 	alias beforeTradeCollateralPrice:
-        ExtractBeforeTradeCollateralPrice(beforeTradableProduct)
+        ExtractTradeCollateralPrice(beforeTradableProduct)
 
 	alias afterTradeCollateralPrice:
-		ExtractAfterTradeCollateralPrice(afterTradableProduct)
+		ExtractTradeCollateralPrice(afterTradableProduct)
 
     alias beforeEconomicterms:
         ExtractBeforeEconomicTerms(businessEvent)
 
-	alias afterEconomicTerms:
-	    ExtractAfterEconomicTerms(businessEvent)
+	alias openEconomicTerms:
+	    ExtractOpenEconomicTerms(businessEvent)
 
 	set is_event:
 		businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists and
-		afterEconomicTerms -> payout = beforeEconomicterms -> payout and
+		openEconomicTerms -> payout = beforeEconomicterms -> payout and
 		beforeTradePurchasePrice exists and
 		afterTradePurchasePrice exists and
 		afterTradePurchasePrice = beforeTradePurchasePrice and
 		beforeTradeCollateralQuantity <> afterTradeCollateralQuantity and
 		beforeTradeCollateralPrice <> afterTradeCollateralPrice and
 		beforeEconomicterms exists and
-		afterEconomicTerms exists and
-		afterEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate and
-		afterEconomicTerms -> effectiveDate <> beforeEconomicterms -> effectiveDate
+		openEconomicTerms exists and
+		openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate and
+		openEconomicTerms -> effectiveDate <> beforeEconomicterms -> effectiveDate
 		
 
 func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
@@ -2514,16 +2528,6 @@ func ExtractBeforeEconomicTerms:
     set economicTerms:
         businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
 
-func ExtractAfterEconomicTerms:
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        economicTerms EconomicTerms (0..1)
-
-    set economicTerms:
-        FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
-
-
 func ExtractOpenEconomicTerms:
     inputs:
         businessEvent BusinessEvent (1..1)
@@ -2551,75 +2555,40 @@ func ExtractAfterTradableProduct:
     set tradableProduct:
         FilterOpenTradeStates( businessEvent -> after ) only-element -> trade -> tradableProduct
 
-func ExtractBeforeTradePurchasePrice:
+func ExtractTradePurchasePrice:
     inputs:
-        beforeTradableProduct TradableProduct (1..1)
+        tradableProduct TradableProduct (1..1)
     output:
         value number (0..*)
 
     set value:
-        beforeTradableProduct -> tradeLot only-element -> priceQuantity
+        tradableProduct -> tradeLot only-element -> priceQuantity
         extract [ item -> quantity ]
         then flatten
         then extract [ item -> value ]
 
-func ExtractAfterTradePurchasePrice:
-    inputs:
-        afterTradableProduct TradableProduct (1..1)
-    output:
-        value number (0..*)
 
-    set value:
-		afterTradableProduct -> tradeLot only-element -> priceQuantity
-		extract [ item -> quantity ]
-		then flatten
-		then extract [ item -> value ]
-
-func ExtractBeforeTradeCollateralQuantity:
+func ExtractTradeCollateralQuantity:
         inputs:
-            beforeTradableProduct TradableProduct (1..1)
+            tradableProduct TradableProduct (1..1)
         output:
             value number (0..*)
 
         set value:
-            beforeTradableProduct -> tradeLot only-element -> priceQuantity
+            tradableProduct -> tradeLot only-element -> priceQuantity
             extract [ item -> quantity ]
             then flatten
             then extract [ item -> value ]
 
-func ExtractAfterTradeCollateralQuantity:
+
+func ExtractTradeCollateralPrice:
         inputs:
-            afterTradableProduct TradableProduct (1..1)
+            tradableProduct TradableProduct (1..1)
         output:
             value number (0..*)
 
         set value:
-            afterTradableProduct -> tradeLot only-element -> priceQuantity
-            extract [ item -> quantity ]
-            then flatten
-            then extract [ item -> value ]
-
-func ExtractBeforeTradeCollateralPrice:
-        inputs:
-            beforeTradableProduct TradableProduct (1..1)
-        output:
-            value number (0..*)
-
-        set value:
-            beforeTradableProduct -> tradeLot only-element -> priceQuantity
-            extract [ item -> price ]
-            then flatten
-            then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-            then extract [ item -> value ]
-
-func ExtractAfterTradeCollateralPrice:
-        inputs:
-            afterTradableProduct TradableProduct (1..1)
-        output:
-            value number (0..*)
-
-        set value:
-            afterTradableProduct -> tradeLot only-element -> priceQuantity
+            tradableProduct -> tradeLot only-element -> priceQuantity
             extract [ item -> price ]
             then flatten
             then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]

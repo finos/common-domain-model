@@ -1879,7 +1879,7 @@ class FunctionInputCreationTest {
         List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
 
         Create_PartialDeliveryPrimitiveInstruction create_partialDeliveryPrimitiveInstruction = injector.getInstance(Create_PartialDeliveryPrimitiveInstruction.class);
-        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, effectiveDate, deliveredPriceQuantity).toBuilder();
+        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, deliveredPriceQuantity).toBuilder();
 
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
                 .setBeforeValue(executionTradeState)
@@ -1896,8 +1896,8 @@ class FunctionInputCreationTest {
     @Test
     void validateRepriceEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
-        BigDecimal newAllinPrice = new BigDecimal("99.25");
-        BigDecimal newCashValue = new BigDecimal("9825750.00");
+        BigDecimal newAllinPrice = new BigDecimal("101.25");
+        BigDecimal newCashValue = new BigDecimal("9922500.00");
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-reprice-effective-date.json");
 
         Create_RepricePrimitiveInstruction create_repriceInstruction = injector.getInstance(Create_RepricePrimitiveInstruction.class);
