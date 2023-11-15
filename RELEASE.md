@@ -1,13 +1,12 @@
-# *Product Model - FpML Synonym Mappings for Unique Product Identifiers*
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-This release extends the FpML mapping coverage for the enum `ProductIdTypeEnum` to support UPIs.
+This release updates the `rosetta-dsl` and `rosetta-bundle` dependency.
 
-- The `ProductIdentifierSourceMappingProcessor` has been updated to map FpML productIdScheme http://www.fpml.org/coding-scheme/external/iso4914 to `ProductIdTypeEnum->UPI`.
+Version updates include:
+- `rosetta-dsl` 9.0.3: Fix RequestManager memory leak. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.3.
 
-_Review directions_
+There are no changes to the model, and test expectations remain the same.
 
-- In the CDM Portal, select the Textual Browser and inspect the change listed above.
-
-Changes can be reviewed in PR [#2521](https://github.com/finos/common-domain-model/pull/2521)
+The changes can be reviewed in PR [#2470](https://github.com/finos/common-domain-model/pull/2470).
