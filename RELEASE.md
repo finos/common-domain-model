@@ -9,3 +9,5 @@ This release extends the FpML mapping coverage for the enum `ProductIdTypeEnum` 
 _Review directions_
 
 - In the CDM Portal, select the Textual Browser and inspect the change listed above.
+
+Changes can be reviewed in PR [#2521](https://github.com/finos/common-domain-model/pull/2521)
