@@ -1,36 +1,30 @@
-# *Rename product qualification for Securities Lending and Repo*
+# _Commodity Product - Delivery for Commodity Options and Forwards_
 
 _Background_
 
-The current product qualification rules do not distinguish between securities lending and repurchase agreement product types.  A future enhancement will refactor how `product` works and also introduce additional capabilities to the qualification functions to use additional attributes to support finer grained qualification (see Issue #2365).
-
-In the meantime, the current qualification rule for repurchase agreements - which is invoked also for securities lending products - will be renamed to be "SecuritiesFinancing" to more loosely differentiate both sets of products.
+Commodity Forwards and Options which are not swaptions do not use any `commodityPayout` but just `forwardPayout` or `optionPayout` with a commodity underlier instead. As commodity products, these forwards and options do also require access to the delivery structures, which have been confined to the `CommodityPayout` so far. This release adds the necessary delivery structures for `ForwardPayout` and `OptionPayout`.
 
 _What is being released?_
 
-- An updated product qualification rule:  `Qualify_RepurchaseAgreement` is renamed to `Qualify_SecuritiesFinancing`.
+- Support for commodity delivery for commodity forwards and options.
+- Renamed delivery structures to make them generic as opposed to commodity-specific.
 
 _Data types_
 
-No changes.
-
-_Enumerations_
-
-No changes.
-
-_Sample Files_
-
-The following JSON sample files have been updated to reflect the current modeling of securities lending products which is to have the collateral information inside the `Collateral` data type rather than inside `AssetPayout`.
-
-- create-security-lending-invoice-func-input.json
-- full-return-settlement-workflow-func-input.json
-- new-settlement-workflow-func-input.json
-- new-settlement-workflow-func-input.json
-- allocation/allocation-sec-lending-func-input.json
-- reallocation/reallocation-pre-settled-func-input.json
+- Type `CommoditySchedule` renamed `CalculationSchedule`.
+- Type `CommodityScheduleDeliveryPeriods` renamed `CalculationScheduleDeliveryPeriods`.
+- Type `CommodityDeliveryInformation` renamed `AssetDeliveryInformation`.
+- Type `CommodityDeliveryPeriods` renamed `AssetDeliveryPeriods`.
+- Type `CommodityDeliveryProfile` renamed `AssetDeliveryProfile`.
+- Type `CommodityDeliveryProfileBlock` renamed `AssetDeliveryProfileBlock`.
+- Added attribute `delivery` of type `AssetDeliveryInformation` to type `OptionPayout`.
+- Added attribute `delivery` of type `AssetDeliveryInformation` to type `ForwardPayout`.
+- Added attribute `schedule` of type `CalculationSchedule` to type `ForwardPayout`.
+- Added conditions `DeliveryCapacity` and `PriceTimeIntervalQuantity` to type `OptionPayout`.
+- Added conditions `DeliveryCapacity` and `PriceTimeIntervalQuantity` to type `ForwardPayout`.
 
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2456
+Changes can be reviewed in PR: #2519
