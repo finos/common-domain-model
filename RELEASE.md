@@ -5,7 +5,7 @@ _What is being released?_
 This release updates the `rosetta-dsl` and `rosetta-bundle` dependency.
 
 Version updates include:
-- `rosetta-dsl` 9.0.3: Fix RequestManager memory leak. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.3.
+- `rosetta-dsl` 9.0.3: DSL performance and stability improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.3.
 
 There are no changes to the model, and test expectations remain the same.
 
