@@ -26,6 +26,7 @@ Below are some of the high-level contributions that CDM 5.0 includes, more detai
   - Enhancements for Party Role Enum - Service Provider
   - Trade Date Time
   - Exchange Traded Derivatives - Position model
+  - Additional repo lifecycle functions for partial delivery, repricing, adjustment and substitution
 - Legal Documentation & Collateral
   - Modelling of Master Agreements (GMSLA covering securities lending transaction)
   - Lender Availability and Borrower Locates for securities lending
