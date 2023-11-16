@@ -51,4 +51,4 @@ amounts and price, and returns a new primitive instruction that can be used to e
 there was a contractual agreement to substitute collateral the original trade remains with reference to it's contract, identifiers, and 
 other details. There is a also a new qualification function `Qualify_Substitution` that validates the results meet the substitution criteria.
 
-PR https://github.com/finos/common-domain-model/pull/2472
+[PR #2529](https://github.com/finos/common-domain-model/pull/2529)
