@@ -115,6 +115,17 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
     set is_event:
         businessEvent -> instruction -> primitiveInstruction -> execution count = 1 and businessEvent -> instruction -> primitiveInstruction -> quantityChange count > 1
 
+func Qualify_PortfolioRebalancing: <"The qualification of a portfolio rebalancing event from the fact that (i) the intent is PortfolioRebalancing, and (ii) the execution primitive exists">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> PortfolioRebalancing
+        and businessEvent -> instruction -> primitiveInstruction -> execution exists
+    //Pending to enhance the logic once portfolios are supported in the model
+
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]
     inputs:
@@ -315,7 +326,8 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
     alias primitiveInstruction:
         businessEvent -> instruction -> primitiveInstruction only-element
     set is_event:
-        (primitiveInstruction -> execution only exists
+        businessEvent -> intent is absent
+        and (primitiveInstruction -> execution only exists
             or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
