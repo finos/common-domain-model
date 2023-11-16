@@ -1875,6 +1875,93 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
     }
 
+    @Test
+    void validatePartialDeliveryEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-effective-date.json");
+        List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
+
+        Create_PartialDeliveryPrimitiveInstruction create_partialDeliveryPrimitiveInstruction = injector.getInstance(Create_PartialDeliveryPrimitiveInstruction.class);
+        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, deliveredPriceQuantity).toBuilder();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(partialDeliveryPrimitiveInstruction);
+
+        reKey(instructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/partial-delivery-input.json", actual);
+    }
+
+    @Test
+    void validateRepriceEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        BigDecimal newAllinPrice = new BigDecimal("101.25");
+        BigDecimal newCashValue = new BigDecimal("9922500.00");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-reprice-effective-date.json");
+
+        Create_RepricePrimitiveInstruction create_repriceInstruction = injector.getInstance(Create_RepricePrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_repriceInstruction.evaluate(executionTradeState, newAllinPrice, newCashValue, effectiveDate).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-reprice-input.json", actual);
+    }
+
+    @Test
+    void validateAdjustmentEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        BigDecimal newAllinPrice = new BigDecimal("99.25");
+        BigDecimal newAssetQuantity = new BigDecimal("10151134");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-adjustment-effective-date.json");
+
+        Create_AdjustmentPrimitiveInstruction create_adjustmentInstruction = injector.getInstance(Create_AdjustmentPrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_adjustmentInstruction.evaluate(executionTradeState, newAllinPrice, newAssetQuantity,effectiveDate).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-adjustment-input.json", actual);
+    }
+
+    @Test
+    void validateSubstitutionEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-effective-date.json");
+        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json");
+        List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json");
+
+        Create_SubstitutionPrimitiveInstruction create_substitutionInstruction = injector.getInstance(Create_SubstitutionPrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_substitutionInstruction.evaluate(executionTradeState, effectiveDate,newCollateralPortfolio,priceQuantity).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-substitution-input.json", actual);
+    }
+
     private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
         ContractualProduct.ContractualProductBuilder contractualProductBuilder =
