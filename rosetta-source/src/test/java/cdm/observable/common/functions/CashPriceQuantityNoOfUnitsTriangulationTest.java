@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static util.ResourcesUtils.getObject;
 
@@ -52,28 +53,28 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 		assertTrue(success);
 	}
 
-	@Test
-	void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
-		TradeState tradeState = getObject(TradeState.class, EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
-		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
+    @Test
+    void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
+        TradeState tradeState = getObject(TradeState.class, EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
+        TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
 
-		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
-		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
-				.map(PriceQuantity::getQuantity)
-				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
-		List<? extends PriceSchedule> price = priceQuantity.stream()
-				.map(PriceQuantity::getPrice)
-				.filter(Objects::nonNull)
-				.flatMap(Collection::stream)
-				.map(FieldWithMetaPriceSchedule::getValue)
-				.filter(Objects::nonNull)
-				.collect(Collectors.toList());
-		boolean success = func.evaluate(quantity, price);
+        List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
+        List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
+                .map(PriceQuantity::getQuantity)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .map(FieldWithMetaNonNegativeQuantitySchedule::getValue)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<? extends PriceSchedule> price = priceQuantity.stream()
+                .map(PriceQuantity::getPrice)
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .map(FieldWithMetaPriceSchedule::getValue)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        Boolean notDefined = func.evaluate(quantity, price);
 
-		assertTrue(success);
-	}
+        assertNull(notDefined);
+    }
 }
