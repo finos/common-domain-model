@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # _Event Model - Repo partial delivery, reprice, adjustment, and substitution._
 
 _Background_
@@ -26,6 +27,10 @@ collateral. The difference between the repurchase price of the terminated transa
 In an adjustment the nominal value of the collateral is changed to bring the market value at the new market price equal to the purchase price of the 
 original transaction. The difference between the new nominal collateral amount and orginal nominal collateral amount should be delivered net.
  
+=======
+<<<<<<< HEAD
+# *Product Model - FpML Synonym Mappings for Unique Product Identifiers*
+>>>>>>> 15ba0f754b100be6c1ea7cc264a252d181e08d45
 
 _What is being released?_
 
@@ -51,4 +56,37 @@ amounts and price, and returns a new primitive instruction that can be used to e
 there was a contractual agreement to substitute collateral the original trade remains with reference to it's contract, identifiers, and 
 other details. There is a also a new qualification function `Qualify_Substitution` that validates the results meet the substitution criteria.
 
+<<<<<<< HEAD
 [PR #2529](https://github.com/finos/common-domain-model/pull/2529)
+=======
+Changes can be reviewed in PR [#2521](https://github.com/finos/common-domain-model/pull/2521)
+=======
+# _Product Qualification - Zero Coupon Swaps_
+
+_Background_
+
+The qualification function for a zero-coupon swap is too restrictive in CDM, since it requires that all the `interestRate` Payout legs should feature one unique payment at Term. Normally a zero coupon only points out that at least one leg has a unique payment made at term.
+This release fixes this, along with some inaccurate provisions of qualifying functions regarding zero-coupon swaps. This release also removes the use of conditional synonym mappings from FpML to CDM of the `PrincipalPayments` element for Zero-Coupon Swaps with Known Amount cases, which has been deprecated. The `Qualify_SubProduct_FixedFloat` qualification function has also been updated to not require the use of this `PrincipalPayments` element.
+
+_What is being released?_
+
+- Minor changes to Zero-Coupons Swap qualification functions
+- Removed the conditional synonym mappings from FpML to CDM for the `PrincipalPayments` element in scenarios with Zero-Coupon Swaps with Known Amount.
+
+_Qualification_
+
+- Updated `Qualify_Transaction_ZeroCoupon` function to accurately qualify Zero-Coupon swaps.
+- Updated `Qualify_SubProduct_FixedFloat` function to accurately qualify Zero-Coupon swaps with Known Amount.
+- Updated the provision of `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon`, `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_Basis_ZeroCoupon` functions to accurately describe the qualified products.
+
+_Translate_
+
+Deprecated use of synonym mapping from FpML to CDM for the `PrincipalPayments` element for Zero-Coupon Swaps with Known Amount cases.
+
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+Inspect Pull Request: [#2390](https://github.com/finos/common-domain-model/pull/2390)
+>>>>>>> befeacbef6f6d84d22407c32ddef254fa919bfa5
+>>>>>>> 15ba0f754b100be6c1ea7cc264a252d181e08d45
