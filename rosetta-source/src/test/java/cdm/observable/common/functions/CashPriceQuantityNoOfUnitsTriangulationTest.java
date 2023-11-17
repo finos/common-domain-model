@@ -73,8 +73,8 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		Boolean success = func.evaluate(quantity, price);
+		Boolean notDefined = func.evaluate(quantity, price);
 
-		assertNull(success);
+		assertNull(notDefined);
 	}
 }
