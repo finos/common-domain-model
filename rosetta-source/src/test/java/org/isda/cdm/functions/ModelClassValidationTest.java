@@ -28,7 +28,7 @@ public class ModelClassValidationTest {
 
 		ValidationResult<? super Trade> result = new TradeMeta().validator().validate(null, tradeState);
 		assertEquals(
-				"Minimum of 1 'tradeIdentifier' is expected but found 0.; Minimum of 1 'tradeDate' is expected but found 0.; Minimum of 1 'tradableProduct' is expected but found 0.",
+				"'tradeIdentifier' is a required field but does not exist.; 'tradeDate' is a required field but does not exist.; 'tradableProduct' is a required field but does not exist.",
 				result.getFailureReason().orElse("No error message"));
 	}
 
