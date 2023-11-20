@@ -5,10 +5,10 @@ _What is being released?_
 This release updates the `rosetta-dsl` and `rosetta-bundle` dependency.
 
 Version updates include:
-- `rosetta-dsl` 9.0.3: DSL performance and stability improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.3.
-- `rosetta-dsl` 9.0.2: improved DSL error messages. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.2.
-- Updated FpML schemas to latest, updating the corresponding enumerations.
+- `rosetta-dsl` 9.1.0: this release includes a rewrite of the Java expression generator, which fixes a number of static compilation errors as well as readability and performance improvements of the generated code. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.1.0.
 
-There are no changes to the model, and test expectations remain the same.
+The issue brought to light a bug in the model having to do with the `CashPriceQuantityNoOfUnitsTriangulation` function, which has been resolved.
 
-The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2528.
+Test expectations remain the same.
+
+The changes can be reviewed in PR [#2533](https://github.com/finos/common-domain-model/pull/2533).
