@@ -1,8 +1,8 @@
-# _Cardinality change for after state within CounterpartyPositionBusinessEvent in CDM Core_
+# _CDM Core - Multiple Cardinality for the CounterpartyPositionBusinessEvent After state_
 
 _Background_
 
-Following the release of counterparty positions in the Common Domain Model, a modelling update is required regarding the cardinality of the `after` field contained within `counterpartyPositionBusinessEvent`. It was initially contributed as single cardinality `(0..1)`, and we raise the point that it should be modified to multiple cardinality `(0..*)`. This is done to support the case when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position. Additionally, it mirrors the way the `after` trade states within `businessEvent` currently operate for trades.
+Following the release of counterparty positions in the Common Domain Model, a modelling update is required. The attribute `after` of type `CounterpartyPositionBusinessEvent`. has been modified to be multiple cardinality `(0..*)`. The rationale for this is  to support the case when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position.
 
 
 _What is being released?_
@@ -16,5 +16,3 @@ _Data types_
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes listed above.
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2539
