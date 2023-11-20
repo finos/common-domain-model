@@ -1,8 +1,8 @@
-# _Product model - PTRR - Portfolio Rebalancing_
+# _Product Model - PTRR - Portfolio Rebalancing_
 
 _Background_
 
-In the technical specification for the EMIR jurisdiction, there are some reportable fields regarding PTRR (Post-Trade Risk Reduction) events. This release introduces support in CDM to allow the complete reporting for one of these PTRR events, specifically for the Portfolio Rebalancing, by adding its corresponding value to the `EventIntentEnum` and a specific qualification function for this event.
+In the technical specification for the EMIR jurisdiction, there are some reportable fields regarding PTRR (Post-Trade Risk Reduction) events. This release introduces support in the Common Domain Model to allow the complete reporting for one of these PTRR events, specifically for the Portfolio Rebalancing, by adding its corresponding value to the `EventIntentEnum` and a specific qualification function for this event.
 
 _What is being released?_
 
