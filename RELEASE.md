@@ -2,7 +2,7 @@
 
 _Background_
 
-Following the release of counterparty positions in the CDM model, a small modelling update is required regarding the cardinality of the `after` field contained within `counterpartyPositionBusinessEvent`. It was initially contributed as single cardinality `(0..1)`, and we raise the point that it should be modified to multiple cardinality `(0..*)`. This is done to support the case when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position. Additionally, it mirrors the way the `after` trade states within `businessEvent` currently operate for trades.
+Following the release of counterparty positions in the Common Domain Model, a modelling update is required regarding the cardinality of the `after` field contained within `counterpartyPositionBusinessEvent`. It was initially contributed as single cardinality `(0..1)`, and we raise the point that it should be modified to multiple cardinality `(0..*)`. This is done to support the case when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position. Additionally, it mirrors the way the `after` trade states within `businessEvent` currently operate for trades.
 
 
 _What is being released?_
