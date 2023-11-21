@@ -327,11 +327,12 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
     alias primitiveInstruction:
         businessEvent -> instruction -> primitiveInstruction only-element
     set is_event:
-        (primitiveInstruction -> contractFormation only exists
-            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists)
+               (primitiveInstruction -> contractFormation) only exists
+            or (primitiveInstruction -> contractFormation , primitiveInstruction -> transfer )  only exists
+            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists
+            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
             or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
 
-// and businessEvent -> tradeWarehouseWorkflow is absent
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
     [qualification BusinessEvent]
     inputs:
