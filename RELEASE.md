@@ -1,13 +1,13 @@
-# _CDM Core - Multiple Cardinality for the CounterpartyPositionBusinessEvent After state_
+# _Event Model - CounterpartyPositionBusinessEvent - Cardinality of the After state_
 
 _Background_
 
-Following the release of counterparty positions in the Common Domain Model, a modelling update is required. The attribute `after` of type `CounterpartyPositionBusinessEvent`. has been modified to be multiple cardinality `(0..*)`. The rationale for this is  to support the case when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position.
+Following the release of counterparty position in the Common Domain Model, a modelling update is required. The cardinality of the attribute `after` of type `CounterpartyPositionBusinessEvent` has been relaxed to unbounded list `(0..*)`. This change will support the cases when multiple `after` position states are generated as a result of a _partial option exercise_ event being applied to the position.
 
 
 _What is being released?_
 
-- Multiple cardinality for the `after` position state within `CounterpartyPositionBusinessEvent`.
+- The cardinality of the `after` position state within `CounterpartyPositionBusinessEvent`is relaxed to unbounded list.
 
 _Data types_
 
