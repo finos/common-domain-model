@@ -1,4 +1,4 @@
-# _Event Model - Qualification Functions - Enhancements for the Contract Formation qualification function
+# _Event Model - Qualification Functions - Enhancements for the Contract Formation qualification function_
 
 _Background_
 
