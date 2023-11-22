@@ -1,3 +1,21 @@
+# _Event Model - Qualification Functions - Enhancements for the Contract Formation qualification function
+
+_Background_
+
+The current Contract Formation qualification function does not allow the inclusion of the inception premium that ought to be transfered as part of the new trade. The change allow for a transfer instruction to be part of the representation of the businss event and address this requirement.
+
+
+_What is being released?_
+
+The logical expression for the `Qualify_ContractFormation` function is enhanced to allows for the presence of a transfer instruction
+
+
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect the function mentioned above.
+
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2544
+
 # _Event Model - CounterpartyPositionBusinessEvent - Cardinality of the After state_
 
 _Background_
