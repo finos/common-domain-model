@@ -2,12 +2,12 @@
 
 _Background_
 
-The current Contract Formation qualification function does not allow the inclusion of the inception premium that ought to be transfered as part of the new trade. The change allow for a transfer instruction to be part of the representation of the businss event and address this requirement.
+The current Contract Formation qualification function does not allow the inclusion of the inception premium that can be transfered as part of the trade execution. The change allows a transfer instruction to be part of the representation of the businss event.
 
 
 _What is being released?_
 
-The logical expression for the `Qualify_ContractFormation` function is enhanced to allows for the presence of a transfer instruction
+The logical expression for the `Qualify_ContractFormation` function is enhanced to allow  the presence of a transfer instruction
 
 
 _Review directions_
