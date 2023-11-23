@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static util.ResourcesUtils.getObject;
 
@@ -73,8 +72,8 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.map(FieldWithMetaPriceSchedule::getValue)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
-		Boolean notDefined = func.evaluate(quantity, price);
+		boolean success = func.evaluate(quantity, price);
 
-		assertTrue(notDefined);
+		assertTrue(success);
 	}
 }
