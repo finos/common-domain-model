@@ -58,6 +58,8 @@ Version updates include:
 
 The issue brought to light a bug in the model having to do with the `CashPriceQuantityNoOfUnitsTriangulation` function, which has been resolved.
 
+_Review directions_
+
 Test expectations remain the same.
 
 The changes can be reviewed in PR [#2533](https://github.com/finos/common-domain-model/pull/2533).
