@@ -75,6 +75,6 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 				.collect(Collectors.toList());
 		Boolean notDefined = func.evaluate(quantity, price);
 
-		assertNull(notDefined);
+		assertTrue(notDefined);
 	}
 }
