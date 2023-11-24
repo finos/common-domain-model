@@ -46,3 +46,20 @@ This release updates the FpML schema used for FpML to CDM ingestion. The version
 _Review Directions_
 
 This change has no impact on the model or test expectations. The changes can be reviewed in PR [2542](https://github.com/finos/common-domain-model/pull/2542).
+
+# *Infrastructure - Dependency Update*
+
+_What is being released?_
+
+This release updates the `rosetta-dsl` dependency.
+
+Version updates include:
+- `rosetta-dsl` 9.1.0: this release fixes several code generation issues such as [when assigning a Rosetta int to a Rosetta number](https://github.com/REGnosys/rosetta-dsl/issues/579). For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.1.0.
+
+The issue brought to light a bug in the model having to do with the `CashPriceQuantityNoOfUnitsTriangulation` function, which has been resolved.
+
+_Review directions_
+
+Test expectations remain the same.
+
+The changes can be reviewed in PR [#2533](https://github.com/finos/common-domain-model/pull/2533).
