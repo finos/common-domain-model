@@ -8,9 +8,9 @@ This release fixes this issue by removing the `NaturalPersonRole` inside the `Na
 
 _What is being released?_
 
-_Data types_
+_Backward-Incompatible Changes_
 
-* `personRole` attribute of type `NaturalPersonRole` removed from `NaturalPerson`.
+* Removed the `personRole` attribute of type `NaturalPersonRole` from `NaturalPerson`.
 
 _Review directions_
 
