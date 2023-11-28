@@ -4,7 +4,7 @@ _What is being released?_
 
 This release contains the FINOS CDM `6.0.0-dev.0` development version.
 
-Development Guidelines have been developed which describe how version management will be handled across the *Development* version and *Production* version.
+Development Guidelines have been produced which describe how version management will be handled across the *Development* version and *Production* version.
 
 _Review Directions_
 
