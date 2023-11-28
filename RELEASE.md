@@ -8,5 +8,5 @@ Development Guidelines have been developed which describe how version management
 
 _Review Directions_
 
-- In the CDM Portal, navigate to Downloads and review the FINOS CDM `6.0.0-dev.0` Java artefacts.
--In the CDM Portal, navigate to Documentation and then to Development Guidelines > Version Management section, or directly at: https://cdm.docs.rosetta-technology.io/source/contribution.html#version-management, to review the development practices.
+- In the CDM docs, navigate to [Downloads](https://cdm.finos.org/docs/download/) and review the FINOS CDM `6.0.0-dev.0` Java artefacts.
+- In the CDM docs, navigate to Documentation and then to Development Guidelines > Version Management section, or directly at: https://cdm.docs.rosetta-technology.io/source/contribution.html#version-management, to review the development practices.
