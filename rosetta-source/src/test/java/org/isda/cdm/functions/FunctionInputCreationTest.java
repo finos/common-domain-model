@@ -75,6 +75,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.isda.cdm.functions.FunctionUtils.guard;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.ResourcesUtils.reKey;
 
 class FunctionInputCreationTest {
@@ -2045,12 +2046,12 @@ class FunctionInputCreationTest {
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
         String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
         String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
-        if (!WhitespaceAgnosticAssert.equals(expectedJson, actualJson)) {
+        if (!expectedJson.equals(actualJson)) {
             if (WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
             }
         }
-        WhitespaceAgnosticAssert.assertEquals(expectedJson, actualJson,
+        assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
