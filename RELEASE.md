@@ -10,3 +10,4 @@ _Review Directions_
 
 - In the CDM docs, navigate to [Downloads](https://cdm.finos.org/docs/download/) and review the FINOS CDM `6.0.0-dev.0` Java artefacts.
 - In the CDM docs, navigate to Documentation and then to Development Guidelines > Version Management section, or directly at: https://cdm.finos.org/docs/contribution/#version-management, to review the development practices.
+- This release does not introduce any change other than the release notes which can be reviewed in PR [#2549](https://github.com/finos/common-domain-model/pull/2549)
