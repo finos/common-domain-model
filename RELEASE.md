@@ -10,6 +10,7 @@ Version updates include:
 
 _Review directions_
 
-Test expectations remain the same.
+There are no functional changes to the model. In the expectation files, global keys and references have been updated due
+to a bug fix, but they remain semantically the same.
 
 The changes can be reviewed in PR [#2550](https://github.com/finos/common-domain-model/pull/2550).
