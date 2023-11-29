@@ -11,6 +11,10 @@ Version updates include:
 _Review directions_
 
 There are no functional changes to the model. In the expectation files, global keys and references have been updated due
-to a bug fix, but they remain semantically the same.
+to a bug fix, but they remain semantically the same. To ease the process of reviewing expectation changes,
+the formatting of the following expectation files has been improved:
+- `cdm-sample-files/functions/repo-and-bond/repo-adjustment-input.json`
+- `cdm-sample-files/functions/repo-and-bond/repo-reprice-input.json`
+- `cdm-sample-files/functions/repo-and-bond/repo-substitution-input.json`
 
 The changes can be reviewed in PR [#2550](https://github.com/finos/common-domain-model/pull/2550).
