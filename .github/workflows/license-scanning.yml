@@ -2,7 +2,8 @@ name: License Scanning for Maven
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+    types: [synchronize]
     paths:
       - 'pom.xml'
       - '.github/workflows/license-scanning.yml'
@@ -28,7 +29,7 @@ jobs:
     - name: Install XQ
       run: pip install xq
     - name: Build with Maven
-      run: mvn clean install -DskipTests
+      run: mvn -B -U clean install -DskipTests
     - name: License XML report
       run: mvn org.codehaus.mojo:license-maven-plugin:2.0.0:download-licenses
     - name: Validate XML report
