@@ -11,15 +11,14 @@ import com.google.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import com.regnosys.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.regnosys.testing.WhitespaceAgnosticAssert;
-import com.rosetta.model.metafields.FieldWithMetaString;
-import com.rosetta.model.metafields.MetaFields;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CreateEligibleCollateralSpecificationFromInstructionTest extends AbstractExampleTest {
 
@@ -51,7 +50,7 @@ public class CreateEligibleCollateralSpecificationFromInstructionTest extends Ab
         // Assert
         String expectedJson = ResourcesUtils.getJson("merge-eligible-collateral-expected.json");
         String mergedJson = RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(merged);
-        WhitespaceAgnosticAssert.assertEquals(expectedJson, mergedJson);
+        assertEquals(expectedJson, mergedJson);
     }
 
     private static EligibleCollateralCriteria getCommonCriteria() {
