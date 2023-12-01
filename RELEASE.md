@@ -31,23 +31,23 @@ This release introduces new types and functions to allow the native representati
 
 _What is being released?_
 
-The following support have been added: 
+The following features have been added: 
 
-- Representation the valuation PrimitiveInstruction.
-- Application the valuation PrimitiveInstruction.
+- Representation of the primitive instruction for a valuation event.
+- Application of the valuation primitive instruction to change the trade state.
 - Qualification of a valuation update event.
 
-_Data types_
+_Data types and attributes_
 
-- Added new `ValuationInstruction` type.
-- `valuation` attribute of type `Valuation` added to `ValuationInstruction`
-- `replace` attribute of type `boolean` added to `ValuationInstruction`
+- Added new `ValuationInstruction` type with the following attributes:
+  - `valuation` attribute of type `Valuation`
+  - `replace` attribute of type `boolean`
 - `valuation` attribute of type `ValuationInstruction` added to `PrimitiveInstruction`.
 
 _Functions_
 
 - Added new `Create_Valuation` function.
-- Updated `Create_TradeState` function to support `valuation`.
+- Updated `Create_TradeState` function to include a valuation update step using `Create_Valuation`.
 
 _Qualification_
 
