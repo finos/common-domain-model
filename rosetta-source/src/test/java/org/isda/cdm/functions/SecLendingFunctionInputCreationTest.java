@@ -30,7 +30,6 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.regnosys.testing.WhitespaceAgnosticAssert;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -452,7 +451,7 @@ class SecLendingFunctionInputCreationTest {
         // dont use the strict one here as we want to see the diff to help us fix
         T actual = MAPPER.readValue(expectedURL, rosettaType);
 
-        WhitespaceAgnosticAssert.assertEquals(readResource(inputJson),
+        assertEquals(readResource(inputJson),
                 STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
                 "The input JSON for " + inputJson + " has been updated (probably due to a model change). Update the input file");
         return actual;
@@ -474,12 +473,12 @@ class SecLendingFunctionInputCreationTest {
     private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
         String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
         String expectedJson = getJson(expectedJsonPath);
-        if (!WhitespaceAgnosticAssert.equals(expectedJson, actualJson)) {
+        if (!expectedJson.equals(actualJson)) {
             if (WRITE_EXPECTATIONS) {
                 writeExpectation(expectedJsonPath, actualJson);
             }
         }
-        WhitespaceAgnosticAssert.assertEquals(expectedJson, actualJson,
+        assertEquals(expectedJson, actualJson,
                 "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
