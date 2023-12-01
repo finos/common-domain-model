@@ -841,8 +841,10 @@ enum EventIntentEnum:
    OptionExercise
    OptionalExtension
    OptionalCancellation
+   PortfolioRebalancing
    PrincipalExchange
    Reallocation
+   Repurchase
 ```
 
 ## Lineage
