@@ -52,3 +52,39 @@ there was a contractual agreement to substitute collateral the original trade re
 other details. There is a also a new qualification function `Qualify_Substitution` that validates the results meet the substitution criteria.
 
 [PR #2529](https://github.com/finos/common-domain-model/pull/2529)
+
+# _Event Model - Valuation Update_
+
+_Background_
+
+This release introduces new types and functions to allow the native representation and qualification of an update of the valuation with the ability to replace the existing historical valuation data.
+
+_What is being released?_
+
+The following support have been added: 
+
+- Representation the valuation PrimitiveInstruction.
+- Application the valuation PrimitiveInstruction.
+- Qualification of a valuation update event.
+
+_Data types_
+
+- Added new `ValuationInstruction` type.
+- `valuation` attribute of type `Valuation` added to `ValuationInstruction`
+- `replace` attribute of type `boolean` added to `ValuationInstruction`
+- `valuation` attribute of type `ValuationInstruction` added to `PrimitiveInstruction`.
+
+_Functions_
+
+- Added new `Create_Valuation` function.
+- Updated `Create_TradeState` function to support `valuation`.
+
+_Qualification_
+
+- Added new `Qualify_ValuationUpdate` function.
+
+_Review directions_
+
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
+
+PR: [#2552](https://github.com/finos/common-domain-model/pull/2552)
