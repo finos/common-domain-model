@@ -27,7 +27,7 @@ The changes can be reviewed in PR [#2550](https://github.com/finos/common-domain
 
 _Background_
 
-This release introduces new types and functions to allow the native representation and qualification of an update of the valuation with the ability to replace the existing historical valuation data.
+This release introduces new types and functions to allow the native representation and qualification of a valuation update. The valuation update can add to or replace the existing valuation history.
 
 _What is being released?_
 
