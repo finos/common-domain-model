@@ -1106,19 +1106,18 @@ func Create_Valuation: <"Function specification to incorporate a new assessment 
     inputs:
         instruction ValuationInstruction (1..1)
         before TradeState (1..1) <"Specifies the trade to be updated.">
-        replace boolean (1..1) <"Specifies whether the previous valuation tracks in the valuation history are removed (True) or kept (False).">
     output:
         after TradeState (1..1) <"Specifies the resulting trade state incorporating the valuation update in the valuation history.">
     
     alias beforeValuationHistory:
-        if replace = True then []
+        if instruction -> replace = True then []
         else before -> valuationHistory
     
     set after: before
     
     set after -> valuationHistory: beforeValuationHistory
     
-    add after -> valuationHistory: instruction -> valuationEvent
+    add after -> valuationHistory: instruction -> valuation
 
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
     inputs:
@@ -2535,7 +2534,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
     alias valuation:
         if primitiveInstruction -> valuation is absent
         then observation
-        else Create_Valuation(primitiveInstruction -> valuation, observation, False)
+        else Create_Valuation(primitiveInstruction -> valuation, observation)
 
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
