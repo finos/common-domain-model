@@ -55,4 +55,4 @@ Review directions
 
 In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-Inspect Pull Request: [#2571](https://github.com/finos/common-domain-model/pull/2571)
+Inspect Pull Request: [#2574](https://github.com/finos/common-domain-model/pull/2574)
