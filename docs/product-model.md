@@ -986,7 +986,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
     and Qualify_SubProduct_FixedFloat(economicTerms) = True
-    and Qualify_Transaction_ZeroCoupon(economicTerms) = True
+    and (Qualify_Transaction_ZeroCoupon(economicTerms) = True or Qualify_Transaction_ZeroCoupon_KnownAmount(economicTerms) = True)
 ```
 
 If all the statements above are true, then the function evaluates to
