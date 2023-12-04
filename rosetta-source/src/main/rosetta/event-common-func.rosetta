@@ -1102,6 +1102,23 @@ func Create_Observation: <"Function specification to create an observation that 
     set after: before
     add after -> observationHistory: instruction -> observationEvent
 
+func Create_Valuation: <"Function specification to incorporate a new assessment of the valuation in the valuation history of a given trade state.">
+    inputs:
+        instruction ValuationInstruction (1..1)
+        before TradeState (1..1) <"Specifies the trade to be updated.">
+    output:
+        after TradeState (1..1) <"Specifies the resulting trade state incorporating the valuation update in the valuation history.">
+    
+    alias beforeValuationHistory:
+        if instruction -> replace = True then []
+        else before -> valuationHistory
+    
+    set after: before
+    
+    set after -> valuationHistory: beforeValuationHistory
+    
+    add after -> valuationHistory: instruction -> valuation
+
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
     inputs:
         tradeState TradeState (1..1) <"Specifies the trade to be updated.">
@@ -2514,10 +2531,15 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         then indexTransition
         else Create_Observation(primitiveInstruction -> observation, indexTransition)
 
+    alias valuation:
+        if primitiveInstruction -> valuation is absent
+        then observation
+        else Create_Valuation(primitiveInstruction -> valuation, observation)
+
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
-        then observation
-        else Create_StockSplit(primitiveInstruction -> stockSplit, observation)
+        then valuation
+        else Create_StockSplit(primitiveInstruction -> stockSplit, valuation)
 
     condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
         primitiveInstruction -> split is absent
