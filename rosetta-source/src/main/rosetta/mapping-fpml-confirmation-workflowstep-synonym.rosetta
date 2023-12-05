@@ -44,6 +44,16 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
     EventInstruction:
         + intent
             [value "terminatingEvent"]
+            // originatingEvent is mapped here as several "set to" mappings as a workaround for the fact that "set to" mappings take precedence over
+            // "value" mappings. Since "originatingEvent" always appears with one or more of the other mapped elements (typically "trade"), a "value" mapping
+            // would never be processed.
+            [set to EventIntentEnum -> PortfolioRebalancing when "originatingEvent"="PortfolioRebalancing"]
+            [set to EventIntentEnum -> Compression when "originatingEvent"="PortfolioCompression"]
+            [set to EventIntentEnum -> Novation when "originatingEvent"="Novation"]
+            [set to EventIntentEnum -> Compression when "originatingEvent"="Netting"]
+            [set to EventIntentEnum -> OptionExercise when "originatingEvent"="Exercise"]
+            [set to EventIntentEnum -> Allocation when "originatingEvent"="Allocation"]
+            [set to EventIntentEnum -> CreditEvent when "originatingEvent"="CreditEvent"]
             [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
             [set to EventIntentEnum -> Clearing when "intentToClear" = True]
             [set to EventIntentEnum -> ContractFormation when "trade" exists]
@@ -245,6 +255,8 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "Allocation"]
         + CreditEvent
             [value "CreditEvent"]
+        + PortfolioRebalancing
+            [value "PortfolioRebalancing"]
 
     FeeTypeEnum:
         + BrokerageCommission
