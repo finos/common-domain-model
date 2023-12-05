@@ -1,16 +1,17 @@
-# _Natural Person and NaturalPersonRole circular reference_
+# _Product model - Natural Person and NaturalPersonRole circular reference_
 
 _Background_
 
 An issue regarding a circular reference inside the `NaturalPerson` type was recently found in the model.
 `NaturalPerson` and `NaturalPersonRole` are located at the same level inside `Party`, to follow the same structure that `Party` and `PartyRole` have inside the `Trade` type. The circular reference issue appears because the `NaturalPerson` type also contains a `NaturalPersonRole`, which references back to the containing type of `NaturalPerson`, causing a circular reference in the model.
-This release fixes this issue by removing the `NaturalPersonRole` inside the `NaturalPerson` type.
 
 _What is being released?_
 
+This release fixes this issue by removing the `NaturalPersonRole` inside the `NaturalPerson` type.
+
 _Backward-Incompatible Changes_
 
-* Removed the `personRole` attribute of type `NaturalPersonRole` from `NaturalPerson`.
+- Removed the `personRole` attribute of type `NaturalPersonRole` from `NaturalPerson`.
 
 _Review directions_
 
