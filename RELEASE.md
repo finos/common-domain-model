@@ -1,8 +1,8 @@
-# _A Collateral Specification can identify which of the parties is the Payer and Receiver_
+# _Eligible Collateral Schedule Model - Determination of the Party Roles_
 
 _Background_
 
-Subject matter experts for Collateral trade management have identified that a self-contained representation of eligible collateral criteria requires the association of each involved party with the various roles mentioned in the criteria.  For example, to identify which parties are the Payer and Receiver of collateral.
+Subject matter experts for collateral trade management have identified that a self-contained representation of eligible collateral criteria requires associating each involved party with the various roles specififed. A typical example is the identification of which party is Payer or Receiver of collateral.
 
 _What is being released?_
 
