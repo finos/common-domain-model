@@ -868,3 +868,52 @@ details is show here:
            "isIncluded": true
            }
 ```
+
+# Perform Eligible Collateral Validation
+
+A CDM function has been developed to run eligibility validation checks which can be applied to several use cases.
+The function requires two sets of information to be present as CDM data:
+- a set of eligbible collateral criteria, including asset and issuer details, maturity profiles, haircuts and
+  any other requried characteristics, all modelled in an `EligibleCollateralSpecification`.
+- a defined list of characteristics of the collateral that is to be tested against the eligibility details, defined
+  in an `EligibilityQuery`.
+
+## Example of Eligible Collateral Validation
+
+The function uses the CDM collateral representation already built to test collateral eligibility against multiple minimum
+collateral requirements and specific eligible collateral schedules. Essentially it is testing different criteria sets built 
+from the `EligibleCollateralSpecification` root type against each other as an example: 
+- A certain regulation margin rules says you must at a minimum provide a specific set of collateral of bonds of 5 years or
+  more from a list of set of countries. The CDM can represent this information using the `EligibleCollateralSpecification`
+  and these can be structured as JSON files.
+- The `EligibilityQuery` is used to define the details of the collateral you may have to post this could be a set of simple
+  questions presented as CDM data:
+  -- Is an EU bond with 4 years remaining maturity eligible? If so, what are applicable haircuts?
+  -- Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
+  -- Is GBP (cash) eligible? If so, what are applicable haircuts?
+The function `CheckEligibilityByDetails`, when presented with the 2 sets sets of information,  will check to determine
+which collateral meets the eligibility and can be used/posted for delivery and present you with the breakdown
+`CheckEligibilityResult` including the required information such as haircuts.
+
+## EligibilityQuery
+
+How to create the data type
+
+## CheckEligibilityByDetails
+
+How to use the function
+
+## CheckEligibilityResult
+
+How to understand the result
+
+## Example
+
+Examples to be shown in business terms and as JSON
+1.	Is an EU bond with 4 years remaining maturity eligible? If so, what are applicable haircuts?
+2.	Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
+
+## Further Scope
+
+The Function `CheckEligibilityForProduct` (which takes a specific `Product`) and validates its eligibility has been
+defined conceptually but not fully implemented.
