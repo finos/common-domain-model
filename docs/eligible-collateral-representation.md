@@ -884,12 +884,14 @@ The function uses the CDM collateral representation already built to test collat
 collateral requirements and specific eligible collateral schedules. Essentially it is testing different criteria sets built 
 from the `EligibleCollateralSpecification` root type against each other as an example: 
 
-- A certain regulation margin rules says you must at a minimum provide a specific set of collateral of bonds of 5 years or
-  more from a list of set of countries. The CDM can represent this information using the `EligibleCollateralSpecification`
-  and these can be structured as JSON files.
+- The margin rules set by a specific regulation state that market participants must post collateral using, at a minimum,
+  bonds with a maturity of 5 years or more from a specific set of countries.
+  The CDM can represent this information using the `EligibleCollateralSpecification` as a list of
+  `EligibleCollateralCriteria`s.
   
-- The `EligibilityQuery` is used to define the details of the collateral you may have to post this could be a set of simple
-  questions presented as CDM data:
+- The `EligibilityQuery` is used to check whether assets that a participant has available are allowed to be posted
+  as collateral.
+  This could be a set of simple questions presented as CDM data:
   * Is an EU bond with 4 years remaining maturity eligible? If so, what are applicable haircuts?
   * Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
   * Is GBP (cash) eligible? If so, what are applicable haircuts?
