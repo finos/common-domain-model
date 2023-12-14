@@ -83,7 +83,7 @@ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs requir
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
     stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
 	observation ObservationInstruction (0..1) <"Specifies inputs needed to process an observation.">
-    tradeContractDetails TransactionLegalAgreementTermsChangeInstruction (0..1) <"Specifies instructions for changing terms in contractDetails, that is to say LegalAgreement as an attribute of a particular Trade.">
+    tradeContractDetailsChange TransactionLegalAgreementTermsChangeInstruction (0..1) <"Specifies instructions for changing terms in contractDetails, that is to say LegalAgreement as an attribute of a particular Trade.">
 
 type BusinessEvent extends EventInstruction: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -173,16 +173,16 @@ type TermsChangeInstruction: <"Specifies instructions for terms change consistin
 
 type TransactionLegalAgreementTermsChangeInstruction: <"Specifies instructions for changing terms in contractDetails, that is to say LegalAgreement as an attribute of a particular Trade.">
 
-    tradeContractDetails ContractDetails (1..1) <"Contract details i.e. Legal Agreement terms to be changed at trade level.">
+    tradeContractDetails LegalAgreement (1..1) <"Contract details i.e. Legal Agreement terms to be changed at trade level.">
 
 	condition UpdateOnlyTransactionAdditionalTerms: <"we want to prevent thid Instruction to update content of any documentation terms beyond transactional level, notably agreementTransferAgreementElections, creditSupportAgreementElections, masterAgreementSchedule and securityAGreementElections - hence the condition below which ensures that paths which would allow such update cannot exist in the Instruction.">
         
-        tradeContractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms only exists
+        tradeContractDetails -> agreementTerms -> agreement -> transactionAdditionalTerms only exists
     
     condition CannotUpdateRelatedAgreementTerms: <"It is permitted to update Related Agreement to a given Trade, but only attributes which permit to identify such Related Agreement, not the content of such Related Agreement. As an example, it is permitted to update the agreementDate that permits to identify a particular MasterAgreement that is a Related Agreement to the Trade Confirmation, but it is not permitted to update the content of such MasterAgreement - hence the condition below which ensures that paths which would allow such update cannot exist in the Instruction.">
 
-        tradeContractDetails -> documentation -> relatedAgreements -> agreementTerms is absent
-        and tradeContractDetails -> documentation -> relatedAgreements -> relatedAgreements is absent
+        tradeContractDetails -> relatedAgreements -> agreementTerms is absent
+        and tradeContractDetails -> relatedAgreements -> relatedAgreements is absent
 
 type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
 	// Should cardinality be (2..*)?
