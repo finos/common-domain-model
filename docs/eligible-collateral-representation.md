@@ -869,7 +869,7 @@ details is show here:
            }
 ```
 
-# Perform Eligible Collateral Validation
+# Using the CDM to Perform Eligible Collateral Validation
 
 A CDM function has been developed to run eligibility validation checks which can be applied to several use cases.
 The function requires two sets of information to be present as CDM data:
@@ -896,34 +896,123 @@ from the `EligibleCollateralSpecification` root type against each other as an ex
   * Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
   * Is GBP (cash) eligible? If so, what are applicable haircuts?
  
-The function `CheckEligibilityByDetails`, when presented with the 2 sets sets of information,  will check to determine
-which collateral meets the eligibility and can be used/posted for delivery and present you with the breakdown
-`CheckEligibilityResult` including the required information such as haircuts.
+The function `CheckEligibilityByDetails`, when presented with the 2 sets sets of input information, will check to determine
+which collateral meets the eligibility and can be used/posted for delivery, and will return the breakdown
+`CheckEligibilityResult` as output including information such as haircuts.
 
 ## EligibilityQuery
 
-How to create the data type...
+The data type `EligibilityQuery` is used to form the input data to the Eligibility Collateral Validation function.  
+
+The data type should be populated with data to describe the collateral that is being validated, as follows:
+
+* Maturity:  the number of remaining years until maturity, as a number
+* Asset Type:  the type of collateral using the `AssetType` data type and related enumerators
+* Asset Country of Origin:  specified using the ISO Country Code
+* Asset Currency:  specified using the Currency Code enumerator
+* Agency Rating:  the rating assigned to the asset by an agency, using the `AgencyRatingCriteria` data type
+* Issuer Type:  the type of entity that issued the asset, using the `CollateralIssuerType` data type
+* Issuer:  the name or identifier of the issuer of the asset, using the `LegalEntity` data type.
+
+All attributes in the query must be populated and all are of single cardinality.
 
 ## CheckEligibilityByDetails
 
-How to use the function...
+The function `CheckEligibilityByDetails` performs the actual validation based on the description of the available
+collateral (specified in the aforementioned `EligibilityQuery`) and an eligibility collateral schedule (defined as
+an `EligbilityCollateralSpecification`).  
+
+The required inputs are one single `EligbilityCollateralSpecification` and one single `EligibilityQuery`.
+
+The output is a single eligibility result, using the `CheckEligibilityResult` data type, described next.
+
+In practical terms, the function can be integrated into systems and applications using the CDM code generators
+to create executable software in one of many software languages, typically Java.  For testing and demononstration
+purposes, the input data can be built manually using the [FINOS CDM Object Builder](https://cdm-object-builder.finos.org/)
+and loaded and run in the [Rosetta Engine](https://ui.rosetta-technology.io/#/login) product.
 
 ## CheckEligibilityResult
 
-How to understand the result...
+The output of the function is delivered using the `CheckEligibilityResult` data type which has four attributes:
+
+* `isEligible`: a simple boolean which is set to true if the asset described in the `EligibilityQuery` input is
+  eligible.
+* `matchingEligibleCriteria`: if there was a match, this will be the one or more criteria that were supplied in the
+  `EligbilityCollateralSpecification` which matched with the querry input.
+* `eligibilityQuery`: a copy of the input query that was checked against the eligible collateral specification.
+* `specification`: a copy of the input specification that was checked against the query.
 
 ## Example
 
-Examples to be shown in business terms and as JSON...
+Let's take an example eligible collateral schedule that accepts government bonds with outstanding
+maturity of more than one year.  This can be coded into an `EligibilityCollateralSpecification`, as the
+first parameter of the validation function; here illustrated as JSON:
 
-1.	Is an EU bond with 4 years remaining maturity eligible? If so, what are applicable haircuts?
-   
-2.	Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
+* `EligibilityCollateralSpecification`
+``` Javascript
+{ "criteria": [ {
+      "asset": [ {
+            "collateralAssetType": [ {
+              "assetType": "SECURITY"
+              "securityType": "DEBT"
+          } ],
+          "maturityRange": {
+            "lowerBound": {
+              "period": {
+                "period": "Y",
+                "periodMultiplier": 1
+      } } } } ],
+      "issuer": [ {
+          "issuerType": [ {
+              "issuerType": "SOVEREIGN_CENTRAL_BANK"
+} ] } ] } ] }
+```
+We can then run eligibility tests against this, for example:
 
-...
+1. Is US dollar cash accepted as collateral? 
+2. Are JGBs with a 3 year remaining maturity eligible? If so, what are applicable haircuts?
+
+Showing this as JSON code, the first `EligibilityQuery` would be:
+
+``` javascript
+{   "query": {
+	"collateralAssetType": [ {
+		"assetType": "Cash"
+		} ] ,
+	"assetCountryOfOrigin": "US" ,
+	"demoninatedCurrency": "USD"
+}  }
+````
+Running this code through the `EligibilityQuery` function will generate a result of `False`
+in the `isEligible` attribute.
+
+For the second example, the query can be constructed as follows:
+
+``` javascript
+{   "query": {
+	"maturity": 3,
+	"collateralAssetType": [ {
+		"assetType": "Security",
+		"securityType": "Bond"
+		} ] ,
+	"assetCountryOfOrigin": "JP" ,
+	"demoninatedCurrency": "JPY",
+	"agencyRating": {
+		"qualifier" : "All", 
+		"creditNotation" : [ { 
+			"agency": "StandardAndPoors",
+ 			"notation": "AA"
+		} ]
+	} ,
+	"issuerType": "SOVEREIGN_CENTRAL_BANK" ,
+	"issuerName": "Government of Japan"
+}  }
+````
+The above will generate a result of `True` in the `isEligible` attribute.  To determine the
+applicable haircut, interogate the returned `CheckEligibilityResult` data type, and specifically
+`matchingEligibleCriteria` -> `treatment` -> `valuationTreatment` -> `haircutPercentage`.
 
 ## Further Scope
 
-The Function `CheckEligibilityForProduct` (which takes a specific `Product`) and validates its eligibility has been
-defined conceptually but not fully implemented.
-...
+The Function `CheckEligibilityForProduct`, which takes a specific `Product` as the input and validates 
+its eligibility, has been defined conceptually but not fully implemented.
