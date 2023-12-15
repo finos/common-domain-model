@@ -1,13 +1,13 @@
-# _Event Model - Adding lot identifier to execution instruction_
+# _Event Model - Trade Lot Identifier added to Execution Instruction_
 
 _Background_
 
-In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires tradeLot identifer to be present.
+In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires a tradeLot identifer to be present.
 
 _What is being released?_
 
 - Added `lotIdentifier` attribute (optional) to `ExecutionInstruction`
-- In `Create_Execution` function, used that `lotIdentifier` attribute to create the execution's `TradeLot` object
+- In `Create_Execution` function, the `lotIdentifier` attribute is used when creating the execution's `TradeLot` object
 
 _Backward-Incompatible Changes_
 
