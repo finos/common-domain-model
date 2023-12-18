@@ -1,12 +1,13 @@
-# _Eligible Collateral Schedule Model - Determination of the Party Roles_
+# _Event Model - Trade Lot Identifier added to Execution Instruction_
 
 _Background_
 
-Subject matter experts for collateral trade management have identified that a self-contained representation of eligible collateral criteria requires associating each involved party with the various roles specififed. A typical example is the identification of which party is Payer or Receiver of collateral.
+In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires a tradeLot identifer to be present.
 
 _What is being released?_
 
-A new `PartyRole` attribute has been added to the `EligibleCollateralSpecification` data type.
+- Added `lotIdentifier` attribute (optional) to `ExecutionInstruction`
+- In `Create_Execution` function, the `lotIdentifier` attribute is used when creating the execution's `TradeLot` object
 
 _Backward-Incompatible Changes_
 
@@ -15,5 +16,4 @@ None
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the change identified above.
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2585
+Changes can be reviewed in PR [#2591](https://github.com/finos/common-domain-model/pull/2591)
