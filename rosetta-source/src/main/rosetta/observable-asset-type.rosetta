@@ -9,6 +9,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.mapping.config.*
+import cdm.product.template.*
 
 type ObservationSource: <"The observation source can be composed of an curve and/or and information source.">
     [deprecated]
@@ -177,7 +178,7 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
 type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
 
 	condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
-		value exists and datedValue is absent
+	datedValue is absent
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
 	[metadata key]
@@ -228,6 +229,8 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
 	currency2 string (1..1) <"The second currency specified when a pair of currencies is to be evaluated.">
 		[metadata scheme]
 	quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
+    settlementRateOption SettlementRateOption (0..1) <"Defines the settlement rate option to use for fixing in case of cash settlement. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
+
 
 type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
     [deprecated]
@@ -282,9 +285,9 @@ type SwapCurveValuation: <"A class to specify a valuation swap curve, which is u
 
 type ValuationDates: <"Defines how and when a performance type option or performance type swap is to be valued, including initial, interim and final valuation dates.">
 
-	valuationDatesInitial PerformanceValuationDates (0..1) <"Specifies the initial valuation dates of the underlyer.">
-	valuationDatesInterim PerformanceValuationDates (0..1) <"Specifies the interim valuation dates of the underlyer.">
-	valuationDatesFinal PerformanceValuationDates (1..1) <"Specifies the final valuation dates of the underlyer.">
+	initialValuationDate PerformanceValuationDates (0..1) <"Specifies the initial valuation dates of the underlyer.">
+	interimValuationDate PerformanceValuationDates (0..1) <"Specifies the interim valuation dates of the underlyer.">
+	finalValuationDate PerformanceValuationDates (1..1) <"Specifies the final valuation dates of the underlyer.">
 
 type PerformanceValuationDates : <"Defines how and when a performance type option or performance type swap is to be valued.">
     [metadata key]
@@ -292,8 +295,9 @@ type PerformanceValuationDates : <"Defines how and when a performance type optio
 	determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
 	valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
 	valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
-	valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
+	valuationTime_Deprecated BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
 	valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+    valuationTime NewObservationTime (0..1)
 
 type FxRateSourceFixing: <"Describes a rate source to be fixed and the date the fixing occurs">
 
@@ -494,3 +498,107 @@ type DividendApplicability: <"The parameters which define whether dividends are 
 	optionsExchangeDividends boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
 	additionalDividends boolean (0..1)<"If present and true, then additional dividends are applicable.">
 	allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
+    dividendReinvestment cdm.product.asset.DividendPayoutRatio (0..*) <"Specifies the dividend reinvestment percentage per each underlying.">
+
+type NewObservationBasis: <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made. The metadata address feature exists for the purpose of referencing as need be the CoreObservationBasis.">
+  observableValue NewObservableValue (0..*) <"Specifies the value to be observed, whether to be observaed in the future (value not yet fixed) or already observed (fixed value). When the value is not yet fixed, observableValue is any Observable Asset per se e.g. product, currencyPair, rate, etc. Else when fixed, the observableValue is a Price or a Quantity. Importantly, same observableValue may evolve in time as part of related Trade Events lifecycle e.g. may start with not yet fixed value that would become fixed when effectvely observed, which might notably be documented in generic manner via 'datedValue' attribute being populated in the relevant Price or Quantity as part of an Observation Event having a Reset effect on the Trade. The metadata address feature exists for the purpose of referencing as need be the CoreObservationBasis.">
+    [metadata address]
+  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made. The metadata address feature exists for the purpose of referencing as need be the CoreObservationBasis.">
+    [metadata address]
+  bespokeItemDescription AdditionalBespokeTerm (0..1) <"Any additional term that might be specified.">
+
+type NewCoreObservationBasis: <"The basic set of terms to define the observation of a value : the Observable defines WHAT is observed, the observationDates defines WHEN the observation shall occurr ; and the observationConditions further define HOW the observation shall be made. Compared to very similar object that is ObservationBasis, this one shall represent any common features applicable by default to any other Tade component which ObservationBasis terms might be defined, notably by via metadata address referencing the metadata location in CoreObservationBasis.">
+    [metadata key]
+
+  observableValue NewObservableValue (0..*) <"Specifies the value to be observed, whether to be observaed in the future (value not yet fixed) or already observed (fixed value). When the value is not yet fixed, observableValue is any Observable Asset per se e.g. product, currencyPair, rate, etc. Else when fixed, the observableValue is a Price or a Quantity. Importantly, same observableValue may evolve in time as part of related Trade Events lifecycle e.g. may start with not yet fixed value that would become fixed when effectvely observed, which might notably be documented in generic manner via 'datedValue' attribute being populated in the relevant Price or Quantity as part of an Observation Event having a Reset effect on the Trade. The metadata location feature exists for the purpose of being referenced as need be by any ObservationBasis.">
+  [metadata location]
+  observationConditions NewObservationConditions (0..1) <"Specifies the conditions how the observation shall be made. The metadata location feature exists for the purpose of being referenced as need be by any ObservationBasis.">
+  [metadata location]
+  bespokeItemDescription AdditionalBespokeTerm (0..1) <"Any additional term that might be specified.">
+
+type NewObservableValue : <"Specifies 'WHAT' is observed in very generic acception i.e. any type of value with an impact on settlement obligations described in Trade contractual terms, notably when considered as an input for Payout calculations could be market data e.g. price or quantity, either already fixed, or not, thus to be observed in the future when relevant e.g. per observation dates else in regards of payout triggers, or market event, etc; could be stand-alone, or associated to an observable, and vice-versa i.e. could be stand-alone observable without price or quantity or with such attributes when given at inception or having been observed during related Trade lifecycle, meaning that same observableValue may evolve in time with lifecycle e.g. may start with not yet fixed value that would become fixed when effectvely observed, which might notably be documented in generic manner via 'datedValue' attribute being populated in the relevant Price or Quantity as part of an Observation Event or Reset Event.">
+
+  price PriceSchedule (0..*) <"Specifies any type of price to be considered as an observable value. The metadata address notably permits to reference PriceQuantity attribute in TradeLot->PriceQuantity attached to the related Trade.">
+    [metadata address]
+  quantity QuantitySchedule (0..*) <"Specifies any type of quantity to be considered as an observable value. The metadata address notably permits to reference PriceQuantity attribute in TradeLot->PriceQuantity attached to the related Trade.">
+    [metadata address]
+  observable NewObservable (0..1) <"Specifies an observable asset. For clarity, metadata address for this object also exist but are defined at attribute level.">
+  priceReturn NewGenericPriceReturn (0..1)
+  structuredFeatures New2StructuredFeatures (0..1) <"Define a core set of optional features for structuring the parent object e.g. make its existence contigent via KnockCondition, bounds its value via CapFloor Barrier, leverage its value via Multipler or delevrage it via Divisor, etc.">
+    [metadata reference]
+  payerReceiver PayerReceiver (0..1) <"Permits to sign a given ObservableValue from the relative point of iew of the parties i.e. the Receiver party shall consider the given Observable Value is signed with +1 multiplier, whereas the Payer party shall consider it is signed with opposite that is -1 multiplier.">
+  bespokeItemDescription AdditionalBespokeTerm (0..1) <"Any additional term that might be specified.">
+
+  condition :
+  optional choice priceReturn, observable
+
+type NewObservable: <"Specifies an observable asset.">
+  [metadata key]
+  rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+  [metadata address]
+  currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+  [metadata address]
+  product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+  condition: one-of
+
+//type PayoutObservableReference: <"When the observable is the one already defined as a Payout attribut in ObservationTerms.">
+  //[metadata key]
+ // rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
+  //[metadata address]
+ // currencyPair QuotedCurrencyPair (0..*) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
+ // [metadata address]
+ // product NewProduct (0..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+ // [metadata address]
+
+type NewObservationConditions : <"Defines 'HOW' an item represented in CDM is observed in all meaning of the word 'how' e.g. in terms of aggregation if multiple values, in terms of data source, time of observation, determination method, etc. It also containss a similar type nested as an attribute, that is cumulativeObservationConditions for the purpose of representing sorted combinations of observations.">
+
+  observationPeriodDates PeriodicDates  (0..1) <"Specifies the observation periods.">
+  observationDates AdjustableOrRelativeDates (0..1) <"Specifies the dates on which the multiple observations shall occurr, either as given list of such dates, else by using dateIsRelativeToEnum for the purpose of anchoring some type of dates in observation periods.">
+  aggregationFeatures New2AggregationFeatures (0..1) <"The basic mathematical commutative functions, to represent the calculation method for aggregating multiple values into a single value, either per time series or per observable series ; also contains a similar type nested as an attribute for the purpose of representing combinations of aggregations. Additional aggregation attributes also exist for instance to specific types of averaging at stake, also for specifying other types of aggregation such as 'nth' selection of items sorted from given series.">
+  observationRoundingMethod Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
+  observationDeterminationMethod NewDeterminationMethodEnum (0..1) <"The enumerated values to specify the method according to which an Amount or a Price or a date is determined.">
+  observationTime NewObservationTime (0..1) <"Defines the particular time on which the observation is effectively made.">
+  observationSource NewInformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+  cumulativeObservationConditions NewObservationConditions (0..*) <"Specifies observationConditions embedded at granular level e.g. when one needs to cumulate multiple conditions included within each other, then whenever the conditions are additive at same root level, use multiple instance of cumulativeObservationCondition, and whenever a condition include other condition, define new cumulativeObservationCondition. Conceptual basis is the logical equivalence of inclusion in series with sorting such series e.g. (a(ab(abc))) == a < b < c == first resolve a then resolve b given a then resolve c given b, etc.">
+  bespokeItemDescription AdditionalBespokeTerm (0..1) <"Any bespoke name or description that may be specified.">
+
+type NewInformationProviderSource: <"Describes the data sourced from a Provider i.e. when the data is sourced as gross from such Provider, thus with no processing or calculation about it by the Party that is using such data. In case Provider data has been transformed by a Party in any manner, then the source of such data source shall be defibed in InformationPartySource.">
+
+  primarySource InformationSource (1..1)
+  secondarySource InformationSource (0..1)
+
+type NewInformationPartySource: <"Describes the data sourced from a Party i.e. when the data is an output resulting from any Party internal calculation, thus without presuming neither about the calculation method used nor about the original sources of input data and related Providers if any. In case a Party is using Provider data as gross from the Provider i.e. without transforming such data in any manner, then the source of such data shall be defibed in InformationExternalSource.">
+
+  sourcePartyName Party (0..1) <"The Party who is providing the data.">
+  sourcePartyRole PartyRoleEnum (0..1) <"The role of the Party who is providing the data instead of Provider.">
+
+type NewInformationSource: <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+
+  providerExternalData NewInformationProviderSource (0..1) <"Describes the data sourced from a Provider i.e. when the data is sourced as gross from such Provider, thus with no processing or calculation about it by the Party that is using such data. In case Provider data has been transformed by a Party in any manner, then the source of such data source shall be defibed in InformationPartySource.">
+  partyInternalData NewInformationPartySource (0..1) <"Describes the data sourced from a Party i.e. when the data is an output resulting from any Party internal calculation, thus without presuming neither about the calculation method used nor about the original sources of input data and related Providers if any. In case a Party is using Provider data as gross from the Provider i.e. without transforming such data in any manner, then the source of such data shall be defibed in InformationExternalSource.">
+
+  condition: one-of
+
+//type NewObservationResults: <"Where the ouput from observations may be recorded, as a result from any calculations based on observableValue and observationConditions, else on any other type of object that represents calculation inluts or related operators, such as for instance a CDM node in path which label explicitly represents a domain language formula for the purpose of calculating a payout e.g. if an attribut of priceReturn of type ReturnRatio to which ratioDenominator and ratio Numerator are attached, then expect resulting value to record should result from calculating such a payout i.e.  (0 ; Observation - Strike)' etc.">
+
+   // dateSeriesPerObservable NewDateSeriesPerObservable (0..*)
+  //  observableSeriesPerDate NewObservableSeriesPerDate (0..*)
+   // embeddedObservationResults NewObservationResults (0..*)
+    
+   // condition: 
+   // required choice dateSeriesPerObservable, observableSeriesPerDate
+
+//type NewDateSeriesPerObservable: 
+  //  observable NewObservable (0..1)
+  //  observationSeriesAggregatedValue number (0..1)
+   // observationValue DatedValue (1..*)
+
+//type NewObservableSeriesPerDate:
+  //  observationDate date (0..1)
+   // observationSeriesAggregatedValue number (0..1)
+  //  observationValue NewValuatedObservable (1..*)
+
+//type NewValuatedObservable :
+  //  observable NewObservable (1..1)
+  //  value number (1..1)
+

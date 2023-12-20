@@ -17,7 +17,6 @@ import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
 
-
 import cdm.legaldocumentation.common.*
 import cdm.product.collateral.*
 
@@ -79,6 +78,7 @@ type PrimitiveInstruction: <"A Primitive Instruction describes the inputs requir
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
     stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
 	observation ObservationInstruction (0..1) <"Specifies inputs needed to process an observation.">
+    reset_NEW ObservationInstruction (0..1) <"Specifies inputs needed to process an observation which has a reset effect on related agreement.">
 
 type BusinessEvent extends EventInstruction: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
 	[metadata key]
@@ -90,8 +90,13 @@ type BusinessEvent extends EventInstruction: <"A business event represents a lif
     condition EventDate:
         eventDate exists
 
-type ObservationInstruction: <"Specifies inputs needed to process an observation.">
-	observationEvent ObservationEvent (1..1) <"Contains all information related to an observation.">
+type ObservationInstruction: <"Specifies the recording of any type of Observation, as well as any reset effect on the original trade agreement.">
+	marketEventObservation ObservationEvent (0..1) <"To record Observations of market events.">
+    marketFixingObservation NewObservationBasis (0..1) <"To record Observations of market data e.g. observable prices.">
+    payoutFixingObservation NewTradeEconomicsObservation (0..1) <"To record inside relevant trade component (a) market data inputs involved in any type of fixing date to be observed for calculation purposes, say 'X' involved in any 'F(X)=Y' where 'F()' designates any formula represented in the termination provisions or payout terms. e.g. observations, valuations, recording of knocking, exercices, etc.  as well as (b) related payout outputs if any thus 'Y' as a result of calculating 'F(X)=Y' e.g. final or intermediary prices or quantities calculated. Recording (a) shall mainly consist in updating the relevant trade component with 'datedValue' series corresponding to the 'X' series observed ; recording (b) shall mainly consist in updating corecomponents which name schema is '[xxx]CalculationResult', for instance 'returnCalculationResult' all being of type ObservationBasis.">
+    //resetEffect boolean (1..1) <"To specify if the Observation has a reset effect or not on the prior agreement : when 'false' then Observation is recorded in observationHistory only else when 'true' then then Observation is recorded in both observationHistory and resetHistory, where resetHistory is referencing the relevant observationHistory.">
+
+	condition: required choice marketEventObservation, marketFixingObservation, payoutFixingObservation
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
 	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
@@ -174,12 +179,30 @@ type TradeState: <"Defines the fundamental financial information that can be cha
 	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
 	observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
     valuationHistory Valuation (0..*)
-
-type ObservationEvent: <"Specifies the necessary information to create any observation event.">
-	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
-	corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
+    resetHistory_NEW ObservationInstruction (0..*)
+    observationHistory_NEW ObservationInstruction (0..*)
+ 
+type ObservationEvent: <"Specifies the necessary information to represent any observation event.">
+	creditEvent CreditEvent (0..1) <"Specifies the necessary information to represent a credit event.">
+	//extraordinaryEvents ExtraordinaryEventsObservation (0..1)
+    corporateAction CorporateAction (0..1) <"Specifies the necessary information to represent a corporate action.">
+    equityExtraordinaryEvent ExtraordinaryEvents (0..1) <"Specifies the necessary information to represent an extraordinary event which relates to an Equity asset.">
 
 	condition: one-of
+
+//type ExtraordinaryEventsObservation extends ExtraordinaryEvents:
+   // eventDeterminationDate date (1..1) <"The date in which the event is determined by the relevant event source.">
+   // exDate date (0..1) <"The date in which the event is taking effect on affected transactions.">
+  //  eventObservationSource NewInformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+//	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not an event has occurred.">
+
+type NewTradeEconomicsObservation: 
+    corePayoutObservation NewStructuredPayout (0..1)
+    [metadata reference]
+    terminationEventObservation TerminationProvision (0..1)
+    [metadata reference]
+    tradeIdentifier TradeIdentifier (1..*)
+    [metadata reference]
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
 	[metadata key]
@@ -278,6 +301,7 @@ type Trade: <"Defines the output of a financial transaction between parties - a 
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
 	    [deprecated]
+    tradePosition NewObservableValue (0..*)
 	
 	// condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
 	// 	if tradableProduct -> product -> security exists
@@ -522,20 +546,116 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
 	corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
 	exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
 	payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-	underlier Product (1..1) <"The entity impacted by the corporate action.">
+    recordDate date (0..1) <"The date on which the account phyical balance and related underlier ownership is recorded by the custodian.">
+    announcementDate date (0..1) <"The date on which the corporate action is announced by the issuer.">
+	underlier NewProduct (1..1) <"The entity impacted by the corporate action.">
+    corporateActionDetails NewCorporateActionDetails (0..1) <"Specifies any additional details e.g. further descriptions depending on the particular type of Corporate Action, adjustmentFactor, calculations">
+    eventObservationSource NewInformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not an event has occurred.">
+
+    condition Dividend:
+    if corporateActionDetails -> dividendsObservation exists
+    then corporateActionType = CorporateActionTypeEnum -> CashDividend
+    or corporateActionType = CorporateActionTypeEnum -> StockDividend
+
+type NewCorporateActionDetails:
+    dividendsObservation NewDividendsObservations (0..1) <"To record observations of dividends.">
+    adjustmentFactor NewAdjustmentFactor (0..1) 
+    accrualProvisions NewAccrualProvisions (0..1) <"When underlier impacted shall remains in the Trade but with a last fixed value on which cash accrual is applied.">
+    lastFixingPrice Price (0..1) <"The last price fixed for the Underlier affected by the CorporateAction. The metadata location permits this items to be referenced if re-used in accruedPriceCalculationInputs or in adjustmentFactorCalculationInputs.">
+    [metadata location]
+
+type NewAccrualProvisions :
+
+    accrualInterpolationRate Price (0..1) <"The interpolation rate to be applied to the last fixing price for accrual purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates, for instance when multiple observation dates would remain for which such value is required, between the last fixing date and the maturity. The metadata location permits this items to be referenced if re-used in accruedPriceCalculationInputs ">
+     [metadata location]
+    accrualRate Price (0..1) <"The fixed rate to be applied to the last fixing price for accrual purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates, for instance when multiple observation dates would remain for which such value is required, between the last fixing date and the maturity.The metadata location permits this items to be referenced if re-used in accruedPriceCalculationInputs">
+     [metadata location]
+    interpolationRateCalculationInputs NewInterpolationRateCalculationInputs (0..1) <"The input values used to calculate the interpolation rate.">
+    interpolationRateCalculationFormula NewGenericPayout (0..1) <"The explicit calculation formula used to produce the interpolation rate, e.g.">
+    accruedPriceCalculationInputs NewAccruedPriceCalculationInputs (0..1) <"The input values used to calculate the accrued value of the asset price.">
+    accruedPriceCalculationFormula NewGenericPayout (0..1) <"The explicit calculation formula used to produce the accrued asset price e.g. for instance AccruedPrice = LastFixingPrice x (AccruedRate + 1) x DayCountFraction.">
+                
+        condition ResultExistWhenRateCalculationExists:		
+        if interpolationRateCalculationInputs exists
+        or interpolationRateCalculationFormula exists
+        then accrualInterpolationRate exists
+
+        condition AccrualRatePrice:
+        if accrualRate exists
+        then accrualRate -> priceType = PriceTypeEnum -> InterestRate
+
+        condition AccrualInterpolationRatePrice:
+        if accrualInterpolationRate exists
+        then accrualInterpolationRate -> priceType = PriceTypeEnum -> InterestRate
+
+        condition StraightOrInterpolation:
+        required choice accrualInterpolationRate, accrualRate
+
+type NewAdjustmentFactor :
+    adjustmentFactorAmount number (0..1) <"The multipler value that is used to adjust any terms of the trade in order to neutralize the economic effect of the corporate action.">
+    adjustmentFactorCalculationInputs NewAdjustmentFactorCalculationInputs (0..1) <"The input values used to calculate the adjustment factor amount.">
+    adjustmentFactorCalculationFormula NewGenericPayout (0..1) <"The explicit calculation formula used to produce the adjustment factor">
+
+        condition ResultExistWhenFactorCalculationExists:		
+        if adjustmentFactorCalculationInputs exists
+        or adjustmentFactorCalculationFormula exists
+        then adjustmentFactorAmount exists
+
+type NewAccruedPriceCalculationInputs:
+    lastFixingPriceReference Price (1..1)
+    [metadata address]
+    accrualRateReference Price (0..1)
+    [metadata address]
+    accrualInterpolationRateReference Price (0..1)
+    [metadata address]
+
+        condition StraightOrInterpolationReference:
+        required choice accrualInterpolationRateReference, accrualRateReference
+
+type NewAdjustmentFactorCalculationInputs:
+    lastFixingPriceReference Price (0..1)
+    [metadata address]
+    dividendPrice Price (0..1)
+    shareForShareRatio number (0..1)
+    shareForRightsRatio number (0..1)
+    shareForBonusRatio number (0..1)
+    subscriptionPrice Price (0..1)
+    netFiscalRatioPercentage number (0..1)
+    spinOffParentCompanyPrice NewObservationBasis (0..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action, as well as the related price observation.">
+    spingOffChildCompanyPrice NewObservationBasis (0..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action, as well as the related price observation.">
+    mergerPurchaserCompanyPrice NewObservationBasis (0..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action, as well as the related price observation.">
+    mergerAcquiredCompanyPrice NewObservationBasis (0..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action, as well as the related price observation.">
+
+type NewInterpolationRateCalculationInputs:
+    yearsTillMaturity number (1..1)
+    shortStubRate FloatingRateSpecification (1..1)
+    longStubRate FloatingRateSpecification (1..1)
+
+    condition RatesValueExist:
+    shortStubRate -> initialRate -> priceType = PriceTypeEnum -> InterestRate
+    and longStubRate -> initialRate -> priceType = PriceTypeEnum -> InterestRate
+
+    condition IndexRateOptionTenorsExist:
+    shortStubRate -> rateOption -> indexTenor exists
+    and longStubRate -> rateOption -> indexTenor exists
 
 type TransferBase:
 
 	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
 		[metadata scheme]
-	quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
+	quantity NonNegativeQuantity (1..1) <"Represents the amount or the number of the asset to be transferred.">
+    price Price (0..*) <"Represents the price at which the asset is transferred.">
 	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+	payerReceiver PartyReferencePayerReceiver (0..1) <"Represents the parties to the cash transfer and their role.">
+    buyerSeller PartyReferenceBuyerSeller (0..1) <"Represents the parties to the phyical transfer and their role.">
 	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
-	condition FinancialUnitExists:
+	    condition PhysicalTransfer:
 		if observable exists
 		then quantity -> unit -> financialUnit exists
+        and buyerSeller exists
+        else payerReceiver exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
 	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
