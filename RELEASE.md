@@ -8,7 +8,8 @@ as a new price type.
 _What is being released?_
 
 - Added Spread, BorrowFee, MarkUpDown, VenueExecutionFee, ClearingFee and Tax to `PriceOperandEnum`.
-- Add Yield to `PriceTypeEnum`.
+- Added Yield to `PriceTypeEnum`.
+- Added `CentralSecuritiesDepository` and `InternationalCentralSecuritiesDepository` to `PartyRoleEnum`.
 
 _Backward-Incompatible Changes_
 
