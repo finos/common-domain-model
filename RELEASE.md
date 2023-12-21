@@ -2,11 +2,13 @@
 
 _Background_
 
-Additional operand types are needed for Spread, BorrowFee, MarkUpDown, VenueExecutionFee, ClearingFee and Tax
+Additional operand types are needed for Spread, BorrowFee, MarkUpDown, VenueExecutionFee, ClearingFee and Tax. Yield is needed
+as a new price type.
 
 _What is being released?_
 
 - Added Spread, BorrowFee, MarkUpDown, VenueExecutionFee, ClearingFee and Tax to `PriceOperandEnum`.
+- Add Yield to `PriceTypeEnum`.
 
 _Backward-Incompatible Changes_
 
