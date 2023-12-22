@@ -407,34 +407,34 @@ various data attributes available through `IssuerCriteria` and
 
 ## Collateral Asset and Issuer Types
 
-Under data types for both `IssuerCriteria` and `AssetCriteria` the first
-data attributes available to detail collateral are `issuerType` and
-`collateralAssetType` these will offer additional data.
+Under data types for `IssuerCriteria` and `AssetCriteria`, respectively,
+the `issuerType` and `collateralAssetType` attributes provide additional
+data to detail collateral.
 
 **Defining Collateral Issuers:**
 
-* `issuerType` allows for multiple expressions of data related to the
+`issuerType` allows for multiple expressions of data related to the
 issuer using `CollateralIssuerType` containing data attributes as
 follows:
 
-* `issuerType IssuerTypeEnum` Specifies the origin of entity issuing the
+- `issuerType` of type `IssuerTypeEnum` specifies the origin of entity issuing the
 collateral with the following enumerations shown as examples but not
 limited to:
 
-  * SupraNational
-  * SovereignCentralBank
-  * RegionalGovernment
-  * Corporate.
+  - SupraNational
+  - SovereignCentralBank
+  - RegionalGovernment
+  - Corporate
 
 Some attributes are extended to allow further granularity as shown in
 the examples below:
 
-`supraNationalType` Represents types of supranational entity issuing the
+- `supraNationalType` Represents types of supranational entity issuing the
 asset, such as international organisations and multilateral banks --
 with enumerations to define:
 
--   InternationalOrganisation
--   MultilateralBank
+  - InternationalOrganisation
+  - MultilateralBank
 
 **Defining Collateral Assets:**
 
@@ -442,45 +442,46 @@ with enumerations to define:
 the collateral asset using `AssetType` which has further data attributes
 as follows:
 
-assetType - Represents the type of collateral asset with data attributes
+- assetType - Represents the type of collateral asset with data attributes
 as enumerations to define
 
--   Security
--   Cash
--   Commodity
--   Other Collateral Products
+  - Security
+  - Cash
+  - Commodity
+  - Other Collateral Products
 
-`securityType` - Represents the type of security with data attributes to
+- `securityType` - Represents the type of security with data attributes to
 define, as examples:
 
--   Debt
--   Equity
--   Fund
+  - Debt
+  - Equity
+  - Fund
 
-`debtType` - Represents a filter based on the type of bond which
+- `debtType` - Represents a filter based on the type of bond which
 includes further optional granularity for certain characteristics that
 may be required to define specific details related to debt type assets
 such but not limited to as follows:
 
--   DebtClass
-    -   Asset Backed
-    -   Convertible
-    -   RegCap
-    -   Structured
--   DebtEconomics
-    -   Debt Seniority
-        -   *Secured*
-        -   *Senior*
-        -   *Subordinated*
-    -   Debt Interest
-        -   *Fixed*
-        -   *Floating*
-        -   *Inflation Linked*
-    -   Debt Principal
-        -   *Bullet*
-        -   *Callable*
-        -   *Puttable*
-        -   *Amortising*
+  - DebtClass
+    - Asset Backed
+    - Convertible
+    - RegCap
+    - Structured
+
+  - DebtEconomics
+    - Debt Seniority
+      - *Secured*
+      - *Senior*
+      - *Subordinated*
+    - Debt Interest
+      - *Fixed*
+      - *Floating*
+      - *Inflation Linked*
+    - Debt Principal
+      - *Bullet*
+      - *Callable*
+      - *Puttable*
+      - *Amortising*
 
 A similar structure exists for `equityType` and `fundType` and other
 collateral assets types.
