@@ -903,7 +903,7 @@ which collateral meets the eligibility and can be used/posted for delivery, and 
 
 The data type `EligibilityQuery` is used to form the input data to the Eligibility Collateral Validation function.  
 
-``` haskell
+``` Haskell
 type EligibilityQuery: 
     maturity number (1..1)
     collateralAssetType AssetType (1..1) 
@@ -944,7 +944,7 @@ and loaded and run using the Function evaluation feature in the [Rosetta Engine]
 
 The output of the function is delivered using the `CheckEligibilityResult` data type which has four attributes:
 
-``` haskell
+``` Haskell
 type CheckEligibilityResult:
     isEligible boolean (1..1)
     matchingEligibleCriteria EligibleCollateralCriteria (1..*) 
@@ -991,7 +991,7 @@ We can then run eligibility tests against this, for example:
 
 Showing this as JSON code, the first `EligibilityQuery` would be:
 
-``` javascript
+``` Javascript
 {   "query": {
 	"collateralAssetType": [ {
 		"assetType": "Cash"
@@ -999,13 +999,13 @@ Showing this as JSON code, the first `EligibilityQuery` would be:
 	"assetCountryOfOrigin": "US" ,
 	"demoninatedCurrency": "USD"
 }  }
-````
+```
 Running this code through the `EligibilityQuery` function will generate a result of `False`
 in the `isEligible` attribute.
 
 For the second example, the query can be constructed as follows:
 
-``` javascript
+``` Javascript
 {   "query": {
 	"maturity": 3,
 	"collateralAssetType": [ {
@@ -1024,7 +1024,7 @@ For the second example, the query can be constructed as follows:
 	"issuerType": "SOVEREIGN_CENTRAL_BANK" ,
 	"issuerName": "Government of Japan"
 }  }
-````
+```
 The above will generate a result of `True` in the `isEligible` attribute.  To determine the
 applicable haircut, interogate the returned `CheckEligibilityResult` data type, and specifically
 `matchingEligibleCriteria` -> `treatment` -> `valuationTreatment` -> `haircutPercentage`.
