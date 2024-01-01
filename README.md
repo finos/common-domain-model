@@ -40,7 +40,8 @@ The following Working Groups are currently activated or about to be set up for t
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
-![alt_text](documentation/source/images/finos-cdm-governance-structure.png "image_tooltip")
+![alt_text](docs/FINOS-CDM-Governance-Structure.png)
+
 
 ## 2. Working Groups
 
