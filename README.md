@@ -164,6 +164,26 @@ _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted fr
 
 *Need an ICLA? Unsure if you are covered under an existing CCLA? Email [help@finos.org](mailto:help@finos.org)*
 
+## FINOS CDM Project Maintainers
+
+FINOS Common Domain Model is maintained by FINOS members and the wider open source in finance community. 
+
+The following are the FINOS CDM maintainers and the firms they represent.  
+
+| FINOS CDM Maintainer |Representing   | Capacity                                    |    
+| -------------------- | -------------- | ------------------------------------------- |
+| Gabriel Callsen      | ICMA           | OrgRep                                      |
+| Tom Healey           | ICMA           | OrgRep                                      |
+| Vernon Alden-Smith   | ISDA           | OrgRep                                      | 
+| Eleonora Acuna       | ISDA           | OrgRep                                      |
+| David Shone          | ISDA           | OrgRep                                      |
+| Adrian Dale          | ISLA           | OrgRep                                      |  
+| Chris Rayner         | ISLA           | OrgRep                                      |
+| Ian Sloyan           | Private Individual | N/A                                     |
+| Minesh Patel         | Regnosys       | OrgRep                                      |
+| Leo Labeis           | Regnosys       | OrgRep                                      | 
+| Hugo Hills           | Regnosys       | OrgRep         | 
+
 ## License
 
 Copyright 2021 FINOS and CDM Participants
