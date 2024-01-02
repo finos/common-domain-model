@@ -10,11 +10,6 @@ The standard is developed through the [Community Specification](https://communit
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
-Committee members or any user of CDM within the community can propose
-amendments in accordance with the following process:
-
-![](/img/CDM-Development-Process.png)
-
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM [design-principles](/docs/cdm-overview#design-principles) and
