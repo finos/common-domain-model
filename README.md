@@ -171,19 +171,19 @@ FINOS Common Domain Model is maintained by FINOS members and the wider open sour
 
 The following are the FINOS CDM maintainers and the firms they represent.  
 
-| FINOS CDM Maintainer |Representing   | Capacity                                    |    
-| -------------------- | -------------- | ------------------------------------------- |
-| Gabriel Callsen      | ICMA           | OrgRep                                      |
-| Tom Healey           | ICMA           | OrgRep                                      |
-| Vernon Alden-Smith   | ISDA           | OrgRep                                      | 
-| Eleonora Acuna       | ISDA           | OrgRep                                      |
-| David Shone          | ISDA           | OrgRep                                      |
-| Adrian Dale          | ISLA           | OrgRep                                      |  
-| Chris Rayner         | ISLA           | OrgRep                                      |
-| Ian Sloyan           | Private Individual | N/A                                     |
-| Minesh Patel         | Regnosys       | OrgRep                                      |
-| Leo Labeis           | Regnosys       | OrgRep                                      | 
-| Hugo Hills           | Regnosys       | OrgRep         | 
+|FINOS CDM Maintainer  |Representing    |Capacity                                     |GithubID              |    
+| -------------------- | -------------- | ------------------------------------------- | -------------------- |           
+| Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
+| Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
+| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
+| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
+| Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
+| Ian Sloyan           | Private Individual | N/A                                     | iansloyan            | 
+| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
+| Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
 
 ## License
 
