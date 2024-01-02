@@ -80,6 +80,8 @@ users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
 Section](#) of the CDM documentation.
 
+![](/img/CDM–Semantic-Versioning-Refresher.png)
+
 ## Semantic Versioning
 
 The CDM is released using the semantic versioning 2.0 system - See
