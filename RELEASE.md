@@ -1,19 +1,19 @@
-# _Event Model - Trade Lot Identifier added to Execution Instruction_
+# *Product Model - Qualification - Bond Forwards*
 
 _Background_
 
-In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires a tradeLot identifer to be present.
+This release fixes issue [#2601](https://github.com/finos/common-domain-model/issues/2601) which breaks bond forward qualification.
 
 _What is being released?_
 
-- Added `lotIdentifier` attribute (optional) to `ExecutionInstruction`
-- In `Create_Execution` function, the `lotIdentifier` attribute is used when creating the execution's `TradeLot` object
-
-_Backward-Incompatible Changes_
-
-None
+* Function `cdm.product.qualification.Qualify_AssetClass_InterestRate` has been updated to work for forward payouts
+* Bond forward FpML samples, and corresponding FpML synonym mappings, have been added
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the change identified above.
-Changes can be reviewed in PR [#2591](https://github.com/finos/common-domain-model/pull/2591)
+In Rosetta, open the Common Domain Model workspace, select the Translate tab and review the following samples:
+
+* fpml-5-10 > products > rates > bond-fwd-generic-ex01.xml
+* fpml-5-10 > products > rates > bond-fwd-generic-ex02.xml
+
+Changes can be reviewed in PR [#2602](https://github.com/finos/common-domain-model/pull/2602)
