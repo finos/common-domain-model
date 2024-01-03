@@ -737,7 +737,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 	PriceSchedule:
         + value
             [value "initialRate" mapper "PriceUnitType"]
-            [value "initialValue" mapper "PriceUnitType"]
+            [value "initialValue" mapper "PriceUnitType"] 
             [value "rate" maps 2 mapper "PriceUnitType"]
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
@@ -775,6 +775,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
  			[set to PriceTypeEnum->InterestRate when "fixedRate" exists]
 			[set to PriceTypeEnum->InterestRate when "initialRate" exists]
  			[set to PriceTypeEnum->InterestRate when "spread" exists]
+            [set to PriceTypeEnum->InterestRate when path ="knownAmountSchedule"]
  			[set to PriceTypeEnum->InterestRate when "floatingRateCalculation->spread" exists]
  			[set to PriceTypeEnum->InterestRate when path = "spreadSchedule"]
  			[set to PriceTypeEnum->InterestRate when path = "floatingRateIndex"]
@@ -2199,7 +2200,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + futureValueNotional
             [value "futureValueNotional"]
         + priceSchedule
-            [value "ignore"]
+            [value "knownAmountSchedule" path "calculationPeriodAmount"] //test
 
     CreditDefaultPayout:
         [meta "id"]
@@ -2308,7 +2309,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			// For Swap Stream:
 			[value "calculation" path "calculationPeriodAmount"]
 			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-            [value "knownAmountSchedule" path "calculationPeriodAmount"]
+            [hint "calculationPeriodAmount"]
             // For FRAs:
 			[hint "notional"]
 			// For the interest leg of Equity Swap:
