@@ -434,11 +434,14 @@ func Create_Execution: <"Specifies the function to compose an execution based on
         instruction ExecutionInstruction (1..1) <"Instructions to be used as an input to the function">
     output:
         execution TradeState (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
-
     set execution -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
         instruction -> product
-    add execution -> trade -> tradableProduct -> tradeLot -> priceQuantity: <"Assign the prices and quantities input to the tradable product of the execution object.">
-        instruction -> priceQuantity
+    add execution -> trade -> tradableProduct -> tradeLot:  <"Assign the prices and quantities and lot identifier input to the tradable product of the execution object.">
+        TradeLot {
+            priceQuantity: instruction -> priceQuantity,
+            lotIdentifier: instruction -> lotIdentifier
+        }
+
     add execution -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
         instruction -> counterparty
     add execution -> trade -> tradableProduct -> ancillaryParty: <"Assign the ancillaryRole input to the tradable product of the execution object.">
@@ -1101,6 +1104,23 @@ func Create_Observation: <"Function specification to create an observation that 
 
     set after: before
     add after -> observationHistory: instruction -> observationEvent
+
+func Create_Valuation: <"Function specification to incorporate a new assessment of the valuation in the valuation history of a given trade state.">
+    inputs:
+        instruction ValuationInstruction (1..1)
+        before TradeState (1..1) <"Specifies the trade to be updated.">
+    output:
+        after TradeState (1..1) <"Specifies the resulting trade state incorporating the valuation update in the valuation history.">
+    
+    alias beforeValuationHistory:
+        if instruction -> replace = True then []
+        else before -> valuationHistory
+    
+    set after: before
+    
+    set after -> valuationHistory: beforeValuationHistory
+    
+    add after -> valuationHistory: instruction -> valuation
 
 func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price quantity, find a matching price quantity instruction, and call the update function.">
     inputs:
@@ -2514,10 +2534,15 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         then indexTransition
         else Create_Observation(primitiveInstruction -> observation, indexTransition)
 
+    alias valuation:
+        if primitiveInstruction -> valuation is absent
+        then observation
+        else Create_Valuation(primitiveInstruction -> valuation, observation)
+
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
-        then observation
-        else Create_StockSplit(primitiveInstruction -> stockSplit, observation)
+        then valuation
+        else Create_StockSplit(primitiveInstruction -> stockSplit, valuation)
 
     condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
         primitiveInstruction -> split is absent
