@@ -36,11 +36,11 @@ The changes can be reviewed in PR [#2607](https://github.com/finos/common-domain
 
 _Background_
 
-This release fixes issue [#2601](https://github.com/finos/common-domain-model/issues/2601) which breaks bond forward qualification.
+Qualification function Qualify_AssetClass_InterestRate does not qualify bond forwards correctly. The function alias that should extract the forward payout is instead extracting the option payout. This is described in issue [#2601](https://github.com/finos/common-domain-model/issues/2601).
 
 _What is being released?_
 
-* Function `cdm.product.qualification.Qualify_AssetClass_InterestRate` has been updated to work for forward payouts
+* Function `cdm.product.qualification.Qualify_AssetClass_InterestRate` has been updated to resolve the issue and cater for forward payouts
 * Bond forward FpML samples, and corresponding FpML synonym mappings, have been added
 
 _Review directions_
