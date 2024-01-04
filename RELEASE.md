@@ -30,4 +30,24 @@ There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR [#2607](https://github.com/finos/common-domain-model/pull/2607).
+The changes can be reviewed in PR [#2607](https://github.com/finos/common-domain-model/pull/2607)
+
+# *Product Model - Qualification - Bond Forwards*
+
+_Background_
+
+Qualification function Qualify_AssetClass_InterestRate does not qualify bond forwards correctly. The function alias that should extract the forward payout is instead extracting the option payout. This is described in issue [#2601](https://github.com/finos/common-domain-model/issues/2601).
+
+_What is being released?_
+
+* Function `cdm.product.qualification.Qualify_AssetClass_InterestRate` has been updated to resolve the issue and cater for forward payouts
+* Bond forward FpML samples, and corresponding FpML synonym mappings, have been added
+
+_Review directions_
+
+In Rosetta, open the Common Domain Model workspace, select the Translate tab and review the following samples:
+
+* fpml-5-10 > products > rates > bond-fwd-generic-ex01.xml
+* fpml-5-10 > products > rates > bond-fwd-generic-ex02.xml
+
+Changes can be reviewed in PR [#2602](https://github.com/finos/common-domain-model/pull/2602)
