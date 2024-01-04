@@ -16,6 +16,22 @@ In the CDM Portal, select the Textual Browser and inspect the change identified 
 
 Changes can be reviewed in PR [#2604](https://github.com/finos/common-domain-model/pull/2604)
 
+# *Infrastructure - Dependency Update*
+
+_What is being released?_
+
+This release updates the `rosetta-dsl` dependency.
+
+Version updates include:
+- `rosetta-dsl` 9.2.0: this release moves deployment of DSL artifacts to Maven Central. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.2.0.
+- `rosetta-dsl` 9.3.0: this release contains syntax highlighting improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.0.
+
+There are no changes to the model or test expectations.
+
+_Review directions_
+
+The changes can be reviewed in PR [#2607](https://github.com/finos/common-domain-model/pull/2607)
+
 # *Product Model - Qualification - Bond Forwards*
 
 _Background_
