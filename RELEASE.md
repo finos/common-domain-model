@@ -33,7 +33,7 @@ _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the change identified above.
 
-Changes can be reviewed in PR [#2595](https://github.com/finos/common-domain-model/pull/2605)
+Changes can be reviewed in PR [#2605](https://github.com/finos/common-domain-model/pull/2605)
 
 # *Infrastructure - Dependency Update*
 
