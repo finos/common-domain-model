@@ -1,0 +1,237 @@
+namespace cdm.api.repo : <"API for access to repo components.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+import cdm.event.common.*
+
+import cdm.product.template.*
+
+import cdm.api.repo.common.*
+
+
+func GetBuyerObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> Buyer]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+
+func SetBuyer:
+	inputs:
+		before Trade (1..1)
+		buyer Party (1..1)
+	output:
+		after Trade (1..1)
+	
+	set after:before
+	set after->party:buyer
+	set after->partyRole->role:PartyRoleEnum -> Buyer
+	set after->partyRole->partyReference:buyer
+	
+	
+	
+func GetSellerObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> Seller]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+
+func SetSeller:
+	inputs:
+		before Trade (1..1)
+		seller Party (1..1)
+	output:
+		after Trade (1..1)
+	
+	set after:before
+	set after->party:seller
+	set after->partyRole->role:PartyRoleEnum -> Seller
+	set after->partyRole->partyReference:seller
+		
+func GetPartyName:
+		inputs:
+			party Party (1..1)
+		output:
+			name string (1..1)
+
+		set name:
+			party->name
+			
+func CreatePartyObjectWithLei:
+		inputs:
+			name string (1..1)
+			lei string (1..1)
+		output:
+			party Party (1..1)
+		
+		set party->name:name
+		set party->partyId->identifier:lei
+		set party->partyId->identifierType:PartyIdentifierTypeEnum->LEI
+			
+			
+
+func GetPartyIdentifier:
+		inputs:
+			party Party (1..1)
+		output:
+			identifier string (1..*)
+
+		set identifier :
+			party->partyId->identifier
+			
+
+func GetBrokerObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> ArrangingBroker]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+
+
+func GetCcpObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> ClearingOrganization]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+
+func GetTriPartyObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> TripartyAgent]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+
+func GetSettlementAgentObject:
+	inputs:
+        trade Trade (1..1)
+	output:
+		party Party (1..1)
+	
+	alias partyRoles:
+		trade -> partyRole
+	
+	alias parties:
+		trade -> party
+		
+	alias partyReference:
+		trade
+			extract [item -> partyRole]
+			then filter [item -> role = PartyRoleEnum -> SettlementAgent]
+			then extract item -> partyReference
+	
+	set party:
+			partyReference only-element
+			
+
+func CreatePartyRoleObject:
+	inputs:
+		party Party (1..1)
+		partyRoleEnum PartyRoleEnum (1..1)
+	output:
+		partyRole PartyRole (1..1)
+		
+	set partyRole->partyReference:party
+	set partyRole->role:partyRoleEnum
+	
+
+func SetCounterparties:
+	inputs:
+		before TradableProduct (1..1)
+		counterparty Counterparty (2..2)
+	output:
+		after TradableProduct (1..1)
+	
+	set after:before
+	
+	set after->counterparty:counterparty

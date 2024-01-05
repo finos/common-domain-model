@@ -1,0 +1,292 @@
+namespace cdm.api.repo : <"API for access to repo components.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+import cdm.event.common.*
+
+import cdm.product.template.*
+
+import cdm.api.repo.common.*
+
+
+func FormatDateToISODate:
+    inputs:
+        date date (1..1)
+    output:
+        IsoDate string (0..1)
+
+	alias day:
+		date->day to-string
+	
+	alias month:
+		date->month to-string
+	
+	alias year:
+		date->year to-string
+		
+    set IsoDate:
+		year + '-' + month + '-' + day
+		
+func FormationZonedDateTimeToISODateTime:
+    inputs:
+        datetime zonedDateTime (1..1)
+    output:
+        IsoDateTime string (0..1)
+
+	alias day:
+		datetime->date->day to-string
+	
+	alias month:
+		datetime->date->month to-string
+	
+	alias year:
+		datetime->date->year to-string
+	
+		
+    set IsoDateTime:
+		year + '-' + month + '-' + day + 'T' + '00:00:00.000Z'
+		
+
+func GetTradeDate:
+    inputs:
+        trade Trade (1..1)
+    output:
+        date date (0..1)
+
+    set date:
+		trade -> tradeDate
+		
+func SetTradeDate:
+    inputs:
+        before Trade (1..1)
+		date date (0..1)
+    output:
+        after Trade (1..1)
+
+	set after: before
+    set after -> tradeDate: date
+	
+		
+func GetPurchaseDate:
+    inputs:
+        product Product (1..1)
+    output:
+        date date (0..1)
+
+    set date:
+		product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+		
+func SetPurchaseDate:
+    inputs:
+	    before Product (1..1)
+		date date (0..1)
+    output:
+        after Product (1..1)
+
+	set after: before
+    set after -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate: date
+	
+func GetPurchaseDateObject:
+    inputs:
+        product Product (1..1)
+    output:
+        date AdjustableOrRelativeDate (0..1)
+
+    set date:
+		product -> contractualProduct -> economicTerms -> effectiveDate
+		
+func GetRePurchaseDate:
+    inputs:
+        product Product (1..1)
+    output:
+        date date (0..1)
+
+    set date:
+		product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate
+
+func SetRePurchaseDate:
+    inputs:
+	    before Product (1..1)
+		date date (0..1)
+    output:
+        after Product (1..1)
+
+	set after: before
+    set after->contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> adjustedDate: date
+		
+
+func GetRePurchaseDateObject:
+    inputs:
+        trade Trade (1..1)
+    output:
+        date AdjustableOrRelativeDate (0..1)
+
+    set date:
+		trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate
+	
+func ChangePurchaseDate:
+    inputs:
+        tradeState TradeState (1..1)
+		intent EventIntentEnum (0..1)
+        eventDate date (1..1)
+        effectiveDate date (1..1)
+		newPurchaseDate date (0..1)
+    output:
+        after BusinessEvent (1..1)
+		
+		alias beforeAdustedPurchaseDate:
+			tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate
+			
+		alias newAdjustedPurchaseDate:
+			Create_AdjustedDate(beforeAdustedPurchaseDate -> adjustableDate -> unadjustedDate, 
+								beforeAdustedPurchaseDate -> adjustableDate -> dateAdjustments,
+								beforeAdustedPurchaseDate -> adjustableDate -> dateAdjustmentsReference,
+								newPurchaseDate,
+								beforeAdustedPurchaseDate -> relativeDate -> relativeDateAdjustments -> businessDayConvention,
+								beforeAdustedPurchaseDate -> relativeDate -> relativeDateAdjustments -> businessCenters -> businessCenter,
+								beforeAdustedPurchaseDate -> relativeDate -> relativeDateAdjustments -> businessCenters -> commodityBusinessCalendar
+								)
+
+		alias instruction: <"Create a list of new execution instructions for each trade. The new execution instructions include new execution details, with the package component created using the pair reference and the componentId list.">
+        tradeState
+            extract
+                Instruction {
+                    before: item,
+                    primitiveInstruction: PrimitiveInstruction {
+							termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
+                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+							newAdjustedPurchaseDate,
+                            empty
+							),
+                            contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
+                                then Create_ContractFormationInstruction(
+                                            item -> trade -> contractDetails -> documentation
+                                        ),
+                            execution: ExecutionInstruction {
+                                    product: item -> trade -> tradableProduct -> product,
+                                    priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                                    counterparty: item -> trade -> tradableProduct -> counterparty,
+                                    ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
+                                    parties: item -> trade -> party,
+                                    partyRoles: item -> trade -> partyRole,
+                                    executionDetails: item -> trade -> executionDetails,
+                                    tradeDate: item -> trade -> tradeDate,
+                                    tradeIdentifier: item -> trade -> tradeIdentifier,
+                                    ...
+                                },
+                            ...
+                        }
+                }
+		
+		
+		set after:
+			Create_BusinessEvent(instruction,intent,eventDate,effectiveDate)
+			
+func ChangeRePurchaseDate:
+    inputs:
+        tradeState TradeState (1..1)
+		intent EventIntentEnum (0..1)
+        eventDate date (1..1)
+        effectiveDate date (1..1)
+		newTerminationDate date (0..1)
+    output:
+        after BusinessEvent (1..1)
+		
+		alias beforeAdustedRePurchaseDate:
+			tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate
+			
+		alias newAdjustedRePurchaseDate:
+			Create_AdjustedDate(beforeAdustedRePurchaseDate -> adjustableDate -> unadjustedDate, 
+								beforeAdustedRePurchaseDate -> adjustableDate -> dateAdjustments,
+								beforeAdustedRePurchaseDate -> adjustableDate -> dateAdjustmentsReference,
+								newTerminationDate,
+								beforeAdustedRePurchaseDate -> relativeDate -> relativeDateAdjustments -> businessDayConvention,
+								beforeAdustedRePurchaseDate -> relativeDate -> relativeDateAdjustments -> businessCenters -> businessCenter,
+								beforeAdustedRePurchaseDate -> relativeDate -> relativeDateAdjustments -> businessCenters -> commodityBusinessCalendar
+								)
+
+		alias instruction: <"Create a list of new execution instructions for each trade. The new execution instructions include new execution details, with the package component created using the pair reference and the componentId list.">
+        tradeState
+            extract
+                Instruction {
+                    before: item,
+                    primitiveInstruction: PrimitiveInstruction {
+							termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
+                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+							empty,
+                            newAdjustedRePurchaseDate
+							),
+                            contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
+                                then Create_ContractFormationInstruction(
+                                            item -> trade -> contractDetails -> documentation
+                                        ),
+                            execution: ExecutionInstruction {
+                                    product: item -> trade -> tradableProduct -> product,
+                                    priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                                    counterparty: item -> trade -> tradableProduct -> counterparty,
+                                    ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
+                                    parties: item -> trade -> party,
+                                    partyRoles: item -> trade -> partyRole,
+                                    executionDetails: item -> trade -> executionDetails,
+                                    tradeDate: item -> trade -> tradeDate,
+                                    tradeIdentifier: item -> trade -> tradeIdentifier,
+                                    ...
+                                },
+                            ...
+                        }
+                }
+		
+		
+		set after:
+			Create_BusinessEvent(instruction,intent,eventDate,effectiveDate)
+
+
+func GetDayCountFraction:
+		inputs:
+			product Product (1..1)
+		output:
+			dayCountFraction string (1..1)	
+			
+		set dayCountFraction:
+			product->contractualProduct->economicTerms->payout->interestRatePayout->dayCountFraction first to-string
+			
+func SetDayCountFraction:
+		inputs:
+			dayCountFraction DayCountFractionEnum (1..1)
+			before Product (1..1)
+		output:
+			after Product (1..1)	
+		
+		set after:before
+		set after->contractualProduct->economicTerms->payout->interestRatePayout->dayCountFraction:
+			dayCountFraction
+			
+func GetTermDays:
+		inputs:
+			product Product (1..1)
+		output:
+			termDays int (1..1)	
+			
+		set termDays:
+			DateDifference(GetPurchaseDate(product),GetRePurchaseDate(product))
+

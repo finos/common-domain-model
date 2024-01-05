@@ -1,0 +1,48 @@
+namespace cdm.api.repo : <"API for access to repo components.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+import cdm.event.common.*
+
+import cdm.product.template.*
+
+
+	
+func Create_AdjustedDate:
+	inputs:
+		unadjustedDateInput date (0..1)
+		dateAdjustmentsInput BusinessDayAdjustments (0..1)
+		dateAdjustmentsReferenceInput BusinessDayAdjustments (0..1)
+		adjustedDateInput date (0..1)
+		businessDayConventionInput BusinessDayConventionEnum (0..1)
+		businessCenterInput BusinessCenterEnum (0..*)
+		commodityBusinessCalendarInput CommodityBusinessCalendarEnum (0..*)
+	output:
+		result AdjustableOrRelativeDate (1..1)
+		
+		set result -> adjustableDate -> unadjustedDate: unadjustedDateInput
+		set result -> adjustableDate -> dateAdjustments: dateAdjustmentsInput
+		set result -> adjustableDate -> dateAdjustmentsReference: dateAdjustmentsReferenceInput
+		set result -> adjustableDate -> adjustedDate: adjustedDateInput
+		set result -> relativeDate -> relativeDateAdjustments -> businessDayConvention: businessDayConventionInput
+		set result -> relativeDate -> relativeDateAdjustments -> businessCenters -> businessCenter: businessCenterInput
+		set result -> relativeDate -> relativeDateAdjustments -> businessCenters -> commodityBusinessCalendar: commodityBusinessCalendarInput

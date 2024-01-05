@@ -1,0 +1,111 @@
+namespace cdm.api.repo : <"API for access to repo components.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.collateral.*
+
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+import cdm.event.common.*
+
+import cdm.product.template.*
+
+import cdm.api.repo.common.*
+
+
+func GetCollateralList:
+	inputs:
+        product Product (1..1)
+	output:
+		collateralPositionList CollateralPosition(1..*)
+	
+	set collateralPositionList:
+		product->contractualProduct->economicTerms->collateral->collateralPortfolio->collateralPosition
+
+func SetCollateralList:
+	inputs:
+		product Product (1..1)
+		collateralPositionList CollateralPosition(1..*)
+	output:
+	    after Product (1..1)
+		
+	set after:product
+	add after->contractualProduct->economicTerms->collateral->collateralPortfolio->collateralPosition:collateralPositionList
+
+			
+func GetCollateralDescription:
+	inputs:
+		assetPayout AssetPayout (1..1)
+	output:
+		description string (1..*)
+
+	set description:		
+		assetPayout->securityInformation->security
+			extract productIdentifier
+			then filter source = ProductIdTypeEnum->Name
+			then extract identifier to-string
+
+func GetCollateralISIN:
+	inputs:
+		assetPayout AssetPayout (1..1)
+	output:
+		description string (1..*)
+
+	set description:		
+		assetPayout->securityInformation->security
+			extract productIdentifier
+			then filter source = ProductIdTypeEnum->ISIN
+			then extract identifier to-string
+			
+func GetCollateralPriceCurrency:
+	inputs:
+		assetPayout AssetPayout (1..1)
+	output:
+		currency string (1..*)
+
+	set currency:		
+		assetPayout->priceQuantity
+			extract priceSchedule
+			then filter priceType = PriceTypeEnum->AssetPrice
+			then extract perUnitOf -> currency to-string
+
+func Create_CollateralPayout:
+	inputs:
+		collateralPayout AssetPayout (1..1)
+		collateralIsin ProductIdTypeEnum (1..1)
+		collateralCurrency string (1..1)
+		collateralDescription string  (1..1)
+		collateralType Security (1..1)
+	output:
+		after AssetPayout(1..1)
+	
+	set after:collateralPayout
+	set after->securityInformation->security->productIdentifier->source:collateralIsin
+	set after->securityInformation->security->productIdentifier->identifier:collateralDescription
+	set after->securityInformation->security: collateralType
+		
+func Create_Collateral:
+	inputs:
+		collateralPayout AssetPayout (1..1)
+	output:
+		collateral Collateral (1..1)
+	
+	set collateral->collateralPortfolio->collateralPosition->product->security->economicTerms->payout->assetPayout:collateralPayout
+	
+	

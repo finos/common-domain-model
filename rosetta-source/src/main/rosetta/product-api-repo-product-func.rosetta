@@ -1,0 +1,238 @@
+namespace cdm.api.repo : <"API for access to repo components.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.math.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.common.*
+
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.observable.asset.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.datetime.*
+import cdm.product.collateral.*
+
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+
+import cdm.event.workflow.*
+import cdm.event.position.*
+import cdm.event.common.*
+
+import cdm.product.template.*
+
+import cdm.api.repo.common.*
+
+
+func GetRepoTermType:
+	inputs:
+        product Product (1..1)
+	output:
+		termType string (1..1)
+	
+	alias termDate:
+		product->contractualProduct->economicTerms->terminationDate->adjustableDate->adjustedDate
+		
+	set termType:
+		if termDate exists
+			then 'TERM'
+		else
+			'OPEN'
+	
+	
+func GetRepoRateType:
+	inputs:
+        product Product (1..1)
+	output:
+		rateType string (1..1)
+	
+	alias fixedRate:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->fixedRate
+		
+	set rateType:
+		if fixedRate exists
+			then 'FIXED'
+		else
+			'FLOAT'
+			
+
+func GetFloatingRateIndexDescription:
+	inputs:
+        product Product (1..1)
+	output:
+		indexName string (1..1)
+
+	set indexName:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->floatingRate->rateOption->floatingRateIndex first to-string
+
+func SetFloatingRateIndex:
+		inputs:
+			floatingRateIndex FloatingRateIndexEnum (1..1)	
+		output:
+			rateOption FloatingRateOption (1..1)
+			
+		set rateOption->floatingRateIndex: floatingRateIndex
+
+
+func GetFloatingRateIndexResetFreq:
+	inputs:
+        product Product (1..1)
+	output:
+		indexFreq string (1..1)
+
+	alias indexFreqMultiplier:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->floatingRate->rateOption->indexTenor->periodMultiplier first to-string
+	
+	alias indexFreqPeriod:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->floatingRate->rateOption->indexTenor->period first to-string
+		
+	set indexFreq:
+		 indexFreqMultiplier + indexFreqPeriod
+		
+		
+func SetFloatingRateIndexResetFreq:
+	inputs:
+		indexPeriod PeriodEnum (1..1)
+		indexMultiplier int (1..1)
+	output:
+		rateOption FloatingRateOption (1..1)
+	
+	set rateOption->indexTenor->periodMultiplier: indexMultiplier
+	set rateOption->indexTenor->period: indexPeriod
+
+func GetInterestPaymentFreq:
+	inputs:
+        product Product (1..1)
+	output:
+		paymentFreq string (1..1)
+
+	alias paymentFreqMultiplier:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->paymentDates->paymentFrequency->periodMultiplier first to-string
+	
+	alias paymentFreqPeriod:
+		product->contractualProduct->economicTerms->payout->interestRatePayout->paymentDates->paymentFrequency->period first to-string
+		
+	set paymentFreq:
+		 paymentFreqMultiplier + paymentFreqPeriod
+
+	
+func GetTerminalableOnDemand:
+		inputs:
+			product Product (1..1)
+		output:
+			terminable boolean (1..1)
+			
+		set terminable:
+		 product->contractualProduct->economicTerms->terminationProvision->cancelableProvision->effectivePeriod exists
+		 or
+		 product->contractualProduct->economicTerms->terminationProvision->cancelableProvision->effectiveDate exists
+
+			
+
+func GetNoticePeriod:
+		inputs:
+			product Product (1..1)
+		output:
+			noticePeriod string(1..1)
+			
+		set noticePeriod:
+		 product->contractualProduct->economicTerms->terminationProvision->cancelableProvision->effectivePeriod->period to-string +
+		 product->contractualProduct->economicTerms->terminationProvision->cancelableProvision->effectivePeriod->periodMultiplier to-string
+
+
+func GetDeliveryMethod:
+		inputs:
+			assetLeg AssetLeg(1..1)
+		output:
+			deliveryMethod string (1..*)
+			
+		set deliveryMethod:
+			assetLeg->deliveryMethod to-string
+			
+func GetSubstitutionAllowed:
+		inputs:
+			product Product (1..1)
+		output:
+			substitution boolean (1..1)
+			
+		set substitution:
+		 	product->contractualProduct->economicTerms->collateral->collateralProvisions->substitutionProvisions->numberOfSubstitutionsAllowed > 0
+
+
+func GetSettlementCurrency:
+		inputs:
+			product Product (1..1)
+		output:
+			currency string (1..1)
+		
+		set currency:
+			product->contractualProduct->economicTerms->payout->interestRatePayout->settlementTerms->cashSettlementTerms -> cashSettlementAmount->unit->currency first to-string
+
+func GetDayCountFraction:
+		inputs:
+			product Product (1..1)
+		output:
+			dayCount string (1..1)	
+			
+		set dayCount:
+			product->contractualProduct->economicTerms->payout->interestRatePayout->dayCountFraction first to-string
+
+func GetBusinessCenter:
+		inputs:
+			product Product (1..1)
+		output:
+			businessCenter string (1..1)
+		
+		alias businessCenterName:
+			if (product->contractualProduct->economicTerms->effectiveDate->adjustableDate->dateAdjustments exists)
+			then product->contractualProduct->economicTerms->effectiveDate->adjustableDate->dateAdjustments->businessCenters->businessCenter first to-string
+			else if (product->contractualProduct->economicTerms->effectiveDate->relativeDate exists)
+			then product->contractualProduct->economicTerms->effectiveDate->relativeDate->relativeDateAdjustments->businessCenters->businessCenter first to-string
+		
+		set businessCenter:
+			businessCenterName
+			
+
+func Create_FloatingRateFixedTermRepoProduct:
+		inputs:
+			purchaseDate date (1..1)
+			repurchaseDate date (1..1)
+			collateral Collateral (1..1)
+			terminationProvision TerminationProvision (1..1)
+			floatingRateIndex FloatingRateIndexEnum (1..1)	
+			indexPeriod PeriodEnum (1..1)
+			indexMultiplier int (1..1)
+		output:
+			product Product (1..1)
+		
+		set product:SetPurchaseDate(product,purchaseDate)
+		set product:SetRePurchaseDate(product,repurchaseDate)
+		set product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->floatingRate->rateOption:SetFloatingRateIndex(floatingRateIndex)
+		set product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->floatingRate->rateOption:SetFloatingRateIndexResetFreq(indexPeriod,indexMultiplier)
+		set product->contractualProduct->economicTerms->collateral:collateral
+		set product->contractualProduct->economicTerms->terminationProvision:terminationProvision
+
+
+func Create_FixedRateFixedTermRepoProduct:
+		inputs:
+			purchaseDate date (1..1)
+			repurchaseDate date (1..1)
+			collateral Collateral (1..1)
+			terminationProvision TerminationProvision (1..1)
+		output:
+			product Product (1..1)
+		
+		set product:SetPurchaseDate(product,purchaseDate)
+		set product:SetRePurchaseDate(product,repurchaseDate)
+		set product->contractualProduct->economicTerms->payout->interestRatePayout->rateSpecification->fixedRate->rateSchedule->price->priceType:PriceTypeEnum->InterestRate
+		set product->contractualProduct->economicTerms->collateral:collateral
+		set product->contractualProduct->economicTerms->terminationProvision:terminationProvision
+			
