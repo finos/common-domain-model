@@ -723,6 +723,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
+			// Other
+			[value "underlyer"]
 		+ settlementTerms
 			[hint "paymentDelay"]
 			[hint "paymentDate"]
@@ -1832,6 +1834,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
 			[value "productType" path "bondOption" mapper "TaxonomySource"]
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
+			[value "productType" path "genericProduct" mapper "TaxonomySource"]
 
     TaxonomyValue:
         + name
@@ -1840,6 +1843,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "creditDefaultSwapOption"]
             [value "productType" path "bondOption"]
             [value "productType" path "commoditySwaption"]
+            [value "productType" path "genericProduct"]
 
 	Security:
 		+ productIdentifier
@@ -2051,8 +2055,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[meta "id" path "trade"]
 		+ trade
 			[value "trade" mapper "Party"]
-			[hint "party"]
-			[hint "account"]
+			[hint "party" , "account" , "quote"]
 		+ resetHistory
 			[value "ignore"]
 		+ transferHistory
@@ -2365,11 +2368,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     ForwardPayout:
         [meta "id"]
         - payerReceiver
-        + payerReceiver
-			[value "ignore"]
         - priceQuantity
         + priceQuantity
-            [value "ignore"]
+            [hint "notional"]
         + delivery
             [value "ignore"]
 
@@ -2559,6 +2560,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
 			[value "farLeg"]
+			[value "genericProduct"]
 		+ securityPayout
 			[value "repo"]
 		+ cashflow
@@ -2648,6 +2650,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "commodity"]
 			[meta "specifiedPrice"]
 		+ security
+			[value "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 		+ basket
 			[value "basket"]
@@ -2709,7 +2712,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			// Other
 			[value "repo"]
 			[value "floatingLeg"]
-			// Additional payment
+			[value "genericProduct" mapper "InterestRateForwardDebtPrice"]
+            // Additional payment
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
 			[hint "underlyer"] // Equity Option
 			[value "bondOption"]
@@ -2758,6 +2762,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "commodityOption"]
 			[value "commoditySwap" path "commoditySwaption"]
 			[hint "repo"]
+			[hint "genericProduct", "quote"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
