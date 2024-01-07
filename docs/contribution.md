@@ -937,8 +937,6 @@ Once the contributed model change has been merged, a new release can be
 built, tested and deployed. The Maintainer will work with the CDM Owners
 and the Contributor on a deployment timeline.
 
-![alt text](img/CDM–Build-Release-Process.png)
-
 The following release checklist should be verified before deploying a
 new model:
 
