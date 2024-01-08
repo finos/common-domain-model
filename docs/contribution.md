@@ -10,11 +10,6 @@ The standard is developed through the [Community Specification](https://communit
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
-Committee members or any user of CDM within the community can propose
-amendments in accordance with the following process:
-
-![](/img/CDM-Development-Process.png)
-
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM [design-principles](/docs/cdm-overview#design-principles) and
@@ -36,7 +31,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 # Working Groups
 
-**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
+**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new new CDM Working Group template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
 
 **2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
@@ -79,6 +74,8 @@ source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
 Section](#) of the CDM documentation.
+
+![](/img/CDM–Semantic-Versioning-Refresher.png)
 
 ## Semantic Versioning
 
@@ -950,6 +947,8 @@ new model:
 -   Deploy release candidate and notify channels if need be
 -   (Currently done at a later stage) Update the latest CDM version
     available in Rosetta
+
+![](/img/CDM–Build-Release-Process.png)
 
 ---
 **Note:**
