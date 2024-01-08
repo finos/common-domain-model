@@ -11,7 +11,7 @@ There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2609
+The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2615
 
 # _Product Model - Natural Person and NaturalPersonRole circular reference_
 
