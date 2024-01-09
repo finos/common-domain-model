@@ -967,8 +967,8 @@ The output of the function is delivered using the `CheckEligibilityResult` data 
 ``` Haskell
 type CheckEligibilityResult:
     isEligible boolean (1..1)
-    matchingEligibleCriteria EligibleCollateralCriteria (1..*) 
-    eligibilityQuery EligibilityQuery (0..1) 
+    matchingEligibleCriteria EligibleCollateralCriteria (0..*) 
+    eligibilityQuery EligibilityQuery (1..1) 
     specification EligibleCollateralSpecification (1..1)
 ```
 
