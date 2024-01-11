@@ -40,6 +40,8 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
   
 **2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
+![](/img/operating-model-1.png)
+
 **2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
 **2.2.2 Appointment of CDM Steering Working Group Maintainers:**
@@ -773,6 +775,10 @@ Given the alignment:
 
 we recommend labelling the pull request with the user story label, i.e.
 "STORY-XYZ: ..." to facilitate its tracking.
+
+![](/img/operating-model-2.png)
+
+![](/img/operating-model-3.png)
 
 ---
 **Note:**
