@@ -40,10 +40,7 @@ The following Working Groups are currently activated or about to be set up for t
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
-![](.github/cdm-governance.png)
-![](.github/Trade-Association-Collaboration.png)
-![](.github/product-coverage.png)
-
+![](.github/FINOS-CDM-Governance-Structure.png)
 
 ## 2. Working Groups
 
@@ -56,10 +53,11 @@ Changes to the CDM may be proposed by CDM Working Groups, individual corporate c
 
 **2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
 
+![](.github/operating-model-1.png)
+
 **2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
 The first Steering Group of each calendar year will include a review of existing governance measures and wording on the agenda for re-ratification.
-
 
 **2.2.2 Appointment of CDM Maintainers:**
 
@@ -103,6 +101,8 @@ Interact with the CDM community
 **GitHub**
 
 CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
+
+![](.github/operating-model-2.png)
 
 
 ### 
@@ -157,6 +157,8 @@ Steps:
 1. Commit your changes (`git commit -am 'My New Feature'`)
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
+
+![](.github/operating-model-3.png)
 
 ## Documentation
 
