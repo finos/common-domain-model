@@ -54,15 +54,15 @@ module.exports = {
           items: [
             {
               label: 'Contribution Review Working Group',
-              href: '/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf',
+              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf',
             },
             {
               label: 'Collateral Working Group',
-              href: '/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf',
+              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf',
             },
             {
               label: 'Technology Architecture Working Group',
-              href: '/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf',
+              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf',
             },
             {
               label: 'Structured Products Working Group',
