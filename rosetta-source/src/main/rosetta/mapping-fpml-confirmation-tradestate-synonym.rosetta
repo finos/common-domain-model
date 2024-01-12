@@ -294,7 +294,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "periodicPayment"]
 			[hint "amount"]
 			[hint "valuationDateOffset"]
-
+    
 	AmericanExercise:
 		[value "AmericanExercise" meta "id"]
 		+ commencementDate
@@ -322,7 +322,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "equityMultipleExercise"]
 		+ exerciseFeeSchedule
 			[value "exerciseFeeSchedule"]
-
+    
 	AmountSchedule:
 		+ currency
 			[value "currency" meta "currencyScheme"]
@@ -332,7 +332,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "thresholdRate" path "automaticExercise"]
 		+ isApplicable
 			[value "automaticExercise"]
-
+    
 	BermudaExercise:
 	 	[value "BermudaExercise" meta "id"]
 		+ bermudaExerciseDates
@@ -351,7 +351,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "multipleExercise"]
 		+ exerciseFeeSchedule
 			[value "exerciseFeeSchedule"]
-
+    
 
 
 	CalculationAgent:
@@ -381,7 +381,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "matrixType" meta "matrixTypeScheme"]
 		+ matrixTerm
 			[value "matrixTerm" meta "matrixTermScheme"]
-
+    
 	EuropeanExercise:
 	 	[value "EuropeanExercise" meta "id"]
 		+ expirationDate
@@ -403,7 +403,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "partialExercise"]
 		+ exerciseFee
 			[value "exerciseFee"]
-
+    
 	ExerciseFee:
 		+ notionalReference
 			[value "notionalReference" meta "href"]
@@ -723,7 +723,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "bond", "convertibleBond"]
 			// For Commodity Swap Floating Leg
 			[hint "commodity"]
-			// Other
+            // Other
 			[value "underlyer"]
 		+ settlementTerms
 			[hint "paymentDelay"]
@@ -1257,7 +1257,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "date"]
 		+ weight
 			[value "averageRateWeightingFactor"]
-
+    /*
 	OptionStyle:
 		+ americanExercise
 			[value "americanExercise"]
@@ -1273,6 +1273,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "europeanExercise" path "physicalExercise"]
 			// For Equity Options:
 			[value "equityEuropeanExercise" path "equityExercise"]
+    */
 
 	PassThrough:
 		+ passThroughItem
@@ -1425,7 +1426,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // for Commodity Floating Leg (Payout)
             [value "calculationPeriodsSchedule"]
             [value "periodicPayment" path "feeLeg"]
-
+    
 	CancelableProvision:
 		+ americanExercise
 			[value "americanExercise"]
@@ -1547,7 +1548,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "earliestExerciseDateTenor"]
 		+ exerciseFrequency
 			[value "exerciseFrequency"]
-
+    
 	ExtendibleProvision:
 		+ americanExercise
 			[value "americanExercise"]
@@ -1834,7 +1835,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "productType" path "creditDefaultSwapOption" mapper "TaxonomySource"]
 			[value "productType" path "bondOption" mapper "TaxonomySource"]
 			[value "productType" path "commoditySwaption" mapper "TaxonomySource"]
-			[value "productType" path "genericProduct" mapper "TaxonomySource"]
+            [value "productType" path "genericProduct" mapper "TaxonomySource"]
 
     TaxonomyValue:
         + name
@@ -2055,7 +2056,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[meta "id" path "trade"]
 		+ trade
 			[value "trade" mapper "Party"]
-			[hint "party" , "account" , "quote"]
+            [hint "party" , "account" , "quote"]
 		+ resetHistory
 			[value "ignore"]
 		+ transferHistory
@@ -2320,7 +2321,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
 			[value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
 			[value "protectionTerms" mapper "FeeLeg"] // filtered out if feeLeg exists
-
+    /*
 	OptionExercise:
 		+ strike
 			[value "strike"]
@@ -2332,29 +2333,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "exercise"]
 			[value "equityExercise"]
 			[value "equityAmericanExercise" path "equityExercise"]
-
+    */
 	OptionPayout:
 		[meta "id"]
+        + settlementTerms
+            [hint "physicalExercise"]
 		+ payerReceiver
 			[hint "putCurrencyAmount"]
 			[hint "callCurrencyAmount"]
-		+ optionType
-			[value "optionType"]
-			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 		+ feature
 			[value "feature"]
 			[value "features"]
 			[hint "averagingMethod"]
-		+ underlier
-			[value "singleUnderlyer" path "underlyer", "underlyer"]
-			[hint "bond", "equity", "mortgage", "convertibleBond", "index"]
-			[hint "swap"]
-			[hint "creditDefaultSwap"]
-			[hint "putCurrencyAmount", "callCurrencyAmount"]
-			[value "commodity"]
-			[hint "commoditySwap"]
-			[hint "varianceSwapTransactionSupplement"]
-			[hint "dividendSwapTransactionSupplement"]
 		+ observationTerms
 			[value "asian" path "features"]
 			[hint "pricingDates"]
@@ -2364,7 +2354,135 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "schedule"]
         + delivery
             [value "ignore"]
+    
+    OptionPayoutBase:
+        + strike
+			[value "strike"]
+			[hint "strikePricePerUnit"]
+			[hint "spotRate"]  
+        + underlier
+			[value "singleUnderlyer" path "underlyer", "underlyer"]
+			[hint "bond", "equity", "mortgage", "convertibleBond", "index"]
+			[hint "swap"]
+			[hint "creditDefaultSwap"]
+			[hint "putCurrencyAmount", "callCurrencyAmount"]
+			[value "commodity"]
+			[hint "commoditySwap"]
+			[hint "varianceSwapTransactionSupplement"]
+			[hint "dividendSwapTransactionSupplement"]
+        + optionType
+			[value "optionType"]
+			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 
+    Exercise:
+        //[meta "id"]
+        [value "EuropeanExercise" meta "id" path "europeanExercise"]        
+        [value "EuropeanExercise" meta "id" path "physicalExercise->europeanExercise"]
+        [value "EuropeanExercise" meta "id" path "exercise->europeanExercise"]
+        [value "AmericanExercise" meta "id" path "americanExercise"]
+        [value "AmericanExercise" meta "id" path "exercise->americanExercise"]
+        [value "BermudaExercise" meta "id" path "bermudaExercise"]
+        + commencementDate
+            [value "commencementDate" path "americanExercise"]
+            [value "commencementDate" path "americanExercise->exercisePeriod"]
+            [value "commencementDate" path "exercise->americanExercise->exercisePeriod"]
+            [value "commencementDate" path "equityExercise->equityAmericanExercise"]
+        + earliestExerciseTime
+            [value "earliestExerciseTime" path "americanExercise"]
+            [value "earliestExerciseTime" path "bermudaExercise"]
+            [value "earliestExerciseTime" path "europeanExercise"]
+        + exerciseDates
+            [value "bermudaExerciseDates" path "bermudaExercise"]
+            [value "bermudaExerciseDates" path "equityBermudaExercise"]
+            [value "bermudaExerciseDates" path "equityExercise->equityBermudaExercise"]
+            //[hint "bermudaExerciseDates"]
+        + exerciseFee
+            [value "exerciseFee" path "europeanExercise"]
+        + exerciseFeeSchedule
+            [value "exerciseFeeSchedule" path "americanExercise"]
+            [value "exerciseFeeSchedule" path "bermudaExercise"]
+        + exerciseProcedure
+            [value "physicalExercise"]
+            [value "exerciseProcedure"]
+            [value "exercise"]
+            [value "equityExercise"]
+            [value "equityAmericanExercise" path "equityExercise"]
+
+            [value "europeanExercise"]
+            [value "americanExercise"]
+            [hint "exercise"]
+        + expirationDate
+            [value "expirationDate" path "americanExercise"]
+            [value "expirationDate" path "americanExercise->exercisePeriod"]
+            [value "expirationDate" path "exercise->americanExercise->exercisePeriod"]
+            [value "expirationDate" path "equityExercise->equityAmericanExercise"]
+            [value "expirationDates" path "americanExercise"]
+            
+            [value "expirationDate" path "europeanExercise"]
+            [value "expirationDate" path "exercise->europeanExercise"]
+            [value "expirationDate" path "equityExercise->equityEuropeanExercise"]
+            [value "expirationDate" path "physicalExercise->europeanExercise"]
+            [value "expirationDates" path "europeanExercise"]
+            
+            // For FX Option
+            [value "europeanExercise"]
+            [value "americanExercise"]
+            
+            [hint "expiryDate"]
+        + expirationTime
+            [value "expirationTime" path "americanExercise"]
+            [value "expiryTime" path "americanExercise"]
+            [value "equityExpirationTime" path "equityAmericanExercise"]
+
+            [value "expirationTime" path "bermudaExercise"]
+            [value "equityExpirationTime" path "equityBermudaExercise"]
+
+            [value "expirationTime" path "europeanExercise"]
+            [value "expirationTime" path "physicalExercise->europeanExercise"]
+            [value "equityExpirationTime" path "equityEuropeanExercise"]
+            // For FX Options
+            [value "expiryTime" path "europeanExercise"]
+        + expirationTimeType
+            [value "equityExpirationTimeType" path "equityExercise->equityEuropeanExercise"]
+            [value "equityExpirationTimeType" path "equityExercise->equityAmericanExercise"]
+            [value "equityExpirationTimeType" path "equityExercise->equityBermudaExercise"]
+        + latestExerciseTime
+            [value "latestExerciseTime" path "americanExercise"]
+            [value "latestExerciseTime" path "equityExercise->equityAmericanExercise"]
+
+            [value "latestExerciseTime" path "bermudaExercise"]
+            [value "latestExerciseTime" path "equityExercise->equityBermudaExercise"]
+        + multipleExercise
+            [value "multipleExercise" path "americanExercise"]
+            [value "equityMultipleExercise" path "equityExercise->equityAmericanExercise"]
+
+            [value "multipleExercise" path "bermudaExercise"]
+            [value "equityMultipleExercise" path "equityExercise->equityBermudaExercise"]
+        + partialExercise
+            [value "partialExercise" path "europeanExercise"]
+            [value "partialExercise" path "creditDefaultSwapOption->europeanExercise"]
+            [value "partialExercise" path "bondOption->europeanExercise"]
+            [value "partialExercise" path "cancelableProvision->europeanExercise"]
+            [value "partialExercise" path "extendibleProvision->europeanExercise"]
+            [value "partialExercise" path "swaption->europeanExercise"]
+        + relevantUnderlyingDate
+            [value "relevantUnderlyingDate" path "americanExercise"]
+            [value "relevantUnderlyingDate" path "bermudaExercise"]
+            [value "relevantUnderlyingDate" path "europeanExercise"]
+        + style
+            [set to OptionExerciseStyleEnum  -> European when "europeanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> European when "physicalExercise->europeanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> European when "exercise->europeanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> European when "equityExercise->equityEuropeanExercise" exists]
+           
+            [set to OptionExerciseStyleEnum  -> American when "americanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> American when "physicalExercise->americanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> American when "exercise->americanExercise" exists]
+            [set to OptionExerciseStyleEnum  -> American when "equityExercise->equityAmericanExercise" exists]
+            
+            [set to OptionExerciseStyleEnum  -> Bermuda when "bermudaExercise" exists]
+            [set to OptionExerciseStyleEnum  -> Bermuda when "equityExercise->equityBermudaExercise" exists] 
+        
     ForwardPayout:
         [meta "id"]
         - payerReceiver
@@ -2560,7 +2678,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "fxSingleLeg"]
 			[value "nearLeg"]
 			[value "farLeg"]
-			[value "genericProduct"]
+            [value "genericProduct"]
 		+ securityPayout
 			[value "repo"]
 		+ cashflow
@@ -2650,7 +2768,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[value "commodity"]
 			[meta "specifiedPrice"]
 		+ security
-			[value "underlyer"]
+            [value "underlyer"]
 			[hint "bond", "equity", "mortgage", "convertibleBond"]
 		+ basket
 			[value "basket"]
@@ -2712,8 +2830,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			// Other
 			[value "repo"]
 			[value "floatingLeg"]
-			[value "genericProduct" mapper "InterestRateForwardDebtPrice"]
-            // Additional payment
+            [value "genericProduct" mapper "InterestRateForwardDebtPrice"]
+			// Additional payment
 			// Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
 			[hint "underlyer"] // Equity Option
 			[value "bondOption"]
@@ -2762,7 +2880,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "commodityOption"]
 			[value "commoditySwap" path "commoditySwaption"]
 			[hint "repo"]
-			[hint "genericProduct", "quote"]
+            [hint "genericProduct", "quote"]
 		+ adjustment
 			[value "notionalAdjustments" path "returnSwap->returnLeg", "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
@@ -2927,12 +3045,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 			[hint "businessCenters"]
 
 	AdjustableOrRelativeDate:
-		[meta "id"]
+		[meta "id"]      
 		[meta "id" path "adjustedEffectiveDate"]
 		[meta "id" path "calculationPeriodsReference"]
 		+ relativeDate
 			[value "relativeDate"]
 			[value "relativeDate" path "paymentDate"]
+            [value "relativeDate" path "periodicDates->calculationStartDate"]
+            [value "relativeDate" path "periodicDates->calculationEndDate"]
 			[hint "periodMultiplier"]
 			[hint "period"]
 			[hint "dayType"]
@@ -2948,6 +3068,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[meta "id"]
 		+ adjustableDates
 			[value "adjustableDates"]
+            [value "bermudaExerciseDates"]
 		+ relativeDates
 			[value "relativeDates"]
 			[value "relativeDateSequence"]
