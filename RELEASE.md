@@ -1,18 +1,3 @@
-# *Infrastructure - Dependency Update*
-
-_What is being released?_
-
-This release updates the `rosetta-bundle` dependency.
-
-Version updates include:
-- `10.0.0` : Ingestion performance improvements related to the loading of xml schema files
-
-There are no changes to the model or test expectations.
-
-_Review directions_
-
-The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2615
-
 # _Product Model - Natural Person and NaturalPersonRole circular reference_
 
 _Background_
@@ -54,17 +39,19 @@ Changes can be reviewed in PR [#2605](https://github.com/finos/common-domain-mod
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependency.
+This release updates the `rosetta-dsl` and `rosetta-bundle` dependencies.
 
 Version updates include:
 - `rosetta-dsl` 9.2.0: this release moves deployment of DSL artifacts to Maven Central. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.2.0.
 - `rosetta-dsl` 9.3.0: this release contains syntax highlighting improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.0.
+- `rosetta-dsl` 9.3.1: this release contains xsd import bug fix. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.1.
+- `rosetta-bundle` 10.0.0 : Ingestion performance improvements related to the loading of xml schema files
 
 There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR [#2606](https://github.com/finos/common-domain-model/pull/2606).
+The changes can be reviewed in PR [#2606](https://github.com/finos/common-domain-model/pull/2606), [#2615](https://github.com/finos/common-domain-model/pull/2615), [#2626](https://github.com/finos/common-domain-model/pull/2625).
 
 # _Product Model - Qualification - Bond Forwards_
 
