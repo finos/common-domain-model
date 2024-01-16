@@ -1,4 +1,4 @@
-# *CheckEligibilityResult cardinality fix*
+# *Eligible Collateral Schedule Model - CheckEligibilityResult cardinality fix*
 
 _Background_
 
