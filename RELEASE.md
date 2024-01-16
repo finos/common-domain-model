@@ -23,4 +23,4 @@ None
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the
-change identified above.  The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2621
+change identified above.  The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2629
