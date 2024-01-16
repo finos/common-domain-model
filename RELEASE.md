@@ -1,14 +1,13 @@
-# *Infrastructure - Dependency Update*
+# _Mapping Updates - KnownAmountSchedule Mappings_
+
+_Background_
+
+The `PriceQuantity>priceSchedule` component is not represented in the InterestRatePayout when we have a sample with `knownAmountSchedule`. This release updates the mappings so that knownAmountSchedule is mapped to the `priceSchedule` component.
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependencies.
-
-Version updates include:
-- `rosetta-dsl` 9.3.1: this release contains xsd import bug fix. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.1.
-
-There are no changes to the model or test expectations.
+- Updated mappings for `PriceSchedule` to FpML `knownAmountSchedule`.
 
 _Review directions_
 
-The changes can be reviewed in PR [#2627](https://github.com/finos/common-domain-model/pull/2627)
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
