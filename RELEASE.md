@@ -1,14 +1,26 @@
-# *Infrastructure - Dependency Update*
+# *Eligible Collateral Schedule Model - CheckEligibilityResult cardinality fix*
+
+_Background_
+
+The `CheckEligibilityResult` data type holds the data returned by the 
+`CheckEligbilityByDetails` function which is used to see whether certain
+assets or issuers are eligible to be posted as collateral for a given
+collateral eligibility schedule.
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependencies.
+This release updates the `CheckEligibilityResult` data type.  Specifically,
+the cardinality on two attributes has been corrected such that:
+- `matchingEligibleCriteria` can be empty if there is no match (i.e. the
+collateral is not eligible)
+- `eligibilityQuery` must be present as this is a copy of the query input
+provided to the function.
 
-Version updates include:
-- `rosetta-dsl` 9.3.1: this release contains xsd import bug fix. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.1.
+_Backward-Incompatible Changes_
 
-There are no changes to the model or test expectations.
+None
 
 _Review directions_
 
-The changes can be reviewed in PR [#2627](https://github.com/finos/common-domain-model/pull/2627)
+In the CDM Portal, select the Textual Browser and inspect the
+change identified above.  The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2629
