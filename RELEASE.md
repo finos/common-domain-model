@@ -11,7 +11,7 @@ _What is being released?_
 
 This release updates the `CheckEligibilityResult` data type.  Specifically,
 the cardinality on two attributes has been corrected such that:
-- `matchingEligibleCriteria` can be empty if there is no match (ie the
+- `matchingEligibleCriteria` can be empty if there is no match (i.e. the
 collateral is not eligible)
 - `eligibilityQuery` must be present as this is a copy of the query input
 provided to the function.
