@@ -1,19 +1,14 @@
-# _Event Model - Trade Lot Identifier added to Execution Instruction_
-
-_Background_
-
-In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires a tradeLot identifer to be present.
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-- Added `lotIdentifier` attribute (optional) to `ExecutionInstruction`
-- In `Create_Execution` function, the `lotIdentifier` attribute is used when creating the execution's `TradeLot` object
+This release updates the `rosetta-dsl` dependencies.
 
-_Backward-Incompatible Changes_
+Version updates include:
+- `rosetta-dsl` 9.3.1: this release contains xsd import bug fix. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.3.1.
 
-None
+There are no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the change identified above.
-Changes can be reviewed in PR [#2591](https://github.com/finos/common-domain-model/pull/2591)
+The changes can be reviewed in PR [#2627](https://github.com/finos/common-domain-model/pull/2627)
