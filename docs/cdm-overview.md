@@ -63,9 +63,9 @@ the development of the CDM in open source.
 
 ## CDM 2024 Roadmap
 
-![](/img/cdm-roadmap-2024-2.png)
+![](img/cdm-roadmap-2024-2.png)
 
-![](/img/cdm-roadmap-2024-1.png)
+![](img/cdm-roadmap-2024-1.png)
 
 Roadmap as ratified Steering WG Jan 2024, subject to change as priorities evolve
 
