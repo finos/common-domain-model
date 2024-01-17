@@ -104,21 +104,17 @@ type OptionExercise: <" A class to represent the applicable terms to qualify an 
     exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
 */
 
-type OptionPayoutBase extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	// Option fields common to both ETD and OTC products
-    underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
-	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
-	exerciseTerms Exercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
-    strike OptionStrike (0..1) <"Specifies the strike of the option">
-
-type OptionPayout extends OptionPayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
-    // Option fields applicable only to OTC products
 	buyerSeller BuyerSeller (1..1)
 	feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
 	observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
 	schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
+    underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
+	optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
+	exerciseTerms Exercise (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
+    strike OptionStrike (0..1) <"Specifies the strike of the option">
 
 	condition ClearedPhysicalSettlementExists:
 		if settlementTerms -> physicalSettlementTerms exists
