@@ -2,8 +2,11 @@
 title: Overview of the FINOS CDM
 ---
 
-**Continuous Integration:** [![Codefresh build
-status](https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1)](https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm)
+**Continuous Integration:** 
+
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
+
+[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
 # What is the FINOS CDM
 
@@ -11,6 +14,8 @@ The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
 [domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
+
+For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](https://github.com/eteridvalishvili/common-domain-model/blob/Website-Changes/CDM%20Overview.pptx.pdf).
 
 ## Purpose
 

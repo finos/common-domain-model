@@ -123,9 +123,9 @@ func Qualify_PortfolioRebalancing: <"The qualification of a portfolio rebalancin
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> PortfolioRebalancing
-        and businessEvent -> instruction -> primitiveInstruction -> execution exists
-    //Pending to enhance the logic once portfolios are supported in the model
+            and businessEvent -> instruction -> primitiveInstruction -> execution exists
 
+// Pending to enhance the logic once portfolios are supported in the model
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]
     inputs:
@@ -327,8 +327,8 @@ func Qualify_Execution: <"The qualification of an execution event from the fact 
         businessEvent -> instruction -> primitiveInstruction only-element
     set is_event:
         businessEvent -> intent is absent
-        and (primitiveInstruction -> execution only exists
-            or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
+            and (primitiveInstruction -> execution only exists
+                or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
 
 func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
     [qualification BusinessEvent]
@@ -339,8 +339,8 @@ func Qualify_ContractFormation: <"Qualifies a business event as a contract forma
     alias primitiveInstruction:
         businessEvent -> instruction -> primitiveInstruction only-element
     set is_event:
-               (primitiveInstruction -> contractFormation) only exists
-            or (primitiveInstruction -> contractFormation , primitiveInstruction -> transfer )  only exists
+        (primitiveInstruction -> contractFormation) only exists
+            or (primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
             or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists
             or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
             or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
@@ -463,8 +463,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
             only-element
     set is_event:
         (businessEvent -> intent is absent)
-            and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral ->
-                collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
                     and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
                 or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
@@ -522,12 +521,12 @@ func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of 
             or businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
             or businessEvent -> after -> observationHistory -> corporateAction exists
 
-func Qualify_ValuationUpdate: <"The qualification of a valuation update from the fact that the only component is a valuation."> 
+func Qualify_ValuationUpdate: <"The qualification of a valuation update from the fact that the only component is a valuation.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-   
+
     set is_event:
         businessEvent -> instruction -> primitiveInstruction -> valuation only exists
