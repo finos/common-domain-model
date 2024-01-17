@@ -22,7 +22,7 @@ fpml-5-13/record-keeping/events/
 - msg-ex69-execution-advice-commodity-swap-classification-new-trade-esma-emir-refit
 - msg-ex70-execution-advice-commodity-swap-classification-termination-esma-emir-refit
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2632
+Changes can be reviewed in https://github.com/finos/common-domain-model/pull/2637
 
 # _Product Model - Natural Person and NaturalPersonRole circular reference_
 
