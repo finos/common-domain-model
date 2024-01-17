@@ -13,7 +13,7 @@ _Review directions_
 
 In Rosetta, select the Textual Browser and inspect each of the changes identified above.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2634
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2635
 
 # _Product Model - Natural Person and NaturalPersonRole circular reference_
 
