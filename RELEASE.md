@@ -1,26 +1,16 @@
-# *Eligible Collateral Schedule Model - CheckEligibilityResult cardinality fix*
+# _FpML Coding Schemes 2.16 Mapping Updates - Floating Rate Index Mappings_
 
 _Background_
 
-The `CheckEligibilityResult` data type holds the data returned by the 
-`CheckEligbilityByDetails` function which is used to see whether certain
-assets or issuers are eligible to be posted as collateral for a given
-collateral eligibility schedule.
+`FloatingRateIndexEnum` is automatically updated in CDM from FpML releases, but corresponding mappings and related functions are not. The present release updates mappings and functions to FpML `floatingRateIndexScheme` version 3.8 published as part of FpML Coding Schemes version 2.16.
 
 _What is being released?_
 
-This release updates the `CheckEligibilityResult` data type.  Specifically,
-the cardinality on two attributes has been corrected such that:
-- `matchingEligibleCriteria` can be empty if there is no match (i.e. the
-collateral is not eligible)
-- `eligibilityQuery` must be present as this is a copy of the query input
-provided to the function.
-
-_Backward-Incompatible Changes_
-
-None
+- Updated mappings for `FloatingRateIndexEnum` to FpML `floatingRateIndexScheme` version 3.8.
+- Updated function `Qualify_Transaction_OIS` FpML `floatingRateIndexScheme` version 3.8.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the
-change identified above.  The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2629
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2633
