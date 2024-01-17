@@ -124,7 +124,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 ## Roadmap
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under Roadmap.md.
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](ROADMAP.md).
 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
