@@ -1,26 +1,25 @@
-# *Eligible Collateral Schedule Model - CheckEligibilityResult cardinality fix*
+# _FpML 5.13 Working Draft 3 Mapping Updates - Post Trade Risk Reduction Mapping Update_
 
 _Background_
 
-The `CheckEligibilityResult` data type holds the data returned by the 
-`CheckEligbilityByDetails` function which is used to see whether certain
-assets or issuers are eligible to be posted as collateral for a given
-collateral eligibility schedule.
+In FpML 5.13 Working Draft 3, support was introduced for PTRR-related items including PTRR originating events
+and PTRR party roles. The present relase adds mappings for these items into CDM and FpML samples containing
+the new items for ingestion.
 
 _What is being released?_
 
-This release updates the `CheckEligibilityResult` data type.  Specifically,
-the cardinality on two attributes has been corrected such that:
-- `matchingEligibleCriteria` can be empty if there is no match (i.e. the
-collateral is not eligible)
-- `eligibilityQuery` must be present as this is a copy of the query input
-provided to the function.
-
-_Backward-Incompatible Changes_
-
-None
+- Updated PTRR-related mappings.
+- Added sample to fpml-5-13/events/
+  msg-ex69-execution-advice-commodity-swap-classification-new-trade-esma-emir-refit
+  msg-ex70-execution-advice-commodity-swap-classification-termination-esma-emir-refit
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the
-change identified above.  The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2629
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+In Rosetta, select Ingestion and review the following samples:
+
+fpml-5-13/record-keeping/events/
+- msg-ex69-execution-advice-commodity-swap-classification-new-trade-esma-emir-refit
+- msg-ex70-execution-advice-commodity-swap-classification-termination-esma-emir-refit
+
+- The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2638
