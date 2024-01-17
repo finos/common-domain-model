@@ -61,14 +61,6 @@ documentation.
 The CDM [governance framework](contribution#governance) regulates
 the development of the CDM in open source.
 
-## CDM 2024 Roadmap
-
-Roadmap as ratified Steering WG Jan 2024, subject to change as priorities evolve
-
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
-
-- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
-
 ## Scope
 
 The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
