@@ -124,7 +124,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 ## Roadmap
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under Roadmap.md.
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](ROADMAP.md).
 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
@@ -188,6 +188,8 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+
+If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
 
 ## License
 
