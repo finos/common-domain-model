@@ -197,6 +197,17 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
     condition InitialMarginCalculationChoice:
         required choice marginRatio, haircut
 
+type PortfolioPriceReturnTerms:
+  priceReturnTerms PriceReturnTerms (1..1)
+  underlier Product (1..1)
+  dividendReturnTerms DividendReturnTerms (0..1)
+  financingTerms InterestRatePayout (0..1)
+
+condition TotalMeansDividendsExist:
+  if dividendReturnTerms exists
+  then priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+
+
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
     // commodityReturnTerms CommodityPriceReturnTerms (0..1)
@@ -205,6 +216,7 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
     varianceReturnTerms VarianceReturnTerms (0..1) <"Return terms based upon the observed variance of the underlier's price.">
     volatilityReturnTerms VolatilityReturnTerms (0..1) <"Return terms based upon the observed volatility of the underlier's price.">
     correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
+    portfolioPriceReturnTerms PortfolioPriceReturnTerms (0..*)
 
     condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
         if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
