@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` and `rosetta-bundle` dependencies.
+This release updates the `rosetta-dsl` dependency.
 
 Version updates include:
 - `rosetta-dsl` 9.4.0: this release improves performance of validating Rosetta code and of generating code. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.4.0.
