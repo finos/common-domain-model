@@ -16,7 +16,7 @@ None
 _Review directions_
 
 In the CDM Portal, select the Textual Browser and inspect the change identified above.
-Changes can be reviewed in PR [#2591](https://github.com/finos/common-domain-model/pull/2591)
+Changes can be reviewed in PR [#2649](https://github.com/finos/common-domain-model/pull/2649)
 
 # *Infrastructure - Dependency Update*
 
