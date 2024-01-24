@@ -1,19 +1,14 @@
-# _Eligible Collateral Schedule Model - Determination of the Party Roles_
-
-_Background_
-
-Subject matter experts for collateral trade management have identified that a self-contained representation of eligible collateral criteria requires associating each involved party with the various roles specififed. A typical example is the identification of which party is Payer or Receiver of collateral.
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-A new `PartyRole` attribute has been added to the `EligibleCollateralSpecification` data type.
+This release updates the `rosetta-dsl` dependency.
 
-_Backward-Incompatible Changes_
+Version updates include:
+- `rosetta-dsl` 9.4.0: this release improves performance of validating Rosetta code and of generating code. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.4.0.
 
-None
+There are no changes to the model or test expectations.
 
 _Review directions_
 
-In the CDM Portal, select the Textual Browser and inspect the change identified above.
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2585
+The changes can be reviewed in PR [#2646](https://github.com/finos/common-domain-model/pull/2646).
