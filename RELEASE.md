@@ -6,8 +6,8 @@ In order to report under EMIR, a party needs to be identified as a portfolio com
 
 _What is being released?_
 
-- CDM enum `PartyRoleEnum` has been modified in the following way: code `CompressionServiceProvider` has been marked as `[deprecated]` and a more generic code `PTRRServiceProvider` has been added.
-- Synonym mappings have been added to populate the `PartyRoleEnum` with `PTRRServiceProvider` whenever the FpML is populated with `PTRRCompressionProvider` or `PTRRRebalancingProvider`
+- CDM enum `PartyRoleEnum` has been modified in the following way: code `CompressionServiceProvider` has been eliminated and replaced by a more generic code `PTRRServiceProvider`.
+- Synonym mappings have been added to reflect this change.
 
 _Review directions_
 
