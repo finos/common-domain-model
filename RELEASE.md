@@ -23,7 +23,7 @@ _Review Directions_
 
 In the CDM Portal, select the Textual Browser and search and inspect the `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon` functions and the `InterestRatePayout` type.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2648
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2652
 
 # *Infrastructure - Dependency Update*
 
