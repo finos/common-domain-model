@@ -1,20 +1,23 @@
-# *Event Model - PartyRoleEnum including PTRRServiceProvider role*
+# _Event Model - Trade Lot Identifier added to Execution Instruction_
 
 _Background_
 
-In order to report under EMIR, a party needs to be identified as a portfolio compression or a portfolio rebalancing service provider. This roles can be unified in a more generic role: PTRR Service Provider. The current CompressionServiceProvider code will be replaced by this one.
+In order for quantityChange instructions to impact an existing tradeLot, the executionInstruction requires a tradeLot identifer to be present.
 
 _What is being released?_
 
-- CDM enum `PartyRoleEnum` has been modified in the following way: code `CompressionServiceProvider` has been marked as `[deprecated]` and a more generic code `PTRRServiceProvider` has been added.
-- Synonym mappings have been added to populate the `PartyRoleEnum` with `PTRRServiceProvider` whenever the FpML is populated with `PTRRCompressionProvider` or `PTRRRebalancingProvider`
+- Added `lotIdentifier` attribute (optional) to `ExecutionInstruction`
+- In `Create_Execution` function, the `lotIdentifier` attribute is used when creating the execution's `TradeLot` object
+
+_Backward-Incompatible Changes_
+
+None
 
 _Review directions_
 
-- In the CDM Portal, select the Textual Browser and inspect the change identified above. 
+In the CDM Portal, select the Textual Browser and inspect the change identified above.
 
-The changes can be reviewed in PR [#2651](https://github.com/finos/common-domain-model/pull/2651)
-
+The changes can be reviewed in PR [#2649](https://github.com/finos/common-domain-model/pull/2649).
 
 # *Infrastructure - Dependency Update*
 
