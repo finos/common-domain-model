@@ -1,15 +1,16 @@
-# _Mapping Updates - KnownAmountSchedule Mappings_
+# *Event Model - PartyRoleEnum including PTRRServiceProvider role*
 
 _Background_
 
-The `PriceQuantity>priceSchedule` component is not represented in the InterestRatePayout when we have a sample with `knownAmountSchedule`. This release updates the mappings so that knownAmountSchedule is mapped to the `priceSchedule` component.
+In order to report under EMIR, a party needs to be identified as a portfolio compression or a portfolio rebalancing service provider. This roles can be unified in a more generic role: PTRR Service Provider. The current CompressionServiceProvider code will be replaced by this one.
 
 _What is being released?_
 
-- Updated mappings for `PriceSchedule` to FpML `knownAmountSchedule`.
+- CDM enum `PartyRoleEnum` has been modified in the following way: code `CompressionServiceProvider` has been marked as `[deprecated]` and a more generic code `PTRRServiceProvider` has been added.
+- Synonym mappings have been added to populate the `PartyRoleEnum` with `PTRRServiceProvider` whenever the FpML is populated with `PTRRCompressionProvider` or `PTRRRebalancingProvider`
 
 _Review directions_
 
-In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+- In the CDM Portal, select the Textual Browser and inspect the change identified above.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2630
+The changes can be reviewed in PR [#2653](https://github.com/finos/common-domain-model/pull/2653)
