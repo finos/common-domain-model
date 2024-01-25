@@ -13,7 +13,7 @@ _Review directions_
 
 - In the CDM Portal, select the Textual Browser and inspect the change identified above. 
 
-The changes can be reviewed in PR #2639
+The changes can be reviewed in PR #2651
 
 
 # *Infrastructure - Dependency Update*
