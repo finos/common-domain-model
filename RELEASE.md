@@ -2,7 +2,7 @@
 
 _Background_
 
-In order to report under EMIR, a party needs to be identified as a portfolio compression or a portfolio rebalancing service provider. This roles can be unified in a more generic role: PTRR Service Provider. The current CompressionServiceProvider code will be replaced by this one.
+In order to report under EMIR, a party needs to be identified as a portfolio compression or a portfolio rebalancing service provider. These roles can be unified in a more generic role: PTRR Service Provider. The current CompressionServiceProvider code will be replaced by `PTRR Service Provider`.
 
 _What is being released?_
 
