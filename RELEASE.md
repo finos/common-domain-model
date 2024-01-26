@@ -3,10 +3,12 @@
 _What is being released_
 
 _Background:_
+
 - The Qualification functions in CDM classify financial products.
 - Qualifying functions `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon` don't need the reference to `Qualify_Transaction_ZeroCoupon_KnownAmount` since it is redundant. The first two functions use `Qualify_Transaction_ZeroCoupon` and that means that the reference to the KnownAmount function is not needed.
 
 _Goal:_
+
 - Improve the existing qualifying functions `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon`.
 
 _Qualification functions_
@@ -18,12 +20,43 @@ Updated the `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon` and `Qualify_Int
 Corrected one of the `InterestRatePayout` type conditions:
 - Updated the `RateSpecification` condition to check the presence of `priceQuantity` instead of `principalPayment`.
 
-
 _Review Directions_
 
 In the CDM Portal, select the Textual Browser and search and inspect the `Qualify_InterestRate_IRSwap_FixedFloat_ZeroCoupon` and `Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon` functions and the `InterestRatePayout` type.
 
 The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2652
+
+# *Event Model - PartyRoleEnum including PTRRServiceProvider role*
+
+_Background_
+
+In order to report under EMIR, a party needs to be identified as a portfolio compression or a portfolio rebalancing service provider. These roles can be unified in a more generic role: PTRR Service Provider. The current CompressionServiceProvider code will be replaced by PTRRServiceProvider.
+
+_What is being released?_
+
+- CDM enum `PartyRoleEnum` has been modified in the following way: code `CompressionServiceProvider` has been marked as `[deprecated]` and a more generic code `PTRRServiceProvider` has been added.
+- Synonym mappings have been added to populate the `PartyRoleEnum` with `PTRRServiceProvider` whenever the FpML is populated with `PTRRCompressionProvider` or `PTRRRebalancingProvider`
+
+_Review directions_
+
+- In the CDM Portal, select the Textual Browser and inspect the change identified above.
+
+The changes can be reviewed in PR [#2651](https://github.com/finos/common-domain-model/pull/2651)
+
+# _Product Model - FpML Mappings - Bond Forwards_
+
+_What is being released?_
+
+This release fixes FpML mapping issues related to bond forward samples.
+
+_Review directions_
+
+In Rosetta, open the Common Domain Model workspace, select the Translate tab and review the following samples:
+
+* fpml-5-10 > products > rates > bond-fwd-generic-ex01.xml
+* fpml-5-10 > products > rates > bond-fwd-generic-ex02.xml
+
+Changes can be reviewed in PR [#2656](https://github.com/finos/common-domain-model/pull/2656)
 
 # _Event Model - Trade Lot Identifier added to Execution Instruction_
 
