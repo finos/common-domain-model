@@ -2,15 +2,16 @@
 
 _Background_
 
-This release resolves FpML mappings for KnownAmountSchedule component which was mapped into the TradeLot and not represented into the PriceSchedule of the corresponding Payout .The `PriceQuantity>priceSchedule` component is not represented in the InterestRatePayout when we have a sample with `knownAmountSchedule`. This release updates the mappings so that knownAmountSchedule is mapped to the `priceSchedule` component.
+Previously, the `PriceQuantity>priceSchedule` component lacked representation in the InterestRatePayout, specifically when dealing with samples featuring a `knownAmountSchedule`. This gap existed because we were only capturing knownAmountSchedules within the `TradeLot` and not extending that representation to the corresponding `Payout`.
 
 _What is being released?_
+In this release, we address the FpML mappings for the `KnownAmountSchedule` component, which was originally mapped to the `TradeLot` but not adequately reflected in the PriceSchedule of the corresponding Payout. The update ensures that the knownAmountSchedule is now appropriately mapped to the `priceSchedule` component.
 
-- Updated mappings for `PriceSchedule` to FpML `knownAmountSchedule` for Rates.
+- Enhanced synonym mappings for `PriceSchedule` have been updated to align with FpML  `knownAmountSchedule` for Rates.
 
 _Review directions_
 
-In CDM portal select the following samples:
+To assess these changes, navigate to the CDM portal and select the following samples:
 
 fpml-5-10 / products / rates
 - IR IRS FixedFloat ZC KnownAmount
