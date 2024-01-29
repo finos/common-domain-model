@@ -5,6 +5,7 @@ _Background_
 Previously, the `PriceQuantity>priceSchedule` component lacked representation in the InterestRatePayout, specifically when dealing with samples featuring a `knownAmountSchedule`. This gap existed because we were only capturing knownAmountSchedules within the `TradeLot` and not extending that representation to the corresponding `Payout`.
 
 _What is being released?_
+
 In this release, we address the FpML mappings for the `KnownAmountSchedule` component, which was originally mapped to the `TradeLot` but not adequately reflected in the PriceSchedule of the corresponding Payout. The update ensures that the knownAmountSchedule is now appropriately mapped to the `priceSchedule` component.
 
 - Enhanced synonym mappings for `PriceSchedule` have been updated to align with FpML  `knownAmountSchedule` for Rates.
