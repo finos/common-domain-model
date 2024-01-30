@@ -734,7 +734,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     PriceSchedule:
         + value
             [value "initialRate" mapper "PriceUnitType"]
-            [value "initialValue" mapper "PriceUnitType"]
+            [value "initialValue" mapper "PriceUnitType"] 
             [value "rate" maps 2 mapper "PriceUnitType"]
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
@@ -772,6 +772,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PriceTypeEnum -> InterestRate when "fixedRate" exists]
             [set to PriceTypeEnum -> InterestRate when "initialRate" exists]
             [set to PriceTypeEnum -> InterestRate when "spread" exists]
+            [set to PriceTypeEnum -> InterestRate when path ="knownAmountSchedule"]
             [set to PriceTypeEnum -> InterestRate when "floatingRateCalculation->spread" exists]
             [set to PriceTypeEnum -> InterestRate when path = "spreadSchedule"]
             [set to PriceTypeEnum -> InterestRate when path = "floatingRateIndex"]
@@ -2196,7 +2197,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + futureValueNotional
             [value "futureValueNotional"]
         + priceSchedule
-            [value "ignore"]
+            [value "knownAmountSchedule" path "calculationPeriodAmount"]
 
     CreditDefaultPayout:
         [meta "id"]
@@ -2257,63 +2258,64 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "modifiedEquityDelivery"]
 
     InterestRatePayout:
-        + dayCountFraction
-            [value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" path "feeLeg->periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" path "feeLeg->periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
-        + paymentDates
-            [value "paymentDates"]
-            [value "periodicPayment" path "feeLeg"]
-            [value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
-        + paymentDate
-            [value "paymentDate"]
-            [value "feeLeg"]
-        + paymentDelay
-            [value "paymentDelay"]
-        + discountingMethod
-            [value "discounting" path "calculationPeriodAmount->calculation"]
-            [hint "fraDiscounting"]
-        + principalPayment
-            [value "principalExchanges"]
-            [hint "cashflows"]
-            [value "calculationPeriodAmount"]
-        + compoundingMethod
-            [value "compoundingMethod" path "calculationPeriodAmount->calculation"]
-        + cashflowRepresentation
-            [value "cashflows"]
-            [value "periodicPayment" path "feeLeg"]
-        + stubPeriod
-            [value "stubCalculationPeriodAmount"]
-            [value "stubCalculationPeriod"]
-        + bondReference
-            [value "bondReference"]
-        + rateSpecification
-            [value "calculation" path "calculationPeriodAmount"]
-            // For FRAs:
-            [hint "fixedRate" , "floatingRateIndex" , "indexTenor"]
-            // For CDS:
-            [value "periodicPayment" path "feeLeg"]
-            // For Equity:
-            [value "interestCalculation"]
-            // For Repo:
-            [hint "fixedRateSchedule"]
-            [hint "floatingRateCalculation"]
-        - priceQuantity
-        + priceQuantity
-            // For Swap Stream:
-            [value "calculation" path "calculationPeriodAmount"]
-            [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+		+ dayCountFraction
+			[value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" path "feeLeg->periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" path "feeLeg->periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" meta "dayCountFractionScheme"]
+			[value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
+		+ paymentDates
+			[value "paymentDates"]
+			[value "periodicPayment" path "feeLeg"]
+			[value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
+		+ paymentDate
+			[value "paymentDate"]
+			[value "feeLeg"]
+		+ paymentDelay
+			[value "paymentDelay"]
+		+ discountingMethod
+			[value "discounting" path "calculationPeriodAmount->calculation"]
+			[hint "fraDiscounting"]
+		+ principalPayment
+			[value "principalExchanges"]
+			[hint "cashflows"]
+			[value "calculationPeriodAmount"]
+		+ compoundingMethod
+			[value "compoundingMethod" path "calculationPeriodAmount->calculation"]
+		+ cashflowRepresentation
+			[value "cashflows"]
+			[value "periodicPayment" path "feeLeg"]
+		+ stubPeriod
+			[value "stubCalculationPeriodAmount"]
+			[value "stubCalculationPeriod"]
+		+ bondReference
+			[value "bondReference"]
+		+ rateSpecification
+			[value "calculation" path "calculationPeriodAmount"]
+			// For FRAs:
+			[hint "fixedRate" , "floatingRateIndex" , "indexTenor"]
+			// For CDS:
+			[value "periodicPayment" path "feeLeg"]
+			// For Equity:
+			[value "interestCalculation"]
+			// For Repo:
+			[hint "fixedRateSchedule"]
+			[hint "floatingRateCalculation"]
+		- priceQuantity
+		+ priceQuantity
+			// For Swap Stream:
+			[value "calculation" path "calculationPeriodAmount"]
+			[value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
+            [hint "calculationPeriodAmount"]
             [value "knownAmountSchedule" path "calculationPeriodAmount"]
             // For FRAs:
-            [hint "notional"]
-            // For the interest leg of Equity Swap:
-            [value "notional"]
-            // For the fee leg of CDS
-            [value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
-            [value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
-            [value "protectionTerms" mapper "FeeLeg"] // filtered out if feeLeg exists
+			[hint "notional"]
+			// For the interest leg of Equity Swap:
+			[value "notional"]
+			// For the fee leg of CDS
+			[value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
+			[value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
+			[value "protectionTerms" mapper "FeeLeg"] // filtered out if feeLeg exists
 
     OptionExercise:
         + strike
