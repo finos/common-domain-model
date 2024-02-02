@@ -436,7 +436,7 @@ func Create_Execution: <"Specifies the function to compose an execution based on
         execution TradeState (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
     set execution -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
         instruction -> product
-    add execution -> trade -> tradableProduct -> tradeLot:  <"Assign the prices and quantities and lot identifier input to the tradable product of the execution object.">
+    add execution -> trade -> tradableProduct -> tradeLot: <"Assign the prices and quantities and lot identifier input to the tradable product of the execution object.">
         TradeLot {
             priceQuantity: instruction -> priceQuantity,
             lotIdentifier: instruction -> lotIdentifier
@@ -2568,9 +2568,9 @@ func ExtractTradePurchasePrice:
 
     set value:
         tradableProduct -> tradeLot only-element -> priceQuantity
-            extract [ item -> quantity ]
+            extract item -> quantity
             then flatten
-            then extract [ item -> value ]
+            then extract item -> value
 
 func ExtractTradeCollateralQuantity:
     inputs:
@@ -2580,9 +2580,9 @@ func ExtractTradeCollateralQuantity:
 
     set value:
         tradableProduct -> tradeLot only-element -> priceQuantity
-            extract [ item -> quantity ]
+            extract item -> quantity
             then flatten
-            then extract [ item -> value ]
+            then extract item -> value
 
 func ExtractTradeCollateralPrice:
     inputs:
@@ -2592,7 +2592,7 @@ func ExtractTradeCollateralPrice:
 
     set value:
         tradableProduct -> tradeLot only-element -> priceQuantity
-            extract [ item -> price ]
+            extract item -> price
             then flatten
-            then filter [ item -> priceType = PriceTypeEnum -> AssetPrice ]
-            then extract [ item -> value ]
+            then filter item -> priceType = PriceTypeEnum -> AssetPrice
+            then extract item -> value
