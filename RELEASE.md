@@ -2,7 +2,7 @@
 
 _Background_
 
-Previously, the `PriceQuantity>priceSchedule` component lacked representation in the InterestRatePayout, specifically when dealing with samples featuring a `knownAmountSchedule`. This gap existed because we were only capturing knownAmountSchedules within the `TradeLot` and not extending that representation to the corresponding `Payout`.
+Previously, the `PriceQuantity>priceSchedule` component lacked representation in the InterestRatePayout, specifically when dealing with samples featuring a `knownAmountSchedule`. This gap existed because  knownAmountSchedules were only being captured within the `TradeLot` and that representation was not being extended to the corresponding `Payout`.
 
 _What is being released?_
 
