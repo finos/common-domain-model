@@ -47,6 +47,8 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 type ResolvablePriceQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
     [metadata key]
 
+    quantityCumulationFeatures CumulationFeature (0..*) <"Describe provisions where initial notional quantity is incremented, either per frequency terms and being guarenteed, optionnaly under knock-in or knock-out conditions being met for the purpose of triggering or stopping the quantity increment. For clarity, in case the payoff would specify a sum of different cumulation terms, for instance one cumumation guaranteed PLUS another one being sumbitted to knock-in conditions and say with leverage so a different incremental quantity, then two distinct CumulationFreature shall be specified. If more, then as relevant e.g. if A + B + C + ... + N are distinct cumulation conditions in termsheet, then would be represented by N distinct CumulationFeature in array e.g. CumulationFeature[A], CumulationFeature[B], CumulationFeature[C], [...], CumulationFeature[N].">
+
     resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
     quantitySchedule NonNegativeQuantitySchedule (0..1) <"A payout's quantity specified as a schedule, which may also contain a single value if that quantity is constant. There can only be a single quantity schedule applicable to a payout: e.g. the notional for an interest rate leg. The quantity must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
@@ -68,6 +70,37 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
     priceQuantity ResolvablePriceQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
     principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency or zero-coupon swaps with a final payment.">
     settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
+
+type CumulationFeature : <"Describe provisions where initial notional quantity is incremented, as per periodic schedule terms, which are either guarenteed or contigent i.e. submitted to Knock-In &/or Knock-Out conditions that shall be met for determining whether triggering or stopping the scheduled quantity increment.">
+
+  payablePricePercentage number (0..1) <"The percentage of Fixed Price or Observable Price that the buyer has to pay (when cash settled) or that the receiving party has to pay (when physically settled).">
+  cumulationObservableAsset cdm.product.template.Product (1..1) <"Specify the Asset to cumulate.">
+  cumulationSettlementTerms SettlementTerms (1..1) <"Specify the Settlement Terms.">
+  cumulationIncrementalQuantity QuantitySchedule (1..1) <"Specify the Incremental Quantity to cumulate.">
+  cumulationFixedPrice PriceSchedule (0..*) <"Specify the Price at which to cumulate when it is fixed (else, when it is an observable Price, do not be specify such attribute).">
+  cumulationDatesAndConditions ObservationTerms (1..1) <"Specify any specific Observation Dates and Observation Terms which govern the Cumulation Feature. When niether knockOutCumulationConditions nor knockInCumulationConditions exists, then such cumulationDatesAndConditions represent guarenteed accumulation terms. Else, the accumulation terms are contigent i.e. apply under conditions defined by respective Knock-In or Knock-Out conditions set.">
+  initialSpotPrice Price (0..1) <"Specify the initial Spot Price at Trade inception.">
+  cumulationFixedPriceAsInitialFixedPricePercentage number (0..1) <"Specify the Cumulation Fixed Price when expressed as a percentage of Initial Spot Price at Trade inception.">
+  knockInObservableAsset cdm.product.template.Product (0..1) <"Specify the Asset to observe as part of the assessment of Knock In occurrence.">
+  knockInCumulationConditions cdm.observable.event.Trigger (0..1) <"Specify the trigger with Knock In effect that applies to the Cumulation Features.">
+  knockInDatesAndConditions ObservationTerms (0..1) <"Specify any specific Observation Dates and Observation Terms which govern the assessment of Knock In occurrence.">
+  knockOutObservableAsset cdm.product.template.Product (0..1) <"Specify the Asset to observe as part of the assessment of Knock Out occurrence.">
+  knockOutCumulationConditions cdm.observable.event.Trigger (0..1) <"Specify the trigger with Knock Out effect that applies to the Cumulation Features.">
+  knockOutDatesAndConditions ObservationTerms (0..1) <"Specify any specific Observation Dates and Observation Terms which govern the assessment of Knock Out occurrence.">
+
+  condition FixedPriceInPercentage :
+  if cumulationFixedPriceAsInitialFixedPricePercentage exists
+  then initialSpotPrice exists
+
+  condition KnockInConditions :
+  if knockInDatesAndConditions exists
+  then knockInCumulationConditions exists
+  and knockInObservableAsset exists
+
+  condition KnockOutConditions :
+  if knockOutDatesAndConditions exists
+  then knockOutCumulationConditions exists
+  and knockOutObservableAsset exists
 
 type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
     rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
@@ -226,6 +259,7 @@ type PhysicalSettlementTerms: <"Specifies Physical Settlement Terms characterist
     physicalSettlementPeriod PhysicalSettlementPeriod (0..1) <"The number of business days used in the determination of the physical settlement date. The physical settlement date is this number of business days after all applicable conditions to settlement are satisfied. If a number of business days is not specified fallback provisions apply for determining the number of business days. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply the businessDaysNotSpecified element should be included. If a specified number of business days are to apply these should be specified in the businessDays element. If Section 8.5/8.6 of the 1999/2003 ISDA Definitions are to apply but capped at a maximum number of business days then the maximum number should be specified in the maximumBusinessDays element. ISDA 2003 Term: Physical Settlement Period.">
     deliverableObligations DeliverableObligations (0..1) <"This element contains all the ISDA terms relevant to defining the deliverable obligations.">
     escrow boolean (0..1) <"If this element is specified and set to 'true', indicates that physical settlement must take place through the use of an escrow agent. (For Canadian counterparties this is always 'Not Applicable'. ISDA 2003 Term: Escrow.">
+    deliverableProduct cdm.product.template.Product (0..1) <"The product to deliver.">
     sixtyBusinessDaySettlementCap boolean (0..1) <"If this element is specified and set to 'true', for a transaction documented under the 2003 ISDA Credit Derivatives Definitions, has the effect of incorporating the language set forth below into the confirmation. The section references are to the 2003 ISDA Credit Derivatives Definitions. Notwithstanding Section 1.7 or any provisions of Sections 9.9 or 9.10 to the contrary, but without prejudice to Section 9.3 and (where applicable) Sections 9.4, 9.5 and 9.6, if the Termination Date has not occurred on or prior to the date that is 60 Business Days following the Physical Settlement Date, such 60th Business Day shall be deemed to be the Termination Date with respect to this Transaction except in relation to any portion of the Transaction (an 'Affected Portion') in respect of which: (1) a valid notice of Buy-in Price has been delivered that is effective fewer than three Business Days prior to such 60th Business Day, in which case the Termination Date for that Affected Portion shall be the third Business Day following the date on which such notice is effective; or (2) Buyer has purchased but not Delivered Deliverable Obligations validly specified by Seller pursuant to Section 9.10(b), in which case the Termination Date for that Affected Portion shall be the tenth Business Day following the date on which Seller validly specified such Deliverable Obligations to Buyer.">
 
     condition PredeterminedClearingOrganizationParty:
