@@ -108,7 +108,7 @@ module.exports = {
             },
             {
               label: 'What Is The CDM?',
-              to: '/pdfs/what_is_the_cdm.pdf',
+              to: '/pdfs/Why_CDM_ .pdf',
               target: '_blank'
             },
             {
