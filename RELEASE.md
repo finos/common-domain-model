@@ -1,3 +1,18 @@
+# _CDM Model - Date Time Functions_
+
+_What is being released?_
+
+This release implements the existing `ToDateTime` function, and adds `ToTime` function.
+
+- `ToDateTime` - converts a `date` to a `zonedDateTime`, defaulting the `time` to "00:00:00" and the `timezone` to "Z" (UTC) 
+- `ToTime` - created a `time` from inputs of `hours`, `minutes` and `seconds`
+
+_Review directions_
+
+In Rosetta, select the `Common Domain Model` project, then select the Textual Browser and inspect the functions `ToDateTime` and `ToTime`.
+
+The changes can be reviewed in PR: [#2691](https://github.com/finos/common-domain-model/pull/2691)
+
 # _Infrastructure - Dependency Update_
 
 _What is being released?_
