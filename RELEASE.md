@@ -11,7 +11,7 @@ _Review directions_
 
 In Rosetta, select the `Common Domain Model` project, then select the Textual Browser and inspect the functions `ToDateTime` and `ToTime`.
 
-The changes can be reviewed in PR: [#2691](https://github.com/finos/common-domain-model/pull/2691)
+The changes can be reviewed in PR: [#2693](https://github.com/finos/common-domain-model/pull/2693)
 
 # _Infrastructure - Dependency Update_
 
@@ -28,4 +28,4 @@ There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2693](https://github.com/finos/common-domain-model/pull/2693)
+The changes can be reviewed in PR: [#2690](https://github.com/finos/common-domain-model/pull/2690)
