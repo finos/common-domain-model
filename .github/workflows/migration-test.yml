@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # GPG config demo - should be handled through secrets?
-      GPG_KEYNAME: ""
-      GPG_PASSPHRASE: ""
-      GPG_PRIVATE_KEY: ""
-      GPG_IMPORT_COMMAND: "cat <(echo -e '${{env.GPG_PRIVATE_KEY}}') | gpg --batch --import"
+      # GPG_KEYNAME: "${{secrets.GPG_KEYNAME}}"
+      GPG_PASSPHRASE: "${{secrets.GPG_PASSPHRASE}}"
+      GPG_PRIVATE_KEY: "${{secrets.GPG_PRIVATE_KEY}}"
+      
       REPO_PATH: "${GITHUB_WORKSPACE}"
-      MVN_DEPLOY_FLAGS: "-s ${GITHUB_WORKSPACE}/settings.xml -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2 -Denv.CI_DEPLOY_PASSWORD=${GITHUB_TOKEN} -Denv.CI_DEPLOY_USERNAME=${GITHUB_USER} -Denv.GPG_KEYNAME=${{env.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{env.GPG_PASSPHRASE}}"
+      MVN_DEPLOY_FLAGS: "-s ${GITHUB_WORKSPACE}/settings.xml -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2 -Denv.CI_DEPLOY_PASSWORD=${GITHUB_TOKEN} -Denv.CI_DEPLOY_USERNAME=${GITHUB_USER} -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
       MVN_BUILD_FLAGS: "-Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2"
       # GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
       GEN_DEPLOY_POM_SCRIPT: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
@@ -43,6 +43,8 @@ jobs:
           echo "GPG_IMPORT_COMMAND: ${{env.GPG_IMPORT_COMMAND}}"
           echo "GEN_DEPLOY_POM_SCRIPT: ${{env.GEN_DEPLOY_POM_SCRIPT}}"
           echo "GEN_DEPLOY_POM_PY: ${{env.GEN_DEPLOY_POM_PY}}"
+        env:
+          GPG_IMPORT_COMMAND: "cat <(echo -e '${{env.GPG_PRIVATE_KEY}}') | gpg --batch --import"
 
       - name: ReleaseProperties
         shell: bash
