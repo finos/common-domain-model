@@ -23,12 +23,12 @@ jobs:
       GPG_PASSPHRASE: "${{secrets.GPG_PASSPHRASE}}"
       GPG_PRIVATE_KEY: "${{secrets.GPG_PRIVATE_KEY}}"
       
-      REPO_PATH: "${GITHUB_WORKSPACE}"
-      MVN_DEPLOY_FLAGS: "-s ${GITHUB_WORKSPACE}/settings.xml -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2 -Denv.CI_DEPLOY_PASSWORD=${GITHUB_TOKEN} -Denv.CI_DEPLOY_USERNAME=${GITHUB_USER} -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
-      MVN_BUILD_FLAGS: "-Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2"
+      REPO_PATH: "$GITHUB_WORKSPACE" # $GITHUB_SERVER_URL/$GITHUB_REPOSITORY
+      MVN_DEPLOY_FLAGS: "-s $GITHUB_WORKSPACE/settings.xml -Dmaven.repo.local=$GITHUB_WORKSPACE/.m2 -Denv.CI_DEPLOY_PASSWORD=$GITHUB_TOKEN -Denv.CI_DEPLOY_USERNAME=$GITHUB_USER -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
+      MVN_BUILD_FLAGS: "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2"
       # GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
-      GEN_DEPLOY_POM_SCRIPT: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-      GEN_DEPLOY_POM_PY: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
+      GEN_DEPLOY_POM_SCRIPT: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
+      GEN_DEPLOY_POM_PY: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
  
     steps:
       - name: main_clone
@@ -53,7 +53,7 @@ jobs:
           echo "MAVEN_BUILD_PROFILES: ${{env.MAVEN_BUILD_PROFILES}}"
           echo "MVN_DEPLOY_FILE_FLAGS: ${{env.MVN_DEPLOY_FILE_FLAGS}}"
         env:
-          RELEASE_NAME: "${GITHUB.REF}" #how to get latest tag?
+          RELEASE_NAME: "$GITHUB.REF" #TBD
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
           
@@ -64,7 +64,7 @@ jobs:
           echo "MAVEN_BUILD_PROFILES: ${{env.MAVEN_BUILD_PROFILES}}"
           echo "MVN_DEPLOY_FILE_FLAGS: ${{env.MVN_DEPLOY_FILE_FLAGS}}"
         env:
-          RELEASE_NAME: "${GITHUB.REF}-SNAPSHOT" #how to get branch tag
+          RELEASE_NAME: "$GITHUB.REF-SNAPSHOT" #how to get branch tag
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
 
