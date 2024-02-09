@@ -772,6 +772,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PriceTypeEnum -> InterestRate when "fixedRate" exists]
             [set to PriceTypeEnum -> InterestRate when "initialRate" exists]
             [set to PriceTypeEnum -> InterestRate when "spread" exists]
+            [set to PriceTypeEnum -> InterestRate when path = "knownAmountSchedule"]
             [set to PriceTypeEnum -> InterestRate when "floatingRateCalculation->spread" exists]
             [set to PriceTypeEnum -> InterestRate when path = "spreadSchedule"]
             [set to PriceTypeEnum -> InterestRate when path = "floatingRateIndex"]
@@ -2196,7 +2197,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + futureValueNotional
             [value "futureValueNotional"]
         + priceSchedule
-            [value "ignore"]
+            [value "knownAmountSchedule" path "calculationPeriodAmount"] // test
 
     CreditDefaultPayout:
         [meta "id"]
@@ -2305,7 +2306,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For Swap Stream:
             [value "calculation" path "calculationPeriodAmount"]
             [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
-            [value "knownAmountSchedule" path "calculationPeriodAmount"]
+            [hint "calculationPeriodAmount"]
             // For FRAs:
             [hint "notional"]
             // For the interest leg of Equity Swap:
@@ -2554,7 +2555,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxSingleLeg"]
             [value "nearLeg"]
             [value "farLeg"]
-            [value "genericProduct"]
+            [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
         + securityPayout
             [value "repo"]
         + cashflow
@@ -4237,7 +4238,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "EUR-EURONIA-OIS-COMPOUND"]
         + EUR_EURONIA_OIS_Compound_1
             [value "EUR-EURONIA-OIS Compound"]
-		+ EUR_EuroSTR
+        + EUR_EuroSTR
             [value "EUR-EuroSTR"]
         + EUR_EuroSTR_Average_12M
             [value "EUR-EuroSTR Average 12M"]
@@ -5085,8 +5086,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "USD-Prime-H.15"]
         + USD_Prime_Reference_Banks
             [value "USD-Prime-Reference Banks"]
-		+ USD_SandP_Index_High_Grade
-			[value "USD-SandP Index High Grade"]
+        + USD_SandP_Index_High_Grade
+            [value "USD-SandP Index High Grade"]
         + USD_SIBOR_Reference_Banks
             [value "USD-SIBOR-Reference Banks"]
         + USD_SIBOR_SIBO
@@ -5120,13 +5121,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + USD_SOFR_ICE_Compounded_Index_5D_Lag
             [value "USD-SOFR ICE Compounded Index 5D Lag"]
         + USD_SOFR_ICE_Swap_Rate
-			[value "USD-SOFR ICE Swap Rate"]
+            [value "USD-SOFR ICE Swap Rate"]
         + USD_SOFR_ICE_Term
             [value "USD-SOFR ICE Term"]
         + USD_SOFR_OIS_Compound
             [value "USD-SOFR-OIS Compound"]
         + USD_S_P_Index_High_Grade
-			[value "USD-S&P Index-High Grade"]
+            [value "USD-S&P Index-High Grade"]
         + USD_Swap_Rate_BCMP1
             [value "USD Swap Rate-BCMP1"]
         + USD_TBILL_H_15
@@ -7909,8 +7910,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "Client"]
         + ClientDecisionMaker
             [value "ClientDecisionMaker"]
-        + CompressionServiceProvider
-            [value "PTRRCompressionProvider"]
         + ConfirmationPlatform
             [value "ConfirmationPlatform"]
             [value "ConfirmationService"]
@@ -7948,6 +7947,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "PrimeBroker"]
         + PriorTradeRepository
             [value "PriorTradeRepository"]
+        + PTRRServiceProvider
+            [value "PTRRCompressionProvider"]
+            [value "PTRRRebalancingProvider"]
         + PublicationVenue
             [value "PublicationVenue"]
         + ReportingParty
@@ -8213,3 +8215,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + SubUpperTier2
             [value "SubUpperTier2"]
 }
+
+func MapGenericProductToForwardPayout: <"Func that is invoked from a synonym 'set when' condition.">
+    inputs:
+        synonymPath string (1..1) <"The xml path from which the func is called.">
+        modelPath string (1..1) <"The cdm path that is being mapped.">
+        productType string (0..*)
+    output:
+        result boolean (1..1)
+
+    set result: productType contains "InterestRate:Forward:Debt"
