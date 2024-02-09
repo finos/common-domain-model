@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release fixes the existing `ToDateTime` function, and adds `ToTime` function.
+This release implements the existing `ToDateTime` function, and adds `ToTime` function.
 
 - `ToDateTime` - converts a `date` to a `zonedDateTime`, defaulting the `time` to "00:00:00" and the `timezone` to "Z" (UTC) 
 - `ToTime` - created a `time` from inputs of `hours`, `minutes` and `seconds`
