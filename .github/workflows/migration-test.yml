@@ -13,54 +13,53 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
-env:
-	REPO_PATH: ${GITHUB_WORKSPACE}
-	MVN_DEPLOY_FLAGS: "-s ${GITHUB_WORKSPACE}/settings.xml -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2 -Denv.CI_DEPLOY_PASSWORD=${GITHUB_TOKEN} -Denv.CI_DEPLOY_USERNAME=${GITHUB_USER} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}"
-	MVN_BUILD_FLAGS: "-Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2"
-	# GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
-	GEN_DEPLOY_POM_SCRIPT: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-	GEN_DEPLOY_POM_PY: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
  
 jobs:
   setup:
     runs-on: ubuntu-latest
-
+    env:
+      REPO_PATH: "${GITHUB_WORKSPACE}"
+      MVN_DEPLOY_FLAGS: "-s ${GITHUB_WORKSPACE}/settings.xml -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2 -Denv.CI_DEPLOY_PASSWORD=${GITHUB_TOKEN} -Denv.CI_DEPLOY_USERNAME=${GITHUB_USER} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}"
+      MVN_BUILD_FLAGS: "-Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2"
+      # GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
+      GEN_DEPLOY_POM_SCRIPT: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
+      GEN_DEPLOY_POM_PY: "${GITHUB_WORKSPACE}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
+ 
     steps:
       - name: main_clone
         uses: actions/checkout@v2
       
       - name: SetProperties
         shell: bash
-        run: |
-          echo "REPO_PATH: $REPO_PATH"
-          echo "MVN_DEPLOY_FLAGS: $MVN_DEPLOY_FLAGS"
-          echo "MVN_BUILD_FLAGS: $MVN_BUILD_FLAGS"
-          echo "GPG_IMPORT_COMMAND: $GPG_IMPORT_COMMAND"
-          echo "GEN_DEPLOY_POM_SCRIPT: $GEN_DEPLOY_POM_SCRIPT"
-          echo "GEN_DEPLOY_POM_PY: $GEN_DEPLOY_POM_PY"
+        run:
+          echo "REPO_PATH: ${{env.REPO_PATH}}"
+          echo "MVN_DEPLOY_FLAGS: ${{env.MVN_DEPLOY_FLAGS}}"
+          echo "MVN_BUILD_FLAGS: ${{env.MVN_BUILD_FLAGS}}"
+          echo "GPG_IMPORT_COMMAND: ${{env.GPG_IMPORT_COMMAND}}"
+          echo "GEN_DEPLOY_POM_SCRIPT: ${{env.GEN_DEPLOY_POM_SCRIPT}}"
+          echo "GEN_DEPLOY_POM_PY: ${{env.GEN_DEPLOY_POM_PY}}"
 
       - name: ReleaseProperties
         shell: bash
-	      run: |
-          echo "RELEASE_NAME: $RELEASE_NAME"
-          echo "MAVEN_BUILD_PROFILES: $MAVEN_BUILD_PROFILES"
-          echo "MVN_DEPLOY_FILE_FLAGS: $MVN_DEPLOY_FILE_FLAGS"
+        run:
+          echo "RELEASE_NAME: ${{env.RELEASE_NAME}}"
+          echo "MAVEN_BUILD_PROFILES: ${{env.MAVEN_BUILD_PROFILES}}"
+          echo "MVN_DEPLOY_FILE_FLAGS: ${{env.MVN_DEPLOY_FILE_FLAGS}}"
         env:
           RELEASE_NAME: "${GITHUB.REF}" #how to get latest tag?
 	        MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
-	        MVN_DEPLOY_FILE_FLAGS: "${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+	        MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
           
       - name: SnapshotProperties
         shell: bash
-        run: |
-          echo "RELEASE_NAME: $RELEASE_NAME"
-          echo "MAVEN_BUILD_PROFILES: $MAVEN_BUILD_PROFILES"
-          echo "MVN_DEPLOY_FILE_FLAGS: $MVN_DEPLOY_FILE_FLAGS"
+        run:
+          echo "RELEASE_NAME: ${{env.RELEASE_NAME}}"
+          echo "MAVEN_BUILD_PROFILES: ${{env.MAVEN_BUILD_PROFILES}}"
+          echo "MVN_DEPLOY_FILE_FLAGS: ${{env.MVN_DEPLOY_FILE_FLAGS}}"
         env:
           RELEASE_NAME: "${GITHUB.REF}-SNAPSHOT" #how to get branch tag
 	        MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
-	        MVN_DEPLOY_FILE_FLAGS: "${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+	        MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
 
   build:
     needs: setup
@@ -71,10 +70,7 @@ jobs:
         shell: bash
         run: |
           echo "Testing build ci"
-	# Steps for build stage if needed
-      #- name: --> here define the steps of the stage build (which are Build, BuildParallelTasks(which this step contains implicit steps/ "substeps" such as BuildDaml, BuildScala, BuildCSharp8, BuildCSharp9, BuildPython), DeployParallelTasks(which its corresponding substeps))
-        # run... 
-
+	
   distribute:
     needs: build
     runs-on: ubuntu-latest
