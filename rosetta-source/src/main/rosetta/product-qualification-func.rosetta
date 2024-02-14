@@ -629,9 +629,6 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
                 // qualifies that the underlier is an equity security
             and economicTerms -> payout -> optionPayout only-element -> underlier -> security exists
                 // qualifies that an option style is defined and that no feature other than averaging exists
-            and (economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
@@ -650,9 +647,6 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a produ
                 // qualifies that the underlier is an equity index
             and economicTerms -> payout -> optionPayout only-element -> underlier -> index exists
                 // qualifies that an option style is defined and that no feature other than averaging exists
-            and (economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
@@ -671,9 +665,6 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a prod
                 // qualifies that the underlier is an equity basket
             and economicTerms -> payout -> optionPayout only-element -> underlier -> basket exists
                 // qualifies that an option style is defined and that no feature other than averaging exists
-            and (economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> bermudaExercise exists)
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
@@ -1459,8 +1450,7 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
         Qualify_AssetClass_ForeignExchange(economicTerms) = True
             and economicTerms -> payout -> optionPayout exists
             and economicTerms -> payout -> optionPayout -> underlier -> foreignExchange only exists
-            and (economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> americanExercise exists
-                or economicTerms -> payout -> optionPayout -> exerciseTerms -> optionStyle -> europeanExercise exists)
+            and (economicTerms -> payout -> optionPayout -> exerciseTerms -> style any <> OptionExerciseStyleEnum -> Bermuda)
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
 
