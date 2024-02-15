@@ -190,6 +190,7 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
 
