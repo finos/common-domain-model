@@ -506,8 +506,6 @@ type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a
     latestCancelationTime BusinessCenterTime (0..1) <"The latest time at which notice of cancelation can be given.">
     exerciseTerms ExerciseTerms (1..1) <"The exercise terms associated with the cancelable provision, including details such as exercise style, exercise fees, and any other relevant conditions or terms governing the cancellation of the swap transaction.">
 
-    // condition ExerciseChoice: <"condition to represent an FpML substitution group construct.">
-    // optional choice americanExercise, bermudaExercise, europeanExercise
     condition EffectiveDate: <"Must select one of predefined cancellation types of effectiveDate or effectivePeriod.">
         optional choice effectiveDate, effectivePeriod
 
@@ -622,9 +620,6 @@ type OptionalEarlyTermination: <"A data defining:  an early termination provisio
     cashSettlement SettlementTerms (0..1) <"If specified, this means that cash settlement is applicable to the transaction and defines the parameters associated with the cash settlement procedure. If not specified, then physical settlement is applicable.">
     optionalEarlyTerminationAdjustedDates OptionalEarlyTerminationAdjustedDates (0..1) <"An early termination provision to terminate the trade at fair value where one or both parties have the right to decide on termination.">
     exerciseTerms ExerciseTerms (1..1) <"The exercise terms associated with the optional early termination, including details such as exercise style, exercise fees, and any other relevant conditions or terms.">
-
-    //condition ExerciseChoice: <"condition to represent an FpML choice construct.">
-    //    optional choice americanExercise, bermudaExercise, europeanExercise
 
     condition OptionalEarlyTerminationExerciseNoticeReceiverParty:
         if exerciseNotice -> exerciseNoticeReceiver exists
@@ -759,22 +754,24 @@ type ExerciseTerms: <"A class defining the exercise period for an option togethe
 
     condition ExerciseDateExpirationDateChoice: <"Required choice rule between exercise dates and expiration date. The exerciseDates field can be used to extract the expiration date of a bermuda option, while the expirationDate field refers to the expiration date of an american or european option.">
 		required choice exerciseDates, expirationDate
+    
+    condition CommencementAndExpirationDate: <"Condition to check that expiration date is present when commencement date is present.">
+        if commencementDate exists then expirationDate exists
 
     condition AmericanExercise: <"Condition to check that only fields expected for an american option are present.">
         if style = OptionExerciseStyleEnum -> American then 
-            commencementDate exists and expirationDate exists and 
-            exerciseDates is absent and exerciseFee is absent and partialExercise is absent
+            commencementDate exists and 
+            exerciseFee is absent and partialExercise is absent
 
     condition EuropeanExercise: <"Condition to check that only fields expected for a european option are present.">
         if style = OptionExerciseStyleEnum -> European then 
-            expirationDate exists and 
-            exerciseDates is absent
+            expirationDate exists
             and exerciseFeeSchedule is absent and multipleExercise is absent and latestExerciseTime is absent and commencementDate is absent
 
     condition BermudaExercise: <"Condition to check that only fields expected for a bermuda option are present.">
         if style = OptionExerciseStyleEnum -> Bermuda then 
             exerciseDates exists and earliestExerciseTime exists and
-            partialExercise is absent and exerciseFee is absent and commencementDate is absent
+            partialExercise is absent and exerciseFee is absent
 
 type AutomaticExercise: <"A type to define automatic exercise of a swaption. With automatic exercise the option is deemed to have exercised if it is in the money by more than the threshold amount on the exercise date.">
 
