@@ -104,6 +104,8 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
 
+    alias forwardUnderlier: economicTerms -> payout -> forwardPayout only-element -> underlier
+
     set is_product:
         // CO:FixFlo
         ((economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedPricePayout) only exists
@@ -119,6 +121,9 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                                     optionUnderlier -> contractualProduct -> economicTerms
                                 ) = True
                             or optionUnderlier -> commodity exists))
+                    // CO Fwd
+            or (((economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists or (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists)
+                and economicTerms -> payout -> forwardPayout -> underlier -> commodity exists)
 
 /*
  * ENDOF Qualification of ISDA Taxonomy V2 Level 1 - ASSETCLASS:
@@ -1531,3 +1536,18 @@ func Qualify_Commodity_Swaption: <"Qualifies a product as a Swaption that can be
                 or Qualify_Commodity_Swap_FixedFloat(
                         economicTerms -> payout -> optionPayout only-element -> underlier -> contractualProduct -> economicTerms
                     ) = True)
+
+func Qualify_Commodity_Forward: <"Qualifies a product as a Forward that will be settled with the physical delivery of a Commodity. The determination of the qualification is based on the economic terms and the following criteria: 1) One pricing Leg represented by either the FixedPricePayout or the CommodityPayout, 2) One physical Leg represented by the ForwardPayout, with an underlier that is a commodity, and 3) there are no other payout types.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "Commodity_Spot_Fwd"]
+            [synonym ISDA_Taxonomy_v2 value "Commodity_Forward"]
+    set is_product:
+        Qualify_AssetClass_Commodity(economicTerms) = True
+            and (
+                (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists or // Fixed Price Forward
+                (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists) // Floating Price Forward
+            and economicTerms -> payout -> forwardPayout -> underlier -> commodity exists
