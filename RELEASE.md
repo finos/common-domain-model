@@ -6,7 +6,7 @@ _What is being released?_
 This release updates the `rosetta-bundle` dependencies.
 
 Version updates include:
-- `rosetta-bundle` 10.12.0: Fpml Coding schema updated.
+- `rosetta-bundle` 10.13.4: Fpml Coding schema updated.
 
 There are no changes to the model or test expectations.
 
