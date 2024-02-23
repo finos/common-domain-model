@@ -850,10 +850,14 @@ corresponding products option, forward, and equity swap.
 type OptionPayout extends PayoutBase:
   [metadata key]
   buyerSeller BuyerSeller (1..1)
-  optionType OptionTypeEnum (0..1)
   feature OptionFeature (0..1)
-  exerciseTerms OptionExercise (1..1)
+  observationTerms ObservationTerms (0..1)
+  schedule CalculationSchedule (0..1)
+  delivery AssetDeliveryInformation (0..1)
   underlier Product (1..1)
+  optionType OptionTypeEnum (0..1)
+  exerciseTerms ExerciseTerms (1..1)
+  strike OptionStrike (0..1)
 ```
 
 This nesting of the product component is another example of a composable

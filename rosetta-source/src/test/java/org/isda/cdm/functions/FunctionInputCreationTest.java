@@ -1195,11 +1195,11 @@ class FunctionInputCreationTest {
                 .setTransferType(ScheduledTransferEnum.EXERCISE);
 
         Instruction.InstructionBuilder instructions = Instruction.builder()
-                .setBeforeValue(afterTradeState)
-                .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructionBuilder)
-                        .setTransfer(transferInstructionBuilder)
-                );
+                .setBeforeValue(afterTradeState);
+                //.setPrimitiveInstruction(PrimitiveInstruction.builder()
+                     //   .setQuantityChange(quantityChangeInstructionBuilder)
+                        //.setTransfer(transferInstructionBuilder)
+               // );
 
         reKey(instructions);
 
