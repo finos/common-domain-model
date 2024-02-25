@@ -36,7 +36,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel,json-schema"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
   SnapshotProperties:
@@ -49,7 +49,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel,json-schema"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
 
   Build:
@@ -252,6 +252,19 @@ steps:
           - rm encoded.model.xlsx
           - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} xlsx
           - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.xlsx  -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
+      DeployJsonSchema:
+        stage: 'build'
+        title: JSON Schema deploy
+        fail_fast: false
+        image: maven:3.8.2-jdk-11
+        working_directory: ./rosetta-source/
+        shell: bash
+        commands:
+          - bash -c "${{GPG_IMPORT_COMMAND}}"
+          - cd src/generated
+          - tar -cvzf cdm-json-schema-${{RELEASE_NAME}}.zip jsonschema
+          - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-json-schema ${{RELEASE_NAME}} zip
+          - mvn gpg:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-json-schema-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-json-schema -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-json-schema-${{RELEASE_NAME}}.pom
 
   NotifySlackOnFail:
     stage: 'finalise'
@@ -278,6 +291,7 @@ steps:
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
           deployPythonFailed: steps.DeployPython.result == 'error'
           deployExcelFailed: steps.DeployExcel.result == 'error'
+          deployJsonSchemaFailed: steps.DeployJsonSchema.result == 'error'
     commands:
       - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
       - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
@@ -311,6 +325,7 @@ steps:
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
           pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
+          jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
     commands:
       - exit 1
 
