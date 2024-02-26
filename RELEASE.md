@@ -13,7 +13,7 @@ _Review directions_
 
 In Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
-PR: https://github.com/finos/common-domain-model/pull/2726
+PR: https://github.com/finos/common-domain-model/pull/2727
 
 # _Infrastructure - Dependency Update_
 
