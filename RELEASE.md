@@ -6,8 +6,8 @@ In CDM there are not any available codes for Islamic Master Agreements. This con
 
 _What is being released?_
 
-   - Added a new ISDAIIFM_TMA code to the MasterAgreementTypeEnum.
-   - Mapping coverage for this new ISDAIIFM_TMA code.
+   - Added a new `ISDAIIFM_TMA` code to the MasterAgreementTypeEnum.
+   - Mapping coverage for this new `ISDAIIFM_TMA` code.
 
 _Review directions_
 
