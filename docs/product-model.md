@@ -985,7 +985,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
-    and Qualify_SubProduct_FixedFloat(economicTerms) = True
+        and Qualify_SubProduct_FixedFloat(economicTerms) = True
     and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 ```
 
