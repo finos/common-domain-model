@@ -29,4 +29,4 @@ There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2708
+The changes can be reviewed in PR: [#2708](https://github.com/finos/common-domain-model/pull/2708) / [#2729](https://github.com/finos/common-domain-model/pull/2729)
