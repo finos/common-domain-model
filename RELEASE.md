@@ -7,7 +7,7 @@ The codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_B
 _What is being released?_
 
 - Deprecated the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` and added the code `RBA_BOND_BASIS` in the CDM enum `DayCountFractionEnum`.
-- Mapping added to populate the new code with the FpML code RBA.
+- Mapping added to populate the new code with the FpML code `RBA`.
 
 _Review directions_
 
