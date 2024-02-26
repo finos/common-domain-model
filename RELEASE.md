@@ -19,13 +19,14 @@ The changes can be reviewed in PR: https://github.com/finos/common-domain-model/
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` dependencies.
+This release updates the `rosetta-bundle` and `rosetta-dsl` dependencies.
 
 Version updates include:
 - `rosetta-bundle` 10.13.4: FpML Coding schema updated.
+- `rosetta-dsl` 9.6.1: DSL bug fix for handing null values. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.6.1.
 
 There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2707
+The changes can be reviewed in PR: [#2707](https://github.com/finos/common-domain-model/pull/2707) / [#2731](https://github.com/finos/common-domain-model/pull/2731)
