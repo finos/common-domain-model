@@ -7,11 +7,11 @@ This release provides qualification support for Commodity Forward products, whic
 _What is being released?_
 
 - Added the qualifying function `Qualify_Commodity_Forward`.
-- Updated the qualifying function `Qualify_AssetClass_Commodity` in order to consider commodity forwards
+- Updated the qualifying function `Qualify_AssetClass_Commodity` in order to consider commodity forwards.
 
 _Review directions_
 
-In the Rosetta, select the Textual Browser and inspect each of the changes identified above.
+In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
 The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2718
 
