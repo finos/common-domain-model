@@ -6,8 +6,8 @@ The codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_B
 
 _What is being released?_
 
-- Replaced the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` with the code `RBA_BOND_BASIS` in the CDM enum DayCountFractionEnum.
-- Mapping added to populate the new code with the FpML code `RBA`.
+   - Replaced the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` with the code `RBA_BOND_BASIS` in the CDM enum `DayCountFractionEnum`.
+   - Mapping added to populate the new code with the FpML code `RBA`.
 
 _Backward incompatible changes_
 
@@ -18,6 +18,9 @@ _Review directions_
 In Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
 PR: https://github.com/finos/common-domain-model/pull/2727
+
+# _Infrastructure - Dependency Update_
+
 _What is being released?_
 
 This release updates the `rosetta-dsl` dependencies.
