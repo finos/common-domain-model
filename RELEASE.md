@@ -2,7 +2,7 @@
 
 _Background_
 
-In CDM there is not any available codes for Islamic Master Agreements. This contribution adds a new `ISDAIIFM-TMA` code to the `MasterAgreementTypeEnum` to cover the Islamic Derivative Master Agreements in CDM.
+In CDM there are not any available codes for Islamic Master Agreements. This contribution adds a new `ISDAIIFM-TMA` code to the `MasterAgreementTypeEnum` to cover the Islamic Derivative Master Agreements in CDM.
 
 _What is being released?_
 
