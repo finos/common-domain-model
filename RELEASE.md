@@ -1,4 +1,4 @@
-# _Master Agreement Type enumeration - ISDAIIFM_TMA code_
+# _Master Agreement Model - enumeration - ISDAIIFM_TMA code_
 
 _Background_
 
