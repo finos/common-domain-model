@@ -18,6 +18,23 @@ _What is being released?_
     - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification_, then `ordinal` = 1
     - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-2-commodity-classification_, then `ordinal` = 2
     - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-3-commodity-classification_, then `ordinal` = 3
+ 
+_Mappings_
+
+- `[value "floatingLeg", "oilPhysicalLeg"]` is added to `priceQuantity` in the `TradeLot` synonym.
+- `[hint "commodityClassification"]` is added to `commodity` in the `Observable` synonym.
+- `[value "code"]` is added to `value` in the `TaxonomyClassification` synonym.
+- `[hint "commodityClassification"]` is added to the `observable` in the `PriceQuantity` synonym.
+- `[set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-2-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-3-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-2-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]` is added to `ordinal` in the `TaxonomyClassification` synonym.
+- `[set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]` is added to `source` in the `ProductTaxonomy` synonym.
+- `[set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]` is added to `source` in the `ProductTaxonomy` synonym.
+- `[hint "primaryAssetClass"]`, `[hint "secondaryAssetClass"]`, `[hint "fra"]`, `[hint "creditDefaultSwapOption"]`, `[hint "bondOption"]`, `[hint "commoditySwaption"]`, `[hint "genericProduct"]`, `[hint "productType"]`, and `[value "commodityClassification"]` are added to the `productTaxonomy` in the `ProductBase` synonym.
+
 
 _Review directions_
 
