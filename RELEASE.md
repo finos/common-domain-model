@@ -1,4 +1,4 @@
-# _Product Model - Master Agreement Type enumeration - ISDAIIFM_TMA code_
+# _Legal Agreements - Master Agreement Type enumeration - ISDAIIFM_TMA code_
 
 _Background_
 
