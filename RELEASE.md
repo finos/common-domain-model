@@ -2,7 +2,7 @@
 
 _Background_
 
-It had been observed that some of the ingested FpML samples in Rosetta were not correctly translating the settlement type of the trade in CDM. Specifically, the field `settlementTerms->settlementType` in CDM was not being populated, despite the incoming FpML samples containing information about the settlement type. This release aims at correcting this mismatch between FpML and CDM. In turn, this will improve the reporting capabilities of the DRR field `DeliveryType`, given that several samples which were previously not reporting this field will now contain the necessary information to do so.
+It had been observed that some of the ingested FpML samples in the Rosetta Platform were not correctly translating the settlement type of the trade. Specifically, the field `settlementTerms->settlementType` in CDM was not being populated, despite the incoming FpML samples containing information about the settlement type. This release aims at correcting this mismatch between FpML and CDM. In turn, this will improve the reporting capabilities of the DRR field `DeliveryType`, given that several samples which were previously not reporting this field will now contain the necessary information to do so.
 
 _What is being released?_
 
