@@ -1,8 +1,8 @@
-# _Qualifying functions - Enhanced support for ETDs_
+# _Product Model - Qualifying functions: Enhanced support for ETDs_
 
 _Background_
 
-In CDM there is no support for ETDs in some qualifying functions. This contribution enhances the support for ETD in `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Commodity` when a optionUnderlier exists in the sample at "security" level.
+In CDM there is no support for ETDs in some qualifying functions. This contribution enhances the support for ETD in `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Commodity` when an optionUnderlier exists in the sample at "security" level.
 
 _What is being released?_
 
