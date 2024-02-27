@@ -1,20 +1,26 @@
-# _Product Model - Day Count Fraction: RBA_Bond_Basis_
+# _CDM Core - Commodity Classification Coverage_
 
 _Background_
 
-The codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` in the CDM enum `DayCountFractionEnum` have been found redundant by definition. The solution to this issue is to merge them into one single code: `RBA_BOND_BASIS`. This also aligns with the FpML representation.
+Following the addition of commodity classification structures in CDM Core, there is now a need to incorporate mappings from the corresponding FpML fields to the new CDM fields related to the classification of commodities.
+
+Specifically, to cover the CDM mappings to:
+- `underlier->commodity->productTaxonomy->value->classification->value` and
+- `underlier->commodity->productTaxonomy->value->classification->ordinal`
 
 _What is being released?_
 
-   - Replaced the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` with the code `RBA_BOND_BASIS` in the CDM enum `DayCountFractionEnum`.
-   - Mapping added to populate the new code with the FpML code `RBA`.
+- Synonym mappings that map:
+    - `commodityClassification->code` to `classification->value`.
+    - `commodityClassification->code->commodityClassificationScheme` to `classification->ordinal`.
 
-_Backward incompatible changes_
-
-This release contains backward-incomplatible changes. Anywhere the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` or `RBA_BOND_BASIS_ANNUAL` are found, this code must be replaced by the new one `RBA_BOND_BASIS`.
+- The `ordinal` is mapped to values `1`, `2`, or `3` as follows:
+    - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification_, then `ordinal` = 1
+    - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-2-commodity-classification_, then `ordinal` = 2
+    - If `commodityClassificationScheme` = _http://www.fpml.org/coding-scheme/esma-emir-refit-layer-3-commodity-classification_, then `ordinal` = 3
 
 _Review directions_
 
-In Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
+In Rosetta platform, select the Textual Browser and inspect each of the changes listed above.
 
-PR: https://github.com/finos/common-domain-model/pull/2727
+Changes can be reviewed in PR:
