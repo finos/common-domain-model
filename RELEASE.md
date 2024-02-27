@@ -1,4 +1,4 @@
-# _Product Model - Commodity Classification Coverage_
+# _Mapping - Commodity Classification Coverage_
 
 _Background_
 
