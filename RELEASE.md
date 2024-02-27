@@ -23,4 +23,4 @@ _Review directions_
 
 In Rosetta platform, select the Textual Browser and inspect each of the changes listed above.
 
-Changes can be reviewed in PR:
+Changes can be reviewed in PR:https://github.com/finos/common-domain-model/pull/2735
