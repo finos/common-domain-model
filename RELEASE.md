@@ -1,8 +1,8 @@
-# _CDM Core - Commodity Classification Coverage_
+# _CDM Model - Commodity Classification Coverage_
 
 _Background_
 
-Following the addition of commodity classification structures in CDM Core, there is now a need to incorporate mappings from the corresponding FpML fields to the new CDM fields related to the classification of commodities.
+Following the addition of commodity classification structures in the Rosetta Platform, there is now a need to incorporate mappings from the corresponding FpML fields to the new CDM fields related to the classification of commodities.
 
 Specifically, to cover the CDM mappings to:
 - `underlier->commodity->productTaxonomy->value->classification->value` and
@@ -21,6 +21,6 @@ _What is being released?_
 
 _Review directions_
 
-In Rosetta platform, select the Textual Browser and inspect each of the changes listed above.
+In the Rosetta platform, select the Textual Browser and inspect each of the changes listed above.
 
 Changes can be reviewed in PR:https://github.com/finos/common-domain-model/pull/2735
