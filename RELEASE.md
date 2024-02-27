@@ -2,7 +2,7 @@
 
 _Background_
 
-In CDM there is no support for ETDs in some qualifying functions. This contribution enhances the support for ETD in `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Commodity` when an optionUnderlier exists in the sample at "security" level.
+In CDM there is no support for Exchange-traded derivatives (ETDs) in some qualifying functions. This contribution enhances the support for ETD in `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Commodity` when an optionUnderlier exists in the sample at "security" level.
 
 _What is being released?_
 
