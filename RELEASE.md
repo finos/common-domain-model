@@ -18,18 +18,3 @@ _Review directions_
 In Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
 PR: https://github.com/finos/common-domain-model/pull/2727
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `rosetta-dsl` dependencies.
-
-Version updates include:
-- `rosetta-dsl` 9.6.1: DSL bug fix for handing null values. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.6.1.
-
-There are no changes to the model or test expectations.
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2731](https://github.com/finos/common-domain-model/pull/2731)
