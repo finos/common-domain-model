@@ -13,7 +13,7 @@ _Review directions_
 
 In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2731
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2733
 
 # _Product Model - Day Count Fraction: RBA_Bond_Basis_
 
