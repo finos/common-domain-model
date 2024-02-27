@@ -649,6 +649,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bond" , "convertibleBond"]
             // For Commodity Swap Floating Leg
             [hint "commodity"]
+            [hint "commodityClassification"]
             // Other
             [value "underlyer"]
         + settlementTerms
@@ -1705,6 +1706,16 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "creditDefaultSwapOption"]
             [hint "bondOption"]
             [value "genericProduct"]
+        + productTaxonomy
+			[hint "primaryAssetClass"]
+            [hint "secondaryAssetClass"]
+            [hint "fra"]
+            [hint "creditDefaultSwapOption"]
+            [hint "bondOption"]
+            [hint "commoditySwaption"]
+			[hint "genericProduct"]
+			[hint "productType"]
+			[value "commodityClassification"]
 
     ProductTaxonomy:
         + primaryAssetClass
@@ -1728,7 +1739,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "bondOption" mapper "TaxonomySource"]
             [value "productType" path "commoditySwaption" mapper "TaxonomySource"]
             [value "productType" path "genericProduct" mapper "TaxonomySource"]
-
+            [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
+            [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
+    
     TaxonomyValue:
         + name
             [value "productType"]
@@ -1737,6 +1750,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "bondOption"]
             [value "productType" path "commoditySwaption"]
             [value "productType" path "genericProduct"]
+
+    TaxonomyClassification:
+        + value
+            [value "code"]
+        + ordinal
+            [set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
+            [set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-2-commodity-classification"]
+            [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-3-commodity-classification"]
+
+            [set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
+            [set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-2-commodity-classification"]
+            [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]
 
     Security:
         + productIdentifier
@@ -1914,6 +1939,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     Observable:
         + commodity
             [hint "commodity"]
+            [hint "commodityClassification"]
         + productIdentifier
             [hint "equity"]
             [hint "bond"]
@@ -2700,7 +2726,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxSingleLeg"]
             // Other
             [value "repo"]
-            [value "floatingLeg"]
+            [value "floatingLeg", "oilPhysicalLeg"]
             [value "genericProduct" mapper "InterestRateForwardDebtPrice"]
             // Additional payment
             // Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
@@ -6308,6 +6334,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "30E/360.ISDA"]
         + _30_360
             [value "30/360"]
+        + RBA_BOND_BASIS
+            [value "RBA"]
 
     DeterminationMethodEnum:
         + AgreedInitialPrice
