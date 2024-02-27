@@ -37,6 +37,9 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                     or if optionUnderlier exists
                         then Qualify_AssetClass_InterestRate(
                                     optionUnderlier -> contractualProduct -> economicTerms
+                                ) = True
+                                or Qualify_AssetClass_InterestRate(
+                                    optionUnderlier -> security -> economicTerms
                                 ) = True))
             or (economicTerms -> payout -> forwardPayout only exists
                 and forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt)
@@ -119,6 +122,9 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                 and if optionUnderlier exists
                     then (Qualify_AssetClass_Commodity(
                                     optionUnderlier -> contractualProduct -> economicTerms
+                                ) = True
+                            or Qualify_AssetClass_Commodity(
+                                    optionUnderlier -> security -> economicTerms
                                 ) = True
                             or optionUnderlier -> commodity exists))
                     // CO Fwd
