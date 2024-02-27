@@ -2,13 +2,13 @@
 
 _Background_
 
-In order to reduce redundancy and overcomplexity in the CDM model, a refactoring of the `OptionPayout` structure is required. The information contained in the fields inside the `optionStyle` (`americanExercise`, `europeanExercise`, and `bermudaExercise`) can be unified under a new type `ExerciseTerms`. This will reduce the redundancy of having the same information repeated under the 3 styles and improve the simplicity of the model. To distinguish whether the option is american, european, or bermuda, a new `style` enumeration is added to the model inside `ExerciseTerms`, with the values "american", "european", and "bermuda". Additionally, the `strike` field, previously under `exerciseTerms`, is moved outside and located directly under `OptionPayout`, given that it does not convey any information about the exercise terms of an option.
+In order to reduce redundancy and overcomplexity in the CDM, a refactoring of the `OptionPayout` structure is required. The information contained in the fields inside the `optionStyle` (`americanExercise`, `europeanExercise`, and `bermudaExercise`) can be unified under a new type `ExerciseTerms`. This will reduce the redundancy of having the same information repeated under the three styles and improve the simplicity of the model. To distinguish whether the option is American, European, or Bermuda, a new `style` enumeration is added to the model inside `ExerciseTerms`, with the values "american", "european", and "bermuda". Additionally, the `strike` field, previously under `exerciseTerms`, is moved outside and located directly under `OptionPayout`, given that it does not convey any information about the exercise terms of an option.
 
 _What is being released?_
 
 - The `optionStyle` is removed from the model, along with the `americanExercise`, `europeanExercise`, and `bermudaExercise` fields.
-- A new `ExerciseTerms` structure is added to `OptionPayout`, containing all _distinct_ fields found previously under the 3 exercise styles.
-- A new `style` enumeration is added under `ExerciseTerms` to distinguish the style of the option.This enumeration is made **optional** to account the exercise terms of a `CancelableProvision`, `ExtendibleProvision`, or `OptionalEarlyTermination`, where the style is often derived from the structure itself.
+- A new `ExerciseTerms` structure is added to `OptionPayout`, containing all _distinct_ fields found previously under the three exercise styles.
+- A new `style` enumeration is added under `ExerciseTerms` to distinguish the style of the option. This enumeration is made **optional** to account the exercise terms of a `CancelableProvision`, `ExtendibleProvision`, or `OptionalEarlyTermination`, where the style is often derived from the structure itself.
 - The structures `CancelableProvision`, `ExtendibleProvision`, and `OptionalEarlyTermination` have been modified to use `ExerciseTerms` instead of the old `americanExercise`, `europeanExercise`, and `bermudaExercise` fields.
 - **Synonym mappings** have been modified to reflect these changes.
 
@@ -38,7 +38,7 @@ This change modifies the `OptionPayout` structure to simplify it and reduce the 
 Specifically:
 - It removes the `OptionStyle` type from the `exerciseTerms` field, along with the three option exercise types contained inside it (`AmericanExercise`, `EuropeanExercise`, `BermudaExercise`), and replaces it with the distinct group of fields required to represent any type of option style.
 - The type `OptionExercise` is removed from the model, and instead the type `ExerciseTerms` is used for the field `exerciseTerms`.
-- The `style` enumeration is incorporated into the `ExerciseTerms` type to differentiate between american, european, and bermuda styles.
+- The `style` enumeration is incorporated into the `ExerciseTerms` type to differentiate between American, European, and Bermuda styles.
 - Finally, the `strike`, previously under `OptionStyle`, has been moved outside of `ExerciseTerms` and is located directly under `OptionPayout`.
 
 
