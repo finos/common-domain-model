@@ -1,4 +1,4 @@
-# _CDM Model - Commodity Classification Coverage_
+# _Product Model - Commodity Classification Coverage_
 
 _Background_
 
