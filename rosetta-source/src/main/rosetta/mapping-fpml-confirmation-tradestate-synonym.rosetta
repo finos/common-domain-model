@@ -722,6 +722,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // Other
             [value "underlyer"]
         + settlementTerms
+            [hint "settlementType"]
             [hint "paymentDelay"]
             [hint "paymentDate"]
             [hint "adjustablePaymentDate"]
@@ -900,6 +901,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "settlementCurrency" path "exercise" mapper "SettlementType"]
             [value "settlementType"]
             [value "settlementType" path "equityExercise"]
+            
+            [set to SettlementTypeEnum -> Cash when "cashSettlement" exists]
+            [set to SettlementTypeEnum -> Cash when "settlementType" = "Cash"]
+            [set to SettlementTypeEnum -> Cash when "amount->cashSettlement" = True]
+            [set to SettlementTypeEnum -> Physical when "settlementType" = "Physical"]
+
             [set to SettlementTypeEnum -> Cash when "cashSettlementTerms" exists]
             [set to SettlementTypeEnum -> Physical when "physicalSettlementTerms" exists]
             [set to SettlementTypeEnum -> Physical when "physicalExercise" exists]
@@ -2734,6 +2741,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "repo"]
             [value "floatingLeg", "oilPhysicalLeg"]
             [value "genericProduct" mapper "InterestRateForwardDebtPrice"]
+            [value "productSummary"]
             // Additional payment
             // Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
             [hint "underlyer"] // Equity Option
@@ -2757,7 +2765,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bondOption"]
             [value "bulletPayment"]
             // Credit
-            [value "creditDefaultSwap" , "creditDefaultSwap" path "creditDefaultSwapOption" , "creditDefaultSwapOption"]
+            [value "creditDefaultSwap" , "creditDefaultSwap" path "creditDefaultSwapOption" , "creditDefaultSwapOption", "tradeHeader"]
             // FX
             [hint "fxSingleLeg"]
             [value "fxSwap"]
@@ -2784,6 +2792,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "commoditySwap" path "commoditySwaption"]
             [hint "repo"]
             [hint "genericProduct" , "quote"]
+            [hint "productSummary"]
         + adjustment
             [value "notionalAdjustments" path "returnSwap->returnLeg" , "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
