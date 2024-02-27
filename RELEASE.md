@@ -1,4 +1,4 @@
-# _CDM Model - OptionPayout Refactoring_
+# _Product Model - OptionPayout Refactoring_
 
 _Background_
 
