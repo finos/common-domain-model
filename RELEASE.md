@@ -9,7 +9,7 @@ _What is being released?_
 
 - The `optionStyle` is removed from the model, along with the `americanExercise`, `europeanExercise`, and `bermudaExercise` fields.
 - A new `ExerciseTerms` structure is added to `OptionPayout`, containing all _distinct_ fields found previously under the three exercise styles.
-- A new `style` enumeration is added under `ExerciseTerms` to distinguish the style of the option. This enumeration is made **optional** to account the exercise terms of a `CancelableProvision`, `ExtendibleProvision`, or `OptionalEarlyTermination`, where the style is often derived from the structure itself.
+- A new `style` enumeration is added under `ExerciseTerms` to distinguish the style of the option. This enumeration is made **optional** to account for the exercise terms of a `CancelableProvision`, `ExtendibleProvision`, or `OptionalEarlyTermination`, where the style is derived from the structure itself.
 - The structures `CancelableProvision`, `ExtendibleProvision`, and `OptionalEarlyTermination` have been modified to use `ExerciseTerms` instead of the old `americanExercise`, `europeanExercise`, and `bermudaExercise` fields.
 - **Synonym mappings** have been modified to reflect these changes.
 
@@ -29,12 +29,7 @@ _Enumerations_
 
 - Added new `OptionExerciseStyleEnum` enumeration.
 
-- _Backward Incompatible Changes_
-
-
-- _Motivation for Change_
-
-This change modifies the `OptionPayout` structure to simplify it and reduce the redundancy and over-complexity of the model.
+_Backward Incompatible Changes_
 
 Specifically:
 - It removes the `OptionStyle` type from the `exerciseTerms` field, along with the three option exercise types contained inside it (`AmericanExercise`, `EuropeanExercise`, `BermudaExercise`), and replaces it with the distinct group of fields required to represent any type of option style.
@@ -62,16 +57,12 @@ From:
                             "adjustableDate": {
                                 "unadjustedDate": "2004-12-19",
                                 "dateAdjustments": {
-                                    "businessDayConvention": "NONE",
-                                    "meta": {"globalKey": "24a738"}
-                                },
-                                "meta": {"globalKey": "eb46d18b"}
-                            },
-                            "meta": {"globalKey": "eb46d18b"}
+                                    "businessDayConvention": "NONE"
+                                }
+                            }
                         }
                     ],
-                    "expirationTimeType": "OSP",
-                    "meta": {"globalKey": "7d9492c1"}
+                    "expirationTimeType": "OSP"
                 }
             },
             "strike": {
@@ -105,19 +96,15 @@ To this:
                     "adjustableDate": {
                         "unadjustedDate": "2004-12-19",
                         "dateAdjustments": {
-                            "businessDayConvention": "NONE",
-                            "meta": {"globalKey": "24a738"}
-                        },
-                        "meta": {"globalKey": "eb46d18b"}
-                    },
-                    "meta": {"globalKey": "eb46d18b"}
+                            "businessDayConvention": "NONE"
+                        }
+                    }
                 }
             ],
             "expirationTimeType": "OSP",
             "exerciseProcedure": {
                 "automaticExercise": {"isApplicable": true}
-            },
-            "meta": {"globalKey": "e3d825ff"}
+            }
         },
         "strike": {
             "strikePrice": {
@@ -128,8 +115,7 @@ To this:
                 "perUnitOf": {"financialUnit": "IndexUnit"},
                 "priceType": "AssetPrice"
             }
-        },
-        "meta": {"globalKey": "dbfc720b"}
+        }
     }
 ]
 ```
@@ -148,23 +134,17 @@ From:
                         "adjustableDate": {
                             "unadjustedDate": "2001-07-13",
                             "dateAdjustments": {
-                                "businessDayConvention": "NONE",
-                                "meta": {"globalKey": "24a738"}
-                            },
-                            "meta": {"globalKey": "eae7f1c5"}
-                        },
-                        "meta": {"globalKey": "eae7f1c5"}
+                                "businessDayConvention": "NONE"
+                            }
+                        }
                     },
                     "expirationDate": {
                         "adjustableDate": {
                             "unadjustedDate": "2005-09-27",
                             "dateAdjustments": {
-                                "businessDayConvention": "NONE",
-                                "meta": {"globalKey": "24a738"}
-                            },
-                            "meta": {"globalKey": "eb6226d3"}
-                        },
-                        "meta": {"globalKey": "eb6226d3"}
+                                "businessDayConvention": "NONE"
+                            }
+                        }
                     },
                     "latestExerciseTime": {
                         "hourMinuteTime": "17:15:00",
@@ -175,8 +155,7 @@ From:
                         "integralMultipleAmount": 1,
                         "minimumNumberOfOptions": 1,
                         "maximumNumberOfOptions": 150000
-                    },
-                    "meta": {"globalKey": "221944d2"}
+                    }
                 }
             },
             "strike": {
@@ -209,24 +188,18 @@ To this:
                 "adjustableDate": {
                     "unadjustedDate": "2001-07-13",
                     "dateAdjustments": {
-                        "businessDayConvention": "NONE",
-                        "meta": {"globalKey": "24a738"}
-                    },
-                    "meta": {"globalKey": "eae7f1c5"}
-                },
-                "meta": {"globalKey": "eae7f1c5"}
+                        "businessDayConvention": "NONE"
+                    }
+                }
             },
             "expirationDate": [
                 {
                     "adjustableDate": {
                         "unadjustedDate": "2005-09-27",
                         "dateAdjustments": {
-                            "businessDayConvention": "NONE",
-                            "meta": {"globalKey": "24a738"}
-                        },
-                        "meta": {"globalKey": "eb6226d3"}
-                    },
-                    "meta": {"globalKey": "eb6226d3"}
+                            "businessDayConvention": "NONE"
+                        }
+                    }
                 }
             ],
             "latestExerciseTime": {
@@ -241,8 +214,7 @@ To this:
             },
             "exerciseProcedure": {
                 "automaticExercise": {"isApplicable": true}
-            },
-            "meta": {"globalKey": "aedc32dd"}
+            }
         },
         "strike": {
             "strikePrice": {
@@ -253,8 +225,7 @@ To this:
                 "perUnitOf": {"financialUnit": "Share"},
                 "priceType": "AssetPrice"
             }
-        },
-        "meta": {"globalKey": "37ca535d"}
+        }
     }
 ]
 ```
@@ -291,7 +262,6 @@ From:
                         "relativeDates": {
                             "periodMultiplier": 2,
                             "period": "D",
-                            "meta": {"globalKey": "c6c3b1ab"},
                             "dayType": "Business",
                             "businessDayConvention": "NONE",
                             "businessCenters": {
@@ -364,22 +334,19 @@ To this:
                 "relativeDates": {
                     "periodMultiplier": 2,
                     "period": "D",
-                    "meta": {"globalKey": "c6c3b1ab"},
                     "dayType": "Business",
                     "businessDayConvention": "NONE",
                     "businessCenters": {
                         "businessCenter": [
                             {"value": "EUTA"},
                             {"value": "GBLO"}
-                        ],
-                        "meta": {"globalKey": "4158421"}
+                        ]
                     },
                     "dateRelativeTo": {
                         "globalReference": "5c12e2ce",
                         "externalReference": "bermudaExercise0"
                     }
-                },
-                "meta": {"globalKey": "c6c3b1ab"}
+                }
             },
             "earliestExerciseTime": {
                 "hourMinuteTime": "09:00:00",
