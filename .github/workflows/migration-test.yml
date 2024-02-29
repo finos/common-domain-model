@@ -50,33 +50,33 @@ jobs:
 
       - name: ReleaseProperties
         id: release_props
-        if: "contains(github.ref, 'master')"
+        #if: "contains(github.ref, 'master')"
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
           echo "REPO_PATH: ${{env.REPO_PATH}}"
           echo "=== Local variable resolution ==="
           echo "RELEASE_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
-          echo "RELEASE_MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
-          echo "RELEASE_MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
+          echo "MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
+          echo "MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
-          RELEASE_NAME: "GITHUB.REF" # not resoled hot to define release name (e.g. $github.tag)
+          RELEASE_NAME: "${{github.ref_name}}" # not resoled hot to define release name (e.g. $github.tag)
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
           
       - name: SnapshotProperties
         id: snapshot_props
-        if: "contains(github.ref, 'develop')"
+        #if: "contains(github.ref, 'develop')"
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
           echo "REPO_PATH: ${{env.REPO_PATH}}"
           echo "=== Local variable resolution ==="
-          echo "SNAPSHOT_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
-          echo "SNAPSHOT_MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
-          echo "SNAPSHOT_MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
+          echo "MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
+          echo "MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
-          RELEASE_NAME: "github.ref-SNAPSHOT" # not resolved how to define snapshot name
+          RELEASE_NAME: "${{github.ref_name}}-SNAPSHOT" # not resolved how to define snapshot name
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
 
@@ -86,13 +86,13 @@ jobs:
 
     steps:
       - name: Build Release CI
-        if: "contains(github.ref, 'master')"
+        #if: "contains(github.ref, 'master')"
         run: |
           echo "MVN_DEPLOY_FILE_FLAGS: ${{needs.setup.outputs.RELEASE_MVN_DEPLOY_FILE_FLAGS}}"
           echo "RELEASE_NAME: ${{needs.setup.outputs.RELEASE_NAME}}"
 
       - name: Build Snapshot CI
-        if: "contains(github.ref, 'develop')"
+        #if: "contains(github.ref, 'develop')"
         run: |
           echo "MVN_DEPLOY_FILE_FLAGS: ${{needs.setup.outputs.SNAPSHOT_MVN_DEPLOY_FILE_FLAGS}}"
           echo "RELEASE_NAME: ${{needs.setup.outputs.SNAPSHOT_NAME}}"
