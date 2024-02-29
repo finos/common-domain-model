@@ -10,20 +10,19 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
  
 jobs:
   setup:
     runs-on: ubuntu-latest
     env:
       # GPG config demo - proposal using secrets
-      
       REPO_PATH: "$GITHUB_WORKSPACE"
       MVN_DEPLOY_FLAGS: "-s $GITHUB_WORKSPACE/settings.xml -Dmaven.repo.local=$GITHUB_WORKSPACE/.m2 -Denv.CI_DEPLOY_PASSWORD=$GITHUB_TOKEN -Denv.CI_DEPLOY_USERNAME=$GITHUB_USER -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
       MVN_BUILD_FLAGS: "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2"
-      # GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
+      # GPG_IMPORT_COMMAND: "cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" 
       GEN_DEPLOY_POM_SCRIPT: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       GEN_DEPLOY_POM_PY: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
     outputs:
@@ -33,6 +32,7 @@ jobs:
       RELEASE_NAME: ${{steps.release_props.outputs.RELEASE_NAME}}
       MAVEN_BUILD_PROFILES: ${{steps.release_props.outputs.MAVEN_BUILD_PROFILES}}
       MVN_DEPLOY_FILE_FLAGS: ${{steps.release_props.outputs.MVN_DEPLOY_FILE_FLAGS}}
+      GPG_IMPORT_COMMAND: ${{steps.set_props.outputs.GPG_IMPORT_COMMAND}}
  
     steps:
       - name: main_clone
@@ -44,10 +44,11 @@ jobs:
         run: |
           echo "GPG_IMPORT_COMMAND=${{env.GPG_IMPORT_COMMAND}}" >> "$GITHUB_OUTPUT"
         env:
-          GPG_IMPORT_COMMAND: "cat <(echo -e '${{env.GPG_PRIVATE_KEY}}') | gpg --batch --import"
+          GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import"
 
       - name: ReleaseProperties
         id: release_props
+        if: contains(github.ref, "master")
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
@@ -63,6 +64,7 @@ jobs:
           
       - name: SnapshotProperties
         id: snapshot_props
+        if: contains(github.ref, "develop")
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
@@ -81,6 +83,7 @@ jobs:
         run: |
           echo "Testing build ci"
           echo "REPO_PATH: ${{needs.setup.outputs.REPO_PATH}}"
+          echo "RELEASE_NAME: ${{needs.setup.outputs.RELEASE_NAME}}"
   
   distribute:
     needs: build
