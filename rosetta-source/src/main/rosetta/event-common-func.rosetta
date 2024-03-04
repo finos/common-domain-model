@@ -213,16 +213,16 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 
     alias adjustedFinalValuationDate:
         ResolveAdjustableDate(
-                payout -> valuationDates -> valuationDatesFinal -> valuationDate
+                payout -> valuationTerms -> finalValuationDate -> valuationDate
             )
     alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
         if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> valuationDatesInterim
-        else payout -> valuationDates -> valuationDatesFinal
+        then payout -> valuationTerms -> interimValuationDate
+        else payout -> valuationTerms -> finalValuationDate
     add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
         payout -> underlier -> security -> productIdentifier
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
-        AdjustedValuationDates(payout -> valuationDates)
+        AdjustedValuationDates(payout -> valuationTerms)
             filter item <= adjustedDate
             then last
     set identifiers -> observationTime: <"Specifies the time for which to retrieve the market data value(s).">
@@ -243,9 +243,9 @@ func AdjustedValuationDates:
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
             ResolveAdjustableDates(
-                    valuationDates -> valuationDatesInterim -> valuationDates
+                    valuationDates -> interimValuationDate -> valuationDates
                 ),
-            ResolveAdjustableDate(valuationDates -> valuationDatesFinal -> valuationDate)
+            ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
 
@@ -1063,7 +1063,7 @@ func NewSingleNameEquityPerformancePayout: <"Function specification to create th
         // or masterConfirmation -> typeOfSwapElection -> Total exists then
         masterConfirmation -> typeOfSwapElection
 
-    set performancePayout -> valuationDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> valuationTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> valuationDates
     set performancePayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> equityCashSettlementDates

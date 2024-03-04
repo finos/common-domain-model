@@ -182,12 +182,18 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
-    // commodityReturnTerms CommodityPriceReturnTerms (0..1)
-    priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
-    dividendReturnTerms DividendReturnTerms (0..1) <"Return terms based upon dividend payments associated to the underlier.">
-    varianceReturnTerms VarianceReturnTerms (0..1) <"Return terms based upon the observed variance of the underlier's price.">
-    volatilityReturnTerms VolatilityReturnTerms (0..1) <"Return terms based upon the observed volatility of the underlier's price.">
-    correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
+  priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
+  dividendReturnTerms DividendReturnTerms (0..1) <"Return terms based upon dividend payments associated to the underlier.">
+  varianceReturnTerms VarianceReturnTerms (0..1) <"Return terms based upon the observed variance of the underlier's price.">
+  volatilityReturnTerms VolatilityReturnTerms (0..1) <"Return terms based upon the observed volatility of the underlier's price.">
+  correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
+  portfolioPriceReturnTerms PortfolioPriceReturnTerms (0..*) <"Return terms based upon the sum of multiple priceReturnTerms.">
+  initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
+  finalValuationPrice PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
+  interimValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
 
     condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
         if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
@@ -200,11 +206,29 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
             or volatilityReturnTerms only exists
             or correlationReturnTerms only exists
 
+type PortfolioPriceReturnTerms:<"Return terms based upon the sum of multiple priceReturnTerms.">
+
+ priceReturnTerms PriceReturnTerms (1..1) <"Return terms based upon the underlier's observed price.">
+ underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+ dividendReturnTerms DividendReturnTerms (0..1) <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
+ notionalQuantity ResolvablePriceQuantity (0..1 ) <"Notional quantity of the underlier to which applies the PortfolioPriceReturnTerms.">
+ initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
+ interimValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
+ finalValuationPrice PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+  [metadata address "pointsTo"=PriceQuantity->price]
+ financingTerms InterestRatePayout (0..1) <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate.">
+ 
+  condition TotalMeansDividendsExist:
+    if dividendReturnTerms exists
+    then priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
 
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
-    valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
+    valuationTerms ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
     underlier Product (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
@@ -324,7 +348,17 @@ type Product: <"Defines the product that is the subject of a tradable product de
         one-of
 
 type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
-    basketConstituent Product (1..*) <"Identifies the constituents of the basket">
+  basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+
+type BasketConstituent extends Product :
+ notionalQuantity QuantitySchedule (0..*)
+  [metadata address "pointsTo"=PriceQuantity->quantity]
+ initialValuationPrice PriceSchedule (0..*)
+  [metadata address "pointsTo"=PriceQuantity->price]
+ interimValuationPrice PriceSchedule (0..*)
+  [metadata address "pointsTo"=PriceQuantity->price]
+ finalValuationPrice PriceSchedule (0..*)
+  [metadata address "pointsTo"=PriceQuantity->price]
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">

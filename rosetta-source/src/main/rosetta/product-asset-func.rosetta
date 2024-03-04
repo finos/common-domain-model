@@ -71,14 +71,14 @@ func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of th
     output:
         startPrice PriceSchedule (1..1)
 
-    alias priceReturnTerms: performancePayout -> returnTerms -> priceReturnTerms
+    alias priceReturnTerms: performancePayout -> returnTerms
 
     alias adjustedValuationDates:
-        AdjustedValuationDates(performancePayout -> valuationDates)
+        AdjustedValuationDates(performancePayout -> valuationTerms)
 
     set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
         if adjustedDate < adjustedValuationDates first
-        then priceReturnTerms -> valuationPriceInitial
+        then priceReturnTerms -> initialValuationPrice
         else ResolveEquityInitialPrice(price)
 
 func ResolveEquityInitialPrice: <"To be replaced by full resolve price function implementation.">
