@@ -2,12 +2,12 @@
 Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have committed to the [Community Specification Contributor License Agreement](LICENSE.md).
 
 ## Participants
-- Ron Kaim, CFX Consulting, Date of enrollment: May/03/2023
-- Chris Rayner, International Securities Lending Association, Date of enrollment: 10/11/2023
+- Ron Kaim, CFX Consulting, Date of enrollment: 3rd May 2023
+- Chris Rayner, ISLA, Date of enrollment: 11th Oct 2023
 - David Shone, ISDA, Date of enrollment: 11th Oct 2023
-- Tom Healey, ICMA,  Date of enrollment: 10/16/2023
-- Gabriel Callsen, ICMA,  Date of enrollment: 10/16/2023
-- 
+- Tom Healey, ICMA,  Date of enrollment: 16th Oct 2023
+- Gabriel Callsen, ICMA,  Date of enrollment: 16th Oct 2023
+- Adrian Dale, ISLA, Date of enrollment: 7th Mar 2024
 - 
 -  
 - 
