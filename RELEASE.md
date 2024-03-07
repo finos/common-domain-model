@@ -1,31 +1,17 @@
-# _CDM Model - Date Time Functions_
+# Product Model - Commodity Physical Options
+
+_Background_
+
+This release provides qualification support for Commodity Physical Option products, which were not supported until now. These kind of products will be represented similarly to cash settled options: an `optionPayout` with a strike that can be fixed or floating, a commodity `underlier` and the delivery information specified in the attribute `delivery`. The only difference will be that `settlementType` will be `Physical`.
 
 _What is being released?_
 
-This release implements the existing `ToDateTime` function, and adds `ToTime` function.
+* Added two qualifying functions: `Qualify_Commodity_Option_Cash` and `Qualify_Commodity_Option_Physical`, which use the function `Qualify_Commodity_Option` and check the value in `settlementType`.
 
-- `ToDateTime` - converts a `date` to a `zonedDateTime`, defaulting the `time` to "00:00:00" and the `timezone` to "Z" (UTC)
-- `ToTime` - created a `time` from inputs of `hours`, `minutes` and `seconds`
-
-_Review directions_
-
-In Rosetta, select the `Common Domain Model` project, then select the Textual Browser and inspect the functions `ToDateTime` and `ToTime`.
-
-The changes can be reviewed in PR: [#2693](https://github.com/finos/common-domain-model/pull/2693)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `rosetta-dsl` and `rosetta-bundle` dependencies.
-
-Version updates include:
-- `rosetta-dsl` 9.5.0: Adds support for tabulating projection data. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.5.0.
-- `rosetta-dsl` 9.6.0: DSL build and compile performance improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.6.0.
-- `rosetta-bundle` 10.12.0: Adds JSON schema code generator.
-
-There are no changes to the model or test expectations.
+* Updated the qualifying functions `Qualify_Commodity_Swap_FixedFloat` and `Qualify_Commodity_Swap_Basis` so they do not check that the underlier is a commodity. That is redundant information since it is already been checked in `Qualify_AssetClass_Commodity`.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2690](https://github.com/finos/common-domain-model/pull/2690)
+* In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
+
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2749
