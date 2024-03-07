@@ -82,7 +82,7 @@ CDM components diagram below:
 -   The Rosetta DSL (in *grey*)
 -   CDM Applications (in *green*)
 
-![](/img/cdm-components-diagram.png)
+![](/img/cdm-components-diagram-updated.png)
 
 ## FINOS CDM Distribution
 
