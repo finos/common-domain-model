@@ -13,7 +13,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Minesh Patel, REGnosys, Date of enrollment: 8th Mar 2024
 - Hugo Hills, REGnosys, Date of enrollment: 8th Mar 2024
 - Daniel Schwartz, FT Advisory, Date of enrollment: 8th Mar 2024 
-- 
+- Plamen Neykov, CLOUDRISK Limited, Date of enrollment: 8th Mar 2024 
 - 
 - 
 
