@@ -14,7 +14,10 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Hugo Hills, REGnosys, Date of enrollment: 8th Mar 2024
 - Daniel Schwartz, FT Advisory, Date of enrollment: 8th Mar 2024 
 - Plamen Neykov, CLOUDRISK Limited, Date of enrollment: 8th Mar 2024 
-- 
+- Manuel Martos, TradeHeader, Date of enrollment: 8th Mar 2024
+- Roger Guitart, TradeHeader, Date of enrollment: 8th Mar 2024
+- Manuel Carrera, TradeHeader, Date of enrollment: 8th Mar 2024
+- Jan Baserba, TradeHeader, Date of enrollment: 8th Mar 2024
 - 
 
 
