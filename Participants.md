@@ -8,7 +8,9 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Tom Healey, ICMA,  Date of enrollment: 16th Oct 2023
 - Gabriel Callsen, ICMA,  Date of enrollment: 16th Oct 2023
 - Adrian Dale, ISLA, Date of enrollment: 7th Mar 2024
-- 
+- Leo Labeis, REGnosys, Date of enrollment: 8th Mar 2024
+- Minesh Patel, REGnosys, Date of enrollment: 8th Mar 2024
+- Hugo Hills, REGnosys, Date of enrollment: 8th Mar 2024
 -  
 - 
 - 
