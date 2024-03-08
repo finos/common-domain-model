@@ -8,7 +8,7 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Tom Healey, ICMA,  Date of enrollment: 16th Oct 2023
 - Gabriel Callsen, ICMA,  Date of enrollment: 16th Oct 2023
 - Adrian Dale, ISLA, Date of enrollment: 7th Mar 2024
-- 
+- Marc Gratacos, TradeHeader, Date of enrollment: 15th Mar 2023
 -  
 - 
 - 
