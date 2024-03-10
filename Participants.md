@@ -18,8 +18,10 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Roger Guitart, TradeHeader, Date of enrollment: 8th Mar 2024
 - Manuel Carrera, TradeHeader, Date of enrollment: 8th Mar 2024
 - Jan Baserba, TradeHeader, Date of enrollment: 8th Mar 2024
+- Adrian Hutusoru, Fragmos Chain, Date of enrollment: 9th Mar 2024
 - Daniel Ivanier, Fragmos Chain, Date of enrollment: 9th Mar 2024
 - Jean-Baptiste Ziade, Fragmos Chain, Date of enrollment: 9th Mar 2024
+
 
 
 ## How to enroll as a participant
