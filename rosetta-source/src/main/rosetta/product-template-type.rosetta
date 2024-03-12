@@ -229,18 +229,18 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     portfolioReturnTerms PortfolioPriceReturnTerms (0..*)
    // notionalQuantity ResolvablePriceQuantity (0..1 ) <"Net total notional quantity of the underlier at Performance Payout level."> // in current model this value is equivalent to performancePayout->priceQuantity->quantitySchedule ; as an informationj, in future proposal, "priceQuantity" could relevantly be renamed "notionalQuantity"
     initialValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-    [metadata address "pointsTo"=PriceQuantity->price]
+        [metadata address "pointsTo"=PriceQuantity->price]
     interimValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-    [metadata address "pointsTo"=PriceQuantity->price]
+        [metadata address "pointsTo"=PriceQuantity->price]
     finalValuationPrice PriceSchedule (0..1) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-    [metadata address "pointsTo"=PriceQuantity->price]
+        [metadata address "pointsTo"=PriceQuantity->price]
 
     condition PorfolioOrStraightReturn:
-    required choice returnTerms, portfolioReturnTerms
+        required choice returnTerms, portfolioReturnTerms
 
     condition UnderlierOfPortfolioIsBasket:
-    if portfolioReturnTerms exists
-    then underlier -> basket only exists
+        if portfolioReturnTerms exists
+        then underlier -> basket only exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -275,19 +275,16 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 // underlier exists
 // or
 // ObservationTerms -> observable exists
-
-
-
 type PortfolioPriceReturnTerms extends ReturnTerms :<"Net Return terms, that is equalt to the sum of multiple ReturnTerms.">
 
  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
  notionalQuantity ResolvablePriceQuantity (0..1 ) <"Notional quantity of the underlier to which applies the PortfolioPriceReturnTerms.">
  initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
  interimValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
  finalValuationPrice PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
 
 type Payout: <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
@@ -371,20 +368,20 @@ type Product: <"Defines the product that is the subject of a tradable product de
 
 type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
     basketConstituent Product (0..*) <"Identifies the constituents of the basket">
-    [deprecated] // will be replaced by portfolioBasketConstituent, to be onsequently be renamed basketConstituent, also the one-of condition will be removed
+        [deprecated] // will be replaced by portfolioBasketConstituent, to be onsequently be renamed basketConstituent, also the one-of condition will be removed
     portfolioBasketConstituent BasketConstituent (0..*) <"Identifies the constituents of the basket">
 
   condition: one-of
 
 type BasketConstituent extends Product :
  notionalQuantity QuantitySchedule (0..*)
-  [metadata address "pointsTo"=PriceQuantity->quantity]
+    [metadata address "pointsTo"=PriceQuantity->quantity]
  initialValuationPrice PriceSchedule (0..*)
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
  interimValuationPrice PriceSchedule (0..*)
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
  finalValuationPrice PriceSchedule (0..*)
-  [metadata address "pointsTo"=PriceQuantity->price]
+    [metadata address "pointsTo"=PriceQuantity->price]
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
