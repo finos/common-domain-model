@@ -217,7 +217,7 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
             or volatilityReturnTerms only exists
             or correlationReturnTerms only exists
 
-type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
+type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products. The Performance Payout is either straight return, else an aggregation of multiple returns, hence a required choice between returnTerms and multiple portfolioReturnTerms.">
     [metadata key]
 
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
@@ -237,6 +237,10 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition PorfolioOrStraightReturn:
     required choice returnTerms, portfolioReturnTerms
+
+    condition PortofolioReturnIsMultipleReturns :
+    if portfolioReturnTerms exists
+    then portfolioReturnTerms count > 1
 
     condition UnderlierOfPortfolioIsBasket:
     if portfolioReturnTerms exists
@@ -278,10 +282,10 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
 
 
-type PortfolioPriceReturnTerms extends ReturnTerms :<"Net Return terms, that is equalt to the sum of multiple ReturnTerms.">
+type PortfolioPriceReturnTerms extends ReturnTerms : <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout net level.">
 
  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
- notionalQuantity ResolvablePriceQuantity (0..1 ) <"Notional quantity of the underlier to which applies the PortfolioPriceReturnTerms.">
+ quantity ResolvablePriceQuantity (0..1 ) <"Notional quantity of the underlier to which applies the PortfolioPriceReturnTerms.">
  initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
   [metadata address "pointsTo"=PriceQuantity->price]
  interimValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
@@ -371,13 +375,13 @@ type Product: <"Defines the product that is the subject of a tradable product de
 
 type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
     basketConstituent Product (0..*) <"Identifies the constituents of the basket">
-    [deprecated] // will be replaced by portfolioBasketConstituent, to be onsequently be renamed basketConstituent, also the one-of condition will be removed
+    [deprecated] // will be replaced by portfolioBasketConstituent, to be consequently be renamed basketConstituent, also the one-of condition will be removed
     portfolioBasketConstituent BasketConstituent (0..*) <"Identifies the constituents of the basket">
 
   condition: one-of
 
-type BasketConstituent extends Product :
- notionalQuantity QuantitySchedule (0..*)
+type BasketConstituent extends Product :<"Identifies the constituents of the basket">
+ quantity QuantitySchedule (0..*)
   [metadata address "pointsTo"=PriceQuantity->quantity]
  initialValuationPrice PriceSchedule (0..*)
   [metadata address "pointsTo"=PriceQuantity->price]
