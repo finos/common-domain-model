@@ -7,7 +7,7 @@ This release updates the `rosetta-dsl` dependencies.
 Version updates include:
 - `rosetta-dsl` 9.7.0: DSL validation and performance enhancements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.7.0.
 
-There are no changes to the model.  The number of expected ingestion validation failures has changed due to bug fix related to type validation.
+There are no changes to the model.  The number of expected ingestion validation failures has changed due to changes in the way validation failures are counted.
 
 _Review directions_
 
