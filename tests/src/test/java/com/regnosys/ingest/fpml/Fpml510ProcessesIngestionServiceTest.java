@@ -28,11 +28,6 @@ public class Fpml510ProcessesIngestionServiceTest extends IngestionTest<Workflow
 
 	private static IngestionService ingestionService;
 
-	@Override
-	protected void assertExpectations(Expectation expectation, IngestionReport<WorkflowStep> ingestionReport) throws JsonProcessingException {
-
-	}
-
 	@BeforeAll
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
