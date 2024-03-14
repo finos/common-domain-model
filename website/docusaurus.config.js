@@ -108,6 +108,11 @@ module.exports = {
               target: '_blank'
             },
             {
+              label: 'Frequently Asked Questions',
+              to: '/pdfs/FAQ-CDM.pdf',
+              target: '_blank'
+            },
+            {
               label: 'CDM Java Distribution Guidelines',
               to: 'docs/cdm-guidelines',
             },
