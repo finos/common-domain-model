@@ -900,6 +900,79 @@ details is show here:
            }
 ```
 
+### Automating Construction
+
+In typical industry practice, eligible collateral schedules are quite complex with a number of interacting terms.
+To digitize them in the CDM, they will need to be converted into an `EligibleCollateralSpecification` 
+with many `EligibleCollateralCriteria` with potentially repeating groups of `AssetCriteria` and `IssuerCriteria`.
+The construction of these terms can be quite laborious, so a function has been created in the CDM to provide
+a level of automation.
+
+The function is called `Create_EligibleCollateralSpecificationFromInstruction`, which, as it describes,
+creates an `EligibleCollateralSpecification` using an instruction (that is an `EligibleCollateralSpecificationInstruction`)
+as the input.  Conceptually, the function is given an existing `EligibleCollateralSpecification` with an 
+instruction to clone the contents.
+
+#### EligibleCollateralSpecificationInstruction
+
+The instruction is formed using a special type:
+
+``` Haskell
+type EligibleCollateralSpecificationInstruction:
+    common EligibleCollateralCriteria (1..1)
+    variable EligibleCollateralCriteria (1..*)
+```
+
+This data type is used as the input to the `Create_EligibleCollateralSpecificationFromInstruction` function
+and should be populated as follows: 
+
+* `common`: a single `EligibleCollateralCriteria` containing the fully-formed data to be cloned.
+* `variable`: one or more `EligibleCollateralCriteria` containing the number of instances, with
+new terms, that should be created.
+
+This can be represented symbolically as follows:
+
+* `common` is set to the criteria:
+  * A1, B1, C1
+* `variable` is set to the criteria:
+  * C2, C3
+* then the created output would be the original criteria plus two clones:
+  * A1, B1, C1
+  * A1, B1, C2
+  * A1, B1, C3
+
+#### Example
+
+A collateral eligibility schedule agreed between two parties specifies the acceptable 
+collateral as being a list of certain types of fixed income bonds, from certain types of issuer, 
+in certain countries, and 
+denominated in a list of acceptable currencies. 
+Across all these bonds, different haircut treatments
+must be applied, depending on the maturity of the bond.
+
+The `EligibleCollateralSpecification` required to model this case needs to be constructed
+using an `EligibleCollateralCriteria`, populated with potentially several `AssetCriteria`
+and several `IssuerCriteria` to correctly represent the conditions regarding the bond
+types, issuer types, and currencies.  For each of the maturity bands, this
+`EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms
+of the haircut.
+
+To use the `Create_EligibleCollateralSpecificationFromInstruction` function to automate
+this, one starts by creating the first `EligibleCollateralCriteria` with the all the
+required constituent parts, including the first haircut `Treatment`.
+
+The function is then invoked, using this first `EligibleCollateralCriteria` as the
+`common` input and then providing the set of haircut `Treatments`, one for each
+maturity band, as the `variable` input.  The function will provide a fully formed
+output consisting of an  `EligibleCollateralSpecification` containing
+all the required `EligibleCollateralCriteria` with their attached `Treatment`s.
+
+#### MergeEligibleCollateralCriteria
+
+This is the function in the CDM that actually does the work of the construction.
+However, unlike most functions in CDM, the implementation is in bespoke Java code, albeit
+still within the CDM Distribution.  
+
 ## Validating Eligible Collateral
 
 A CDM function has been developed to run eligibility validation checks which can be applied to several use cases.
