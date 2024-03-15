@@ -285,7 +285,8 @@ type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type o
 
  payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
- quantity ResolvablePriceQuantity (0..1 ) <"Notional quantity of the underlier to which applies the PortfolioPriceReturnTerms.">
+ quantity NonNegativeQuantitySchedule (0..1 ) <"Notional quantity of the underlier to which applies to each individual return leg.">
+   [metadata address "pointsTo"=PriceQuantity->quantity]
  initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
   [metadata address "pointsTo"=PriceQuantity->price]
  interimValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
@@ -381,7 +382,7 @@ type Basket extends ProductBase: <"Defines a custom basket by referencing a prod
   condition: one-of
 
 type BasketConstituent extends Product :<"Identifies the constituents of the basket">
- quantity QuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
+ quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
   [metadata address "pointsTo"=PriceQuantity->quantity]
  initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
   [metadata address "pointsTo"=PriceQuantity->price]
