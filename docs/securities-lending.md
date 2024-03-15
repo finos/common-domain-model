@@ -55,7 +55,7 @@ define this as a cash collateralised loan. These types can be found under the
 An example showing the location of the payouts for the cash collateral and the 
 security being lent is provided below:
 
-```Javascript
+``` Javascript
 "economicTerms": {
   "payout": {
     "assetPayout": [ 
@@ -109,7 +109,7 @@ under the `economicTerms->collateral` type.
 An example showing the location of the payouts for the non-cash collateral and 
 the security being lent is provided below:
 
-```Javascript
+``` Javascript
 "economicTerms": {
   "payout": {
     "assetPayout": [ 
@@ -228,7 +228,7 @@ The `price` will need to have its `priceType` set to "*AssetPrice*". The
 simplest way to express the price is using the `value` attribute, an example 
 of which would be as follows:
 
-```Javascript
+``` Javascript
 "priceQuantity": [ {
   ...
   "price" : [ {
@@ -252,7 +252,7 @@ of which would be as follows:
 The `quantity` will need to define the number of shares in the `value` 
 attribute:
 
-```Javascript
+``` Javascript
 "priceQuantity": [ {
   ...
   "quantity" : [ {
@@ -270,7 +270,7 @@ attribute:
 If the security on loan is to be defined here then an `observable` should be 
 included in the `priceQuantity` too:
 
-```Javascript
+``` Javascript
 "priceQuantity": [ {
   ...
   "observable" : {
@@ -300,7 +300,7 @@ The `price` will need to have its `priceType` set to "*InterestRate*". The
 simplest way to express the rate is using the `value` attribute, an example 
 of which would be as follows:
 
-```Javascript
+``` Javascript
 "priceQuantity": [ {
   ...
   "price" : [ {
@@ -326,7 +326,7 @@ of which would be as follows:
 The `quantity` will need to define the value that the rate is applied to in the 
 `value` attribute:
 
-```Javascript
+``` Javascript
 "priceQuantity": [ {
   ...
   "quantity" : [ {
