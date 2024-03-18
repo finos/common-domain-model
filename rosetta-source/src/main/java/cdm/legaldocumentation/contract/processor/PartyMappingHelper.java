@@ -114,16 +114,35 @@ public class PartyMappingHelper {
 		// when the tradableProductBuilder has been supplied and both counterparties have been collected, update tradableProduct.counterparties
 		invokedTasks.add(bothCounterpartiesCollected
 				.thenAcceptAsync(map -> {
-							LOGGER.info("Setting TradableProduct.counterparty");
-							tradableProductBuilder
-									.setCounterparty(map.entrySet().stream()
-											.map(extRefCounterpartyEntry -> Counterparty.builder()
-													.setRole(extRefCounterpartyEntry.getValue())
-													.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
-													.build())
-											.collect(Collectors.toList()));
-						}, executor));
+					LOGGER.info("Setting TradableProduct.counterparty");
+					tradableProductBuilder
+							.setCounterparty(map.entrySet().stream()
+									.map(extRefCounterpartyEntry -> Counterparty.builder()
+											.setRole(extRefCounterpartyEntry.getValue())
+											.setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(extRefCounterpartyEntry.getKey()))
+											.build())
+									.collect(Collectors.toList()));
+				}, executor));
 	}
+
+	public List<ReferenceWithMetaParty> getPartyReferences() {
+		List<ReferenceWithMetaParty> partyReferences = new ArrayList<>();
+		if (tradableProductBuilder != null && tradableProductBuilder.getCounterparty() != null) {
+			List<?> counterpartyBuilders = tradableProductBuilder.getCounterparty();
+			for (Object obj : counterpartyBuilders) {
+				if (obj instanceof Counterparty.CounterpartyBuilder) {
+					Counterparty.CounterpartyBuilder counterpartyBuilder = (Counterparty.CounterpartyBuilder) obj;
+					if (counterpartyBuilder.getPartyReference() != null) {
+						ReferenceWithMetaParty partyReference = counterpartyBuilder.getPartyReference();
+						partyReferences.add(partyReference);
+					}
+				}
+			}
+		}
+		return partyReferences;
+	}
+
+
 
 	public CompletableFuture<Map<String, CounterpartyRoleEnum>> getBothCounterpartiesCollectedFuture() {
 		return bothCounterpartiesCollected;
