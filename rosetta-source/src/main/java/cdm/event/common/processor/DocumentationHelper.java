@@ -1,7 +1,9 @@
 package cdm.event.common.processor;
 
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.common.metafields.FieldWithMetaContractualDefinitionsEnum;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationAnnexTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationTypeEnum;
@@ -16,6 +18,8 @@ import com.rosetta.model.lib.records.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterListMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
@@ -25,25 +29,36 @@ public class DocumentationHelper {
     private final RosettaPath rosettaPath;
     private final List<Mapping> mappings;
     private final SynonymToEnumMap synonymToEnumMap;
+    private final ExecutorService executor;
 
     public DocumentationHelper(RosettaPath rosettaPath, MappingContext context) {
         this.rosettaPath = rosettaPath;
         this.mappings = context.getMappings();
+        this.executor = context.getExecutor();
         this.synonymToEnumMap = context.getSynonymToEnumMap();
     }
 
-    public List<LegalAgreement> getDocumentation(Path synonymPath) {
+    public List<LegalAgreement> getDocumentation(Path synonymPath, MappingContext mappingContext) {
         List<LegalAgreement> documentation = new ArrayList<>();
-        getMasterAgreement(synonymPath).ifPresent(documentation::add);
-        getMasterConfirmation(synonymPath).ifPresent(documentation::add);
-        getBrokerConfirmation(synonymPath).ifPresent(documentation::add);
-        getCreditSupportAgreement(synonymPath).ifPresent(documentation::add);
-        getConfirmation(synonymPath).ifPresent(documentation::add);
-        getOtherAgreement(synonymPath).ifPresent(documentation::add);
+        getMasterAgreement(synonymPath, mappingContext).ifPresent(documentation::add);
+        getMasterConfirmation(synonymPath, mappingContext).ifPresent(documentation::add);
+        getBrokerConfirmation(synonymPath, mappingContext).ifPresent(documentation::add);
+        getCreditSupportAgreement(synonymPath, mappingContext).ifPresent(documentation::add);
+        getConfirmation(synonymPath, mappingContext).ifPresent(documentation::add);
+        getOtherAgreement(synonymPath, mappingContext).ifPresent(documentation::add);
         return documentation;
     }
 
-    private Optional<LegalAgreement> getMasterAgreement(Path synonymPath) {
+    private Optional<LegalAgreement> getMasterAgreement(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "masterAgreement" using mappings
+        boolean isMasterAgreement = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("masterAgreement"));
+
+        // If synonymPath does not end with "masterAgreement", return an empty Optional
+        if (!isMasterAgreement) {
+            return Optional.empty();
+        }
         Path masterAgreementPath = synonymPath.addElement("masterAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -75,10 +90,28 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_AGREEMENT);
     }
 
-    private Optional<LegalAgreement> getMasterConfirmation(Path synonymPath) {
+    private Optional<LegalAgreement> getMasterConfirmation(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "masterConfirmation" using mappings
+        boolean isMasterConfirmation = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("masterConfirmation"));
+
+        // If synonymPath does not end with "masterConfirmation", return an empty Optional
+        if (!isMasterConfirmation) {
+            return Optional.empty();
+        }
         Path masterConfirmationPath = synonymPath.addElement("masterConfirmation");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -122,15 +155,57 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
+
+
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_CONFIRMATION);
+
     }
 
-    private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
+    private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "brokerConfirmation" using mappings
+        boolean isBrokerConfirmation = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("brokerConfirmation"));
+
+        // If synonymPath does not end with "brokerConfirmation", return an empty Optional
+        if (!isBrokerConfirmation) {
+            return Optional.empty();
+        }
+
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
+
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
+
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
-    private Optional<LegalAgreement> getCreditSupportAgreement(Path synonymPath) {
+    private Optional<LegalAgreement> getCreditSupportAgreement(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "creditSupportAgreement" using mappings
+        boolean isCreditSupportAgreement = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("creditSupportAgreement"));
+
+        // If synonymPath does not end with "creditSupportAgreement", return an empty Optional
+        if (!isCreditSupportAgreement) {
+            return Optional.empty();
+        }
         Path creditSupportAgreementPath = synonymPath.addElement("creditSupportAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -157,10 +232,29 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
+
         return setAgreementType(builder, LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
     }
 
-    private Optional<LegalAgreement> getConfirmation(Path synonymPath) {
+    private Optional<LegalAgreement> getConfirmation(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "contractualDefinitions" using mappings
+        boolean isContractualDefinitions = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("contractualDefinitions"));
+
+        // If synonymPath does not end with "contractualDefinitions", return an empty Optional
+        if (!isContractualDefinitions) {
+            return Optional.empty();
+        }
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
 
         filterListMappings(mappings, synonymPath.addElement("contractualDefinitions")).stream()
@@ -251,6 +345,15 @@ public class DocumentationHelper {
                     }
                 });
 
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
 
@@ -259,7 +362,16 @@ public class DocumentationHelper {
         return Date.parse(xmlValue.replace("Z", ""));
     }
 
-    private Optional<LegalAgreement> getOtherAgreement(Path synonymPath) {
+    private Optional<LegalAgreement> getOtherAgreement(Path synonymPath, MappingContext mappingContext) {
+
+        // Check if the synonymPath ends with "otherAgreement" using mappings
+        boolean isOtherAgreement = mappingContext.getMappings().stream()
+                .anyMatch(m -> m.getXmlPath().endsWith("otherAgreement"));
+
+        // If synonymPath does not end with "otherAgreement", return an empty Optional
+        if (!isOtherAgreement) {
+            return Optional.empty();
+        }
         Path otherAgreementPath = synonymPath.addElement("otherAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -278,6 +390,15 @@ public class DocumentationHelper {
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)),
                 mappings,
                 rosettaPath);
+        // Retrieve PartyMappingHelper instance from MappingContext
+        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
+        if (!optionalPartyMappingHelper.isPresent()) {
+            // Handle the case where PartyMappingHelper is not found in MappingContext
+            return Optional.empty();
+        }
+        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
+        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        builder.setContractualParty(contractualParties);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
