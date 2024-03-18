@@ -13,17 +13,19 @@ import static cdm.event.common.ContractDetails.ContractDetailsBuilder;
 public class InstructionDocumentationMappingProcessor extends MappingProcessor {
 
     private final DocumentationHelper helper;
+    private final MappingContext mappingContext;
 
     public InstructionDocumentationMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(rosettaPath, synonymPaths, mappingContext);
         this.helper = new DocumentationHelper(rosettaPath, mappingContext);
+        this.mappingContext = mappingContext;
     }
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
         if (!synonymPath.getParent().endsWith("trade")) {
             ContractDetailsBuilder contractDetailsBuilder = (ContractDetailsBuilder) parent;
-            contractDetailsBuilder.setDocumentation(helper.getDocumentation(synonymPath));
+            contractDetailsBuilder.setDocumentation(helper.getDocumentation(synonymPath, this.mappingContext));
         }
     }
 }
