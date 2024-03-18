@@ -13,15 +13,17 @@ import static cdm.event.common.ContractFormationInstruction.ContractFormationIns
 public class ContractFormationInstructionLegalAgreementMappingProcessor extends MappingProcessor {
 
     private final DocumentationHelper helper;
+    private final MappingContext mappingContext;
 
     public ContractFormationInstructionLegalAgreementMappingProcessor(RosettaPath rosettaPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(rosettaPath, synonymPaths, mappingContext);
         this.helper = new DocumentationHelper(rosettaPath, mappingContext);
+        this.mappingContext = mappingContext;
     }
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
         ContractFormationInstructionBuilder contractDetailsBuilder = (ContractFormationInstructionBuilder) parent;
-        contractDetailsBuilder.setLegalAgreement(helper.getDocumentation(synonymPath));
+        contractDetailsBuilder.setLegalAgreement(helper.getDocumentation(synonymPath, this.mappingContext));
     }
 }
