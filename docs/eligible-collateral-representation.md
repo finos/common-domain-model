@@ -919,6 +919,7 @@ The instruction is formed using a special type:
 
 ``` Haskell
 type EligibleCollateralSpecificationInstruction:
+    [rootType]
     common EligibleCollateralCriteria (1..1)
     variable EligibleCollateralCriteria (1..*)
 ```
