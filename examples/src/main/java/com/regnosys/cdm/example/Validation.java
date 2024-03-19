@@ -13,9 +13,6 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
-import static com.google.common.collect.Iterables.concat;
-import static com.google.common.collect.Lists.newArrayList;
-
 /**
  * Illustration of how to invoke validations on a CDM object as well as
  * individual validations
@@ -46,7 +43,7 @@ public class Validation extends AbstractExample {
 
 		// the meta class offers granularity over which types of Validators to extract
 		//
-		var validators = newArrayList(concat(fixedRatePayoutMeta.choiceRuleValidators(), fixedRatePayoutMeta.dataRules(validatorFactory)));
+		var validators = fixedRatePayoutMeta.dataRules(validatorFactory);
 
 		// fixedRatePayoutMeta.validator() returns the cardinality validator for fixedRatePayout
 		//
