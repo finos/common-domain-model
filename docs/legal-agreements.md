@@ -175,8 +175,7 @@ The legal agreement model in the CDM comprises the following features:
         data associated with the supported agreements have been
         replicated in the CDM
     -   Ingestion of JSON sample files generated from ISDA Create for
-        samples of executed documents has been implemented in the CDM
-        Portal to demonstrate this capability between ISDA Create and
+        samples of executed documents has been implemented to demonstrate this capability between ISDA Create and
         the CDM.
     -   More details on Synonyms are provided in the Mapping (Synonym)
         section of this document.

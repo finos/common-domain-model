@@ -1,4 +1,8 @@
-## Use Cases
+---
+title: Use Cases
+---
+
+# Use Cases
 
 The Common Data Model is a powerful framework that offers a multitude of use
 cases across various industries and sectors. The standardisation that it
@@ -7,7 +11,7 @@ promoting interoperability and data exchange across the entire market.
 
 Documentation on some of the common use cases for the model is provided here.
 
-### Eligible Collateral Representation
+## Eligible Collateral Representation
 
 The CDM provides a standard data format to represent all the information
 required to define collateral eligibility, including asset descriptors, issuer 
@@ -16,7 +20,7 @@ haircut.
 
 Please see [Eligible Collateral Representation](/docs/eligible-collateral-representation) for more details.
 
-### Repurchase Agreement Representation
+## Repurchase Agreement Representation
 
 Repurchase transactions and lifecycle events are represented in the CDM, with 
 support for basic repo transactions, fixed term repo, open repo, fixed rate and 
@@ -24,7 +28,7 @@ floating rate and buy/sell-back transactions.
 
 Please see [Repurchase Agreement Representation](/docs/repurchase-agreement-representation) for more details.
 
-### Securities Lending
+## Securities Lending
 
 Securities lending products, trades and transactions are all provided by the
 CDM, allowing open or term cash and non-cash collateralised loans, using 
