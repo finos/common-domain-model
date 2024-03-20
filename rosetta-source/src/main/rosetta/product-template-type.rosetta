@@ -234,16 +234,17 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     finalValuationPrice PriceSchedule (0..1) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
 
-    condition PorfolioOrStraightReturn:
+    condition PorfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
     required choice returnTerms, portfolioReturnTerms
 
-    condition PortofolioReturnIsMultipleReturns :
+    condition PortofolioReturnIsMultipleReturns : <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
     if portfolioReturnTerms exists
     then portfolioReturnTerms count > 1
 
-    condition UnderlierOfPortfolioIsBasket:
+    condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
     if portfolioReturnTerms -> priceReturnTerms exists
     then underlier -> basket only exists
+
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -285,7 +286,7 @@ type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type o
 
  payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
- quantity NonNegativeQuantitySchedule (0..1 ) <"Notional quantity of the underlier to which applies to each individual return leg.">
+ quantity NonNegativeQuantitySchedule (0..1 ) <"Specifies a quantity schedule for the underlier, which applies to each individual return leg.">
    [metadata address "pointsTo"=PriceQuantity->quantity]
  initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
   [metadata address "pointsTo"=PriceQuantity->price]
