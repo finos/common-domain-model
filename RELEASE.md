@@ -15,7 +15,7 @@ In Rosetta, open the Translate tab and review test packs:
 - fpml-5-13/processes
 - fpml-5-13/incomplete-processes
 
-The changes can be reviewed in PR: [#2797](https://github.com/finos/common-domain-model/pull/2797)
+The changes can be reviewed in PR: [#2798](https://github.com/finos/common-domain-model/pull/2798)
 
 # _Infrastructure - Dependency Update_
 
