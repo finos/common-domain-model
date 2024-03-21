@@ -52,7 +52,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getMasterAgreement(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "masterAgreement" using mappings
-        boolean isMasterAgreement = mappingContext.getMappings().stream()
+        boolean isMasterAgreement = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("masterAgreement"));
 
         // If synonymPath does not end with "masterAgreement", return an empty Optional
@@ -105,7 +105,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getMasterConfirmation(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "masterConfirmation" using mappings
-        boolean isMasterConfirmation = mappingContext.getMappings().stream()
+        boolean isMasterConfirmation = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("masterConfirmation"));
 
         // If synonymPath does not end with "masterConfirmation", return an empty Optional
@@ -173,7 +173,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "brokerConfirmation" using mappings
-        boolean isBrokerConfirmation = mappingContext.getMappings().stream()
+        boolean isBrokerConfirmation = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("brokerConfirmation"));
 
         // If synonymPath does not end with "brokerConfirmation", return an empty Optional
@@ -199,7 +199,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getCreditSupportAgreement(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "creditSupportAgreement" using mappings
-        boolean isCreditSupportAgreement = mappingContext.getMappings().stream()
+        boolean isCreditSupportAgreement = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("creditSupportAgreement"));
 
         // If synonymPath does not end with "creditSupportAgreement", return an empty Optional
@@ -248,7 +248,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getConfirmation(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "contractualDefinitions" using mappings
-        boolean isContractualDefinitions = mappingContext.getMappings().stream()
+        boolean isContractualDefinitions = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("contractualDefinitions"));
 
         // If synonymPath does not end with "contractualDefinitions", return an empty Optional
@@ -365,7 +365,7 @@ public class DocumentationHelper {
     private Optional<LegalAgreement> getOtherAgreement(Path synonymPath, MappingContext mappingContext) {
 
         // Check if the synonymPath ends with "otherAgreement" using mappings
-        boolean isOtherAgreement = mappingContext.getMappings().stream()
+        boolean isOtherAgreement = mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith("otherAgreement"));
 
         // If synonymPath does not end with "otherAgreement", return an empty Optional
