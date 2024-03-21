@@ -6,7 +6,7 @@ This release extends the FpML mapping coverage for Commodity Forwards.
 
 - FpML `commoditySwap` legs `coalPhysicalLeg`, `electricityPhysicalLeg`, `environmentalPhysicalLeg`, `gasPhysicalLeg`, `oilPhysicalLeg` have been mapped into the model as a `ForwardPayout` leg
 - The `payerPartyReference` and `receiverPartyReference` have been mapped to `ForwardPayout->payerReceiver`
-- The `commodityClassification` reference has been mapped to `ForwardPayout->underlier->commodity->productTaxonomy`
+- The `commodity->commodityClassification` reference has been mapped to `ForwardPayout->underlier->commodity->productTaxonomy`
 
 _Review directions_
 
