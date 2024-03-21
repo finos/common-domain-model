@@ -32,5 +32,4 @@ There are no changes to the model.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2783](https://github.com/finos/common-domain-model/pull/2783)
-
+The changes can be reviewed in PR: [#2800](https://github.com/finos/common-domain-model/pull/2800)
