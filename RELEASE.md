@@ -18,7 +18,7 @@ In Rosetta, open the Translate tab and review the `FpML 5.13 > processes` test p
 - msg-ex69-commodity-swap-environmental-physical-leg.xml
 - msg-ex69-commodity-swap-gas-physical-leg.xml
 
-The changes can be reviewed in PR: [#2803](https://github.com/finos/common-domain-model/pull/2803)
+The changes can be reviewed in PR: [#2804](https://github.com/finos/common-domain-model/pull/2804)
 
 # _Infrastructure - FpML 5.13 Ingestion Test Pack_
 
