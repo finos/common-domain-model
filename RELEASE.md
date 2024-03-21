@@ -1,3 +1,29 @@
+# _Product Model - Portfolio Return Terms_
+
+_Background_
+
+Some product may contain multiple individual return legs with a need to represent in same trade:
+- an aggregated view of the payout in which `underlier->Basket` shall be defined, together with
+- multiple return legs respective `underlier->Security` will also exist (that is a single underlier, mostly each being the same as the ones in `Basket->basketConsituent`).
+That is notably the case when the portfolio return is of `priceReturn` type, usually in connection with CFD-like business background. As an indication, other business cases may exist where the return at stake is of another kind, say `varianceReturn` or `volatilityReturn`, as part of dispersion strategy.
+For the purpose of encompassing all the business cases, `PortfolioReturnTerms` new type is created, which mainly `extends ReturnTerms`, and is added as a new `PerformancePayout` attribute, with an open cardinality (0..*) : that is where to define the multiple individual returns; whereas the aggregated Basket level may exists at `PerformancePayout` level.
+This also comes with other minor changes as further detailed below.
+
+_What is being released?_
+
+- creation of new type `PorfolioReturnTerms` which `extends ReturnTerms` with existing types `PayerReceiver` ; also with existing type `PriceSchedule` to `PerformancePayout` used under three attribute names, and `NonNegativeQuantitySchedule` used for one, respectively : : `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` and `quantity`
+- add the above new type to `PerformancePayout`
+- add existing type `PriceSchedule` to `PerformancePayout` used under three attribute names : `initialValuationPrice`, `interimValuationPrice` and `finalValuationPrice` (that is to replace current position in `ReturnTerms`, still in Prod for backward compatibility reasons, but will be [deprecated] at some point)
+- add new type `PorfolioBasketConsituent` to `Basket` (that is to enrich current type `Product`, but for backward compatibilty reasons, instead of modifying this type, a new one was created) which `extends Product` with existing types PriceSchedule used under three attribute names, and `NonNegativeQuantitySchedule` used for one, respectively : `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` and `quantity`
+
+_Review directions_
+
+In the Rosetta platform, select the Textual Browser and inspect the change identified above.
+
+The changes can be reviewed in  PR: [#2776](https://github.com/finos/common-domain-model/pull/2776)
+
+
+
 # _Infrastructure - FpML 5.13 Ingestion Test Pack_
 
 _What is being released?_
