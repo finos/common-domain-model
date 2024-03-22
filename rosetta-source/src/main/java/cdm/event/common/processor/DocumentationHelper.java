@@ -48,13 +48,8 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getMasterAgreement(Path synonymPath) {
-
-        // Check if the synonymPath ends with "masterAgreement" using mappings
-        boolean isMasterAgreement = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("masterAgreement"));
-
         // If synonymPath does not end with "masterAgreement", return an empty Optional
-        if (!isMasterAgreement) {
+        if (!pathExists("masterAgreement")) {
             return Optional.empty();
         }
         Path masterAgreementPath = synonymPath.addElement("masterAgreement");
@@ -95,19 +90,14 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_AGREEMENT);
     }
 
     private Optional<LegalAgreement> getMasterConfirmation(Path synonymPath) {
-
-        // Check if the synonymPath ends with "masterConfirmation" using mappings
-        boolean isMasterConfirmation = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("masterConfirmation"));
-
         // If synonymPath does not end with "masterConfirmation", return an empty Optional
-        if (!isMasterConfirmation) {
+        if (!pathExists("masterConfirmation")) {
             return Optional.empty();
         }
         Path masterConfirmationPath = synonymPath.addElement("masterConfirmation");
@@ -160,7 +150,7 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
 
 
@@ -169,13 +159,8 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
-
-        // Check if the synonymPath ends with "brokerConfirmation" using mappings
-        boolean isBrokerConfirmation = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("brokerConfirmation"));
-
         // If synonymPath does not end with "brokerConfirmation", return an empty Optional
-        if (!isBrokerConfirmation) {
+        if (!pathExists("brokerConfirmation")) {
             return Optional.empty();
         }
 
@@ -188,20 +173,15 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
     private Optional<LegalAgreement> getCreditSupportAgreement(Path synonymPath) {
-
-        // Check if the synonymPath ends with "creditSupportAgreement" using mappings
-        boolean isCreditSupportAgreement = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("creditSupportAgreement"));
-
         // If synonymPath does not end with "creditSupportAgreement", return an empty Optional
-        if (!isCreditSupportAgreement) {
+        if (!pathExists("creditSupportAgreement")) {
             return Optional.empty();
         }
         Path creditSupportAgreementPath = synonymPath.addElement("creditSupportAgreement");
@@ -237,20 +217,15 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
     }
 
     private Optional<LegalAgreement> getConfirmation(Path synonymPath) {
-
-        // Check if the synonymPath ends with "contractualDefinitions" using mappings
-        boolean isContractualDefinitions = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("contractualDefinitions"));
-
         // If synonymPath does not end with "contractualDefinitions", return an empty Optional
-        if (!isContractualDefinitions) {
+        if (!pathExists("contractualDefinitions")) {
             return Optional.empty();
         }
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -350,7 +325,7 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
@@ -361,13 +336,8 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getOtherAgreement(Path synonymPath) {
-
-        // Check if the synonymPath ends with "otherAgreement" using mappings
-        boolean isOtherAgreement = mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith("otherAgreement"));
-
         // If synonymPath does not end with "otherAgreement", return an empty Optional
-        if (!isOtherAgreement) {
+        if (!pathExists("otherAgreement")) {
             return Optional.empty();
         }
         Path otherAgreementPath = synonymPath.addElement("otherAgreement");
@@ -395,12 +365,11 @@ public class DocumentationHelper {
             return Optional.empty();
         }
         PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties= partyMappingHelper.getPartyReferences();
+        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
         builder.setContractualParty(contractualParties);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
-
 
     private Optional<LegalAgreement> setAgreementType(LegalAgreement.LegalAgreementBuilder builder, LegalAgreementTypeEnum masterAgreement) {
         if (builder.hasData()) {
@@ -411,5 +380,10 @@ public class DocumentationHelper {
         } else {
             return Optional.empty();
         }
+    }
+
+    private boolean pathExists(String pathEndsWith) {
+        return mappings.stream()
+                .anyMatch(m -> m.getXmlPath().endsWith(pathEndsWith));
     }
 }
