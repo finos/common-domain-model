@@ -1,7 +1,9 @@
 package cdm.event.common.processor;
 
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.common.metafields.FieldWithMetaContractualDefinitionsEnum;
+import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationAnnexTypeEnum;
 import cdm.legaldocumentation.master.MasterConfirmationTypeEnum;
@@ -12,24 +14,37 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterListMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
 
 public class DocumentationHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationHelper.class);
     private final RosettaPath rosettaPath;
+    private final MappingContext mappingContext;
     private final List<Mapping> mappings;
     private final SynonymToEnumMap synonymToEnumMap;
+    private final ExecutorService executor;
+    private final List<CompletableFuture<?>> invokedTasks;
 
-    public DocumentationHelper(RosettaPath rosettaPath, MappingContext context) {
+    public DocumentationHelper(RosettaPath rosettaPath, MappingContext mappingContext) {
         this.rosettaPath = rosettaPath;
-        this.mappings = context.getMappings();
-        this.synonymToEnumMap = context.getSynonymToEnumMap();
+        this.mappingContext = mappingContext;
+        this.mappings = mappingContext.getMappings();
+        this.executor = mappingContext.getExecutor();
+        this.invokedTasks = mappingContext.getInvokedTasks();
+        this.synonymToEnumMap = mappingContext.getSynonymToEnumMap();
     }
 
     public List<LegalAgreement> getDocumentation(Path synonymPath) {
@@ -74,6 +89,10 @@ public class DocumentationHelper {
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)),
                 mappings,
                 rosettaPath);
+
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_AGREEMENT);
     }
@@ -122,11 +141,20 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
+
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_CONFIRMATION);
     }
 
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
+
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
+
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
@@ -156,6 +184,10 @@ public class DocumentationHelper {
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)),
                 mappings,
                 rosettaPath);
+
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
     }
@@ -251,6 +283,10 @@ public class DocumentationHelper {
                     }
                 });
 
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
+
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
 
@@ -279,9 +315,12 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
+
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
-
 
     private Optional<LegalAgreement> setAgreementType(LegalAgreement.LegalAgreementBuilder builder, LegalAgreementTypeEnum masterAgreement) {
         if (builder.hasData()) {
@@ -292,5 +331,23 @@ public class DocumentationHelper {
         } else {
             return Optional.empty();
         }
+    }
+
+    private void setContractualParty(LegalAgreement.LegalAgreementBuilder builder) {
+        PartyMappingHelper.getInstance(mappingContext).ifPresent(helper -> {
+            LOGGER.debug("Waiting for counterparties to be collected before updating contractual parties");
+            // wait until both counterparties have been collected before getting party references.
+            // also, add task to invokedTasks so the mapping process does not get shutdown prematurely.
+            invokedTasks.add(helper.getBothCounterpartiesCollectedFuture().thenAcceptAsync(counterpartyMap -> {
+                Set<String> counterpartyExternalRefs = counterpartyMap.keySet();
+                LOGGER.info("Setting contractual party references {}", counterpartyExternalRefs);
+                List<ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder> contractualParties =
+                        counterpartyExternalRefs.stream()
+                                .map(counterpartyRef ->
+                                        ReferenceWithMetaParty.builder().setExternalReference(counterpartyRef))
+                                .collect(Collectors.toList());
+                builder.setContractualParty(contractualParties);
+            }, executor));
+        });
     }
 }
