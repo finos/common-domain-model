@@ -23,6 +23,27 @@ In the Rosetta platform, select the Textual Browser and inspect the change ident
 The changes can be reviewed in  PR: [#2776](https://github.com/finos/common-domain-model/pull/2776)
 
 
+# _Product Model - FpML Mapping - Commodity Forwards_
+
+_What is being released?_
+
+This release extends the FpML mapping coverage for Commodity Forwards.
+
+- FpML `commoditySwap` legs `coalPhysicalLeg`, `electricityPhysicalLeg`, `environmentalPhysicalLeg`, `gasPhysicalLeg`, `oilPhysicalLeg` have been mapped into the model as a `ForwardPayout` leg
+- The `payerPartyReference` and `receiverPartyReference` have been mapped to `ForwardPayout->payerReceiver`
+- The `commodity->commodityClassification` reference has been mapped to `ForwardPayout->underlier->commodity->productTaxonomy`
+
+_Review directions_
+
+In Rosetta, open the Translate tab and review the `FpML 5.13 > processes` test pack samples:
+
+- msg-ex69-execution-advice-commodity-swap-classification-new-trade-esma-emir-refit.xml
+- msg-ex69-commodity-swap-coal-physical-leg.xml
+- msg-ex69-commodity-swap-electricity-physical-leg.xml
+- msg-ex69-commodity-swap-environmental-physical-leg.xml
+- msg-ex69-commodity-swap-gas-physical-leg.xml
+
+The changes can be reviewed in PR: [#2803](https://github.com/finos/common-domain-model/pull/2803)
 
 # _Infrastructure - FpML 5.13 Ingestion Test Pack_
 
