@@ -1,0 +1,19 @@
+namespace cdm.base.staticdata.asset.common
+version "${project.version}"
+
+func OrdinalExists: <"Requires that, if multiple classification attributes are present, they contain an  ordinal so that they can be sorted. The condition checks that the number of classfication attributes is the same as the number of ordinals. Since each classification attributes can only contain one ordinal attribute, the logic effectively enforces that whenever more than one classification attribute exists, all classification attributes will have an ordinal.">
+    inputs:
+        productTaxonomy ProductTaxonomy (0..*)
+    output:
+        result boolean (0..1)
+    set result:
+        productTaxonomy
+            filter source = TaxonomySourceEnum -> ISDA or source = TaxonomySourceEnum -> EMIR
+            then extract 
+                if value -> classification count > 1
+                then 
+                    (value -> classification 
+                    extract ordinal exists
+                    then all = True)
+                else True
+            then all = True
