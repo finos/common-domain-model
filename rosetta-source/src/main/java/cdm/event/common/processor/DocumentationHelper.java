@@ -14,25 +14,36 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.translation.SynonymToEnumMap;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.records.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterListMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
 
 public class DocumentationHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationHelper.class);
     private final RosettaPath rosettaPath;
     private final MappingContext mappingContext;
     private final List<Mapping> mappings;
     private final SynonymToEnumMap synonymToEnumMap;
+    private final ExecutorService executor;
+    private final List<CompletableFuture<?>> invokedTasks;
 
     public DocumentationHelper(RosettaPath rosettaPath, MappingContext mappingContext) {
         this.rosettaPath = rosettaPath;
         this.mappingContext = mappingContext;
         this.mappings = mappingContext.getMappings();
+        this.executor = mappingContext.getExecutor();
+        this.invokedTasks = mappingContext.getInvokedTasks();
         this.synonymToEnumMap = mappingContext.getSynonymToEnumMap();
     }
 
@@ -83,15 +94,7 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
+        setContractualParty(builder);
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_AGREEMENT);
     }
 
@@ -143,16 +146,7 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
-
+        setContractualParty(builder);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_CONFIRMATION);
 
@@ -166,15 +160,7 @@ public class DocumentationHelper {
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
 
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
+        setContractualParty(builder);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
@@ -210,15 +196,7 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
+        setContractualParty(builder);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
     }
@@ -318,15 +296,8 @@ public class DocumentationHelper {
                     }
                 });
 
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
+        setContractualParty(builder);
+
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
 
@@ -358,15 +329,7 @@ public class DocumentationHelper {
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)),
                 mappings,
                 rosettaPath);
-        // Retrieve PartyMappingHelper instance from MappingContext
-        Optional<PartyMappingHelper> optionalPartyMappingHelper = PartyMappingHelper.getInstance(mappingContext);
-        if (!optionalPartyMappingHelper.isPresent()) {
-            // Handle the case where PartyMappingHelper is not found in MappingContext
-            return Optional.empty();
-        }
-        PartyMappingHelper partyMappingHelper = optionalPartyMappingHelper.get();
-        List<ReferenceWithMetaParty> contractualParties = partyMappingHelper.getPartyReferences();
-        builder.setContractualParty(contractualParties);
+        setContractualParty(builder);
 
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
@@ -385,5 +348,22 @@ public class DocumentationHelper {
     private boolean pathExists(String pathEndsWith) {
         return mappings.stream()
                 .anyMatch(m -> m.getXmlPath().endsWith(pathEndsWith));
+    }
+
+    private void setContractualParty(LegalAgreement.LegalAgreementBuilder builder) {
+        PartyMappingHelper.getInstance(mappingContext).ifPresent(helper -> {
+            LOGGER.debug("Waiting for counterparties to be collected before updating contractual parties");
+            // wait until both counterparties have been collected before getting party references
+            invokedTasks.add(helper.getBothCounterpartiesCollectedFuture().thenAcceptAsync(counterpartyMap -> {
+                Set<String> counterpartyExternalRefs = counterpartyMap.keySet();
+                LOGGER.info("Setting contractual party references {}", counterpartyExternalRefs);
+                List<ReferenceWithMetaParty.ReferenceWithMetaPartyBuilder> contractualParties =
+                        counterpartyExternalRefs.stream()
+                                .map(counterpartyRef ->
+                                        ReferenceWithMetaParty.builder().setExternalReference(counterpartyRef))
+                                .collect(Collectors.toList());
+                builder.setContractualParty(contractualParties);
+            }, executor));
+        });
     }
 }
