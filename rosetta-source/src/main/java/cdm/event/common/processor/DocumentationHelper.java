@@ -59,10 +59,6 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getMasterAgreement(Path synonymPath) {
-        // If synonymPath does not end with "masterAgreement", return an empty Optional
-        if (!pathExists("masterAgreement")) {
-            return Optional.empty();
-        }
         Path masterAgreementPath = synonymPath.addElement("masterAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -94,15 +90,14 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        setContractualParty(builder);
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
+
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_AGREEMENT);
     }
 
     private Optional<LegalAgreement> getMasterConfirmation(Path synonymPath) {
-        // If synonymPath does not end with "masterConfirmation", return an empty Optional
-        if (!pathExists("masterConfirmation")) {
-            return Optional.empty();
-        }
         Path masterConfirmationPath = synonymPath.addElement("masterConfirmation");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -146,30 +141,24 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        setContractualParty(builder);
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.MASTER_CONFIRMATION);
-
     }
 
     private Optional<LegalAgreement> getBrokerConfirmation(Path synonymPath) {
-        // If synonymPath does not end with "brokerConfirmation", return an empty Optional
-        if (!pathExists("brokerConfirmation")) {
-            return Optional.empty();
-        }
-
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
 
-        setContractualParty(builder);
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.BROKER_CONFIRMATION);
     }
 
     private Optional<LegalAgreement> getCreditSupportAgreement(Path synonymPath) {
-        // If synonymPath does not end with "creditSupportAgreement", return an empty Optional
-        if (!pathExists("creditSupportAgreement")) {
-            return Optional.empty();
-        }
         Path creditSupportAgreementPath = synonymPath.addElement("creditSupportAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -196,16 +185,14 @@ public class DocumentationHelper {
                 mappings,
                 rosettaPath);
 
-        setContractualParty(builder);
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.CREDIT_SUPPORT_AGREEMENT);
     }
 
     private Optional<LegalAgreement> getConfirmation(Path synonymPath) {
-        // If synonymPath does not end with "contractualDefinitions", return an empty Optional
-        if (!pathExists("contractualDefinitions")) {
-            return Optional.empty();
-        }
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
 
         filterListMappings(mappings, synonymPath.addElement("contractualDefinitions")).stream()
@@ -296,7 +283,9 @@ public class DocumentationHelper {
                     }
                 });
 
-        setContractualParty(builder);
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.CONFIRMATION);
     }
@@ -307,10 +296,6 @@ public class DocumentationHelper {
     }
 
     private Optional<LegalAgreement> getOtherAgreement(Path synonymPath) {
-        // If synonymPath does not end with "otherAgreement", return an empty Optional
-        if (!pathExists("otherAgreement")) {
-            return Optional.empty();
-        }
         Path otherAgreementPath = synonymPath.addElement("otherAgreement");
 
         LegalAgreement.LegalAgreementBuilder builder = LegalAgreement.builder();
@@ -329,7 +314,10 @@ public class DocumentationHelper {
                 xmlValue -> builder.setAgreementDate(parseDate(xmlValue)),
                 mappings,
                 rosettaPath);
-        setContractualParty(builder);
+
+        if (builder.hasData()) {
+            setContractualParty(builder);
+        }
 
         return setAgreementType(builder, LegalAgreementTypeEnum.OTHER);
     }
@@ -345,15 +333,11 @@ public class DocumentationHelper {
         }
     }
 
-    private boolean pathExists(String pathEndsWith) {
-        return mappings.stream()
-                .anyMatch(m -> m.getXmlPath().endsWith(pathEndsWith));
-    }
-
     private void setContractualParty(LegalAgreement.LegalAgreementBuilder builder) {
         PartyMappingHelper.getInstance(mappingContext).ifPresent(helper -> {
             LOGGER.debug("Waiting for counterparties to be collected before updating contractual parties");
-            // wait until both counterparties have been collected before getting party references
+            // wait until both counterparties have been collected before getting party references.
+            // also, add task to invokedTasks so the mapping process does not get shutdown prematurely.
             invokedTasks.add(helper.getBothCounterpartiesCollectedFuture().thenAcceptAsync(counterpartyMap -> {
                 Set<String> counterpartyExternalRefs = counterpartyMap.keySet();
                 LOGGER.info("Setting contractual party references {}", counterpartyExternalRefs);
