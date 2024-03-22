@@ -521,6 +521,7 @@ type SettlementTerms extends SettlementBase:
 type SettlementBase:
   [metadata key]
   settlementType SettlementTypeEnum (1..1)
+  cashOrPhysicalSplitRatio CashOrPhysicalSplitRatio (0..1)
   transferSettlementType TransferSettlementEnum (0..1)
   settlementCurrency string (0..1)
     [metadata scheme]
@@ -780,6 +781,7 @@ Swap.
 ``` Haskell
 type ResolvablePriceQuantity:
   [metadata key]
+  quantityCumulation CumulationFeature (0..*)
   resolvedQuantity Quantity (0..1)
   quantitySchedule NonNegativeQuantitySchedule (0..1)
     [metadata address "pointsTo"=PriceQuantity->quantity]
