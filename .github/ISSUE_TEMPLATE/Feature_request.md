@@ -3,9 +3,8 @@ name: Feature Request
 about: I have a suggested enhancement to the CDM
 labels:
 assignees:
+title: Proposed change to the CDM
 ---
-
-# Proposed Enhancement to the Common Domain Model #
 
 > [!NOTE]
 > Any Issue must:
