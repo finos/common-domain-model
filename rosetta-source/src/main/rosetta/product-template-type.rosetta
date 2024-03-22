@@ -217,6 +217,25 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
             or volatilityReturnTerms only exists
             or correlationReturnTerms only exists
 
+
+type DifferentialPricePayout extends PayoutBase: <"Defines the terms for a payout which consists in comparing an observable price to a strike price. By default, in accordance with market practice, the differential price basis shall be calculated in the 'bullish' direction, that is to say 'observablePrice minus strikePrice'.">
+    [metadata key]
+
+    observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
+    valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
+    paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
+    underlier Product (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
+    strikePrice PriceSchedule (1..*) <"Defines the strike price to be compared to the observable price for calculating the payout differential price.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+    spotPrice PriceSchedule (0..*) <"Optionaly specifies a spot price. That is mostly used when the strikePrice is defined as a percentage expression of such initialSpotPrice.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+    dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable.">
+
+    condition DividendApplicability: <"Dividends only relate to Equity.">
+    if dividendApplicability exists
+    then underlier -> security -> securityType = SecurityTypeEnum -> Equity
+
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
 
@@ -274,6 +293,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
+    differentialPricePayout DifferentialPricePayout (0..*) <"Defines the terms for a payout which consists in comparing an observable price to a strike price. By default, in accordance with market practice, the differential price basis shall be calculated in the 'bullish' direction, that is to say 'observablePrice minus strikePrice'.">
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
         if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
@@ -498,16 +518,12 @@ type SchedulePeriod: <"A class that defines the period of a schedule. The period
     fixingPeriod DateRange (1..1) <"Period over which the underlying price is observed.">
     deliveryPeriod CalculationScheduleDeliveryPeriods (0..1) <"Period and time profile over which the delivery takes place.">
 
-type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. In case there is no underlier associated with this payout type then it shall be based on fixed pricing per a given unit (e.g. in commodities price per barrel).">
+type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
     [metadata key]
-    
-    valuationDates ValuationDates (0..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
+
     paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-    spotPrice Price (0..1) <"Optionaly specifies a spot price, to which the fixedPrice may be related to, for instance as percentage price exppression.">
-    [metadata address]
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-    underlier Product (0..1) <"The product underlying the payout, meaning the one for which prices should be observed for the purpose of calculating the payout settlement by comparison to the fixedPrice.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -574,13 +590,12 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
     mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">
     optionalEarlyTermination OptionalEarlyTermination (0..1) <"An option for either or both parties to terminate the swap at fair value.">
     optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
-    autocallableKnockOutTermination AutocallableKnockOutTermination (0..1) <"Early termination is triggered by the occurence of a Knock Out event.">
 
     condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
-        (mandatoryEarlyTermination exists or optionalEarlyTermination exists or autocallableKnockOutTermination exists)
+        (mandatoryEarlyTermination exists or optionalEarlyTermination exists)
             or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
 
-type AutocallableKnockOutTermination : <"Early termination is triggered by the occurence of a Knock Out event.">
+type KnockOutTermination : <"Early termination is triggered by the occurence of a Knock Out event.">
       knockOutTrigger TriggerEvent (1..1)
       knockOutDatesAndConditions ObservationTerms (0..1) <"Specify any specific Observation Dates and Observation Terms which govern the assessment of Knock Out occurrence.">
 
@@ -735,9 +750,10 @@ type TerminationProvision: <"A class for defining option provisions.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
     extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
+    autocallableTermination KnockOutTermination (0..1) <"Early termination is triggered by the occurence of a Knock Out event.">
 
     condition TerminationProvisionChoice:
-        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
+        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision, autocallableTermination
 
 type OptionStrike: <"Defines the strike price of an option.">
 
