@@ -498,12 +498,16 @@ type SchedulePeriod: <"A class that defines the period of a schedule. The period
     fixingPeriod DateRange (1..1) <"Period over which the underlying price is observed.">
     deliveryPeriod CalculationScheduleDeliveryPeriods (0..1) <"Period and time profile over which the delivery takes place.">
 
-type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
+type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. In case there is no underlier associated with this payout type then it shall be based on fixed pricing per a given unit (e.g. in commodities price per barrel).">
     [metadata key]
-
+    
+    valuationDates ValuationDates (0..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
+    spotPrice Price (0..1) <"Optionaly specifies a spot price, to which the fixedPrice may be related to, for instance as percentage price exppression.">
+    [metadata address]
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    underlier Product (0..1) <"The product underlying the payout, meaning the one for which prices should be observed for the purpose of calculating the payout settlement by comparison to the fixedPrice.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -570,10 +574,18 @@ type EarlyTerminationProvision: <"A data defining:  an early termination provisi
     mandatoryEarlyTerminationDateTenor Period (0..1) <"Period after trade date of the mandatory early termination date.">
     optionalEarlyTermination OptionalEarlyTermination (0..1) <"An option for either or both parties to terminate the swap at fair value.">
     optionalEarlyTerminationParameters ExercisePeriod (0..1) <"Definition of the first early termination date and the frequency of the termination dates subsequent to that. American exercise is defined by having a frequency of one day.">
+    autocallableKnockOutTermination AutocallableKnockOutTermination (0..1) <"Early termination is triggered by the occurence of a Knock Out event.">
 
     condition MandatoryEarlyTermination: <"The FpML MandatoryEarlyTermination.model specifies a required choice node. The choice node associated with the FpML EarlyTerminationProvision is quite complex and using the data rule provides a more flexible approach than adding complexity to the condition grammar.">
-        (mandatoryEarlyTermination exists or optionalEarlyTermination exists)
+        (mandatoryEarlyTermination exists or optionalEarlyTermination exists or autocallableKnockOutTermination exists)
             or (mandatoryEarlyTermination exists and optionalEarlyTermination exists)
+
+type AutocallableKnockOutTermination : <"Early termination is triggered by the occurence of a Knock Out event.">
+      knockOutTrigger TriggerEvent (1..1)
+      knockOutDatesAndConditions ObservationTerms (0..1) <"Specify any specific Observation Dates and Observation Terms which govern the assessment of Knock Out occurrence.">
+
+    condition DatesAndConditions:
+    knockOutTrigger -> triggerDates is absent
 
 type ExercisePeriod: <"This defines the time interval to the start of the exercise period, i.e. the earliest exercise date, and the frequency of subsequent exercise dates (if any).">
     [metadata key]
