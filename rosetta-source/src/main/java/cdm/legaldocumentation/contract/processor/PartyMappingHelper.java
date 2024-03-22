@@ -125,6 +125,23 @@ public class PartyMappingHelper {
 						}, executor));
 	}
 
+	public List<ReferenceWithMetaParty> getPartyReferences() {
+		List<ReferenceWithMetaParty> partyReferences = new ArrayList<>();
+		if (tradableProductBuilder != null && tradableProductBuilder.getCounterparty() != null) {
+			List<?> counterpartyBuilders = tradableProductBuilder.getCounterparty();
+			for (Object obj : counterpartyBuilders) {
+				if (obj instanceof Counterparty.CounterpartyBuilder) {
+					Counterparty.CounterpartyBuilder counterpartyBuilder = (Counterparty.CounterpartyBuilder) obj;
+					if (counterpartyBuilder.getPartyReference() != null) {
+						ReferenceWithMetaParty partyReference = counterpartyBuilder.getPartyReference();
+						partyReferences.add(partyReference);
+					}
+				}
+			}
+		}
+		return partyReferences;
+	}
+
 	public CompletableFuture<Map<String, CounterpartyRoleEnum>> getBothCounterpartiesCollectedFuture() {
 		return bothCounterpartiesCollected;
 	}
