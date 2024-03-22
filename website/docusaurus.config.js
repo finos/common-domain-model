@@ -38,6 +38,11 @@ module.exports = {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
+        },
+        {
+          href: 'https://cdm-object-builder.finos.org/',
+          label: 'CDM Object Builder',
+          position: 'right',
         }
       ],
     },
