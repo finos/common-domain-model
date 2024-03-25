@@ -11,17 +11,16 @@ This also comes with other minor changes as further detailed below.
 
 _What is being released?_
 
-- creation of new type `PorfolioReturnTerms` which `extends ReturnTerms` with existing types `PayerReceiver` ; also with existing type `PriceSchedule` to `PerformancePayout` used under three attribute names, and `NonNegativeQuantitySchedule` used for one, respectively : : `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` and `quantity`
-- add the above new type to `PerformancePayout`
-- add existing type `PriceSchedule` to `PerformancePayout` used under three attribute names : `initialValuationPrice`, `interimValuationPrice` and `finalValuationPrice` (that is to replace current position in `ReturnTerms`, still in Prod for backward compatibility reasons, but will be `[deprecated]` at some point)
-- add new type `PorfolioBasketConsituent` to `Basket` (that is to enrich current type `Product`, but for backward compatibilty reasons, instead of modifying this type, a new one was created) which `extends Product` with existing types PriceSchedule used under three attribute names, and `NonNegativeQuantitySchedule` used for one, respectively : `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` and `quantity`
+- Created new type `PorfolioReturnTerms` which `extends ReturnTerms` with existing types `PayerReceiver`
+- Added new type `PorfolioReturnTerms` to `PerformancePayout`
+- Added existing type `PriceSchedule` to `PerformancePayout` under three attribute names: `initialValuationPrice`, `interimValuationPrice` and `finalValuationPrice` (to replace current position in `ReturnTerms`, still in Prod for backward compatibility reasons, but will be `[deprecated]` at some point)
+- Added new type `PorfolioBasketConsituent` to `Basket` (to enrich current type `Product`, but for backward compatibilty reasons, instead of modifying this type, a new one was created) which `extends Product` with existing types `PriceSchedule` under three attribute names, and `NonNegativeQuantitySchedule` for one, respectively: `initialValuationPrice`, `interimValuationPrice`, `finalValuationPrice` and `quantity`
 
 _Review directions_
 
 In the Rosetta platform, select the Textual Browser and inspect the change identified above.
 
 The changes can be reviewed in  PR: [#2776](https://github.com/finos/common-domain-model/pull/2776)
-
 
 # _Product Model - FpML Mapping - Commodity Forwards_
 
