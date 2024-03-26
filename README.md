@@ -1,5 +1,5 @@
+[![FINOS Hosted Platform - CDM Object Builder](https://img.shields.io/badge/FINOS%20Hosted%20Platform-CDM%20Object%20Builder-blue)](https://cdm-object-builder.finos.org/)
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
-
 [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
 # Common Domain Model (CDM)
