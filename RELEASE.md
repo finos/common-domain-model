@@ -1,57 +1,20 @@
-# _Product Model - FpML Mapping - Commodity Forwards_
+# _Product Model - Synonym mappings for FpML coding schemes v2-17_
+
+_Background_
+
+The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
+This release introduces support for the synonym mappings corresponding to this FpML coding schemes update.
 
 _What is being released?_
 
-This release extends the FpML mapping coverage for Commodity Forwards.
+Synonym mappings to cover the changes in v2-17 of FpML coding schemes.
 
-- FpML `commoditySwap` legs `coalPhysicalLeg`, `electricityPhysicalLeg`, `environmentalPhysicalLeg`, `gasPhysicalLeg`, `oilPhysicalLeg` have been mapped into the model as a `ForwardPayout` leg
-- The `payerPartyReference` and `receiverPartyReference` have been mapped to `ForwardPayout->payerReceiver`
-- The `commodity->commodityClassification` reference has been mapped to `ForwardPayout->underlier->commodity->productTaxonomy`
-
-_Review directions_
-
-In Rosetta, open the Translate tab and review the `FpML 5.13 > processes` test pack samples:
-
-- msg-ex69-execution-advice-commodity-swap-classification-new-trade-esma-emir-refit.xml
-- msg-ex69-commodity-swap-coal-physical-leg.xml
-- msg-ex69-commodity-swap-electricity-physical-leg.xml
-- msg-ex69-commodity-swap-environmental-physical-leg.xml
-- msg-ex69-commodity-swap-gas-physical-leg.xml
-
-The changes can be reviewed in PR: [#2804](https://github.com/finos/common-domain-model/pull/2804)
-
-# _Infrastructure - FpML 5.13 Ingestion Test Pack_
-
-_What is being released?_
-
-This release adds an ingestion test pack containing FpML 5.13 WD3 xml files from [www.fpml.org/spec/fpml-5-13-3-wd-3/](https://www.fpml.org/spec/fpml-5-13-3-wd-3/) examples download.
-
-There are no changes to the model. Ingestion test expectations have been added for the new FpML 5.13 test pack.
+- Added a synonym mapping for `eventIdentifier` to correspond to the FpML `partyTradeIdentifier`, required to represent the `linkId` as an identifier in CDM.
+- Added mapping coverage for all missing values of `BusinessCenterEnum`.
+- Added conditional mappings for all the new coding schemes in FpML's `linkId`, to correspond to CDM's `identifier` in the `AssignedIdentifier` type.
 
 _Review directions_
 
-In Rosetta, open the Translate tab and review test packs:
+In the CDM Portal, select the Textual Browser and inspect each of the changes identified above.
 
-- fpml-5-13/products
-- fpml-5-13/incomplete-products
-- fpml-5-13/processes
-- fpml-5-13/incomplete-processes
-
-The changes can be reviewed in PR: [#2797](https://github.com/finos/common-domain-model/pull/2797)
-
-# _Infrastructure - Remove Unused Folders_
-
-_What is being released?_
-
-This release removes files and folders that were previously used by the CDM Portal.
-
-Removed folders:
-- distribution
-- rosetta-source/src/main/resources/calculation-test-cases
-- rosetta-source/src/main/resources/cdm-sample-files/event-sequences
-
-There are no changes to the model.
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2800](https://github.com/finos/common-domain-model/pull/2800)
+PR: [#2813](https://github.com/finos/common-domain-model/pull/2813)
