@@ -6,10 +6,10 @@ Currently, `ContractualParty` is not being mapped in the `LegalAgreement` elemen
 
 _What is being released?_
 
-- Updated `DocumentationHelper` which allows mappers to extracts the value from `TradableProduct->counterparty` and map it to `LegalAgreement->contractualParty`.
+- Updated `DocumentationHelper` which allows mappers to extract the value from `TradableProduct->counterparty` and map it to `LegalAgreement->contractualParty`.
 
 _Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in PR: [#2833](https://github.com/finos/common-domain-model/pull/2833)
+The change can be reviewed in PR: [#2833](https://github.com/finos/common-domain-model/pull/2833)
