@@ -25,7 +25,7 @@ _Review directions_
 
 In the Rosetta platform, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in  PR: [#2830](https://github.com/finos/common-domain-model/pull/2830)
+The changes can be reviewed in  PR: [#2840](https://github.com/finos/common-domain-model/pull/2840)
 
 
 # _Product Model - Cumulation Features_
