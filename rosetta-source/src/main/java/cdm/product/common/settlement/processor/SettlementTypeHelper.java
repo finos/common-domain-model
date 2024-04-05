@@ -18,29 +18,44 @@ public class SettlementTypeHelper {
     }
 
     public void setSettlementType(Path settlementCurrencySynonymPath, SettlementTerms.SettlementTermsBuilder settlementTermsBuilder) {
-        if (isCommoditySwap(settlementCurrencySynonymPath)
-                || settlementCurrencySynonymPath.endsWith("exercise", "settlementCurrency")) {
-            Optional.ofNullable(settlementTermsBuilder)
-                    .filter(this::settlementCurrencyExists)
-                    .ifPresent(builder -> {
-                        if (builder.getSettlementType() == null) {
-                            builder.setSettlementType(SettlementTypeEnum.CASH);
-                        }
-                    });
+        if (settlementCurrencySynonymPath.endsWith("commoditySwap", "settlementCurrency")) {
+            if (isCommoditySwapWithPhysicalLeg() && !isCommoditySwapWithFloatingLeg()) {
+                settlementTermsBuilder.setSettlementCurrency(null);
+            } else {
+                setSettlementTypeToCash(settlementTermsBuilder);
+            }
+        }
+        else if (settlementCurrencySynonymPath.endsWith("exercise", "settlementCurrency")) {
+            setSettlementTypeToCash(settlementTermsBuilder);
         }
     }
 
-    private boolean isCommoditySwap(Path settlementCurrencySynonymPath) {
-        return settlementCurrencySynonymPath.endsWith("commoditySwap", "settlementCurrency")
-                // does not have a physical leg
-                && mappings.stream()
+    private void setSettlementTypeToCash(SettlementTerms.SettlementTermsBuilder settlementTermsBuilder) {
+        Optional.ofNullable(settlementTermsBuilder)
+                .filter(this::settlementCurrencyExists)
+                .ifPresent(builder -> {
+                    if (builder.getSettlementType() == null) {
+                        builder.setSettlementType(SettlementTypeEnum.CASH);
+                    }
+                });
+    }
+
+    private boolean isCommoditySwapWithPhysicalLeg() {
+        return mappings.stream()
                 .map(Mapping::getXmlPath)
                 .map(String::valueOf)
-                .noneMatch(p -> p.contains("commoditySwap.coalPhysicalLeg")
+                .anyMatch(p -> p.contains("commoditySwap.coalPhysicalLeg")
                         || p.contains("commoditySwap.electricityPhysicalLeg")
                         || p.contains("commoditySwap.environmentalPhysicalLeg")
                         || p.contains("commoditySwap.gasPhysicalLeg")
                         || p.contains("commoditySwap.oilPhysicalLeg"));
+    }
+
+    private boolean isCommoditySwapWithFloatingLeg() {
+        return mappings.stream()
+                .map(Mapping::getXmlPath)
+                .map(String::valueOf)
+                .anyMatch(p -> p.contains("commoditySwap.floatingLeg"));
     }
 
     private boolean settlementCurrencyExists(SettlementTerms.SettlementTermsBuilder builder) {
