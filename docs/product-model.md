@@ -780,6 +780,7 @@ Swap.
 ``` Haskell
 type ResolvablePriceQuantity:
   [metadata key]
+  quantityCumulation CumulationFeature (0..*)
   resolvedQuantity Quantity (0..1)
   quantitySchedule NonNegativeQuantitySchedule (0..1)
     [metadata address "pointsTo"=PriceQuantity->quantity]
