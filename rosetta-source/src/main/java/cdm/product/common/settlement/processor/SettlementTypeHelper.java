@@ -19,13 +19,16 @@ public class SettlementTypeHelper {
 
     public void setSettlementType(Path settlementCurrencySynonymPath, SettlementTerms.SettlementTermsBuilder settlementTermsBuilder) {
         if (settlementCurrencySynonymPath.endsWith("commoditySwap", "settlementCurrency")) {
-            if (isCommoditySwapWithPhysicalLeg() && !isCommoditySwapWithFloatingLeg()) {
+            boolean commoditySwapWithPhysicalLeg = isCommoditySwapWithPhysicalLeg();
+            // commodity swaps with a physical leg and fixed leg (i.e. not a floating leg) should not have a settlement currency
+            if (commoditySwapWithPhysicalLeg && !isCommoditySwapWithFloatingLeg()) {
                 settlementTermsBuilder.setSettlementCurrency(null);
-            } else {
+            }
+            // commodity swaps with a physical leg should not have a settlement currency defaulted to CASH
+            else if (!commoditySwapWithPhysicalLeg) {
                 setSettlementTypeToCash(settlementTermsBuilder);
             }
-        }
-        else if (settlementCurrencySynonymPath.endsWith("exercise", "settlementCurrency")) {
+        } else if (settlementCurrencySynonymPath.endsWith("exercise", "settlementCurrency")) {
             setSettlementTypeToCash(settlementTermsBuilder);
         }
     }
