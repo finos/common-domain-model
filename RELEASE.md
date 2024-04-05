@@ -1,16 +1,28 @@
-# _Product Model - FpML Mappings - Contractual Party_
+# _Product Model - Updates to Qualification of AssetClass_
 
 _Background_
 
-Currently, `ContractualParty` is not being mapped in the `LegalAgreement` element. The `contractualParty` is a **(2..2) mandatory** element and should be represented accordingly to avoid validation failures. For more information see issue [#2788](https://github.com/finos/common-domain-model/issues/2788) .
+Some products are currently not covered by the "ISDA Taxonomy V2 Level 1 - ASSETCLASS" functions.
+In particular, a gap in index underliers has been identified and is resolved by this update. For further information please see issue [#2762](https://github.com/finos/common-domain-model/issues/2762).
 
 _What is being released?_
 
-- Updated `DocumentationHelper` which allows mappers to extract the value from `TradableProduct->counterparty` and map it to `LegalAgreement->contractualParty`.
+This release modifies functions Qualify_AssetClass_* along the below three axes:
 
-_Review Directions_
+- Added inclusive checks on `underlier -> index -> productTaxonomy -> primaryAssetClass`
+- Aligned security criteria to index criteria: switch from checking `security->securityType` to checking `security->productTaxonomy -> primaryAssetClass`
+- Added inclusive checks on `forwardUnderlier` under some functions where only the `optionUnderlier` was previously considered
 
-In Rosetta, select the Textual Browser and inspect the change identified above.
+Modified functions:
 
-The change can be reviewed in PR: [#2809](https://github.com/finos/common-domain-model/pull/2809)
+- `Qualify_AssetClass_InterestRate`
+- `Qualify_AssetClass_Credit` 
+- `Qualify_AssetClass_ForeignExchange` 
+- `Qualify_AssetClass_Equity` 
+- `Qualify_AssetClass_Commodity`
 
+_Review directions_
+
+In the Rosetta platform, select the Textual Browser and inspect the changes identified above.
+
+The changes can be reviewed in  PR: [#2841](https://github.com/finos/common-domain-model/pull/2841)
