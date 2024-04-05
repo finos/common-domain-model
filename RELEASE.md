@@ -1,3 +1,21 @@
+# _Product Model - FpML Mapping - Commodity Swaps_
+
+_What is being released?_
+
+This release fixes issue [#2837](https://github.com/finos/common-domain-model/issues/2837) related to the FpML mapping for Commodity Swaps.
+
+- Commodity swap samples with a physical leg and a fixed leg should be mapped to 2 payouts: `ForwardPayout` and `FixedPricePayout`. These should only have a ForwardPayout and FixedPricePayout. e.g.
+- Commodity swap samples with a physical leg and a floating leg should not have a settlement type defaulted to cash
+
+_Review directions_
+
+In Rosetta, open the Translate tab and review the `fpml-5-10 > incomplete-products > commodity-derivatives` test pack samples:
+
+- com-ex10-physical-oil-pipeline-crude-wti-floating-price.xml
+- com-ex11-physical-oil-pipeline-heating-oil-fixed-price.xml
+
+The changes can be reviewed in PR: [#2836](https://github.com/finos/common-domain-model/pull/2836)
+
 # _Product Model - Cumulation Features_
 
 _Background_
