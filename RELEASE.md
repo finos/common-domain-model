@@ -1,28 +1,21 @@
-# _Product Model - Updates to Qualification of AssetClass_
+# _Product Model - FpML Mapping - Commodity Swaps_
 
 _Background_
 
-Some products are currently not covered by the "ISDA Taxonomy V2 Level 1 - ASSETCLASS" functions.
-In particular, a gap in index underliers has been identified and is resolved by this update. For further information please see issue [#2762](https://github.com/finos/common-domain-model/issues/2762).
+Commodity swaps with a physical leg and a fixed/floating leg are incorrectly mapped from FpML. This is described in more detail in issue [#2837](https://github.com/finos/common-domain-model/issues/2837).
 
 _What is being released?_
 
-This release modifies functions Qualify_AssetClass_* along the below three axes:
+This release fixes the mapping for Commodity Swaps from FpML as listed below.
 
-- Added inclusive checks on `underlier -> index -> productTaxonomy -> primaryAssetClass`
-- Aligned security criteria to index criteria: switch from checking `security->securityType` to checking `security->productTaxonomy -> primaryAssetClass`
-- Added inclusive checks on `forwardUnderlier` under some functions where only the `optionUnderlier` was previously considered
-
-Modified functions:
-
-- `Qualify_AssetClass_InterestRate`
-- `Qualify_AssetClass_Credit` 
-- `Qualify_AssetClass_ForeignExchange` 
-- `Qualify_AssetClass_Equity` 
-- `Qualify_AssetClass_Commodity`
+- Commodity swap samples with a physical leg and a fixed leg are now only mapped to these two payouts: `ForwardPayout` and `FixedPricePayout`
+- Commodity swap samples with a physical leg and a floating leg no longer have a settlement type defaulted to cash
 
 _Review directions_
 
-In the Rosetta platform, select the Textual Browser and inspect the changes identified above.
+In Rosetta, open the Translate tab and review the `fpml-5-10 > incomplete-products > commodity-derivatives` test pack samples:
 
-The changes can be reviewed in  PR: [#2841](https://github.com/finos/common-domain-model/pull/2841)
+- com-ex10-physical-oil-pipeline-crude-wti-floating-price.xml
+- com-ex11-physical-oil-pipeline-heating-oil-fixed-price.xml
+
+The changes can be reviewed in PR: [#2846](https://github.com/finos/common-domain-model/pull/2846)
