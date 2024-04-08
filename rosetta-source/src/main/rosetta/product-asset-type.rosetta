@@ -33,7 +33,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
         required choice schedule, calculationPeriodDates
@@ -104,7 +104,7 @@ type CreditDefaultPayout extends PayoutBase: <" The credit default payout specif
         then generalTerms -> referenceInformation -> referencePrice -> value >= 0
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
@@ -136,6 +136,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
     [metadata key]
 
     rateSpecification RateSpecification (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
+    zeroCouponSpecification PriceSchedule (0..1) <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
     dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
         [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
@@ -153,22 +154,21 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
     spreadCalculationMethod SpreadCalculationMethodEnum (0..1) <"Method by which spread is calculated. For example on an asset swap: 'ParPar' or 'Proceeds' may be the method indicated.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
     condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
         optional choice paymentDates, paymentDate
 
     condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
         if rateSpecification -> fixedRate is absent
-        then priceQuantity -> futureValueNotional is absent
+        then quantity -> futureValueNotional is absent
 
     condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-        if priceQuantity -> futureValueNotional exists
-        then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+        if quantity -> futureValueNotional exists
+        then quantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
-    condition RateSpecification: <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
-        if rateSpecification is absent
-        then priceQuantity -> priceSchedule exists
+    condition RateSpecificationOrZeroCoupon: <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
+        required choice rateSpecification, zeroCouponSpecification
 
     condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
         if paymentDates -> firstPaymentDate exists
@@ -189,10 +189,12 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
         if settlementTerms -> settlementCurrency exists
-                and (settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
-                    or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+                and (settlementTerms -> settlementCurrency <> quantity -> quantitySchedule -> unit -> currency)
+                  // the one below is no more needed, since fxLinkedNotionalSchedule is removed
+                  //  or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
         then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
-                or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
+            // the one below is no more needed, since fxLinkedNotionalSchedule is removed
+            //    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
     condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
         if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period

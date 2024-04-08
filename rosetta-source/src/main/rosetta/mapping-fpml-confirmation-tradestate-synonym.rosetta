@@ -38,8 +38,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + payerReceiver
             [hint "fixedLeg"]
             [hint "floatingLeg"]
-        - priceQuantity
-        + priceQuantity
+        - quantity
+        + quantity
             [value "vegaNotional" set when path = "fxVolatilitySwap"]
             // For Equity Swap
             [value "rateOfReturn"]
@@ -652,7 +652,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commodityClassification"]
             // Other
             [value "underlyer"]
-        + settlementTerms
+    //    + settlementTerms // remapped in PayoutBase
             [hint "settlementType"]
             [hint "paymentDelay"]
             [hint "paymentDate"]
@@ -1956,7 +1956,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Cashflow:
 		[meta "id"]
-        + priceQuantity
+        + quantity
             // For FX Option
             [hint "putCurrencyAmount"]
             [hint "callCurrencyAmount"]
@@ -2075,7 +2075,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fixedAmountCalculation"]
             [hint "fixedRate"]
 
-    ResolvablePriceQuantity:
+    ResolvableQuantity:
         [meta "id" path "notional"]
         [meta "id" path "notionalSchedule"]
         [meta "id" path "notionalSchedule->notionalStepSchedule"]
@@ -2123,8 +2123,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "notionalReset"]
         + futureValueNotional
             [value "futureValueNotional"]
-        + priceSchedule
-            [value "knownAmountSchedule" path "calculationPeriodAmount"] // test
 
     CreditDefaultPayout:
         [meta "id"]
@@ -2133,8 +2131,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "underlyer"]
         + protectionTerms
             [value "protectionTerms"]
-        - priceQuantity
-        + priceQuantity
+        - quantity
+        + quantity
             [value "protectionTerms"]
 
     EconomicTerms:
@@ -2228,8 +2226,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For Repo:
             [hint "fixedRateSchedule"]
             [hint "floatingRateCalculation"]
-        - priceQuantity
-        + priceQuantity
+        - quantity
+        + quantity
             // For Swap Stream:
             [value "calculation" path "calculationPeriodAmount"]
             [value "fxLinkedNotionalSchedule" path "calculationPeriodAmount->calculation"]
@@ -2242,6 +2240,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
             [value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
             [value "protectionTerms" mapper "FeeLeg"] // filtered out if feeLeg exists
+        + zeroCouponSpecification
+            [value "knownAmountSchedule" path "calculationPeriodAmount"] // test
 
     OptionPayout:
 		[meta "id"]
@@ -2376,8 +2376,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     ForwardPayout:
         [meta "id"]
         - payerReceiver
-        - priceQuantity
-        + priceQuantity
+        - quantity
+        + quantity
             [hint "notional"]
         + delivery
             [value "ignore"]
@@ -2512,7 +2512,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "buyerPartyReference"]
             [hint "sellerPartyReference"]
             [value "generalTerms"]
-        + priceQuantity
+        + quantity
             // For Swap Stream and FRA: moved to InterestRatePayout
             [value "knownAmountSchedule" path "calculationPeriodAmount"]
             // For Options:
@@ -2530,6 +2530,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "amount"]
             [hint "paymentAmount"]
             [hint "notionalQuantitySchedule"]
+        + settlementTerms
+            [hint "settlementType"]
+            [hint "paymentDelay"]
+            [hint "paymentDate"]
+            [hint "adjustablePaymentDate"]
+            [hint "adjustedPaymentDate"]
 
     // For CDS protectionTerms see CreditDefaultPayout
     // For CDS feeLeg see InterestRatePayout

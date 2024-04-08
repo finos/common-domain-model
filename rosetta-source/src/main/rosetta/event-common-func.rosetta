@@ -162,7 +162,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
         if interestRatePayout -> rateSpecification -> fixedRate exists
         then FixedAmount(
                     interestRatePayout,
-                    interestRatePayout -> priceQuantity -> quantitySchedule -> value,
+                    interestRatePayout -> quantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
@@ -170,7 +170,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
         then FloatingAmount(
                     interestRatePayout,
                     resets only-element -> resetValue -> value,
-                    interestRatePayout -> priceQuantity -> quantitySchedule -> value,
+                    interestRatePayout -> quantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
@@ -186,7 +186,7 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
             ) -> partyReference
     set interestCashSettlementAmount -> quantity -> value: performance
     set interestCashSettlementAmount -> quantity -> unit -> currency:
-        interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+        interestRatePayout -> quantity -> quantitySchedule -> unit -> currency
     set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
         if performance >= 0 then payer else receiver
     set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -341,7 +341,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
             )
     alias periodEndPrice: observation
     alias numberOfSecurities:
-        performancePayout -> priceQuantity -> quantitySchedule -> value / periodStartPrice -> value
+        performancePayout -> quantity -> quantitySchedule -> value / periodStartPrice -> value
     alias rateOfReturn: RateOfReturn(periodStartPrice, periodEndPrice)
     alias notionalAmount: EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 
@@ -632,11 +632,12 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
     output:
         transfer Transfer (1..1)
 
-    post-condition UnitsAndObservable:
-        if tradeState -> trade -> tradableProduct -> product -> security exists
-                and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
-        then transfer -> quantity -> unit -> currency only exists
-                and transfer -> observable -> productIdentifier exists
+    // this condition is too restrictive : no reason to restrict a security transfer to DeliveryVersusPayment only ; such item should rather be specified as a compulsory input, threfore pre-condition, rather than as a post-condidtion :
+   // post-condition UnitsAndObservable:
+      //  if tradeState -> trade -> tradableProduct -> product -> security exists
+        //       and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
+       // then transfer -> quantity -> unit -> currency only exists
+           //     and transfer -> observable -> productIdentifier exists
 
 func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of asset based on an asset payout, should be constructed.">
     inputs:
@@ -1302,7 +1303,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
     set transfer -> quantity -> value: performance
 
     set transfer -> quantity -> unit -> currency:
-        interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+        interestRatePayout -> quantity -> quantitySchedule -> unit -> currency
 
     set transfer -> payerReceiver -> payerPartyReference:
         if performance >= 0
@@ -2271,7 +2272,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
     alias cashflow: <"A fully structured CashFlow or the following need to be provided to create a cashflow.">
         Create_Cashflow(
                 interestAmount -> value,
-                interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency,
+                interestRatePayout -> quantity -> quantitySchedule -> unit -> currency,
                 settlementDate,
                 interestRatePayout -> payerReceiver,
                 CashflowType {
@@ -2285,7 +2286,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
         interestRatePayout exists
 
     condition Currency: <"The currency of the interest amount must match the currency of the original interest rate payout.">
-        interestAmount -> unit -> currency = interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+        interestAmount -> unit -> currency = interestRatePayout -> quantity -> quantitySchedule -> unit -> currency
 
     set instruction:
         PrimitiveInstruction {
@@ -2346,8 +2347,8 @@ func Create_Cashflow:
     set cashflow -> cashflowType: cashflowType
     set cashflow -> paymentDiscounting: paymentDiscounting
 
-    set cashflow -> priceQuantity:
-        ResolvablePriceQuantity {
+    set cashflow -> quantity:
+        ResolvableQuantity {
             quantitySchedule: NonNegativeQuantitySchedule {
                     value: amount,
                     unit: UnitType {

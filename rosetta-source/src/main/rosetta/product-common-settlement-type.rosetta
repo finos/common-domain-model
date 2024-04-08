@@ -25,8 +25,8 @@ type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcom
     paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
 
     condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-        if priceQuantity exists
-        then priceQuantity -> quantitySchedule -> value >= 0.0
+        if quantity exists
+        then quantity -> quantitySchedule -> value >= 0.0
 
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
     cashflowType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
@@ -38,25 +38,25 @@ type CashflowType: <"Characterises the type of cashflow, which can result from e
 
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
-    fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
-    multiplierValue number (0..1)
+   // fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
+    multiplierValue number (1..1)
 
-    condition:
-        one-of
+ //   condition:
+    //    one-of
 
-type ResolvablePriceQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
+type ResolvableQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
     [metadata key]
 
     resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
     quantitySchedule NonNegativeQuantitySchedule (0..1) <"A payout's quantity specified as a schedule, which may also contain a single value if that quantity is constant. There can only be a single quantity schedule applicable to a payout: e.g. the notional for an interest rate leg. The quantity must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
-    quantityReference ResolvablePriceQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
+    quantityReference ResolvableQuantity (0..1) <"Reference quantity when resolvable quantity is defined as relative to another (resolvable) quantity. A resolvable quantity needs to contain either an absolute quantity or a reference to another (resolvable) quantity. This requirement is captured by a choice rule on the class.">
         [metadata reference]
     quantityMultiplier QuantityMultiplier (0..1) <"Quantity multiplier is specified on top of a reference quantity and is used as a multiplying factor when resolving the quantity. A quantity multiplier can only exist when the resolvable quantity specifies a reference quantity.">
     reset boolean (0..1) <"Whether the quantity is resettable">
     futureValueNotional FutureValueAmount (0..1) <"The future value notional is specific to BRL CDI swaps, and is specified alongside the notional amount. The value is calculated as follows: Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction). The currency should always match that expressed in the notional schedule. The value date should match the adjusted termination date.">
-    priceSchedule PriceSchedule (0..*) <"A payout's price specified as a schedule, which may also contain a single value if that price is constant. There may be multiple prices specified for a single payout: e.g. a floating interest rate leg may specify a spread, a cap and/or floor and a multiplier. The price must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
-        [metadata address "pointsTo"=PriceQuantity->price]
+//    priceSchedule PriceSchedule (0..*) <"A payout's price specified as a schedule, which may also contain a single value if that price is constant. There may be multiple prices specified for a single payout: e.g. a floating interest rate leg may specify a spread, a cap and/or floor and a multiplier. The price must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
+     //   [metadata address "pointsTo"=PriceQuantity->price]
 
     condition QuantityMultiplier: <"A quantity reference must exist when there is a quantity multiplier on a resolvable quantity.">
         if quantityMultiplier exists
@@ -65,7 +65,7 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
     payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
-    priceQuantity ResolvablePriceQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
+    quantity ResolvableQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products where , also in the case financing leg notional of a price return swap refers to the Equity leg notional).">
     principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency or zero-coupon swaps with a final payment.">
     settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
 
@@ -301,7 +301,7 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
         [metadata location]
     observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
     buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
-    settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+   // settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
     effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
     condition RateOptionObservable: <"When the observable is a rate option, the price type must be interest rate and the arithmetic operator must be specified.">
@@ -310,8 +310,8 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     condition ObservableExists: <"When the arithmetic operator is specified, then an observable must be specified.">
         if price -> arithmeticOperator exists then observable exists
 
-    condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
-        if buyerSeller exists then settlementTerms exists
+  //  condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
+  //      if buyerSeller exists then settlementTerms exists
 
 type FixedPrice: <"A predefined price accorded by the counterparties.">
 

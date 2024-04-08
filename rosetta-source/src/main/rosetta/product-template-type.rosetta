@@ -211,7 +211,7 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
     condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
         if underlier -> index exists
@@ -281,7 +281,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         if optionPayout exists
-        then optionPayout -> priceQuantity exists
+        then optionPayout -> quantity exists
                 or optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
@@ -298,13 +298,13 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
                 and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
     condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout.">
-        interestRatePayout -> priceQuantity -> reset is absent
-            and creditDefaultPayout -> priceQuantity -> reset is absent
-            and optionPayout -> priceQuantity -> reset is absent
-            and cashflow -> priceQuantity -> reset is absent
+        interestRatePayout -> quantity -> reset is absent
+            and creditDefaultPayout -> quantity -> reset is absent
+            and optionPayout -> quantity -> reset is absent
+            and cashflow -> quantity -> reset is absent
 
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
-        if performancePayout -> priceQuantity -> reset contains True
+        if performancePayout -> quantity -> reset contains True
         then interestRatePayout exists
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
@@ -489,7 +489,7 @@ type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. The
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
     exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
@@ -884,7 +884,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+        quantity exists
 
     condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
         securityInformation -> security exists

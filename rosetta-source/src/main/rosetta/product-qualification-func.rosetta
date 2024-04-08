@@ -876,12 +876,12 @@ func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
             and economicTerms -> payout -> interestRatePayout count = 2
-            and (economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+            and (economicTerms -> payout -> interestRatePayout -> quantity -> quantitySchedule -> unit -> currency
                     distinct
                     count = 2
-                or (economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency exists
-                    and economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency exists
-                    and economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency <> economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency))
+                or (economicTerms -> payout -> interestRatePayout -> quantity -> quantitySchedule -> unit -> currency exists
+                    //and economicTerms -> payout -> interestRatePayout -> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency exists
+                    and economicTerms -> payout -> interestRatePayout -> quantity -> quantitySchedule -> unit -> currency <> economicTerms -> payout -> interestRatePayout -> principalPayment -> varyingLegNotionalCurrency))
 
 func Qualify_BaseProduct_Fra: <"Qualifies a product as having the Base Product classification Forward Rate Agreement">
     inputs:
@@ -919,7 +919,7 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
             or ((economicTerms -> payout -> interestRatePayout -> rateSpecification -> floatingRate count = 1
                     or economicTerms -> payout -> interestRatePayout -> rateSpecification -> inflationRate count = 1)
                 and (economicTerms -> payout -> interestRatePayout
-                    filter rateSpecification is absent and priceQuantity exists
+                    filter rateSpecification is absent and quantity exists
                     then count = 1
                     ))
 
@@ -962,7 +962,7 @@ func Qualify_Transaction_ZeroCoupon_KnownAmount: <"Qualifies a product as having
             and Qualify_Transaction_ZeroCoupon(economicTerms) = True
             and (economicTerms -> payout -> interestRatePayout
                 filter
-                    item -> priceQuantity exists
+                    item -> quantity exists
                         and rateSpecification is absent
                         and paymentDates -> paymentFrequency -> periodMultiplier = 1
                         and paymentDates -> paymentFrequency -> period = PeriodExtendedEnum -> T
