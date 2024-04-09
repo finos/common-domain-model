@@ -93,8 +93,10 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
             or economicTerms -> payout -> performancePayout -> observationTerms -> observable -> currencyPair exists
             or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
             or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
-            or (optionUnderlier exists and Qualify_AssetClass_ForeignExchange(optionUnderlier -> contractualProduct -> economicTerms))
-            or (optionUnderlier exists and Qualify_AssetClass_ForeignExchange(optionUnderlier -> security -> economicTerms))
+            or (if optionUnderlier exists
+                   then Qualify_AssetClass_ForeignExchange(optionUnderlier -> contractualProduct -> economicTerms))
+            or (if optionUnderlier exists
+                   then Qualify_AssetClass_ForeignExchange(optionUnderlier -> security -> economicTerms))
             or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
 
