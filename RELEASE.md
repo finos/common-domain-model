@@ -1,21 +1,15 @@
-# _Product Model - FpML Mapping - Commodity Swaps_
+# _Product Model - Bond Option and Forward Qualification_
 
 _Background_
 
-Commodity swaps with a physical leg and a fixed/floating leg are incorrectly mapped from FpML. This is described in more detail in issue [#2837](https://github.com/finos/common-domain-model/issues/2837).
+A previous release caused a regression in the qualification of Bond Forwards and Bond Options, that were not qualified anymore due to an update to the `Qualify_AssetClass_InterestRate` function. This release fixes that.
 
 _What is being released?_
 
-This release fixes the mapping for Commodity Swaps from FpML as listed below.
-
-- Commodity swap samples with a physical leg and a fixed leg are now only mapped to these two payouts: `ForwardPayout` and `FixedPricePayout`
-- Commodity swap samples with a physical leg and a floating leg no longer have a settlement type defaulted to cash
+- Reintroduced to `Qualify_AssetClass_InterestRate` the possibility to have a security with `securityType = SecurityTypeEnum -> Debt` as underlier of the option or forward.
 
 _Review directions_
 
-In Rosetta, open the Translate tab and review the `fpml-5-10 > incomplete-products > commodity-derivatives` test pack samples:
+In Rosetta, select the Textual View and inspect each of the changes identified above
 
-- com-ex10-physical-oil-pipeline-crude-wti-floating-price.xml
-- com-ex11-physical-oil-pipeline-heating-oil-fixed-price.xml
-
-The changes can be reviewed in PR: [#2846](https://github.com/finos/common-domain-model/pull/2846)
+The changes can be reviewed in PR: [#2851](https://github.com/finos/common-domain-model/pull/2851)
