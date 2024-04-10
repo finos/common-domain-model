@@ -1,0 +1,42 @@
+name: Maven Build
+description: Run a Maven Build
+
+inputs:
+  release-name:
+    description:
+    required: true
+    # type: string  - This is not supported (yet). All inputs are of type `string`. See https://github.com/actions/runner/issues/2238.
+    default: TEST
+  build-flags:
+    description: TBC
+    required: true
+    default: TBC
+  deploy-flags:
+    description: TBC
+    required: true
+    default: TBC
+  build-profiles:
+    description: TBC
+    required: true
+    default: TBC
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK 11 for x64
+      uses: actions/setup-java@v4
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        architecture: x64
+        cache: maven
+        server-id: ossrh
+        server-username: CI_DEPLOY_USERNAME # env context
+        server-password: CI_DEPLOY_PASSWORD # env context
+    - name: Build with Maven
+      shell: bash
+      run: |
+        bash -c "${{GPG_IMPORT_COMMAND}}"
+        mvn ${{inputs.build-flags}} versions:set -DnewVersion=${{inputs.release-name}} versions:update-child-modules -DallowSnapshots=true
+        mvn ${{inputs.deploy-flags}} clean deploy -P "${{inputs.build-profiles}}"
+
