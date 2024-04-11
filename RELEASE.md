@@ -9,9 +9,7 @@ _What is being released?_
 
 Synonym mappings to cover the changes in v2-17 of FpML coding schemes.
 
-- Added a synonym mapping for `eventIdentifier` to correspond to the FpML `partyTradeIdentifier`, required to represent the `linkId` as an identifier in CDM.
 - Added mapping coverage for all missing values of `BusinessCenterEnum`.
-- Added conditional mappings for all the new coding schemes in FpML's `linkId`, to correspond to CDM's `identifier` in the `AssignedIdentifier` type.
 
 _Review directions_
 
