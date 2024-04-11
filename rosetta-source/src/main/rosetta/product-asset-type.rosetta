@@ -337,7 +337,7 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
         required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
-    security Security (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
+    security SecurityLegacy (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
     loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">
     primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">
     primaryObligorReference LegalEntity (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">
@@ -511,7 +511,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
     volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
     vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
     // vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
-    exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+    exchangeTradedContractNearest ObservableLegacy (0..1) <"Specification of the exchange traded contract nearest.">
 
     condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
         if vegaNotionalAmount -> value exists
@@ -538,7 +538,7 @@ type VolatilityReturnTerms extends ReturnTermsBase:
     volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
     volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
     // vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
-    exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+    exchangeTradedContractNearest ObservableLegacy (0..1) <"Specification of the exchange traded contract nearest.">
 
     condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
         if exchangeTradedContractNearest exists
@@ -691,7 +691,7 @@ type FloatingRateBase: <"A class defining a floating interest rate through the s
     [metadata key]
 
     rateOption FloatingRateOption (0..1)
-        [metadata address "pointsTo"=Observable->rateOption]
+        [metadata address "pointsTo"=ObservableLegacy->rateOption]
     spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
     capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
     floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">

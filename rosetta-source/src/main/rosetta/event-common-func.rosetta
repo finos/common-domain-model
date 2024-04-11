@@ -1018,7 +1018,7 @@ func FilterClosedTradeStates: <"Filter to only 'closed' TradeState - where eithe
 
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
     inputs:
-        security Security (1..1) <"The underlying Equity asset for the swap.">
+        security staticdata.asset.common.SecurityLegacy (1..1) <"The underlying Equity asset for the swap.">
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
     // performancePayout PerformancePayout (1..1)
     output:
@@ -1050,7 +1050,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 
 func NewSingleNameEquityPerformancePayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
-        security Security (1..1)
+        security staticdata.asset.common.SecurityLegacy (1..1)
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
     output:
         performancePayout PerformancePayout (1..1)
@@ -1731,7 +1731,7 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
 func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a set of trades based on a pair reference. A package component is created based on that pair reference and the list of identifiers for the underlying trades. That package component is then added onto the execution details of every underlying trade. The existing trades are not terminated.">
     inputs:
         tradeState TradeState (2..*) <"The trades to pair-off. There must be at least 2.">
-        pairReference Identifier (1..1) <"The reference ID of the paired trades.">
+        pairReference staticdata.identifier.IdentifierLegacy (1..1) <"The reference ID of the paired trades.">
     output:
         instruction Instruction (1..*)
 
@@ -1798,7 +1798,7 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
     inputs:
         tradeState TradeState (1..1) <"The original trade to be shaped.">
         tradeLots TradeLot (2..*) <"The shaped quantities provided as full set of trade lots with price and quantity. Each trade lot also contains an identifier to associate to the corresponding shaped trade. Shaping must result in at least 2 shaped trades.">
-        shapeIdentifier Identifier (1..1) <"The package ID of the shaped trades.">
+        shapeIdentifier staticdata.identifier.IdentifierLegacy (1..1) <"The package ID of the shaped trades.">
     output:
         instruction PrimitiveInstruction (1..1)
 
@@ -2225,8 +2225,8 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
     inputs:
         executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
-        listId Identifier (1..1) <"The identifier for the package.">
-        componentId Identifier (2..*) <"The list of identifiers for the package components. There must be at least 2.">
+        listId staticdata.identifier.IdentifierLegacy (1..1) <"The identifier for the package.">
+        componentId staticdata.identifier.IdentifierLegacy (2..*) <"The list of identifiers for the package components. There must be at least 2.">
     output:
         newExecutionDetails ExecutionDetails (1..1)
 
