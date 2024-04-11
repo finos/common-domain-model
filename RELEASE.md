@@ -1,15 +1,16 @@
-# _Product Model - Bond Option and Forward Qualification_
+# _Product Model - Synonym mappings for BusinessCenterEnum_
 
 _Background_
 
-A previous release introduced a regression in the qualification of Bond Forwards and Bond Options, that were no longer qualified due to an update in the `Qualify_AssetClass_InterestRate` function. This release addresses this issue.
+The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
+This release introduces support for the synonym mappings, to cover the changes in v2-17 of FpML coding schemes for `BusinessCenterEnum`.
 
 _What is being released?_
 
-- Reintroduced the capability to have a security with `securityType = SecurityTypeEnum -> Debt` as underlier of the option or forward in the `Qualify_AssetClass_InterestRate` function.
+- Added mapping coverage for all missing values of `BusinessCenterEnum`.
 
 _Review directions_
 
-In Rosetta, select the Textual View and inspect the change identified above
+In Rosetta, select the Textual View and inspect the change identified above.
 
-The changes can be reviewed in PR: [#2851](https://github.com/finos/common-domain-model/pull/2851)
+PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)
