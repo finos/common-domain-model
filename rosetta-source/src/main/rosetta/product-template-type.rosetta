@@ -323,8 +323,10 @@ type Product: <"Defines the product that is the subject of a tradable product de
     condition:
         one-of
 
-type Basket extends AssetBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
-    basketConstituent Product (1..*) <"Identifies the constituents of the basket">
+// ART-04  Remodel Basket to be a group of Observables
+// See also updates to TransferBase to ensure that baskets are transferable
+type Basket extends AssetBase: <"An Asset that is a collection of other Assets (or, in some cases Observables).">
+    basketConstituent Observable (1..*) <"Identifies the constituents of the basket">
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier staticdata.identifier.IdentifierLegacy (0..*) <"Specifies one or more identifiers for the lot, if any.">

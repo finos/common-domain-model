@@ -566,17 +566,29 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
     underlier Product (1..1) <"The entity impacted by the corporate action.">
 
+// ART-04 Update Transfer to act upon Assets, not Observables
+// type of 'identifier' updated; why does it have multiple cardinality?  Propose to make (0..1)
+// 'observable' deprecated (should be removed in final version)
+// 'transferable' introduced as a new attribute (will replace 'observable')
+// condition BasketMustBeTransferable added
 type TransferBase:
 
-    identifier staticdata.identifier.IdentifierLegacy (0..*) <"Represents a unique reference to the transfer.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
     quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-    observable ObservableLegacy (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    observable ObservableLegacy (0..1)  <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+        [deprecated]
+    transferable Asset (0..1) <"Represents the object that is subject to the transfer, ie an Asset.">
     payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
+    condition BasketMustBeTransferable:  <"A transferable Basket cannot contain Observables that are not transferable.">
+        if transferable exists and transferable -> basket exists 
+        then transferable -> basket -> basketConstituent -> index is absent 
+        and transferable -> basket-> basketConstituent -> quotedCurrencyPair is absent 
+
     condition FinancialUnitExists:
-        if observable exists
+        if transferable exists
         then quantity -> unit -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
