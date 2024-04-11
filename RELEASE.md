@@ -11,6 +11,6 @@ _What is being released?_
 
 _Review directions_
 
-In Rosetta, select the Textual View and inspect the change identified above
+In Rosetta, select the Textual View and inspect the change identified above.
 
 PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)
