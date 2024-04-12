@@ -16,16 +16,11 @@ jobs:
   setup: # defines the variables used across all job's steps and output variables to be used across jobs.
     runs-on: ubuntu-latest
     env:  # environment variables used across the setup job
-      # GPG config demo - TBD: proposal using secrets
-      # REPO_PATH: "$GITHUB_WORKSPACE" # Not required
-      MVN_DEPLOY_FLAGS: "-s $GITHUB_WORKSPACE/settings.xml -Dmaven.repo.local=$GITHUB_WORKSPACE/.m2 -Denv.CI_DEPLOY_PASSWORD=$GITHUB_TOKEN -Denv.CI_DEPLOY_USERNAME=$GITHUB_USER -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
       MVN_BUILD_FLAGS: "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2"
-      # GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import" - can be used if GPG is handled through secrets. 
       GEN_DEPLOY_POM_SCRIPT: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       GEN_DEPLOY_POM_PY: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
     outputs:
-      #REPO_PATH: ${{env.REPO_PATH}}
-      MVN_DEPLOY_FLAGS: ${{env.MVN_DEPLOY_FLAGS}}
+      #MVN_DEPLOY_FLAGS: ${{env.MVN_DEPLOY_FLAGS}}
       MVN_BUILD_FLAGS: ${{env.MVN_BUILD_FLAGS}}
       #GPG_IMPORT_COMMAND: ${{steps.set_props.outputs.GPG_IMPORT_COMMAND}}
       RELEASE_NAME: ${{steps.release_props.outputs.RELEASE_NAME}}
@@ -38,25 +33,15 @@ jobs:
     steps:
       - name: main_clone
         uses: actions/checkout@v2
-        
-      #- name: SetProperties # GPG configuration is not required
-      #  id: set_props
-      #  shell: bash
-      #  run: echo "GPG_IMPORT_COMMAND=${{env.GPG_IMPORT_COMMAND}}" >> "$GITHUB_OUTPUT"
-      #  env:
-      #    GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import"
 
       - name: ReleaseProperties
         id: release_props
         if: startsWith(github.event.ref, 'refs/tags/**')
         shell: bash
         run: |
-          echo "=== Global variable resolution ==="
-          echo "REPO_PATH: ${{env.REPO_PATH}}"
-          echo "=== Local variable resolution ==="
           echo "RELEASE_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
-          echo "MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
-          echo "MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
+          echo "RELEASE_MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
           RELEASE_NAME: "${{github.event.release.tag_name}}" # not resoled hot to define release name (e.g. $github.tag)
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
@@ -67,12 +52,9 @@ jobs:
         if: github.ref == 'refs/heads/develop'
         shell: bash
         run: |
-          echo "=== Global variable resolution ==="
-          echo "REPO_PATH: ${{env.REPO_PATH}}"
-          echo "=== Local variable resolution ==="
-          echo "RELEASE_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
-          echo "MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
-          echo "MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
+          echo "SNAPSHOT_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
+          echo "SNAPSHOT_MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
+          echo "SNAPSHOT_MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
           RELEASE_NAME: "${{github.ref_name}}-SNAPSHOT" # not resolved how to define snapshot name
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel"
@@ -87,11 +69,12 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags/**')
       - uses: ./.github/actions/maven-build-migration
         with:
-          build-command: install
+          build-command: deploy
           release-name: ${{needs.setup.outputs.RELEASE_NAME}}
           build-flags: ${{needs.setup.outputs.MVN_BUILD_FLAGS}}
-          deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
+          #deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
           build-profiles: ${{needs.setup.outputs.RELEASE_MVN_DEPLOY_FILE_FLAGS}}
+          maven-settings: ${{$GITHUB_WORKSPACE/settings.xml}}
         env:
           GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -100,9 +83,19 @@ jobs:
 
       - name: Build Snapshot CI
         if: github.ref == 'refs/heads/develop'
-        run: |
-          echo "MVN_DEPLOY_FILE_FLAGS: ${{needs.setup.outputs.SNAPSHOT_MVN_DEPLOY_FILE_FLAGS}}"
-          echo "RELEASE_NAME: ${{needs.setup.outputs.SNAPSHOT_NAME}}"
+      - uses: ./.github/actions/maven-build-migration
+        with:
+          build-command: verify
+          release-name: ${{needs.setup.outputs.SNAPSHOT_NAME}}
+          build-flags: ${{needs.setup.outputs.MVN_BUILD_FLAGS}}
+          #deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
+          build-profiles: ${{needs.setup.outputs.SNAPSHOT_MVN_DEPLOY_FILE_FLAGS}}
+          maven-settings: ${{$GITHUB_WORKSPACE/settings.xml}}
+        env:
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          CI_DEPLOY_USERNAME: ${{ vars.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
   
   distribute:
     needs: build
@@ -112,7 +105,7 @@ jobs:
       # Steps for distribution if needed
       - name: Distribute CI
         run:
-          echo "Testing distribute ci"
+          echo "Distribute ci"
   
   finalise:
     needs: distribute
@@ -122,4 +115,4 @@ jobs:
       # Steps for finalizing the process if needed
       - name: Finalize CI
         run:
-          echo "Testing finalize ci"
+          echo "Finalize ci"
