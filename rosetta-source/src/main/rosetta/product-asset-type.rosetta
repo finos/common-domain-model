@@ -166,9 +166,9 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         if priceQuantity -> futureValueNotional exists
         then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
-    condition RateSpecification:
+    condition RateSpecification: <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
         if rateSpecification is absent
-        then principalPayment -> finalPayment = True
+        then priceQuantity -> priceSchedule exists
 
     condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
         if paymentDates -> firstPaymentDate exists

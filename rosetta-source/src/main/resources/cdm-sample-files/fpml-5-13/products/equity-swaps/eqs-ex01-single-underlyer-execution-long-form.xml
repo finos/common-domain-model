@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-13-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2022-2023 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--5.0:Message type is a Root of the message-->
+<!--5.0 Messaging: changed <requestTradeConfirmation> -><requestConfirmation>-->
+<requestConfirmation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.fpml.org/FpML-5/confirmation" fpmlVersion="5-13" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation /schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd">
+    <header>
+        <!--FpML 5.0: Removed "conversationId", replaced by "conversationId"-->
+        <!--conversationId conversationIdScheme="http://www.example.com/conversationId">CS/2006/07/02/32-09</conversationId-->
+        <messageId messageIdScheme="http://www.example.com/messageId">MS/2006/04/07/15-99</messageId>
+        <sentBy>PARTYABICXXX</sentBy>
+        <sendTo>PARTYBBICXXX</sendTo>
+        <creationTimestamp>2006-07-02T16:38:00Z</creationTimestamp>
+    </header>
+    <!--5.0 Messaging: added
+                    <isCorrection>
+                    <correlationId>
+                    <sequenceNumber>
+            -->
+    <isCorrection>false</isCorrection>
+    <correlationId correlationIdScheme="http://www.example.com/correlationId">CS/2006/07/02/32-09</correlationId>
+    <sequenceNumber>1</sequenceNumber>
+    <trade>
+        <!--This is a single stock execution swap, that also illustrates the case of multiple interim valuation dates-->
+        <tradeHeader>
+            <partyTradeIdentifier>
+                <partyReference href="party1"/>
+                <tradeId tradeIdScheme="http://www.partyA.com/eqs-trade-id">6234</tradeId>
+            </partyTradeIdentifier>
+            <partyTradeIdentifier>
+                <partyReference href="party2"/>
+                <tradeId tradeIdScheme="http://www.partyB.com/eqs-trade-id">6569</tradeId>
+            </partyTradeIdentifier>
+            <tradeDate id="TradeDate">2001-09-24</tradeDate>
+        </tradeHeader>
+        <returnSwap>
+            <productType>Equity:Swap:PriceReturnBasicPerformance:SingleName</productType>
+            <returnLeg>
+                <payerPartyReference href="party1"/>
+                <receiverPartyReference href="party2"/>
+                <effectiveDate id="EffectiveDate">
+                    <relativeDate>
+                        <periodMultiplier>3</periodMultiplier>
+                        <period>D</period>
+                        <dayType>ExchangeBusiness</dayType>
+                        <businessDayConvention>NotApplicable</businessDayConvention>
+                        <dateRelativeTo href="TradeDate"/>
+                    </relativeDate>
+                </effectiveDate>
+                <terminationDate id="TerminationDate">
+                    <relativeDate>
+                        <periodMultiplier>0</periodMultiplier>
+                        <period>D</period>
+                        <businessDayConvention>NotApplicable</businessDayConvention>
+                        <dateRelativeTo href="FinalEquityPaymentDate"/>
+                    </relativeDate>
+                </terminationDate>
+                <underlyer>
+                    <singleUnderlyer>
+                        <equity>
+                            <instrumentId instrumentIdScheme="http://www.abc.com/instrumentId">SHPGY.O</instrumentId>
+                            <description>Shire Pharmeceuticals Group - American Depositary Receipts</description>
+                            <exchangeId exchangeIdScheme="http://www.abc.com/exchangeId">NASD</exchangeId>
+                        </equity>
+                        <openUnits>760400</openUnits>
+                        <dividendPayout>
+                            <dividendPayoutRatio>1</dividendPayoutRatio>
+                        </dividendPayout>
+                    </singleUnderlyer>
+                </underlyer>
+                <settlementType>Cash</settlementType>
+                <rateOfReturn>
+                    <initialPrice>
+                        <netPrice>
+                            <currency>USD</currency>
+                            <amount>37.44</amount>
+                            <priceExpression>AbsoluteTerms</priceExpression>
+                        </netPrice>
+                    </initialPrice>
+                    <notionalReset>true</notionalReset>
+                    <valuationPriceInterim>
+                        <determinationMethod>ValuationTime</determinationMethod>
+                        <valuationRules>
+                            <valuationDates id="InterimValuationDate">
+                                <adjustableDates>
+                                    <unadjustedDate>2001-10-12</unadjustedDate>
+                                    <unadjustedDate>2001-11-13</unadjustedDate>
+                                    <unadjustedDate>2001-12-12</unadjustedDate>
+                                    <unadjustedDate>2002-01-14</unadjustedDate>
+                                    <unadjustedDate>2002-02-12</unadjustedDate>
+                                    <unadjustedDate>2002-03-12</unadjustedDate>
+                                    <unadjustedDate>2002-04-12</unadjustedDate>
+                                    <unadjustedDate>2002-05-13</unadjustedDate>
+                                    <unadjustedDate>2002-06-12</unadjustedDate>
+                                    <unadjustedDate>2002-07-12</unadjustedDate>
+                                    <unadjustedDate>2002-08-12</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>NotApplicable</businessDayConvention>
+                                    </dateAdjustments>
+                                </adjustableDates>
+                            </valuationDates>
+                            <valuationTimeType>Close</valuationTimeType>
+                        </valuationRules>
+                    </valuationPriceInterim>
+                    <valuationPriceFinal>
+                        <determinationMethod>HedgeExecution</determinationMethod>
+                        <valuationRules>
+                            <valuationDate id="FinalValuationDate">
+                                <adjustableDate>
+                                    <unadjustedDate>2002-09-24</unadjustedDate>
+                                    <dateAdjustments>
+                                        <businessDayConvention>NotApplicable</businessDayConvention>
+                                    </dateAdjustments>
+                                </adjustableDate>
+                            </valuationDate>
+                        </valuationRules>
+                    </valuationPriceFinal>
+                    <paymentDates id="EquityPaymentDate">
+                        <paymentDatesInterim id="InterimEquityPaymentDate">
+                            <relativeDates>
+                                <periodMultiplier>3</periodMultiplier>
+                                <period>D</period>
+                                <dayType>CurrencyBusiness</dayType>
+                                <businessDayConvention>FOLLOWING</businessDayConvention>
+                                <businessCenters id="PrimaryBusinessCenter">
+                                    <businessCenter>USNY</businessCenter>
+                                </businessCenters>
+                                <dateRelativeTo href="InterimValuationDate"/>
+                            </relativeDates>
+                        </paymentDatesInterim>
+                        <paymentDateFinal id="FinalEquityPaymentDate">
+                            <relativeDate>
+                                <periodMultiplier>3</periodMultiplier>
+                                <period>D</period>
+                                <dayType>CurrencyBusiness</dayType>
+                                <businessDayConvention>FOLLOWING</businessDayConvention>
+                                <businessCentersReference href="PrimaryBusinessCenter"/>
+                                <dateRelativeTo href="FinalValuationDate"/>
+                            </relativeDate>
+                        </paymentDateFinal>
+                    </paymentDates>
+                </rateOfReturn>
+                <notional>
+                    <notionalAmount id="EquityNotionalAmount">
+                        <currency>USD</currency>
+                        <amount>28469376</amount>
+                    </notionalAmount>
+                </notional>
+                <amount>
+                    <!--FpML 5-0 renamed    <paymentCurrency id="EquityPaymentCurrency"><currency>USD</currency>-->
+                    <currency id="EquityPaymentCurrency">USD</currency>
+                    <referenceAmount>ISDA Standard</referenceAmount>
+                    <cashSettlement>true</cashSettlement>
+                </amount>
+                <return>
+                    <returnType>Total</returnType>
+                    <dividendConditions>
+                        <dividendReinvestment>false</dividendReinvestment>
+                        <dividendEntitlement>ExDate</dividendEntitlement>
+                        <dividendPaymentDate>
+                            <dividendDateReference>EquityPaymentDate</dividendDateReference>
+                        </dividendPaymentDate>
+                        <dividendPeriodEffectiveDate href="TradeDate"/>
+                        <dividendPeriodEndDate href="TerminationDate"/>
+                        <extraOrdinaryDividends href="party1"/>
+                        <excessDividendAmount>RecordAmount</excessDividendAmount>
+                        <!--FpML 5-0 renamed from <paymentCurrency> <determinationMethod>-->
+                        <determinationMethod>DividendCurrency</determinationMethod>
+                    </dividendConditions>
+                </return>
+                <!--The notionalAdjustments element indicates that this is an execution-style swap -->
+                <notionalAdjustments>Execution</notionalAdjustments>
+            </returnLeg>
+            <interestLeg>
+                <payerPartyReference href="party2"/>
+                <receiverPartyReference href="party1"/>
+                <interestLegCalculationPeriodDates id="InterestLegPeriodDates">
+                    <effectiveDate>
+                        <relativeDate>
+                            <periodMultiplier>3</periodMultiplier>
+                            <period>D</period>
+                            <dayType>ExchangeBusiness</dayType>
+                            <businessDayConvention>NotApplicable</businessDayConvention>
+                            <dateRelativeTo href="TradeDate"/>
+                        </relativeDate>
+                    </effectiveDate>
+                    <terminationDate>
+                        <relativeDate>
+                            <periodMultiplier>0</periodMultiplier>
+                            <period>D</period>
+                            <businessDayConvention>NotApplicable</businessDayConvention>
+                            <dateRelativeTo href="FinalEquityPaymentDate"/>
+                        </relativeDate>
+                    </terminationDate>
+                    <interestLegResetDates>
+                        <calculationPeriodDatesReference href="InterestLegPeriodDates"/>
+                        <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+                    </interestLegResetDates>
+                    <interestLegPaymentDates>
+                        <relativeDates>
+                            <periodMultiplier>0</periodMultiplier>
+                            <period>D</period>
+                            <businessDayConvention>NotApplicable</businessDayConvention>
+                            <dateRelativeTo href="EquityPaymentDate"/>
+                        </relativeDates>
+                    </interestLegPaymentDates>
+                </interestLegCalculationPeriodDates>
+                <notional>
+                    <relativeNotionalAmount href="EquityNotionalAmount"/>
+                </notional>
+                <interestAmount>
+                    <!--FpML 5-0: Renamed from <paymentCurrency href="EquityPaymentCurrency"/>-->
+                    <currencyReference href="EquityPaymentCurrency"/>
+                    <referenceAmount>Standard ISDA</referenceAmount>
+                </interestAmount>
+                <interestCalculation>
+                    <floatingRateCalculation>
+                        <floatingRateIndex>USD-LIBOR-BBA</floatingRateIndex>
+                        <indexTenor>
+                            <periodMultiplier>1</periodMultiplier>
+                            <period>M</period>
+                        </indexTenor>
+                        <spreadSchedule>
+                            <initialValue>0.0020</initialValue>
+                        </spreadSchedule>
+                    </floatingRateCalculation>
+                    <dayCountFraction>ACT/360</dayCountFraction>
+                </interestCalculation>
+            </interestLeg>
+            <earlyTermination>
+                <partyReference href="party1"/>
+                <startingDate>
+                    <dateRelativeTo href="TradeDate"/>
+                </startingDate>
+            </earlyTermination>
+            <earlyTermination>
+                <partyReference href="party2"/>
+                <startingDate>
+                    <dateRelativeTo href="TradeDate"/>
+                </startingDate>
+            </earlyTermination>
+            <!-- AP 2004.05.06 -->
+            <extraordinaryEvents>
+                <mergerEvents>
+                    <shareForShare>ModifiedCalculationAgent</shareForShare>
+                    <shareForOther>ModifiedCalculationAgent</shareForOther>
+                    <shareForCombined>ModifiedCalculationAgent</shareForCombined>
+                </mergerEvents>
+                <tenderOffer>true</tenderOffer>
+                <tenderOfferEvents>
+                    <shareForShare>ModifiedCalculationAgent</shareForShare>
+                    <shareForOther>ModifiedCalculationAgent</shareForOther>
+                    <shareForCombined>ModifiedCalculationAgent</shareForCombined>
+                </tenderOfferEvents>
+                <compositionOfCombinedConsideration>true</compositionOfCombinedConsideration>
+                <additionalDisruptionEvents>
+                    <changeInLaw>true</changeInLaw>
+                    <failureToDeliver>true</failureToDeliver>
+                    <insolvencyFiling>false</insolvencyFiling>
+                    <hedgingDisruption>true</hedgingDisruption>
+                    <lossOfStockBorrow>true</lossOfStockBorrow>
+                    <increasedCostOfStockBorrow>false</increasedCostOfStockBorrow>
+                    <increasedCostOfHedging>false</increasedCostOfHedging>
+                    <determiningPartyReference href="party1"/>
+                </additionalDisruptionEvents>
+                <representations>
+                    <nonReliance>true</nonReliance>
+                    <agreementsRegardingHedging>true</agreementsRegardingHedging>
+                    <additionalAcknowledgements>true</additionalAcknowledgements>
+                </representations>
+                <nationalisationOrInsolvency>CancellationAndPayment</nationalisationOrInsolvency>
+            </extraordinaryEvents>
+        </returnSwap>
+        <calculationAgent>
+            <calculationAgentPartyReference href="party1"/>
+        </calculationAgent>
+        <documentation>
+            <masterAgreement>
+                <masterAgreementType>ISDA</masterAgreementType>
+                <masterAgreementVersion>2002</masterAgreementVersion>
+            </masterAgreement>
+            <contractualDefinitions>ISDA2000</contractualDefinitions>
+            <contractualDefinitions>ISDA2002Equity</contractualDefinitions>
+        </documentation>
+        <governingLaw>GBEN</governingLaw>
+    </trade>
+    <party id="party1">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party A</partyId>
+    </party>
+    <party id="party2">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party B</partyId>
+    </party>
+</requestConfirmation>
+

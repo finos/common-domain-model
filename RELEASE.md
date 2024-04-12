@@ -1,14 +1,16 @@
-# *Infrastructure - Dependency Update*
+# _Product Model - Synonym mappings for BusinessCenterEnum_
+
+_Background_
+
+The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
+This release introduces support for the synonym mappings, to cover the changes in v2-17 of FpML coding schemes for `BusinessCenterEnum`.
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` and `rosetta-bundle` dependency.
+- Added mapping coverage for all missing values of `BusinessCenterEnum`.
 
-Version updates include:
-- `rosetta-dsl` 9.0.3: DSL performance and stability improvements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.3.
-- `rosetta-dsl` 9.0.2: improved DSL error messages. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.0.2.
-- Updated FpML schemas to latest, updating the corresponding enumerations.
+_Review directions_
 
-There are no changes to the model, and test expectations remain the same.
+In Rosetta, select the Textual View and inspect the change identified above.
 
-The changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2528.
+PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)
