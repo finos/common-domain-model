@@ -1,27 +1,33 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches: [ "master", "develop" ]
-  pull_request:
-    branches: [ "master", "develop" ]
+  push: #triggers when a tag push event is cached in master branch
+    branches:
+      - 'master'
+    tags:
+      - '**'
+  pull_request: #triggers when a PR is merged into develop branch
+    types:
+      - closed
+    branches: 
+      - 'develop'
  
 jobs:
   setup: # defines the variables used across all job's steps and output variables to be used across jobs.
     runs-on: ubuntu-latest
     env:  # environment variables used across the setup job
       # GPG config demo - TBD: proposal using secrets
-      REPO_PATH: "$GITHUB_WORKSPACE" # Not required
+      # REPO_PATH: "$GITHUB_WORKSPACE" # Not required
       MVN_DEPLOY_FLAGS: "-s $GITHUB_WORKSPACE/settings.xml -Dmaven.repo.local=$GITHUB_WORKSPACE/.m2 -Denv.CI_DEPLOY_PASSWORD=$GITHUB_TOKEN -Denv.CI_DEPLOY_USERNAME=$GITHUB_USER -Denv.GPG_KEYNAME=${{secrets.GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{secrets.GPG_PASSPHRASE}}"
       MVN_BUILD_FLAGS: "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2"
       # GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import" - can be used if GPG is handled through secrets. 
       GEN_DEPLOY_POM_SCRIPT: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       GEN_DEPLOY_POM_PY: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
     outputs:
-      REPO_PATH: ${{env.REPO_PATH}}
+      #REPO_PATH: ${{env.REPO_PATH}}
       MVN_DEPLOY_FLAGS: ${{env.MVN_DEPLOY_FLAGS}}
       MVN_BUILD_FLAGS: ${{env.MVN_BUILD_FLAGS}}
-      GPG_IMPORT_COMMAND: ${{steps.set_props.outputs.GPG_IMPORT_COMMAND}}
+      #GPG_IMPORT_COMMAND: ${{steps.set_props.outputs.GPG_IMPORT_COMMAND}}
       RELEASE_NAME: ${{steps.release_props.outputs.RELEASE_NAME}}
       RELEASE_MAVEN_BUILD_PROFILES: ${{steps.release_props.outputs.MAVEN_BUILD_PROFILES}}
       RELEASE_MVN_DEPLOY_FILE_FLAGS: ${{steps.release_props.outputs.MVN_DEPLOY_FILE_FLAGS}}
@@ -32,17 +38,17 @@ jobs:
     steps:
       - name: main_clone
         uses: actions/checkout@v2
-      
-      - name: SetProperties
-        id: set_props
-        shell: bash
-        run: echo "GPG_IMPORT_COMMAND=${{env.GPG_IMPORT_COMMAND}}" >> "$GITHUB_OUTPUT"
-        env:
-          GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import"
+        
+      #- name: SetProperties # GPG configuration is not required
+      #  id: set_props
+      #  shell: bash
+      #  run: echo "GPG_IMPORT_COMMAND=${{env.GPG_IMPORT_COMMAND}}" >> "$GITHUB_OUTPUT"
+      #  env:
+      #    GPG_IMPORT_COMMAND: "cat <(echo -e '${{secrets.GPG_PRIVATE_KEY}}') | gpg --batch --import"
 
       - name: ReleaseProperties
         id: release_props
-        if: "contains(github.ref, 'master')"
+        if: startsWith(github.event.ref, 'refs/tags/**')
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
@@ -52,13 +58,13 @@ jobs:
           echo "MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
           echo "MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
-          RELEASE_NAME: "${{github.ref_name}}" # not resoled hot to define release name (e.g. $github.tag)
+          RELEASE_NAME: "${{github.event.release.tag_name}}" # not resoled hot to define release name (e.g. $github.tag)
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
           
       - name: SnapshotProperties
         id: snapshot_props
-        if: "contains(github.ref, 'develop')"
+        if: github.ref == 'refs/heads/develop'
         shell: bash
         run: |
           echo "=== Global variable resolution ==="
@@ -78,13 +84,22 @@ jobs:
 
     steps:
       - name: Build Release CI
-        if: "contains(github.ref, 'master')"
-        run: |
-          echo "MVN_DEPLOY_FILE_FLAGS: ${{needs.setup.outputs.RELEASE_MVN_DEPLOY_FILE_FLAGS}}"
-          echo "RELEASE_NAME: ${{needs.setup.outputs.RELEASE_NAME}}"
+        if: startsWith(github.event.ref, 'refs/tags/**')
+      - uses: ./.github/actions/maven-build-migration
+        with:
+          build-command: install
+          release-name: ${{needs.setup.outputs.RELEASE_NAME}}
+          build-flags: ${{needs.setup.outputs.MVN_BUILD_FLAGS}}
+          deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
+          build-profiles: ${{needs.setup.outputs.RELEASE_MVN_DEPLOY_FILE_FLAGS}}
+        env:
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          CI_DEPLOY_USERNAME: ${{ vars.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
 
       - name: Build Snapshot CI
-        if: "contains(github.ref, 'develop')"
+        if: github.ref == 'refs/heads/develop'
         run: |
           echo "MVN_DEPLOY_FILE_FLAGS: ${{needs.setup.outputs.SNAPSHOT_MVN_DEPLOY_FILE_FLAGS}}"
           echo "RELEASE_NAME: ${{needs.setup.outputs.SNAPSHOT_NAME}}"
