@@ -49,7 +49,7 @@ def test_trade():
     assert not exceptions
 
 
-def test_fx():
+def test_rates():
     path = os.path.join(os.path.dirname(__file__), CDM_JSON_SAMPLE_SOURCE, 'rates', 'bond-option-uti.json')
     json_str = Path(path).read_text(encoding='utf8')
     ts = TradeState.model_validate_json(json_str)
