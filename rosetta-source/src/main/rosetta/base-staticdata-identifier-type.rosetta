@@ -11,7 +11,15 @@ type AssignedIdentifier: <"A class to specify the identifier value and its assoc
         [metadata scheme]
     version int (0..1) <"The identifier version, which is specified as an integer and is meant to be incremented each time the transaction terms (whether contract or event) change. This version is made option to support the use case where the identifier is referenced without the version. The constraint that a contract and a lifecycle event need to have an associated version is enforced through data rules.">
 
+// ART-03 Refactored Identifier
+// Existing Identifier renamed to IdentifierLegacy
 type Identifier: <"A class to specify a generic identifier, applicable to CDM artefacts such as executions, contracts, lifecycle events and legal documents. An issuer can be associated with the actual identifier value as a way to properly qualify it.">
+    [metadata key]
+	
+    identifier string (1..1) <"The identifier value.">
+        [metadata scheme]   
+
+type IdentifierLegacy: <"A class to specify a generic identifier, applicable to CDM artefacts such as executions, contracts, lifecycle events and legal documents. An issuer can be associated with the actual identifier value as a way to properly qualify it.">
     [metadata key]
 	[docReference ICMA GMRA namingConvention "Identifier"
 		provision "As referenced in GMRA paragraph 3(b) Securities may be identified using identifying numbers such as CUSIP or ISIN"]
@@ -28,11 +36,11 @@ type Identifier: <"A class to specify a generic identifier, applicable to CDM ar
 type IdentifiedList: <"Attaches an identifier to a collection of objects, when those objects themselves can each be represented by an identifier. One use case is the representation of package transactions, where each component is a separate trade with its own identifier, and those trades are linked together as a package with its own identifier. The data type has been named generically rather than referring to 'packages' as it may have a number of other uses.">
     [metadata key]
 
-    listId Identifier (1..1) <"The identifier for the list. In the case of a package transaction, this would be the package identifier. This attribute is mandatory to allow the list itself to be identified.">
-    componentId Identifier (2..*) <"Identifiers for each component of the list. Since the data type is used to link multiple identified objects together, at least 2 components are required in the list. Creating an identified list with only 1 identified component has been deemed unnecessary, because it would just create a redundant identifier.">
+    listId IdentifierLegacy (1..1) <"The identifier for the list. In the case of a package transaction, this would be the package identifier. This attribute is mandatory to allow the list itself to be identified.">
+    componentId IdentifierLegacy (2..*) <"Identifiers for each component of the list. Since the data type is used to link multiple identified objects together, at least 2 components are required in the list. Creating an identified list with only 1 identified component has been deemed unnecessary, because it would just create a redundant identifier.">
     price Price (0..1) <"The price of the package.">
 
-type LocationIdentifier extends Identifier: <"Specifies a location identifier. An issuer and an identifier type can be associated with the actual identifier value as a way to properly qualify it.">
+type LocationIdentifier extends IdentifierLegacy: <"Specifies a location identifier. An issuer and an identifier type can be associated with the actual identifier value as a way to properly qualify it.">
 
     locationIdentifierType CommodityLocationIdentifierTypeEnum (0..1) <"Specifies the nature of a location identifier.">
 
