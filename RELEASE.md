@@ -1,17 +1,16 @@
-# Product Model - Commodity Physical Options
+# _Product Model - Synonym mappings for BusinessCenterEnum_
 
 _Background_
 
-This release provides qualification support for Commodity Physical Option products, which were not supported until now. These kind of products will be represented similarly to cash settled options: an `optionPayout` with a strike that can be fixed or floating, a commodity `underlier` and the delivery information specified in the attribute `delivery`. The only difference will be that `settlementType` will be `Physical`.
+The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
+This release introduces support for the synonym mappings, to cover the changes in v2-17 of FpML coding schemes for `BusinessCenterEnum`.
 
 _What is being released?_
 
-* Added two qualifying functions: `Qualify_Commodity_Option_Cash` and `Qualify_Commodity_Option_Physical`, which use the function `Qualify_Commodity_Option` and check the value in `settlementType`.
-
-* Updated the qualifying functions `Qualify_Commodity_Swap_FixedFloat` and `Qualify_Commodity_Swap_Basis` so they do not check that the underlier is a commodity. That is redundant information since it is already been checked in `Qualify_AssetClass_Commodity`.
+- Added mapping coverage for all missing values of `BusinessCenterEnum`.
 
 _Review directions_
 
-* In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
+In Rosetta, select the Textual View and inspect the change identified above.
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2749
+PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)

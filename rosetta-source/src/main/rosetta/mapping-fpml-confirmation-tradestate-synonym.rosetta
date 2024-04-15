@@ -832,12 +832,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "settlementCurrency" path "exercise" mapper "SettlementType"]
             [value "settlementType"]
             [value "settlementType" path "equityExercise"]
-            
             [set to SettlementTypeEnum -> Cash when "cashSettlement" exists]
             [set to SettlementTypeEnum -> Cash when "settlementType" = "Cash"]
             [set to SettlementTypeEnum -> Cash when "amount->cashSettlement" = True]
             [set to SettlementTypeEnum -> Physical when "settlementType" = "Physical"]
-
             [set to SettlementTypeEnum -> Cash when "cashSettlementTerms" exists]
             [set to SettlementTypeEnum -> Physical when "physicalSettlementTerms" exists]
             [set to SettlementTypeEnum -> Physical when "physicalExercise" exists]
@@ -1748,7 +1746,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "genericProduct" mapper "TaxonomySource"]
             [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
             [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
-    
+
     TaxonomyValue:
         + name
             [value "productType"]
@@ -1765,7 +1763,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
             [set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-2-commodity-classification"]
             [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-3-commodity-classification"]
-
             [set to 1 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
             [set to 2 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-2-commodity-classification"]
             [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]
@@ -2309,7 +2306,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "exercise"]
             [value "equityExercise"]
             [value "equityAmericanExercise" path "equityExercise"]
-
             [value "europeanExercise"]
             [value "americanExercise"]
             [hint "exercise"]
@@ -2319,27 +2315,22 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "expirationDate" path "exercise->americanExercise->exercisePeriod"]
             [value "expirationDate" path "equityExercise->equityAmericanExercise"]
             [value "expirationDates" path "americanExercise"]
-            
             [value "expirationDate" path "europeanExercise"]
             [value "expirationDate" path "exercise->europeanExercise"]
             [value "expirationDate" path "equityExercise->equityEuropeanExercise"]
             [value "expirationDate" path "physicalExercise->europeanExercise"]
             [value "expirationDates" path "europeanExercise"]
-
             // For FX Option
             [value "europeanExercise"]
-            [value "americanExercise"]
-            
-            //[hint "americanExercise->expiryDate"]
-            //[hint "expiryDate"]
+            [value "americanExercise"]            
+        // [hint "americanExercise->expiryDate"]
+        // [hint "expiryDate"]
         + expirationTime
             [value "expirationTime" path "americanExercise"]
             [value "expiryTime" path "americanExercise"]
             [value "equityExpirationTime" path "equityAmericanExercise"]
-
             [value "expirationTime" path "bermudaExercise"]
             [value "equityExpirationTime" path "equityBermudaExercise"]
-
             [value "expirationTime" path "europeanExercise"]
             [value "expirationTime" path "physicalExercise->europeanExercise"]
             [value "equityExpirationTime" path "equityEuropeanExercise"]
@@ -2352,13 +2343,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + latestExerciseTime
             [value "latestExerciseTime" path "americanExercise"]
             [value "latestExerciseTime" path "equityExercise->equityAmericanExercise"]
-
             [value "latestExerciseTime" path "bermudaExercise"]
             [value "latestExerciseTime" path "equityExercise->equityBermudaExercise"]
         + multipleExercise
             [value "multipleExercise" path "americanExercise"]
             [value "equityMultipleExercise" path "equityExercise->equityAmericanExercise"]
-
             [value "multipleExercise" path "bermudaExercise"]
             [value "equityMultipleExercise" path "equityExercise->equityBermudaExercise"]
         + partialExercise
@@ -2373,18 +2362,16 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "relevantUnderlyingDate" path "bermudaExercise"]
             [value "relevantUnderlyingDate" path "europeanExercise"]
         + style
-            [set to OptionExerciseStyleEnum  -> European when "europeanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> European when "physicalExercise->europeanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> European when "exercise->europeanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> European when "equityExercise->equityEuropeanExercise" exists]
-           
-            [set to OptionExerciseStyleEnum  -> American when "americanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> American when "physicalExercise->americanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> American when "exercise->americanExercise" exists]
-            [set to OptionExerciseStyleEnum  -> American when "equityExercise->equityAmericanExercise" exists]
-            
-            [set to OptionExerciseStyleEnum  -> Bermuda when "bermudaExercise" exists]
-            [set to OptionExerciseStyleEnum  -> Bermuda when "equityExercise->equityBermudaExercise" exists] 
+            [set to OptionExerciseStyleEnum -> European when "europeanExercise" exists]
+            [set to OptionExerciseStyleEnum -> European when "physicalExercise->europeanExercise" exists]
+            [set to OptionExerciseStyleEnum -> European when "exercise->europeanExercise" exists]
+            [set to OptionExerciseStyleEnum -> European when "equityExercise->equityEuropeanExercise" exists]
+            [set to OptionExerciseStyleEnum -> American when "americanExercise" exists]
+            [set to OptionExerciseStyleEnum -> American when "physicalExercise->americanExercise" exists]
+            [set to OptionExerciseStyleEnum -> American when "exercise->americanExercise" exists]
+            [set to OptionExerciseStyleEnum -> American when "equityExercise->equityAmericanExercise" exists]
+            [set to OptionExerciseStyleEnum -> Bermuda when "bermudaExercise" exists]
+            [set to OptionExerciseStyleEnum -> Bermuda when "equityExercise->equityBermudaExercise" exists]
 
     ForwardPayout:
         [meta "id"]
@@ -2582,13 +2569,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxSingleLeg"]
             [value "nearLeg"]
             [value "farLeg"]
+            [value "coalPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "electricityPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "environmentalPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "gasPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "oilPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
         + securityPayout
             [value "repo"]
         + cashflow
             [value "ignore"]
         + commodityPayout
-            [value "commoditySwap" , "floatingLeg" path "commoditySwap"]
+            [value "commoditySwap", "floatingLeg" path "commoditySwap"]
         + fixedPricePayout
             [value "fixedLeg" path "commoditySwap"]
             [value "fixedPayment" path "fixedLeg" , "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
@@ -2733,7 +2725,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxSingleLeg"]
             // Other
             [value "repo"]
-            [value "floatingLeg", "oilPhysicalLeg"]
+            [value "floatingLeg"]
+            [value "coalPhysicalLeg"]
+            [value "electricityPhysicalLeg"]
+            [value "environmentalPhysicalLeg"]
+            [value "gasPhysicalLeg"]
+            [value "oilPhysicalLeg"]
             [value "genericProduct" mapper "InterestRateForwardDebtPrice"]
             [value "productSummary"]
             // Additional payment
@@ -2759,7 +2756,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bondOption"]
             [value "bulletPayment"]
             // Credit
-            [value "creditDefaultSwap" , "creditDefaultSwap" path "creditDefaultSwapOption" , "creditDefaultSwapOption", "tradeHeader"]
+            [value "creditDefaultSwap" , "creditDefaultSwap" path "creditDefaultSwapOption" , "creditDefaultSwapOption" , "tradeHeader"]
             // FX
             [hint "fxSingleLeg"]
             [value "fxSwap"]
@@ -2969,8 +2966,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "relativeDate" path "paymentDateFinal"]
             [value "paymentDaysOffset"]
             [hint "payRelativeTo"]
-
-            //FX Options
+            // FX Options
             [value "expiryDate"]
 
     AdjustableOrRelativeDates:
@@ -5367,6 +5363,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "ZAR-CPIX"]
 
     BusinessCenterEnum:
+        + AEAB
+            [value "AEAB"]
         + AEAD
             [value "AEAD"]
         + AEDU
@@ -5445,6 +5443,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "CIAB"]
         + CLSA
             [value "CLSA"]
+        + CMYA
+            [value "CMYA"]
         + CNBE
             [value "CNBE"]
         + CNSH
@@ -5453,6 +5453,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "COBO"]
         + CRSJ
             [value "CRSJ"]
+        + CWWI
+            [value "CWWI"]
         + CYNI
             [value "CYNI"]
         + CZPR
@@ -5479,6 +5481,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "DOSD"]
         + DZAL
             [value "DZAL"]
+        + ECGU
+            [value "ECGU"]
         + EETA
             [value "EETA"]
         + EGCA
@@ -5489,8 +5493,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "ESBA"]
         + ESMA
             [value "ESMA"]
+        + ESSS
+            [value "ESSS"]
         + ETAA
             [value "ETAA"]
+        + EUR_ICESWAP
+            [value "EUR-ICESWAP"]
         + EUTA
             [value "EUTA"]
         + FIHE
@@ -5501,14 +5509,24 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "GBED"]
         + GBLO
             [value "GBLO"]
+        + GBP_ICESWAP
+            [value "GBP-ICESWAP"]
         + GETB
             [value "GETB"]
         + GGSP
             [value "GGSP"]
         + GHAC
             [value "GHAC"]
+        + GIGI
+            [value "GIGI"]
+        + GMBA
+            [value "GMBA"]
+        + GNCO
+            [value "GNCO"]
         + GRAT
             [value "GRAT"]
+        + GTGC
+            [value "GTGC"]
         + HKHK
             [value "HKHK"]
         + HNTE
@@ -5523,8 +5541,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "IEDU"]
         + ILJE
             [value "ILJE"]
+        + ILS_TELBOR
+            [value "ILS-TELBOR"]
         + ILTA
             [value "ILTA"]
+        + INAH
+            [value "INAH"]
         + INBA
             [value "INBA"]
         + INCH
@@ -5537,6 +5559,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "INMU"]
         + INND
             [value "INND"]
+        + IQBA
+            [value "IQBA"]
         + IRTE
             [value "IRTE"]
         + ISRE
@@ -5565,6 +5589,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "KYGE"]
         + KZAL
             [value "KZAL"]
+        + LAVI
+            [value "LAVI"]
         + LBBE
             [value "LBBE"]
         + LKCO
@@ -5579,6 +5605,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "MARA"]
         + MCMO
             [value "MCMO"]
+        + MNUB
+            [value "MNUB"]
         + MOMA
             [value "MOMA"]
         + MTVA
@@ -5595,6 +5623,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "MYKL"]
         + MYLA
             [value "MYLA"]
+        + MZMA
+            [value "MZMA"]
         + NAWI
             [value "NAWI"]
         + NGAB
@@ -5657,6 +5687,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "SILJ"]
         + SKBR
             [value "SKBR"]
+        + SLFR
+            [value "SLFR"]
         + SNDA
             [value "SNDA"]
         + SVSS
@@ -5687,6 +5719,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "USCH"]
         + USCR
             [value "USCR"]
+        + USD_ICESWAP
+            [value "USD-ICESWAP"]
+        + USD_MUNI
+            [value "USD-MUNI"]
         + USDC
             [value "USDC"]
         + USDN
@@ -5713,10 +5749,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "USSA"]
         + USSE
             [value "USSE"]
+        + USSF
+            [value "USSF"]
         + USWT
             [value "USWT"]
         + UYMO
             [value "UYMO"]
+        + UZTA
+            [value "UZTA"]
         + VECA
             [value "VECA"]
         + VGRT

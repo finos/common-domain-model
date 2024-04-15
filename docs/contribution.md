@@ -918,7 +918,7 @@ test and, if necessary, update those before the changes can be released.
     and qualification results. Due to the contributed model changes, it
     is likely that there will be expectation mismatches that cause this
     build to fail.
--   **CDM Portal**: compile and test.
+-   **CDM Homepage**: compile and test.
 -   **CDM Java Examples**: compile and test.
 
 ---

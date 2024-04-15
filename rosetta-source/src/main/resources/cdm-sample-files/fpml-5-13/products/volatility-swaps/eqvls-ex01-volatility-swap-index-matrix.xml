@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-13-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!-- 
+        == Copyright (c) 2022-2023 All rights reserved. 
+        == Financial Products Markup Language is subject to the FpML public license. 
+        == A copy of this license is available at http://www.fpml.org/license/license.html-->
+<requestConfirmation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.fpml.org/FpML-5/confirmation" fpmlVersion="5-13" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation /schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd">
+    <header>
+        <!-- unique message id -->
+        <messageId messageIdScheme="http://www.partyA.com/coding-scheme/message-id">234233423420</messageId>
+        <!-- identify the sender of this message -->
+        <sentBy messageAddressScheme="http://www.partyA.com/coding-scheme/party-id">23902</sentBy>
+        <creationTimestamp>2007-05-02T08:57:00-00:00</creationTimestamp>
+    </header>
+    <isCorrection>false</isCorrection>
+    <correlationId correlationIdScheme="http://www.example.com/conversationId">PA/2007/05/02/234234923415</correlationId>
+    <sequenceNumber>1</sequenceNumber>
+    <trade>
+        <tradeHeader>
+            <partyTradeIdentifier>
+                <partyReference href="party1"/>
+                <tradeId tradeIdScheme="http://www.swapswire.com/spec/2001/trade-id-1-0">6403855</tradeId>
+            </partyTradeIdentifier>
+            <partyTradeIdentifier>
+                <partyReference href="party2"/>
+                <tradeId tradeIdScheme="http://www.swapswire.com/spec/2001/trade-id-1-0">6403855</tradeId>
+            </partyTradeIdentifier>
+            <!-- Mandatory  -->
+            <tradeDate>2015-03-30</tradeDate>
+        </tradeHeader>
+        <volatilitySwapTransactionSupplement>
+            <volatilityLeg>
+                <payerPartyReference href="party1"/>
+                <receiverPartyReference href="party2"/>
+                <!-- Mandatory  -->
+                <underlyer>
+                    <singleUnderlyer>
+                        <index>
+                            <instrumentId instrumentIdScheme="http://www.fpml.org/coding-scheme/external/instrument-id-Reuters-RIC">.FTSE</instrumentId>
+                            <exchangeId exchangeIdScheme="http://www.fpml.org/coding-scheme/external/exchange-id-MIC">XLIF</exchangeId>
+                            <relatedExchangeId exchangeIdScheme="http://www.fpml.org/coding-scheme/external/exchange-id-MIC">XLIF</relatedExchangeId>
+                        </index>
+                    </singleUnderlyer>
+                </underlyer>
+                <!-- Mandatory  -->
+                <settlementCurrency>GBP</settlementCurrency>
+                <valuation id="valuationDate">
+                    <!-- Mandatory - Equity Valuation date  -->
+                    <valuationDate>
+                        <adjustableDate>
+                            <unadjustedDate>2015-04-07</unadjustedDate>
+                            <dateAdjustments>
+                                <businessDayConvention>NotApplicable</businessDayConvention>
+                            </dateAdjustments>
+                        </adjustableDate>
+                    </valuationDate>
+                </valuation>
+                <amount>
+                    <!-- Mandatory  -->
+                    <observationStartDate>
+                        <adjustableDate>
+                            <unadjustedDate>2015-03-30</unadjustedDate>
+                            <dateAdjustments>
+                                <businessDayConvention>NotApplicable</businessDayConvention>
+                            </dateAdjustments>
+                        </adjustableDate>
+                    </observationStartDate>
+                    <volatility>
+                        <!-- For trades under 2011 matrix, pricing election options are initial level, OSPPricing,
+                                      ClosingPrice as shown below  -->
+                        <!-- For agreed price under 2011 matrix, populate initialLevel with specified price and initialLevelSource with  AgreedInitialPrice-->
+                        <!-- <initialLevel>101.10</initialLevel>-->
+                        <!-- For Index Close pricing under 2011 matrix populate initialLevelSource with true -->
+                        <!-- <initialLevelSource determinationMethodScheme="http://www.fpml.org/coding-scheme/determination-method">ExpiringContractLevel</initialLevelSource>>-->
+                        <!-- For OSP Pricing under 2011 definitions, populate initialLevelSource with OSPPricing   -->
+                        <initialLevelSource determinationMethodScheme="http://www.fpml.org/coding-scheme/determination-method">ClosingPrice</initialLevelSource>
+                        <!-- NDIP -->
+                        <expectedN>5</expectedN>
+                        <!-- Optional defaults to false if not poulated  -->
+                        <volatilityCap>
+                            <!-- If volatilityCap/applicable is false , No Volatility Cap.  -->
+                            <applicable>true</applicable>
+                            <!-- If volatilityCap/applicable is true, specify either totalVolatilityCap OR volatilityCapFactor OR neither on inbound messages -->
+                            <!-- It defaults to 2.5 if not populated (747.50) -->
+                            <volatilityCapFactor>3.0</volatilityCapFactor>
+                            <totalVolatilityCap>897</totalVolatilityCap>
+                        </volatilityCap>
+                        <!-- Mandatory  -->
+                        <volatilityStrikePrice>299.00</volatilityStrikePrice>
+                        <!-- Mandatory  -->
+                        <vegaNotionalAmount>1000.00</vegaNotionalAmount>
+                    </volatility>
+                </amount>
+            </volatilityLeg>
+        </volatilitySwapTransactionSupplement>
+        <documentation>
+            <masterAgreement>
+                <masterAgreementType masterAgreementTypeScheme="http://dtcc.com/coding-scheme/master-agreement-type">ISDA</masterAgreementType>
+                <masterAgreementDate>2003-10-01</masterAgreementDate>
+            </masterAgreement>
+            <contractualDefinitions contractualDefinitionsScheme="http://www.fpml.org/coding-scheme/contractual-definitions">ISDA2011Equity</contractualDefinitions>
+            <contractualMatrix>
+                <matrixType matrixTypeScheme="http://www.fpml.org/coding-scheme/matrix-type">EquityDerivativesMatrix</matrixType>
+                <publicationDate>2011-12-01</publicationDate>
+                <matrixTerm matrixTermScheme="http://www.fpml.org/coding-scheme/equity-matrix-transaction-type">IVS1OpenMarkets</matrixTerm>
+            </contractualMatrix>
+        </documentation>
+    </trade>
+    <party id="party1">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party A</partyId>
+    </party>
+    <party id="party2">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party B</partyId>
+    </party>
+</requestConfirmation>
+
