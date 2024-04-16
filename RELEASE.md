@@ -1,14 +1,21 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Qualification of AssetClass_
+
+_Background_
+
+Issue [#2863](https://github.com/finos/common-domain-model/issues/2863) was identified with the recent change to the qualification of `AssetClass` in PR [#2840](https://github.com/finos/common-domain-model/pull/2840).
 
 _What is being released?_
 
-This release updates the `rosetta-dsl` dependencies.
+This release fixes the following functions to ensure an `else` clause is specified in all nested `if` statements.
 
-Version updates include:
-- `rosetta-dsl` 9.7.0: DSL validation and performance enhancements. For further details see DSL release notes: https://github.com/REGnosys/rosetta-dsl/releases/tag/9.7.0.
-
-There are no changes to the model.  The number of expected ingestion validation failures has changed due to changes in the way validation failures are counted.
+- `Qualify_AssetClass_InterestRate`
+- `Qualify_AssetClass_Credit` 
+- `Qualify_AssetClass_ForeignExchange` 
+- `Qualify_AssetClass_Equity` 
+- `Qualify_AssetClass_Commodity`
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2783](https://github.com/finos/common-domain-model/pull/2783)
+In Rosetta, select the Textual Browser and inspect the changes identified above.
+
+The changes can be reviewed in  PR: [#2864](https://github.com/finos/common-domain-model/pull/2864)
