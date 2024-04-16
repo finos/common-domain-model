@@ -1,16 +1,21 @@
-# _Product Model - Synonym mappings for BusinessCenterEnum_
+# _Product Model - Updates to Qualification of AssetClass_
 
 _Background_
 
-The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
-This release introduces support for the synonym mappings, to cover the changes in v2-17 of FpML coding schemes for `BusinessCenterEnum`.
+Issue [#2863](https://github.com/finos/common-domain-model/issues/2863) was identified with the recent change to the qualification of `AssetClass` in PR [#2840](https://github.com/finos/common-domain-model/pull/2840).
 
 _What is being released?_
 
-- Added mapping coverage for all missing values of `BusinessCenterEnum`.
+This release fixes the following functions to ensure aan `else` clause is specified in all nested `if` statements.
+
+- `Qualify_AssetClass_InterestRate`
+- `Qualify_AssetClass_Credit` 
+- `Qualify_AssetClass_ForeignExchange` 
+- `Qualify_AssetClass_Equity` 
+- `Qualify_AssetClass_Commodity`
 
 _Review directions_
 
-In Rosetta, select the Textual View and inspect the change identified above.
+In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)
+The changes can be reviewed in  PR: [#2862](https://github.com/finos/common-domain-model/pull/2862)
