@@ -17,10 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     env:  # environment variables used across the setup job
       MVN_BUILD_FLAGS: "-Dmaven.repo.local=$GITHUB_WORKSPACE/.m2"
+      MVN_DEPLOY_FLAGS: "-s $GITHUB_WORKSPACE/settings.xml"
       GEN_DEPLOY_POM_SCRIPT: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       GEN_DEPLOY_POM_PY: "$GITHUB_WORKSPACE/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
     outputs:
       MVN_BUILD_FLAGS: ${{env.MVN_BUILD_FLAGS}}
+      MVN_DEPLOY_FLAGS: ${{env.MVN_DEPLOY_FLAGS}}
       RELEASE_NAME: ${{steps.release_props.outputs.RELEASE_NAME}}
       RELEASE_MAVEN_BUILD_PROFILES: ${{steps.release_props.outputs.MAVEN_BUILD_PROFILES}}
       RELEASE_MVN_DEPLOY_FILE_FLAGS: ${{steps.release_props.outputs.MVN_DEPLOY_FILE_FLAGS}}
@@ -41,7 +43,7 @@ jobs:
           echo "RELEASE_MAVEN_BUILD_PROFILES=${{env.MAVEN_BUILD_PROFILES}}" >> "$GITHUB_OUTPUT"
           echo "RELEASE_MVN_DEPLOY_FILE_FLAGS=${{env.MVN_DEPLOY_FILE_FLAGS}}" >> "$GITHUB_OUTPUT"
         env:
-          RELEASE_NAME: "${{github.event.release.tag_name}}" # not resoled hot to define release name (e.g. $github.tag)
+          RELEASE_NAME: "${{github.event.release.tag_name}}"
           MAVEN_BUILD_PROFILES: "daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel"
           MVN_DEPLOY_FILE_FLAGS: "${{env.MVN_BUILD_FLAGS}} ${{env.MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{env.GPG_PASSPHRASE}}"
           
@@ -67,17 +69,17 @@ jobs:
         if: startsWith(github.event.ref, 'refs/tags/**')
         uses: ./.github/actions/maven-build-migration
         with:
-          build-command: deploy
+          build-command: install
           release-name: ${{needs.setup.outputs.RELEASE_NAME}}
           build-flags: ${{needs.setup.outputs.MVN_BUILD_FLAGS}}
-          #deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
           build-profiles: ${{needs.setup.outputs.RELEASE_MVN_DEPLOY_FILE_FLAGS}}
           maven-settings: $GITHUB_WORKSPACE/settings.xml
         env:
-          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          CI_DEPLOY_USERNAME: ${{ vars.CI_DEPLOY_USERNAME }}
-          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          GPG_KEYNAME: ${{secrets.GPG_KEYNAME}}
+          GPG_PRIVATE_KEY: ${{secrets.GPG_PRIVATE_KEY}}
+          GPG_PASSPHRASE: ${{secrets.GPG_PASSPHRASE}}
+          CI_DEPLOY_USERNAME: ${{secrets.CI_DEPLOY_USERNAME}}
+          CI_DEPLOY_PASSWORD: ${{secrets.CI_DEPLOY_PASSWORD}}
 
       - name: Build Snapshot CI
         if: github.ref == 'refs/heads/develop'
@@ -86,14 +88,14 @@ jobs:
           build-command: verify
           release-name: ${{needs.setup.outputs.SNAPSHOT_NAME}}
           build-flags: ${{needs.setup.outputs.MVN_BUILD_FLAGS}}
-          #deploy-flags: ${{needs.setup.outputs.MVN_DEPLOY_FLAGS}}
           build-profiles: ${{needs.setup.outputs.SNAPSHOT_MVN_DEPLOY_FILE_FLAGS}}
           maven-settings: $GITHUB_WORKSPACE/settings.xml
         env:
-          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          CI_DEPLOY_USERNAME: ${{ vars.CI_DEPLOY_USERNAME }}
-          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          GPG_KEYNAME: ${{secrets.GPG_KEYNAME}}
+          GPG_PRIVATE_KEY: ${{secrets.GPG_PRIVATE_KEY}}
+          GPG_PASSPHRASE: ${{secrets.GPG_PASSPHRASE}}
+          CI_DEPLOY_USERNAME: ${{secrets.CI_DEPLOY_USERNAME}}
+          CI_DEPLOY_PASSWORD: ${{secrets.CI_DEPLOY_PASSWORD}}
   
   distribute:
     needs: build
