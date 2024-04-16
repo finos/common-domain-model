@@ -850,10 +850,14 @@ corresponding products option, forward, and equity swap.
 type OptionPayout extends PayoutBase:
   [metadata key]
   buyerSeller BuyerSeller (1..1)
-  optionType OptionTypeEnum (0..1)
   feature OptionFeature (0..1)
-  exerciseTerms OptionExercise (1..1)
+  observationTerms ObservationTerms (0..1)
+  schedule CalculationSchedule (0..1)
+  delivery AssetDeliveryInformation (0..1)
   underlier Product (1..1)
+  optionType OptionTypeEnum (0..1)
+  exerciseTerms ExerciseTerms (1..1)
+  strike OptionStrike (0..1)
 ```
 
 This nesting of the product component is another example of a composable
@@ -891,7 +895,7 @@ Code libraries, written in Java and distributed with the CDM, contain
 tools to merge CDM objects together. Implementors may extend these
 merging tools to change the merging strategy to suit their requirements.
 The CDM Java Examples download, available via the [CDM Portal Downloads
-page](https://portal.cdm.rosetta-technology.io/#/downloads), contains a example demonstrating usage of a data template and
+page](https://cdm.finos.org/docs/download/), contains a example demonstrating usage of a data template and
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 

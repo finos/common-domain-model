@@ -30,7 +30,6 @@ import cdm.product.common.schedule.metafields.ReferenceWithMetaPaymentDates;
 import cdm.product.common.settlement.PhysicalSettlementTerms;
 import cdm.product.common.settlement.ValuationDate;
 import cdm.product.common.settlement.*;
-import cdm.product.template.OptionExercise;
 import cdm.product.template.Product;
 import cdm.product.template.*;
 import com.google.common.base.CaseFormat;
@@ -48,7 +47,6 @@ import com.rosetta.model.metafields.MetaFields;
 import com.rosetta.model.metafields.ReferenceWithMetaDate;
 import org.fpml.fpml_5.confirmation.CalculationAgent;
 import org.fpml.fpml_5.confirmation.Currency;
-import org.fpml.fpml_5.confirmation.EuropeanExercise;
 import org.fpml.fpml_5.confirmation.ExerciseNotice;
 import org.fpml.fpml_5.confirmation.ExerciseProcedure;
 import org.fpml.fpml_5.confirmation.FxFixingDate;
@@ -316,12 +314,6 @@ public class Fpml510ProjectionMapper {
 											t.getCounterparty(),
 											getPriceQuantity(t.getTradeLot()))
 											.ifPresent(swaption::setSwap);
-										Optional.ofNullable(o.getExerciseTerms())
-											.ifPresent(e -> {
-												getEuropeanExercise(e).map(objectFactory::createEuropeanExercise).ifPresent(swaption::setExercise);
-												getExerciseProcedure(e.getExerciseProcedure(), o.getBuyerSeller(), t.getCounterparty(), t.getAncillaryParty())
-													.ifPresent(swaption::setExerciseProcedure);
-											});
 										Optional.ofNullable(o.getSettlementTerms())
 											.map(cdm.product.common.settlement.SettlementTerms::getPhysicalSettlementTerms)
 											.flatMap(this::getSwaptionPhysicalSettlement)
@@ -549,28 +541,6 @@ public class Fpml510ProjectionMapper {
 				SwaptionPhysicalSettlement swaptionPhysicalSettlement = objectFactory.createSwaptionPhysicalSettlement();
 				Optional.ofNullable(s.getClearedPhysicalSettlement()).ifPresent(swaptionPhysicalSettlement::setClearedPhysicalSettlement);
 				return swaptionPhysicalSettlement;
-			});
-	}
-
-	private Optional<EuropeanExercise> getEuropeanExercise(OptionExercise cdmOptionExercise) {
-		return Optional.ofNullable(cdmOptionExercise)
-			.map(OptionExercise::getOptionStyle)
-			.map(OptionStyle::getEuropeanExercise)
-			.map(e -> {
-				EuropeanExercise europeanExercise = objectFactory.createEuropeanExercise();
-				getExternalKey(e.getMeta()).ifPresent(europeanExercise::setId);
-				getBusinessCenterTime(e.getEarliestExerciseTime()).ifPresent(europeanExercise::setEarliestExerciseTime);
-				// TODO ExerciseFee
-
-				Optional.ofNullable(e.getExpirationDate())
-					.stream().flatMap(Collection::stream).findFirst()
-					.flatMap(this::getAdjustableOrRelativeDate)
-					.ifPresent(europeanExercise::setExpirationDate);
-
-				getBusinessCenterTime(e.getExpirationTime()).ifPresent(europeanExercise::setExpirationTime);
-				// TODO PartialExercise
-				getAdjustableOrRelativeDates(e.getRelevantUnderlyingDate()).ifPresent(europeanExercise::setRelevantUnderlyingDate);
-				return europeanExercise;
 			});
 	}
 

@@ -103,12 +103,13 @@ module.exports = {
               href: 'https://github.com/finos/common-domain-model/releases',
             },
             {
-              label: 'FAQ',
-              href: 'https://github.com/finos/common-domain-model/issues/2058',
+              label: 'What Is The CDM?',
+              to: '/pdfs/Why-CDM.pdf',
+              target: '_blank'
             },
             {
-              label: 'What Is The CDM?',
-              to: '/pdfs/what_is_the_cdm.pdf',
+              label: 'Frequently Asked Questions',
+              to: '/pdfs/FAQ-CDM.pdf',
               target: '_blank'
             },
             {
