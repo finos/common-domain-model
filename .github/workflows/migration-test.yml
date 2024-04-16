@@ -30,7 +30,7 @@ jobs:
  
     steps:
       - name: main_clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: ReleaseProperties
         id: release_props
@@ -63,9 +63,10 @@ jobs:
     runs-on: ubuntu-latest # Not resolved - Maven image required
 
     steps:
+      - uses: actions/checkout@v4
       - name: Build Release CI
         if: startsWith(github.event.ref, 'refs/tags/**')
-        uses: ./.github/actions/maven-build-migration
+        uses: ./.github/actions/build-migration
         with:
           build-command: install
           release-name: ${{needs.setup.outputs.RELEASE_NAME}}
@@ -81,7 +82,7 @@ jobs:
 
       - name: Build Snapshot CI
         if: github.ref == 'refs/heads/develop'
-        uses: ./.github/actions/maven-build-migration
+        uses: ./.github/actions/build-migration
         with:
           build-command: verify
           release-name: ${{needs.setup.outputs.SNAPSHOT_NAME}}
