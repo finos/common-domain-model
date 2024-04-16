@@ -1,4 +1,4 @@
-# _Product Model - Updates to Qualification of AssetClass_
+# _Product Model - Qualification of AssetClass_
 
 _Background_
 
@@ -6,7 +6,7 @@ Issue [#2863](https://github.com/finos/common-domain-model/issues/2863) was iden
 
 _What is being released?_
 
-This release fixes the following functions to ensure aan `else` clause is specified in all nested `if` statements.
+This release fixes the following functions to ensure an `else` clause is specified in all nested `if` statements.
 
 - `Qualify_AssetClass_InterestRate`
 - `Qualify_AssetClass_Credit` 
