@@ -1,21 +1,17 @@
-# _Product Model - Qualification of AssetClass_
+# _Product Model - Qualification of Foreign Exchange NDS_
 
 _Background_
 
-Issue [#2863](https://github.com/finos/common-domain-model/issues/2863) was identified with the recent change to the qualification of `AssetClass` in PR [#2840](https://github.com/finos/common-domain-model/pull/2840).
+Currently, Foreign Exchange Non-Deliverable Swaps are not supported in the Common Domain Model. This release adds qualification support for this kind of product.
 
 _What is being released?_
 
 This release fixes the following functions to ensure an `else` clause is specified in all nested `if` statements.
 
-- `Qualify_AssetClass_InterestRate`
-- `Qualify_AssetClass_Credit` 
-- `Qualify_AssetClass_ForeignExchange` 
-- `Qualify_AssetClass_Equity` 
-- `Qualify_AssetClass_Commodity`
+- Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
 
 _Review directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in  PR: [#2862](https://github.com/finos/common-domain-model/pull/2862)
+The changes can be reviewed in  PR: [#2867](https://github.com/finos/common-domain-model/pull/2867)
