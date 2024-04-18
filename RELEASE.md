@@ -1,21 +1,19 @@
-# _Product Model - Qualification of AssetClass_
+# _Product Model - Qualification of Total Return Swaps (TRS) with a Debt Underlier_
 
 _Background_
 
-Issue [#2863](https://github.com/finos/common-domain-model/issues/2863) was identified with the recent change to the qualification of `AssetClass` in PR [#2840](https://github.com/finos/common-domain-model/pull/2840).
+Following ESMA Guidelines, Total Return Swaps with a debt instrument as their underlier (bond, loan, etc) must report field 2.11 - `Asset Class` as 'CRDT', while TRS on an equity index or a basket of equities should report `Asset Class` as 'EQUI'. Currently in the CDM, a Total Return Swap with a debt underlier is not classified correctly, and thus is being reported incorrectly as well. This release aims at fixing the `Qualify_AssetClass_Credit` function such that Total Return Swaps on a bond or a loan report AssetClass as 'CRDT'.
 
 _What is being released?_
 
-This release fixes the following functions to ensure an `else` clause is specified in all nested `if` statements.
+- The function `Qualify_AssetClass_Credit` is increasing its coverage to include Total Return Swaps with an underlier of a `loan` or a `securityType` of `debt`.
 
-- `Qualify_AssetClass_InterestRate`
-- `Qualify_AssetClass_Credit` 
-- `Qualify_AssetClass_ForeignExchange` 
-- `Qualify_AssetClass_Equity` 
-- `Qualify_AssetClass_Commodity`
+_Functions_
+
+- Updated `Qualify_AssetClass_Credit` function to support Total Return Swap products, defined as having an `interestRatePayout` and a `performancePayout`. The function checks the `performancePayout` that `underlier -> loan` is present or that `underlier -> security -> securityType = Debt`.
 
 _Review directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in  PR: [#2862](https://github.com/finos/common-domain-model/pull/2862)
+The changes can be reviewed in  PR: [#2856](https://github.com/finos/common-domain-model/pull/2856)
