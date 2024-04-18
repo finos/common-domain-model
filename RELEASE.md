@@ -9,6 +9,7 @@ _What is being released?_
 - Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
 _Review directions_
 
-In Rosetta, select the Textual View and inspect the change identified above.
+In the Rosetta platform, select the Textual View and inspect each of the changes identified above.
 
 PR: [#2866](https://github.com/finos/common-domain-model/pull/2866)
+
