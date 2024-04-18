@@ -1,14 +1,15 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Qualification of Foreign Exchange NDS_
+
+_Background_
+
+Currently, Foreign Exchange Non-Deliverable Swaps are not supported in the Common Domain Model. This release adds qualification support for this kind of product.
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` dependency.
-
-Version updates include:
-- `rosetta-bundle` 10.15.7: Translate bug fix to handle enum name clashes.
-
-There are no changes to the model or test expectations.
-
+- Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
 _Review directions_
 
-The changes can be reviewed in PR: [#2870](https://github.com/finos/common-domain-model/pull/2870)
+In the Rosetta platform, select the Textual View and inspect each of the changes identified above.
+
+PR: [#2866](https://github.com/finos/common-domain-model/pull/2866)
+
