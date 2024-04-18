@@ -7,9 +7,7 @@ on:
   pull_request: #triggers on PR merge event into develop branch
     types:
       - closed
-    branches: 
-      - 'develop'
- 
+    
 jobs:
   setup: # defines the variables used across all job's steps and output variables to be used across jobs.
     runs-on: ubuntu-latest
@@ -34,7 +32,7 @@ jobs:
 
       - name: ReleaseProperties
         id: release_props
-        if: startsWith(github.event.ref, 'refs/tags/**')
+        if: startsWith(github.ref, 'refs/tags')
         shell: bash
         run: |
           echo "RELEASE_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
@@ -47,7 +45,7 @@ jobs:
           
       - name: SnapshotProperties
         id: snapshot_props
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop' && github.event.pull_request.merged == true
         shell: bash
         run: |
           echo "SNAPSHOT_NAME=${{env.RELEASE_NAME}}" >> "$GITHUB_OUTPUT"
@@ -65,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build Release CI
-        if: startsWith(github.event.ref, 'refs/tags/**')
+        if: startsWith(github.event.ref, 'refs/tags')
         uses: ./.github/actions/build-migration
         with:
           build-command: install
@@ -81,7 +79,7 @@ jobs:
           CI_DEPLOY_PASSWORD: ${{secrets.CI_DEPLOY_PASSWORD}}
 
       - name: Build Snapshot CI
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/develop' && github.event.pull_request.merged == true
         uses: ./.github/actions/build-migration
         with:
           build-command: verify
