@@ -1,16 +1,14 @@
-# _Product Model - Synonym mappings for BusinessCenterEnum_
+# _Product Model - Qualification of Foreign Exchange NDS_
 
 _Background_
 
-The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes.
-This release introduces support for the synonym mappings, to cover the changes in v2-17 of FpML coding schemes for `BusinessCenterEnum`.
+Currently, Foreign Exchange Non-Deliverable Swaps are not supported in the Common Domain Model. This release adds qualification support for this kind of product.
 
 _What is being released?_
 
-- Added mapping coverage for all missing values of `BusinessCenterEnum`.
-
+- Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
 _Review directions_
 
 In Rosetta, select the Textual View and inspect the change identified above.
 
-PR: [#2857](https://github.com/finos/common-domain-model/pull/2857)
+PR: [#2866](https://github.com/finos/common-domain-model/pull/2866)
