@@ -1,19 +1,3 @@
-# _Product Model - Bond Option and Forward Qualification_
-
-_Background_
-
-A previous release introduced a regression in the qualification of Bond Forwards and Bond Options, that were no longer qualified due to an update in the `Qualify_AssetClass_InterestRate` function. This release addresses this issue.
-
-_What is being released?_
-
-- Reintroduced the capability to have a security with `securityType = SecurityTypeEnum -> Debt` as underlier of the option or forward in the `Qualify_AssetClass_InterestRate` function.
-
-_Review directions_
-
-In Rosetta, select the Textual View and inspect the change identified above
-
-The changes can be reviewed in PR: [#2851](https://github.com/finos/common-domain-model/pull/2851)
-
 # _Product Model - Qualification of Total Return Swaps (TRS) with a Debt Underlier_
 
 _Background_
@@ -33,3 +17,19 @@ _Review directions_
 In Rosetta, select the Textual View and inspect the change identified above
 
 The changes can be reviewed in PR: [#2855](https://github.com/finos/common-domain-model/pull/2855)
+
+# _Product Model - Qualification of Foreign Exchange NDS_
+
+_Background_
+
+Currently, Foreign Exchange Non-Deliverable Swaps are not supported in the Common Domain Model. This release adds qualification support for this kind of product.
+
+_What is being released?_
+
+- Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
+_Review directions_
+
+In the Rosetta platform, select the Textual View and inspect each of the changes identified above.
+
+PR: [#2866](https://github.com/finos/common-domain-model/pull/2866)
+
