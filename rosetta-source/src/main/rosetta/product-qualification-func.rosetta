@@ -28,7 +28,8 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
         is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
-    alias forwardUnderlier:economicTerms -> payout -> forwardPayout only-element -> underlier
+    alias forwardUnderlier:
+        economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         economicTerms -> payout -> interestRatePayout only exists
@@ -38,19 +39,16 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                     or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate
                     or if optionUnderlier exists
                         then Qualify_AssetClass_InterestRate(
-                                    optionUnderlier -> contractualProduct -> economicTerms
-                                ) = True
+                                        optionUnderlier -> contractualProduct -> economicTerms
+                                    ) = True
                                 or Qualify_AssetClass_InterestRate(
-                                    optionUnderlier -> security -> economicTerms
-                                ) = True
-                        else False
-                    )
-                )
+                                        optionUnderlier -> security -> economicTerms
+                                    ) = True
+                        else False))
             or (economicTerms -> payout -> forwardPayout only exists
                 and (forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
                     or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate
-                     or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate)
-            )
+                    or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate))
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
     inputs:
@@ -59,7 +57,8 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
         is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
-    alias forwardUnderlier: economicTerms -> payout -> forwardPayout only-element -> underlier
+    alias forwardUnderlier:
+        economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         economicTerms -> payout -> creditDefaultPayout only exists
@@ -67,19 +66,19 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
             or (economicTerms -> payout -> optionPayout only exists
                 and if optionUnderlier exists
                     then (optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
-                         or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
-                         or Qualify_AssetClass_Credit( optionUnderlier -> contractualProduct -> economicTerms )
-                         or Qualify_AssetClass_Credit( optionUnderlier -> security -> economicTerms )
-                         )
-                    else False
-                )
+                            or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
+                            or Qualify_AssetClass_Credit(
+                                    optionUnderlier -> contractualProduct -> economicTerms
+                                )
+                            or Qualify_AssetClass_Credit(
+                                    optionUnderlier -> security -> economicTerms
+                                ))
+                    else False)
             or (economicTerms -> payout -> forwardPayout only exists
                 and if forwardUnderlier exists
                     then (forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
-                         or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
-                    else False
-
-                )
+                            or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
+                    else False)
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
     inputs:
@@ -88,7 +87,8 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
         is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
-    alias forwardUnderlier:economicTerms -> payout -> forwardPayout only-element -> underlier
+    alias forwardUnderlier:
+        economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange exists
@@ -97,11 +97,15 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
             or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
             or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
             or (if optionUnderlier exists
-                   then Qualify_AssetClass_ForeignExchange(optionUnderlier -> contractualProduct -> economicTerms)
-                   else False)
+                then Qualify_AssetClass_ForeignExchange(
+                            optionUnderlier -> contractualProduct -> economicTerms
+                        )
+                else False)
             or (if optionUnderlier exists
-                   then Qualify_AssetClass_ForeignExchange(optionUnderlier -> security -> economicTerms)
-                   else False)
+                then Qualify_AssetClass_ForeignExchange(
+                            optionUnderlier -> security -> economicTerms
+                        )
+                else False)
             or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
 
@@ -112,7 +116,8 @@ func Qualify_AssetClass_Equity:
         is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
-    alias forwardUnderlier:economicTerms -> payout -> forwardPayout only-element -> underlier
+    alias forwardUnderlier:
+        economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         (economicTerms -> payout -> performancePayout -> underlier
@@ -127,17 +132,15 @@ func Qualify_AssetClass_Equity:
             or (economicTerms -> payout -> optionPayout only exists
                 and if optionUnderlier exists
                     then (Qualify_UnderlierProduct_Equity(optionUnderlier) = True
-                        or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
-                        or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
-                    else False
-                )
+                            or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
+                            or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
+                    else False)
             or (economicTerms -> payout -> forwardPayout only exists
                 and if forwardUnderlier exists
                     then (Qualify_UnderlierProduct_Equity(forwardUnderlier)
-                         or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
-                         or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
-                    else False
-               )
+                            or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
+                            or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
+                    else False)
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
     inputs:
@@ -147,7 +150,8 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
 
-    alias forwardUnderlier: economicTerms -> payout -> forwardPayout only-element -> underlier
+    alias forwardUnderlier:
+        economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
         // CO:FixFlo
@@ -168,20 +172,14 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                                 ) = True
                             or optionUnderlier -> commodity exists
                             or optionUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
-                            or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
-                        )
-                    else False
-                )
+                            or optionUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity)
+                    else False)
                     // CO Fwd
-            or (    (  (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists
-                    or (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists
-                    )
+            or (((economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists
+                    or (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists)
                 and (economicTerms -> payout -> forwardPayout -> underlier -> commodity exists
-                     or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
-                     or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
-                    )
-                )
-
+                    or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
+                    or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity))
 
 /*
  * ENDOF Qualification of ISDA Taxonomy V2 Level 1 - ASSETCLASS:
@@ -1615,6 +1613,6 @@ func Qualify_Commodity_Forward: <"Qualifies a product as a Forward that will be 
             [synonym ISDA_Taxonomy_v2 value "Commodity_Forward"]
     set is_product:
         Qualify_AssetClass_Commodity(economicTerms) = True
-            and (
-                (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists or // Fixed Price Forward
+            and ((economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists
+                or // Fixed Price Forward
                 (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists) // Floating Price Forward
