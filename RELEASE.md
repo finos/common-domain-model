@@ -1,15 +1,13 @@
-# _Product Model - FpML Synonym Mappings for Commodity Spread_
-
-_Background_
-
-Currently, the CDM attribute `priceType` is incorrectly being populated with `INTEREST_RATE` for Commodity spreads. This is inadequate since the spread is an asset price.
+# _Python Generator v2_
 
 _What is being released?_
+This release uses the new version of the Python generator (v2) which includes the following changes:
 
-This release updates and extends the FpML mapping coverage for the product model to map the correct price. 
-
-- Mappings added to populate CDM attribute `priceType` with `ASSET_PRICE` for commodity spreads.
-
+- Migration to Pydantic 2.x
+- More comprehensive support for Rosetta's operators
+- Resolves the defect exposed by [PR 2766](https://github.com/finos/common-domain-model/pull/2766)
+- Includes an update to the Python Rosetta runtime library used to encapsulate the Pydantic support (now version 2.0.0)
+-
 _Review directions_
 
-- In the CDM Portal, select the Textual Browser and inspect the change listed above.
+The changes can be reviewed in PR: [#2869](https://github.com/finos/common-domain-model/pull/2869)
