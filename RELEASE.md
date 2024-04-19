@@ -49,7 +49,7 @@ This release uses the new version of the Python generator (v2) which includes th
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2869](https://github.com/finos/common-domain-model/pull/2869)
+The changes can be reviewed in PR: [#2856](https://github.com/finos/common-domain-model/pull/2856)
 
 # _Infrastructure - Dependency Update_
 
