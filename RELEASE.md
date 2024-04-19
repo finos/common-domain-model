@@ -55,15 +55,17 @@ The changes can be reviewed in PR: [#2856](https://github.com/finos/common-domai
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` dependency.
+This release updates the `rosetta-bundle` and `rosetta-dsl` dependencies.
 
 Version updates include:
 
-- `rosetta-bundle` 10.15.8: Upgrade of Python Code Generator.
 - `rosetta-bundle` 10.15.7: Translate bug fix to handle enum name clashes.
+- `rosetta-bundle` 10.15.8: Upgrade of Python Code Generator.
+- `rosetta-bundle` 10.16.0: FpML Coding schema updated.
+- `rosetta-dsl` 9.8.0: this release features three new operations - `to-date`, `to-date-time` and `to-zoned-date-time` - to convert a string into a `date`, `dateTime` or `zonedDateTime` respectively. It also adds support to convert these three types into a string using the `to-string` operation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.0.
 
 There are no changes to the model or test expectations.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2870](https://github.com/finos/common-domain-model/pull/2870)
+The changes can be reviewed in PR: [#2876](https://github.com/finos/common-domain-model/pull/2876)
