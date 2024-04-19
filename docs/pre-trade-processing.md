@@ -322,8 +322,6 @@ securities that the borrower wants to locate. This is where details that
 pertain to the overall request should be specified. 
 
 ``` Haskell
-type SecurityLocate extends AvailableInventory:
-
 type AvailableInventory: 
     availableInventoryType AvailableInventoryTypeEnum (1..1) 
     messageInformation MessageInformation (0..1) 
