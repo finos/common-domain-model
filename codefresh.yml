@@ -117,15 +117,15 @@ steps:
         working_directory: ./rosetta-source
         shell: sh
         commands:
-          - python3 -m pip install "pydantic==1.*"
+          - export PYTHONDONTWRITEBYTECODE=1
+          - python3 -m pip install pydantic
           - python3 -m pip install jsonpickle
-          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-2.0.0-py3-none-any.whl
           - |-
             python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./target/classes/cdm/python ./target/classes/cdm/python
           - python3 -m pip install ./target/classes/cdm/python/python_cdm-*-py3-none-any.whl
           - python3 -m pip install pytest
-          - pytest ./src/test/python/
-          - rm -rf ./src/test/python/serialization/__pycache__ ./src/test/python/semantics/__pycache__
+          - pytest -p no:cacheprovider ./src/test/python/
 
   DeployDaml:
     stage: 'build'
