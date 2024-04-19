@@ -1,28 +1,10 @@
 import pytest
 from rosetta.runtime.utils import ConditionViolationError
 from rosetta.runtime.utils import if_cond
-##from cdm.base.math.Measure import Measure
 from cdm.base.math.QuantitySchedule import QuantitySchedule
 from cdm.base.math.UnitType import UnitType
-##from drr.regulation.cftc.rewrite.CFTCPart43TransactionReport import CFTCPart43TransactionReport
+from rosetta.runtime.utils import _resolve_rosetta_attr
 
-
-'''
-def test_if_cond_pass():
-    unit = UnitType(currency='EUR')
-    multiplier = Measure(value=1)
-    qs = QuantitySchedule(value=1, unit=unit, multiplier=multiplier)
-    qs.validate_conditions()
-
-
-def test_if_cond_fail():
-    unit = UnitType(currency='EUR')
-    multiplier = Measure(value=-1)
-    qs = QuantitySchedule(unit=unit, multiplier=multiplier)
-    with pytest.raises(ConditionViolationError):
-        qs.validate_conditions()
-
-'''
 def test_if_cond_literals():
     class T:
         def __init__(self):
@@ -48,18 +30,6 @@ def test_if_cond_literals():
         self)
     assert res
 
-'''
-def test_if_cond_any():
-    class T:
-        def __init__(self):
-            self.actionType = "TERM"
-            self.eventType = 'CORP'
-    self = T()
-    fnc = CFTCPart43TransactionReport.condition_0_EventTypeCondition
-    res = fnc(self)
-    assert res
-
-'''
 def test_if_direct():
     class T:
         def __init__(self):
@@ -75,7 +45,10 @@ def test_if_direct():
         'True',  T())
 
 if __name__ == "__main__":
-	test_if_cond_literals()
-	test_if_direct()
+    print('test_if_cond_literals',end='')
+    test_if_cond_literals()
+    print('...passed\ntest_if_direct', end='')
+    test_if_direct()
+    print('...passed')
 
 # EOF
