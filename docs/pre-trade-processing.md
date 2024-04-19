@@ -322,6 +322,13 @@ securities that the borrower wants to locate. This is where details that
 pertain to the overall request should be specified. 
 
 ``` Haskell
+type SecurityLocate extends AvailableInventory:
+```
+
+_Note: ```SecurityLocate``` is an extension of ```AvailabilityRecord``` and 
+thus inherits all the data points from within it._
+
+``` Haskell
 type AvailableInventory: 
     availableInventoryType AvailableInventoryTypeEnum (1..1) 
     messageInformation MessageInformation (0..1) 
@@ -330,10 +337,7 @@ type AvailableInventory:
     availableInventoryRecord AvailableInventoryRecord (0..*)
 ```
 
-_Note: ```SecurityLocate``` is an extension of ```AvailabilityRecord``` and 
-thus inherits all the data points from within it._
-
-The attributes available are:
+The attributes available in ```SecurityLocate``` are thus:
 
 - The ```availableInventoryType``` is a mandatory enumeration which is used to 
 describe the purpose of this ```SecurityLocate``` instance. For the borrower 
@@ -385,7 +389,12 @@ when requesting securities to be specified. Note that in the context of a
 borrower request, a lot of these datapoints will not be required.
 
 ``` Haskell
-type SecurityLocate extends AvailableInventory:
+type AvailableInventoryRecord extends InventoryRecord: 
+    expirationDateTime zonedDateTime (0..1) 
+    collateral CollateralProvisions (0..*) 
+    partyRole PartyRole (0..*) 
+    quantity Quantity (0..1) 
+    interestRate Price (0..1) 
 ```
 
 These attributes are all optional and should be used as follows:
