@@ -385,12 +385,7 @@ when requesting securities to be specified. Note that in the context of a
 borrower request, a lot of these datapoints will not be required.
 
 ``` Haskell
-type AvailableInventoryRecord extends InventoryRecord: 
-    expirationDateTime zonedDateTime (0..1) 
-    collateral CollateralProvisions (0..*) 
-    partyRole PartyRole (0..*) 
-    quantity Quantity (0..1) 
-    interestRate Price (0..1) 
+type SecurityLocate extends AvailableInventory:
 ```
 
 These attributes are all optional and should be used as follows:
