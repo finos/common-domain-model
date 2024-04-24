@@ -237,7 +237,7 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
+type Transfer extends TransferBase: <"Defines the movement of cash or any kind of Asset that may be physically transfered e.g. securities or commodities, between two parties on a date.">
     settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
     resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
@@ -566,18 +566,29 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
     underlier Product (1..1) <"The entity impacted by the corporate action.">
 
-type TransferBase:
+type TransferBase: <"Defines the movement of cash or any kind of Asset that may be physically transfered e.g. securities or commodities, between two parties on a date.">
 
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
-    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-    observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    price Price (0..1) <"Represents the price of the asset to be transferred.">
+    quantity NonNegativeQuantity (1..2) <"Represents the number of Asset to be transferred, that being a required type of quantity to be specified in units. Optionnaly, the corresponding nominal amount may also be specified, that being a second type of quantity to be specified in currency units.">
+    asset Observable (0..1) <"Represents the Asset that is subject to the transfer."> 
     payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+    
+    condition PriceOnlyAppliesToAsset: <"No Price shall exist in case of a cash amount transfer, meaning Price can only be specified with regards to an Asset being transferred.">
+        if price exists
+        then asset exists
 
-    condition FinancialUnitExists:
-        if observable exists
-        then quantity -> unit -> financialUnit exists
+    condition AnAssetMustHaveQuantityForBeingTransferred: <"The number of Asset being transfered must be defined, thus quantity must exists for it with an appropriate unit (which cannot be currency that is specific kind of unit to use only for speciying the Nominal Amount of the Transfer thus not for the number of Asset being delivered.">
+        if asset exists
+        and quantity count = 1
+        then quantity -> unit -> currency is absent
+
+    condition SecondQuantityIsNominalAmount:<"When two quantity attributes are specified for a given transfer, then one of them must be the number of Asset meaning related unit shall not be currency and the other one must be the nominal amount which unit must therefore be currency.">
+        if quantity count = 2
+        then quantity -> unit -> financialUnit count = 1
+        and quantity -> unit -> currency count = 1
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
