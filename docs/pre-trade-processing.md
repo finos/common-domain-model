@@ -1,6 +1,6 @@
-----
+---
 title: Pre-trade Processing
-----
+---
 
 # Pre-trade Processing
 
@@ -325,7 +325,7 @@ pertain to the overall request should be specified.
 type SecurityLocate extends AvailableInventory:
 ```
 
-_Note: ```SecurityLocate``` is an extension of ```AvailabilityRecord``` and 
+_Note: ```SecurityLocate``` is an extension of ```AvailableInventory``` and 
 thus inherits all the data points from within it._
 
 ``` Haskell
