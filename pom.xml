@@ -80,10 +80,11 @@
         <maven.compiler.release>11</maven.compiler.release>
 
         <repoServerHost>oss.sonatype.org</repoServerHost>
+        <stagingTimeoutInMinutes>10</stagingTimeoutInMinutes>
 
-        <rosetta.bundle.version>10.15.3</rosetta.bundle.version>
+        <rosetta.bundle.version>10.16.0</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>9.7.0</rosetta.dsl.version>
+        <rosetta.dsl.version>9.8.0</rosetta.dsl.version>
 
         <xtext.version>2.27.0</xtext.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
@@ -119,6 +120,7 @@
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
         <maven-javadoc-plugin.option></maven-javadoc-plugin.option>
@@ -296,6 +298,18 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${nexus-staging-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <nexusUrl>https://${repoServerHost}</nexusUrl>
+                        <serverId>ossrh-distro</serverId>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <stagingProgressTimeoutMinutes>${stagingTimeoutInMinutes}</stagingProgressTimeoutMinutes>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
