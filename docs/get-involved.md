@@ -31,7 +31,6 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 | David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
-| Ian Sloyan           | Private Individual | N/A                                     | iansloyan            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
