@@ -1,0 +1,32 @@
+---
+title: CDM Contribution Review Working Group
+---
+
+## Overview
+
+The CDM Contribution Review Working Group (CRWG) plays a crucial role in the Continuous Delivery Model (CDM) ecosystem. We review, approve, and implement contribution proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the design principles and guidelines that govern the CDM.
+
+### Responsibilities:
+
+- Reviews, approves, and implements contribution proposals to the CDM.
+- Arbitrates disputes arising from DWG contributions.
+- Guards and enforces design principles and guidelines.
+- Triage and facilitates long-dated PRs and Issues.
+- Meets fortnightly, with sub-groups as required.
+
+## Meetings
+
+Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT). Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+
+## 2024 Roadmap
+
+![CRWG Roadmap](/img/crwg-roadmap.png)
+
+## Subscribe
+
+To subscribe to the CRWG mailing list and stay updated on meetings and agenda, please send an email to [cdm-contribution-review+subscribe@lists.finos.org](mailto:cdm-contribution-review+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+
+---
+
+To view past meeting notes and agendas, visit our [archives](https://lists.finos.org/g/cdm-contribution-review).
+
