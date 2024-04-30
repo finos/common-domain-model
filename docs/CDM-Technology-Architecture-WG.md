@@ -26,5 +26,5 @@ To subscribe to the [TAWG mailing list](https://lists.finos.org/g/cdm-technology
 
 ---
 
-To view past meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
 
