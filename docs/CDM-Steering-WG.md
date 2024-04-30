@@ -28,5 +28,5 @@ To subscribe to the [Steering Working Group mailing list](https://lists.finos.or
 
 ---
 
-To view past meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
 
