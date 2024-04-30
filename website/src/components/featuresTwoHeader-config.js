@@ -18,33 +18,24 @@ export const featuresTwoHeader = [
         description: (
             <>
             <br />
-            <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
+            <span style={{ fontSize: '1.25em' }}><strong>The Common Domain Model (CDM) offers several benefits:</strong></span>
             <br />
             <br />
-            <span style={{ fontSize: '1.25em' }}>
-                <strong>For Derivatives:</strong>
-                <ul>
-                    <li>Streamlines onboarding and enhances interoperability.</li>
-                    <li>Decreases operational risks and settlement fails.</li>
-                    <li>Optimizes collateral management and negotiation time.</li>
-                </ul>
-            </span>
+            <ul>
+                <li>Streamlines onboarding and enhances interoperability for Derivatives.</li>
+                <li>Decreases operational risks and settlement fails for Derivatives.</li>
+                <li>Optimizes collateral management and negotiation time for Derivatives.</li>
+            </ul>
             <br />
-            <span style={{ fontSize: '1.25em' }}>
-                <strong>For Securities Lending:</strong>
-                <ul>
-                    <li>Enables easier construction of smart contracts and faster connection to distributed ledgers.</li>
-                    <li>Promotes innovation and competition on products rather than infrastructure.</li>
-                </ul>
-            </span>
+            <ul>
+                <li>Enables easier construction of smart contracts and faster connection to distributed ledgers for Securities Lending.</li>
+                <li>Promotes innovation and competition on products rather than infrastructure for Securities Lending.</li>
+            </ul>
             <br />
-            <span style={{ fontSize: '1.25em' }}>
-                <strong>For Bonds & Repos:</strong>
-                <ul>
-                    <li>Improves internal efficiencies by enabling IT applications to communicate effectively.</li>
-                    <li>Enhances consistency in regulatory reporting and facilitates interoperability between market infrastructures.</li>
-                </ul>
-            </span>
+            <ul>
+                <li>Improves internal efficiencies by enabling IT applications to communicate effectively for Bonds & Repos.</li>
+                <li>Enhances consistency in regulatory reporting and facilitates interoperability between market infrastructures for Bonds & Repos.</li>
+            </ul>
             </>
         ),
     },
