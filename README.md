@@ -23,7 +23,7 @@ Read more about project contribution guidelines, principles, frequently asked qu
 The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
-* Editors - those who codify ideas into a formal specification
+* [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
 * Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
 ### Active Working Groups
