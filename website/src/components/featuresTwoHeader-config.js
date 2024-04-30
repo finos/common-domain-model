@@ -19,6 +19,32 @@ export const featuresTwoHeader = [
             <>
             <br />
             <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
+            <br />
+            <br />
+            <span style={{ fontSize: '1.25em' }}>
+                <strong>For Derivatives:</strong>
+                <ul>
+                    <li>Streamlines onboarding and enhances interoperability.</li>
+                    <li>Decreases operational risks and settlement fails.</li>
+                    <li>Optimizes collateral management and negotiation time.</li>
+                </ul>
+            </span>
+            <br />
+            <span style={{ fontSize: '1.25em' }}>
+                <strong>For Securities Lending:</strong>
+                <ul>
+                    <li>Enables easier construction of smart contracts and faster connection to distributed ledgers.</li>
+                    <li>Promotes innovation and competition on products rather than infrastructure.</li>
+                </ul>
+            </span>
+            <br />
+            <span style={{ fontSize: '1.25em' }}>
+                <strong>For Bonds & Repos:</strong>
+                <ul>
+                    <li>Improves internal efficiencies by enabling IT applications to communicate effectively.</li>
+                    <li>Enhances consistency in regulatory reporting and facilitates interoperability between market infrastructures.</li>
+                </ul>
+            </span>
             </>
         ),
     },
