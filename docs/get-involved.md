@@ -22,4 +22,21 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 ## Contacting CDM Maintainers
 
+|FINOS CDM Maintainer  |Representing    |Capacity                                     |GithubID              |    
+| -------------------- | -------------- | ------------------------------------------- | -------------------- |           
+| Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
+| Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
+| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
+| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
+| Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
+| Ian Sloyan           | Private Individual | N/A                                     | iansloyan            | 
+| Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
+| Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
+| Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
+| Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
+| Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            |
+
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
