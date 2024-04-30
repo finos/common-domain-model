@@ -8,7 +8,7 @@ This working group aims to accelerate the build and support of structured produc
 
 ## Meetings
 
-**Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+**Join us Monthly on the Second Tuesday 10AM EST (3PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 ## Subscribe
 
