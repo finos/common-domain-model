@@ -39,11 +39,6 @@ module.exports = {
           label: 'GitHub',
           position: 'right',
         }
-        {
-          href: 'https://cdm.finos.org/assets/files/CDM-Overview.pptx-b92731130b911185f216f90cd187d53c.pdf',
-          label: 'CDM Overview',
-          position: 'right',
-        }
       ],
     },
     footer: {
