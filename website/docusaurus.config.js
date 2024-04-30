@@ -32,9 +32,9 @@ module.exports = {
         src: 'img/cdm-logo/Icon/2022_CDM_Icon_WHT.png',
       },
       items: [
+        {to: '/pdfs/CDM-Overview.pdf', label: 'CDM Overview', position: 'left'},
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
-        {to: '/pdfs/CDM-Overview.pptx.pdf', label: 'CDM Overview', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
