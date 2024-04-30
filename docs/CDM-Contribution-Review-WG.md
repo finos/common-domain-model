@@ -6,7 +6,7 @@ title: CDM Contribution Review Working Group
 
 The CDM Contribution Review Working Group (CRWG) plays a crucial role in the Continuous Delivery Model (CDM) ecosystem. We review, approve, and implement contribution proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the design principles and guidelines that govern the CDM.
 
-### Responsibilities:
+### Responsibilities
 
 - Reviews, approves, and implements contribution proposals to the CDM.
 - Arbitrates disputes arising from DWG contributions.
@@ -28,5 +28,4 @@ To subscribe to the CRWG mailing list and stay updated on meetings and agenda, p
 
 ---
 
-To view past meeting notes and agendas, visit our [archives](https://lists.finos.org/g/cdm-contribution-review).
-
+To view past meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Contribution+Review+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
