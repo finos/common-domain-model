@@ -32,11 +32,6 @@ module.exports = {
         src: 'img/cdm-logo/Icon/2022_CDM_Icon_WHT.png',
       },
       items: [
-        {
-          href: 'https://cdm.finos.org/assets/files/CDM-Overview-238fe5d30716b7c13580fee85b7bac78.pdf',
-          label: 'CDM Overview',
-          position: 'right',
-        }
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
