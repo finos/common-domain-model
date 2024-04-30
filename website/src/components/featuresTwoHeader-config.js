@@ -13,7 +13,7 @@ export const featuresTwoHeader = [
             </>
         ),
     },
-    {
+    // {
         title: <>WHAT ARE THE BENEFITS OF THE CDM?</>,
         description: (
             <>
