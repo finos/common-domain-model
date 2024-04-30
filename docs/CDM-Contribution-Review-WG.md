@@ -28,4 +28,4 @@ To subscribe to the CRWG mailing list and stay updated on meetings and agenda, p
 
 ---
 
-To view past meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Contribution+Review+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Contribution+Review+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
