@@ -30,11 +30,12 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 The following Working Groups are currently activated or about to be set up for this project:
 
-* [Contribution Review Working Group](/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
-* [Collateral Working Group](/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf)
-* [Technology Architecture Working Group](/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf)
-* [Structured Products Working Group](https://www.finos.org/calendar)
-* [FINOS CDM Steering Working Group](https://github.com/finos/common-domain-model#2-working-groups)
+* [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
+* [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
+* [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
+* [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
+* [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
+* [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
