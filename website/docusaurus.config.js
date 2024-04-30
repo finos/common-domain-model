@@ -34,11 +34,7 @@ module.exports = {
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
-        {
-          href: 'https://cdm.finos.org/assets/files/CDM-Overview.pptx-b92731130b911185f216f90cd187d53c.pdf',
-          label: 'CDM Overview',
-          position: 'left',
-        }
+        {to: '/pdfs/CDM-Overview.pptx.pdf', label: 'CDM Overview', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
