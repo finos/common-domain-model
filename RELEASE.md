@@ -5,9 +5,7 @@ _What is being released?_
 This release updates the `rosetta-bundle` dependency.
 
 Version updates include:
-- `rosetta-bundle` 10.17.1: Testing infrastructure update.
-
-There are no changes to the model or test expectations.
+- `rosetta-bundle` 10.17.1: FpML coding scheme updated to version 2.19. `FloatingRateIndexEnum` updated to match coding scheme.
 
 _Review directions_
 
