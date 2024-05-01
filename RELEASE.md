@@ -5,7 +5,7 @@ _What is being released?_
 This release updates the `rosetta-bundle` dependency.
 
 Version updates include:
-- `rosetta-bundle` 10.17.1: Testing infrastructure update.
+- `rosetta-bundle` 10.17.1: FpML code scheme updated to version 2.19.
 
 There are no changes to the model or test expectations.
 
