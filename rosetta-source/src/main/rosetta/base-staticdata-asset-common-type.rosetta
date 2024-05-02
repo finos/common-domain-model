@@ -23,7 +23,7 @@ import cdm.product.template.*
 // 2. Metadata addressing for AssetIdentifier.
 
 type AssetIdentifier extends Identifier: <"As Asset Identifier is used to designate a particular Asset, using the Identifier construct as-is."> 
-    identifierType ProductIdTypeEnum (1..1)  <"Defines the symbology source of the Product Identifier, eg CUSIP, ISIN, etc.">
+    identifierType AssetIdTypeEnum (1..1)  <"Defines the symbology source of the Product Identifier, eg CUSIP, ISIN, etc.">
 
 type AssetBase:  <"An abstract class for common attributes for an Asset, including an Identifier.">
     identifier AssetIdentifier (1..1)  
@@ -34,13 +34,12 @@ type Asset:  <"An Asset is defined something that can be held and transferred in
     basket Basket (0..1)  <"An Asset that is a collection of other Assets (or, in some cases Observables).">
     cash Cash (0..1) <"An Asset that consists solely of a monetary holding in a currency.">
     commodity Commodity (0..1)  <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
+    derivative Derivative (0..1)  <"A securitized derivative on another asset that is created by an exchange.">
     digitalAsset DigitalAsset (0..1)  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
-    // ART-01 to discuss 'loan' within 'asset'
     loan Loan (0..1) <"An Asset that represents a loan or borrow obligation.">
-    // ART-01 to discuss 'security' within 'asset'
     security Security (0..1) <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
     condition OneOfAsset:  <"An Asset must be of one and only one of the following.">
-        required choice assetPool, basket, cash, commodity, digitalAsset, loan, security
+        required choice assetPool, basket, cash, commodity, derivative, digitalAsset, loan, security
 // Using the 'required choice' condition, rather than 'one-of' as it allows other shared attributes to be added to the data type.
 
 // To improve the model, it is proposed to replace this design with a new Union construct.  The revised modelling:
@@ -55,13 +54,28 @@ type Asset:  <"An Asset is defined something that can be held and transferred in
 //      Loan            <"An Asset that represents a loan or borrow obligation.">
 //      Security        <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
 
+type Derivative extends AssetBase:  <"A securitized derivative on another asset.">
+    isListed boolean (0..1) <"Identifies whether the derivative is created by an exchange.">
+    isExchangeTraded boolean (0..1) <"Identifies whether the derivative is traded on an exchange.">
+    exchange string (0..1) <" Identifies the exchange where the asset is listed, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
+        [metadata scheme]
+
 type Cash extends AssetBase:  <"An Asset that consists solely of a monetary holding in a currency.">
-    currency CurrencyCodeEnum (1..1) <"The enumerated code of the currency of the Cash Asset.">
+    condition IdentifierIsCurrencyCode:  <"The identifier of a Cash Asset is used to identify the Currency.">
+        identifier -> identifierType = AssetIdTypeEnum -> ISOCurrencyCode
+
+func CurrencyCodeEnumOfCash:  <"Returns the ISO Currency Code ">
+    inputs: cash Cash (1..1)
+    output: isoCurrency ISOCurrencyCodeEnum (1..1)
+    
+    set isoCurrency: 
+        cash -> identifier -> identifier to-enum ISOCurrencyCodeEnum
 
 type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
     // <"Empty Data Type for future expansion.">
 
-type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
+// ART-06 All Asset data types extend AssetBase 
+type AssetPool extends AssetBase: <"Characterizes the asset pool behind an asset backed bond.">
     version string (0..1) <"The asset pool version.">
     effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
     initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
@@ -181,6 +195,22 @@ type EquityIndex extends IndexBase: <"Specification of the equity market index d
 // type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 // End of ART-02 changes
 
+type CommodityLegacy extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
+    commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
+    priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
+    deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
+    description string (0..1) <"Provides additional information about the commodity underlier.">
+    
+    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
+        if productTaxonomy -> value -> classification count > 1
+        then productTaxonomy -> value -> classification -> ordinal exists
+
+    condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
+        if productTaxonomy exists
+        then (productTaxonomy -> source exists and productTaxonomy -> value exists)
+
+
+
 // ART-01 
 // Added/changed inheritance from ProductBase to AssetBase 
 // Added ProductTaxonomy as an attribute to Assets that require it
@@ -189,15 +219,16 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
-    productTaxonomy ProductTaxonomy (0..1) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+    // ART-06 Remove Product Taxonomy from all Asset children
+    // productTaxonomy ProductTaxonomy (0..1) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
 
-    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
-        if productTaxonomy -> value -> classification count > 1
-        then productTaxonomy -> value -> classification -> ordinal exists
+    // condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
+    //    if productTaxonomy -> value -> classification count > 1
+    //    then productTaxonomy -> value -> classification -> ordinal exists
 
-    condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
-        if productTaxonomy exists
-        then (productTaxonomy -> source exists and productTaxonomy -> value exists)
+    // condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
+    //    if productTaxonomy exists
+    //     then (productTaxonomy -> source exists and productTaxonomy -> value exists)
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -229,8 +260,8 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
     condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
         optional choice capacityUnit, weatherUnit
 
-// ART-01 Loan remains aligned with Product for now
-type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
+// ART-06 All Asset data types extend AssetBase 
+type Loan extends AssetBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
     lien string (0..1) <"Specifies the seniority level of the lien.">
         [metadata scheme]
@@ -272,8 +303,8 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
     condition:
         one-of
 
-// ART-01 Security remains aligned with Product for now
-type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+// ART-06 Security Legacy
+type SecurityLegacy extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
@@ -297,6 +328,34 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
     condition BondEconomicTerms:
         if economicTerms exists
         then securityType = SecurityTypeEnum -> Debt
+
+
+// ART-06 All Asset data types extend AssetBase 
+type Security extends AssetBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+    [docReference ICMA GMRA namingConvention "Purchased Security"
+		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
+    securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
+    debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
+    equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
+    fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+    // ART-07 remove Taxonmy & EcTerms: 
+    // economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+
+    condition DebtSubType:
+        if securityType <> SecurityTypeEnum -> Debt
+        then debtType is absent
+
+    condition EquitySubType:
+        if securityType <> SecurityTypeEnum -> Equity
+        then equityType is absent
+
+    condition FundSubType:
+        if securityType <> SecurityTypeEnum -> Fund
+        then fundType is absent
+
+    // condition BondEconomicTerms:
+    //    if economicTerms exists
+    //    then securityType = SecurityTypeEnum -> Debt
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
