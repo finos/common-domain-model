@@ -15,5 +15,5 @@ _Review Directions_
 
 In the CDM Portal, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in PR: #2896
+The changes can be reviewed in PR: [#2896](https://github.com/finos/common-domain-model/pull/2896)
 
