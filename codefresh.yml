@@ -91,28 +91,28 @@ steps:
         commands:
           - sbt compile
           - sbt package
-      BuildCSharp8:
-        stage: 'build'
-        title: CSharp8 build
-        fail_fast: false
-        image: mcr.microsoft.com/dotnet/core/sdk:3.1
-        working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
-        shell: bash
-        commands:
-          - dotnet build Cdm/Cdm.csproj
-          - dotnet test Test/Test.csproj
-          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
-      BuildCSharp9:
-        stage: 'build'
-        title: CSharp9 build
-        fail_fast: false
-        image: mcr.microsoft.com/dotnet/sdk:5.0
-        working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
-        shell: bash
-        commands:
-          - dotnet build Cdm/Cdm.csproj
-          - dotnet test Test/Test.csproj
-          - dotnet publish Cdm/Cdm.csproj -c release -o ./app
+      # BuildCSharp8:
+      #   stage: 'build'
+      #   title: CSharp8 build
+      #   fail_fast: false
+      #   image: mcr.microsoft.com/dotnet/core/sdk:3.1
+      #   working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
+      #   shell: bash
+      #   commands:
+      #     - dotnet build Cdm/Cdm.csproj
+      #     - dotnet test Test/Test.csproj
+      #     - dotnet publish Cdm/Cdm.csproj -c release -o ./app
+      # BuildCSharp9:
+      #   stage: 'build'
+      #   title: CSharp9 build
+      #   fail_fast: false
+      #   image: mcr.microsoft.com/dotnet/sdk:5.0
+      #   working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
+      #   shell: bash
+      #   commands:
+      #     - dotnet build Cdm/Cdm.csproj
+      #     - dotnet test Test/Test.csproj
+      #     - dotnet publish Cdm/Cdm.csproj -c release -o ./app
 
   DeployParallelTasks:
     stage: 'build'
@@ -140,26 +140,26 @@ steps:
           - cd /codefresh/volume/${{CF_REPO_NAME}}/rosetta-source/target/classes/cdm/scala/target/scala-2.12
           - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
           - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DgeneratePom=true
-      DeployCSharp8:
-        stage: 'build'
-        title: CSharp8 deploy
-        fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
-        shell: bash
-        commands:
-          - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
-      DeployCSharp9:
-        stage: 'build'
-        title: CSharp9 deploy
-        fail_fast: false
-        image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-        working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
-        shell: bash
-        commands:
-          - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
-          - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+      # DeployCSharp8:
+      #   stage: 'build'
+      #   title: CSharp8 deploy
+      #   fail_fast: false
+      #   image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+      #   working_directory: ./rosetta-source/target/classes/cdm/csharp8/NetStandard.2.1
+      #   shell: bash
+      #   commands:
+      #     - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
+      #     - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
+      # DeployCSharp9:
+      #   stage: 'build'
+      #   title: CSharp9 deploy
+      #   fail_fast: false
+      #   image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+      #   working_directory: ./rosetta-source/target/classes/cdm/csharp9/Net.5.0
+      #   shell: bash
+      #   commands:
+      #     - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
+      #     - mvn -U -s /settings.xml deploy:deploy-file -Durl=https://regnosys.jfrog.io/regnosys/libs-snapshot-local -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DrepositoryId=snapshots -DgroupId=com.isda -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DgeneratePom=true
       DeployTypeScript:
         stage: 'build'
         title: TypeScript deploy
@@ -259,27 +259,27 @@ steps:
       - mvn -s /settings.xml -f scala-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
       - mvn -U -s /settings.xml -f scala-pom.xml clean deploy
 
-  DistributeCSharp8:
-    stage: 'distribute'
-    title: Maven CSharp8 distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
+  # DistributeCSharp8:
+  #   stage: 'distribute'
+  #   title: Maven CSharp8 distribution
+  #   fail_fast: false
+  #   image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+  #   working_directory: ./cdm-distribution
+  #   commands:
+  #     - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+  #     - mvn -s /settings.xml -f csharp8-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+  #     - mvn -U -s /settings.xml -f csharp8-pom.xml clean deploy
 
-  DistributeCSharp9:
-    stage: 'distribute'
-    title: Maven CSharp9 distribution
-    fail_fast: false
-    image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
-    working_directory: ./cdm-distribution
-    commands:
-      - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
-      - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
-      - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
+  # DistributeCSharp9:
+  #   stage: 'distribute'
+  #   title: Maven CSharp9 distribution
+  #   fail_fast: false
+  #   image: regnosys-docker-registry.jfrog.io/regnosys/mvn-docker-build:java-11
+  #   working_directory: ./cdm-distribution
+  #   commands:
+  #     - rm -rf /codefresh/volume/.m2/com/regnosys /codefresh/volume/.m2/com/isda
+  #     - mvn -s /settings.xml -f csharp9-pom.xml versions:set -DnewVersion=${{RELEASE_NAME}}
+  #     - mvn -U -s /settings.xml -f csharp9-pom.xml clean deploy
 
   DistributeTypeScript:
     stage: 'distribute'
@@ -328,13 +328,13 @@ steps:
           buildReleaseFailed: steps.BuildRelease.result == 'error'
           buildDamlFailed: steps.BuildDaml.result == 'error'
           buildScalaFailed: steps.BuildScala.result == 'error'
-          buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
-          buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
+          # buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
+          # buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
           deployDamlFailed: steps.DeployDaml.result == 'error'
           deployScalaFailed: steps.DeployScala.result == 'error'
           deployTypeScriptFailed: steps.DeployTypeScript.result == 'error'
-          deployCSharp8Failed: steps.DeployCSharp8.result == 'error'
-          deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
+          # deployCSharp8Failed: steps.DeployCSharp8.result == 'error'
+          # deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
           deployGoFailed: steps.DeployGo.result == 'error'
           deployKotlinFailed: steps.DeployKotlin.result == 'error'
           buildJavaDocsFailed: steps.BuildJavaDocs.result == 'error'
@@ -343,8 +343,8 @@ steps:
           distributeDamlFailed: steps.DistributeDaml.result == 'error'
           distributeScalaFailed: steps.DistributeScala.result == 'error'
           distributeTypeScriptFailed: steps.DistributeTypeScript.result == 'error'
-          distributeCSharp8Failed: steps.DistributeCSharp8.result == 'error'
-          distributeCSharp9Failed: steps.DistributeCSharp9.result == 'error'
+          # distributeCSharp8Failed: steps.DistributeCSharp8.result == 'error'
+          # distributeCSharp9Failed: steps.DistributeCSharp9.result == 'error'
           distributeGoFailed: steps.DistributeGo.result == 'error'
           distributeKotlinFailed: steps.DistributeKotlin.result == 'error'
           distributeJavaDocsFailed: steps.DistributeJavaDocs.result == 'error'
@@ -370,13 +370,13 @@ steps:
           releaseBuildFailure: steps.BuildRelease.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
-          cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
-          cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
+          # cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
+          # cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
           scalaDeployFailure: steps.DeployScala.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
-          cSharp8DeployFailure: steps.DeployCSharp8.result == 'failure'
-          cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
+          # cSharp8DeployFailure: steps.DeployCSharp8.result == 'failure'
+          # cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
           kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
           javaDocsBuildFailure: steps.BuildJavaDocs.result == 'failure'
@@ -385,8 +385,8 @@ steps:
           distributeDamlFailure: steps.DistributeDaml.result == 'failure'
           distributeScalaFailure: steps.DistributeScala.result == 'failure'
           distributeTypeScriptFailure: steps.DistributeTypeScript.result == 'failure'
-          distributeCSharp8Failure: steps.DistributeCSharp8.result == 'failure'
-          distributeCSharp9Failure: steps.DistributeCSharp9.result == 'failure'
+          # distributeCSharp8Failure: steps.DistributeCSharp8.result == 'failure'
+          # distributeCSharp9Failure: steps.DistributeCSharp9.result == 'failure'
           distributeGoFailure: steps.DistributeGo.result == 'failure'
           distributeKotlinFailure: steps.DistributeKotlin.result == 'failure'
           distributeJavaDocsFailure: steps.DistributeJavaDocs.result == 'failure'
