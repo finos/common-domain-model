@@ -33,4 +33,6 @@ _Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
+In GitHub, review Java unit tests `cdm.base.math.functions.RoundToPrecisionImplTest` and `cdm.product.asset.floatingrate.functions.ApplyFloatingRateProcessingTest`.
+
 Changes can be reviewed in PR [#2916](https://github.com/finos/common-domain-model/pull/2916)
