@@ -1,4 +1,4 @@
-# _Product Model - FpML mappings - Link Id_
+# _Product Model - FpML mappings - Link ID_
 
 _Background_
 
