@@ -1,8 +1,8 @@
 # _Product Model - FpML mappings - Link Id_
 
-_Backgroud_
+_Background_
 
-The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes. This release introduces a mapper to support the mappings of `linkId`, to cover the changes in v2-17 of FpML coding schemes.
+The version 2-17 of the FpML coding schemes was recently published. This new version includes some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM do not cover the latest changes. This release introduces a mapper to support the mappings of `linkId`, to cover the changes in v2-17 of FpML coding schemes.
 
 _What is being released?_
 
