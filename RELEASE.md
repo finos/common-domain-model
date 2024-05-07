@@ -1,14 +1,21 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - FpML mappings - Link Id_
+
+_Backgroud_
+
+The version 2-17 of the FpML coding schemes was recently published. This new version included some changes that are already present in the corresponding enumerations of the CDM model, but the synonym mappings from FpML to CDM have not been updated to cover the latest changes. This release introduces a mapper to support the mappings of `linkId`, to cover the changes in v2-17 of FpML coding schemes.
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` dependency.
-
-Version updates include:
-- `rosetta-bundle` 10.17.1: 
-  - FpML coding scheme updated to version 2.19. `FloatingRateIndexEnum` updated to match coding scheme.
-  - Bug fix for `zonedDateTime` serialisation issue [#2895](https://github.com/finos/common-domain-model/issues/2895).
+- Added mapping coverage, using a mapper, to support the new schemes of the FpML's `linkId`.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2893](https://github.com/finos/common-domain-model/pull/2893)
+In Rosetta, select the Textual view and inspect each of the changes identified above.
+
+In Rosetta, open the Translate tab and review the following test pack samples:
+
+- fpml-5-12 -> processes:
+   - custom-basket-linkId-ptrr-comp.xml
+   - custom-basket-linkId-rtn.xml
+
+The changes can be reviewed in PR: [#2852](https://github.com/finos/common-domain-model/pull/2852)
