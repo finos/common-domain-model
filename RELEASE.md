@@ -6,7 +6,7 @@ This release contains a bug fix for `RoundToPrecision` function, as described in
 
 _What is being released?_
 
-This release updates the existing function `RoundToPrecision` to round to the correct number of decimal places.
+This release updates the existing function `cdm.base.math.RoundToPrecision` to round to the correct number of decimal places.
 
 ```
 func RoundToPrecision: <"Round a rate to the supplied precision, using the supplied rounding direction">
