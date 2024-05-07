@@ -54,19 +54,23 @@ module.exports = {
           items: [
             {
               label: 'Contribution Review Working Group',
-              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf',
+              href: 'https://cdm.finos.org/docs/CDM-Contribution-Review-WG',
             },
             {
               label: 'Collateral Working Group',
-              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf',
+              href: 'https://cdm.finos.org/docs/CDM-Collateral-WG',
+            },
+            {
+              label: 'Derivatives Product and Business Event Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG',
             },
             {
               label: 'Technology Architecture Working Group',
-              href: 'https://github.com/eteridvalishvili/common-domain-model/blob/master/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf',
+              href: 'https://cdm.finos.org/docs/CDM-Technology-Architecture-WG',
             },
             {
               label: 'Structured Products Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Structured-Products-WG',
             }
           ]
         },
@@ -75,7 +79,7 @@ module.exports = {
           items: [
             {
               label: 'FINOS CDM Steering Working Group',
-              href: 'https://github.com/finos/common-domain-model#2-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Steering-WG',
             },
             {
               label: 'ISLA CDM Working Group (Securities Lending)',
