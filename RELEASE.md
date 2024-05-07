@@ -16,9 +16,6 @@ func RoundToPrecision: <"Round a rate to the supplied precision, using the suppl
         roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
     output:
         roundedValue number (1..1) <"The value to the desired precision">
-
-    condition NonNegativePrecision:
-        precision >= 0
 ```
 
 The following examples show the function behaviour:
