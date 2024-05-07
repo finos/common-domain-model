@@ -1,15 +1,14 @@
-# _Product Model - Bond Option and Forward Qualification_
-
-_Background_
-
-A previous release introduced a regression in the qualification of Bond Forwards and Bond Options, that were no longer qualified due to an update in the `Qualify_AssetClass_InterestRate` function. This release addresses this issue.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-- Reintroduced the capability to have a security with `securityType = SecurityTypeEnum -> Debt` as underlier of the option or forward in the `Qualify_AssetClass_InterestRate` function.
+This release updates the `rosetta-bundle` dependency.
+
+Version updates include:
+- `rosetta-bundle` 10.17.1: 
+  - FpML coding scheme updated to version 2.19. `FloatingRateIndexEnum` updated to match coding scheme.
+  - Bug fix for `zonedDateTime` serialisation issue [#2895](https://github.com/finos/common-domain-model/issues/2895).
 
 _Review directions_
 
-In Rosetta, select the Textual View and inspect the change identified above
-
-The changes can be reviewed in PR: [#2851](https://github.com/finos/common-domain-model/pull/2851)
+The changes can be reviewed in PR: [#2893](https://github.com/finos/common-domain-model/pull/2893)

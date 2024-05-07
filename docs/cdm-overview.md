@@ -15,7 +15,7 @@ and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
 [domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
 
-For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-Overview.pptx.pdf).
+For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-Overview.pdf).
 
 ## Purpose
 
