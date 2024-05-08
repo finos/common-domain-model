@@ -30,8 +30,9 @@ public class ApplyFloatingRateProcessingTest extends AbstractFunctionTest {
                         .setSpread(BigDecimal.valueOf(0.06))
                         .build();
 
-        assertEquals("0.03200000", func.evaluate(params, BigDecimal.valueOf(0.03), null, false).getProcessedRate().toString());
-        assertEquals("0.05000000", func.evaluate(params, BigDecimal.valueOf(0.06), null, false).getProcessedRate().toString());
-        assertEquals("0.03000000", func.evaluate(params2, BigDecimal.valueOf(0.03), null, false).getProcessedRate().toString());
+        // If no precision is specified, the function ApplyFinalRateRounding defaults to 7 decimal places
+        assertEquals("0.0320000", func.evaluate(params, BigDecimal.valueOf(0.03), null, false).getProcessedRate().toString());
+        assertEquals("0.0500000", func.evaluate(params, BigDecimal.valueOf(0.06), null, false).getProcessedRate().toString());
+        assertEquals("0.0300000", func.evaluate(params2, BigDecimal.valueOf(0.03), null, false).getProcessedRate().toString());
     }
 }
