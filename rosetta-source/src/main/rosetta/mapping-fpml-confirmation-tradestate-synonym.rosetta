@@ -1671,7 +1671,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "currentFactor"]
 
     Loan:
-        + productIdentifier
+        + identifier
             [value "loan" meta "instrumentId"]
             [hint "loan"]
         + borrower
@@ -1768,7 +1768,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]
 
     Security:
-        + productIdentifier
+        + identifier
             [value "bond" meta "instrumentId" mapper "BasketConstituent"]
             [value "convertibleBond" meta "instrumentId" mapper "BasketConstituent"]
             [value "mortgage" meta "instrumentId" mapper "BasketConstituent"]
@@ -1916,11 +1916,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     Identifier:
         [meta "id"]
         [meta "id" path "versionedTradeId->tradeId"]
-        + issuerReference
-            [value "issuer" meta "href"]
-            [value "partyReference" meta "href"]
-        + issuer
-            [value "issuer" maps 2 meta "issuerIdScheme"]
+        // ART-3.03 Needs refactoring
+        //+ issuerReference
+        //    [value "issuer" meta "href"]
+        //    [value "partyReference" meta "href"]
+        //+ issuer
+        //    [value "issuer" maps 2 meta "issuerIdScheme"]
 
     IdentifiedList:
         + listId
@@ -1942,18 +1943,19 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "notionalAmountReference" meta "href"]
 
     Observable:
-        + commodity
-            [hint "commodity"]
-            [hint "commodityClassification"]
-        + productIdentifier
-            [hint "equity"]
-            [hint "bond"]
-            [hint "convertibleBond"]
-            [hint "index"]
-            [hint "exchangeTradedContractNearest"]
-        + currencyPair
-            [value "quotedCurrencyPair"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+    // ART-3.06 Need refactoring
+        //+ commodity
+        //    [hint "commodity"]
+        //    [hint "commodityClassification"]
+        //+ productIdentifier
+        //    [hint "equity"]
+        //    [hint "bond"]
+        //    [hint "convertibleBond"]
+        //    [hint "index"]
+        //    [hint "exchangeTradedContractNearest"]
+        //+ currencyPair
+        //    [value "quotedCurrencyPair"]
+        //    [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
 
     Cashflow:
 		[meta "id"]
@@ -2600,7 +2602,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "returnLeg"]
 
     Product:
-        + contractualProduct
+        + nonTransferableProduct
             // For Equity Swap:
             [value "returnSwap" , "equitySwapTransactionSupplement"]
             // For Swap Stream:
@@ -2658,31 +2660,33 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVolatilitySwap"]
             [hint "fxVolatilitySwap"]
             [hint "genericProduct"]
-        + index
-            [hint "index"]
-        + loan
-            [hint "loan"]
-        + commodity
-            [value "commodity"]
-            [meta "specifiedPrice"]
-        + security
-            [value "underlyer"]
-            [hint "bond" , "equity" , "mortgage" , "convertibleBond"]
-        + basket
-            [value "basket"]
+        // ART-3.08 needs refactoring
+        //+ index
+        //    [hint "index"]
+        //+ loan
+        //    [hint "loan"]
+        //+ commodity
+        //    [value "commodity"]
+        //    [meta "specifiedPrice"]
+        //+ security
+        //    [value "underlyer"]
+        //    [hint "bond" , "equity" , "mortgage" , "convertibleBond"]
+        //+ basket
+        //    [value "basket"]
 
     Index:
-        + productIdentifier
-            [value "index" meta "instrumentId" mapper "BasketConstituent"]
-            [value "index" meta "description"]
-            [hint "index"]
+        // ART-3.02 needs refactoring
+        //+ identifier
+        //    [value "index" meta "instrumentId" mapper "BasketConstituent"]
+        //    [value "index" meta "description"]
+        //    [hint "index"]
 
     Basket:
         + basketConstituent
             [value "basketConstituent"]
 
     Commodity:
-        + productIdentifier
+        + identifier
             [hint "commodity"]
         + priceQuoteType
             [value "specifiedPrice" path "commodity" maps 2]
@@ -3778,7 +3782,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + financialUnit
             [value "quantityUnit" maps 2]
             [value "openUnits" mapper "OpenUnits"]
-            [set to FinancialUnitEnum -> ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
+            //[set to FinancialUnitEnum -> NonTransferableProduct when path = "bulletPayment->payment->paymentAmount->amount"]
             [set to FinancialUnitEnum -> Weight when path = "basketPercentage"]
             [set to FinancialUnitEnum -> Weight when path = "basketConstituent->constituentWeight"]
         + currency

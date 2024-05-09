@@ -119,7 +119,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter observable -> productIdentifier exists
+    add securityTransfers: transfers filter transferable exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -289,7 +289,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
         equityCashSettlementAmount Transfer (1..1)
 
     alias equityPerformancePayout:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
+        tradeState -> trade -> tradableProduct -> economicTerms -> payout -> performancePayout only-element
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -331,7 +331,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
         equityPerformance number (1..1)
 
     alias performancePayout:
-        trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
+        trade -> tradableProduct -> economicTerms -> payout -> performancePayout only-element
     alias periodStartPrice: <"Only works in the case of a single trade lot.">
         ResolvePerformancePeriodStartPrice(
                 performancePayout,
@@ -346,7 +346,7 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
     alias notionalAmount: EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 
     condition PriceReturnTermsExists:
-        trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
+        trade -> tradableProduct -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
 
     set equityPerformance: rateOfReturn * notionalAmount
 
@@ -434,13 +434,14 @@ func Create_Execution: <"Specifies the function to compose an execution based on
         instruction ExecutionInstruction (1..1) <"Instructions to be used as an input to the function">
     output:
         execution TradeState (1..1) <"Execution primitive event with absent before state and an after state containing the tradable product, parties, associated party roles and the known settlement terms.">
-    set execution -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
-        instruction -> product
-    add execution -> trade -> tradableProduct -> tradeLot: <"Assign the prices and quantities and lot identifier input to the tradable product of the execution object.">
-        TradeLot {
-            priceQuantity: instruction -> priceQuantity,
-            lotIdentifier: instruction -> lotIdentifier
-        }
+                // ART-3.08 needs refactoring
+    //set execution -> trade -> tradableProduct -> product: <"Assign the product input to the tradable product of the execution object.">
+    //    instruction -> product
+    //add execution -> trade -> tradableProduct -> tradeLot: <"Assign the prices and quantities and lot identifier input to the tradable product of the execution object.">
+    //    TradeLot {
+    //        priceQuantity: instruction -> priceQuantity,
+    //        lotIdentifier: instruction -> lotIdentifier
+     //   }
 
     add execution -> trade -> tradableProduct -> counterparty: <"Assign the counterparty input to the tradable product of the execution object.">
         instruction -> counterparty
@@ -498,7 +499,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
         then exerciseInstruction -> exerciseOption
-        else tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> optionPayout only-element
+        else tradableProduct -> economicTerms -> payout -> optionPayout only-element
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout.">
         optionPayout -> underlier
@@ -632,11 +633,12 @@ func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trad
     output:
         transfer Transfer (1..1)
 
-    post-condition UnitsAndObservable:
-        if tradeState -> trade -> tradableProduct -> product -> security exists
-                and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
-        then transfer -> quantity -> unit -> currency only exists
-                and transfer -> observable -> productIdentifier exists
+    //post-condition UnitsAndObservable:
+    // ART-3.08 needs refactoring
+    //    if tradeState -> trade -> tradableProduct -> economicTerms -> asset-> security exists
+    //            and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
+        //then transfer -> quantity -> unit -> currency only exists
+          //      and transfer -> transferable exists
 
 func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of asset based on an asset payout, should be constructed.">
     inputs:
@@ -645,7 +647,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         transfer Transfer (1..1)
 
     alias assetPayout:
-        instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        instruction -> tradeState -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
         FilterQuantityByFinancialUnit(
@@ -681,9 +683,9 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             unit: securityQuantity -> unit,
             ...
         }
-
-    add transfer -> observable -> productIdentifier:
-        assetPayout -> securityInformation -> security -> productIdentifier
+//ART-3.04
+    //add transfer -> transferable -> identifier:
+    //   assetPayout -> securityInformation -> security -> identifier
 
     set transfer -> payerReceiver -> payerPartyReference:
         if instruction -> payerReceiver -> payer exists
@@ -712,8 +714,8 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
     set transfer -> settlementDate -> adjustedDate: instruction -> date
 
     set transfer -> settlementOrigin -> assetPayout:
-        if instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
-        then instruction -> tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        if instruction -> tradeState -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
+        then instruction -> tradeState -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
             as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
@@ -762,10 +764,10 @@ func SecurityFinanceCashSettlementAmount:
         cashSettlementAmount Transfer (1..1)
 
     alias assetPayout:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral
+        tradeState -> trade -> tradableProduct -> economicTerms -> collateral
 
     alias securityQuantity: <"Specifies the number of securities.">
         if quantity exists
@@ -956,11 +958,12 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
 
     set quantityChange -> trade -> tradableProduct: <"Update trade with new TradableProduct.">
         TradableProduct {
-            product: tradableProduct -> product,
+            // product: tradableProduct -> product,
             tradeLot: newTradeLots,
             counterparty: tradableProduct -> counterparty,
             ancillaryParty: tradableProduct -> ancillaryParty,
-            adjustment: tradableProduct -> adjustment
+            adjustment: tradableProduct -> adjustment,
+            ...
         }
 
     set quantityChange -> state -> positionState:
@@ -977,7 +980,7 @@ func Create_TermsChange: <"A specification of the inputs, outputs and constraint
     alias newProduct:
         if termsChange -> product exists
         then termsChange -> product
-        else before -> trade -> tradableProduct -> product
+   //     else before -> trade -> tradableProduct -> product
 
     alias newAncillaryParty:
         if termsChange -> ancillaryParty exists
@@ -993,11 +996,12 @@ func Create_TermsChange: <"A specification of the inputs, outputs and constraint
 
     set tradeState -> trade -> tradableProduct: <"Contract to be updated based on the new terms change inputs.">
         TradableProduct {
-            product: newProduct,
+            //product: newProduct,
             tradeLot: tradeState -> trade -> tradableProduct -> tradeLot,
             counterparty: tradeState -> trade -> tradableProduct -> counterparty,
             ancillaryParty: newAncillaryParty,
-            adjustment: newAdjustment
+            adjustment: newAdjustment,
+            ...
         }
 
 func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the closedState and positionState are not set.">
@@ -1018,39 +1022,39 @@ func FilterClosedTradeStates: <"Filter to only 'closed' TradeState - where eithe
 
 func NewEquitySwapProduct: <"Function specification to create an Equity Swap according to the 2018 ISDA CDM Equity Confirmation Template, based on a minimum set of inputs which can (optionally) include a Master Confirmation Agreement. The inputs represent the minimum set of inputs required to create an Equity Swap, either based on an existing Master Confirmation Agreement or as a stand-alone Equity Swap">
     inputs:
-        security Security (1..1) <"The underlying Equity asset for the swap.">
+        security staticdata.asset.common.SecurityLegacy (1..1) <"The underlying Equity asset for the swap.">
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
     // performancePayout PerformancePayout (1..1)
     output:
-        product Product (1..1)
+        product ProductLegacy (1..1)
 
-    alias payout: product -> contractualProduct -> economicTerms -> payout
+    // alias payout: economicTerms -> payout
 
 //	condition PriceReturnTermsOnlyExists:  performancePayout -> returnTerms -> priceReturnTerms only exists
-    condition EquitySecurityType: <"Security must be equity (single name).">
-        security -> securityType = SecurityTypeEnum -> Equity
+    // condition EquitySecurityType: <"Security must be equity (single name).">
+    //     security -> securityType = SecurityTypeEnum -> Equity
 
-    add product -> contractualProduct -> economicTerms -> payout -> performancePayout:
-        NewSingleNameEquityPerformancePayout(security, masterConfirmation)
-    add product -> contractualProduct -> economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
-        if masterConfirmation exists
-        then NewFloatingPayout(masterConfirmation)
+    // add economicTerms -> payout -> performancePayout:
+    //     NewSingleNameEquityPerformancePayout(security, masterConfirmation)
+    // add economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
+    //     if masterConfirmation exists
+    //     then NewFloatingPayout(masterConfirmation)
 
-    post-condition PayoutType: <"Other payout types must be absent.">
-        if masterConfirmation is absent
-        then payout -> interestRatePayout is absent
-                and payout -> cashflow is absent
-                and payout -> creditDefaultPayout is absent
-                and payout -> forwardPayout is absent
-                and payout -> fixedPricePayout is absent
-                and payout -> optionPayout is absent
+    // post-condition PayoutType: <"Other payout types must be absent.">
+    //     if masterConfirmation is absent
+    //     then payout -> interestRatePayout is absent
+    //             and payout -> cashflow is absent
+    //             and payout -> creditDefaultPayout is absent
+    //             and payout -> forwardPayout is absent
+    //             and payout -> fixedPricePayout is absent
+    //             and payout -> optionPayout is absent
 
-    post-condition ContractualProductOnlyExists: <"Non-contractual product types must be absent.">
-        product -> contractualProduct only exists
+    // post-condition nonTransferableProductOnlyExists: <"Non-contractual product types must be absent.">
+    //     product -> nonTransferableProduct only exists
 
 func NewSingleNameEquityPerformancePayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
-        security Security (1..1)
+        security staticdata.asset.common.SecurityLegacy (1..1)
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
     output:
         performancePayout PerformancePayout (1..1)
@@ -1244,13 +1248,13 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
             )
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
+        tradeState -> trade -> tradableProduct -> economicTerms -> payout -> interestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral
+        tradeState -> trade -> tradableProduct -> economicTerms -> collateral
 
     alias haircutPercentage:
         (1.0 - collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage)
@@ -1379,7 +1383,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> tradableProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
                 and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
@@ -1431,32 +1435,32 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
     output:
         instruction PrimitiveInstruction (1..1)
 
-    condition ContractualProduct: <"Only a contractual product can be rolled.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+    // condition nonTransferableProduct: <"Only a contractual product can be rolled.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
-        [
-            PrimitiveInstruction {
-                quantityChange: QuantityChangeInstruction {
-                        change: priceQuantity,
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
-                termsChange: Create_RollTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRollDate,
-                            terminationDate
-                        ),
-                ...
-            }
-        ]
+    // add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
+    //     [
+    //         PrimitiveInstruction {
+    //             quantityChange: QuantityChangeInstruction {
+    //                     change: priceQuantity,
+    //                     direction: QuantityChangeDirectionEnum -> Replace,
+    //                     lotIdentifier: empty
+    //                 },
+    //             termsChange: Create_RollTermChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                         effectiveRollDate,
+    //                         terminationDate
+    //                     ),
+    //             ...
+    //         }
+    //     ]
 
 func Create_EffectiveOrTerminationDateTermChangeInstruction: <"Creates the relevant terms change primitive instruction object for rolling a contractual product, which consists in the same terms as the original contractual product but with different effective and termination dates.">
     inputs:
-        contractualProduct ContractualProduct (1..1) <"The original contractual product to be rolled.">
+        nonTransferableProduct NonTransferableProduct (1..1) <"The original contractual product to be rolled.">
         effectiveRollDate AdjustableOrRelativeDate (0..1) <"The date to close and open a new position.">
         terminationDate AdjustableOrRelativeDate (0..1) <"The new termination date.">
     output:
@@ -1465,31 +1469,31 @@ func Create_EffectiveOrTerminationDateTermChangeInstruction: <"Creates the relev
     condition DateExists:
         effectiveRollDate exists or terminationDate exists
 
-    set termsChangeInstruction -> product -> contractualProduct: contractualProduct
+    set termsChangeInstruction -> product -> nonTransferableProduct: nonTransferableProduct
 
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-        if effectiveRollDate exists
-        then effectiveRollDate
-        else contractualProduct -> economicTerms -> effectiveDate
+    // set termsChangeInstruction -> economicTerms -> effectiveDate:
+    //     if effectiveRollDate exists
+    //     then effectiveRollDate
+    //     else nonTransferableProduct -> economicTerms -> effectiveDate
 
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-        if terminationDate exists
-        then terminationDate
-        else contractualProduct -> economicTerms -> terminationDate
+    // set termsChangeInstruction -> economicTerms -> terminationDate:
+    //     if terminationDate exists
+    //     then terminationDate
+    //     else nonTransferableProduct -> economicTerms -> terminationDate
 
 func Create_RollTermChangeInstruction: <"Creates the relevant terms change primitive instruction object for rolling a contractual product, which consists in the same terms as the original contractual product but with different effective and termination dates.">
     inputs:
-        contractualProduct ContractualProduct (1..1) <"The original contractual product to be rolled.">
+        nonTransferableProduct NonTransferableProduct (1..1) <"The original contractual product to be rolled.">
         effectiveRollDate AdjustableOrRelativeDate (1..1) <"The date to close and open a new position.">
         terminationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
     output:
         termsChangeInstruction TermsChangeInstruction (1..1) <"The relevant primitive instruction for the roll, which is a terms change.">
 
-    set termsChangeInstruction -> product -> contractualProduct: contractualProduct
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate:
-        effectiveRollDate
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-        terminationDate
+    set termsChangeInstruction -> product -> nonTransferableProduct: nonTransferableProduct
+    // set termsChangeInstruction -> economicTerms -> effectiveDate:
+    //     effectiveRollDate
+    // set termsChangeInstruction -> economicTerms -> terminationDate:
+    //     terminationDate
 
 func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a single existing trade, (ii) entering into a new trade with the same details as the old trade, except for the effective and termination date where the effective date. The roll qualification does not make any assumption on the resulting quantity which may change compared to the original trade (it may only be partially rolled). The price is also likely different as market conditions may have evolved.">
     [qualification BusinessEvent]
@@ -1499,9 +1503,9 @@ func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a s
         is_event boolean (1..1)
 
     alias beforeEconomicterms:
-        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> economicTerms
     alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     set is_event:
@@ -1522,28 +1526,28 @@ func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive i
     output:
         instruction PrimitiveInstruction (1..1)
 
-    condition ContractualProduct: <"Only a contractual product can have a rate change.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
-    condition SingleTradeLot: <"Rate change only works for a trade with a single trade lot.">
-        tradeState -> trade -> tradableProduct -> tradeLot count = 1
+    // condition nonTransferableProduct: <"Only a contractual product can have a rate change.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
+    // condition SingleTradeLot: <"Rate change only works for a trade with a single trade lot.">
+    //     tradeState -> trade -> tradableProduct -> tradeLot count = 1
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective date and price (rate) changed.">
-        [
-            PrimitiveInstruction {
-                quantityChange: Create_OnDemandRateChangePriceChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                            agreedRate
-                        ),
-                termsChange: Create_OnDemandRateChangeTermsChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveDate
-                        ),
-                ...
-            }
-        ]
+    // add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective date and price (rate) changed.">
+    //     [
+    //         PrimitiveInstruction {
+    //             quantityChange: Create_OnDemandRateChangePriceChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+    //                         agreedRate
+    //                     ),
+    //             termsChange: Create_OnDemandRateChangeTermsChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                         effectiveDate
+    //                     ),
+    //             ...
+    //         }
+    //     ]
 
 func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change instruction for an on-demand rate change, based on a new rate provided as a single number by matching it to a single rate price.">
     inputs:
@@ -1588,15 +1592,15 @@ func Create_OnDemandRateChangePriceChangeInstruction: <"Creates a price change i
 
 func Create_OnDemandRateChangeTermsChangeInstruction: <"Creates a terms change instruction for an on-demand rate change, based on a new rate provided as a single number. This instruction only updates the effective date but keeps other details of the trade unchanged.">
     inputs:
-        contractualProduct ContractualProduct (1..1) <"The original contractual product whose rate is changed.">
+        nonTransferableProduct NonTransferableProduct (1..1) <"The original contractual product whose rate is changed.">
         effectiveDate AdjustableOrRelativeDate (1..1) <"The date to open the new position.">
     output:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
-    set termsChangeInstruction -> product -> contractualProduct: <"Keep the same contractual product as the original trade">
-        contractualProduct
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> effectiveDate: <"Updates the contractual product's effective date to be the new effective date.">
-        effectiveDate
+    // set termsChangeInstruction -> product -> nonTransferableProduct: <"Keep the same contractual product as the original trade">
+    //     nonTransferableProduct
+    // set termsChangeInstruction -> economicTerms -> effectiveDate: <"Updates the contractual product's effective date to be the new effective date.">
+    //     effectiveDate
 
 func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change event from the fact that the only primitive is the reset.">
     [qualification BusinessEvent]
@@ -1608,11 +1612,11 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
     alias beforeTradableProduct:
         businessEvent -> instruction only-element -> before -> trade -> tradableProduct
     alias beforeEconomicterms:
-        beforeTradableProduct -> product -> contractualProduct -> economicTerms
+        beforeTradableProduct -> economicTerms
     alias openTradableProduct:
         FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct
     alias openEconomicTerms:
-        openTradableProduct -> product -> contractualProduct -> economicTerms
+        openTradableProduct -> economicTerms
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     alias beforePriceQuantityRateOnly: <"The rate value before. There must be 1 and only 1.">
@@ -1672,38 +1676,38 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
     output:
         instruction PrimitiveInstruction (1..1)
 
-    condition ContractualProduct: <"If a contratual product can be cancelled.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+    // condition nonTransferableProduct: <"If a contratual product can be cancelled.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with termination date changed and price / quantity changed (taking new repurchase price into account).">
-        [
-            PrimitiveInstruction {
-                quantityChange: QuantityChangeInstruction {
-                        change: tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
-                termsChange: Create_CancellationTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            cancellationDate
-                        ),
-                ...
-            }
-        ]
+    // add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with termination date changed and price / quantity changed (taking new repurchase price into account).">
+    //     [
+    //         PrimitiveInstruction {
+    //             quantityChange: QuantityChangeInstruction {
+    //                     change: tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
+    //                     direction: QuantityChangeDirectionEnum -> Replace,
+    //                     lotIdentifier: empty
+    //                 },
+    //             termsChange: Create_CancellationTermChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                         cancellationDate
+    //                     ),
+    //             ...
+    //         }
+    //     ]
 
 func Create_CancellationTermChangeInstruction: <"Create a terms change instruction for a cancellation that consists in bringing the termination date forward.">
     inputs:
-        contractualProduct ContractualProduct (1..1) <"Contractual product of original trade">
+        nonTransferableProduct NonTransferableProduct (1..1) <"Contractual product of original trade">
         cancellationDate AdjustableOrRelativeDate (1..1) <"The new termination date.">
     output:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
-    set termsChangeInstruction -> product -> contractualProduct: contractualProduct
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> terminationDate:
-        cancellationDate
+    set termsChangeInstruction -> product -> nonTransferableProduct: nonTransferableProduct
+    // set termsChangeInstruction -> economicTerms -> terminationDate:
+    //     cancellationDate
 
 func Qualify_Cancellation: <"Qualification of an cancellation event.">
     [qualification BusinessEvent]
@@ -1713,9 +1717,9 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
         is_event boolean (1..1)
 
     alias closedEconomicTerms:
-        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms
     alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms
 
     set is_event:
         businessEvent -> instruction -> before count = 1
@@ -1731,42 +1735,42 @@ func Qualify_Cancellation: <"Qualification of an cancellation event.">
 func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a set of trades based on a pair reference. A package component is created based on that pair reference and the list of identifiers for the underlying trades. That package component is then added onto the execution details of every underlying trade. The existing trades are not terminated.">
     inputs:
         tradeState TradeState (2..*) <"The trades to pair-off. There must be at least 2.">
-        pairReference Identifier (1..1) <"The reference ID of the paired trades.">
+        pairReference staticdata.identifier.IdentifierLegacy (1..1) <"The reference ID of the paired trades.">
     output:
         instruction Instruction (1..*)
 
     alias componentId: <"Extract the trade identifier from each trade. This list will be used as the componentId attribute of the package.">
         tradeState extract trade -> tradeIdentifier only-element
 
-    set instruction: <"Create a list of new execution instructions for each trade. The new execution instructions include new execution details, with the package component created using the pair reference and the componentId list.">
-        tradeState
-            extract
-                Instruction {
-                    before: item,
-                    primitiveInstruction: PrimitiveInstruction {
-                            contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
-                                then Create_ContractFormationInstruction(
-                                            item -> trade -> contractDetails -> documentation
-                                        ),
-                            execution: ExecutionInstruction {
-                                    product: item -> trade -> tradableProduct -> product,
-                                    priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                                    counterparty: item -> trade -> tradableProduct -> counterparty,
-                                    ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
-                                    parties: item -> trade -> party,
-                                    partyRoles: item -> trade -> partyRole,
-                                    executionDetails: Create_PackageExecutionDetails(
-                                                item -> trade -> executionDetails,
-                                                pairReference,
-                                                componentId
-                                            ),
-                                    tradeDate: item -> trade -> tradeDate,
-                                    tradeIdentifier: item -> trade -> tradeIdentifier,
-                                    ...
-                                },
-                            ...
-                        }
-                }
+    // set instruction: <"Create a list of new execution instructions for each trade. The new execution instructions include new execution details, with the package component created using the pair reference and the componentId list.">
+    //     tradeState
+    //         extract
+    //             Instruction {
+    //                 before: item,
+    //                 primitiveInstruction: PrimitiveInstruction {
+    //                         contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
+    //                             then Create_ContractFormationInstruction(
+    //                                         item -> trade -> contractDetails -> documentation
+    //                                     ),
+    //                         execution: ExecutionInstruction {
+    //                                 product: item -> trade -> tradableProduct -> product,  
+    //                                 priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+    //                                 counterparty: item -> trade -> tradableProduct -> counterparty,
+    //                                 ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
+    //                                 parties: item -> trade -> party,
+    //                                 partyRoles: item -> trade -> partyRole,
+    //                                 executionDetails: Create_PackageExecutionDetails(
+    //                                             item -> trade -> executionDetails,
+    //                                             pairReference,
+    //                                             componentId
+    //                                         ),
+    //                                 tradeDate: item -> trade -> tradeDate,
+    //                                 tradeIdentifier: item -> trade -> tradeIdentifier,
+    //                                 ...
+    //                             },
+    //                         ...
+    //                     }
+    //             }
 
 func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of the existing trades are maintained, except for their execution details which are updated to include a package component. This package component must be unique across all trades.">
     [qualification BusinessEvent]
@@ -1798,7 +1802,7 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
     inputs:
         tradeState TradeState (1..1) <"The original trade to be shaped.">
         tradeLots TradeLot (2..*) <"The shaped quantities provided as full set of trade lots with price and quantity. Each trade lot also contains an identifier to associate to the corresponding shaped trade. Shaping must result in at least 2 shaped trades.">
-        shapeIdentifier Identifier (1..1) <"The package ID of the shaped trades.">
+        shapeIdentifier staticdata.identifier.IdentifierLegacy (1..1) <"The package ID of the shaped trades.">
     output:
         instruction PrimitiveInstruction (1..1)
 
@@ -1808,38 +1812,38 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"The second part of the split consists in a quantity change and a new execution for each provided trade lot. The quantity change takes care of the shaping according to the provided quantities. The execution adds the required package component to the execution details.">
-        tradeLots
-            extract priceQuantity
-            then extract
-                PrimitiveInstruction {
-                    contractFormation: if tradeState -> state -> positionState = PositionStatusEnum -> Formed
-                        then Create_ContractFormationInstruction(
-                                    tradeState -> trade -> contractDetails -> documentation
-                                ),
-                    execution: ExecutionInstruction {
-                            product: tradeState -> trade -> tradableProduct -> product,
-                            priceQuantity: tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                            counterparty: tradeState -> trade -> tradableProduct -> counterparty,
-                            ancillaryParty: tradeState -> trade -> tradableProduct -> ancillaryParty,
-                            parties: tradeState -> trade -> party,
-                            partyRoles: tradeState -> trade -> partyRole,
-                            executionDetails: Create_PackageExecutionDetails(
-                                        tradeState -> trade -> executionDetails,
-                                        shapeIdentifier,
-                                        componentId
-                                    ),
-                            tradeDate: tradeState -> trade -> tradeDate,
-                            tradeIdentifier: tradeState -> trade -> tradeIdentifier,
-                            ...
-                        },
-                    quantityChange: QuantityChangeInstruction {
-                            change: item,
-                            direction: QuantityChangeDirectionEnum -> Replace,
-                            lotIdentifier: empty
-                        },
-                    ...
-                }
+    // add instruction -> split -> breakdown: <"The second part of the split consists in a quantity change and a new execution for each provided trade lot. The quantity change takes care of the shaping according to the provided quantities. The execution adds the required package component to the execution details.">
+    //     tradeLots
+    //         extract priceQuantity
+    //         then extract
+    //             PrimitiveInstruction {
+    //                 contractFormation: if tradeState -> state -> positionState = PositionStatusEnum -> Formed
+    //                     then Create_ContractFormationInstruction(
+    //                                 tradeState -> trade -> contractDetails -> documentation
+    //                             ),
+    //                 execution: ExecutionInstruction {
+    //                         product: tradeState -> trade -> tradableProduct -> product,
+    //                         priceQuantity: tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+    //                         counterparty: tradeState -> trade -> tradableProduct -> counterparty,
+    //                         ancillaryParty: tradeState -> trade -> tradableProduct -> ancillaryParty,
+    //                         parties: tradeState -> trade -> party,
+    //                         partyRoles: tradeState -> trade -> partyRole,
+    //                         executionDetails: Create_PackageExecutionDetails(
+    //                                     tradeState -> trade -> executionDetails,
+    //                                     shapeIdentifier,
+    //                                     componentId
+    //                                 ),
+    //                         tradeDate: tradeState -> trade -> tradeDate,
+    //                         tradeIdentifier: tradeState -> trade -> tradeIdentifier,
+    //                         ...
+    //                     },
+    //                 quantityChange: QuantityChangeInstruction {
+    //                         change: item,
+    //                         direction: QuantityChangeDirectionEnum -> Replace,
+    //                         lotIdentifier: empty
+    //                     },
+    //                 ...
+    //             }
 
 func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]
@@ -1879,8 +1883,8 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
     output:
         instruction PrimitiveInstruction (1..1)
 
-    condition ContractualProduct: <"This function applies to contractual products only.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+    // condition nonTransferableProduct: <"This function applies to contractual products only.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [Create_TerminationInstruction(tradeState)]
@@ -1982,22 +1986,22 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
 
     set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
-        [
-            PrimitiveInstruction {
-                quantityChange: QuantityChangeInstruction {
-                        change: [newPriceQuantity],
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
-                termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRepriceDate,
-                            empty
-                        ),
-                ...
-            }
-        ]
+    // add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+    //     [
+    //         PrimitiveInstruction {
+    //             quantityChange: QuantityChangeInstruction {
+    //                     change: [newPriceQuantity],
+    //                     direction: QuantityChangeDirectionEnum -> Replace,
+    //                     lotIdentifier: empty
+    //                 },
+    //             termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                         effectiveRepriceDate,
+    //                         empty
+    //                     ),
+    //             ...
+    //         }
+    //     ]
 
 func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the collateral quantity and value of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
     inputs:
@@ -2048,30 +2052,30 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
             ...
         }
 
-    condition ContractualProduct: <"This repricing function applies only to contractual products.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+    // condition nonTransferableProduct: <"This repricing function applies only to contractual products.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
 
-    condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
-        tradeState -> trade -> tradableProduct -> tradeLot count = 1
+    // condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
+    //     tradeState -> trade -> tradableProduct -> tradeLot count = 1
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    // set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
 
-    add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
-        [
-            PrimitiveInstruction {
-                quantityChange: QuantityChangeInstruction {
-                        change: [newPriceQuantity],
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
-                termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRepriceDate,
-                            empty
-                        ),
-                ...
-            }
-        ]
+    // add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
+    //     [
+    //         PrimitiveInstruction {
+    //             quantityChange: QuantityChangeInstruction {
+    //                     change: [newPriceQuantity],
+    //                     direction: QuantityChangeDirectionEnum -> Replace,
+    //                     lotIdentifier: empty
+    //                 },
+    //             termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
+    //                         tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                         effectiveRepriceDate,
+    //                         empty
+    //                     ),
+    //             ...
+    //         }
+    //     ]
 
 func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
     [qualification BusinessEvent]
@@ -2105,7 +2109,7 @@ func Qualify_Reprice: <"This qualification function is used to qualify repricing
     alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
-        businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+        businessEvent -> after -> trade -> tradableProduct -> economicTerms -> payout -> interestRatePayout exists
             and openTrades count = 1
             and closedTradeState count = 1
             and beforeTradePurchasePrice exists
@@ -2146,7 +2150,7 @@ func Qualify_Adjustment: <"This qualification function is used to qualify adjust
     alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
-        businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists
+        businessEvent -> after -> trade -> tradableProduct -> economicTerms -> payout -> interestRatePayout exists
             and openEconomicTerms -> payout = beforeEconomicterms -> payout
             and beforeTradePurchasePrice exists
             and afterTradePurchasePrice exists
@@ -2167,27 +2171,27 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
     output:
         instruction PrimitiveInstruction (1..1)
 
-    condition ContractualProduct: <"Only a security finance contractual product can substitute collateral.">
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
+    // condition nonTransferableProduct: <"Only a security finance contractual product can substitute collateral.">
+    //     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct exists
 
-    set instruction: <"Sets the second part of the split to be a new contract with a new asset payout.">
-        PrimitiveInstruction {
-            quantityChange: QuantityChangeInstruction {
-                    change: priceQuantity,
-                    direction: QuantityChangeDirectionEnum -> Replace,
-                    lotIdentifier: empty
-                },
-            termsChange: Create_SubstitutionInstruction(
-                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                        effectiveDate,
-                        newCollateralPortfolio
-                    ),
-            ...
-        }
+    // set instruction: <"Sets the second part of the split to be a new contract with a new asset payout.">
+    //     PrimitiveInstruction {
+    //         quantityChange: QuantityChangeInstruction {
+    //                 change: priceQuantity,
+    //                 direction: QuantityChangeDirectionEnum -> Replace,
+    //                 lotIdentifier: empty
+    //             },
+    //         termsChange: Create_SubstitutionInstruction(
+    //                     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                     effectiveDate,
+    //                     newCollateralPortfolio
+    //                 ),
+    //         ...
+    //     }
 
 func Create_SubstitutionInstruction: <"Creates the terms change instruction that updates the payout with the new substitution payout.">
     inputs:
-        contractualProduct ContractualProduct (1..1) <"The original contractual product to be used as the basis of the new trade.">
+        nonTransferableProduct NonTransferableProduct (1..1) <"The original contractual product to be used as the basis of the new trade.">
         effectiveDate AdjustableOrRelativeDate (1..1) <"The effective date of the substitution.">
         newCollateralPortfolio CollateralPortfolio (1..1) <"New collateral portfolio to substitute for the original collateral.">
     output:
@@ -2195,13 +2199,13 @@ func Create_SubstitutionInstruction: <"Creates the terms change instruction that
 
     set termsChangeInstruction:
         Create_EffectiveOrTerminationDateTermChangeInstruction(
-                contractualProduct,
+                nonTransferableProduct,
                 effectiveDate,
                 empty
             )
 
-    set termsChangeInstruction -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio:
-        newCollateralPortfolio
+    // set termsChangeInstruction -> economicTerms -> collateral -> collateralPortfolio:
+    //     newCollateralPortfolio
 
 func Qualify_Substitution: <"Qualification of a collateral substitution event.">
     [qualification BusinessEvent]
@@ -2225,8 +2229,8 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
 func Create_PackageExecutionDetails: <"Add a package component to an execution details object. This package component is constructed using an identifier for the package and the list of identifiers for its components.">
     inputs:
         executionDetails ExecutionDetails (0..1) <"The original execution details. These may be empty.">
-        listId Identifier (1..1) <"The identifier for the package.">
-        componentId Identifier (2..*) <"The list of identifiers for the package components. There must be at least 2.">
+        listId staticdata.identifier.IdentifierLegacy (1..1) <"The identifier for the package.">
+        componentId staticdata.identifier.IdentifierLegacy (2..*) <"The list of identifiers for the package components. There must be at least 2.">
     output:
         newExecutionDetails ExecutionDetails (1..1)
 
@@ -2266,7 +2270,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
         instruction PrimitiveInstruction (1..1) <"Result is a Terms Change Instruction.">
 
     alias interestRatePayout:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
+        tradeState -> trade -> tradableProduct -> economicTerms -> payout -> interestRatePayout only-element
 
     alias cashflow: <"A fully structured CashFlow or the following need to be provided to create a cashflow.">
         Create_Cashflow(
@@ -2287,14 +2291,14 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
     condition Currency: <"The currency of the interest amount must match the currency of the original interest rate payout.">
         interestAmount -> unit -> currency = interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
-    set instruction:
-        PrimitiveInstruction {
-            termsChange: Create_CashflowTermsChangeInstruction(
-                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                        cashflow
-                    ),
-            ...
-        }
+    // set instruction:
+    //     PrimitiveInstruction {
+    //         termsChange: Create_CashflowTermsChangeInstruction(
+    //                     tradeState -> trade -> tradableProduct -> product -> nonTransferableProduct,
+    //                     cashflow
+    //                 ),
+    //         ...
+    //     }
 
 func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     [qualification BusinessEvent]
@@ -2306,9 +2310,9 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     alias afterTradeStates: FilterOpenTradeStates(businessEvent -> after)
 
     alias beforeCashFlow:
-        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> cashflow
+        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms -> payout -> cashflow
     alias afterCashFlow:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> cashflow
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms -> payout -> cashflow
 
     set is_event:
         businessEvent -> instruction -> before count = 1
@@ -2320,14 +2324,14 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
 
 func Create_CashflowTermsChangeInstruction:
     inputs:
-        contractualProduct ContractualProduct (1..1)
+        nonTransferableProduct NonTransferableProduct (1..1)
         cashFlow Cashflow (1..1)
     output:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
-    set termsChangeInstruction -> product -> contractualProduct: contractualProduct
-    add termsChangeInstruction -> product -> contractualProduct -> economicTerms -> payout -> cashflow:
-        cashFlow
+    set termsChangeInstruction -> product -> nonTransferableProduct: nonTransferableProduct
+    // add termsChangeInstruction -> economicTerms -> payout -> cashflow:
+    //     cashFlow
 
 func Create_Cashflow:
     inputs:
@@ -2531,7 +2535,7 @@ func ExtractBeforeEconomicTerms:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
-        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        businessEvent -> instruction only-element -> before -> trade -> tradableProduct -> economicTerms
 
 func ExtractOpenEconomicTerms:
     inputs:
@@ -2540,7 +2544,7 @@ func ExtractOpenEconomicTerms:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> tradableProduct -> economicTerms
 
 func ExtractBeforeTradableProduct:
     inputs:
