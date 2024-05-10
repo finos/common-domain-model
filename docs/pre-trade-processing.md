@@ -647,4 +647,175 @@ to borrow for one of the securities, but not for the other.
 }
 ```
 
+## Trade Negotiation
+
+The following description of a trade negotiation is based upon a more in depth
+analysis on negotiating a securities lending trade undertaken by ISLA. A full
+discussion of the process can be found on the 
+[ISLA website](https://www.islaemea.org/common-domain-model/#learn-more)
+
+The CDM is built upon the concept of workflows. Each workflow can be broken down
+into a series of steps. Each step holds the data required to transition a trade 
+from one state to another.  
+
+One party can propose a new step in a workflow, and another party (or parties) 
+can accept or reject the proposal. If the proposal is accepted, then the outcome
+is a new business event. If the proposal is rejected, then no event is generated, 
+and the workflow stops at this point.
+
+This process of proposing, rejecting or accepting steps in a workflow can be 
+used to model a trade negotiation through to execution. 
+
+### Securities Lending example
+
+In its simplest form, a borrower will propose a new trade execution to a lender,
+sending them the details of the trade as they see it. The lender will accept the
+proposed trade and a trade execution business event will be generated. This is
+a standard _Propose-Accept_ workflow.
+
+---
+**Note:**
+Additional workflows, including where a lender rejects a proposal or offers a
+counter proposal, are described in more detail in the previously referenced
+document available from the [ISLA website](https://www.islaemea.org/common-domain-model).
+
+---
+
+### Modelling
+To model this basic _Propose-Accept_ workflow we need to use the elements inside
+the ```WorkflowStep``` type:
+
+``` Haskell
+type WorkflowStep: 
+    [metadata key]
+    [rootType]
+
+    businessEvent BusinessEvent (0..1) 
+    counterpartyPositionBusinessEvent CounterpartyPositionBusinessEvent (0..1) 
+    proposedEvent EventInstruction (0..1) 
+    rejected boolean (0..1) 
+    approval WorkflowStepApproval (0..*) 
+    previousWorkflowStep WorkflowStep (0..1) 
+        [metadata reference]
+    nextEvent EventInstruction (0..1) 
+    messageInformation MessageInformation (0..1) 
+    timestamp EventTimestamp (1..*) 
+    eventIdentifier Identifier (1..*) 
+    action ActionEnum (0..1) 
+    party Party (0..*) 
+    account Account (0..*) 
+    lineage Lineage (0..1) 
+        [deprecated]
+    creditLimitInformation CreditLimitInformation (0..1)
+    workflowState WorkflowState (0..1) 
+```
+
+The main items that will be used for this example workflow are:
+
+  - **businessEvent** is used when an event has been successfully approved
+  - **proposedEvent** holds the details of the event that is being proposed
+  - **approval** allows each party involved in a workflow to set whether they 
+    approve the event that is being proposed
+  - **previousWorkflowStep** holds the lineage of all steps in the workflow
+  - **eventIdentifier** holds a unique identifier for this event
+  - **party** can be used to hold parties involved in the workflow
+  
+Other elements can be used but for this example we will just be describing the
+usage of these items.
+
+#### Propose
+
+In this trade negotiation example, the core data is a new proposed event, which 
+is a trade execution being proposed by the borrower. The details of the 
+execution are held in ```proposedEvent``` which is an instance of ```EventInstruction```.
+This should describe the parties on the trade, the instrument being loaned and 
+the economic terms of the trade. 
+
+As this is a new proposed event, there is no business event as yet, so the 
+```businessEvent``` will not be included in this workflow step. Similarly, this is 
+the first step in the workflow for this event, so there will be no previous 
+workflow steps either, so ```previousWorkflowStep``` will also not be included at 
+this point. 
+
+An identifier for the trade will be required which should be placed within the
+```eventIdentifier```.
+
+In order for the proposed execution to become an actual business event both 
+parties to the trade must approve the details of the trade held in ```proposedEvent```.
+This is controlled using ```approval```, where all parties to the event are defined
+along with whether they have approved the event or not. 
+
+When the borrower proposes the new trade execution they will set their approval
+status to `True` and the approval status of the lender party to `False`. 
+
+This ```WorkflowStep``` can now be passed to the lender who will decide whether the
+terms of the proposed trade held in ```proposedEvent``` are acceptable.
+
+#### Accept
+
+Once the lender receives a ```WorkflowStep``` containing a ```proposedEvent``` for a new
+trade they can then decide whether they accept the terms of the execution or not.
+  
+If the lender decides that the terms are acceptable then they will need to send 
+a ```WorkflowStep``` back to the borrower confirming this. This time the details of
+the trade will be in ```businessEvent``` as opposed to being in ```proposedEvent```, as
+the lender is essentially agreeing the terms of the execution as held in the 
+```proposedEvent```from the workflow step that they received from the borrower. 
+
+The approval status of the lender party in the new workflow step should be 
+updated to `True`. The approval status of the borrower party should already be 
+set to `True` from the previous workflow step; thus ```approval``` in the new 
+workflow step should now have both the borrower and lender approval statuses 
+both set to `True`.
+
+The new ```WorkflowStep``` must also now include a ```previousWorkflowStep```. The 
+```WorkflowStep``` object that the lender received holding the proposed trade 
+execution from the borrower must be copied into the ```previousWorkFlowStep```. This
+preserves the lineage of the negotiation and will allow both the lender and 
+borrower applications to inspect the entire negotiation process should they need 
+to.  
+
+---
+**Note**
+The details from the original ```proposedEvent``` must not be updated when they are 
+put into the ```previousWorkflowStep```. This is because the JSON that the CDM 
+generates can contain metadata references, which need to be preserved so that
+the references still work correctly. 
+
+---
+
+### Functions
+
+There are several functions available in the CDM to help generate the workflow
+steps required to perform the negotiation of events like a trade execution. A 
+brief description of some of the functions are provided here. More details and
+additional functions can be reviewed in the model itself.
+
+#### Creating a proposal
+
+To start the negotiation process a party will need to create a new 
+```WorkflowStep``` with the details of the trade execution held in the ```proposedEvent``` 
+within it. 
+
+This can be done using the ```Create_ProposedWorkflowStep``` function.
+
+#### Accepting a proposal
+
+If a party is happy with a proposal that they have received then they will need 
+to notify the other party that they have accepted the proposal. This can be done
+by generating a new workflow step that holds a ```businessEvent``` rather than a
+```proposedEvent```. 
+
+This can be done by using the ```Create_AcceptedWorkflowStepFromInstruction``` 
+function.
+
+#### Rejecting a proposal
+
+If a proposal is not acceptable, and the party does not want to continue the
+negotiation, then the party can send a rejection to the other party. This is 
+achieved by sending a new ```WorkflowStep``` back with the ```rejected``` attribute 
+set to `True`. 
+
+This can be done by using the ```Create_RejectedWorkflowStep``` function.
+  
 
