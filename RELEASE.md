@@ -1,35 +1,19 @@
-# *CDM Model - RoundToPrecision Function*
+# *Product Model - Modification of AmericanExercise Condition in ExerciseTerms*
 
 _Background_
 
-This release contains a bug fix for `RoundToPrecision` function, as described in issue [#2915](https://github.com/finos/common-domain-model/issues/2915).
+The conditions under `ExerciseTerms` in the refactored `OptionPayout` are not sufficiently restrictive for the american options. More specifically, the `AmericanExercise` condition should not only control that the `expirationDate` is present (which it already does through the `CommencementAndExpirationDate` condition), but that it is also **present only once** (not currently implemented in the model). This release aims at modifying the `AmericanExercise` condition to correct this.
 
 _What is being released?_
 
-This release updates the existing function `cdm.base.math.RoundToPrecision` to round to the correct number of decimal places.
+- The `AmericanExercise` condition under the `ExerciseTerms` type has been modified to constraint the `expirationDate` field to only one occurrence.
 
-```
-func RoundToPrecision: <"Round a rate to the supplied precision, using the supplied rounding direction">
-    inputs:
-        value number (1..1) <"The original (unrounded) number.">
-        precision int (1..1) <"The number of decimal digits of precision.">
-        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-    output:
-        roundedValue number (1..1) <"The value to the desired precision">
-```
+_Backward Incompatible Changes_
 
-The following examples show the function behaviour:
-
-- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> NEAREST)` = 1023.12346
-- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> UP)` = 1023.12346
-- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> DOWN)` = 1023.12345
-- `RoundToPrecision(1023.123456789, 0, RoundingDirectionEnum -> NEAREST)` = 1023
-- `RoundToPrecision(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1000000
+It should be noted that this proposal contains a backwards incompatible change, given that a condition has been made stricter, but should not impact any of the actual implementations.
 
 _Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-In GitHub, review Java unit tests `cdm.base.math.functions.RoundToPrecisionImplTest` and `cdm.product.asset.floatingrate.functions.ApplyFloatingRateProcessingTest`.
-
-Changes can be reviewed in PR [#2917](https://github.com/finos/common-domain-model/pull/2917)
+Changes can be reviewed in PR [#2920](https://github.com/finos/common-domain-model/pull/2920)
