@@ -14,7 +14,7 @@ _Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-Changes can be reviewed in PR 
+Changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2922
 
 # *CDM Model - RoundToPrecision Function*
 
