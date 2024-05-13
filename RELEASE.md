@@ -2,7 +2,7 @@
 
 _Background_
 
-In the previous release 5.11.0 the list of enum values of `FloatingRateIndexEnum` was updated to match the FpML coding scheme where the enum value `GBP_SONIA_Refinitiv_Term` was removed. However, the removed value is still needed for backwards compatibility and existing dependencies. While an update to the coding scheme import is developed to add but not remove values as they change, the removed value needs to be manually reinstated and the coding scheme reference omitted.
+In the previous release 5.11.0 the list of enum values of `FloatingRateIndexEnum` was updated to match the FpML coding scheme 2.19 where the enum value `GBP_SONIA_Refinitiv_Term` was removed. However, the removed value is still needed for backwards compatibility and existing dependencies. While an update to the coding scheme import is developed to add but not remove values as they change, the removed value needs to be manually reinstated and the coding scheme reference omitted.
 
 _What is being released?_
 
