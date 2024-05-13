@@ -1,4 +1,4 @@
-# *CDM Model - FloatingRateIndexEnum*
+# *Product Model - FloatingRateIndexEnum*
 
 _Background_
 
@@ -6,13 +6,13 @@ Previously `FloatingRateIndexEnum` updated to match coding scheme which had remo
 
 _What is being released?_
 
-This change is to reinstate `GBP_SONIA_Refinitiv_Term` back.
+This change is to reinstate `GBP_SONIA_Refinitiv_Term`.
 
-The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily removed. It will be re-instated back once the coding scheme import is made additive-only for the CDM's production branch.
+The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily removed. It will be reinstated once changes are implemented to make coding scheme import as additive-onlyfor the CDM's production branch.
 
 _Review Directions_
 
-In Rosetta, select the Textual Browser and inspect the changes identified above.
+In Rosetta, select the Textual Browser and inspect the change identified above.
 
 Changes can be reviewed in PR https://github.com/finos/common-domain-model/pull/2922
 
