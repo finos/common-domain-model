@@ -1,3 +1,19 @@
+# *CDM Model - FloatingRateIndexEnum*
+
+_Background_
+
+Previously `FloatingRateIndexEnum` updated to match coding scheme which had removed `GBP_SONIA_Refinitiv_Term` enum.
+
+_What is being released?_
+
+This change is to reinstate `GBP_SONIA_Refinitiv_Term` back.
+
+_Review Directions_
+
+In Rosetta, select the Textual Browser and inspect the changes identified above.
+
+Changes can be reviewed in PR 
+
 # *CDM Model - RoundToPrecision Function*
 
 _Background_
