@@ -1,4 +1,4 @@
-# *Product Model - FloatingRateIndexEnum*
+# *Product Model - FloatingRateIndexEnum reinstate removed Enum*
 
 _Background_
 
