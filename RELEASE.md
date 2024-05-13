@@ -8,6 +8,8 @@ _What is being released?_
 
 This change is to reinstate `GBP_SONIA_Refinitiv_Term` back.
 
+The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily removed. It will be re-instated back once the coding scheme import is made additive-only for the CDM's production branch.
+
 _Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
