@@ -2,11 +2,11 @@
 
 _Background_
 
-Previously `FloatingRateIndexEnum` updated to match coding scheme which had removed `GBP_SONIA_Refinitiv_Term` enum.
+In release 5.11.0 `FloatingRateIndexEnum` was updated to match coding scheme which had removed `GBP_SONIA_Refinitiv_Term` enum.
 
 _What is being released?_
 
-This change is to reinstate `GBP_SONIA_Refinitiv_Term`.
+The enum `GBP_SONIA_Refinitiv_Term` is being reinstated.
 
 The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily removed. It will be reinstated once changes are implemented to make coding scheme import as additive-onlyfor the CDM's production branch.
 
