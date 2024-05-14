@@ -1,4 +1,23 @@
-# *CDM Model - RoundToPrecision Function*
+# *Product Model - FloatingRateIndexEnum value update*
+
+_Background_
+
+In the previous release 5.11.0 the list of enum values of `FloatingRateIndexEnum` was updated to match the FpML coding scheme 2.19 where the enum value `GBP_SONIA_Refinitiv_Term` was removed. However, the removed value is still needed for backwards compatibility and existing dependencies. While an update to the coding scheme import is developed to add but not remove values as they change, the removed value needs to be manually reinstated and the coding scheme reference omitted.
+
+_What is being released?_
+
+Two changes are made to address this issue:
+- The enum value `GBP_SONIA_Refinitiv_Term` of the enum `FloatingRateIndexEnum` is being reinstated.
+
+- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily omitted. It will be reinstated once changes are implemented to make the coding scheme import as additive-only in the main branch of the CDM.
+
+_Review Directions_
+
+In Rosetta, select the Textual Browser and inspect the changes identified above.
+
+Changes can be reviewed in PR [#2922](https://github.com/finos/common-domain-model/pull/2922)
+
+# *Infrastructure - RoundToPrecision Function*
 
 _Background_
 
