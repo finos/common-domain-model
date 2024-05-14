@@ -19,33 +19,35 @@ type AssetBase extends Identifier: <"As Asset Identifier is used to designate a 
 
 type Asset:  <"An Asset is defined something that can be owned and transferred in the financial markets.">
     [rootType]
-    assetPool AssetPool (0..1) <"An Asset that consists of a pool of other assets that back an asset backed security.">
     cash Cash (0..1) <"An Asset that consists solely of a monetary holding in a currency.">
-    commodity CommodityLegacy (0..1)  <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
+    commodity Commodity (0..1)  <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
     listedDerivative ListedDerivative (0..1)  <"A securitized derivative on another asset that is created by an exchange.">
     digitalAsset DigitalAsset (0..1)  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
     loan Loan (0..1) <"An Asset that represents a loan or borrow obligation.">
-    security SecurityLegacy (0..1) <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
+    security Security (0..1) <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
     condition OneOfAsset:  <"An Asset must be of one and only one of the following.">
-        required choice assetPool, cash, commodity, listedDerivative, digitalAsset, loan, security
-// Using the 'required choice' condition, rather than 'one-of' as it allows other shared attributes to be added to the data type.
-
-// To improve the model, it is proposed to replace this design with a new Union construct.  The revised modelling:
-//
-// union Asset:  <"An Asset is defined something that can be held and transferred in the financial markets.">
-//      AssetPool        <"An Asset that consists of a pool of other assets that back an asset backed security.">
-//      Cash             <"An Asset that consists solely of a monetary holding in a currency.">
-//      Commodity        <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
-//      ListedDerivative <"An Asset whose value is dependent on the value of another Asset.">
-//      DigitalAsset     <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
-//      Loan             <"An Asset that represents a loan or borrow obligation.">
-//      Security         <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
+        required choice cash, commodity, listedDerivative, digitalAsset, loan, security
 
 // ART-3.01 New ListedDerivative asset
 type ListedDerivative extends AssetBase:  <"A securitized derivative on another asset.">
     isExchangeTraded boolean (0..1) <"Identifies whether the derivative is traded on an exchange.">
-    exchange string (0..1) <" Identifies the exchange where the asset is listed, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
+    exchange string (0..1) <" Identifies the exchange where the asset is listed, using the scheme definition http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
         [metadata scheme]
+    exerciseTerms ExerciseTerms (1..1) <"Specifically the ExerciseDate.">
+    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call.  Left empty if it is a Future.">
+    strike OptionStrike (0..1) <"Specifies the strike of the option.">
+
+    condition ExchangeTraded:
+        if isExchangeTraded
+        then exchange exists
+        else exchange is absent
+
+    condition Options:
+        if optionType exists
+        then 
+            strike exists
+        else
+            strike is absent
 
 // ART-3.01 New Cash asset
 type Cash extends AssetBase:  <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.">
@@ -75,16 +77,16 @@ func SetCashCurrency:  <"Sets the string identifier of a Cash asset using an enu
 type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
     // <"Empty Data Type for future expansion.">
 
-// ART-3.01 Extends AssetBase
-type AssetPool extends AssetBase: <"Characterizes the asset pool behind an asset backed bond.">
+// ART-3.01 Remove AssetPool
+// type AssetPool extends AssetBase: <"Characterizes the asset pool behind an asset backed bond.">
 
-    version string (0..1) <"The asset pool version.">
-    effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
-    initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
-    currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
+//     version string (0..1) <"The asset pool version.">
+//     effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
+//     initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
+//     currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
 
-    condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
-        if version is absent then effectiveDate is absent
+//     condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
+//         if version is absent then effectiveDate is absent
 
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
     [deprecated]
@@ -281,7 +283,7 @@ type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed 
 type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
     eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
     uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
-    us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules.">
+    us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators margin rules, the precise definitions or application of those rules could differ between the two rules.">
     nonEnumeratedTaxonomyValue string (0..*) <"Identifies the taxonomy value when not specified as an enumeration.">
         [metadata scheme]
 
