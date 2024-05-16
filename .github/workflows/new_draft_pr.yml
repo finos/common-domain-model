@@ -1,0 +1,47 @@
+name: New Pull Request
+
+on:
+  pull_request:
+    types: [opened, reopened]
+  pull_request_review:
+    types: [edited, submitted]
+
+jobs:
+  job-1:
+    name: set_label_to_draft
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      statuses: write
+      pages: write
+      issues: write
+      checks: write
+      actions: write
+    steps:
+      - run: gh pr edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: Draft
+
+  job-2:
+    name: set_event_to_draft
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+      statuses: write
+      pages: write
+      issues: write
+      checks: write
+      actions: write
+    steps:
+      - run: github.event.pull_request.draft = true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
