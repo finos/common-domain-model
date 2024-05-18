@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
+import cdm.product.template.*
 
 import cdm.observable.common.*
 import cdm.mapping.config.*
@@ -25,7 +26,7 @@ type SecurityValuation: <" Terms defining the security valuation method as part 
     [deprecated]
 
     securityValuationModel SecurityValuationModel (1..1) <"The security valuation model choice, based on either a nominal amount or a number of units.">
-    underlier Security (1..1) <"The underlying security of the security leg.">
+    underlier SecurityLegacy (1..1) <"The underlying security of the security leg.">
 
 type SecurityValuationModel: <" The security valuation model choice, which can either be based on nominal amount as for a bond, or on the number of contract units as for equity.">
     [deprecated]
@@ -184,12 +185,13 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
     condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
         value exists and datedValue is absent
 
-type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+// ART-3.05 Refactoring Observable
+type ObservableLegacy: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
     [metadata key]
 
     rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
         [metadata location]
-    commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
+    commodity CommodityLegacy (0..1) <"Identifies a commodity by referencing a product identifier.">
         [metadata location]
     productIdentifier ProductIdentifier (0..*) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
         [metadata location]
@@ -199,6 +201,18 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
     condition ObservableChoice: <"An observable can only be composed of one type any time.">
         required choice rateOption, commodity, productIdentifier, currencyPair
+
+// ART-3.05 Observable refactoring
+// Existing Observable is available as ObservableLegacy
+// See also TransferBase
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+    [metadata key]
+
+    asset Asset (0..1)
+    basket BasketLegacy (0..1)  
+    index Index (0..1)
+    quotedCurrencyPair QuotedCurrencyPair (0..1)
+    condition: one-of
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -223,7 +237,7 @@ type ExchangeRate: <"A class that is used for describing the exchange rate for a
 type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
 
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
-        [metadata address "pointsTo"=Observable->currencyPair]
+        [metadata address "pointsTo"=ObservableLegacy->currencyPair]
     primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
     secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
@@ -453,7 +467,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
-        [metadata address "pointsTo"=Observable->currencyPair]
+        [metadata address "pointsTo"=ObservableLegacy->currencyPair]
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">

@@ -5,18 +5,88 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
+// ART-3.01 
+// Add import of cdm.base.staticdata.identifier.*
+// new Data Types:  AssetBase, Asset
 
-    version string (0..1) <"The asset pool version.">
-    effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
-    initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
-    currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
+type AssetBase extends Identifier: <"As Asset Identifier is used to designate a particular Asset, using the Identifier construct as-is."> 
+    identifierType AssetIdTypeEnum (1..1)  <"Defines the symbology source of the Product Identifier, eg CUSIP, ISIN, etc.">
 
-    condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
-        if version is absent then effectiveDate is absent
+type Asset:  <"An Asset is defined something that can be owned and transferred in the financial markets.">
+    [rootType]
+    cash Cash (0..1) <"An Asset that consists solely of a monetary holding in a currency.">
+    commodity Commodity (0..1)  <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
+    listedDerivative ListedDerivative (0..1)  <"A securitized derivative on another asset that is created by an exchange.">
+    digitalAsset DigitalAsset (0..1)  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
+    loan Loan (0..1) <"An Asset that represents a loan or borrow obligation.">
+    security Security (0..1) <"A specific type of Asset that is issued by a party to be held by or transferred to others.">
+    condition OneOfAsset:  <"An Asset must be of one and only one of the following.">
+        required choice cash, commodity, listedDerivative, digitalAsset, loan, security
+
+// ART-3.01 New ListedDerivative asset
+type ListedDerivative extends AssetBase:  <"A securitized derivative on another asset.">
+    isExchangeTraded boolean (0..1) <"Identifies whether the derivative is traded on an exchange.">
+    exchange string (0..1) <" Identifies the exchange where the asset is listed, using the scheme definition http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
+        [metadata scheme]
+    exerciseTerms ExerciseTerms (1..1) <"Specifically the ExerciseDate.">
+    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call.  Left empty if it is a Future.">
+    strike OptionStrike (0..1) <"Specifies the strike of the option.">
+
+    condition ExchangeTraded:
+        if isExchangeTraded
+        then exchange exists
+        else exchange is absent
+
+    condition Options:
+        if optionType exists
+        then 
+            strike exists
+        else
+            strike is absent
+
+// ART-3.01 New Cash asset
+type Cash extends AssetBase:  <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.">
+    condition IdentifierIsCurrencyCode:  <"The identifier of a Cash Asset is used to identify the Currency.">
+        identifierType = AssetIdTypeEnum -> CurrencyCode
+
+func GetCashCurrency:  <"Returns the enumerated Currency Code of a Cash asset.">
+    inputs: cash Cash (1..1)
+    output: currencyEnum CurrencyCodeEnum (1..1)
+    
+    set currencyEnum: 
+        cash -> identifier to-enum CurrencyCodeEnum
+
+func SetCashCurrency:  <"Sets the string identifier of a Cash asset using an enumerated Currency Code.">
+    inputs: cashInput Cash (1..1) 
+            currency CurrencyCodeEnum (1..1)
+    output: cashOutput Cash (1..1)
+
+    set cashOutput:
+        cashInput
+    set cashOutput -> identifier:
+        currency to-string
+    set cashOutput -> identifierType:
+        AssetIdTypeEnum -> CurrencyCode
+
+// ART-3.01 New DigitalAsset asset
+type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
+    // <"Empty Data Type for future expansion.">
+
+// ART-3.01 Remove AssetPool
+// type AssetPool extends AssetBase: <"Characterizes the asset pool behind an asset backed bond.">
+
+//     version string (0..1) <"The asset pool version.">
+//     effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
+//     initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
+//     currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
+
+//     condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
+//         if version is absent then effectiveDate is absent
 
 type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
     [deprecated]
@@ -33,13 +103,15 @@ type ProductIdentifier: <"Comprises an identifier and a source. The associated m
         [metadata scheme]
     source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
 
+// ART-03.01
+// Marked as deprecated:  IdentifiedProduct.
 type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
     productIdentifier ProductIdentifier (1..1)
 
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
     productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-        [metadata address "pointsTo"=Observable->productIdentifier]
+        [metadata address "pointsTo"=ObservableLegacy->productIdentifier]
 
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
 
@@ -95,9 +167,36 @@ type IndexReferenceInformation: <"A class defining information related to Index"
     condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
         indexName exists or indexId exists
 
-type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
+// ART-03.02 Index Refactoring
+type IndexBase extends Identifier: <"Identifies an index by referencing a product identifier.">
+    name string (0..1)  <"A description of the Index.">
+    provider string (0..1) <"The organisation that creates or maintains the Index.">
 
-type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
+type Index: <"Identifies an index by referencing a product identifier.">
+    floatingIndex FloatingIndex (0..1) 
+        [metadata location]
+	inflationIndex InflationIndex (0..1) 
+	equityIndex EquityIndex (0..1)
+    creditIndex CreditIndex (0..1) 
+    condition: one-of
+
+type FloatingIndex extends IndexBase:  <"Specification of the floating rate index details.">
+	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
+		[metadata scheme]
+	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
+
+type InflationIndex extends IndexBase:  <"Specification of the inflation index details.">
+	inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
+		[metadata scheme]
+
+type CreditIndex extends IndexBase: <"A class defining a Credit Default Swap Index .">
+
+type EquityIndex extends IndexBase: <"Specification of the equity market index details.">
+
+
+// ART-3.06 Commodity refactoring
+// Legacy data type created
+type CommodityLegacy extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
@@ -110,6 +209,13 @@ type Commodity extends ProductBase: <"Identifies a specific commodity by referen
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
         if productTaxonomy exists
         then (productTaxonomy -> source exists and productTaxonomy -> value exists)
+
+// ART-3.06 New Commodity data type
+type Commodity extends AssetBase: <"Identifies a specific commodity by referencing an identifier or by a commodity definition.">
+    commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
+    priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
+    deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
+    description string (0..1) <"Provides additional information about the commodity underlier.">
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -141,7 +247,8 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
     condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
         optional choice capacityUnit, weatherUnit
 
-type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
+// ART-3.01 Change inheritance 
+type Loan extends AssetBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
     lien string (0..1) <"Specifies the seniority level of the lien.">
         [metadata scheme]
@@ -176,14 +283,15 @@ type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed 
 type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
     eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
     uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
-    us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules.">
+    us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators margin rules, the precise definitions or application of those rules could differ between the two rules.">
     nonEnumeratedTaxonomyValue string (0..*) <"Identifies the taxonomy value when not specified as an enumeration.">
         [metadata scheme]
 
     condition:
         one-of
 
-type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+// ART-3.07 Security Refactoring: Create legacy data type  
+type SecurityLegacy extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
@@ -207,6 +315,32 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
     condition BondEconomicTerms:
         if economicTerms exists
         then securityType = SecurityTypeEnum -> Debt
+
+// ART-3.07 Security Refactoring: Create new data type with no economic terms
+type Security extends AssetBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+    [docReference ICMA GMRA namingConvention "Purchased Security"
+		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
+    securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
+    debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
+    equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
+    fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+    // economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+
+    condition DebtSubType:
+        if securityType <> SecurityTypeEnum -> Debt
+        then debtType is absent
+
+    condition EquitySubType:
+        if securityType <> SecurityTypeEnum -> Equity
+        then equityType is absent
+
+    condition FundSubType:
+        if securityType <> SecurityTypeEnum -> Fund
+        then fundType is absent
+
+    //condition BondEconomicTerms:
+    //    if economicTerms exists
+    //    then securityType = SecurityTypeEnum -> Debt
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
