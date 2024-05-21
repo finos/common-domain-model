@@ -6,7 +6,7 @@ Currently, the values for representing specific elements such as barriers are do
 
 _What is being released?_
 
-A refactoring of the `Trigger` type element, modifying `level` and `levelPercentage` to a unified CDM element `level` of type `PriceSchedule`.
+A refactoring has been made to the `Trigger` type element, modifying the `level` and `levelPercentage` to a unified CDM element `level` of type `PriceSchedule`.
 
 _Data types:_
 
