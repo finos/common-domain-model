@@ -1,6 +1,7 @@
 # _Product Model - Refactoring of level and levelPercentage within Trigger CDM_
 
 _Background_
+
 Currently, `level` and `levelPercentage` represent the Trigger values for specific elements such as barriers. The interest in having them represented as Price types is strong since it is a richer type than a number.
 
 _What is being released?_
