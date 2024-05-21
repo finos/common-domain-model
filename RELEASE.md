@@ -1,71 +1,54 @@
-# _Product Model - Qualification of Foreign Exchange NDS_
+# *Product Model - FloatingRateIndexEnum value update*
 
 _Background_
 
-Currently, Foreign Exchange Non-Deliverable Swaps are not supported in the Common Domain Model. This release adds qualification support for this kind of product.
+In the previous release 5.11.0 the list of enum values of `FloatingRateIndexEnum` was updated to match the FpML coding scheme 2.19 where the enum value `GBP_SONIA_Refinitiv_Term` was removed. However, the removed value is still needed for backwards compatibility and existing dependencies. While an update to the coding scheme import is developed to add but not remove values as they change, the removed value needs to be manually reinstated and the coding scheme reference omitted.
 
 _What is being released?_
 
-This release fixes the following functions to ensure an `else` clause is specified in all nested `if` statements.
+Two changes are made to address this issue:
+- The enum value `GBP_SONIA_Refinitiv_Term` of the enum `FloatingRateIndexEnum` is being reinstated.
 
-- Added the function `Qualify_ForeignExchange_NDS` that qualifies as true if a product has two forward payouts with an FX underlier and the `cashSettlementTerms` populated.
+- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being temporarily omitted. It will be reinstated once changes are implemented to make the coding scheme import as additive-only in the main branch of the CDM.
 
-_Review directions_
+_Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in  PR: [#2867](https://github.com/finos/common-domain-model/pull/2867)
+Changes can be reviewed in PR [#2922](https://github.com/finos/common-domain-model/pull/2922)
 
-# _Product Model - Qualification of Total Return Swaps (TRS) with a Debt Underlier_
+# *Infrastructure - RoundToPrecision Function*
 
 _Background_
 
-Following ESMA Guidelines, Total Return Swaps with a debt instrument as their underlier (bond, loan, etc) must report field 2.11 - `Asset Class` as 'CRDT', while TRS on an equity index or a basket of equities should report `Asset Class` as 'EQUI'. Currently in the CDM, a Total Return Swap with a debt underlier is not classified correctly, and thus is being reported incorrectly as well. This release aims at fixing the `Qualify_AssetClass_Credit` function such that Total Return Swaps on a bond or a loan report AssetClass as 'CRDT'.
+This release contains a bug fix for `RoundToPrecision` function, as described in issue [#2915](https://github.com/finos/common-domain-model/issues/2915).
 
 _What is being released?_
 
-- The function `Qualify_AssetClass_Credit` is increasing its coverage to include Total Return Swaps with an underlier of a `loan` or a `securityType` of `debt`.
+This release updates the existing function `cdm.base.math.RoundToPrecision` to round to the correct number of decimal places.
 
-_Functions_
+```
+func RoundToPrecision: <"Round a rate to the supplied precision, using the supplied rounding direction">
+    inputs:
+        value number (1..1) <"The original (unrounded) number.">
+        precision int (1..1) <"The number of decimal digits of precision.">
+        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
+    output:
+        roundedValue number (1..1) <"The value to the desired precision">
+```
 
-- Updated `Qualify_AssetClass_Credit` function to support Total Return Swap products, defined as having an `interestRatePayout` and a `performancePayout`. The function checks the `performancePayout` that `underlier -> loan` is present or that `underlier -> security -> securityType = Debt`.
+The following examples show the function behaviour:
 
-_Review directions_
+- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> NEAREST)` = 1023.12346
+- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> UP)` = 1023.12346
+- `RoundToPrecision(1023.123456789, 5, RoundingDirectionEnum -> DOWN)` = 1023.12345
+- `RoundToPrecision(1023.123456789, 0, RoundingDirectionEnum -> NEAREST)` = 1023
+- `RoundToPrecision(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1000000
+
+_Review Directions_
 
 In Rosetta, select the Textual Browser and inspect the changes identified above.
 
-The changes can be reviewed in  PR: [#2856](https://github.com/finos/common-domain-model/pull/2856)
+In GitHub, review Java unit tests `cdm.base.math.functions.RoundToPrecisionImplTest` and `cdm.product.asset.floatingrate.functions.ApplyFloatingRateProcessingTest`.
 
-# _Python Generator v2_
-
-_What is being released?_
-
-This release uses the new version of the Python generator (v2) which includes the following changes:
-
-- Migration to Pydantic 2.x
-- More comprehensive support for Rosetta's operators
-- Resolves the defect exposed by [PR 2766](https://github.com/finos/common-domain-model/pull/2766)
-- Includes an update to the Python Rosetta runtime library used to encapsulate the Pydantic support (now version 2.0.0)
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2856](https://github.com/finos/common-domain-model/pull/2856)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `rosetta-bundle` and `rosetta-dsl` dependencies.
-
-Version updates include:
-
-- `rosetta-bundle` 10.15.7: Translate bug fix to handle enum name clashes.
-- `rosetta-bundle` 10.15.8: Upgrade of Python Code Generator.
-- `rosetta-bundle` 10.16.0: FpML Coding schema updated.
-- `rosetta-dsl` 9.8.0: this release features three new operations - `to-date`, `to-date-time` and `to-zoned-date-time` - to convert a string into a `date`, `dateTime` or `zonedDateTime` respectively. It also adds support to convert these three types into a string using the `to-string` operation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.0.
-
-There are no changes to the model or test expectations.
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2876](https://github.com/finos/common-domain-model/pull/2876)
+Changes can be reviewed in PR [#2916](https://github.com/finos/common-domain-model/pull/2916)
