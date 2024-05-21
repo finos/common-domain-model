@@ -6,7 +6,7 @@ Currently, `level` and `levelPercentage` represent the Trigger values for specif
 
 _What is being released?_
 
-A refactoring of 'level` and `levelPercentage` within Trigger CDM to a unified CDM element `level` of type PriceSchedule.
+A refactoring of `level` and `levelPercentage` within Trigger CDM to a unified CDM element `level` of type PriceSchedule.
 
 _Data types:_
 
