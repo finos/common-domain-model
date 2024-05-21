@@ -1,18 +1,18 @@
-# _Product Model - Refactoring of level and levelPercentage within Trigger CDM_
+# _Product Model - Trigger type refactoring_
 
 _Background_
 
-Currently, `level` and `levelPercentage` represent the Trigger values for specific elements such as barriers. The interest in having them represented as Price types is strong since it is a richer type than a number.
+Currently, the values for representing specific elements such as barriers are done through the `level` and `levelPercentage` within the `Trigger` type . The interest in having them represented as `Price` types is strong since it is a richer type than a number.
 
 _What is being released?_
 
-A refactoring of `level` and `levelPercentage` within Trigger CDM to a unified CDM element `level` of type PriceSchedule.
+A refactoring of the `Trigger` type element, modifying `level` and `levelPercentage` to a unified CDM element `level` of type `PriceSchedule`.
 
 _Data types:_
 
-- Updated `Trigger` type with a new unified level element of PriceSchedule type.
+- Updated `Trigger` type with a new unified `level` element of `PriceSchedule` type.
 - The condition `Choice1` has been updated to be consistent with the proposal.
-- Modification of the synonym mappings for Trigger type.
+- Modification of the synonym mappings for `Trigger` type.
 
 _Review directions_
 
