@@ -23,18 +23,19 @@ Read more about project contribution guidelines, principles, frequently asked qu
 The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
-* Editors - those who codify ideas into a formal specification
+* [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
 * Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
 ### Active Working Groups
 
 The following Working Groups are currently activated or about to be set up for this project:
 
-* [Contribution Review Working Group](/website/static/pdfs/CDM.Contribution.Review.Working.Group.Terms.of.Reference.pdf)
-* [Collateral Working Group](/website/static/pdfs/CDM.Collateral.WG.Book.of.Work.May.2023.pdf)
-* [Technology Architecture Working Group](/website/static/pdfs/CDM.Technology.Architecture.WG.ToR.v1.pdf)
-* [Structured Products Working Group](https://www.finos.org/calendar)
-* [FINOS CDM Steering Working Group](https://github.com/finos/common-domain-model#2-working-groups)
+* [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
+* [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
+* [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
+* [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
+* [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
+* [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
@@ -116,7 +117,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the bi-weekly CDM Contribution Review Working Group, monthly Collateral Working Group, monthly FINOS CDM Structured Products Working Group, monthly Steering Technology Architecture Working Group, and/or quarterly FINOS CDM Steering Working Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 
 ### 
@@ -186,11 +187,12 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
-| Ian Sloyan           | Private Individual | N/A                                     | iansloyan            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
+| Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
+| Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
 
