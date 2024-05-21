@@ -17,4 +17,4 @@ _Review directions_
 
 In the Rosetta Platform, select the Textual View and inspect each of the changes identified above.
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2878
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2926
