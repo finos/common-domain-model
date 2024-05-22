@@ -69,6 +69,11 @@ type PayoutBase: <" Base class that all payout types should extend. Use case is 
     principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency or zero-coupon swaps with a final payment.">
     settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
 
+    condition FinalPrincipalAmountExists:
+        if priceQuantity -> quantitySchedule exists and priceQuantity -> reset is absent
+        then principalPayment -> principalPaymentSchedule -> finalPrincipalPayment -> principalAmount exists
+        or principalPayment -> principalPaymentSchedule -> finalPrincipalPayment -> presentValuePrincipalAmount exists
+
 type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
     rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
     spread SpreadSchedule (0..1) <"Defines a spread value for one or more defined dates.">
@@ -352,6 +357,10 @@ type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchange
     intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
     finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
 
+    condition InitialPrincipalAmountExists:
+        initialPrincipalPayment -> principalAmount exists
+        or initialPrincipalPayment -> presentValuePrincipalAmount exists
+
 type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
     [metadata key]
     principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
@@ -361,7 +370,7 @@ type PrincipalPayment: <"Any kind of principal payments when the amount is known
     presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
 
     condition PrincipalAmount:
-        required choice principalAmount, presentValuePrincipalAmount
+        optional choice principalAmount, presentValuePrincipalAmount
 
     condition DiscountFactor:
         if presentValuePrincipalAmount exists
