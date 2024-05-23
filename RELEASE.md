@@ -1,29 +1,19 @@
-# _Python Generator v2_
+# *Product Model - Modification of AmericanExercise Condition in ExerciseTerms*
 
-_What is being released?_
-This release uses the new version of the Python generator (v2) which includes the following changes:
+_Background_
 
-- Migration to Pydantic 2.x
-- More comprehensive support for Rosetta's operators
-- Resolves the defect exposed by [PR 2766](https://github.com/finos/common-domain-model/pull/2766)
-- Includes an update to the Python Rosetta runtime library used to encapsulate the Pydantic support (now version 2.0.0)
-  
-_Review directions_
-
-The changes can be reviewed in PR: [#2869](https://github.com/finos/common-domain-model/pull/2869)
-
-# _Infrastructure - Dependency Update_
+The conditions under `ExerciseTerms` in the refactored `OptionPayout` are not sufficiently restrictive for American options. More specifically, the `AmericanExercise` condition should not only control that the `expirationDate` is present (which it already does through the `CommencementAndExpirationDate` condition), but that it is also **present only once** (not currently implemented in the model). This release aims at modifying the `AmericanExercise` condition to correct this.
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` and `rosetta-dsl` dependencies.
+- The `AmericanExercise` condition under the `ExerciseTerms` type has been modified to constrain the `expirationDate` field to only one occurrence.
 
-Version updates include:
-- `rosetta-bundle` 10.16.0: FpML Coding schema updated.
-- `rosetta-dsl` 9.8.0: this release features three new operations - `to-date`, `to-date-time` and `to-zoned-date-time` - to convert a string into a `date`, `dateTime` or `zonedDateTime` respectively. It also adds support to convert these three types into a string using the `to-string` operation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.0.
+_Backward Incompatible Changes_
 
-There are no changes to the model or test expectations.
+It should be noted that this proposal contains a backwards incompatible change, given that a condition has been made stricter, but should not impact any of the actual implementations.
 
-_Review directions_
+_Review Directions_
 
-The changes can be reviewed in PR: [#2877](https://github.com/finos/common-domain-model/pull/2877)
+In Rosetta, select the Textual Browser and inspect the change identified above.
+
+Changes can be reviewed in PR [#2914](https://github.com/finos/common-domain-model/pull/2914)
