@@ -1,9 +1,9 @@
 package com.regnosys.schemaimport;
 
-import com.regnosys.testing.schemaimport.SchemeImportInjectorProvider;
-import com.regnosys.testing.schemaimport.SchemeImporterTestHelper;
-import com.regnosys.testing.schemaimport.fpml.FpMLSchemeEnumReader;
-import com.regnosys.testing.schemaimport.iso.currency.IsoCurrencySchemeEnumReader;
+import com.regnosys.testing.schemeimport.SchemeImportInjectorProvider;
+import com.regnosys.testing.schemeimport.SchemeImporterTestHelper;
+import com.regnosys.testing.schemeimport.fpml.FpMLSchemeEnumReader;
+import com.regnosys.testing.schemeimport.iso.currency.IsoCurrencySchemeEnumReader;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.junit.jupiter.api.Test;
@@ -32,12 +32,12 @@ class SchemeImporterTest {
 
     @Test
 	void checkFpMLEnumsAreValid() throws IOException {
-        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISDA", "FpML_Coding_Scheme", fpMLSchemeEnumReader, WRITE_TEST_OUTPUT);
+        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISDA", "FpML_Coding_Scheme", fpMLSchemeEnumReader, WRITE_TEST_OUTPUT, SchemeImporterTestHelper.EnumComparison.ExactMatch);
     }
 
     @Test
     void checkIsoCurrencyEnumsAreValid() throws IOException {
-        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISO", "ISO_4217_Currency_Scheme", isoCurrencySchemeEnumReader, WRITE_TEST_OUTPUT);
+        schemeImporterTestHelper.checkEnumsAreValid(ROSETTA_PATH_ROOT, "ISO", "ISO_4217_Currency_Scheme", isoCurrencySchemeEnumReader, WRITE_TEST_OUTPUT, SchemeImporterTestHelper.EnumComparison.ExactMatch);
     }
 
     @Test
