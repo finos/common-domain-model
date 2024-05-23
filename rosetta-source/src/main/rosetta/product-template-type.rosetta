@@ -207,20 +207,18 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
     correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
 
     condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
-        if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
-        then priceReturnTerms exists and dividendReturnTerms exists
-        else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
-        then dividendReturnTerms is absent
-
-    condition : <"All kinds of returns are excluding each other, except priceReturnTerms and dividendReturnTerms which may exist together. This condition is ensuring that priceReturnTerms cannot exist with other return types else than dividendReturnTerms.">
-    optional choice priceReturnTerms, varianceReturnTerms, volatilityReturnTerms, correlationReturnTerms
-
-    condition : <"All kinds of returns are excluding each other, except priceReturnTerms and dividendReturnTerms which may exist together. This condition is ensuring that dividendReturnTerms cannot exist with any other return types else than priceReturnTerms.">
-    optional choice dividendReturnTerms, varianceReturnTerms, volatilityReturnTerms, correlationReturnTerms
+       if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+    then (priceReturnTerms, dividendReturnTerms) only exists
+    else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
+    then priceReturnTerms only exists
+    else priceReturnTerms only exists
+      or dividendReturnTerms only exists
+      or varianceReturnTerms only exists
+      or volatilityReturnTerms only exists
+      or correlationReturnTerms only exists
 
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products. The Performance Payout is either a straight return, or an aggregation of multiple returns, hence a required choice between returnTerms and multiple portfolioReturnTerms.">
     [metadata key]
-
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
     valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
