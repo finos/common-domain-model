@@ -2,7 +2,7 @@
 
 _Background_
 
-The condition that require the amount (or its present value) to be populated on a principal payment is too strict. There are cases where this amount is not known in advance because the quantity of the payout may evolve, e.g. in scenarios such as "Mark-to-Market" Cross-Currency Swaps or resettable Equity Swaps.
+The condition that requires the amount (or its present value) to be populated on a principal payment is too strict. There are cases where this amount is not known in advance because the quantity of the payout may evolve, e.g. in scenarios such as "Mark-to-Market" Cross-Currency Swaps or resettable Equity Swaps.
 
 _What is being released?_
 
