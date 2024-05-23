@@ -1,19 +1,21 @@
-# *Product Model - Modification of AmericanExercise Condition in ExerciseTerms*
+# _Product Model - Trigger type refactoring_
 
 _Background_
 
-The conditions under `ExerciseTerms` in the refactored `OptionPayout` are not sufficiently restrictive for American options. More specifically, the `AmericanExercise` condition should not only control that the `expirationDate` is present (which it already does through the `CommencementAndExpirationDate` condition), but that it is also **present only once** (not currently implemented in the model). This release aims at modifying the `AmericanExercise` condition to correct this.
+Currently, the values for representing specific elements such as barriers are done through the `level` and `levelPercentage` within the `Trigger` type . The interest in having them represented as `Price` types is strong since it is a richer type than a number.
 
 _What is being released?_
 
-- The `AmericanExercise` condition under the `ExerciseTerms` type has been modified to constrain the `expirationDate` field to only one occurrence.
+A refactoring has been made to the `Trigger` type element, modifying the `level` and `levelPercentage` to a unified CDM element `level` of type `PriceSchedule`.
 
-_Backward Incompatible Changes_
+_Data types:_
 
-It should be noted that this proposal contains a backwards incompatible change, given that a condition has been made stricter, but should not impact any of the actual implementations.
+- Updated `Trigger` type with a new unified `level` element of `PriceSchedule` type.
+- The condition `Choice1` has been updated to be consistent with the proposal.
+- Modification of the synonym mappings for `Trigger` type.
 
-_Review Directions_
+_Review directions_
 
-In Rosetta, select the Textual Browser and inspect the change identified above.
+In the Rosetta Platform, select the Textual View and inspect each of the changes identified above.
 
-Changes can be reviewed in PR [#2914](https://github.com/finos/common-domain-model/pull/2914)
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2926
