@@ -1,4 +1,4 @@
-# *Product Model - FpML Mapping - FRA Payment Frequency and Commodity Delivery Date Parameters*
+# *Product Model - FpML Mapping Update*
 
 _Background_
 
