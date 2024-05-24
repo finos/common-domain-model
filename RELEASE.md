@@ -2,10 +2,11 @@
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` dependency.
+This release updates the `rosetta-bundle` and `Dsl` dependency.
 
 Version updates include:
 - `rosetta-bundle` 11.6.2:
+- `Dsl` 9.8.5: For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
 
 _Review directions_
 
