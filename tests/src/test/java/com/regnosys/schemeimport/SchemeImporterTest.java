@@ -1,4 +1,4 @@
-package com.regnosys.schemaimport;
+package com.regnosys.schemeimport;
 
 import com.regnosys.testing.schemeimport.SchemeImportInjectorProvider;
 import com.regnosys.testing.schemeimport.SchemeImporterTestHelper;
