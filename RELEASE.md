@@ -4,11 +4,13 @@ _What is being released?_
 
 - The reference to the FpML coding scheme in `FloatingRateIndexEnum` is reinstated as coding scheme import has been made additive-only in the main branch of the CDM.
 
-This release updates the `rosetta-bundle` and `Dsl` dependency.
+This release updates the `rosetta-bundle` and `DSL` dependency.
 
 Version updates include:
-- `rosetta-bundle` 11.6.2:
-- `Dsl` 9.8.5: For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
+- `rosetta-bundle` 11.6.0: Dependencies migrated to Maven Central
+- `rosetta-bundle` 11.6.2: FpML coding scheme infrastructure update to support configurable coding scheme matching for Prod and Dev versions 
+- `rosetta-bundle` 11.7.0: Java compilation performance improvements
+- `DSL` 9.8.5: Java compilation performance improvements. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
 
 _Review directions_
 
