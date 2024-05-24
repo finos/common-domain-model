@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is reinstated as coding scheme import has been made additive-only in the main branch of the CDM.
+- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being reinstated, as the coding scheme import has been made additive-only in the main branch of the CDM.
 
 This release updates the `rosetta-bundle` and `DSL` dependency.
 
