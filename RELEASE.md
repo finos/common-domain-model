@@ -1,24 +1,36 @@
-# _Product Model - Principal Amount Conditions_
-
-_Background_
-
-The condition that requires the amount (or its present value) to be populated on a principal payment is too strict. There are cases where this amount is not known in advance because the quantity of the payout may evolve, e.g. in scenarios such as "Mark-to-Market" Cross-Currency Swaps or resettable Equity Swaps.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release relaxes the condition on `PrincipalPayment` so that the amount (or its present value) are optional. Instead, to preserve sufficient data quality constraints on the model, new conditions are implemented at the Payout level to enforce the presence of those attributes only in the relevant scenarios.
+This release updates the `rosetta-bundle` and `DSL` dependency.
 
-_Data types:_
-
-- `PrincipalPayment`:
-  - Relaxed the `PrincipalAmount` constraint to be `optional choice` instead of `required choice` between the `principalAmount` and `presentValuePrincipalAmount` attributes.
-- `PrincipalPaymentSchedule`:
-  - Added a new `InitialPrincipalAmountExists` condition that requires `initialPrincipalPayment`, when it exists, to have either its `principalAmount` or `presentValuePrincipalAmount` attributes populated. 
-- `PayoutBase`:
-  - Added a new `FinalPrincipalAmountExists` condition that requires `finalPrincipalPayment`, when it exists and the quantity is not resettable, to have either its `principalAmount` or `presentValuePrincipalAmount` attributes populated. 
+Version updates include:
+- `rosetta-bundle` 11.6.0: Dependencies migrated to Maven Central
+- `rosetta-bundle` 11.6.2: FpML coding scheme infrastructure update to support configurable coding scheme matching for Prod and Dev versions
+- `rosetta-bundle` 11.7.0: Java compilation performance improvements
+- `DSL` 9.8.5: Java compilation performance improvements. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
 
 _Review directions_
 
-In the Rosetta Platform, select the Textual View and inspect each of the changes identified above.
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2932
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/2933
+# *Product Model - FpML Mapping Update*
+
+_Background_
+
+This release extends the FpML mapping coverage for FRAs and Commodity products.
+
+_What is being released?_
+
+- FpML synonyms and mapper updated to map FRA floating leg payment dates from the FpML index tenor
+- FpML synonyms added to map Commodity delivery date parameter `deliveryNearby`
+
+_Review Directions_
+
+In Rosetta, select the Translate tab and review the following samples:
+
+- fpml-5-10 > products > rates > ird-ex08-fra.xml
+- fpml-5-10 > products > rates > ird-ex08-fra-no-discounting.xml
+- fpml-5-10 > products > commodity > com-ex41-oil-asian-barrier-option-strip.xml
+
+Changes can be reviewed in PR [#2936](https://github.com/finos/common-domain-model/pull/2936)
