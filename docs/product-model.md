@@ -568,7 +568,6 @@ type Product:
   contractualProduct ContractualProduct (0..1)
   index Index (0..1)
   loan Loan (0..1)
-  assetPool AssetPool (0..1)
   foreignExchange ForeignExchange (0..1)
   commodity Commodity (0..1)
     [metadata address "pointsTo"=Observable->commodity]
@@ -700,8 +699,6 @@ type Payout:
   commodityPayout CommodityPayout (0..*)
   forwardPayout ForwardPayout (0..*)
   fixedPricePayout FixedPricePayout (0..*)
-  securityPayout SecurityPayout (0..*)
-       [deprecated]
   cashflow Cashflow (0..*)
   performancePayout PerformancePayout (0..*)
   assetPayout AssetPayout (0..*)
@@ -728,7 +725,6 @@ The list of payouts that extend _PayoutBase_ are:
 -   `CommodityPayout`
 -   `ForwardPayout`
 -   `FixedPricePayout`
--   `SecurityPayout`
 -   `Cashflow`
 -   `PerformancePayout`
 -   `AssetPayout`
