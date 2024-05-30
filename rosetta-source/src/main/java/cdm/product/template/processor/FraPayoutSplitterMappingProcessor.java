@@ -58,7 +58,6 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 */
 	private void updateFixedLeg(InterestRatePayoutBuilder fixedLeg) {
 		fixedLeg.getRateSpecification().setFloatingRate(null);
-		fixedLeg.setPaymentDates(null);
 
 		if (fixedLeg.getResetDates() != null) {
 			fixedLeg.getResetDates().setFixingDates(null);
