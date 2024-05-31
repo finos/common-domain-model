@@ -35,4 +35,4 @@ In Rosetta, select the Translate tab and review the following samples:
 - fpml-5-10 > products > rates > ird-ex08-fra-no-discounting.xml
 - fpml-5-10 > products > commodity > com-ex41-oil-asian-barrier-option-strip.xml
 
-Changes can be reviewed in PR [#2935](https://github.com/finos/common-domain-model/pull/2935) [#2946](https://github.com/finos/common-domain-model/pull/2946)
+Changes can be reviewed in PR [#2935](https://github.com/finos/common-domain-model/pull/2935) / [#2946](https://github.com/finos/common-domain-model/pull/2946)
