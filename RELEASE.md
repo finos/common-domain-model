@@ -7,7 +7,7 @@ The Asset Refactoring initiative (see https://github.com/finos/common-domain-mod
 _What is being released?_
 
 - A new enumerator to support a new approach to identifiers for assets: `AssetIdTypeEnum`
-- New data types to start the build out of the concept of "Asset" in the product model:
+- New data types added to start the build out of the concept of "Asset" in the product model:
     - `AssetBase` as the base data type to specify common attributes for all Assets
     - `AssetIdentifier` a new data type to uniquely identify an asset, including using the `AssetIdTypeEnum`
     - `Cash` a new data type to represent an asset that is a monetary holding in a currency
