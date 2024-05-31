@@ -20,7 +20,7 @@ The changes can be reviewed in PR: [#2931](https://github.com/finos/common-domai
 
 _Background_
 
-This release extends the FpML mapping coverage for FRAs and Commodity products.
+The FpML mapping needs further coverage for Forward Rate Agreement (FRA) and Commodity products.
 
 _What is being released?_
 
