@@ -2,7 +2,7 @@
 
 _Background_
 
-This release extends the FpML mapping coverage for FRAs.
+The FpML mapping needs further coverage for Forward Rate Agreements (FRAs).
 
 _What is being released?_
 
