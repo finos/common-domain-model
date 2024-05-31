@@ -24,7 +24,7 @@ This release extends the FpML mapping coverage for FRAs and Commodity products.
 
 _What is being released?_
 
-- FpML synonyms and mapper updated to map FRA floating leg payment dates from the FpML index tenor
+- FpML synonyms and mapper updated to map FRA fixed leg payment dates from the FpML index tenor
 - FpML synonyms added to map Commodity delivery date parameter `deliveryNearby`
 
 _Review Directions_
