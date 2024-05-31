@@ -2,7 +2,7 @@
 
 _Background_
 
-This release extends the FpML mapping coverage for FRAs and Commodity products.
+This release extends the FpML mapping coverage for FRAs.
 
 _What is being released?_
 
