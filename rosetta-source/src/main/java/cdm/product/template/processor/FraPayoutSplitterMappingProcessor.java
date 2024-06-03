@@ -58,7 +58,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 */
 	private void updateFixedLeg(InterestRatePayoutBuilder fixedLeg) {
 		fixedLeg.getRateSpecification().setFloatingRate(null);
-
+		
 		if (fixedLeg.getResetDates() != null) {
 			fixedLeg.getResetDates().setFixingDates(null);
 		}
@@ -71,7 +71,8 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 */
 	private void updateFloatingLeg(Path synonymPath, InterestRatePayoutBuilder floatingLeg) {
 		floatingLeg.getRateSpecification().toBuilder().setFixedRate(null);
-
+		floatingLeg.setPaymentDates(null);
+		
 		getReferenceMapping(synonymPath.addElement("notional").addElement("amount"))
 				.ifPresent(m -> addFloatingLegQuantityReference(m, floatingLeg));
 
