@@ -914,15 +914,19 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
     alias tradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
 
-    alias tradeLot: <"For direction Decrease or Replace, get the TradeLot to update.">
-        if instruction -> direction <> QuantityChangeDirectionEnum -> Increase
-        then if instruction -> lotIdentifier exists
+    alias tradeLot: <"For direction Increase or Decrease when the trade lot exists">
+        if instruction -> lotIdentifier exists
             then FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier)
                 only-element
             else tradableProduct -> tradeLot only-element
 
-    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
+    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, if the trade lot exists then apply the changes to the existing PriceQuantity else the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
         if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+                and FilterTradeLot(
+                        tradableProduct -> tradeLot,
+                        instruction -> lotIdentifier
+                    )
+                    is absent
         then instruction -> change
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
@@ -931,7 +935,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
             )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+        if instruction -> direction = QuantityChangeDirectionEnum -> Increase and  FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier) is absent
         then AddTradeLot(
                     tradableProduct,
                     TradeLot {
@@ -939,7 +943,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
                         priceQuantity: newPriceQuantity
                     }
                 ) -> tradeLot
-        else MergeTradeLot(
+        else ReplaceTradeLot(
                 tradableProduct -> tradeLot,
                 TradeLot {
                     lotIdentifier: instruction -> lotIdentifier,
