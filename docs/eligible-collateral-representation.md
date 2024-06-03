@@ -319,6 +319,21 @@ Whereas other attributes will have more detailed options, such as
 `IssuerAgencyRating`; these will be covered in more detail and in further
 examples throughout this guide.
 
+### Eligible Collateral Criteria
+
+The data type `EligibleCollateralCriteria` is used to define a set of
+criteria, that is `IssuerCriteria` and `AssetCriteria`, together and apply
+a collateral treatment to them.
+
+There are three additional attributes - defined in `CollateralCriteriaBase` -
+which can be used to configure the formation of the set, using enumerators:
+
+- `appliesTo` defines that the criteria applies to only one, or both, of the parties
+- `restrictTo` defines that the criteria applies to only a specific type of
+margin, ie IM or VM
+- `ratingPriorityResolution` defines whether the Asset or Issuer Criteria has precedence
+  if Agency Ratings are defined for both.
+
 ### Treatment Functions
 
 Treatment rules can be applied to eligible collateral in several ways
