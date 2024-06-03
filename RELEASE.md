@@ -1,29 +1,24 @@
-# _Python Generator v2_
+# *Product Model - New Data Types*
 
-_What is being released?_
-This release uses the new version of the Python generator (v2) which includes the following changes:
+_Background_
 
-- Migration to Pydantic 2.x
-- More comprehensive support for Rosetta's operators
-- Resolves the defect exposed by [PR 2766](https://github.com/finos/common-domain-model/pull/2766)
-- Includes an update to the Python Rosetta runtime library used to encapsulate the Pydantic support (now version 2.0.0)
-  
-_Review directions_
-
-The changes can be reviewed in PR: [#2869](https://github.com/finos/common-domain-model/pull/2869)
-
-# _Infrastructure - Dependency Update_
+The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal is being developed - through a cross-industry Task Force - to implement this remodelling in the CDM.  Prior to that, this preparatory PR introduces some new data types in the development environment so that they can be seen by participants.
 
 _What is being released?_
 
-This release updates the `rosetta-bundle` and `rosetta-dsl` dependencies.
+- A new enumerator added to support a new approach to identifiers for assets: `AssetIdTypeEnum`.
+- New data types added to start the build out of the concept of "Asset" in the product model:
+    - `AssetBase` as the base data type to specify common attributes for all Assets
+    - `AssetIdentifier` a new data type to uniquely identify an asset, including using the `AssetIdTypeEnum`
+    - `Cash` a new data type to represent an asset that is a monetary holding in a currency
+    - `DigitalAsset` a new data type to represent an asset that exist only in digital form, eg Bitcoin or Ethereum
+    - `ListedDerivative` a new data type to represent an asset that is a securitised derivative on another asset, such as a exchange traded future
+- A new `func` namespace created `cdm.base.staticdata.asset.common`, containing three new functions to aid the use of the new `Cash` asset:  `AssetIdentifierByType`, `GetCashCurrency`, `SetCashCurrency`.
 
-Version updates include:
-- `rosetta-bundle` 10.16.0: FpML Coding schema updated.
-- `rosetta-dsl` 9.8.0: this release features three new operations - `to-date`, `to-date-time` and `to-zoned-date-time` - to convert a string into a `date`, `dateTime` or `zonedDateTime` respectively. It also adds support to convert these three types into a string using the `to-string` operation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.0.
+None of the existing functionality or modelling is impacted as these changes are standalone at this time.  The proposed `Asset` data type will be defined and introduced later.
 
-There are no changes to the model or test expectations.
+_Review Directions_
 
-_Review directions_
+In Rosetta, open the contribution and view the changes listed above and inspect each of them.
 
-The changes can be reviewed in PR: [#2877](https://github.com/finos/common-domain-model/pull/2877)
+Changes can be reviewed in PR [#2936](https://github.com/finos/common-domain-model/pull/2944)

@@ -297,11 +297,14 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         then creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
                 and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
-    condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout.">
-        interestRatePayout -> priceQuantity -> reset is absent
-            and creditDefaultPayout -> priceQuantity -> reset is absent
-            and optionPayout -> priceQuantity -> reset is absent
-            and cashflow -> priceQuantity -> reset is absent
+    condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout or interestRatePayouts that are associated with it.">
+        creditDefaultPayout -> priceQuantity -> reset is absent
+        and assetPayout -> priceQuantity -> reset is absent
+        and commodityPayout -> priceQuantity -> reset is absent
+        and fixedPricePayout -> priceQuantity -> reset is absent
+        and forwardPayout -> priceQuantity -> reset is absent
+        and optionPayout -> priceQuantity -> reset is absent
+        and cashflow -> priceQuantity -> reset is absent
 
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
         if performancePayout -> priceQuantity -> reset contains True
@@ -762,6 +765,7 @@ type ExerciseTerms: <"A class defining the exercise period for an option togethe
         if style = OptionExerciseStyleEnum -> American then 
             commencementDate exists and 
             exerciseFee is absent and partialExercise is absent
+            and expirationDate count = 1
 
     condition EuropeanExercise: <"Condition to check that only fields expected for a european option are present.">
         if style = OptionExerciseStyleEnum -> European then 

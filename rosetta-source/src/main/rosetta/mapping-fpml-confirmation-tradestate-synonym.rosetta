@@ -491,6 +491,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[value "relativePaymentDates" meta "id" path "calculationPeriodsScheduleReference"]
         + paymentFrequency
             [value "paymentFrequency"]
+            [value "indexTenor"]
         + firstPaymentDate
             [value "firstPaymentDate"]
             [value "firstPaymentDate" path "periodicPayment"]
@@ -672,6 +673,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
             [value "fixedRate" mapper "PriceUnitType"]
+            [value "level" mapper "PriceUnitType"]
+            [value "levelPercentage" mapper "PriceUnitType"]
             [value "strikePrice" mapper "PriceUnitType"]
             [value "spread" mapper "PriceUnitType"]
             [value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
@@ -711,6 +714,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PriceTypeEnum -> InterestRate when path = "floatingRateIndex"]
             [set to PriceTypeEnum -> AssetPrice when "referencePrice" exists]
             [set to PriceTypeEnum -> AssetPrice when "strikePrice" exists]
+            [set to PriceTypeEnum -> AssetPrice when "level" exists]
+            [set to PriceTypeEnum -> AssetPrice when "levelPercentage" exists]
             [set to PriceTypeEnum -> AssetPrice when "initialPrice->netPrice->amount" exists]
             [set to PriceTypeEnum -> Dividend when "fixedStrike" exists]
             [set to PriceTypeEnum -> Correlation when "correlationStrikePrice" exists]
@@ -1239,9 +1244,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Trigger:
         + level
-            [value "level"]
-        + levelPercentage
-            [value "levelPercentage"]
+            [hint "level"]
+            [hint "levelPercentage"]
+            [value "levelPrice"]
         + creditEvents
             [value "creditEvents"]
         + creditEventsReference
@@ -1900,6 +1905,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "eventId" meta "eventIdScheme"]
             [value "messageId"]
             [value "collateralPortfolio"]
+            [value "linkId" path "partyTradeIdentifier" mapper "LinkId"]
         + version
             [value "version" path "versionedTradeId"]
             [value "version"]
@@ -2012,6 +2018,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     Trade:
         + tradeIdentifier
             [value "partyTradeIdentifier" path "tradeHeader"]
+            [value "tradeHeader"]
         + tradeDate
             [value "tradeDate" maps 2 meta "id"]
             [value "tradeDate" path "tradeHeader" maps 2 meta "id"]
@@ -2195,6 +2202,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "paymentDates"]
             [value "periodicPayment" path "feeLeg"]
             [value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
+            [hint "indexTenor"]
         + paymentDate
             [value "paymentDate"]
             [value "feeLeg"]
@@ -2280,7 +2288,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + optionType
 			[value "optionType"]
 			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
-    
+
     ExerciseTerms:
         + commencementDate
             [value "commencementDate" path "americanExercise"]
@@ -2322,7 +2330,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "expirationDates" path "europeanExercise"]
             // For FX Option
             [value "europeanExercise"]
-            [value "americanExercise"]            
+            [value "americanExercise"]
         // [hint "americanExercise->expiryDate"]
         // [hint "expiryDate"]
         + expirationTime
@@ -2692,6 +2700,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     DeliveryDateParameters:
         + deliveryNearby
             [hint "deliveryDates"]
+            [value "deliveryNearby"]
         + deliveryDateRollConvention
             [value "deliveryDateRollConvention"]
         + deliveryDateExpirationConvention
@@ -3033,6 +3042,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 1 when "quantityFrequency" = "PerMonth"]
             [set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
             [set to 1 when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to 1 when "quantityFrequency" = "PerCalculationDay"]
         + period
             [value "period"]
             [value "period" path "paymentFrequency" maps 2]
@@ -3041,6 +3051,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PeriodExtendedEnum -> H when "quantityFrequency" = "PerHour"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerCalculationPeriod"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to PeriodExtendedEnum -> D when "quantityFrequency" = "PerCalculationDay"]
 
     Offset:
         + dayType
@@ -3052,12 +3063,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "periodMultiplier" maps 2]
             [value "periodMultiplier" path "dateOffset"]
             [value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
+            [value "deliveryNearbyMultiplier"]
             // For Commodity Swap
             [set to 1 when "deliveryDates" = "FirstNearby"]
             [set to 2 when path = "deliveryDates->SecondNearby"]
         + period
             [value "period" maps 2]
             [value "period" path "dateOffset"]
+            [value "deliveryNearbyType"]
             // For Commodity Swap
             [set to PeriodEnum -> M when "deliveryDates" exists]
 
@@ -3993,6 +4006,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "CAD-CORRA"]
         + CAD_CORRA_CanDeal_TMX_Term
             [value "CAD-CORRA CanDeal TMX Term"]
+        + CAD_CORRA_Compounded_Index
+            [value "CAD-CORRA Compounded Index"]
         + CAD_CORRA_OIS_Compound_1
             [value "CAD-CORRA-OIS Compound"]
         + CAD_CORRA_OIS_COMPOUND
@@ -4285,6 +4300,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "EUR-EuroSTR-COMPOUND"]
         + EUR_EuroSTR_Compounded_Index
             [value "EUR-EuroSTR Compounded Index"]
+        + EUR_EuroSTR_FTSE_Term
+            [value "EUR-EuroSTR FTSE Term"]
         + EUR_EuroSTR_ICE_Compounded_Index
             [value "EUR-EuroSTR ICE Compounded Index"]
         + EUR_EuroSTR_ICE_Compounded_Index_0_Floor
@@ -4367,6 +4384,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "GBP-SONIA-COMPOUND"]
         + GBP_SONIA_Compounded_Index
             [value "GBP-SONIA Compounded Index"]
+        + GBP_SONIA_FTSE_Term
+            [value "GBP-SONIA FTSE Term"]
         + GBP_SONIA_ICE_Compounded_Index
             [value "GBP-SONIA ICE Compounded Index"]
         + GBP_SONIA_ICE_Compounded_Index_0_Floor
@@ -4391,8 +4410,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "GBP-SONIA-OIS-4:15-TRADITION"]
         + GBP_SONIA_OIS_Compound
             [value "GBP-SONIA-OIS Compound"]
-        + GBP_SONIA_Refinitiv_Term
-            [value "GBP-SONIA Refinitiv Term"]
         + GBP_SONIA_Swap_Rate
             [value "GBP-SONIA Swap Rate"]
         + GBP_Semi_Annual_Swap_Rate
@@ -5161,6 +5178,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "USD-S&P Index-High Grade"]
         + USD_Swap_Rate_BCMP1
             [value "USD Swap Rate-BCMP1"]
+        + USD_TBILL_Auction_High_Rate
+            [value "USD-TBILL Auction High Rate"]
         + USD_TBILL_H_15
             [value "USD-TBILL-H.15"]
         + USD_TBILL_H_15_Bloomberg
@@ -6058,8 +6077,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "PerCalendarDay"]
         + W
             [value "W"]
+            [value "NearbyWeek"]
         + M
             [value "M"]
+            [value "NearbyMonth"]
         + Y
             [value "Y"]
 
