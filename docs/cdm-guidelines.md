@@ -23,7 +23,7 @@ version of CDM. Topics covered are listed below:
 # Setup
 
 In order to use the CDM in a Maven project, the following dependency
-needs to be addeed to the project pom.xml:
+needs to be added to the project pom.xml:
 
 ``` xml
 <dependency>
@@ -42,6 +42,9 @@ needs to be addeed to the project pom.xml:
 
 -   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
+
+_NOTE:_ For CDM releases prior to version 4.0.0 the dependencies can be found in the ISDA repository: `https://europe-west1-maven.pkg.dev/production-208613/isda-maven`
+  
 
 # Setting Up Google's Guice Injector
 
