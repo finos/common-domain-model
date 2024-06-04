@@ -43,7 +43,7 @@ needs to be added to the project pom.xml:
 -   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
 
-_NOTE:_ For CDM releases prior to version 4.0.0 the dependencies can be found in the ISDA repository: `https://europe-west1-maven.pkg.dev/production-208613/isda-maven`
+_NOTE:_ All current CDM dependencies are available in Maven Central. For CDM releases prior to version 4.0.0 the dependencies can be found in the [ISDA repository](https://europe-west1-maven.pkg.dev/production-208613/isda-maven)
   
 
 # Setting Up Google's Guice Injector
