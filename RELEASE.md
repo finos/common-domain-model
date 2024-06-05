@@ -64,4 +64,4 @@ _Review Directions_
 
 In Rosetta, select the contribution and validate the above changes.
 
-Changes can be reviewed in PR [#2943](https://github.com/finos/common-domain-model/pull/2943)
+Changes can be reviewed in PR [#2964](https://github.com/finos/common-domain-model/pull/2964)
