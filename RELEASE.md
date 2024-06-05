@@ -12,7 +12,7 @@ _What is being released?_
 - A new enumerator added to denote the different options available to prioritise criteria above one and other to resolve agency rating conflict: `RatingPriorityResolutionEnum`.
 - Two new attributes added to `CollateralCriteriaBase` to increase the specificity of the definition of the criteria in which collateral is eligible:
     - `restrictTo` to denote whether the criteria applies to only IM or VM, using the existing enumerator `CollateralMarginTypeEnum`
-    - `ratingPriorityResolution` to denote whether the Issuer or Asset Criterias have precedence where there are multiple Agency Ratings defined,
+    - `ratingPriorityResolution` to denote whether the Issuer Criteria or Asset Criteria have precedence where there are multiple Agency Ratings defined,
   using the new `RatingPriorityResolutionEnum` enumerator
 
 Both new attributes are optional, with singular cardinality, so this is a non-breaking change. 
