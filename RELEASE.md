@@ -47,7 +47,7 @@ In prior versions of the model, the data type `IdentifiedProduct` was used to di
 
 `SecurityPayout` was previously used to model certain securities financing products, for example securities lending transactions and repos on securities.  Prior to CDM 4, the modelling used two `Payouts`, one of these would be an `InterestRatePayout` representing the payment for the repo or lend, the second being a `SecurityPayout` to model the underlying product that is being lent or subject to repo.
 
-In CDM 4, the ICMA contributed an enhancement which replaced `SecurityPayout` with `AssetPayout`; the former was marked with the annotation `[deprecated]` in the model.  The [release note](https://github.com/finos/common-domain-model/releases/tag/4.0.0-dev.22) documents the changes that resulted in the model at that time.
+In CDM 4, ICMA contributed an enhancement which replaced `SecurityPayout` with `AssetPayout`; the former was marked with the annotation `[deprecated]` in the model.  The [release note](https://github.com/finos/common-domain-model/releases/tag/4.0.0-dev.22) documents the changes that resulted in the model at that time.
 
 **AssetPool**
 
