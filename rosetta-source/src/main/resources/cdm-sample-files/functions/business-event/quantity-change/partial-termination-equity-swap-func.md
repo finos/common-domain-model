@@ -8,10 +8,10 @@ Equity Swap
 
 Increase
 
-- An Increase is performed on `2021-11-11` of `250,000` Shares for a notional of `7,500,000`.
+- An Increase is performed on `2021-11-11` of `250,000` Shares for a notional of `7,500,000` on the TradeLot `LOT-1`.
 
 Partial Termination
 
 - A Partial Termination is performed on `2021-11-11`. 
-  - `760,400` Shares are closed, reducing the Quantity and Notional on the TradeLot `LOT-1` to `0`.
+  - `202,080` Shares are closed, reducing the Quantity to `808230` and Notional to `28775501` on the TradeLot `LOT-1`.
   - Cash price of `2,000 USD`.
