@@ -407,7 +407,9 @@ class FunctionInputCreationTest {
         TradeState increaseTradeState = increaseOutput.getAfter().get(0);
 
         // Quantity change to terminate tradeLot LOT-2.  Quantity in tradeLot LOT-1 remains unchanged.
-        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
+        // 20 percentage decrease. Output quantity should be 808230 shares and 28775501 USD
+        final QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        QuantityChangeInstruction quantityChangeInstruction = quantityChangeInstructionBuilder
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addLotIdentifier(Identifier.builder()
                         .addAssignedIdentifier(AssignedIdentifier.builder()
@@ -415,12 +417,13 @@ class FunctionInputCreationTest {
                 .addChange(PriceQuantity.builder()
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(760400))
+                                        .setValue(BigDecimal.valueOf(202080))
                                         .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(28469376))
+                                        .setValue(BigDecimal.valueOf(7193875))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+        reKey(quantityChangeInstructionBuilder);
 
         validateQuantityChangeFuncInputJson(
                 increaseTradeState,
@@ -451,7 +454,7 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
-
+                reKey(instructionBuilder);
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
@@ -460,11 +463,12 @@ class FunctionInputCreationTest {
     }
 
     private QuantityChangeInstruction.QuantityChangeInstructionBuilder getQuantityChangeInstructionsForTradeLot(String lotIdentifier) {
+        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue(lotIdentifier));
         return QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
-                .addLotIdentifier(Identifier.builder()
-                        .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue(lotIdentifier))).addChange(PriceQuantity.builder()
+                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
                         .setObservable(Observable.builder()
                                 .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
                                         .setMeta(createKey("productIdentifier-1"))

@@ -914,19 +914,18 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
     alias tradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
 
+    alias tradeLotExists: <"Trade lot exists in input TradeState">
+        FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier) exists
+
     alias tradeLot: <"For direction Increase or Decrease when the trade lot exists">
         if instruction -> lotIdentifier exists
-            then FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier)
-                only-element
-            else tradableProduct -> tradeLot only-element
+        then FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier)
+            only-element
+        else tradableProduct -> tradeLot only-element
 
-    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, if the trade lot exists then apply the changes to the existing PriceQuantity else the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
+    alias newPriceQuantity: <"Update the PriceQuantity based on the change and direction inputs. For an increase, if the trade lot exists, apply the changes to the existing PriceQuantity; otherwise, add the changed PriceQuantity to the list of TradeLots. For a decrease or replace, apply the changes to the existing PriceQuantity.">
         if instruction -> direction = QuantityChangeDirectionEnum -> Increase
-                and FilterTradeLot(
-                        tradableProduct -> tradeLot,
-                        instruction -> lotIdentifier
-                    )
-                    is absent
+                and tradeLotExists = False
         then instruction -> change
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
@@ -935,7 +934,8 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
             )
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
-        if instruction -> direction = QuantityChangeDirectionEnum -> Increase and  FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier) is absent
+        if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+                and tradeLotExists = False
         then AddTradeLot(
                     tradableProduct,
                     TradeLot {
@@ -1082,7 +1082,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 
     post-condition InterestRatePayoutTerms: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
         if masterConfirmation exists
-        then // interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and 
+        then // interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
             interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 func Create_IndexTransitionTermsChange: <"Function specification to create a terms change that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
