@@ -35,33 +35,22 @@ _What is being released?_
 - Remove mapping synonyms from FpML for `AssetPool` and `SecurityPayout`.
 - Update the CDM documentation to ensure it remains aligned with the implementation. This includes some changes to the hierarchy of the documentation to improve readability when displayed using Docusaurus.
 
+Further details on the rationale for the change and the impact on the model can be found in Issue #[2966](https://github.com/finos/common-domain-model/issues/2966).
+
 _Backward Incompatible Changes_
 
 As this release removes multiple attributes and product types, it will not be backwards compatible.
 
-**Product Model**
-
-In prior versions of the model, the data type `IdentifiedProduct` was used to differentiate products with an identifier (typically those in public markets) from those without a defined identifier (eg negotiated products). These concepts were updated in release 2.66 when `ProductIdentifier` was refactored - see the related [release note](https://github.com/finos/common-domain-model/releases/tag/2.66.3). The related data types were marked with the annotation `[deprecated]` at that time.
-
-**SecurityPayout**
-
-`SecurityPayout` was previously used to model certain securities financing products, for example securities lending transactions and repos on securities.  Prior to CDM 4, the modelling used two `Payouts`, one of these would be an `InterestRatePayout` representing the payment for the repo or lend, the second being a `SecurityPayout` to model the underlying product that is being lent or subject to repo.
-
-In CDM 4, ICMA contributed an enhancement which replaced `SecurityPayout` with `AssetPayout`; the former was marked with the annotation `[deprecated]` in the model.  The [release note](https://github.com/finos/common-domain-model/releases/tag/4.0.0-dev.22) documents the changes that resulted in the model at that time.
-
-**AssetPool**
-
-The term "AssetPool" exists in FpML as part of the modelling of mortgage-backed securities.  In a 4.0 release of the CDM, it was noted that the mapping of certain FpML sample files to the CDM was incomplete and the data type `AssetPool` was created and the corresponding attribute `assetPool` added to `Product` (see the [release note](https://github.com/finos/common-domain-model/releases/tag/4.0.0-dev.25)).  However, the recent refactoring has identified that this is, at best, incomplete and does not enable the correct modelling of MBS products.  The data type and related attribute have been removed.
-
 _Sample Impact_
 
-The existing Repo FpML sample was using the `SecurityPayout` construct.  It is believed that this was based on some mapping of FpML files which did not represent
+The existing [Fixed Rate Repo sample](https://github.com/finos/common-domain-model/tree/master/rosetta-source/src/main/resources/cdm-sample-files/functions/business-event/execution) was using the `SecurityPayout` construct.  It is believed that this was based on some mapping of FpML files which did not represent
 real business cases.  Futhermore, according to ICMA, FpML is not widely used for repo transactions.  Therefore this erroneous sample has been removed from the
 FINOS CDM distribution.
 
+There is no impact to samples from removing `AssetPool` or any of the other changes listed above.
 
 _Review Directions_
 
 In Rosetta, select the contribution and validate the above changes.
 
-Changes can be reviewed in PR [#2964](https://github.com/finos/common-domain-model/pull/2964)
+Changes can be reviewed in PR [#2964](https://github.com/finos/common-domain-model/pull/2964).
