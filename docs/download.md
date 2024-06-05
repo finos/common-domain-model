@@ -37,7 +37,7 @@ the following dependency needs to be added to the project pom.xml:
 > For CDM releases prior to version 4.0.0 the dependencies can be found in the ISDA repository: <artifactregistry://europe-west1-maven.pkg.dev/production-208613/isda-maven>
 > Add the following two snippets to the `<build>` and `<repositories>` sections of your project `pom.xml`:
 >
-> ```xml
+> ``` xml
 >
 >    <build>
 >        <!-- existing contents -->
