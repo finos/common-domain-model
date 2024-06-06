@@ -5,13 +5,17 @@ Equity Swap
 - New Equity execution is performed on `2018-04-01` between parties `LEI1RPT0001` and `LEI2CP0002`. 
 - Notional of `28,469,376 USD`.
 - Trade Identifier `LEI1RPT0001KKKK`.
-
-Increase
-
-- An Increase is performed on `2021-11-11` of `250,000` Shares for a notional of `7,500,000` on the TradeLot `LOT-1`.
+- `LOT-1`
+   - Notional of `28,469,376 USD`
+   - `760400` shares with price of `37.44 USD`
+- `LOT-2`
+  - Notional of `35,969,376 USD`
+  - `1010400` shares with price of `67.44 USD`
 
 Partial Termination
 
-- A Partial Termination is performed on `2021-11-11`. 
-  - `202,080` Shares are closed, reducing the Quantity to `808230` and Notional to `28775501` on the TradeLot `LOT-1`.
-  - Cash price of `2,000 USD`.
+- A Partial Termination is performed on `2021-11-11`. `202,080` Shares are closed
+- `LOT-1` is unchanged and `LOT-2` is updated as below.
+- `LOT-2`
+   - Notional of `28,775,501 USD`
+   - `808,230` shares with price of `67.44 USD`

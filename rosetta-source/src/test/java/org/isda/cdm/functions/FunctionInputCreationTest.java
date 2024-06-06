@@ -428,38 +428,12 @@ class FunctionInputCreationTest {
     }
 
     private CreateBusinessEventInput getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
-        QuantityChangeInstruction quantityChangeInstructions = getQuantityChangeInstructionsForTradeLot("LOT-2");
-
-        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithExistingTradeLot();
-        tradeState.getTrade().getTradableProduct().toBuilder();
-        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
-                .setBeforeValue(tradeState)
-                .setPrimitiveInstruction(PrimitiveInstruction.builder()
-                        .setQuantityChange(quantityChangeInstructions)
-                        .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
-                reKey(instructionBuilder);
-        return new CreateBusinessEventInput(
-                Lists.newArrayList(instructionBuilder.build()),
-                null,
-                Date.of(2021, 11, 11),
-                null);
-    }
-
-    private QuantityChangeInstruction.QuantityChangeInstructionBuilder getQuantityChangeInstructionsForTradeLot(String lotIdentifier) {
         final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue(lotIdentifier));
-        return QuantityChangeInstruction.builder()
+                        .setIdentifierValue("LOT-2"));
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
-                                        .setMeta(createKey("productIdentifier-1"))
-                                        .setValue(ProductIdentifier.builder()
-                                                .setSource(ProductIdTypeEnum.OTHER)
-                                                .setIdentifier(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                                                        .setValue("SHPGY.O")))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -495,6 +469,21 @@ class FunctionInputCreationTest {
                                         .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
                                         .setArithmeticOperator(ArithmeticOperationEnum.ADD)
                                         .setPriceType(PriceTypeEnum.INTEREST_RATE))));
+
+        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithExistingTradeLot();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions));
+
+        reKey(instructionBuilder);
+
+        return new CreateBusinessEventInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                null,
+                Date.of(2021, 11, 11),
+                null);
     }
 
     private TradeState getQuantityChangeEquitySwapTradeStateWithExistingTradeLot() throws IOException {
@@ -522,7 +511,56 @@ class FunctionInputCreationTest {
 
     private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
         //The instruction is set to increase LOT-1 but the trade state does not have the LOT-1
-        QuantityChangeInstruction quantityChangeInstructions = getQuantityChangeInstructionsForTradeLot("LOT-1");
+        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-1"));
+        QuantityChangeInstruction quantityChangeInstructions =  QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addChange(PriceQuantity.builder()
+                        .setObservable(Observable.builder()
+                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
+                                        .setMeta(createKey("productIdentifier-1"))
+                                        .setValue(ProductIdentifier.builder()
+                                                .setSource(ProductIdTypeEnum.OTHER)
+                                                .setIdentifier(FieldWithMetaString.builder()
+                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                                                        .setValue("SHPGY.O"))))))
+                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-2"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(250000))
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
+                                .setMeta(createKey("price-2"))
+                                .setValue(PriceSchedule.builder()
+                                        .setValue(BigDecimal.valueOf(30))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOf(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
+                                        .setPriceType(PriceTypeEnum.ASSET_PRICE))))
+                // interest rate payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservable(Observable.builder()
+                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
+                                        .setMeta(createKey("rateOption-1"))
+                                        .setValue(FloatingRateOption.builder()
+                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                .setIndexTenor(Period.builder()
+                                                        .setPeriod(PeriodEnum.M)
+                                                        .setPeriodMultiplier(1)))))
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-1"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(7500000))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
+                                .setMeta(createKey("price-1"))
+                                .setValue(PriceSchedule.builder()
+                                        .setValue(BigDecimal.valueOf(0.0020))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));;
 
         TradeState tradeState = getQuantityChangeEquitySwapTradeState();
 
