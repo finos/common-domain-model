@@ -16,33 +16,11 @@ type AssetIdentifier:  <"The unique identifier for an Asset, specified using an 
         [metadata scheme]
     identifierType AssetIdTypeEnum (1..1)  <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
-type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
-
-    version string (0..1) <"The asset pool version.">
-    effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
-    initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
-    currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
-
-    condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
-        if version is absent then effectiveDate is absent
-
-type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
-
-type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
-
-type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
-
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
     identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
         [metadata scheme]
     source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
-
-type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
-    productIdentifier ProductIdentifier (1..1)
 
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
     productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
@@ -106,7 +84,7 @@ type IndexReferenceInformation: <"A class defining information related to Index"
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
 type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.">
-  
+
     condition IdentifierIsCurrencyCode: <"The identifier of a Cash Asset is used to identify the Currency.">
         identifier -> identifierType any = AssetIdTypeEnum -> CurrencyCode
 
@@ -163,17 +141,17 @@ type ListedDerivative extends AssetBase: <"A securitized derivative on another a
     exerciseTerms ExerciseTerms (1..1) <"Specifically the ExerciseDate.">
     optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
     strike OptionStrike (0..1) <"Specifies the strike of the option.">
-    
+
     condition ExchangeTraded:  <"The Exchange must be specified for exchange-traded assets.">
         if isExchangeTraded
-        then 
+        then
             exchange exists
-        else 
+        else
             exchange is absent
 
     condition Options:  <"Options must have a strike price.">
         if optionType exists
-        then 
+        then
             strike exists
         else
             strike is absent
