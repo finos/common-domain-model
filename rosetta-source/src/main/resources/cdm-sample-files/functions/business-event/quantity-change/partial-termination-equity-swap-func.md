@@ -14,7 +14,7 @@ Equity Swap
 
 Partial Termination
 
-- A Partial Termination is performed on `2021-11-11`. `202,080` Shares are closed
+- A Partial Termination is performed on `2021-11-11`. The notional is decreased by `7,193,875 USD` and the number of shares is decreased by `202,080` on `LOT-2`.
 - `LOT-1` is unchanged and `LOT-2` is updated as below.
 - `LOT-2`
    - Notional of `28,775,501 USD`
