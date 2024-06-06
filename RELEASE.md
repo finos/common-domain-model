@@ -1,38 +1,13 @@
-# _Infrastructure - Dependency Update_
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being reinstated, as the coding scheme import has been made additive-only in the main branch of the CDM.
-
-This release updates the `rosetta-bundle` and `DSL` dependency.
+This release updates the `DSL` dependency.
 
 Version updates include:
-- `rosetta-bundle` 11.6.0: Dependencies migrated to Maven Central
-- `rosetta-bundle` 11.6.2: FpML coding scheme infrastructure update to support configurable coding scheme matching for Prod and Dev versions
-- `rosetta-bundle` 11.7.0: Java compilation performance improvements
-- `DSL` 9.8.5: Java compilation performance improvements. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2931](https://github.com/finos/common-domain-model/pull/2931)
-
-# *Product Model - FpML Mapping Update*
-
-_Background_
-
-The FpML mapping needs further coverage for Forward Rate Agreement (FRA) and Commodity products.
-
-_What is being released?_
-
-- FpML synonyms and mapper updated to map FRA fixed leg payment frequency from the FpML index tenor
-- FpML synonyms added to map Commodity delivery date parameter `deliveryNearby`
+- `DSL` 9.9.0: this release features a new operator - `default` - which takes in two expressions, and gives back its left result if it is present, otherwise gives back its right result. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.9.0.
+- `DSL` 9.10.0: this release adds syntax for `choice` types - a shorthand for defining a data type with a `one-of` condition. It also introduces the "deep path operator" `->>`, which allows you to directly access common attributes nested inside a choice type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.10.0.
 
 _Review Directions_
 
-In Rosetta, select the Translate tab and review the following samples:
-
-- fpml-5-10 > products > rates > ird-ex08-fra.xml
-- fpml-5-10 > products > rates > ird-ex08-fra-no-discounting.xml
-- fpml-5-10 > products > commodity > com-ex41-oil-asian-barrier-option-strip.xml
-
-Changes can be reviewed in PR [#2935](https://github.com/finos/common-domain-model/pull/2935) / [#2946](https://github.com/finos/common-domain-model/pull/2946)
+The changes can be reviewed in PR: [#2970](https://github.com/finos/common-domain-model/pull/2970)
