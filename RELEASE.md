@@ -1,25 +1,56 @@
-# *Eligible Collateral Representation - New Attributes*
+# *Product Model - Remove AssetPool and deprecated data types*
 
 _Background_
 
-Through the Collateral Working Group, members have requested two enhancements to the modelling of collateral eligibility to enhance the CDM's capability to support
-additional use cases:
-1. To support the scenario where a legacy collateral schedule has shared criteria for IM and VM, with selected terms applicable to only one single margin type
-2. To prioritise between Collateral Criteria where agency ratings are specified for both assets and issuers
+The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal is being developed - through a cross-industry Task Force - to implement this remodelling in the CDM.  Prior to that, this preparatory PR proposes to remove the `AssetPool` data type, which has been found to be both unused and incorrect, and to remove some additional data types in the Product Model which were previously deprecated.  This approach should provide a cleaner implementation path for the remodelling which will be put forward in a subsequent PR.
 
 _What is being released?_
 
-- A new enumerator added to denote the different options available to identify how to prioritise the Agency Rating in a particular Issuer or Asset Criteria over
-  the Agency Rating in another Criteria: `RatingPriorityResolutionEnum`.
-- Two new attributes added to `CollateralCriteriaBase` to increase the specificity of the definition of the criteria in which collateral is eligible:
-    - `restrictTo` to denote whether the criteria applies to only IM or VM, using the existing enumerator `CollateralMarginTypeEnum`
-    - `ratingPriorityResolution` to denote whether the Issuer Criteria or Asset Criteria have precedence where there are multiple Agency Ratings defined,
-  using the new `RatingPriorityResolutionEnum` enumerator
+- Remove the `AssetPool` data type which was previously introduced from FpML but has been found to be incorrect and unusable.
 
-Both new attributes are optional, with singular cardinality, so this is a backward-compatible change. 
+- Remove the following deprecated data types used in the Product Model:
+  - `Bond`
+  - `ConvertibleBond`
+  - `Equity`
+  - `IdentifiedProduct`
+  - `ObservationSource`
+  - `SecurityPayout`.
+- Remove the following deprecated data types that are related to the deprecated `SecurityPayout`:
+  - `SecurityLeg`
+  - `InitialMargin`
+  - `InitialMarginCalculation`
+  - `SecurityValuation`
+  - `SecurityValuationModel`
+  - `BondValudationModel`
+  - `BondPriceAndYieldModel`
+  - `CleanOrDirtyPrice`
+  - `CleanPrice`
+  - `RelativePrice`
+  - `BondEquityModel`
+  - `BondChoiceModel`
+  - `UnitContractValuationModel`.
+- Remove the reference to `SecurityPayout` from `Payout`.
+- Remove the reference to `AssetPool` from `Product`.
+- Remove functions which act upon `SecurityPayout`.
+- Remove mapping synonyms from FpML for `AssetPool` and `SecurityPayout`.
+- Update the CDM documentation to ensure it remains aligned with the implementation. This includes some changes to the hierarchy of the documentation to improve readability when displayed using Docusaurus.
+
+Further details on the rationale for the change and the impact on the model can be found in Issue #[2966](https://github.com/finos/common-domain-model/issues/2966).
+
+_Backward Incompatible Changes_
+
+As this release removes multiple attributes and product types, it will not be backwards compatible.
+
+_Sample Impact_
+
+The existing [Fixed Rate Repo sample](https://github.com/finos/common-domain-model/tree/master/rosetta-source/src/main/resources/cdm-sample-files/functions/business-event/execution) was using the `SecurityPayout` construct.  It is believed that this was based on some mapping of FpML files which did not represent
+real business cases.  Futhermore, according to ICMA, FpML is not widely used for repo transactions.  Therefore this erroneous sample has been removed from the
+FINOS CDM distribution.
+
+There is no impact to samples from removing `AssetPool` or any of the other changes listed above.
 
 _Review Directions_
 
-In Rosetta, open the contribution and view the changes listed above and inspect each of them.
+In Rosetta, select the contribution and validate the above changes.
 
-Changes can be reviewed in PR [#2960](https://github.com/finos/common-domain-model/pull/2960)
+Changes can be reviewed in PR [#2964](https://github.com/finos/common-domain-model/pull/2964).
