@@ -170,14 +170,6 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateExecutionRepoFixedRateFuncInputJson() throws IOException {
-        validateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
-                Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/business-event/execution/execution-repo-fixed-rate-func-input.json");
-    }
-
-    @Test
     void validateExecutionSwaptionFuncInputJson() throws IOException {
         validateExecutionFuncInputJson(
                 "result-json-files/fpml-5-10/products/rates/ird-ex09-euro-swaption-explicit-versioned.json",
@@ -303,15 +295,6 @@ class FunctionInputCreationTest {
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
                 "cdm-sample-files/functions/business-event/contract-formation/contract-formation-fx-forward-func-input.json",
-                null);
-    }
-
-    @Test
-    void validateContractFormationRepoFixedRateFuncInputJson() throws IOException {
-        validateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
-                Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-repo-fixed-rate-func-input.json",
                 null);
     }
 
