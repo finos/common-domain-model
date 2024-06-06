@@ -1,25 +1,19 @@
-# *Eligible Collateral Representation - New Attributes*
+# *CDM support for increase on existing Trade Lot*
 
 _Background_
 
-Through the Collateral Working Group, members have requested two enhancements to the modelling of collateral eligibility to enhance the CDM's capability to support
-additional use cases:
-1. To support the scenario where a legacy collateral schedule has shared criteria for IM and VM, with selected terms applicable to only one single margin type
-2. To prioritise between Collateral Criteria where agency ratings are specified for both assets and issuers
+CDM does not allow for an existing tradeLot to be increased by a delta amount, however it does allow decrease via a delta amount. 
+Using `replace` as a quantityChange direction inherently forces the producer to calculate the position, which may not match the underlying granularity of the RMS.
+The ability to perform an increase to an existing tradeLot via summation (delay of increase plus existing lot quantity) is critical.
 
 _What is being released?_
 
-- A new enumerator added to denote the different options available to identify how to prioritise the Agency Rating in a particular Issuer or Asset Criteria over
-  the Agency Rating in another Criteria: `RatingPriorityResolutionEnum`.
-- Two new attributes added to `CollateralCriteriaBase` to increase the specificity of the definition of the criteria in which collateral is eligible:
-    - `restrictTo` to denote whether the criteria applies to only IM or VM, using the existing enumerator `CollateralMarginTypeEnum`
-    - `ratingPriorityResolution` to denote whether the Issuer Criteria or Asset Criteria have precedence where there are multiple Agency Ratings defined,
-  using the new `RatingPriorityResolutionEnum` enumerator
 
-Both new attributes are optional, with singular cardinality, so this is a backward-compatible change. 
+The `Create_Quantity_Change` function has been updated to enable the user to either create a new trade lot by populating a new lot identifier for any prior tradeLot not linked to the parent trade, 
+or, if the tradeLot identifier on an increase or decrease matches an existing tradeLot identifier, to apply the quantityChange to the existing tradeLot.
 
 _Review Directions_
 
 In Rosetta, open the contribution and view the changes listed above and inspect each of them.
 
-Changes can be reviewed in PR [#2960](https://github.com/finos/common-domain-model/pull/2960)
+Changes can be reviewed in PR [#2961](https://github.com/finos/common-domain-model/pull/2961)
