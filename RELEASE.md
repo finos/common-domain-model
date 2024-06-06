@@ -1,25 +1,13 @@
-# *Eligible Collateral Representation - New Attributes*
-
-_Background_
-
-Through the Collateral Working Group, members have requested two enhancements to the modelling of collateral eligibility to enhance the CDM's capability to support
-additional use cases:
-1. To support the scenario where a legacy collateral schedule has shared criteria for IM and VM, with selected terms applicable to only one single margin type
-2. To prioritise between Collateral Criteria where agency ratings are specified for both assets and issuers
+# *Infrastructure - Dependency Update*
 
 _What is being released?_
 
-- A new enumerator added to denote the different options available to identify how to prioritise the Agency Rating in a particular Issuer or Asset Criteria over
-  the Agency Rating in another Criteria: `RatingPriorityResolutionEnum`.
-- Two new attributes added to `CollateralCriteriaBase` to increase the specificity of the definition of the criteria in which collateral is eligible:
-    - `restrictTo` to denote whether the criteria applies to only IM or VM, using the existing enumerator `CollateralMarginTypeEnum`
-    - `ratingPriorityResolution` to denote whether the Issuer Criteria or Asset Criteria have precedence where there are multiple Agency Ratings defined,
-  using the new `RatingPriorityResolutionEnum` enumerator
+This release updates the `DSL` dependency.
 
-Both new attributes are optional, with singular cardinality, so this is a backward-compatible change. 
+Version updates include:
+- `DSL` 9.9.0: this release features a new operator - `default` - which takes in two expressions, and gives back its left result if it is present, otherwise gives back its right result. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.9.0.
+- `DSL` 9.10.0: this release adds syntax for `choice` types - a shorthand for defining a data type with a `one-of` condition. It also introduces the "deep path operator" `->>`, which allows you to directly access common attributes nested inside a choice type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.10.0.
 
 _Review Directions_
 
-In Rosetta, open the contribution and view the changes listed above and inspect each of them.
-
-Changes can be reviewed in PR [#2960](https://github.com/finos/common-domain-model/pull/2960)
+The changes can be reviewed in PR: [#2969](https://github.com/finos/common-domain-model/pull/2969)
