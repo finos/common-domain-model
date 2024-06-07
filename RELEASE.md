@@ -19,8 +19,6 @@ The following JSON sample files have been added to represent the updates to an e
 
 The following JSON sample files have been updated to reflect the changes to the `Create_QuantityChange` function.
 
-- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json`
-- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-output.json`
 - `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json`
 - `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-output.json`
 
@@ -28,7 +26,6 @@ _Review Directions_
 
 In Rosetta, select the Visualisation tab and review the following examples in the Quantity Change Business Event folder:
 
-- Increase Equity Swap
 - Increase Equity Swap with Existing Trade Lot
 - Partial Termination Equity Swap
 

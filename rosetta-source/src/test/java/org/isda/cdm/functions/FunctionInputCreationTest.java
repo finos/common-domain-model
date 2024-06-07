@@ -510,10 +510,10 @@ class FunctionInputCreationTest {
      */
 
     private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
-        //The instruction is set to increase LOT-1 but the trade state does not have the LOT-1
+        //The instruction is set to increase LOT-2 but the trade state does not have the LOT-2
         final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-1"));
+                        .setIdentifierValue("LOT-2"));
         QuantityChangeInstruction quantityChangeInstructions =  QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
                 .addChange(PriceQuantity.builder()
@@ -1470,7 +1470,7 @@ class FunctionInputCreationTest {
         TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);
         tradeLotBuilder.addLotIdentifier(Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2")));
+                        .setIdentifierValue("LOT-1")));
         return tradeStateBuilder.build();
     }
 
