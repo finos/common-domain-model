@@ -569,7 +569,7 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
-
+        reKey(instructionBuilder);
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,

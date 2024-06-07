@@ -1,19 +1,35 @@
-# *CDM support for increase on existing Trade Lot*
+# *Product Model: Quantity Change For Existing Trade Lot*
 
 _Background_
 
-CDM does not allow for an existing tradeLot to be increased by a delta amount, however it does allow decrease via a delta amount. 
-Using `replace` as a quantityChange direction inherently forces the producer to calculate the position, which may not match the underlying granularity of the RMS.
-The ability to perform an increase to an existing tradeLot via summation (delay of increase plus existing lot quantity) is critical.
+This release adds support for price quantity changes on an existing TradeLot, as described in issue #2923.
 
 _What is being released?_
 
+The `Create_QuantityChange` function has been updated to allow the price and/or quantity to be updated on an existing `TradeLot`. If the `QuantityChangeInstruction->lotIdentifier` matches the trade's `TradeLot->lotIdentifier`, then the price and/or quantity is updated based on matching units and direction (i.e. `Increase`, `Decrease`, `Replace`) specified in the instructions.
 
-The `Create_Quantity_Change` function has been updated to enable the user to either create a new trade lot by populating a new lot identifier for any prior tradeLot not linked to the parent trade, 
-or, if the tradeLot identifier on an increase or decrease matches an existing tradeLot identifier, to apply the quantityChange to the existing tradeLot.
+The existing functionality is unchanged for an increase, i.e., if the `QuantityChangeInstruction->lotIdentifier` does not match the trade's `TradeLot->lotIdentifier`, then a new `TradeLot` is created.
+
+_Sample Files_
+
+The following JSON sample files have been added to represent the updates to an existing `TradeLot`.
+
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json`
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-output.json`
+
+The following JSON sample files have been updated to reflect the changes to the `Create_QuantityChange` function.
+
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json`
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-output.json`
+- `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json`
+- `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-output.json`
 
 _Review Directions_
 
-In Rosetta, open the contribution and view the changes listed above and inspect each of them.
+In Rosetta, select the Visualisation tab and review the following examples in the Quantity Change Business Event folder:
+
+- Increase Equity Swap
+- Increase Equity Swap with Existing Trade Lot
+- Partial Termination Equity Swap
 
 Changes can be reviewed in PR [#2961](https://github.com/finos/common-domain-model/pull/2961)
