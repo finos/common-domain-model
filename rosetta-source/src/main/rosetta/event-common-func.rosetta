@@ -588,14 +588,6 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
                 or instruction -> payout -> assetPayout exists
         then Create_CashTransfer(instruction)
 
-    add transfer: <"Assigns the result of the Create_SecurityTransfer function to the transferHistory attribute.">
-        if instruction -> payout -> securityPayout exists
-        then Create_SecurityTransfer(
-                    instruction -> tradeState,
-                    instruction -> date,
-                    instruction -> quantity
-                )
-
     add transfer: <"Assigns the result of the Create_AssetTransfer function to the transferHistory attribute.">
         if instruction -> payout -> assetPayout exists
         then Create_AssetTransfer(instruction)
@@ -624,20 +616,6 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 
     set transfer: <"Resolves the cashflow due to be transferred from the trade and associated state.">
         ResolveTransfer(instruction)
-
-func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trade State and date.">
-    inputs:
-        tradeState TradeState (1..1)
-        date date (1..1)
-        quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-    output:
-        transfer Transfer (1..1)
-
-    post-condition UnitsAndObservable:
-        if tradeState -> trade -> tradableProduct -> product -> security exists
-                and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
-        then transfer -> quantity -> unit -> currency only exists
-                and transfer -> observable -> productIdentifier exists
 
 func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of asset based on an asset payout, should be constructed.">
     inputs:

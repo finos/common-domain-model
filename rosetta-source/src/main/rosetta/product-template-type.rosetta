@@ -131,55 +131,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     condition OptionStylePresent: <"This condition ensures that an optionPayout contains the style of option within its exercise terms.">
         exerciseTerms -> style exists
 
-type SecurityLeg: <" Terms defining a security leg in a securities financing transaction, which can either be the near leg or the far leg and is closely modelled onto the nearLeg and farLeg types in FpML">
-    [metadata key]
-
-    buyerSeller BuyerSeller (1..1) <"Whether the leg is a buyer or seller of security">
-    settlementDate AdjustableOrRelativeDate (1..1) <"Settlement or Payment Date for the security leg">
-    settlementAmount Money (0..1) <"Settlement amount for the security leg">
-    settlementCurrency string (0..1) <"Settlement Currency for use where the Settlement Amount cannot be known in advance.">
-    fxRate ExchangeRate (0..1) <"FX rate in case when cash settlement amount is in a different currency to the security.">
-    deliveryDate AdjustableOrRelativeDate (0..1) <"Delivery Date for the transaction. Delivery Date can be populated when it is not equal to the Settlement Date.">
-    deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
-
-    condition SecurityLegChoice:
-        required choice settlementAmount, settlementCurrency
-
-type SecurityPayout: <" Security payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction.">
-    [metadata key]
-    [deprecated]
-
-    securityLeg SecurityLeg (1..*) <"Each SecurityLeg represent a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-    initialMargin InitialMargin (0..1) <"RepoDurationEnum.">
-    repoDuration RepoDurationEnum (0..1) <"A duration code for the repo transaction. This defines a type of a repo transaction with fixed duration.">
-    securityValuation SecurityValuation (1..*) <"The underlying securities and their valuation for the security leg.">
-
-type InitialMargin: <" Defines initial margin applied to a repo transaction. Initial margin is an agreed premium to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It reflects quality of the collateral. Its aim is to calculate the risk-adjusted or liquidation value of collateral.">
-    [deprecated]
-
-    marginType MarginTypeEnum (1..1) <"An element defining the type of assets (cash or securities) specified to apply as margin to the repo transaction. See GMRA 2011 paragraph 2(h) for 'Cash Margin' and GMRA 2011 paragraph 2(cc) for 'Margin Securities'.">
-    margin InitialMarginCalculation (1..*) <"Initial margin calculation for a collateral asset. Initial margin requirements may be specified for multiple pieces of collateral.">
-    marginThreshold Money (0..1) <"An element defining a margin threshold which is the Net Exposure of a trade below which parties agree they will not call a margin from each other.">
-    minimumTransferAmount Money (0..1) <"An element defining a minimum transfer amount which is the minimum margin call parties will make once the margin threshold (or margin ratio threshold / haircut threshold) has been exceeded.">
-
-    condition MarginThreshold:
-        if marginThreshold exists then marginThreshold -> value > 0
-
-    condition MinimumTransferAmount:
-        if minimumTransferAmount exists
-        then minimumTransferAmount -> value > 0
-
-type InitialMarginCalculation: <" Defines the initial margin calculation applicable to a single piece of collateral.">
-    [deprecated]
-
-    marginRatio number (0..1) <"An element defining an initial margin expressed as a ratio of the Market Value of the collateral to the Purchase Price. A default value of initial margin ratio of 1.00 means there is no margin and thus no risk related with the collateral. See GMRA 2000 paragraph 2(z) and GMRA 2011 paragraph 2(bb).">
-    marginRatioThreshold number (0..2) <"An element defining a margin ratio threshold which is the value above (when it's lower than initial margin ratio) or below (when it's higher than initial margin ratio) which parties agree they will not call a margin from each other.">
-    haircut number (0..1) <"An element defining a haircut expressed as the percentage difference between the Market Value of the collateral and the Purchase Price of the repo and calculated as 100 multiplied by a ratio of the difference between the Market Value of the collateral and the Purchase Price of the repo to the Market Value of the collateral. Haircut is alternative way to adjust the value of collateral sold in a repurchase agreement to initial margin ratio. Because an initial margin is a percentage of the Purchase Price, while a haircut is a percentage of the Market Value of collateral, the arithmetic of initial margins and haircuts is slightly different. For example, an initial margin of 102% is not equivalent to a haircut of 2%, but to 1.961% (ie 100/102%). See GMRA 2011 paragraph 2(aa).">
-    haircutThreshold number (0..2) <"An element defining a haircut percentage threshold which is the value above (when it's lower than initial haircut) or below (when it's higher than initial haircut) which parties agree they will not call a margin from each other.">
-
-    condition InitialMarginCalculationChoice:
-        required choice marginRatio, haircut
-
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
     priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
@@ -257,14 +208,9 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
                 and returnTerms -> correlationReturnTerms -> equityUnderlierProvisions is absent
                 and returnTerms -> correlationReturnTerms -> sharePriceDividendAdjustment is absent
 
-// condition UnderlierOrObservable: <"The Performance Payout must reference either an underlier or an observable">
-// underlier exists
-// or
-// ObservationTerms -> observable exists
-
 type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level.">
     [metadata key]
-    
+
   payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
   underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
   quantity NonNegativeQuantitySchedule (0..1 ) <"Specifies a quantity schedule for the underlier, which applies to each individual return leg.">
@@ -285,8 +231,6 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     commodityPayout CommodityPayout (0..*) <"Defines the payout for the floating leg of a Commodity Swap.">
     forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
     fixedPricePayout FixedPricePayout (0..*) <"Defines a payout in which one or more payouts are defined as a fixed price.">
-    securityPayout SecurityPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
-        [deprecated]
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
@@ -330,11 +274,14 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         then creditDefaultPayout -> transactedPrice -> marketFixedRate is absent
                 and creditDefaultPayout -> transactedPrice -> marketPrice is absent
 
-    condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout.">
-        interestRatePayout -> priceQuantity -> reset is absent
-            and creditDefaultPayout -> priceQuantity -> reset is absent
-            and optionPayout -> priceQuantity -> reset is absent
-            and cashflow -> priceQuantity -> reset is absent
+    condition NotionalResetOnPerformancePayout: <"Notional reset only applies to return swaps, and therefore can only exist on an performancePayout or interestRatePayouts that are associated with it.">
+        creditDefaultPayout -> priceQuantity -> reset is absent
+        and assetPayout -> priceQuantity -> reset is absent
+        and commodityPayout -> priceQuantity -> reset is absent
+        and fixedPricePayout -> priceQuantity -> reset is absent
+        and forwardPayout -> priceQuantity -> reset is absent
+        and optionPayout -> priceQuantity -> reset is absent
+        and cashflow -> priceQuantity -> reset is absent
 
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
         if performancePayout -> priceQuantity -> reset contains True
@@ -346,7 +293,6 @@ type Product: <"Defines the product that is the subject of a tradable product de
     contractualProduct ContractualProduct (0..1) <"Specifies the contractual product's economic terms, product identifier, and product taxonomy.">
     index Index (0..1) <"Identifies an index by referencing a product identifier.">
     loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
-    assetPool AssetPool (0..1) <"Identifies an asset pool product for defining pool of assets backing an asset backed security.">
     foreignExchange ForeignExchange (0..1) <"Defines a foreign exchange spot or forward transaction.">
     commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
         [metadata address "pointsTo"=Observable->commodity]

@@ -491,6 +491,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[value "relativePaymentDates" meta "id" path "calculationPeriodsScheduleReference"]
         + paymentFrequency
             [value "paymentFrequency"]
+            [value "indexTenor"]
         + firstPaymentDate
             [value "firstPaymentDate"]
             [value "firstPaymentDate" path "periodicPayment"]
@@ -672,6 +673,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "amount" mapper "PriceUnitType"]
             [value "amount" path "initialPrice->netPrice" mapper "PriceUnitType"]
             [value "fixedRate" mapper "PriceUnitType"]
+            [value "level" mapper "PriceUnitType"]
+            [value "levelPercentage" mapper "PriceUnitType"]
             [value "strikePrice" mapper "PriceUnitType"]
             [value "spread" mapper "PriceUnitType"]
             [value "spread" path "floatingRateCalculation" mapper "PriceUnitType"]
@@ -711,6 +714,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PriceTypeEnum -> InterestRate when path = "floatingRateIndex"]
             [set to PriceTypeEnum -> AssetPrice when "referencePrice" exists]
             [set to PriceTypeEnum -> AssetPrice when "strikePrice" exists]
+            [set to PriceTypeEnum -> AssetPrice when "level" exists]
+            [set to PriceTypeEnum -> AssetPrice when "levelPercentage" exists]
             [set to PriceTypeEnum -> AssetPrice when "initialPrice->netPrice->amount" exists]
             [set to PriceTypeEnum -> Dividend when "fixedStrike" exists]
             [set to PriceTypeEnum -> Correlation when "correlationStrikePrice" exists]
@@ -1239,9 +1244,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Trigger:
         + level
-            [value "level"]
-        + levelPercentage
-            [value "levelPercentage"]
+            [hint "level"]
+            [hint "levelPercentage"]
+            [value "levelPrice"]
         + creditEvents
             [value "creditEvents"]
         + creditEventsReference
@@ -1659,16 +1664,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     ValuationPostponement:
         + maximumDaysOfPostponement
             [value "maximumDaysOfPostponement"]
-
-    AssetPool:
-        + version
-            [value "version"]
-        + effectiveDate
-            [value "effectiveDate"]
-        + initialFactor
-            [value "initialFactor"]
-        + currentFactor
-            [value "currentFactor"]
 
     Loan:
         + productIdentifier
@@ -2197,6 +2192,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "paymentDates"]
             [value "periodicPayment" path "feeLeg"]
             [value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
+            [hint "indexTenor"]
         + paymentDate
             [value "paymentDate"]
             [value "feeLeg"]
@@ -2384,19 +2380,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + delivery
             [value "ignore"]
 
-    SecurityLeg:
-		[meta "id"]
-        + settlementDate
-            [value "settlementDate"]
-        + settlementAmount
-            [value "settlementAmount"]
-        + settlementCurrency
-            [value "settlementCurrency"]
-        + deliveryDate
-            [value "deliveryDate"]
-        + deliveryMethod
-            [value "deliveryMethod"]
-
     CommodityPayout:
         [meta "id"]
         + pricingDates
@@ -2451,61 +2434,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "paymentDate"]
         + schedule
             [value "ignore"]
-
-    SecurityValuation:
-        + securityValuationModel
-            [value "collateral"]
-
-    UnitContractValuationModel:
-        + unitPrice
-            [value "ignore"]
-
-    BondValuationModel:
-        + nominalAmount
-            [value "nominalAmount"]
-        + accrualsAmount
-            [value "ignore"]
-
-    CleanOrDirtyPrice:
-        + dirtyPrice
-            [value "dirtyPrice"]
-
-    CleanPrice:
-        + cleanPrice
-            [value "cleanPrice"]
-        + accruals
-            [value "accruals"]
-
-    SecurityPayout:
-        + securityLeg
-            [value "nearLeg"]
-            [value "farLeg"]
-        + initialMargin
-            [value "initialMargin"]
-        + repoDuration
-            [value "duration"]
-        + securityValuation
-            [value "nearLeg" , "bond"]
-
-    InitialMargin:
-        + marginType
-            [value "marginType"]
-        + margin
-            [value "margin"]
-        + marginThreshold
-            [value "marginThreshold"]
-        + minimumTransferAmount
-            [value "minimumTransferAmount"]
-
-    InitialMarginCalculation:
-        + marginRatio
-            [value "marginRatio"]
-        + marginRatioThreshold
-            [value "marginRatioThreshold"]
-        + haircut
-            [value "haircut"]
-        + haircutThreshold
-            [value "haircutThreshold"]
 
     PayoutBase:
         + payerReceiver
@@ -2577,8 +2505,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "gasPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "oilPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
-        + securityPayout
-            [value "repo"]
         + cashflow
             [value "ignore"]
         + commodityPayout
@@ -2694,6 +2620,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     DeliveryDateParameters:
         + deliveryNearby
             [hint "deliveryDates"]
+            [value "deliveryNearby"]
         + deliveryDateRollConvention
             [value "deliveryDateRollConvention"]
         + deliveryDateExpirationConvention
@@ -3035,6 +2962,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 1 when "quantityFrequency" = "PerMonth"]
             [set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
             [set to 1 when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to 1 when "quantityFrequency" = "PerCalculationDay"]
         + period
             [value "period"]
             [value "period" path "paymentFrequency" maps 2]
@@ -3043,6 +2971,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PeriodExtendedEnum -> H when "quantityFrequency" = "PerHour"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerCalculationPeriod"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to PeriodExtendedEnum -> D when "quantityFrequency" = "PerCalculationDay"]
 
     Offset:
         + dayType
@@ -3054,12 +2983,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "periodMultiplier" maps 2]
             [value "periodMultiplier" path "dateOffset"]
             [value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
+            [value "deliveryNearbyMultiplier"]
             // For Commodity Swap
             [set to 1 when "deliveryDates" = "FirstNearby"]
             [set to 2 when path = "deliveryDates->SecondNearby"]
         + period
             [value "period" maps 2]
             [value "period" path "dateOffset"]
+            [value "deliveryNearbyType"]
             // For Commodity Swap
             [set to PeriodEnum -> M when "deliveryDates" exists]
 
@@ -6066,8 +5997,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "PerCalendarDay"]
         + W
             [value "W"]
+            [value "NearbyWeek"]
         + M
             [value "M"]
+            [value "NearbyMonth"]
         + Y
             [value "Y"]
 
