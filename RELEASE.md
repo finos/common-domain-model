@@ -2,7 +2,7 @@
 
 _Background_
 
-This release adds support for price quantity changes on an existing TradeLot, as described in issue #2923.
+This release adds support for price and/or quantity changes on an existing TradeLot, as described in issue #2923.
 
 _What is being released?_
 
