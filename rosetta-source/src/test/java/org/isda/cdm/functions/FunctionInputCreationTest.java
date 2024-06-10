@@ -384,13 +384,8 @@ class FunctionInputCreationTest {
 
     @Test
     void validatePartialTerminationEquitySwapFuncInputJson() throws IOException {
-        // The tradeState input to partial termination is output from increase event
-        CreateBusinessEventInput increaseEquitySwapInput = getIncreaseEquitySwapExistingTradeLotFuncInputJson();
-        BusinessEvent increaseOutput = runCreateBusinessEventFunc(increaseEquitySwapInput);
-        TradeState increaseTradeState = increaseOutput.getAfter().get(0);
-
         // Quantity change to terminate tradeLot LOT-2.  Quantity in tradeLot LOT-1 remains unchanged.
-        // 20 percentage decrease. Output quantity should be 808230 shares and 28775501 USD
+        // 20 percentage decrease. Output quantity should be 152,080 shares and 5,693,875 USD
         final QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
         QuantityChangeInstruction quantityChangeInstruction = quantityChangeInstructionBuilder
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
@@ -400,16 +395,16 @@ class FunctionInputCreationTest {
                 .addChange(PriceQuantity.builder()
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(202080))
+                                        .setValue(BigDecimal.valueOf(152080))
                                         .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(7193875))
+                                        .setValue(BigDecimal.valueOf(5693875))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD")))));
         reKey(quantityChangeInstructionBuilder);
 
         validateQuantityChangeFuncInputJson(
-                increaseTradeState,
+                getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
@@ -470,7 +465,7 @@ class FunctionInputCreationTest {
                                         .setArithmeticOperator(ArithmeticOperationEnum.ADD)
                                         .setPriceType(PriceTypeEnum.INTEREST_RATE))));
 
-        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithExistingTradeLot();
+        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots();
 
         Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
                 .setBeforeValue(tradeState)
@@ -486,7 +481,7 @@ class FunctionInputCreationTest {
                 null);
     }
 
-    private TradeState getQuantityChangeEquitySwapTradeStateWithExistingTradeLot() throws IOException {
+    private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
         TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade().getTradableProduct();
         TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
@@ -501,6 +496,7 @@ class FunctionInputCreationTest {
                 .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setIdentifierValue("LOT-2")));
         tradableProductBuilder.addTradeLot(tradeLot2Builder);
+        reKey(tradableProductBuilder);
         return tradeStateBuilder.build();
     }
 
@@ -510,12 +506,12 @@ class FunctionInputCreationTest {
      */
 
     private CreateBusinessEventInput getIncreaseEquitySwapFuncInputJson() throws IOException {
-        //The instruction is set to increase LOT-2 but the trade state does not have the LOT-2
-        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
-                .addAssignedIdentifier(AssignedIdentifier.builder()
-                        .setIdentifierValue("LOT-2"));
-        QuantityChangeInstruction quantityChangeInstructions =  QuantityChangeInstruction.builder()
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
                 .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addLotIdentifier(Identifier.builder()
+                        .addAssignedIdentifier(AssignedIdentifier.builder()
+                                .setIdentifierValue("LOT-2")))
+                // equity payout PQ
                 .addChange(PriceQuantity.builder()
                         .setObservable(Observable.builder()
                                 .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
@@ -524,8 +520,7 @@ class FunctionInputCreationTest {
                                                 .setSource(ProductIdTypeEnum.OTHER)
                                                 .setIdentifier(FieldWithMetaString.builder()
                                                         .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                                                        .setValue("SHPGY.O"))))))
-                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
+                                                        .setValue("SHPGY.O")))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -560,7 +555,7 @@ class FunctionInputCreationTest {
                                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
                                         .setArithmeticOperator(ArithmeticOperationEnum.ADD)
-                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));;
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
 
         TradeState tradeState = getQuantityChangeEquitySwapTradeState();
 
