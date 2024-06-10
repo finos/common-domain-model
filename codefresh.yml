@@ -114,19 +114,19 @@ steps:
         title: Python build
         fail_fast: false
         image: python:3.10-alpine
-        working_directory: ./rosetta-source
+        working_directory: ./
         shell: sh
         commands:
           - export PYTHONDONTWRITEBYTECODE=1
           - python3 -m pip install pydantic
           - python3 -m pip install jsonpickle
-          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-2.0.0-py3-none-any.whl
+          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/runtime/rosetta_runtime-2.1.0-py3-none-any.whl
           - |-
-            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./target/classes/cdm/python ./target/classes/cdm/python
-          - python3 -m pip install ./target/classes/cdm/python/python_cdm-*-py3-none-any.whl
+            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./rosetta-source/target/classes/cdm/python ./rosetta-source/target/classes/cdm/python
+          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/python_cdm-*-py3-none-any.whl
           - python3 -m pip install pytest
-          - pytest -p no:cacheprovider ./src/test/python/
-
+          - pytest -p no:cacheprovider ./cdm-python/test/
+          
   DeployDaml:
     stage: 'build'
     title: DAML deploy
