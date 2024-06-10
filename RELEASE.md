@@ -10,19 +10,14 @@ The `Create_QuantityChange` function has been updated to allow the price and/or 
 
 The existing functionality is unchanged for an increase, i.e., if the `QuantityChangeInstruction->lotIdentifier` does not match the trade's `TradeLot->lotIdentifier`, then a new `TradeLot` is created.
 
-_Sample Files_
+_Review Directions_
 
-The following JSON sample files have been added to represent the updates to an existing `TradeLot`.
+In GitHub, review the following JSON sample files that have been added to represent the updates to an existing `TradeLot`.
 
 - `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json`
 - `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-output.json`
-
-The following JSON sample files have been updated to reflect the changes to the `Create_QuantityChange` function.
-
 - `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json`
 - `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-output.json`
-
-_Review Directions_
 
 In Rosetta, select the Visualisation tab and review the following examples in the Quantity Change Business Event folder:
 
