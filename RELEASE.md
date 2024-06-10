@@ -6,7 +6,7 @@ This release adds support for price and/or quantity changes on an existing Trade
 
 _What is being released?_
 
-The `Create_QuantityChange` function has been updated to allow the price and/or quantity to be updated on an existing `TradeLot`. If the `QuantityChangeInstruction->lotIdentifier` matches the trade's `TradeLot->lotIdentifier`, then the price and/or quantity is updated based on matching units and direction (i.e. `Increase`, `Decrease`, `Replace`) specified in the instructions.
+The `Create_QuantityChange` function has been updated to allow the price and/or quantity to be updated on an existing `TradeLot`. If the `QuantityChangeInstruction->lotIdentifier` matches the trade's `TradeLot->lotIdentifier`, then the price and/or quantity with matching units are updated based on the direction (i.e. `Increase`, `Decrease`, `Replace`) specified in the instructions.
 
 The existing functionality is unchanged for an increase, i.e., if the `QuantityChangeInstruction->lotIdentifier` does not match the trade's `TradeLot->lotIdentifier`, then a new `TradeLot` is created.
 
