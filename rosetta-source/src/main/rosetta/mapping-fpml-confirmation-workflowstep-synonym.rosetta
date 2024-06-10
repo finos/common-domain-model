@@ -32,6 +32,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
         + action
             [set to ActionEnum -> New when "isCorrection" = False]
             [set to ActionEnum -> Correct when "isCorrection" = True]
+            [set to ActionEnum -> Cancel when "withdrawal->reason" = "RaisedInError"]
         + party
             [value "ignore"]
         + account
@@ -40,6 +41,10 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "ignore"]
         + creditLimitInformation
             [value "ignore"]
+
+    WorkflowState:
+        + workflowStatus
+            [set to WorkflowStatusEnum -> Cleared when "originatingEvent" = "Clearing"]
 
     EventInstruction:
         + intent
@@ -68,22 +73,27 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [merge "account"]
             [merge "quote"]
             [merge "optionExercise"]
+            [merge "withdrawal"]
         + eventDate
-            // [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "amendment" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "termination" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "tradeDate" path "rebooking->trade->tradeHeader" maps 2]
             [value "agreementDate" path "amendment" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "agreementDate" path "amendment" maps 2]
             [value "agreementDate" path "termination" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "agreementDate" path "termination" maps 2]
             [value "novationDate" path "novation" maps 2]
-            // [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
             [value "novationTradeDate" path "novation" maps 2]
             [value "exerciseDate" path "optionExercise"]
         + effectiveDate
-            [value "effectiveDate" path "tradingEvent"]
+            [value "effectiveDate" path "tradingEvent" maps 2]
             [value "effectiveDate" path "termination" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "effectiveDate" path "termination" maps 2]
             [value "effectiveDate" path "amendment" maps 2]
             [value "effectiveDate" path "novation" maps 2]
+            [value "novationDate" path "novation" maps 2]
+            [value "effectiveDate" path "withdrawal" maps 2]
         + packageInformation
             [value "ignore"] // not modelled in FpML
 
@@ -94,6 +104,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "amendment"]
             [hint "trade" , "party" , "account" , "quote"]
             [value "optionExercise"]
+            [value "withdrawal"]
 
     PrimitiveInstruction:
         + contractFormation
@@ -167,12 +178,14 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "executionDateTime" path "termination"]
             [value "submittedForClearing" path "trade->tradeHeader->partyTradeInformation->timestamps"]
             [value "cleared" path "trade->tradeHeader->partyTradeInformation->timestamps"]
+            [value "confirmed" path "trade->tradeHeader->partyTradeInformation->timestamps"]
         + qualification
             [set to EventTimestampQualificationEnum -> eventCreationDateTime when path = "header->creationTimestamp"]
             [set to EventTimestampQualificationEnum -> clearingReceiptDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->submittedForClearing"]
             [set to EventTimestampQualificationEnum -> clearingDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->cleared"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation->executionDateTime"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
+            [set to EventTimestampQualificationEnum -> confirmationDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->confirmed"]
 
     MessageInformation:
         + messageId
