@@ -13,11 +13,11 @@ New Trade
 
 Increase
 
-- An Increase is performed on `2021-11-11` of `250,000` Shares for a Notional of `7,500,000` on the TradeLot `LOT-2`.
+- An Increase is performed on `2021-11-11` of `250,000` Shares on the TradeLot `LOT-2`.
 - `LOT-1` is unchanged and `LOT-2` is updated as below.
 - `LOT-2`
   - Notional of `35,969,376 USD`
-  - `1,010,400` shares with price of `67.44 USD`
+  - `1,010,400` shares with price of `37.44 USD`
 
 
 
