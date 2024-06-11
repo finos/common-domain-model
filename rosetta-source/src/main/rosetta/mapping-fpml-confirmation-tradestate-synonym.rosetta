@@ -562,6 +562,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[value "relativePaymentDates" meta "id" path "calculationPeriodsScheduleReference"]
         + paymentFrequency
             [value "paymentFrequency"]
+            [value "indexTenor"]
         + firstPaymentDate
             [value "firstPaymentDate"]
             [value "firstPaymentDate" path "periodicPayment"]
@@ -2300,6 +2301,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "paymentDates"]
             [value "periodicPayment" path "feeLeg"]
             [value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
+            [hint "indexTenor"]
         + paymentDate
             [value "paymentDate"]
             [value "feeLeg"]
@@ -2711,6 +2713,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     DeliveryDateParameters:
         + deliveryNearby
             [hint "deliveryDates"]
+            [value "deliveryNearby"]
         + deliveryDateRollConvention
             [value "deliveryDateRollConvention"]
         + deliveryDateExpirationConvention
@@ -3046,6 +3049,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 1 when "quantityFrequency" = "PerMonth"]
             [set to 1 when "quantityFrequency" = "PerCalculationPeriod"]
             [set to 1 when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to 1 when "quantityFrequency" = "PerCalculationDay"]
         + period
             [value "period"]
             [value "period" path "paymentFrequency" maps 2]
@@ -3054,6 +3058,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PeriodExtendedEnum -> H when "quantityFrequency" = "PerHour"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerCalculationPeriod"]
             [set to PeriodExtendedEnum -> C when "quantityFrequency" = "PerSettlementPeriod"]
+            [set to PeriodExtendedEnum -> D when "quantityFrequency" = "PerCalculationDay"]
 
     Offset:
         + dayType
@@ -3065,12 +3070,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "periodMultiplier" maps 2]
             [value "periodMultiplier" path "dateOffset"]
             [value "periodMultiplier" path "calculationPeriodDates->relativeEffectiveDate"]
+            [value "deliveryNearbyMultiplier"]
             // For Commodity Swap
             [set to 1 when "deliveryDates" = "FirstNearby"]
             [set to 2 when path = "deliveryDates->SecondNearby"]
         + period
             [value "period" maps 2]
             [value "period" path "dateOffset"]
+            [value "deliveryNearbyType"]
             // For Commodity Swap
             [set to PeriodEnum -> M when "deliveryDates" exists]
 
@@ -6033,8 +6040,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "PerCalendarDay"]
         + W
             [value "W"]
+            [value "NearbyWeek"]
         + M
             [value "M"]
+            [value "NearbyMonth"]
         + Y
             [value "Y"]
 
