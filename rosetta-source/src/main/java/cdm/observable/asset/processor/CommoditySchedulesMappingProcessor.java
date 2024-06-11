@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 /**
  * FpML mapper - copied from DRR.
+ * 
+ * This mapper should be refactored as it is hard to understand what is being mapped, and is inefficient as it loops through all mappings repeatedly within nested loops.
  */
 @SuppressWarnings("unused")
 public class CommoditySchedulesMappingProcessor extends MappingProcessor {
@@ -91,123 +93,11 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
                         if (balanceOfFirstPeriodVal != null) {
                             balanceOfFirstPeriod = Boolean.parseBoolean(balanceOfFirstPeriodVal);
                         }
-                        int currentYear, currentMonth, currentDay;
-                        int newYear, newMonth, newDay;
                         // init populating the datedValues with current effectiveDate of the contract
                         datedValues.get(index).setDate(currentDate);
                         index++;
                         while (compareDates(currentDate, endDate) < 0) {
-                            switch (period) {
-                                case "M":
-                                    if (balanceOfFirstPeriod) {
-                                        // Calculate the first day of the next month
-
-                                        currentYear = currentDate.getYear();
-                                        currentMonth = currentDate.getMonth();
-                                        newYear = currentYear;
-                                        newMonth = currentMonth + multiplier;
-
-                                        // Check if month exceeds 12, and adjust year and month accordingly
-                                        if (newMonth > 12) {
-                                            newYear += newMonth / 12;
-                                            newMonth = newMonth % 12;
-                                        }
-
-                                        // Calculate the last day of the current month
-                                        int maxDaysInMonth = getMaxDaysInMonth(currentYear, currentMonth);
-                                        int lastDayOfMonth = (currentMonth == 2 && isLeapYear(currentYear)) ? 29 : maxDaysInMonth;
-
-                                        // Create a new Date instance with the updated year and month
-                                        currentDate = Date.of(newYear, newMonth, 1);
-                                    } else {
-                                        // Assuming currentDate represents the current date as a Date instance
-                                        currentYear = currentDate.getYear();
-                                        currentMonth = currentDate.getMonth();
-                                        currentDay = currentDate.getDay();
-
-                                        // Calculate the new year and month
-                                        newYear = currentYear;
-                                        newMonth = currentMonth + multiplier;
-
-                                        // Check if month exceeds 12, and adjust year and month accordingly
-                                        if (newMonth > 12) {
-                                            newYear += newMonth / 12;
-                                            newMonth = newMonth % 12;
-                                        }
-                                        // Create a new Date instance with the updated year and month
-                                        currentDate = Date.of(newYear, newMonth, currentDay);
-                                    }
-                                    break;
-                                case "D":
-                                    currentYear = currentDate.getYear();
-                                    currentMonth = currentDate.getMonth();
-                                    currentDay = currentDate.getDay();
-
-                                    // Calculate the new year, month, and day
-                                    newYear = currentYear;
-                                    newMonth = currentMonth;
-                                    newDay = currentDay + multiplier;
-
-                                    // Check if the day exceeds the maximum for the current month
-                                    int maxDaysInMonth = getMaxDaysInMonth(newYear, newMonth);
-                                    if (newDay > maxDaysInMonth) {
-                                        newDay = 1;
-                                        newMonth++;
-
-                                        // Check if the month exceeds 12, and adjust year and month accordingly
-                                        if (newMonth > 12) {
-                                            newYear += newMonth / 12;
-                                            newMonth = newMonth % 12;
-                                        }
-
-                                        // Create a new Date instance with the updated year, month, and day
-                                        currentDate = Date.of(newYear, newMonth, newDay);
-                                    }
-                                    break;
-
-                                case "W":
-                                    // Assuming currentDate represents the current date as a Date instance
-                                    currentYear = currentDate.getYear();
-                                    currentMonth = currentDate.getMonth();
-                                    currentDay = currentDate.getDay();
-
-                                    // Calculate the new year, month, and day
-                                    newYear = currentYear;
-                                    newMonth = currentMonth;
-                                    newDay = currentDay + (multiplier * 7);
-
-                                    // Loop to handle month and year overflow
-                                    while (newDay > getMaxDaysInMonth(newYear, newMonth)) {
-                                        newDay -= getMaxDaysInMonth(newYear, newMonth);
-                                        newMonth++;
-
-                                        if (newMonth > 12) {
-                                            newYear += 1;
-                                            newMonth = 1;
-                                        }
-                                    }
-
-                                    // Create a new Date instance with the updated year, month, and day
-                                    currentDate = Date.of(newYear, newMonth, newDay);
-                                    break;
-
-                                case "Y":
-                                    // Assuming currentDate represents the current date as a Date instance
-                                    currentYear = currentDate.getYear();
-                                    currentMonth = currentDate.getMonth();
-                                    currentDay = currentDate.getDay();
-
-                                    // Calculate the new year, month, and day
-                                    newYear = currentYear + multiplier;
-
-                                    // Create a new Date instance with the updated year, month, and day
-                                    currentDate = Date.of(newYear, currentMonth, currentDay);
-                                    break;
-
-                                default:
-                                    // Handle the case where 'period' is not one of M, D, W, or Y
-                                    break;
-                            }
+                            currentDate = getNextPeriodStartDate(period, currentDate, multiplier, balanceOfFirstPeriod);
                             if (compareDates(currentDate, endDate) < 0) {
                                 datedValues.get(index).setDate(currentDate);
                             }
@@ -227,6 +117,117 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
                 }
             }
         }
+    }
+
+    private Date getNextPeriodStartDate(String period, Date currentDate, int multiplier, boolean balanceOfFirstPeriod) {
+        switch (period) {
+            case "M":
+                if (balanceOfFirstPeriod) {
+                    // Calculate the first day of the next month
+                    int currentYear = currentDate.getYear();
+                    int currentMonth = currentDate.getMonth();
+                    int newYear = currentYear;
+                    int newMonth = currentMonth + multiplier;
+
+                    // Check if month exceeds 12, and adjust year and month accordingly
+                    if (newMonth > 12) {
+                        newYear += newMonth / 12;
+                        newMonth = newMonth % 12;
+                    }
+
+                    // Calculate the last day of the current month
+                    int maxDaysInMonth = getMaxDaysInMonth(currentYear, currentMonth);
+                    int lastDayOfMonth = (currentMonth == 2 && isLeapYear(currentYear)) ? 29 : maxDaysInMonth;
+
+                    // Create a new Date instance with the updated year and month
+                    return Date.of(newYear, newMonth, 1);
+                } else {
+                    // Assuming currentDate represents the current date as a Date instance
+                    int currentYear = currentDate.getYear();
+                    int currentMonth = currentDate.getMonth();
+                    int currentDay = currentDate.getDay();
+
+                    // Calculate the new year and month
+                    int newYear = currentYear;
+                    int newMonth = currentMonth + multiplier;
+
+                    // Check if month exceeds 12, and adjust year and month accordingly
+                    if (newMonth > 12) {
+                        newYear += newMonth / 12;
+                        newMonth = newMonth % 12;
+                    }
+                    // Create a new Date instance with the updated year and month
+                    return Date.of(newYear, newMonth, currentDay);
+                }
+            case "D": {
+                int currentYear = currentDate.getYear();
+                int currentMonth = currentDate.getMonth();
+                int currentDay = currentDate.getDay();
+
+                // Calculate the new year, month, and day
+                int newYear = currentYear;
+                int newMonth = currentMonth;
+                int newDay = currentDay + multiplier;
+
+                // Check if the day exceeds the maximum for the current month
+                int maxDaysInMonth = getMaxDaysInMonth(newYear, newMonth);
+                if (newDay > maxDaysInMonth) {
+                    newDay = 1;
+                    newMonth++;
+
+                    // Check if the month exceeds 12, and adjust year and month accordingly
+                    if (newMonth > 12) {
+                        newYear += newMonth / 12;
+                        newMonth = newMonth % 12;
+                    }
+
+                    // Create a new Date instance with the updated year, month, and day
+                    return Date.of(newYear, newMonth, newDay);
+                }
+                break;
+            }
+            case "W": {
+                // Assuming currentDate represents the current date as a Date instance
+                int currentYear = currentDate.getYear();
+                int currentMonth = currentDate.getMonth();
+                int currentDay = currentDate.getDay();
+
+                // Calculate the new year, month, and day
+                int newYear = currentYear;
+                int newMonth = currentMonth;
+                int newDay = currentDay + (multiplier * 7);
+
+                // Loop to handle month and year overflow
+                while (newDay > getMaxDaysInMonth(newYear, newMonth)) {
+                    newDay -= getMaxDaysInMonth(newYear, newMonth);
+                    newMonth++;
+
+                    if (newMonth > 12) {
+                        newYear += 1;
+                        newMonth = 1;
+                    }
+                }
+
+                // Create a new Date instance with the updated year, month, and day
+                return Date.of(newYear, newMonth, newDay);
+            }
+            case "Y": {
+                // Assuming currentDate represents the current date as a Date instance
+                int currentYear = currentDate.getYear();
+                int currentMonth = currentDate.getMonth();
+                int currentDay = currentDate.getDay();
+
+                // Calculate the new year, month, and day
+                int newYear = currentYear + multiplier;
+
+                // Create a new Date instance with the updated year, month, and day
+                return Date.of(newYear, currentMonth, currentDay);
+            }
+            default:
+                // Handle the case where 'period' is not one of M, D, W, or Y
+                break;
+        }
+        return currentDate;
     }
 
     private int getMaxDaysInMonth(int year, int month) {
