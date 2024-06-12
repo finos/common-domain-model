@@ -24,4 +24,4 @@ In Rosetta, select the Visualisation tab and review the following examples in th
 - Increase Equity Swap with Existing Trade Lot
 - Partial Termination Equity Swap
 
-Changes can be reviewed in PR [#2961](https://github.com/finos/common-domain-model/pull/2961)
+Changes can be reviewed in PR [#2980](https://github.com/finos/common-domain-model/pull/2980)
