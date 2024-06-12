@@ -1,5 +1,6 @@
 package cdm.observable.asset.processor;
 
+import cdm.base.datetime.PeriodEnum;
 import cdm.base.math.DatedValue;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -11,22 +12,18 @@ import com.rosetta.model.lib.records.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * FpML mapper - copied from DRR.
- * 
- * This mapper should be refactored as it is hard to understand what is being mapped, and is inefficient as it loops through all mappings repeatedly within nested loops.
- */
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
+
 @SuppressWarnings("unused")
 public class CommoditySchedulesMappingProcessor extends MappingProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommoditySchedulesMappingProcessor.class);
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // You should use the appropriate date format
 
     public CommoditySchedulesMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
@@ -34,246 +31,211 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-        List<Path> calculationPeriodHref = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains("Schedule.calculationPeriods") && mapping.getXmlPath().toString().contains("href"))
-                .map(Mapping::getXmlPath)
-                .collect(Collectors.toList());
-        List<Path> calculationPeriodsMultiplier = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains("calculationPeriodsSchedule.id") || mapping.getXmlPath().toString().contains("calculationPeriodsSchedule.period") || mapping.getXmlPath().toString().contains("calculationPeriodsSchedule.balanceOfFirstPeriod"))
-                .map(Mapping::getXmlPath)
-                .collect(Collectors.toList());
-        List<Path> calculationPeriodsId = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains("calculationPeriods.id"))
-                .map(Mapping::getXmlPath)
-                .collect(Collectors.toList());
-        List<Path> calculationPeriods = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains("calculationPeriods.unadjustedDate"))
-                .map(Mapping::getXmlPath)
-                .distinct()
-                .collect(Collectors.toList());
-        List<Path> effectiveDatePaths = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains(".effectiveDate.adjustableDate.unadjustedDate"))
-                .map(Mapping::getXmlPath)
-                .collect(Collectors.toList());
-        List<Path> terminationDatePaths = getMappings().stream()
-                .filter(mapping -> mapping.getXmlPath().toString().contains(".terminationDate.adjustableDate.unadjustedDate"))
-                .map(Mapping::getXmlPath)
+        Path scheduleSynonymPath = synonymPath.getParent();
+
+        // finds either calculationPeriodsScheduleReference or calculationPeriodsReference
+        List<Mapping> calculationPeriodHrefMappings = findMappings(scheduleSynonymPath, "calculationPeriods", "href");
+        if (calculationPeriodHrefMappings.isEmpty()) {
+            return;
+        }
+
+        LocalDate effectiveDate = extractLocalDate(".effectiveDate.adjustableDate.unadjustedDate");
+        LocalDate terminationDate = extractLocalDate(".terminationDate.adjustableDate.unadjustedDate");
+
+        if (effectiveDate == null || terminationDate == null) {
+            return;
+        }
+
+        List<DatedValue.DatedValueBuilder> datedValueBuilders = (List<DatedValue.DatedValueBuilder>) builders;
+
+        for (Mapping calculationPeriodHrefMapping : calculationPeriodHrefMappings) {
+            String id = (String) calculationPeriodHrefMapping.getXmlValue();
+
+            // find corresponding calculationPeriodsSchedule path for the id
+            Optional<Mapping> calculationPeriodsScheduleIdMapping = findMapping("calculationPeriodsSchedule.id", id);
+            calculationPeriodsScheduleIdMapping.ifPresent(mapping -> {
+                Path parentPath = mapping.getXmlPath().getParent();
+                mapCalculationPeriodsSchedule(datedValueBuilders, effectiveDate, terminationDate, parentPath);
+                // update mapping stats
+                updateMappingSuccess(calculationPeriodHrefMapping, getModelPath());
+                updateMappingSuccess(mapping, getModelPath());
+            });
+
+            // find corresponding calculationPeriods path for the id
+            Optional<Mapping> calculationPeriodsIdMapping = findMapping("calculationPeriods.id", id);
+            calculationPeriodsIdMapping.ifPresent(mapping -> {
+                Path parentPath = mapping.getXmlPath().getParent();
+                mapCalculationPeriods(datedValueBuilders, terminationDate, parentPath);
+                // update mapping stats
+                updateMappingSuccess(calculationPeriodHrefMapping, getModelPath());
+                updateMappingSuccess(mapping, getModelPath());
+            });
+        }
+    }
+
+    private void mapCalculationPeriodsSchedule(List<DatedValue.DatedValueBuilder> datedValueBuilders, LocalDate effectiveDate, LocalDate terminationDate, Path calculationPeriodsSchedulePath) {
+        // find all mappings within the calculationPeriodsSchedulePath
+        List<Mapping> calculationPeriodsScheduleMappings = getMappings().stream()
+                .filter(m -> calculationPeriodsSchedulePath.nameStartMatches(m.getXmlPath()))
+                .filter(m -> m.getXmlValue() != null)
                 .collect(Collectors.toList());
 
-        List<DatedValue.DatedValueBuilder> datedValues =
-                (List<DatedValue.DatedValueBuilder>) builders;
+        Mapping periodMapping = filterMappings(calculationPeriodsScheduleMappings, "period");
+        PeriodEnum period = extractPeriodEnum(periodMapping);
 
-        for (int i = 0; i < calculationPeriodHref.size(); i++) {
-            Optional<String> id = getValueAndUpdateMappings(calculationPeriodHref.get(i));
+        Mapping periodMultiplierMapping = filterMappings(calculationPeriodsScheduleMappings, "periodMultiplier");
+        Integer periodMultiplier = extractInteger(periodMultiplierMapping);
 
-            // Find corresponding multiplier and date paths
-            Optional<Path> multiplierPath = calculationPeriodsMultiplier.stream()
-                    .filter(path -> getValueAndUpdateMappings(path).map(value -> value.equals(id.orElse(null))).orElse(false))
-                    .findFirst();
-            Optional<Path> cPeriodsPath = calculationPeriodsId.stream()
-                    .filter(path -> getValueAndUpdateMappings(path).map(value -> value.equals(id.orElse(null))).orElse(false))
-                    .findFirst();
-            int index = 0;
-            if (multiplierPath.isPresent()) {
-                String effectiveDate = getOptionalValue(effectiveDatePaths, i);
-                String idValue = getOptionalValue(calculationPeriodsMultiplier, i);
-                String terminationDate = getOptionalValue(terminationDatePaths, i);
-                String periodMultiplier = getOptionalValue(calculationPeriodsMultiplier, 1);
-                String period = getOptionalValue(calculationPeriodsMultiplier, 2);
-                String balanceOfFirstPeriodVal = getOptionalValue(calculationPeriodsMultiplier, 3);
-                if (effectiveDate != null && terminationDate != null && period != null && periodMultiplier != null) {
-                    try {
-                        Date startDate = Date.parse(effectiveDate);
-                        Date endDate = Date.parse(terminationDate);
-                        Date currentDate = startDate;
+        if (period == null && periodMultiplier == null) {
+            return;
+        }
 
-                        int multiplier = Integer.parseInt(periodMultiplier);
-                        // Assume there is no balance of the first period
-                        boolean balanceOfFirstPeriod = false;
-                        if (balanceOfFirstPeriodVal != null) {
-                            balanceOfFirstPeriod = Boolean.parseBoolean(balanceOfFirstPeriodVal);
-                        }
-                        // init populating the datedValues with current effectiveDate of the contract
-                        datedValues.get(index).setDate(currentDate);
-                        index++;
-                        while (compareDates(currentDate, endDate) < 0) {
-                            currentDate = getNextPeriodStartDate(period, currentDate, multiplier, balanceOfFirstPeriod);
-                            if (compareDates(currentDate, endDate) < 0) {
-                                datedValues.get(index).setDate(currentDate);
-                            }
-                            index++;
+        Mapping balanceOfFirstPeriodMapping = filterMappings(calculationPeriodsScheduleMappings, "balanceOfFirstPeriod");
+        boolean balanceOfFirstPeriod = extractBoolean(balanceOfFirstPeriodMapping);
 
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("Error parsing date: " + e.getMessage(), e);
-                    }
-                }
-            } else if (cPeriodsPath.isPresent()) {
-                String terminationDate = getOptionalValue(terminationDatePaths, i);
-                Date endDate = Date.parse(terminationDate);
-                while (index < datedValues.size() && compareDates(Date.parse(getValueAndUpdateMappings(calculationPeriods.get(index)).get()), endDate) < 0) {
-                    datedValues.get(index).setDate(Date.parse(getValueAndUpdateMappings(calculationPeriods.get(index)).get()));
-                    index++;
-                }
+        // init populating the datedValues with current effectiveDate of the contract
+        int index = 0;
+        setDatedValue(datedValueBuilders, index, effectiveDate);
+
+        LocalDate currentDate = effectiveDate;
+        while (currentDate.isBefore(terminationDate)) {
+            index++;
+            currentDate = getNextPeriodStartDate(period, currentDate, periodMultiplier, balanceOfFirstPeriod);
+
+            if (currentDate.isBefore(terminationDate)) {
+                setDatedValue(datedValueBuilders, index, currentDate);
             }
         }
     }
 
-    private Date getNextPeriodStartDate(String period, Date currentDate, int multiplier, boolean balanceOfFirstPeriod) {
+    private LocalDate getNextPeriodStartDate(PeriodEnum period, LocalDate date, int periodMultiplier, boolean balanceOfFirstPeriod) {
         switch (period) {
-            case "M":
+            case M:
                 if (balanceOfFirstPeriod) {
-                    // Calculate the first day of the next month
-                    int currentYear = currentDate.getYear();
-                    int currentMonth = currentDate.getMonth();
-                    int newYear = currentYear;
-                    int newMonth = currentMonth + multiplier;
-
-                    // Check if month exceeds 12, and adjust year and month accordingly
-                    if (newMonth > 12) {
-                        newYear += newMonth / 12;
-                        newMonth = newMonth % 12;
-                    }
-
-                    // Calculate the last day of the current month
-                    int maxDaysInMonth = getMaxDaysInMonth(currentYear, currentMonth);
-                    int lastDayOfMonth = (currentMonth == 2 && isLeapYear(currentYear)) ? 29 : maxDaysInMonth;
-
-                    // Create a new Date instance with the updated year and month
-                    return Date.of(newYear, newMonth, 1);
+                    // Calculate the first day of the new month
+                    return date.plusMonths(periodMultiplier).withDayOfMonth(1);
                 } else {
-                    // Assuming currentDate represents the current date as a Date instance
-                    int currentYear = currentDate.getYear();
-                    int currentMonth = currentDate.getMonth();
-                    int currentDay = currentDate.getDay();
-
-                    // Calculate the new year and month
-                    int newYear = currentYear;
-                    int newMonth = currentMonth + multiplier;
-
-                    // Check if month exceeds 12, and adjust year and month accordingly
-                    if (newMonth > 12) {
-                        newYear += newMonth / 12;
-                        newMonth = newMonth % 12;
-                    }
-                    // Create a new Date instance with the updated year and month
-                    return Date.of(newYear, newMonth, currentDay);
+                    // Calculate the new month with the current day of month
+                    return date.plusMonths(periodMultiplier);
                 }
-            case "D": {
-                int currentYear = currentDate.getYear();
-                int currentMonth = currentDate.getMonth();
-                int currentDay = currentDate.getDay();
-
-                // Calculate the new year, month, and day
-                int newYear = currentYear;
-                int newMonth = currentMonth;
-                int newDay = currentDay + multiplier;
-
-                // Check if the day exceeds the maximum for the current month
-                int maxDaysInMonth = getMaxDaysInMonth(newYear, newMonth);
-                if (newDay > maxDaysInMonth) {
-                    newDay = 1;
-                    newMonth++;
-
-                    // Check if the month exceeds 12, and adjust year and month accordingly
-                    if (newMonth > 12) {
-                        newYear += newMonth / 12;
-                        newMonth = newMonth % 12;
-                    }
-
-                    // Create a new Date instance with the updated year, month, and day
-                    return Date.of(newYear, newMonth, newDay);
-                }
-                break;
-            }
-            case "W": {
-                // Assuming currentDate represents the current date as a Date instance
-                int currentYear = currentDate.getYear();
-                int currentMonth = currentDate.getMonth();
-                int currentDay = currentDate.getDay();
-
-                // Calculate the new year, month, and day
-                int newYear = currentYear;
-                int newMonth = currentMonth;
-                int newDay = currentDay + (multiplier * 7);
-
-                // Loop to handle month and year overflow
-                while (newDay > getMaxDaysInMonth(newYear, newMonth)) {
-                    newDay -= getMaxDaysInMonth(newYear, newMonth);
-                    newMonth++;
-
-                    if (newMonth > 12) {
-                        newYear += 1;
-                        newMonth = 1;
-                    }
-                }
-
-                // Create a new Date instance with the updated year, month, and day
-                return Date.of(newYear, newMonth, newDay);
-            }
-            case "Y": {
-                // Assuming currentDate represents the current date as a Date instance
-                int currentYear = currentDate.getYear();
-                int currentMonth = currentDate.getMonth();
-                int currentDay = currentDate.getDay();
-
-                // Calculate the new year, month, and day
-                int newYear = currentYear + multiplier;
-
-                // Create a new Date instance with the updated year, month, and day
-                return Date.of(newYear, currentMonth, currentDay);
-            }
+            case D:
+                return date.plusDays(periodMultiplier);
+            case W:
+                return date.plusWeeks(periodMultiplier);
+            case Y:
+                return date.plusYears(periodMultiplier);
             default:
-                // Handle the case where 'period' is not one of M, D, W, or Y
+                throw new IllegalArgumentException(String.format("Unknown period %s", period));
+        }
+    }
+
+    private void mapCalculationPeriods(List<DatedValue.DatedValueBuilder> datedValueBuilders, LocalDate terminationDate, Path calculationPeriodsPath) {
+        int index = 0;
+        while (index < datedValueBuilders.size()) {
+            Optional<Mapping> calculationPeriodDateMapping = findMapping(calculationPeriodsPath, "unadjustedDate", index);
+            LocalDate calculationPeriodDate = calculationPeriodDateMapping.map(Mapping::getXmlValue).map(this::parseLocalDate).orElse(null);
+            if (calculationPeriodDate == null || calculationPeriodDate.isAfter(terminationDate)) {
                 break;
-        }
-        return currentDate;
-    }
-
-    private int getMaxDaysInMonth(int year, int month) {
-        if (month == 2) {
-            // Check if it's a leap year
-            if (isLeapYear(year)) {
-                return 29; // February in a leap year
-            } else {
-                return 28; // February in a non-leap year
             }
-        } else {
-            int[] daysInMonth = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-            return daysInMonth[month];
+            setDatedValue(datedValueBuilders, index, calculationPeriodDate);
+            updateMappingSuccess(calculationPeriodDateMapping.get(), getModelPath());
+            index++;
         }
     }
 
-    private boolean isLeapYear(int year) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        return calendar.getActualMaximum(Calendar.DAY_OF_YEAR) > 365;
+    private void setDatedValue(List<DatedValue.DatedValueBuilder> datedValues, int index, LocalDate date) {
+        Optional.ofNullable(datedValues.get(index))
+                .ifPresent(datedValueBuilder -> datedValueBuilder.setDate(Date.of(date)));
     }
 
+    private PeriodEnum extractPeriodEnum(Mapping m) {
+        return Optional.ofNullable(m)
+                .map(Mapping::getXmlValue)
+                .map(String.class::cast)
+                .map(this::parsePeriodEnum)
+                .orElse(null);
+    }
 
-    private int compareDates(Date date1, Date date2) {
-        int year1 = date1.getYear();
-        int month1 = date1.getMonth();
-        int day1 = date1.getDay();
-
-        int year2 = date2.getYear();
-        int month2 = date2.getMonth();
-        int day2 = date2.getDay();
-
-        if (year1 != year2) {
-            return Integer.compare(year1, year2);
-        } else if (month1 != month2) {
-            return Integer.compare(month1, month2);
-        } else {
-            return Integer.compare(day1, day2);
+    private PeriodEnum parsePeriodEnum(String s) {
+        try {
+            return PeriodEnum.valueOf(s);
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse PeriodEnum {}", s, e);
+            return null;
         }
     }
 
-    private String getOptionalValue(List<Path> paths, int index) {
-        if (index >= 0 && index < paths.size()) {
-            Optional<String> optionalValue = getValueAndUpdateMappings(paths.get(index));
-            return optionalValue.orElse("");
+    private Integer extractInteger(Mapping m) {
+        return Optional.ofNullable(m)
+                .map(Mapping::getXmlValue)
+                .map(String.class::cast)
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
+    private Boolean extractBoolean(Mapping m) {
+        return Optional.ofNullable(m)
+                .map(Mapping::getXmlValue)
+                .map(String.class::cast)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
+    }
+
+    private LocalDate extractLocalDate(String xmlPathContains) {
+        return getMappings().stream()
+                .filter(mapping -> mapping.getXmlPath().toString().contains(xmlPathContains))
+                .map(Mapping::getXmlValue)
+                .filter(Objects::nonNull)
+                .map(s -> parseLocalDate(s))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private LocalDate parseLocalDate(Object o) {
+        try {
+            return LocalDate.parse((String) o);
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse local date {}", o, e);
+            return null;
         }
-        return "";
+    }
+
+    /**
+     * Find from all mappings
+     */
+    private List<Mapping> findMappings(Path startsWithPath, String pathContains, String pathEndsWith) {
+        return getMappings().stream()
+                .filter(m -> startsWithPath.nameStartMatches(m.getXmlPath()))
+                .filter(m -> m.getXmlPath().toString().contains(pathContains))
+                .filter(m -> m.getXmlPath().endsWith(pathEndsWith))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters mappings from a given subset of mappings
+     */
+    private Mapping filterMappings(List<Mapping> mappings, String pathEndsWith) {
+        return mappings.stream()
+                .filter(m -> m.getXmlPath().endsWith(pathEndsWith))
+                .filter(m -> m.getXmlValue() != null)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Optional<Mapping> findMapping(String xmlPathContains, String xmlValue) {
+        return getMappings().stream()
+                .filter(m -> m.getXmlPath().toString().contains(xmlPathContains))
+                .filter(m -> xmlValue.equals(m.getXmlValue()))
+                .findFirst();
+    }
+
+    private Optional<Mapping> findMapping(Path pathStartsWith, String pathEndsWith, int pathIndex) {
+        return getMappings().stream()
+                .filter(m -> pathStartsWith.nameStartMatches(m.getXmlPath()))
+                .filter(m -> m.getXmlPath().endsWith(pathEndsWith))
+                .filter(m -> m.getXmlPath().getLastElement().forceGetIndex() == pathIndex)
+                .filter(m -> m.getXmlValue() != null)
+                .findFirst();
     }
 }
