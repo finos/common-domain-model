@@ -118,6 +118,9 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 			return;
 		}
 		switch (direction) {
+			case INCREASE:
+				measureBaseToUpdate.setValue(measureBaseToUpdate.getValue().add(newAmount));
+				break;
 			case DECREASE:
 				measureBaseToUpdate.setValue(measureBaseToUpdate.getValue().subtract(newAmount));
 				break;
