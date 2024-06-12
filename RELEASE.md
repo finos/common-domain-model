@@ -21,4 +21,4 @@ In Rosetta, select the Translate tab and review the following samples:
 - fpml-5-13 > products > commodity-derivatives > com-mockup-ex1-strikePricePerUnitSchedule.xml
 - fpml-5-13 > products > commodity-derivatives > com-mockup-ex2-strikePricePerUnitSchedule.xml
 
-Changes can be reviewed in PR [#2976](https://github.com/finos/common-domain-model/pull/2976)
+Changes can be reviewed in PR [#2983](https://github.com/finos/common-domain-model/pull/2983)
