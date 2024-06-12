@@ -1,38 +1,27 @@
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-- The reference to the FpML coding scheme in `FloatingRateIndexEnum` is being reinstated, as the coding scheme import has been made additive-only in the main branch of the CDM.
-
-This release updates the `rosetta-bundle` and `DSL` dependency.
-
-Version updates include:
-- `rosetta-bundle` 11.6.0: Dependencies migrated to Maven Central
-- `rosetta-bundle` 11.6.2: FpML coding scheme infrastructure update to support configurable coding scheme matching for Prod and Dev versions
-- `rosetta-bundle` 11.7.0: Java compilation performance improvements
-- `DSL` 9.8.5: Java compilation performance improvements. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.8.5
-
-_Review directions_
-
-The changes can be reviewed in PR: [#2931](https://github.com/finos/common-domain-model/pull/2931)
-
-# *Product Model - FpML Mapping Update*
+# *Product Model: Quantity Change For Existing Trade Lot*
 
 _Background_
 
-The FpML mapping needs further coverage for Forward Rate Agreement (FRA) and Commodity products.
+This release adds support for price and/or quantity changes on an existing TradeLot, as described in issue [#2923](https://github.com/finos/common-domain-model/issues/2923).
 
 _What is being released?_
 
-- FpML synonyms and mapper updated to map FRA fixed leg payment frequency from the FpML index tenor
-- FpML synonyms added to map Commodity delivery date parameter `deliveryNearby`
+The `Create_QuantityChange` function has been updated to allow the price and/or quantity to be updated on an existing `TradeLot`. If the `QuantityChangeInstruction->lotIdentifier` matches the trade's `TradeLot->lotIdentifier`, then the price and/or quantity with matching units are updated based on the direction (i.e. `Increase`, `Decrease`, `Replace`) specified in the instructions.
+
+The existing functionality is unchanged for an increase, i.e., if the `QuantityChangeInstruction->lotIdentifier` does not match the trade's `TradeLot->lotIdentifier`, then a new `TradeLot` is created.
 
 _Review Directions_
 
-In Rosetta, select the Translate tab and review the following samples:
+In GitHub, review the following JSON sample files that have been added to represent the updates to an existing `TradeLot`.
 
-- fpml-5-10 > products > rates > ird-ex08-fra.xml
-- fpml-5-10 > products > rates > ird-ex08-fra-no-discounting.xml
-- fpml-5-10 > products > commodity > com-ex41-oil-asian-barrier-option-strip.xml
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json`
+- `cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-output.json`
+- `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json`
+- `cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-output.json`
 
-Changes can be reviewed in PR [#2935](https://github.com/finos/common-domain-model/pull/2935) / [#2946](https://github.com/finos/common-domain-model/pull/2946)
+In Rosetta, select the Visualisation tab and review the following examples in the Quantity Change Business Event folder:
+
+- Increase Equity Swap with Existing Trade Lot
+- Partial Termination Equity Swap
+
+Changes can be reviewed in PR [#2961](https://github.com/finos/common-domain-model/pull/2961)
