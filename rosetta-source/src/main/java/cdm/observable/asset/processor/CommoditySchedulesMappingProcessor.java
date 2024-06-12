@@ -197,7 +197,7 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
                 .filter(mapping -> mapping.getXmlPath().toString().contains(xmlPathContains))
                 .map(Mapping::getXmlValue)
                 .filter(Objects::nonNull)
-                .map(s -> parseLocalDate(s))
+                .map(this::parseLocalDate)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -220,6 +220,7 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
                 .filter(m -> startsWithPath.nameStartMatches(m.getXmlPath()))
                 .filter(m -> m.getXmlPath().toString().contains(pathContains))
                 .filter(m -> m.getXmlPath().endsWith(pathEndsWith))
+                .filter(m -> m.getXmlValue() != null)
                 .collect(Collectors.toList());
     }
 
