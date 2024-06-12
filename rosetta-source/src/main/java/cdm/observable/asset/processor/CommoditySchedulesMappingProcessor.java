@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
 
+/**
+ * FpML mapper.  Copied from DRR.
+ */
 @SuppressWarnings("unused")
 public class CommoditySchedulesMappingProcessor extends MappingProcessor {
 
