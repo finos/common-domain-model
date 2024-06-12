@@ -401,29 +401,27 @@ class FunctionInputCreationTest {
 
     @Test
     void validatePartialTerminationEquitySwapFuncInputJson() throws IOException {
-        // The tradeState input to partial termination is output from increase event
-        CreateBusinessEventInput increaseEquitySwapInput = getIncreaseEquitySwapFuncInputJson();
-        BusinessEvent increaseOutput = runCreateBusinessEventFunc(increaseEquitySwapInput);
-        TradeState increaseTradeState = increaseOutput.getAfter().get(0);
-
-        // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
-        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
+        // Quantity change to terminate tradeLot LOT-2.  Quantity in tradeLot LOT-1 remains unchanged.
+        // 20 percentage decrease. Output quantity should be 152,080 shares and 5,693,875 USD
+        final QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        QuantityChangeInstruction quantityChangeInstruction = quantityChangeInstructionBuilder
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addLotIdentifier(Identifier.builder()
                         .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue("LOT-1")))
+                                .setIdentifierValue("LOT-2")))
                 .addChange(PriceQuantity.builder()
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(760400))
+                                        .setValue(BigDecimal.valueOf(152080))
                                         .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(28469376))
+                                        .setValue(BigDecimal.valueOf(5693875))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+        reKey(quantityChangeInstructionBuilder);
 
         validateQuantityChangeFuncInputJson(
-                increaseTradeState,
+                getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
@@ -432,8 +430,84 @@ class FunctionInputCreationTest {
     @Test
     void validateIncreaseEquitySwapFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getIncreaseEquitySwapFuncInputJson();
-
         assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
+    }
+
+    @Test
+    void validateIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
+        CreateBusinessEventInput actual = getIncreaseEquitySwapExistingTradeLotFuncInputJson();
+        assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
+    }
+
+    private CreateBusinessEventInput getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
+        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2"));
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-2"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(250000))
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))))
+                // interest rate payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservable(Observable.builder()
+                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
+                                        .setMeta(createKey("rateOption-1"))
+                                        .setValue(FloatingRateOption.builder()
+                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                .setIndexTenor(Period.builder()
+                                                        .setPeriod(PeriodEnum.M)
+                                                        .setPeriodMultiplier(1)))))
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-1"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(7500000))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
+                                .setMeta(createKey("price-1"))
+                                .setValue(PriceSchedule.builder()
+                                        .setValue(BigDecimal.valueOf(0.0020))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
+
+        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions));
+
+        reKey(instructionBuilder);
+
+        return new CreateBusinessEventInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                null,
+                Date.of(2021, 11, 11),
+                null);
+    }
+
+    private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade().getTradableProduct();
+        TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
+
+        //Take a copy of the trade lot
+        TradeLot.TradeLotBuilder tradeLot2Builder = tradeLot1Builder.build().toBuilder();
+
+        tradeLot1Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-1")));
+        tradeLot2Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2")));
+        tradableProductBuilder.addTradeLot(tradeLot2Builder);
+        reKey(tradableProductBuilder);
+        return tradeStateBuilder.build();
     }
 
     /**
@@ -500,7 +574,7 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
-
+        reKey(instructionBuilder);
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
@@ -958,7 +1032,7 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
-    ObservationEvent getCreditEventObservationEvent(){
+    ObservationEvent getCreditEventObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
                         .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
@@ -977,6 +1051,7 @@ class FunctionInputCreationTest {
 
         return observationEvent;
     }
+
     @Test
     void validateCreditEventFuncInputJson() throws IOException {
 
@@ -1063,6 +1138,7 @@ class FunctionInputCreationTest {
 
         return observationEvent;
     }
+
     @Test
     void validateCorporateActionFuncInputJson() throws IOException {
 
@@ -1085,6 +1161,7 @@ class FunctionInputCreationTest {
 
         assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
     }
+
     @Test
     void validateCorporateActionWithObservationFuncInputJson() throws IOException {
 
@@ -1636,7 +1713,7 @@ class FunctionInputCreationTest {
                                                   WorkflowStep previousWorkflowStep,
                                                   ActionEnum action) {
         // Create Execution BusinessEvent
-        CreateBusinessEventInput executionBusinessEventInput =  getExecutionFuncInputJson(tradeState.build(), eventDate);
+        CreateBusinessEventInput executionBusinessEventInput = getExecutionFuncInputJson(tradeState.build(), eventDate);
         BusinessEvent businessEvent = runCreateBusinessEventFunc(executionBusinessEventInput);
 
         // Create WorkflowStep
@@ -1766,6 +1843,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
     }
+
     @Test
     void validateOnDemandRateChangeInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -1782,9 +1860,10 @@ class FunctionInputCreationTest {
 
         reKey(onDemandRateChangeInstructionBuilder);
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput( Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-input.json", actual);
     }
+
     @Test
     void validatePairOffInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -1926,7 +2005,7 @@ class FunctionInputCreationTest {
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-adjustment-effective-date.json");
 
         Create_AdjustmentPrimitiveInstruction create_adjustmentInstruction = injector.getInstance(Create_AdjustmentPrimitiveInstruction.class);
-        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_adjustmentInstruction.evaluate(executionTradeState, newAllinPrice, newAssetQuantity,effectiveDate).toBuilder();
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_adjustmentInstruction.evaluate(executionTradeState, newAllinPrice, newAssetQuantity, effectiveDate).toBuilder();
 
         reKey(primitiveInstructionBuilder);
 
@@ -1948,7 +2027,7 @@ class FunctionInputCreationTest {
         List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json");
 
         Create_SubstitutionPrimitiveInstruction create_substitutionInstruction = injector.getInstance(Create_SubstitutionPrimitiveInstruction.class);
-        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_substitutionInstruction.evaluate(executionTradeState, effectiveDate,newCollateralPortfolio,priceQuantity).toBuilder();
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_substitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();
 
         reKey(primitiveInstructionBuilder);
 
@@ -1989,8 +2068,9 @@ class FunctionInputCreationTest {
                 .addIssuer(IssuerCriteria.builder()
                         .addIssuerType(CollateralIssuerType.builder()
                                 .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
-                                .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
-                .build();;
+                        .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
+                .build();
+        ;
 
         // Variable criteria - Valuation percentages for each maturity range
         List<EligibleCollateralCriteria> variable = Arrays.asList(
