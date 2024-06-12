@@ -42,13 +42,15 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
             return;
         }
 
-        LocalDate effectiveDate = extractLocalDate(".effectiveDate.adjustableDate.unadjustedDate");
-        LocalDate terminationDate = extractLocalDate(".terminationDate.adjustableDate.unadjustedDate");
+        Path productSynonymPath = scheduleSynonymPath.getParent();
+        LocalDate effectiveDate = extractLocalDate(productSynonymPath, ".effectiveDate.adjustableDate.unadjustedDate");
+        LocalDate terminationDate = extractLocalDate(productSynonymPath, ".terminationDate.adjustableDate.unadjustedDate");
 
         if (effectiveDate == null || terminationDate == null) {
             return;
         }
 
+        @SuppressWarnings("unchecked")
         List<DatedValue.DatedValueBuilder> datedValueBuilders = (List<DatedValue.DatedValueBuilder>) builders;
 
         for (Mapping calculationPeriodHrefMapping : calculationPeriodHrefMappings) {
@@ -89,15 +91,15 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
         Mapping periodMultiplierMapping = filterMappings(calculationPeriodsScheduleMappings, "periodMultiplier");
         Integer periodMultiplier = extractInteger(periodMultiplierMapping);
 
-        if (period == null && periodMultiplier == null) {
+        if (period == null || periodMultiplier == null) {
             return;
         }
 
         Mapping balanceOfFirstPeriodMapping = filterMappings(calculationPeriodsScheduleMappings, "balanceOfFirstPeriod");
         boolean balanceOfFirstPeriod = extractBoolean(balanceOfFirstPeriodMapping);
 
-        // init populating the datedValues with current effectiveDate of the contract
         int index = 0;
+        // update model
         setDatedValue(datedValueBuilders, index, effectiveDate);
 
         LocalDate currentDate = effectiveDate;
@@ -106,6 +108,7 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
             currentDate = getNextPeriodStartDate(period, currentDate, periodMultiplier, balanceOfFirstPeriod);
 
             if (currentDate.isBefore(terminationDate)) {
+                // update model
                 setDatedValue(datedValueBuilders, index, currentDate);
             }
         }
@@ -137,11 +140,15 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
         while (index < datedValueBuilders.size()) {
             Optional<Mapping> calculationPeriodDateMapping = findMapping(calculationPeriodsPath, "unadjustedDate", index);
             LocalDate calculationPeriodDate = calculationPeriodDateMapping.map(Mapping::getXmlValue).map(this::parseLocalDate).orElse(null);
+            
             if (calculationPeriodDate == null || calculationPeriodDate.isAfter(terminationDate)) {
                 break;
             }
+            // update model
             setDatedValue(datedValueBuilders, index, calculationPeriodDate);
+            // update mapping stats
             updateMappingSuccess(calculationPeriodDateMapping.get(), getModelPath());
+            
             index++;
         }
     }
@@ -184,8 +191,9 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
                 .orElse(false);
     }
 
-    private LocalDate extractLocalDate(String xmlPathContains) {
+    private LocalDate extractLocalDate(Path startsWithPath, String xmlPathContains) {
         return getMappings().stream()
+                .filter(m -> startsWithPath.nameStartMatches(m.getXmlPath()))
                 .filter(mapping -> mapping.getXmlPath().toString().contains(xmlPathContains))
                 .map(Mapping::getXmlValue)
                 .filter(Objects::nonNull)
@@ -216,9 +224,9 @@ public class CommoditySchedulesMappingProcessor extends MappingProcessor {
     }
 
     /**
-     * Filters mappings from a given subset of mappings
+     * Filters mappings from a given subset of mappings 
      */
-    private Mapping filterMappings(List<Mapping> mappings, String pathEndsWith) {
+    private static Mapping filterMappings(List<Mapping> mappings, String pathEndsWith) {
         return mappings.stream()
                 .filter(m -> m.getXmlPath().endsWith(pathEndsWith))
                 .filter(m -> m.getXmlValue() != null)
