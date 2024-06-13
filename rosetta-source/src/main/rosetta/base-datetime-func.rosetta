@@ -1,6 +1,41 @@
 namespace cdm.base.datetime: <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
+choice Instrument:
+  Security
+  Loan
+
+choice Asset:
+  Basket
+  Instrument
+
+type Security:
+    id string (1..1)
+
+type Loan:
+    id string (1..1)
+
+type Basket:
+    id string (1..1)
+
+func GetAssetId:
+    inputs:
+        asset Asset (1..1)
+    output:
+        id string (1..1)
+
+    set id:
+        asset ->> id
+    
+    // previously:
+    set id:
+        if asset -> Basket exists
+        then asset -> Basket -> id
+        else if asset -> Instrument -> Security exists
+        then asset -> Instrument -> Security -> id
+        else if asset -> Instrument -> Loan exists
+        then asset -> Instrument -> Loan -> id
+
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
     inputs:
         time BusinessCenterTime (1..1)
