@@ -89,6 +89,6 @@ This release updates the `bundle` dependency to version `11.10.0` to include the
 
 _Review directions_
 
-Download the latest Python distribution from the [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
+Download the latest Python distribution from [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
 
 The changes can be reviewed in PR: [#2986](https://github.com/finos/common-domain-model/pull/2986)
