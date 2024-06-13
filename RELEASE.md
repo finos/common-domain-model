@@ -1,24 +1,16 @@
-# *Product Model - FpML Mapping Update*
-
-_Background_
-
-This release adds FpML mapping fixes and improvements that have been previously implemented in other models such as Digital Regulatory Reporting (DRR).
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-- FpML synonyms to map `EventInstruction` attributes `intent`, `eventDate` and `effectiveDate`
-- FpML synonyms to map `EconomicTerms` attribute `nonStandardisedTerms`
-- FpML synonyms to map `WorkflowState` attribute `workflowStatus`
-- FpML synonyms and mapper to map commodity schedule xml elements `calculationPeriodsSchedule` and `calculationPeriods` into `PriceSchedule->datedValue`
+This release updates the `bundle` dependency to version `11.10.0` to include the new version of the Python generator which includes the following changes:
 
-_Review Directions_
+- added support for model name clashes with Python keywords, soft keywords, and items whose names begin with "_"
+- added support for DSL operators `to-string` and `to-enum`
+- resolves the defect exposed by PR [#2766](https://github.com/finos/common-domain-model/pull/2766)
+- includes an update to the Python runtime library (2.1.0) used to encapsulate the Pydantic support 
 
-In Rosetta, select the Translate tab and review the following samples:
+_Review directions_
 
-- fpml-5-10 > processes > msg-cleared-alpha-trade-CFTC-SEC-and-canada.xml
-- fpml-5-10 > processes > msg-ex52-execution-advice-trade-partial-novation-C02-00.xml
-- fpml-5-10 > incomplete-processes > msg-ex60-execution-advice-trade-amendment-correction-F02-10.xml
-- fpml-5-13 > products > commodity-derivatives > com-mockup-ex1-strikePricePerUnitSchedule.xml
-- fpml-5-13 > products > commodity-derivatives > com-mockup-ex2-strikePricePerUnitSchedule.xml
+Download the latest Python distribution from the [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
 
-Changes can be reviewed in PR [#2983](https://github.com/finos/common-domain-model/pull/2983)
+The changes can be reviewed in PR: [#2984](https://github.com/finos/common-domain-model/pull/2984)
