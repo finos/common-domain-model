@@ -207,19 +207,18 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
     correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
 
     condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
-        if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
-        then (priceReturnTerms, dividendReturnTerms) only exists
-        else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
-        then priceReturnTerms only exists
-        else priceReturnTerms only exists
-            or dividendReturnTerms only exists
-            or varianceReturnTerms only exists
-            or volatilityReturnTerms only exists
-            or correlationReturnTerms only exists
+       if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+    then (priceReturnTerms, dividendReturnTerms) only exists
+    else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
+    then priceReturnTerms only exists
+    else priceReturnTerms only exists
+      or dividendReturnTerms only exists
+      or varianceReturnTerms only exists
+      or volatilityReturnTerms only exists
+      or correlationReturnTerms only exists
 
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products. The Performance Payout is either a straight return, or an aggregation of multiple returns, hence a required choice between returnTerms and multiple portfolioReturnTerms.">
     [metadata key]
-
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
     valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
@@ -227,11 +226,11 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
     returnTerms ReturnTerms (0..1) <"Specifies the type of return of a performance payout.">
     portfolioReturnTerms PortfolioReturnTerms (0..*) <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level">
-    initialValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    initialValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
         [metadata address "pointsTo"=PriceQuantity->price]
-    interimValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    interimValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
         [metadata address "pointsTo"=PriceQuantity->price]
-    finalValuationPrice PriceSchedule (0..1) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
         [metadata address "pointsTo"=PriceQuantity->price]
 
     condition PorfolioOrStraightReturn:
@@ -283,13 +282,13 @@ type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type o
 
  payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
- quantity NonNegativeQuantitySchedule (0..1 ) <"Notional quantity of the underlier that applies to each individual return leg.">
+ quantity NonNegativeQuantitySchedule (0..*) <"Notional quantity of the underlier that applies to each individual return leg.">
    [metadata address "pointsTo"=PriceQuantity->quantity]
- initialValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+ initialValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
- interimValuationPrice PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+ interimValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
- finalValuationPrice PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+ finalValuationPrice PriceSchedule (0..*) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
 
 type Payout: <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
@@ -377,7 +376,7 @@ type Basket extends ProductBase: <"Defines a custom basket by referencing a prod
     [deprecated] // will be replaced by portfolioBasketConstituent, to be consequently be renamed basketConstituent, also the one-of condition will be removed
     portfolioBasketConstituent BasketConstituent (0..*) <"Identifies the constituents of the basket">
 
-  condition: one-of
+  condition: required choice basketConstituent, portfolioBasketConstituent
 
 type BasketConstituent extends Product :<"Identifies the constituents of the basket">
  quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
