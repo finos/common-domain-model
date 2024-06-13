@@ -1,13 +1,16 @@
-# *Updates to the Python version of CDM*
-
-_Background_
-
-The current implementation of the Python version of CDM can be broken when Python restricted keywords are used in the CDM models. 
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-- A new Python generator that "mungs" Python keywords when encountered.
-- Support for two additional DSL operators (to-string, to-enum)
+This release updates the `bundle` dependency to version `11.10.0` to include the new version of the Python generator which includes the following changes:
 
-Depends on the completion of the [Code Generator PR #306](https://github.com/REGnosys/rosetta-code-generators/pull/306)
+- added support for model name clashes with Python keywords, soft keywords, and items whose names begin with "_"
+- added support for DSL operators `to-string` and `to-enum`
+- resolves the defect exposed by PR [#2766](https://github.com/finos/common-domain-model/pull/2766)
+- includes an update to the Python runtime library (2.1.0) used to encapsulate the Pydantic support 
 
+_Review directions_
+
+Download the latest Python distribution from the [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
+
+The changes can be reviewed in PR: [#2984](https://github.com/finos/common-domain-model/pull/2984)
