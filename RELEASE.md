@@ -1,4 +1,4 @@
-# *Product Model: Quantity Change For Existing Trade Lot*
+# *Product Model - Quantity Change For Existing Trade Lot*
 
 _Background_
 
