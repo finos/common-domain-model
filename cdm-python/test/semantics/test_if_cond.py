@@ -3,7 +3,7 @@ from rosetta.runtime.utils import ConditionViolationError
 from rosetta.runtime.utils import if_cond
 from cdm.base.math.QuantitySchedule import QuantitySchedule
 from cdm.base.math.UnitType import UnitType
-from rosetta.runtime.utils import _resolve_rosetta_attr
+
 
 def test_if_cond_literals():
     class T:

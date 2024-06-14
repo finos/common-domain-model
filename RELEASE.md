@@ -75,3 +75,20 @@ In Rosetta, select the Translate tab and review the following samples:
 - fpml-5-13 > products > commodity-derivatives > com-mockup-ex2-strikePricePerUnitSchedule.xml
 
 Changes can be reviewed in PR [#2982](https://github.com/finos/common-domain-model/pull/2982)
+
+# *CDM Distribution - Python Code Generation*
+
+_What is being released?_
+
+This release updates the `bundle` dependency to version `11.10.0` to include the new version of the Python generator which includes the following changes:
+
+- added support for model name clashes with Python keywords, soft keywords, and items whose names begin with "_"
+- added support for DSL operators `to-string` and `to-enum`
+- resolves the defect exposed by PR [#2766](https://github.com/finos/common-domain-model/pull/2766)
+- includes an update to the Python runtime library used to encapsulate the Pydantic support (now version 2.0.0)
+
+_Review directions_
+
+Download the latest Python distribution from [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
+
+The changes can be reviewed in PR: [#2986](https://github.com/finos/common-domain-model/pull/2986)

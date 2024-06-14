@@ -2,6 +2,7 @@
 import pathlib
 
 CDM_JSON_SAMPLE_SOURCE = str(pathlib.Path(pathlib.Path().parent.absolute(),
+                                          'rosetta-source',
                                           'src',
                                           'main',
                                           'resources',
