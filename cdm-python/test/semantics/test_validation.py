@@ -1,4 +1,6 @@
-# pylint: disable=missing-function-docstring,missing-module-docstring,invalid-name
+''' Tests related to validating models created on the fly or ingested from a
+    json file.
+'''
 import os
 import sys
 from datetime import date
@@ -17,12 +19,18 @@ from cdm.base.staticdata.party.CounterpartyRoleEnum import CounterpartyRoleEnum
 from cdm.base.staticdata.asset.common.Index import Index
 from cdm.base.staticdata.identifier.AssignedIdentifier import AssignedIdentifier
 from cdm.event.common.TradeState import TradeState
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)))
+
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)))
+# pylint:disable=wrong-import-position,import-error
 from test_helpers.config import CDM_JSON_SAMPLE_SOURCE
 
+
 def test_trade():
-    priceQuantity = PriceQuantity()
-    tradeLot = TradeLot(priceQuantity=[priceQuantity])
+    '''Constructs a simple Trade in memory and validates the model.'''
+    price_quantity = PriceQuantity()
+    trade_lot = TradeLot(priceQuantity=[price_quantity])
     product = Product(index=Index())
     counterparty = [
         Counterparty(role=CounterpartyRoleEnum.PARTY_1,
@@ -33,24 +41,31 @@ def test_trade():
             partyReference=Party(
                 partyId=[PartyIdentifier(identifier='Wile E. Coyote')]))
     ]
-    tradableProduct = TradableProduct(product=product,
-                                      tradeLot=[tradeLot],
+    tradable_product = TradableProduct(product=product,
+                                      tradeLot=[trade_lot],
                                       counterparty=counterparty)
-    assignedIdentifier = AssignedIdentifier(identifier='BIG DEAL!')
-    tradeIdentifier = [
+    assigned_identifier = AssignedIdentifier(identifier='BIG DEAL!')
+    trade_identifier = [
         TradeIdentifier(issuer='Acme Corp',
-                        assignedIdentifier=[assignedIdentifier])
+                        assignedIdentifier=[assigned_identifier])
     ]
 
     t = Trade(tradeDate=date(2023, 1, 1),
-              tradableProduct=tradableProduct,
-              tradeIdentifier=tradeIdentifier)
+              tradableProduct=tradable_product,
+              tradeIdentifier=trade_identifier)
     exceptions = t.validate_model(raise_exc=False)
     assert not exceptions
 
 
 def test_rates():
-    path = os.path.join(os.path.dirname(__file__), CDM_JSON_SAMPLE_SOURCE, 'rates', 'bond-option-uti.json')
+    ''' The below sample json is conform to CDM 5.8.0, the python library
+        generated for earlier or newer versions of CDM might fail to parse
+        it correctly.
+    '''
+    path = os.path.join(os.path.dirname(__file__), 
+                        CDM_JSON_SAMPLE_SOURCE,
+                        'rates', 
+                        'bond-option-uti.json')
     json_str = Path(path).read_text(encoding='utf8')
     ts = TradeState.model_validate_json(json_str)
     print(repr(ts))
@@ -62,7 +77,7 @@ def test_rates():
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     test_trade()
-    test_fx()
+    test_rates()
     print('Done!')
 
 # EOF
