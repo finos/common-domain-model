@@ -139,17 +139,16 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
     volatilityReturnTerms VolatilityReturnTerms (0..1) <"Return terms based upon the observed volatility of the underlier's price.">
     correlationReturnTerms CorrelationReturnTerms (0..1) <"Return terms based upon the observed correlation between the components of the underlying basket.">
 
-  condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
-    if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
-    then priceReturnTerms exists and dividendReturnTerms exists
-    else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
-    then dividendReturnTerms is absent
-
-  condition : <"All kinds of returns are excluding each other, except priceReturnTerms and dividendReturnTerms which may exist together. This condition is ensuring that priceReturnTerms cannot exist with other return types else than dividendReturnTerms.">
-  optional choice priceReturnTerms, varianceReturnTerms, volatilityReturnTerms, correlationReturnTerms
-
-  condition : <"All kinds of returns are excluding each other, except priceReturnTerms and dividendReturnTerms which may exist together. This condition is ensuring that dividendReturnTerms cannot exist with any other return types else than priceReturnTerms.">
-  optional choice dividendReturnTerms, varianceReturnTerms, volatilityReturnTerms, correlationReturnTerms
+    condition ReturnTermsExists: <"Checks that the return type label matches the actual return terms structure of the product.">
+        if priceReturnTerms -> returnType = ReturnTypeEnum -> Total
+        then (priceReturnTerms, dividendReturnTerms) only exists
+        else if priceReturnTerms -> returnType = ReturnTypeEnum -> Price
+        then priceReturnTerms only exists
+        else priceReturnTerms only exists
+            or dividendReturnTerms only exists
+            or varianceReturnTerms only exists
+            or volatilityReturnTerms only exists
+            or correlationReturnTerms only exists
 
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
@@ -161,11 +160,11 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
     returnTerms ReturnTerms (0..1) <"Specifies the type of return of a performance payout.">
     portfolioReturnTerms PortfolioReturnTerms (0..*) <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level">
-    initialValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    initialValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
-    interimValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    interimValuationPrice PriceSchedule (0..1) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
-    finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    finalValuationPrice PriceSchedule (0..1) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
 
     condition PorfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
