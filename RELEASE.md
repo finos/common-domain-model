@@ -5,7 +5,7 @@ _What is being released?_
 This release updates the `ingest-test-framework` and `DSL` dependency.
 
 Version updates include:
-- `ingest-test-framework` 11.10.3: Translate bug fix for long xml files
+- `ingest-test-framework` 11.10.3: Translate bug fix for long XML files
 - `DSL` 9.11.2: Fix syntax validation issue. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.11.2
 
 _Review directions_
