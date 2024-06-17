@@ -582,7 +582,7 @@ func EquityCashSettlementAmount:
 ``` Haskell
 func RateOfReturn:
    inputs:
-       initialPrice PriceSchedule (1..*)
+       initialPrice PriceSchedule (1..1)
        finalPrice PriceSchedule (1..1)
    output:
        rateOfReturn number (1..1)
