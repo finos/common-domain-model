@@ -693,12 +693,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "volatilityStrikePrice" mapper "PriceUnitType"]
             [value "correlationStrikePrice" mapper "PriceUnitType"]
             [value "fixedStrike" mapper "PriceUnitType"]
+            [value "value" mapper "PriceUnitType"]
         + unit
             [value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
             [value "quotedCurrencyPair"]
             [value "settlementAmount" path "nearLeg"]
             // For Commodity Swap Fixed Leg
             [hint "priceCurrency"]
+            [value "priceCurrency" path "fixedPriceStep"]
             [value "fixedPriceStep"]
         + perUnitOf
             [value "fxLinkedNotionalSchedule" set when "floatingRateCalculation->spreadSchedule" exists]
@@ -707,10 +709,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "amount"]
             // For Commodity Swap Fixed Leg
             [hint "priceUnit"]
+            [value "priceUnit" path "fixedPriceStep"]
             [value "fixedPriceStep"]
         + datedValue
             [value "step"]
-            [value "fixedPriceStep"]
+            [value "fixedPriceStep" mapper "PriceUnitType"]
+            [value "strikePricePerUnitStep" mapper "CommoditySchedules"]
         + priceType
             [set to PriceTypeEnum -> InterestRate when path = "fixedRateSchedule"]
             [set to PriceTypeEnum -> InterestRate when "fixedRate" exists]
@@ -735,9 +739,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to PriceTypeEnum -> ExchangeRate when path = "fxOption->strike"]
             // For Commodity Swaps
             [set to PriceTypeEnum -> CashPrice when path = "fixedLeg->fixedPrice"]
+            [set to PriceTypeEnum -> CashPrice when path = "fixedLeg->fixedPriceSchedule"]
             [set to PriceTypeEnum -> AssetPrice when path = "calculation->spread"]
             // For Commodity Option
             [set to PriceTypeEnum -> AssetPrice when "strikePricePerUnit->amount" exists]
+            [value "measureType"]
         + arithmeticOperator
             [set to ArithmeticOperationEnum -> Add when "spread" exists]
             [set to ArithmeticOperationEnum -> Add when "floatingRateCalculation->spread" exists]
@@ -1164,6 +1170,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "rate"]
             [hint "spread"]
             [hint "strikePricePerUnit"]
+            [value "strikePricePerUnitSchedule"]
             [hint "spotRate"]
         + strikeReference
             [value "strikeReference" meta "href"]
@@ -1816,6 +1823,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "varianceAmount"]
             [value "notionalAmount"]
             [value "notionalStep"]
+            [hint "quantityUnit"]
         + multiplier
             [hint "optionEntitlement"]
             [hint "entitlementCurrency"]
@@ -1828,6 +1836,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "step"]
             [value "notionalStep"]
             [value "period"]
+            [value "calculationPeriod" path "period"]
 
     Measure:
         // Only used to map quantity multiplier
@@ -1869,6 +1878,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + value
             [value "stepValue" maps 2]
             [value "quantity" set when path = "notionalStep"]
+            [value "amount" maps 2]
+            [value "price" maps 2]
 
     DividendCurrency:
         + currency
@@ -1981,7 +1992,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[meta "id" path "trade"]
         + trade
             [value "trade" mapper "Party"]
-            [hint "party" , "account" , "quote"]
+            [hint "party" , "account" , "quote", "partyTradeIdentifier"]
         + resetHistory
             [value "ignore"]
         + transferHistory
@@ -2015,6 +2026,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Trade:
         + tradeIdentifier
+            [value "partyTradeIdentifier"]
             [value "partyTradeIdentifier" path "tradeHeader"]
             [value "tradeHeader"]
         + tradeDate
@@ -2173,6 +2185,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "calculationAgentBusinessCenter"]
         + collateral
             [value "ignore"]
+        + nonStandardisedTerms
+            [set to True when "tradeHeader->partyTradeInformation->nonStandardTerms" = True]
+            [set to False when "tradeHeader->partyTradeInformation->nonStandardTerms" = False]
 
     GeneralTerms:
         + referenceInformation
@@ -2272,6 +2287,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + strike
 			[value "strike"]
 			[hint "strikePricePerUnit"]
+			[hint "strikePricePerUnitSchedule"]
 			[hint "spotRate"]
         + underlier
             [value "singleUnderlyer" path "underlyer" , "underlyer"]
@@ -2592,6 +2608,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVolatilitySwap"]
             [hint "fxVolatilitySwap"]
             [hint "genericProduct"]
+            [hint "tradeHeader"]
         + index
             [hint "index"]
         + loan

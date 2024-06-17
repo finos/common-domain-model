@@ -1,25 +1,16 @@
-# *Eligible Collateral Representation - New Attributes*
-
-_Background_
-
-Through the Collateral Working Group, members have requested two enhancements to the modelling of collateral eligibility to enhance the CDM's capability to support
-additional use cases:
-1. To support the scenario where a legacy collateral schedule has shared criteria for IM and VM, with selected terms applicable to only one single margin type
-2. To prioritise between Collateral Criteria where agency ratings are specified for both assets and issuers
+# *CDM Distribution - Python Code Generation*
 
 _What is being released?_
 
-- A new enumerator added to denote the different options available to identify how to prioritise the Agency Rating in a particular Issuer or Asset Criteria over
-  the Agency Rating in another Criteria: `RatingPriorityResolutionEnum`.
-- Two new attributes added to `CollateralCriteriaBase` to increase the specificity of the definition of the criteria in which collateral is eligible:
-    - `restrictTo` to denote whether the criteria applies to only IM or VM, using the existing enumerator `CollateralMarginTypeEnum`
-    - `ratingPriorityResolution` to denote whether the Issuer Criteria or Asset Criteria have precedence where there are multiple Agency Ratings defined,
-  using the new `RatingPriorityResolutionEnum` enumerator
+This release updates the `bundle` dependency to version `11.10.0` to include the new version of the Python generator which includes the following changes:
 
-Both new attributes are optional, with singular cardinality, so this is a backward-compatible change. 
+- added support for model name clashes with Python keywords, soft keywords, and items whose names begin with "_"
+- added support for DSL operators `to-string` and `to-enum`
+- resolves the defect exposed by PR [#2766](https://github.com/finos/common-domain-model/pull/2766)
+- includes an update to the Python runtime library (2.1.0) used to encapsulate the Pydantic support 
 
-_Review Directions_
+_Review directions_
 
-In Rosetta, open the contribution and view the changes listed above and inspect each of them.
+Download the latest Python distribution from the [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
 
-Changes can be reviewed in PR [#2960](https://github.com/finos/common-domain-model/pull/2960)
+The changes can be reviewed in PR: [#2984](https://github.com/finos/common-domain-model/pull/2984)
