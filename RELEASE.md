@@ -1,16 +1,24 @@
-# *CDM Distribution - Python Code Generation*
+# _Product Model - Fix for Portfolio Return Terms_
+
+_Background_
+
+The purpose of this update is to modify an existing condition relating to `Basket` which is causing unexpected behavior as well as a change in the cardinality required of `PerformancePayout` and `PortfolioReturnTerms`.
 
 _What is being released?_
 
-This release updates the `bundle` dependency to version `11.10.0` to include the new version of the Python generator which includes the following changes:
+- Condition attached to `Basket` has been updated to `required choice basketConstituent, portfolioBasketConstituent` instead of previous condition: `one-of`.
+- Cardinality of `PerformancePayout` attributes has been updated to `(0..*)` instead of `(0..1)` :
+    - initialValuationPrice,
+    - interimValuationPrice
+    - finalValuationPrice
+- Cardinality of `PortfolioReturnTerms` attributes has been updated to `(0..*)` instead of `(0..1)` :
+    - quantity
+    - initialValuationPrice
+    - interimValuationPrice
+    - finalValuationPrice
 
-- added support for model name clashes with Python keywords, soft keywords, and items whose names begin with "_"
-- added support for DSL operators `to-string` and `to-enum`
-- resolves the defect exposed by PR [#2766](https://github.com/finos/common-domain-model/pull/2766)
-- includes an update to the Python runtime library (2.1.0) used to encapsulate the Pydantic support 
+_Review Directions_
 
-_Review directions_
+In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
 
-Download the latest Python distribution from the [Maven Central](https://central.sonatype.com/artifact/org.finos.cdm/cdm-python)
-
-The changes can be reviewed in PR: [#2984](https://github.com/finos/common-domain-model/pull/2984)
+Changes can be reviewed in PR [#2974](https://github.com/finos/common-domain-model/pull/2974)
