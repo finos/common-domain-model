@@ -9,8 +9,19 @@ import cdm.base.staticdata.identifier.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
+choice Asset:  <"An Asset is defined something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the  attributes must be used. Cash: An Asset that consists solely of a monetary holding in a currency. Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat. DigitalAsset An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets. Instrument: An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
+    Cash
+    Commodity
+    DigitalAsset
+    Instrument
+
 type AssetBase:  <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (0..*)  <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+    cfiCode Taxonomy (0..1) <"Indicates the type of Instrument using ISO 10962 standard, Classification of Financial Instruments (CFI code) values. ISO 10962 is maintained by ANNA (Association of National Numbering Agencies) acting as Registration Authority.">
+    
+    condition CfiSource:  <"If CFI Code is used then the Taxonomy Source should be set.">
+        if cfiCode exists
+        then cfiCode -> source = TaxonomySourceEnum -> CFI
 
 type AssetIdentifier:  <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1)  <"The identifier value.">
@@ -19,15 +30,17 @@ type AssetIdentifier:  <"The unique identifier for an Asset, specified using an 
 
 type InstrumentBase extends AssetBase:  <"Defines the common attributes for all Instrument data types.">
 	isExchangeListed boolean (1..1)  <"Defines whether the Instrument is listed on a public exchange.">
-    exchange string (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
-        [metadata scheme]
-    cfiCode string (0..1) <"Indicates the type of Instrument using ISO 10962 standard, Classification of Financial Instruments (CFI code) values. ISO 10962 is maintained by ANNA (Association of National Numbering Agencies) acting as Registration Authority.">
-        [metadata scheme]
-
+    exchange LegalEntity (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
+            
     condition ExchangeListed:  <"An exchange must be specified for exchange-listed Instruments.">
         if isExchangeListed
         then exchange exists
         else exchange is absent
+
+choice Instrument:  <"A type of Asset that is issued by one party to one or more others. ListedDerivative: A securitized derivative on another asset that is created by an exchange. Loan: An Asset that represents a loan or borrow obligation. Security: An Asset that is issued by a party to be held by or transferred to others.">
+    ListedDerivative 
+    Loan
+    Security
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
@@ -162,9 +175,9 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
 
 type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
-    exerciseTerms ExerciseTerms (1..1) <"Specifically the ExerciseDate.">
-    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
-    strike OptionStrike (0..1) <"Specifies the strike of the option.">
+    expiration string (1..1) <"The Expiration Date of the contract, expressed using the same symbology as the contract identifier.">
+    optionType string (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future, also following the identifier symbology.">
+    strike string (0..1) <"Specifies the strike of the option, using the identifier symbology.">
 
     condition Options:  <"Options must have a strike price.">
         if optionType exists
