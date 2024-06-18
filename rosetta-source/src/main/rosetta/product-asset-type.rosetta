@@ -151,6 +151,13 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
     fixedAmount calculation (0..1) <"Fixed Amount Calculation">
     floatingAmount calculation (0..1) <"Floating Amount Calculation">
     spreadCalculationMethod SpreadCalculationMethodEnum (0..1) <"Method by which spread is calculated. For example on an asset swap: 'ParPar' or 'Proceeds' may be the method indicated.">
+    bespokePayoutFormula NewBespokePayoutFormula (0..1) <"A set of generic and composable features, optionally defined for the purpose of further describing the Payout terms at granular level, by emulating a 'payout algebra' inside the Product model, based on the business interpretation of [Payout] as the set of terms which permit to define [Payout Amount = Quantity x Payout Formula] where [Quantity] is represented with payout->priceQuantity->quantity and [Payout Formula] is presented with payout->bespokePayoutFormula. For consistency purposes, such generic structure shall be restricted in accordance with the Payout Formula terms which are necessary and sufficient to qualify only for the type of Payout at stake."> // related condition to specify this when applied to interestRatePayout remains to be considered ; we may define further specific condition later in time based on new Rune operator, not yet available : [ ->> ] for nested access of attributes e.g. baseValue ->> priceTypeEnum->InterestRate, etc. to ensure minimum expected components are present at some point in any representation paths
+    observationTerms ObservationTerms (0..1)
+    valuationDates ValuationDates (0..1)
+
+    condition BespokePayoutFormulaRequiresObservationTerms:
+        if bespokePayoutFormula exists
+        then observationTerms exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -482,6 +489,13 @@ type PriceReturnTerms:
     returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
     conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
     performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+    bespokePayoutFormula NewBespokePayoutFormula (0..1) <"A set of generic and composable features, optionally defined for the purpose of further describing the Payout terms at granular level, by emulating a 'payout algebra' inside the Product model, based on the business interpretation of [Payout] as the set of terms which permit to define [Payout Amount = Quantity x Payout Formula] where [Quantity] is represented with payout->priceQuantity->quantity and [Payout Formula] is presented with payout->bespokePayoutFormula. For consistency purposes, such generic structure shall be restricted in accordance with the Payout Formula terms which are necessary and sufficient to qualify only for the type of Payout at stake. When applying to priceReturnTerms, this means [bespokePayoutFormula] shall contain a ratio i.e. [fractionalValue]. That is enforced with the condition below PriceReturnBespokePayoutFormula.">
+
+    condition PriceReturnBespokePayoutFormula: <"The root object of the BespokePayoutFormula shall be restricted in accordance with the core formula of the Payout type it is describing, which for a priceReturnPayout is either straight at source i.e. [ fractionalValue ] or via [ differentialValue ] on at least one of the legs.">
+        if bespokePayoutFormula exists
+        then bespokePayoutFormula -> fractionalValue exists
+        or bespokePayoutFormula -> differentialValue -> long -> fractionalValue exists
+        or bespokePayoutFormula -> differentialValue -> short -> fractionalValue exists
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
 
@@ -495,6 +509,11 @@ type ReturnTermsBase: <"Contains all common elements in variance, volatility and
     initialLevelSource DeterminationMethodEnum (0..1) <"In this context, this is AgreedInitialPrice - a specified Initial Index Level.">
     meanAdjustment boolean (0..1) <"Specifies whether Mean Adjustment is applicable or not in the calculation of the Realized Volatility, Variance or Correlation">
     performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+    bespokePayoutFormula NewBespokePayoutFormula (0..1) <"A set of generic and composable features, optionally defined for the purpose of further describing the Payout terms at granular level, by emulating a 'payout algebra' inside the Product model, based on the business interpretation of [Payout] as the set of terms which permit to define [Payout Amount = Quantity x Payout Formula] where [Quantity] is represented with payout->priceQuantity->quantity and [Payout Formula] is presented with payout->bespokePayoutFormula. For consistency purposes, such generic structure shall be restricted in accordance with the Payout Formula terms which are necessary and sufficient to qualify only for the type of Payout at stake. When applying to either volatiltyReturnTerms, varianceReturnTerms or correlationReturnTerms, this means [bespokePayoutFormula] shall contain a differential value to start the description withi.e. [differentialValue]  say for instance to represent 'Forward Realized Volatility minus Volatility Strike', etc. That is enforced with the respective conditions below : ReturnBaseBespokePayoutFormula."> // we may define further specific condition later in time at each payout node e.g. VolatilityReturnBespokePayoutFormula, VarianceReturnBespokePayoutFormula and CorrelationReturnBespokePayoutFormula based on new Rune operator, not yet available : [ ->> ] for nested access of attributes e.g. differentialValue ->> fractionalValue ->> algebraicOperator, etc. to ensure minimum expected components are present at some point in any representation paths
+   
+    condition ReturnBaseBespokePayoutFormula: <"The root object of the BespokePayoutFormula shall be restricted in accordance with the core formula of the Payout type it is describing, which for a volatilityReturnPayout is [differentialValue]."> 
+        if bespokePayoutFormula exists
+        then bespokePayoutFormula -> differentialValue exists
 
     condition InitialLevelOrInitialLevelSource: <"At least one of initialLevel and initialLevelSource must be present, or both">
         if initialLevel is absent
@@ -756,3 +775,28 @@ type FixedAmountCalculationDetails: <"Type for reporting the detailed results of
     fixedRate number (1..1) <"The value of the fixed rate that was used.">
     yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
     calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
+
+type NewBaseValue: <"The unique input end-value at the leave of the path tree built by any combination from the root CorePayoutValue level, with an optional choice between (a) observable value and (b) fixed value. As an information, [metadata address] notably permits to update these terms which belongs to Payout root via primitiveInstruction such as quantityChange or any other ones where corresponding items would be defined with the relevant [metadata location] for the purpose of resulting in such update.
+    (a) When the value is an observable one, meaning the numerical value is not ye known, then it is required to specify observablePriceObservable that is of type Observable. At some point, when observation happens thus numerical value is known at some point of the LifeCycle per processing based on Payout terms, then observablePriceObservation may be populated in type PriceSchedule.
+    (b) When the numerical value is already fixed upfront to any processing based on Payout terms, then it is either fixedPrice of type PriceSchedule, else it is a quantity of type QuantitySchedule (for instance when used to define trigger level value that is an amount rather than a price, else when used to define a multipler value, etc.).">
+
+    fixedPrice PriceSchedule (0..1) <"Define a given Price, that is either single value or multiple value in datedValue series. This is a numerical value already fixed upfront to any LifeCycle Event processing based on Payout terms.">
+        [metadata address]
+    observablePrice NewObservable_TEMPORARY (0..1) <"Define the Observable of which the Price shall be observed at some point of the LifeCycle Event processing based on Payout terms, in accordance with related Observation Terms.">
+        [metadata address]
+    priceObservation PriceSchedule (0..1) <"Record the numerical value of the Price effectively observed for the Observable defined in observablePrice attribute.">
+        [metadata address]
+    quantity QuantitySchedule (0..1) <"Define a given Quantity, that is either single value or multiple value in datedValue series. This is a numerical value already fixed upfront to any LifeCycle Event processing based on Payout terms.">
+        [metadata address]
+
+  condition ObservationIsDatedValue: <"DatedValue must be used for the purpose of defining the date of ghe observation together with related value.">
+  if priceObservation exists 
+  then priceObservation ->datedValue exists
+
+  condition ValueIsObservablePriceOrFixedPriceOrQuantity: 
+  required choice fixedPrice, observablePrice, quantity
+
+  condition Observable: <"An observation must relate to an observable value (there shall be no observation associated with a fixedPrice, since related values are already known).">
+  if priceObservation exists
+  then observablePrice exists
+
