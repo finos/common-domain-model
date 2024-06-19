@@ -45,11 +45,6 @@ module.exports = {
           "position": "right",
           "items": [
               {
-                "label": "6.0.0-dev.53",
-                "to": "/docs/home",
-                 "activeBaseRegex": "docs/(?!6.0.0-dev.52|next)"
-              },
-              {
                 "label": "6.0.0-dev.52",
                 "to": "/docs/6.0.0-dev.52/home"
               }
