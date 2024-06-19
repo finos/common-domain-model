@@ -182,7 +182,6 @@ type InitialMarginCalculation: <" Defines the initial margin calculation applica
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
-    // commodityReturnTerms CommodityPriceReturnTerms (0..1)
     priceReturnTerms PriceReturnTerms (0..1) <"Return terms based upon the underlier's observed price.">
     dividendReturnTerms DividendReturnTerms (0..1) <"Return terms based upon dividend payments associated to the underlier.">
     varianceReturnTerms VarianceReturnTerms (0..1) <"Return terms based upon the observed variance of the underlier's price.">
@@ -208,7 +207,25 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
     underlier Product (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
-    returnTerms ReturnTerms (1..1) <"Specifies the type of return of a performance payout.">
+    returnTerms ReturnTerms (0..1) <"Specifies the type of return of a performance payout.">
+    portfolioReturnTerms PortfolioReturnTerms (0..*) <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level">
+    initialValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+    interimValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+    finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+
+    condition PorfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
+    required choice returnTerms, portfolioReturnTerms
+
+    condition PortofolioReturnIsMultipleReturns: <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
+    if portfolioReturnTerms exists
+    then portfolioReturnTerms count > 1
+
+    condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
+    if portfolioReturnTerms -> priceReturnTerms exists
+    then underlier -> basket only exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -243,6 +260,21 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 // underlier exists
 // or
 // ObservationTerms -> observable exists
+
+type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level.">
+    [metadata key]
+    
+  payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
+  underlier Product (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+  quantity NonNegativeQuantitySchedule (0..1 ) <"Specifies a quantity schedule for the underlier, which applies to each individual return leg.">
+   [metadata address "pointsTo"=PriceQuantity->quantity]
+  initialValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+   [metadata address "pointsTo"=PriceQuantity->price]
+  interimValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+   [metadata address "pointsTo"=PriceQuantity->price]
+  finalValuationPrice PriceSchedule (0..*) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+   [metadata address "pointsTo"=PriceQuantity->price]
+
 type Payout: <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
 
@@ -324,7 +356,17 @@ type Product: <"Defines the product that is the subject of a tradable product de
         one-of
 
 type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
-    basketConstituent Product (1..*) <"Identifies the constituents of the basket">
+  basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+
+type BasketConstituent extends Product :<"Identifies the constituents of the basket">
+quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
+ [metadata address "pointsTo"=PriceQuantity->quantity]
+initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+ [metadata address "pointsTo"=PriceQuantity->price]
+interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+ [metadata address "pointsTo"=PriceQuantity->price]
+finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+ [metadata address "pointsTo"=PriceQuantity->price]
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">

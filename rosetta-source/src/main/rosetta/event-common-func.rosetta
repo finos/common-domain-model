@@ -1,3 +1,4 @@
+
 namespace cdm.event.common: <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
@@ -213,12 +214,12 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 
     alias adjustedFinalValuationDate:
         ResolveAdjustableDate(
-                payout -> valuationDates -> valuationDatesFinal -> valuationDate
+                payout -> valuationDates -> finalValuationDate -> valuationDate
             )
     alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
         if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> valuationDatesInterim
-        else payout -> valuationDates -> valuationDatesFinal
+        then payout -> valuationDates -> interimValuationDate
+        else payout -> valuationDates -> finalValuationDate
     add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
         payout -> underlier -> security -> productIdentifier
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
@@ -243,9 +244,9 @@ func AdjustedValuationDates:
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
             ResolveAdjustableDates(
-                    valuationDates -> valuationDatesInterim -> valuationDates
+                    valuationDates -> interimValuationDate -> valuationDates
                 ),
-            ResolveAdjustableDate(valuationDates -> valuationDatesFinal -> valuationDate)
+            ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
 
