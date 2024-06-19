@@ -39,12 +39,22 @@ module.exports = {
           label: 'GitHub',
           position: 'right',
         },
-         {
-                  type: 'docsVersionDropdown',
-                  position: 'left',
-                  dropdownItemsAfter: [{to: '/versions', label: 'Versions'}],
-                  dropdownActiveClassDisabled: true,
-                },
+        {
+          "label": "Version",
+          "to": "/versions",
+          "position": "right",
+          "items": [
+              {
+                "label": "6.0.0-dev.53",
+                "to": "/docs/home",
+                 "activeBaseRegex": "docs/(?!6.0.0-dev.52|next)"
+              },
+              {
+                "label": "6.0.0-dev.52",
+                "to": "/docs/6.0.0-dev.52/home"
+              }
+          ]
+        }
       ],
     },
     footer: {
