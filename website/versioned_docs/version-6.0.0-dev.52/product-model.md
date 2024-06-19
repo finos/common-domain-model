@@ -891,7 +891,7 @@ Code libraries, written in Java and distributed with the CDM, contain
 tools to merge CDM objects together. Implementors may extend these
 merging tools to change the merging strategy to suit their requirements.
 The CDM Java Examples download, available via the [CDM Portal Downloads
-page](https://cdm.finos.org/docs/download/), contains a example demonstrating usage of a data template and
+page](https://cdm.finos.org/docs/6.0.0-dev.52/download/), contains a example demonstrating usage of a data template and
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 

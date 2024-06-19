@@ -5,13 +5,13 @@ title: The Common Domain Model
 **There are seven modelling dimensions** to the CDM, which are detailed
 in the following sections:
 
-- [product-model](/docs/product-model) 
-- [event-model](/docs/event-model) 
-- [legal-agreements](/docs/legal-agreements)
-- [process-model](/docs/process-model)
-- [reference-data-model](/docs/reference-data-model) 
-- [mapping](/docs/mapping)
-- [namespace](/docs/namespace)
+- [product-model](/docs/6.0.0-dev.51/product-model) 
+- [event-model](/docs/6.0.0-dev.51/event-model) 
+- [legal-agreements](/docs/6.0.0-dev.51/legal-agreements)
+- [process-model](/docs/6.0.0-dev.51/process-model)
+- [reference-data-model](/docs/6.0.0-dev.51/reference-data-model) 
+- [mapping](/docs/6.0.0-dev.51/mapping)
+- [namespace](/docs/6.0.0-dev.51/namespace)
 
 
 In each section, selected examples of model definitions are used as

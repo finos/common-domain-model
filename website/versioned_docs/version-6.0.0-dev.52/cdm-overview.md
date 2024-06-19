@@ -4,7 +4,7 @@ title: Overview of the FINOS CDM
 
 **Continuous Integration:** 
 
-[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/6.0.0-dev.52/governance/Software-Projects/stages/incubating)
 
 [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
@@ -96,7 +96,7 @@ The FINOS CDM distribution comprises three main sets of components:
     the Rosetta DSL and contained into a set of *.rosetta* files
     organised as *namespaces*. The primary dimensions of the model are
     listed below and further described in the
-    [common-domain-model](/docs/common-domain-model) of the
+    [common-domain-model](/docs/6.0.0-dev.52/common-domain-model) of the
     documentation.
     -   Product
     -   Event
@@ -185,4 +185,4 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
+[CDM Java Distribution Guidelines](/docs/6.0.0-dev.52/cdm-guidelines).

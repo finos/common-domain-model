@@ -4,16 +4,16 @@ title: Development Guidelines
 
 # Governance
 
-The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/6.0.0-dev.52/governance/Standards-Projects), starting in February 2023.
 
-The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
+The standard is developed through the [Community Specification](https://community.finos.org/docs/6.0.0-dev.52/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM [design-principles](/docs/cdm-overview#design-principles) and
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
+CDM [design-principles](/docs/6.0.0-dev.52/cdm-overview#design-principles) and
+[agile-development-approach](/docs/6.0.0-dev.52/cdm-overview#agile-development-approach) and submitted
 to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
@@ -602,14 +602,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and
-    [governance](/docs/cdm-overview#governance)
+-   Review the [design-principles](/docs/6.0.0-dev.52/cdm-overview#design-principles) and
+    [governance](/docs/6.0.0-dev.52/cdm-overview#governance)
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and follows
+[agile-development-approach](/docs/6.0.0-dev.52/cdm-overview#agile-development-approach) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -727,7 +727,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the [namespace-documentation](/docs/namespace) section for more details.
+Please refer to the [namespace-documentation](/docs/6.0.0-dev.52/namespace) section for more details.
 
 ### Descriptions
 
@@ -1012,7 +1012,7 @@ release notes), they will be specified as such.
 
 The model should be referred to as *the CDM*, without any ownership
 mention. The only exception is the [Overview of the FINOS
-CDM](/docs/cdm-overview) section at the beginning of the user
+CDM](/docs/6.0.0-dev.52/cdm-overview) section at the beginning of the user
 documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
@@ -1032,13 +1032,13 @@ The two data definition components should be referred to as follows:
 ### Product
 
 1.  *Financial Product*. The user documentation defines
-    [financial-product](/docs/product-model#financial-product) as the highest
+    [financial-product](/docs/6.0.0-dev.52/product-model#financial-product) as the highest
     level of the hierarchy of the universe of products. The term
     *Financial Product* should be used consistently throughout the
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    [contractual-product](/docs/product-model#contractual-product) is defined as a
+    [contractual-product](/docs/6.0.0-dev.52/product-model#contractual-product) is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
@@ -1048,13 +1048,13 @@ The two data definition components should be referred to as follows:
 
 ### Event
 
-1.  *Business Event*. In the CDM, a [business-event](/docs/event-model#business-event) represents an event that may occur during the lifecycle
+1.  *Business Event*. In the CDM, a [business-event](/docs/6.0.0-dev.52/event-model#business-event) represents an event that may occur during the lifecycle
     of a trade, such as an amendment, a termination, a reset or a
     payment.
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model#primitive-event) represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/6.0.0-dev.52/event-model#primitive-event) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
@@ -1169,10 +1169,10 @@ Another non-compliant example:
 
 | Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                          Section Example |
 |:--------------|:----------------------------------:|--------------------------------------:|---------------------------------------------------------:|
-| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](/docs/common-domain-model) |
-| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](/docs/product-model),<br/>[legal-agreements-page](/docs/legal-agreements) |
-| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](/docs/product-model#tradable-product) |
-| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/product-model#price-quantity) |
+| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](/docs/6.0.0-dev.52/common-domain-model) |
+| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](/docs/6.0.0-dev.52/product-model),<br/>[legal-agreements-page](/docs/6.0.0-dev.52/legal-agreements) |
+| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](/docs/6.0.0-dev.52/product-model#tradable-product) |
+| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](/docs/6.0.0-dev.52/product-model#price-quantity) |
 :Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
