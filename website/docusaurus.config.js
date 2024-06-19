@@ -46,18 +46,15 @@ module.exports = {
           "items": [
               {
                 "label": "6.0.0-dev.52",
-                "to": "/docs/home",
-                "activeBaseRegex": "docs/(?!6.0.0-dev.52|home)"
+                "to": "/docs/6.0.0-dev.52/home"
               },
               {
                 "label": "6.0.0-dev.51",
-                "to": "/docs/home",
-                "activeBaseRegex": "docs/(?!6.0.0-dev.51|home)"
+                "to": "/docs/6.0.0-dev.51/home"
               },
               {
                 "label": "6.0.0-dev.50",
-                "to": "/docs/home",
-                "activeBaseRegex": "docs/(?!6.0.0-dev.50|home)"
+                "to": "/docs/6.0.0-dev.50/home"
               }
           ]
         }
