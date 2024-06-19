@@ -38,6 +38,23 @@ module.exports = {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
+        },
+        {
+          "label": "Version",
+          "to": "docs",
+          "position": "right",
+          "items": [
+              {
+                "label": "6.0.0-dev.52",
+                "to": "docs/",
+                "activeBaseRegex": "docs/(?!6.0.0-dev.52|next)"
+              },
+              {
+                "label": "Main/Unreleased",
+                "to": "docs/home/",
+                "activeBaseRegex": "docs/home"
+              }
+          ]
         }
       ],
     },
@@ -155,6 +172,13 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
+        lastVersion: 'current',
+              versions: {
+                current: {
+                  label: '1.0.0',
+                  path: '1.0.0',
+                },
+              },
           path: '../docs',
           editUrl:
             'https://github.com/finos/common-domain-model/edit/master/website/',
