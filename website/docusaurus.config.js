@@ -172,13 +172,6 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-        lastVersion: 'current',
-              versions: {
-                current: {
-                  label: '1.0.0',
-                  path: '1.0.0',
-                },
-              },
           path: '../docs',
           editUrl:
             'https://github.com/finos/common-domain-model/edit/master/website/',
