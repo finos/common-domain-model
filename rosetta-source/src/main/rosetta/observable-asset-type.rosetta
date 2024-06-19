@@ -200,6 +200,15 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
     condition ObservableChoice: <"An observable can only be composed of one type any time.">
         required choice rateOption, commodity, productIdentifier, currencyPair
 
+type NewObservable_TEMPORARY: <"...."> // no need after TaskForce PR release, that is temporary object
+    [metadata key]
+
+    rateOption FloatingRateOption (0..*) <"...">
+    [metadata address]
+    currencyPair QuotedCurrencyPair (0..*) <"...">
+    [metadata address]
+    product cdm.product.template.Product (0..1) <"...">
+
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
     sourceProvider InformationProviderEnum (1..1) <"An information source for obtaining a market data point. For example Bloomberg, Reuters, Telerate, etc.">
@@ -290,11 +299,14 @@ type ValuationDates: <"Defines how and when a performance type option or perform
     valuationDatesInitial PerformanceValuationDates (0..1) <"Specifies the initial valuation dates of the underlier.">
     valuationDatesInterim PerformanceValuationDates (0..1) <"Specifies the interim valuation dates of the underlier.">
     valuationDatesFinal PerformanceValuationDates (1..1) <"Specifies the final valuation dates of the underlier.">
+    determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
+    valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
+    valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
 
 type PerformanceValuationDates: <"Defines how and when a performance type option or performance type swap is to be valued.">
     [metadata key]
 
-    determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
+    determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
     valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
     valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
     valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
@@ -501,15 +513,8 @@ type DividendApplicability: <"The parameters which define whether dividends are 
 type NewObservationCount: <"Specifies the terms relative to a value that is an integer number of observations.">
     observationValueType NewObservationCountEnum (1..1) <"The type of value which observation shall be counted.">
     observationCountOffset number (0..1) <"An offset value to adjust the Observation Count.">
-    dayCountFraction cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated.">
-
-    condition DayCountFraction:
-    if observationValueType = NewObservationCountEnum -> DayCountFraction
-    then dayCountFraction exists 
-    and observationCountOffset is absent
-    else dayCountFraction is absent
 
 type NewBespokeName :<"Any bespoke name or description that may be specified.">
     name string (1..1) <"Bespoke name">

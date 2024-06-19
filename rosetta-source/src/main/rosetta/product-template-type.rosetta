@@ -114,6 +114,8 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     bespokePayoutFormula NewBespokePayoutFormula (0..1) <"A set of generic and composable features, optionally defined for the purpose of further describing the Payout terms at granular level, by emulating a 'payout algebra' inside the Product model, based on the business interpretation of [Payout] as the set of terms which permit to define [Payout Amount = Quantity x Payout Formula] where [Quantity] is represented with payout->priceQuantity->quantity and [Payout Formula] is presented with payout->bespokePayoutFormula. For consistency purposes, such generic structure shall be restricted in accordance with the Payout Formula terms which are necessary and sufficient to qualify only for the type of Payout at stake. When applying to optionPayout, this means [bespokePayoutFormula] shall be restricted to [ max (0 ; differentialValue) ]. That is enforced with the condition below OptionBespokePayoutFormula.">
+    paymentDates PaymentDates (0..1)
+    valuationDates ValuationDates (0..1)
 
     condition OptionBespokePayoutFormula: <"The root object of the BespokePayoutFormula shall be restricted in accordance with the core formula of the Payout type it is describing, which for an optionPayout is [ max (0 ; differentialValue) ].">
         if bespokePayoutFormula exists
@@ -510,10 +512,12 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     bespokePayoutFormula NewBespokePayoutFormula (0..1) <"A set of generic and composable features, optionally defined for the purpose of further describing the Payout terms at granular level, by emulating a 'payout algebra' inside the Product model, based on the business interpretation of [Payout] as the set of terms which permit to define [Payout Amount = Quantity x Payout Formula] where [Quantity] is represented with payout->priceQuantity->quantity and [Payout Formula] is presented with payout->bespokePayoutFormula. For consistency purposes, such generic structure shall be restricted in accordance with the Payout Formula terms which are necessary and sufficient to qualify only for the type of Payout at stake. When applying to forwardPayout, this means [bespokePayoutFormula] shall be restricted to either straight value if based on a stand-alone payout leg i.e. [ primitiveValue ] or to value difference if based on two payout legs in opposite directions i.e. [ differentialValue ]. That is enforced with the condition below OptionBespokePayoutFormula.">
     observationTerms ObservationTerms (0..1)
+    paymentDates PaymentDates (0..1)
+    valuationDates ValuationDates (0..1)
 
     condition ForwardBespokePayoutFormula: <"The root object of the BespokePayoutFormula shall be restricted in accordance with the core formula of the Payout type it is describing, which for a forwardPayout is either straight value if based on a stand-alone payout leg i.e. [ primitiveValue ] or to value difference if based on two payout legs in opposite directions i.e. [ differentialValue ].">
         if bespokePayoutFormula exists
-        then bespokePayoutFormula -> fractionalValue is absent
+        then bespokePayoutFormula -> differentialValue only exists
 
     condition BespokePayoutFormulaRequiresObservationTerms:
         if bespokePayoutFormula exists
@@ -533,9 +537,9 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
                     and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
                     and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate = underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate)
 
-    condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-        if underlier -> foreignExchange exists
-        then settlementTerms -> physicalSettlementTerms is absent
+ //   condition FxSettlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
+   //     if underlier -> foreignExchange exists
+     //   then settlementTerms -> physicalSettlementTerms is absent
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
@@ -800,8 +804,8 @@ type TerminationProvision: <"A class for defining option provisions.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
     extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
-    autocallableProvision NewAutocallableProvision (0..1)
-    callableProvision NewCallableProvision (0..1)
+    autocallableProvision NewAutocallableProvision (0..1) <"Specifies that the existence of the Trade is contigent i.e. the Trade exists unless an embedded Knock-Out condition is activated, that resulting in the Trade being early terminated.">
+    callableProvision NewCallableProvision (0..1) <"Describes the conditions according to which a party has a right to call the whole Trade, meaning such party may optionally decide to early terminate the Trade.">
 
     condition TerminationProvisionChoice:
         required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
@@ -1061,17 +1065,24 @@ type NewBespokePayoutFormula extends NewCorePayoutValue: <"The generic set of co
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated e.g. output from valueOperator or aggregationOperator.">
         [metadata reference]
 
-    condition AggregationExistsWhenMultiplePrimitiveValueExist:
+    condition AggregationExistsWhenMultiplePrimitiveValueExist: <"Whenever multiple instances exist, the aggregation method must be defined.">
         if primitiveValue count > 1 or differentialValue count > 1 or fractionalValue count > 1
-        then valueAggregation exists
+        or (primitiveValue exists and differentialValue exists)
+        or (primitiveValue exists and fractionalValue exists)
+        or (differentialValue exists and fractionalValue exists)
+        then valueAggregation -> aggregationMethod -> valueSeriesAggregation exists
 
 type NewCorePayoutValue: <"A set of three atomic root functional operations, composable within each others : one represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable) and two represent non-commutative operations, respectively a substraction [ F(X,Y)=X-Y ] and a division [ F(X,Y)=X/Y) ].">
 
     primitiveValue NewPrimitiveValue (0..*) <"Represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable)">
+        [metadata reference]
     differentialValue NewDifferentialValue (0..*) <"Represents a substraction i.e. the funtional operation [ F(X,Y) = X - Y ] where : [X] designates a root payout component with positive arithmetic sign, which based on usual business convention is referred to as the 'long' term and [Y] designates a root payout component with a negative arithmetic sign, which based on usual business convention is referred to as the 'short' term of the substractive operation.">
+        [metadata reference]
     fractionalValue NewFractionalValue (0..*) <"Represents a division i.e. the funtional operation [ F(X,Y) = X / Y ] where : [X] designates a root payout component which is the numerator and [Y] designates a root payout component which is the denominator of the fractional operation.">
+        [metadata reference]
 
 type NewDifferentialValue: <"Represents a substraction i.e. the funtional operation [ F(X,Y) = X - Y ] where : [X] designates a root payout component with positive arithmetic sign, which based on usual business convention is referred to as the 'long' term and [Y] designates a root payout component with a negative arithmetic sign, which based on usual business convention is referred to as the 'short' term of the substractive operation.">
+        [metadata key]
 
     long NewLongOperator (1..1) <"The root node for defining the value which arithmetic sign is positive in a substractive operation, that is to say this is the anchor value that is decreased as as result of the substraction.">
     short NewShortOperator (1..1) <"The root node for defining the value which arithmetic sign is negative in a substractive operation, that is to say this is the operand value that is substracted to the anchor one.">
@@ -1081,6 +1092,7 @@ type NewDifferentialValue: <"Represents a substraction i.e. the funtional operat
         [metadata reference]
 
 type NewFractionalValue: <"Represents a division i.e. the funtional operation [ F(X,Y) = X / Y ] where : [X] designates a root payout component which is the numerator and [Y] designates a root payout component which is the denominator of the fractional operation.">
+        [metadata key]
 
     numerator NewNumeratorOperator (1..1) <"The root node for defining a value which represents the numerator of a fractional operation.">
     denominator NewDenominatorOperator (1..1) <"The root node for defining a value which represents the denominator of a fractional operation.">
@@ -1098,13 +1110,23 @@ type NewNumeratorOperator extends NewBespokePayoutFormula: <"The root node for d
 type NewDenominatorOperator extends NewBespokePayoutFormula: <"The root node for defining a value which represents the denominator of a fractional operation.">
 
 type NewPrimitiveValue: <"Represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable)">
-    baseValue NewBaseValue (1..1) <"The input of any operations represented within the root bespokePayoutFormula, with an optional choice for type with end-value : either PriceSchedule or QuantitySchedule. That is a unique value at the leave of the path tree built by any combination from the root CorePayoutValue level. This value is ultimately numerical at some point of the LifeCycle Event that represents the actual execution of the Payout terms.">
+        [metadata key]
+        
+    baseValue NewBaseValue (1..*) <"The input of any operations represented within the root bespokePayoutFormula, with an optional choice for type with end-value : either PriceSchedule or QuantitySchedule. That is a unique value (after aggregation when need be), at the leave of the path tree built by any combination from the root CorePayoutValue level. This value is ultimately numerical at some point of the LifeCycle Event that represents the actual execution of the Payout terms.">
     observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
     valueAggregation NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value.">
     valueOperator NewValueOperator (0..1) <"The set of operations mostly inspired from usual features found in structured product terms (e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, etc.) to be applied for resolving the value of the object for which this attribute is populated.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated e.g. output from valueOperator or aggregationOperator.">
         [metadata reference]
+    
+    condition Observable: 
+    if baseValue -> observablePrice exists
+    then observationTerms -> observable is absent
+
+    condition AggregationExistsWhenMultipleBaseValueExist: <"Whenever multiple instances exist, the aggregation method must be defined.">
+    if baseValue count > 1
+    then valueAggregation -> aggregationMethod -> valueSeriesAggregation exists
 
 type NewValueAggregation: <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value i.e. the aggregationMethod represents a enumerated list of functional operations of type : [ F(X1, X2, ...Xn) = X0 ] where [X1], [X2], ..., X[Xn] are values of the parent object and [X0] is the unique output value after resolving, and where all types of functions are commutative e.g. Sum, Multiply, Min, Max, Average. Besides, the aggregationMethod is processing either values in array, else values in time series. Besides, multiple aggregation or ranking are composable in sorted manner via the aggregationLoop attribute (considering a matrix of dateValue with observable in row and date in column for instance, then any combination of vertical or horizontal aggreation can be represented). Optionnaly, a rankingMethod may be defined prior to aggregating the values, that is for instance used for representing so-called 'rainbow' features in some derivatives products, say net payout consisting in the 1th, the 2nd and the 3rd performance among multiple ones being compared, before ranked as such usually with distinct weights, before being aggregated to calculate the final value.">
 
@@ -1153,16 +1175,20 @@ type NewKnockCondition: <"Represents the funtional operation [ F(X,In) = X x (Bo
 
 type NewTriggerCondition: <"Specifies the criteria for determining whether the KnockCondition is activated or not.">
 
-    triggerBaseLevel NewBaseValue (0..1) <"The value of the trigger level when it is a base value.">
-    triggerCompositeLevel NewBespokePayoutFormula (0..1) <"The value of the trigger level when it is a composite value.">
-    observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
-    baseTriggerRule TriggerTypeEnum (1..1) <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
-    basketTriggerRule NewTriggerTypeForBasketEnum (0..1) <"Specifies the conditions when multiple observable values shall be taken into account for determining whether the triggerLevel is deemed to have been knocked or not, for instance when the observable values are basket constituents.">
+    triggerLevel NewBaseValue (1..1) <"The value of the trigger level.">
+    triggerBaseRule TriggerTypeEnum (1..1) <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
+    triggerBasketRule NewTriggerTypeForBasketEnum (0..1) <"Specifies the conditions when multiple observable values shall be taken into account for determining whether the triggerLevel is deemed to have been knocked or not, for instance when the observable values are basket constituents.">
     targetTriggerRule NewTargetTrigger (0..1) <"Defines an additional rule to trigger, that consists in verifying whether the observable has touched or crossed the triggerLevel value a specified number of times, that being a cumulative condition being required for the trigger to be activated. As an example, this feature may be used for representing feature usually referred to by business as 'Target' where the Knock-In attribute of a Cap would require the trigger to be crossed, say 'n' times, i.e. the trigger has to be crossed for 'n' observation dates.">
-    cumulativeTriggerConditions NewTriggerCondition (0..*) <"Defines additional Trigger rules which are cumulative in regards of the root parent Trigger i.e. all such triggers must be met for the purpose of having an effect. From a logical perspective, the cumulativeTriggerRule has the meaning of an 'AND' condition (as an indication, for the purpose of defining additional Trigger with logical meaning of an 'OR' condition i.e. either is sufficient to have an effect, one should define multiple Trigger at the same root level).">
+    compositeObservable NewBespokePayoutFormula (0..1) <"The value of the trigger level when it is a composite value.">
+    observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
+    cumulativeTriggerCondition NewTriggerCondition (0..*) <"Defines additional Trigger rules which are cumulative in regards of the root parent Trigger i.e. all such triggers must be met for the purpose of having an effect. From a logical perspective, the cumulativeTriggerRule has the meaning of an 'AND' condition (as an indication, for the purpose of defining additional Trigger with logical meaning of an 'OR' condition i.e. either is sufficient to have an effect, one should define multiple Trigger at the same root level).">
 
-    condition TriggerLevel: <"Trigger level is either a straigh value, else a composite value. As an indication, a business use case where composite value may be used is for representing a trigger level which observable value is the worst of performance ratio series, which in such particular case would be represented via fractionalValue with proper aggregationMethod, etc.">
-        required choice triggerBaseLevel, triggerCompositeLevel
+        condition ObservableIsStraightOrComposite: <"Observable is either straight observable value, else a composite value (example : when the observable value for the trigger is the worst of performance ratio series, then this would be represented as a fractionalValue series with proper aggregationMethod, etc.). The condition is a 'required choice' construct between straight observable value and a composite observable value.">
+            (observationTerms->observable exists and compositeObservable is absent)
+            or (compositeObservable exists and observationTerms->observable is absent)
+
+        condition CompositeObservableIsNotRedundantKnock: <"Purpose of compositeObservable is not to compound multiple knock conditions in series (to do so, one shall use instead cumulativeTriggerConditions) hence the condition to prevent such potential unexpected usage.">
+            compositeObservable -> valueOperator -> knockCondition is absent
 
 type NewTargetTrigger: <"Defines an additional rule to trigger, that consists in verifying whether the observable has touched or crossed the triggerLevel value a specified number of times, that being a cumulative condition being required for the trigger to be activated. As an example, this feature may be used for representing feature usually referred to by business as 'Target' where the Knock-In attribute of a Cap would require the trigger to be crossed, say 'n' times, i.e. the trigger has to be crossed for 'n' observation dates.">
 
@@ -1180,7 +1206,7 @@ type NewCapFloorBarrier: <"Represents the functional operation [ F(X,Cap) = min(
     barrierType NewCapFloorEnum (1..1) <"The enumerated values to specify whether the barrier is a Cap or Floor.">
     barrierLevel NewBaseValue (1..1) <"The value of the Cap or Floor level.">
     observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
-    knockConditions NewKnockCondition (0..1) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
+    knockCondition NewKnockCondition (0..1) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
         [metadata reference]
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated.">
         [metadata reference]
@@ -1200,47 +1226,58 @@ type NewMultiplierDivisor: <"Represents the functional operation [ F(X) = X x M 
 type NewMultiplier: <"Represents the functional operation [ F(X) = X x M ] where : [M] is the value of the Multiplier and [X] is the value of the object for which Multiplier is defined as an attribute.">
     [metadata key]
 
-    observationCount NewObservationCount (0..1) <"Specifies when the multiplier value is an integer number of observations.">
+    observationCountValue NewObservationCount (0..1) <"Specifies when the multiplier value is an integer number of observations.">
     baseValue NewBaseValue (0..1) <"Specifies when the multiplier value is either an observable price value, else a fixed price value, else a fixed quantity value.">
-    knockConditions NewKnockCondition (0..1) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
+    dayCountFractionValue cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction value">
+    knockCondition NewKnockCondition (0..*) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
         [metadata reference]
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
+    condition ObservationValueIsKnockCount: <"Any bespoke name or description that may be specified.">
+    if observationCountValue-> observationValueType = NewObservationCountEnum -> KnockedObservations
+    then knockCondition exists
+
     condition:
-        required choice baseValue, observationCount
+    required choice baseValue, observationCountValue, dayCountFractionValue
 
 type NewDivisor: <"Represents the functional operation [ F(X) = X x 1/D ] where : [D] is the value of the Divisor and [X] is the value of the object for which Divisor is defined as an attribute.">
     [metadata key]
 
     observationCountValue NewObservationCount (0..1) <"Specifies when the divisor value is an integer number of observations.">
     baseValue NewBaseValue (0..1) <"Specifies when the divisor value is either an observable price value, else a fixed price value, else a fixed quantity value.">
-    knockConditions NewKnockCondition (0..1) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
+    dayCountFractionValue cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction value">
+    knockCondition NewKnockCondition (0..*) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
         [metadata reference]
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
+    
+    condition ObservationValueIsKnockCount: <"Any bespoke name or description that may be specified.">
+    if observationCountValue-> observationValueType = NewObservationCountEnum -> KnockedObservations
+    then knockCondition exists
 
     condition:
-        required choice baseValue, observationCountValue
+    required choice baseValue, observationCountValue, dayCountFractionValue
 
 type NewCallableProvision: <"Describes the conditions according to which a party has a right to call the whole Trade, meaning such party may optionally decide to early terminate the Trade.">
 
-    earlyRedemptionSettlementDate SettlementDate (1..1) <"Once Early Redumption has occurred, the dates on which the Trade and any further parties obligations shall be settled.">
-    earlyRedemptionPayoutAmount SettlementOrigin (0..*) <"Represents a refrence to a Payout Amount that is payable when Early Redemption has occured.">
+    earlyRedemptionTerminationDate SettlementDate (1..1)  <"The dates on which the Trade and any further parties obligations shall be settled, upon the occurrence of an Early Redemption.">
+    earlyRedemptionPayoutAmount SettlementOrigin (0..*) <"Represents a reference to a Payout Amount that is payable when Early Redemption has occured.">
     earlyRedemptionPrincipalAmount PrincipalPayment (0..1) <"Represents a Principal Payment that is payable when Early Redemption has occured.">
-    callableObservationPeriodDates PeriodicDates (0..1) <"Permits to define periodic schedules, if need be, to which the callableObservationDates may be relative to.">
-    callableObservationDates AdjustableOrRelativeDates (1..1) <"The dates on which a party with the right to call may decide to exercise such right.">
+    callExerciseObservationDate ObservationDates (1..1) <"The dates on which a party with the right to call may decide to exercise such right.">
     whoHasRightToCall CounterpartyRoleEnum (1..2) <"The party who has the right to exercise the callable feature ; either one only or both counterparties may has such right">
-    callableNoticeTime NewTimePeriod (0..1) <"Permits to define time period for the party with a right to call to notify to the counterparty the exercise of such right ; for clarity, the startDate and endDate defined in this provision respectively corresponds to the earliest time and latest time.">
+    callExerciseNoticeTime NewTimePeriod (0..1) <"Permits to define time period for the party with a right to call to notify to the counterparty the exercise of such right ; for clarity, the startDate and endDate defined in this provision respectively corresponds to the earliest time and latest time.">
+    callExerciseNoticePeriod RelativeDateOffset (0..1) <"Permits to define the date offset for the party with a right to call to notify to the counterparty the exercise of such right ; for clarity, the offset date defined in this provision corresponds to the latest date for sending notice.">
     maximumCallableNotionalAmount QuantitySchedule (0..1) <"The maximum notional amount that can be exercised on a given exercise date.">
+        [metadata address]
     minimumCallableNotionalAmount QuantitySchedule (0..1) <"The minimum notional amount that can be exercised on a given exercise date.">
-    callableFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
+        [metadata address]
+    callExerciseFee ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
-    // callableNoticePeriod NewOffset (0..1) <"Permits to define an offset period for the party with a right to call to notify to the counterparty the exercise of such right ; usually, it is expected than such an offset be a lg i.e. negative value, so as to define a period prior to callableDates ; however noe condition shall enforce it as such, in case loockback features would exist which would allow a product to be called after contigent callable datese.g. callableDates with embedded Knock conditions.">
-
 type NewAutocallableProvision extends NewKnockCondition: <"Specifies that the existence of the Trade is contigent i.e. the Trade exists unless an embedded Knock-Out condition is activated, that resulting in the Trade being early terminated.">
-    earlyRedemptionSettlementDate SettlementDate (1..1) <"Once Early Redumption has occurred, the dates on which the Trade and any further parties obligations shall be settled.">
+    earlyRedemptionTerminationDate SettlementDate (1..1) <"The dates on which the Trade and any further parties obligations shall be settled, upon the occurrence of an Early Redemption.">
     earlyRedemptionPayoutAmount SettlementOrigin (0..*) <"Indicate via reference which Payout, if any, is payable upon the occurrence of an Early Redemption. For clarity, if no earlyRedemptionPayoutAmount is defined, the, this means the Trade would early terminate and settled with no payment being made between the parties.">
     earlyRedemptionPrincipalAmount PrincipalPayment (0..1) <"Represents a Principal Payment that is payable upon the occurrence of an Early Redemption.">
+    guaranteedTerms NewGuaranteedTerms (0..*)
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
     condition AutocallableMeansKnockOutOnly:
@@ -1252,3 +1289,13 @@ type NewAutocallableProvision extends NewKnockCondition: <"Specifies that the ex
 
     condition DoNotDuplicateKnockOutForPrincipalPayment:
         earlyRedemptionPrincipalAmount -> knockCondition is absent
+
+type NewGuaranteedTerms:<"Represent a reference to any terms for which a restriction exists to the effect of early termination provisionfs. The description of the restriction itself is given by context i.e. depends on the description of the component that is precisely being referenced. That is to say GuaranteedTerms is a generic type where to defined any specific type of restriction, which content will vay in accordance with the item being referenced."> // as an indication, today only one business case was raised, but the type is defined in generic manner, so that the list of attributes can be extended as need be with no backward compatibility issues whenever other use cases would be raised. //
+    cumulationFeature CumulationFeature (0..1) 
+    [metadata reference]
+
+    condition GuaranteedCumulationFeature: <"Purpose is to reference only guaranteed periods.">
+    if cumulationFeature exists 
+    then cumulationFeature -> guarenteedPeriodNotwithstandingEarlyTermination exists
+
+
