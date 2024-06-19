@@ -41,18 +41,23 @@ module.exports = {
         },
         {
           "label": "Version",
-          "to": "docs",
+          "to": "/versions",
           "position": "right",
           "items": [
               {
                 "label": "6.0.0-dev.52",
-                "to": "docs/",
+                "to": "/docs/home",
                 "activeBaseRegex": "docs/(?!6.0.0-dev.52|home)"
               },
               {
-                "label": "Current",
-                "to": "docs/home/",
-                "activeBaseRegex": "docs/home"
+                "label": "6.0.0-dev.51",
+                "to": "/docs/home",
+                "activeBaseRegex": "docs/(?!6.0.0-dev.51|home)"
+              },
+              {
+                "label": "6.0.0-dev.50",
+                "to": "/docs/home",
+                "activeBaseRegex": "docs/(?!6.0.0-dev.50|home)"
               }
           ]
         }
