@@ -40,16 +40,10 @@ module.exports = {
           position: 'right',
         },
         {
-          "label": "Version",
-          "to": "/versions",
-          "position": "left",
-          "items": [
-              {
-                "label": "6.0.0-dev.52",
-                "to": "/docs/6.0.0-dev.52/home"
-              }
-          ]
-        }
+                  type: 'docsVersionDropdown',
+                  position: 'left',
+                  dropdownActiveClassDisabled: true,
+                },
       ],
     },
     footer: {
