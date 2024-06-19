@@ -38,6 +38,23 @@ module.exports = {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
+        },
+        {
+          "label": "Version",
+          "to": "docs",
+          "position": "right",
+          "items": [
+              {
+                "label": "6.0.0-dev.52",
+                "to": "docs/",
+                "activeBaseRegex": "docs/(?!6.0.0-dev.52|home)"
+              },
+              {
+                "label": "Current",
+                "to": "docs/home/",
+                "activeBaseRegex": "docs/home"
+              }
+          ]
         }
       ],
     },
