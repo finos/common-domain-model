@@ -19,7 +19,7 @@ required to define collateral eligibility, including asset descriptors, issuer
 details, asset type, maturity profile, credit risk rating, and collateral 
 haircut.
 
-Please see [Eligible Collateral Representation](/docs/6.0.0-dev.52/eligible-collateral-representation) for more details.
+Please see [Eligible Collateral Representation](/docs/eligible-collateral-representation) for more details.
 
 ## Repurchase Agreement Representation
 
@@ -27,7 +27,7 @@ Repurchase transactions and lifecycle events are represented in the CDM, with
 support for basic repo transactions, fixed term repo, open repo, fixed rate and 
 floating rate and buy/sell-back transactions. 
 
-Please see [Repurchase Agreement Representation](/docs/6.0.0-dev.52/repurchase-agreement-representation) for more details.
+Please see [Repurchase Agreement Representation](/docs/repurchase-agreement-representation) for more details.
 
 ## Securities Lending
 
@@ -36,7 +36,7 @@ CDM, allowing open or term cash and non-cash collateralised loans, using
 either fixed or floating rates, on a principal or agency basis, to be 
 represented. 
 
-Please see [Securities Lending](/docs/6.0.0-dev.52/securities-lending) for more details.
+Please see [Securities Lending](/docs/securities-lending) for more details.
 
 ## Pre-trade Processing
 Pre-trade processing refers to the various steps and procedures that market 
@@ -44,5 +44,5 @@ participants undertake before a trade is executed. The goal of this processing
 is to ensure that trades are executed efficiently and in compliance with 
 regulatory requirements.
 
-Please see [Pre-trade Processing](/docs/6.0.0-dev.52/pre-trade-processing) for more details.
+Please see [Pre-trade Processing](/docs/pre-trade-processing) for more details.
 

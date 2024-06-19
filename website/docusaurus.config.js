@@ -46,7 +46,7 @@ module.exports = {
           "items": [
               {
                 "label": "6.0.0-dev.52",
-                "to": "/docs/6.0.0-dev.52/home"
+                "to": "/docs/home"
               }
           ]
         }
