@@ -42,7 +42,7 @@ module.exports = {
         {
           "label": "Version",
           "to": "/versions",
-          "position": "right",
+          "position": "left",
           "items": [
               {
                 "label": "6.0.0-dev.52",
