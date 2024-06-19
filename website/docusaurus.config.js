@@ -47,14 +47,6 @@ module.exports = {
               {
                 "label": "6.0.0-dev.52",
                 "to": "/docs/6.0.0-dev.52/home"
-              },
-              {
-                "label": "6.0.0-dev.51",
-                "to": "/docs/6.0.0-dev.51/home"
-              },
-              {
-                "label": "6.0.0-dev.50",
-                "to": "/docs/6.0.0-dev.50/home"
               }
           ]
         }
