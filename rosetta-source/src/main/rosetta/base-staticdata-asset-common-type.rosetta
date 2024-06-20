@@ -17,11 +17,7 @@ choice Asset:  <"An Asset is defined something that can be owned and transferred
 
 type AssetBase:  <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (0..*)  <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
-    cfiCode Taxonomy (0..1) <"Indicates the type of Instrument using ISO 10962 standard, Classification of Financial Instruments (CFI code) values. ISO 10962 is maintained by ANNA (Association of National Numbering Agencies) acting as Registration Authority.">
-    
-    condition CfiSource:  <"If CFI Code is used then the Taxonomy Source should be set.">
-        if cfiCode exists
-        then cfiCode -> source = TaxonomySourceEnum -> CFI
+    taxonomy Taxonomy (0..1) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
 
 type AssetIdentifier:  <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1)  <"The identifier value.">
@@ -176,7 +172,7 @@ type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital for
 
 type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
     expiration string (1..1) <"The Expiration Date of the contract, expressed using the same symbology as the contract identifier.">
-    optionType string (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future, also following the identifier symbology.">
+    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future, also following the identifier symbology.">
     strike string (0..1) <"Specifies the strike of the option, using the identifier symbology.">
 
     condition Options:  <"Options must have a strike price.">
@@ -185,6 +181,13 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
             strike exists
         else
             strike is absent
+
+enum OptionTypeEnum: <"The enumerated values to specify the type of the option. In FpML, OptionTypeEnum is a union with PutCallEnum, which specifies whether the option is a put or a call.">
+    Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
+    Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+    Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
+    Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
+    Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlier, at the same strike and same expiration date">            
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
