@@ -58,7 +58,7 @@ parties, or an allowable adjustment to the notional quantity. All of the
 other attributes required to describe a product are defined in distinct
 product data types.
 
-### Counterparty
+## Counterparty
 
 The `counterparty` attribute of a `TradableProduct` is constrained to be
 exactly of cardinality 2. The CDM enforces that a transaction can only
@@ -113,7 +113,7 @@ further detailed in the Rosetta DSL documentation.
 
 ---
 
-### TradeLot
+## TradeLot
 
 A trade lot represents the quantity and price at which a product is
 being traded.
@@ -237,7 +237,7 @@ definition of the product in a trade (i.e. a product definition without
 a price and quantity). However, the reference can be used to populate
 values for an input into a function or for other purposes.
 
-### Measure
+## Measure
 
 A *measure* is a basic component that is useful in the definition of
 price and quantity (both things that can be measured) and consists of
@@ -304,7 +304,7 @@ below. This means that by default, price and quantity are considered as
 schedules although they can also represent a single value when the
 `datedValue` attribute is omitted.
 
-### Price
+## Price
 
 The `PriceSchedule` data type extends the `MeasureSchedule` data type
 with the addition of the `priceExpression` and `perUnitOf` attributes,
@@ -374,7 +374,7 @@ seen in the full example, for an interest rate leg, the `unit` and the
 `priceType` would be an InterestRate and, in the case of a floating leg,
 the `spreadType` would be a Spread.
 
-### Quantity
+## Quantity
 
 The `QuantitySchedule` data type also extends the `MeasureSchedule` data
 type with the addition of an optional `multiplier` attributes. It also
@@ -444,7 +444,7 @@ this case, the quantity needs to be multiplied by the size of the
 relevant period where it applies, e.g. a number of days, to get the
 total quantity.
 
-### Observable
+## Observable
 
 The `Observable` data type specifies the reference object to be observed
 for a price, which could be an underlying asset or a reference such as
@@ -472,7 +472,7 @@ type Observable:
     required choice rateOption, commodity, productIdentifier, currencyPair
 ```
 
-### SettlementTerms
+## SettlementTerms
 
 In both the Equity Swap and Interest Rate Swap trade cases mentioned
 above, there are no settlement terms attached to the price and quantity.
@@ -530,7 +530,7 @@ type SettlementBase:
   standardSettlementStyle StandardSettlementStyleEnum (0..1)
 ```
 
-### BuyerSeller
+## BuyerSeller
 
 When a settlement occurs for the price and/or quantity, it is necessary
 to define the direction of that settlement by specifying which party
@@ -568,6 +568,7 @@ type Product:
   contractualProduct ContractualProduct (0..1)
   index Index (0..1)
   loan Loan (0..1)
+  assetPool AssetPool (0..1)
   foreignExchange ForeignExchange (0..1)
   commodity Commodity (0..1)
     [metadata address "pointsTo"=Observable->commodity]
@@ -619,7 +620,7 @@ An Index product is an exception because it's not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
-### Contractual Product
+## Contractual Product
 
 The scope of contractual products in the current model are summarized
 below:
@@ -659,7 +660,7 @@ Note that price, quantity and counterparties are defined in
 remaining economic terms of the contractual product are defined in
 `EconomicTerms` which is an encapsulated type in `ContractualProduct` .
 
-### Economic Terms
+## Economic Terms
 
 The CDM specifies the various sets of possible remaining economic terms
 using the `EconomicTerms` type. This type includes contractual
@@ -681,7 +682,7 @@ type EconomicTerms:
   collateral Collateral (0..1)
 ```
 
-### Payout
+## Payout
 
 The `Payout` type defines the composable payout types, each of which
 describes a set of terms and conditions for the financial
@@ -699,6 +700,8 @@ type Payout:
   commodityPayout CommodityPayout (0..*)
   forwardPayout ForwardPayout (0..*)
   fixedPricePayout FixedPricePayout (0..*)
+  securityPayout SecurityPayout (0..*)
+       [deprecated]
   cashflow Cashflow (0..*)
   performancePayout PerformancePayout (0..*)
   assetPayout AssetPayout (0..*)
@@ -725,6 +728,7 @@ The list of payouts that extend _PayoutBase_ are:
 -   `CommodityPayout`
 -   `ForwardPayout`
 -   `FixedPricePayout`
+-   `SecurityPayout`
 -   `Cashflow`
 -   `PerformancePayout`
 -   `AssetPayout`
@@ -776,6 +780,7 @@ Swap.
 ``` Haskell
 type ResolvablePriceQuantity:
   [metadata key]
+  quantityCumulation CumulationFeature (0..*)
   resolvedQuantity Quantity (0..1)
   quantitySchedule NonNegativeQuantitySchedule (0..1)
     [metadata address "pointsTo"=PriceQuantity->quantity]
@@ -836,7 +841,7 @@ type CalculationPeriodDates:
   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 ```
 
-### Underlier
+## Underlier
 
 The underlier attribute on types `OptionPayout`, `ForwardPayout` and
 `EquityPayout` allows for any product to be used as the underlier for a
@@ -846,14 +851,10 @@ corresponding products option, forward, and equity swap.
 type OptionPayout extends PayoutBase:
   [metadata key]
   buyerSeller BuyerSeller (1..1)
-  feature OptionFeature (0..1)
-  observationTerms ObservationTerms (0..1)
-  schedule CalculationSchedule (0..1)
-  delivery AssetDeliveryInformation (0..1)
-  underlier Product (1..1)
   optionType OptionTypeEnum (0..1)
-  exerciseTerms ExerciseTerms (1..1)
-  strike OptionStrike (0..1)
+  feature OptionFeature (0..1)
+  exerciseTerms OptionExercise (1..1)
+  underlier Product (1..1)
 ```
 
 This nesting of the product component is another example of a composable
@@ -864,7 +865,7 @@ Similiarly, the product underlying an Equity Swap composed of an
 `InterestRatePayout` and an `EquityPayout` would be a non-contractual
 product: an equity security.
 
-### Data Templates
+## Data Templates
 
 The `ContractualProduct` type is specified with the
 `[metadata template]` annotation indicating that it is eligible to be
@@ -891,11 +892,11 @@ Code libraries, written in Java and distributed with the CDM, contain
 tools to merge CDM objects together. Implementors may extend these
 merging tools to change the merging strategy to suit their requirements.
 The CDM Java Examples download, available via the [CDM Portal Downloads
-page](https://cdm.finos.org/docs/download/), contains a example demonstrating usage of a data template and
+page](https://portal.cdm.rosetta-technology.io/#/downloads), contains a example demonstrating usage of a data template and
 the merging tools. See
 `com.regnosys.cdm.example.template.TemplateExample`.
 
-### Products with Identifiers
+## Products with Identifiers
 
 The abstract data type ProductBase serves as a base for all products
 that have an identifier, as illustrated below:
@@ -952,7 +953,7 @@ Default Swap. The additional security details are optional as these
 could be determined from a reference database using the product
 identifier as a key
 
-## Product Qualification
+# Product Qualification
 
 **Product qualification is inferred from the economic terms of the
 product** instead of explicitly naming the product type. The CDM uses a
@@ -985,7 +986,7 @@ func Qualify_InterestRate_InflationSwap_FixedFloat_ZeroCoupon:
   set is_product:
     Qualify_BaseProduct_Inflation(economicTerms) = True
     and Qualify_BaseProduct_CrossCurrency( economicTerms ) = False
-        and Qualify_SubProduct_FixedFloat(economicTerms) = True
+    and Qualify_SubProduct_FixedFloat(economicTerms) = True
     and Qualify_Transaction_ZeroCoupon(economicTerms) = True
 ```
 
