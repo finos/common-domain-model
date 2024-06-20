@@ -40,10 +40,10 @@ module.exports = {
           position: 'right',
         },
         {
-                  type: 'docsVersionDropdown',
-                  position: 'left',
-                  dropdownActiveClassDisabled: true,
-                },
+          type: 'docsVersionDropdown',
+          position: 'left',
+          dropdownActiveClassDisabled: true,
+        },
       ],
     },
     footer: {
