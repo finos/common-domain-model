@@ -2,12 +2,11 @@
 
 _What is being released?_
 
-This release updates the `ingest-test-framework` and `DSL` dependency.
+This release updates the `DSL` dependency.
 
 Version updates include:
-- `ingest-test-framework` 11.10.3: Translate bug fix for long XML files
-- `DSL` 9.11.2: Fix syntax validation issue. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.11.2
+- `DSL` 9.12.0: this release fixes an issue where the `only exists` operator behaved unexpectedly when subtyping was involved. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.0.
 
-_Review directions_
+_Review Directions_
 
-The changes can be reviewed in PR: [#2992](https://github.com/finos/common-domain-model/pull/2992)
+The changes can be reviewed in PR: [#3005](https://github.com/finos/common-domain-model/pull/3005)
