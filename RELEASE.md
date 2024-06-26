@@ -1,11 +1,12 @@
-# _CDM - Update ISOCurrencyCodeEnum_
+# _Reference Data - Update ISOCurrencyCodeEnum_
 
 _What is being released?_
 
-Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
+Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
 
 Version updates include:
-- removed values: MWK, PEN , RON, SZL, TRY, and added value ZWG
+- Removed values: `MWK`, `PEN`, `RON`, `SZL`, `TRY`
+- Added value: `ZWG`
 
 _Review directions_
 
