@@ -1,24 +1,13 @@
-# _Product Model - Fix for Portfolio Return Terms_
-
-_Background_
-
-The purpose of this update is to modify an existing condition relating to `Basket` which is causing unexpected behavior as well as a change in the cardinality required of `PerformancePayout` and `PortfolioReturnTerms`.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-- Condition attached to `Basket` has been updated to `required choice basketConstituent, portfolioBasketConstituent` instead of previous condition: `one-of`.
-- Cardinality of `PerformancePayout` attributes has been updated to `(0..*)` instead of `(0..1)` :
-    - initialValuationPrice,
-    - interimValuationPrice
-    - finalValuationPrice
-- Cardinality of `PortfolioReturnTerms` attributes has been updated to `(0..*)` instead of `(0..1)` :
-    - quantity
-    - initialValuationPrice
-    - interimValuationPrice
-    - finalValuationPrice
+This release updates the `ingest-test-framework` and `DSL` dependency.
 
-_Review Directions_
+Version updates include:
+- `ingest-test-framework` 11.10.3: Translate bug fix for long XML files
+- `DSL` 9.11.2: Fix syntax validation issue. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.11.2
 
-In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above.
+_Review directions_
 
-Changes can be reviewed in PR [#2974](https://github.com/finos/common-domain-model/pull/2974)
+The changes can be reviewed in PR: [#2992](https://github.com/finos/common-domain-model/pull/2992)
