@@ -274,7 +274,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
             )
             only-element
     set is_event:
-        transfer -> observable -> productIdentifier exists
+        transfer -> asset -> Instrument -> Security -> identifier exists
             and transfer -> quantity -> unit -> financialUnit only exists
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
@@ -289,7 +289,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
                 businessEvent -> eventDate
             )
     set is_event:
-        transfers -> observable -> productIdentifier only exists
+        transfers -> asset -> Instrument -> Security only exists
             and transfers -> quantity -> unit -> currency only exists
             and FilterCashTransfers(transfers) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
                     transfers

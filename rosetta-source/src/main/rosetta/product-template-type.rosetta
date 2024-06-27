@@ -23,11 +23,22 @@ import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
+type TransferableProduct extends ProductBase:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with or without the addition of specific EconomicTerms.">
+    asset Asset (1..1)
+
+type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
+    productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+    economicTerms EconomicTerms (0..1)
+   
+type NewProduct extends ProductBase:
+    productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+    //    [metadata address "pointsTo"=Observable->productIdentifier]
+
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
 
-    economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    // economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
@@ -80,6 +91,10 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition AssetPayoutDividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then it should be a Term trade.">
         if payout -> assetPayout -> dividendTerms exists
         then terminationDate exists
+
+choice Underlier:
+    TransferableProduct
+    ContractualProduct
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
@@ -201,6 +216,11 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
+    settlementCommitment SettlementCommitment (0..1)
+
+    condition SettlementCommitmentIsExclusive: <"A SettlementCommitment can only be used on its own.">
+        if settlementCommitment exists
+        then settlementCommitment only exists
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
         if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
@@ -254,6 +274,9 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
+type SettlementCommitment extends PayoutBase:
+    transferableProduct TransferableProduct (1..1)
+
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
     [metadata key]
 
@@ -262,15 +285,12 @@ type Product: <"Defines the product that is the subject of a tradable product de
     loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
     foreignExchange ForeignExchange (0..1) <"Defines a foreign exchange spot or forward transaction.">
     commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
-        [metadata address "pointsTo"=Observable->commodity]
+     //   [metadata address "pointsTo"=Observable->commodity]
     security Security (0..1) <"Identifies a security by referencing a product identifier and a security type, plus an optional set of attributes.">
     basket Basket (0..1) <"Identifies a custom basket by referencing a product identifier and its constituents.">
 
     condition:
         one-of
-
-type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
-    basketConstituent Product (1..*) <"Identifies the constituents of the basket">
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
@@ -861,3 +881,4 @@ type EvergreenProvision: <"Specifies a transaction which automatically extends f
     noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
+    

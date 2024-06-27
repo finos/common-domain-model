@@ -25,12 +25,6 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
         if (!forwardPayoutBuilders.isEmpty()) {
             ForwardPayout.ForwardPayoutBuilder forwardPayoutBuilder = forwardPayoutBuilders.get(0);
             // create reference
-            Reference.ReferenceBuilder referenceBuilder =
-                    forwardPayoutBuilder.getOrCreateUnderlier().getOrCreateCommodity().getOrCreateReference();
-            // create new mapping to make the reference work
-            Path commodityClassificationSynonymPath =
-                    synonymPath.addElement("commodityClassification", 0).addElement("code", 0);
-            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, getModelPath(), referenceBuilder));
         }
     }
 
