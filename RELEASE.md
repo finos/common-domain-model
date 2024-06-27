@@ -1,13 +1,17 @@
-# _Infrastructure - Dependency Update_
+# _Reference Data - Update ISOCurrencyCodeEnum_
 
 _What is being released?_
 
-This release updates the `ingest-test-framework` and `DSL` dependency.
+Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
 
 Version updates include:
-- `ingest-test-framework` 11.10.3: Translate bug fix for long XML files
-- `DSL` 9.11.2: Fix syntax validation issue. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.11.2
+- Removed values: `MWK`, `PEN`, `RON`, `SZL`, `TRY`
+- Added value: `ZWG`
+
+_Backward Incompatible Changes_
+
+As this release removes multiple enum values, it will not be backwards compatible.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2992](https://github.com/finos/common-domain-model/pull/2992)
+The changes can be reviewed in PR: [#3014](https://github.com/finos/common-domain-model/pull/3014)
