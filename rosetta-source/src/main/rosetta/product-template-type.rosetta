@@ -20,14 +20,25 @@ import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
 import cdm.product.qualification.*
 import cdm.product.collateral.*
+import cdm.legaldocumentation.common.*
 
 import cdm.mapping.config.*
+
+type ProductContractDetails: <"Defines specific attributes that relate to contractual details of trades.">
+    [metadata key]
+    documentation LegalAgreement (0..*) <"Represents the legal document(s) that governs a trade and associated contractual product terms, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+    governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
+        [metadata scheme]
+
+    condition ExecutedAgreement: <"Contract details can only only point to  executed legal agreements.">
+        if documentation exists
+        then documentation -> agreementDate exists
 
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
 
-    economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
 
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
@@ -254,7 +265,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
+type Product extends ProductBase: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
     [metadata key]
 
     contractualProduct ContractualProduct (0..1) <"Specifies the contractual product's economic terms, product identifier, and product taxonomy.">
