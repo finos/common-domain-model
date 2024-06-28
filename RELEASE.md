@@ -1,13 +1,34 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Asset Refactoring: Asset, Index, Identifier_
+
+_Background_
+
+The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal is being developed - through a cross-industry Task Force - to implement this remodelling in the CDM.  
+
+This release includes the first tranche of changes to implement the refactored model (the first of three planned tranches in CDM 6).  It introduces some new data types and makes minor changes to others without significant impact to the Product structure itself.
 
 _What is being released?_
 
-This release updates the `ingest-test-framework` and `DSL` dependency.
+New `Asset` data type:
+- Introduce the new data type `Asset` which is defined as "something that can be owned and transferred in the financial markets". The data type is implemented using the new Rune DSL feature `choice` that is available in [Release 9.10](https://github.com/finos/rune-dsl/releases/tag/9.10.0).
+- Introduce the additional Asset data sub-type called `Instrument`, also using `choice`, defined as "a type of Asset that is issued by one party to one or more others".
+- Create the new base class `InstrumentBase` to model common attributes across all `Instrument` data types.
+- Introduce the new enumerator `AssetIdTypeEnum` to define certain identifier sources unique to Assets.
+- Change the inheritance from `ProductBase` to `Identifier` for:  `Index`, `Loan`.
+- Add a reference on `Observable` to an `Asset` using an `AssetIdentifier`.
 
-Version updates include:
-- `ingest-test-framework` 11.10.3: Translate bug fix for long XML files
-- `DSL` 9.11.2: Fix syntax validation issue. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.11.2
+Changes to `Transfer`:
+- As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
+- This also results in changes to the `Qualify_SecurityTransfer` function.
+
+Refactored `Index` data type:
+- Introduce a new modelling implementation of `Index`, using `choice`.
+- Define/redefine the following data types related to index:  `FloatingIndex`, `InflationIndex`, `CreditIndex`, `EquityIndex` and `OtherIndex`
+
+Product Model:
+- Introduce a new data type on `Payout`: `SettlementCommitment` which models the settlement of an `Asset` for cash.
+- Introduce `TransferableProduct` as a type of Product which can be used in a `SettlementCommitment` for a basic cash settled trade of either an `Asset` with or without the addition of specific `EconomicTerms`.
+- Define the new `SettlementCommitment` data type to model this new kind of `Payout`.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2992](https://github.com/finos/common-domain-model/pull/2992)
+The changes can be reviewed in PR: [#2997](https://github.com/finos/common-domain-model/pull/2997)
