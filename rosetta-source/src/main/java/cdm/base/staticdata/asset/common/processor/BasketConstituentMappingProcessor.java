@@ -1,6 +1,5 @@
 package cdm.base.staticdata.asset.common.processor;
 
-import cdm.base.staticdata.asset.common.ProductBase;
 import cdm.base.staticdata.asset.common.Security;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -48,10 +47,10 @@ public class BasketConstituentMappingProcessor extends MappingProcessor {
      * Blank out data, need to find a better way of doing this.
      */
     private void removeData(RosettaModelObjectBuilder builder) {
-        if (builder instanceof ProductBase.ProductBaseBuilder) {
-            ProductBase.ProductBaseBuilder productBaseBuilder = (ProductBase.ProductBaseBuilder) builder;
-            productBaseBuilder.setProductIdentifier(null);
-        }
+//        if (builder instanceof ProductBase.ProductBaseBuilder) {
+//            ProductBase.ProductBaseBuilder productBaseBuilder = (ProductBase.ProductBaseBuilder) builder;
+//            productBaseBuilder.setProductIdentifier(null);
+//        }
         if (builder instanceof Security.SecurityBuilder) {
             Security.SecurityBuilder securityBuilder = (Security.SecurityBuilder) builder;
             securityBuilder.setSecurityType(null);
