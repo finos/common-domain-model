@@ -5,7 +5,7 @@ _What is being released?_
 Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
 
 Version updates include:
-- added removed value: `ZWG`
+- added value: `ZWG`
 
 
 _Review directions_
