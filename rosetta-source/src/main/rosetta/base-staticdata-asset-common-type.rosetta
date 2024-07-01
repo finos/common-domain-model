@@ -8,13 +8,13 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-type AssetBase:  <"The base data type to specify common attributes for all Assets.">
-    identifier AssetIdentifier (0..*)  <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+type AssetBase: <"The base data type to specify common attributes for all Assets.">
+    identifier AssetIdentifier (0..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
 
-type AssetIdentifier:  <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
-    identifier string (1..1)  <"The identifier value.">
+type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
+    identifier string (1..1) <"The identifier value.">
         [metadata scheme]
-    identifierType AssetIdTypeEnum (1..1)  <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
+    identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
@@ -132,7 +132,7 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
     condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
         optional choice capacityUnit, weatherUnit
 
-type DigitalAsset extends AssetBase:  <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
+type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
 
 type ListedDerivative extends AssetBase: <"A securitized derivative on another asset.">
     isExchangeTraded boolean (0..1) <"Identifies whether the derivative is traded on an exchange.">
@@ -142,19 +142,13 @@ type ListedDerivative extends AssetBase: <"A securitized derivative on another a
     optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
     strike OptionStrike (0..1) <"Specifies the strike of the option.">
 
-    condition ExchangeTraded:  <"The Exchange must be specified for exchange-traded assets.">
+    condition ExchangeTraded: <"The Exchange must be specified for exchange-traded assets.">
         if isExchangeTraded
-        then
-            exchange exists
-        else
-            exchange is absent
+        then exchange exists
+        else exchange is absent
 
-    condition Options:  <"Options must have a strike price.">
-        if optionType exists
-        then
-            strike exists
-        else
-            strike is absent
+    condition Options: <"Options must have a strike price.">
+        if optionType exists then strike exists else strike is absent
 
 type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
