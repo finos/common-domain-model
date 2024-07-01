@@ -755,13 +755,13 @@ func ResolvePerformanceObservationIdentifiers:
         identifiers ObservationIdentifier (1..1)
 
     alias adjustedFinalValuationDate:
-        ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
+        ResolveAdjustableDate( payout -> valuationDates -> finalValuationDate -> valuationDate)
 
     alias valuationDates:
         if adjustedDate < adjustedFinalValuationDate then
-            payout -> valuationDates -> valuationDatesInterim
+            payout -> valuationDates -> interimValuationDate
         else
-            payout -> valuationDates -> valuationDatesFinal
+            payout -> valuationDates -> finalValuationDate
 
     add identifiers -> observable -> productIdentifier:
         payout -> underlier -> security -> productIdentifier
