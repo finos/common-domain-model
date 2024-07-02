@@ -5,8 +5,8 @@ inputs:
   run-tests:
     description: Whether or not to run tests. The default is true.
     required: false
-    type: boolean
-    default: true
+    # type: boolean  - This is not supported (yet). All inputs are of type `string`. See https://github.com/actions/runner/issues/2238.
+    default: 'true'
 
 runs:
   using: "composite"
@@ -20,4 +20,4 @@ runs:
         cache: maven
     - name: Build with Maven
       shell: bash
-      run: mvn -B -U clean package${{ inputs.run-tests && '' || ' -DskipTests'  }}
+      run: mvn -B -U clean package${{ inputs.run-tests == 'false' && ' -DskipTests' || '' }}
