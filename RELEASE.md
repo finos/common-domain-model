@@ -7,7 +7,6 @@ Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
 Version updates include:
 - added value: `ZWG`
 
-
 _Review directions_
 
 The changes can be reviewed in PR: [#3018](https://github.com/finos/common-domain-model/pull/3018)
@@ -16,7 +15,7 @@ The changes can be reviewed in PR: [#3018](https://github.com/finos/common-domai
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release updates the following dependencies.
 
 Version updates include:
 - `DSL` 9.12.0: this release fixes an issue where the `only exists` operator behaved unexpectedly when subtyping was involved. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.0.
@@ -24,6 +23,7 @@ Version updates include:
 - `DSL` 9.12.2: this patch fixes a code generation bug in the Java generator. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.2.
 - `DSL` 9.12.3: this patch fixes an issue where the code generator could freeze Rosetta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.3.
 - `DSL` 9.12.4: this patch fixed an issue with `only exists` on multi-cardinality inputs. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.4.
+- `Jackson` 2.17.1: this release updates the library used to serialise/deserialise JSON.
 
 _Review Directions_
 
