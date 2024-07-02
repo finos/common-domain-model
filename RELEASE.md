@@ -23,6 +23,7 @@ Version updates include:
 - `DSL` 9.12.1: this patch fixes null pointers in the Java runtime of the `only exists` operator. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.1.
 - `DSL` 9.12.2: this patch fixes a code generation bug in the Java generator. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.2.
 - `DSL` 9.12.3: this patch fixes an issue where the code generator could freeze Rosetta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.3.
+- `DSL` 9.12.4: this patch fixed an issue with `only exists` on multi-cardinality inputs. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.4.
 
 _Review Directions_
 
