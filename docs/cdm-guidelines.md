@@ -63,8 +63,18 @@ needs to be added to the project pom.xml:
 >    <repositories>
 >        <!-- remove references to REGnosys Jfrog -->
 >        <repository>
->            <id>artifact-registry</id>
+>            <id>isda-maven</id>
 >            <url>artifactregistry://europe-west1-maven.pkg.dev/production-208613/isda-maven</url>
+>            <releases>
+>                <enabled>true</enabled>
+>            </releases>
+>            <snapshots>
+>                <enabled>false</enabled>
+>            </snapshots>
+>        </repository>
+>        <repository>
+>            <id>public-maven</id>
+>            <url>artifactregistry://europe-west1-maven.pkg.dev/production-208613/public-maven</url>
 >            <releases>
 >                <enabled>true</enabled>
 >            </releases>

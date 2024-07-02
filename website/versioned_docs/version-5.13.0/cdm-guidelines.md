@@ -23,7 +23,7 @@ version of CDM. Topics covered are listed below:
 # Setup
 
 In order to use the CDM in a Maven project, the following dependency
-needs to be addeed to the project pom.xml:
+needs to be added to the project pom.xml:
 
 ``` xml
 <dependency>
@@ -42,6 +42,49 @@ needs to be addeed to the project pom.xml:
 
 -   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
+
+> _NOTE:_ All current CDM dependencies are available in Maven Central.
+> For CDM releases prior to version 4.0.0 the dependencies can be found in the ISDA repository: <artifactregistry://europe-west1-maven.pkg.dev/production-208613/isda-maven>
+> Add the following two snippets to the `<build>` and `<repositories>` sections of your project `pom.xml`:
+>
+> ``` xml
+>
+>    <build>
+>        <!-- existing contents -->
+>        <extensions>
+>            <extension>
+>                <groupId>com.google.cloud.artifactregistry</groupId>
+>                <artifactId>artifactregistry-maven-wagon</artifactId>
+>                <version>2.2.1</version>
+>            </extension>
+>        </extensions>
+>    </build>
+>    
+>    <repositories>
+>        <!-- remove references to REGnosys Jfrog -->
+>        <repository>
+>            <id>isda-maven</id>
+>            <url>artifactregistry://europe-west1-maven.pkg.dev/production-208613/isda-maven</url>
+>            <releases>
+>                <enabled>true</enabled>
+>            </releases>
+>            <snapshots>
+>                <enabled>false</enabled>
+>            </snapshots>
+>        </repository>
+>        <repository>
+>            <id>public-maven</id>
+>            <url>artifactregistry://europe-west1-maven.pkg.dev/production-208613/public-maven</url>
+>            <releases>
+>                <enabled>true</enabled>
+>            </releases>
+>            <snapshots>
+>                <enabled>false</enabled>
+>            </snapshots>
+>        </repository>
+>        <!-- existing contents -->
+>    </repositories>
+>```
 
 # Setting Up Google's Guice Injector
 
