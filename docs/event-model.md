@@ -285,12 +285,15 @@ type Transfer extends TransferBase:
 
 ``` Haskell
 type TransferBase:
-  identifier Identifier (0..*)
-    [metadata scheme]
-  quantity NonNegativeQuantity (1..1)
-  observable Observable (0..1)
-  payerReceiver PartyReferencePayerReceiver (1..1)
-  settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+    identifier Identifier (0..*)
+        [metadata scheme]
+    quantity NonNegativeQuantity (1..1)
+    asset Asset (1..1)
+    payerReceiver PartyReferencePayerReceiver (1..1)
+    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
+
+    condition FinancialUnitExists:
+        quantity -> unit -> financialUnit exists
 ```
 
 ## Primitive Operator {#primitive-event}

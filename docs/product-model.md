@@ -997,19 +997,22 @@ which are required to uniquely identify the asset:
 
 ``` Haskell
 type Loan extends InstrumentBase:
-  borrower LegalEntity (0..*)
-  lien string (0..1)
-    [metadata scheme]
-  facilityType string (0..1)
-    [metadata scheme]
-  creditAgreementDate date (0..1)
-  tranche string (0..1)
-    [metadata scheme]
+    borrower LegalEntity (0..*)
+    lien string (0..1)
+        [metadata scheme]
+    facilityType string (0..1)
+        [metadata scheme]
+    creditAgreementDate date (0..1)
+    tranche string (0..1)
+        [metadata scheme]
 
-type ListedDerivative extends InstrumentBase: 
-    expiration string (1..1) 
-    optionType OptionTypeEnum (0..1) 
-    strike string (0..1) 
+type ListedDerivative extends InstrumentBase:
+    expiration string (1..1)
+    optionType OptionTypeEnum (0..1)
+    strike string (0..1)
+
+condition Options:
+     if optionType exists then strike exists else strike is absent
 ```
 
 #### Product Identifiers
