@@ -59,7 +59,8 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
     alias optionUnderlier: economicTerms -> payout -> optionPayout only-element -> underlier
     alias forwardUnderlier:
         economicTerms -> payout -> forwardPayout only-element -> underlier
-    alias performanceUnderlier: economicTerms -> payout -> performancePayout only-element -> underlier
+    alias performanceUnderlier:
+        economicTerms -> payout -> performancePayout only-element -> underlier
 
     set is_product:
         economicTerms -> payout -> creditDefaultPayout only exists
@@ -80,11 +81,10 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                     then (forwardUnderlier -> index ->> assetClass = AssetClassEnum -> Credit
                             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
                     else False)
-                // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier)
+                    // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier)
             or ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
                 and if performanceUnderlier exists
-                    then (performanceUnderlier -> loan exists or performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt)
-                )
+                    then (performanceUnderlier -> loan exists or performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt))
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
     inputs:
