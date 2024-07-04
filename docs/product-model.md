@@ -657,7 +657,7 @@ tradable product and can be identified by a public identifier.
 
 The `Observable` data type specifies the reference object to be observed
 for a price, which could be an underlying asset or a reference to something
-whcih can be observed but not actually transfered, such as an index or
+which can be observed but not actually transfered, such as an index or
 a foreign exchange rate.
 
 The Observable data type requires the specification of either a
