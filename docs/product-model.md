@@ -995,7 +995,7 @@ type InstrumentBase extends AssetBase:
 The instrument assets also have their own definitions with additional attributes
 which are required to uniquely identify the asset:
 
-``` Haskell
+``` sourcecode
 type Loan extends InstrumentBase:
     borrower LegalEntity (0..*)
     lien string (0..1)

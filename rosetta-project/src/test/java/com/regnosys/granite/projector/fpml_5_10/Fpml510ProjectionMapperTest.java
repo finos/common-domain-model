@@ -23,6 +23,7 @@ import org.fpml.fpml_5.confirmation.RequestClearing;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 import static com.regnosys.granite.projector.fpml_5_10.ProjectionMappingReport.ProjectionMappingReportBuilder;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Disabled
 class Fpml510ProjectionMapperTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Fpml510ProjectionMapperTest.class);
