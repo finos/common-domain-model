@@ -57,7 +57,7 @@ Information disclosed in connection with any Working Group activity, including b
 
 ## 6. Major release scheduling guidelines
 
-## 6.1 Objectives of defining major releases
+### 6.1 Objectives of defining major releases
 
 * To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
   - Changes to existing functionality that may create challenges for upgrading [testing]
@@ -66,21 +66,21 @@ Information disclosed in connection with any Working Group activity, including b
 * To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
 * To promote planned and new CDM capabilities to encourage adoption
   
-## 6.2 Objectives of defining guidelines for scheduling and approving major releases
+### 6.2 Objectives of defining guidelines for scheduling and approving major releases
 
 * To ensure that major releases are planned, scheduled, and approved in a predictable, consistent, and transparent way
   - Ensure smoother development
   - Reduce conflict
 * To ensure that we follow industry best-practices for evolving software.
   
-## 6.3 Overall Principles for Scheduling Major Releases
+### 6.3 Overall Principles for Scheduling Major Releases
 
 * Major releases shall be planned ahead of time and these plans reviewed and approved by the SWG  so that consumers of CDM are aware of the planned changes and can plan for those changes.
 There is a balance between moving too quickly (and creating a lot of confusing changes, potentially discouraging adoption) and moving too slowly (and not addressing major issues in a timely fashion).  * The SWG will be tasked with assessing and maintaining that balance and communicating its decisions.  That balance is likely to change over time as the CDM software matures; likely major release frequency will slow down in the future.
 * Part of the role of the guidelines will be to help the CDM SWG to resist pressure to create too many major releases.  However, the guidelines need to provide the SWG with enough flexibility to address major challenges relatively quickly and flexibly when required.
   * Defining the guidelines is important to implement the above objective
     
-## 6.4 Detailed Guidelines – Scheduling Major Releases
+### 6.4 Detailed Guidelines – Scheduling Major Releases
 
 * No major release will be planned/scheduled  (decision and content) without formal approval at a meeting of the SWG
   * *Rationale:*  Designation of a major release is an important decision that requires transparency and control
@@ -101,7 +101,7 @@ There is a balance between moving too quickly (and creating a lot of confusing c
     
 * These guidelines can be amended by the SWG following a formal review process
 
-## 6.5 Detailed Guidelines – Long Term Planning and Outreach
+### 6.5 Detailed Guidelines – Long Term Planning and Outreach
 
 * Ideally the SWG will establish plans for upcoming major releases for at least the following 9-12 months
   * *Rationale:*  this provides transparency for the users and potential users of CDM (supporting adoption)
@@ -109,7 +109,7 @@ There is a balance between moving too quickly (and creating a lot of confusing c
 * Major release schedules shall be published on the CDM GitHub repository once approved by the SWG (in https://github.com/finos/common-domain-model/blob/master/ROADMAP.md)
   * *Rationale:* as above
 
-## 6.6 Detailed Guidelines – Changes vs.  Major Versions
+### 6.6 Detailed Guidelines – Changes vs.  Major Versions
 
 * Breaking changes (as defined in the change control guidelines) can only be implemented in a major version
   - *Rationale:* this is required to ensure that within a single major version there is stability across minor versions.
@@ -123,5 +123,20 @@ There is a balance between moving too quickly (and creating a lot of confusing c
 * When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
   - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
+## 7.0 Change Control Guidelines
+
+(to be completed)
+
+## 8.0 Pull Request Approval Guidelines
+
+(to be completed)
+
+| Type of PR        | Backward Compatible |  Backward Incompatible                        |
+| ----------------- | ------------------- |  -------------------------------------------  |
+| Defect correction | 1 maintainer        | 2 maintainers; notify CRWG if production      |
+| Enhancement       | 2 maintainers       | 2 maintainers; must be on roadmpa; dev only   |
 
 
+## 9.0 Release Build Approval Guidelines
+
+(to be completed)
