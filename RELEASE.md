@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-Modified condition for Floating Rate Option.
+Modified condition for `Floating Rate` Option.
 - Addition of clause to allow posting of supplementary attribute `IndexReferenceInformation`
 
 _Review directions_
