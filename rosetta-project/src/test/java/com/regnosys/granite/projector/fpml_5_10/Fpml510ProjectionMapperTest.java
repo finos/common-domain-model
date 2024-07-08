@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 import static com.regnosys.granite.projector.fpml_5_10.ProjectionMappingReport.ProjectionMappingReportBuilder;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Disabled
 class Fpml510ProjectionMapperTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Fpml510ProjectionMapperTest.class);
