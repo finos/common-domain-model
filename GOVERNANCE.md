@@ -158,6 +158,9 @@ This section discusses how changes to the CDM are controlled within and between 
   * Function signatures may not be changed in such a way as to invalidate previous callers (e.g addition of new mandatory parameters, or removal/change of existing parameters.)
     * Change to the DSL that results in change to any of the generated code's public interfaces is prohibited
   * Test cases that passed in a prior version shall continue to work.
+  * We allow some minor exceptions to these rules for newly introduced functionality that may not be fully formed, as part of the PR process for defect corrections
+  * Functionality shall not be removed between major versions without advance notice
+
 
 Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version x.y, it does not need to fully interoperate with version x.y-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version x.y, it should be able to interoperate with version x.y+1.
 
