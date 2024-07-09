@@ -31,4 +31,4 @@ Product Model:
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2997](https://github.com/finos/common-domain-model/pull/2997)
+The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
