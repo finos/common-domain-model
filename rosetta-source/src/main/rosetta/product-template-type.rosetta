@@ -59,19 +59,24 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
                 and effectiveDate exists
                 and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate exists
                 and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate is absent
-        then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+        then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate 
+        or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate 
+        or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
 
     condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> creditDefaultPayout exists
                 and payout -> cashflow exists
                 and terminationDate exists
                 and payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
-        then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+        then payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate 
+        or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate 
+        or payout -> cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
                 and terminationDate exists
         then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
+            or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
