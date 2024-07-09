@@ -65,7 +65,7 @@ def test_rates():
     path = os.path.join(os.path.dirname(__file__), 
                         CDM_JSON_SAMPLE_SOURCE,
                         'rates', 
-                        'USD-Vanilla-swap.json')
+                        'cb-option-usi.json')
     json_str = Path(path).read_text(encoding='utf8')
     ts = TradeState.model_validate_json(json_str)
     print(repr(ts))
