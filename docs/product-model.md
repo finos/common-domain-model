@@ -6,7 +6,7 @@ title: Product Model
 **Note:**
 Some significant enhancements are being introduced to the Product Model
 in the CDM in version 6.  These are being driven by the Asset Refactoring
-Task Force, see: [https://github.com/finos/common-domain-model/issues/2805](finos#2805).
+Task Force.
 This documentation will be updated as these changes are released into
 the development version.
 
