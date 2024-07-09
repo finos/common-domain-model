@@ -75,7 +75,8 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
                 and terminationDate exists
-        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < (terminationDate -> adjustableDate -> unadjustedDate default terminationDate -> adjustableDate -> adjustedDate)
+        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
+            or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
