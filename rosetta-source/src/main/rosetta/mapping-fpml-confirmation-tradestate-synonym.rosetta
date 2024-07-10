@@ -1695,6 +1695,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     AssetIdentifier:
         + identifier   
             [value "instrumentId" path "loan" maps 2 mapper "AssetIdentifierType"]
+            [value "currency" maps 2 meta "currencyScheme"]
+        + identifierType   
+            [set to AssetIdTypeEnum -> CurrencyCode when "currency" exists]
             
     ProductIdentifier:
         + identifier
@@ -2062,8 +2065,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "ignore"]
         + resetOrigin
             [value "ignore"]
-        + asset
-            [value "ignore"]
+        //+ asset
+        //    [value "ignore"]
 
     TransferExpression:
         + priceTransfer
@@ -2076,6 +2079,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to FeeTypeEnum -> Premium when path = "equityPremium"]
             [set to FeeTypeEnum -> BrokerageCommission when "paymentType" = "Brokerage"]
             [set to FeeTypeEnum -> Novation when path = "novation->payment"]
+
+    Asset:
+        + Cash
+            [value "paymentAmount"]
 
     ContractDetails:
         + documentation
