@@ -286,6 +286,7 @@ type FloatingAmountProvisions:
     stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
 type CreditIndexReferenceInformation extends IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
+    [deprecated]  // to be replaced by CreditIndex
     [metadata key]
     indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
     indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
@@ -519,7 +520,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 
     condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
         if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> productIdentifier exists
+        then exchangeTradedContractNearest -> asset -> Instrument -> ListedDerivative -> identifier exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
         if valuationTerms -> futuresPriceValuation = True
@@ -754,3 +755,4 @@ type FixedAmountCalculationDetails: <"Type for reporting the detailed results of
     fixedRate number (1..1) <"The value of the fixed rate that was used.">
     yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
     calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
+    

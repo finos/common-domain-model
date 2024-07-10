@@ -571,13 +571,12 @@ type TransferBase:
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
     quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-    observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
     payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
     condition FinancialUnitExists:
-        if observable exists
-        then quantity -> unit -> financialUnit exists
+        quantity -> unit -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
@@ -752,3 +751,4 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
     marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
     marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
     agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
+    
