@@ -13,16 +13,12 @@ New `Asset` data type:
 - Introduce the additional Asset data sub-type called `Instrument`, also using `choice`, defined as "a type of Asset that is issued by one party to one or more others".
 - Create the new base class `InstrumentBase` to model common attributes across all `Instrument` data types.
 - Introduce the new enumerator `AssetIdTypeEnum` to define certain identifier sources unique to Assets.
-- Change the inheritance from `ProductBase` to `Identifier` for:  `Index`, `Loan`.
+- Change the inheritance from `ProductBase` to `InstrumentBase` for `Loan`, `ListedDerivative`.
 - Add a reference on `Observable` to an `Asset` using an `AssetIdentifier`.
 
 Changes to `Transfer`:
 - As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
 - This also results in changes to the `Qualify_SecurityTransfer` function.
-
-Refactored `Index` data type:
-- Introduce a new modelling implementation of `Index`, using `choice`.
-- Define/redefine the following data types related to index:  `FloatingIndex`, `InflationIndex`, `CreditIndex`, `EquityIndex` and `OtherIndex`
 
 Product Model:
 - Introduce a new data type on `Payout`: `SettlementCommitment` which models the settlement of an `Asset` for cash.
@@ -31,4 +27,12 @@ Product Model:
 
 _Review directions_
 
-The changes can be reviewed in PR: [#2997](https://github.com/finos/common-domain-model/pull/2997)
+The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
+
+_Backward compatibility_
+
+This release contains changes with no backward compatibility:
+- The change in the inheritance for `Loan` and `ListedDerivative` impacts the use of identifiers in these data types.
+- The refactoring of `Transfer` to act upon an `Asset` rather than `Observable` impacts the use of the related functions.
+
+Samples and mappings for both have been updated accordingly.
