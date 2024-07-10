@@ -292,8 +292,13 @@ type TransferBase:
     payerReceiver PartyReferencePayerReceiver (1..1)
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
-    condition FinancialUnitExists:
-        quantity -> unit -> financialUnit exists
+    condition QuantityUnitExists:
+        if asset -> Cash exists
+        then quantity -> unit -> currency exists
+        else if asset -> Commodity exists
+        then quantity -> unit -> capacityUnit exists
+        else if asset -> Instrument exists
+        then quantity -> unit -> financialUnit exists
 ```
 
 ## Primitive Operator {#primitive-event}
