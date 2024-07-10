@@ -252,8 +252,12 @@ type FloatingRateOption: <"Specification of a floating rate option as a floating
     indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
     indexReferenceInformation IndexReferenceInformation (0..1) <"This Attribute contains all the terms relevant to defining an Index.">
 
-    condition FloatingRateIndex: <"A required choice condition for either a floating rate or inflation rate index.">
-        required choice floatingRateIndex, inflationRateIndex
+    condition FloatingRateIndex: <"floating rate and inflation rate index are mutually exclusive">
+            optional choice floatingRateIndex, inflationRateIndex
+
+    condition IndexRefInfo: <"If both floating rate and inflation rate index are absent, then indexReferenceInformation is required">
+            if floatingRateIndex is absent and inflationRateIndex is absent
+            then indexReferenceInformation exists
 
 type FxRate: <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
 

@@ -1,17 +1,13 @@
-# _Infrastructure - Dependency Update_
+# _CDM Model - Modification to product condition_
 
 _What is being released?_
 
-This release updates the following dependencies.
+Modified condition for `FpML_cd_30`
+- Addition of clause to allow `adjustedDate` check
 
-Version updates include:
-- `DSL` 9.12.0: this release fixes an issue where the `only exists` operator behaved unexpectedly when subtyping was involved. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.0.
-- `DSL` 9.12.1: this patch fixes null pointers in the Java runtime of the `only exists` operator. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.1.
-- `DSL` 9.12.2: this patch fixes a code generation bug in the Java generator. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.2.
-- `DSL` 9.12.3: this patch fixes an issue where the code generator could freeze Rosetta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.3.
-- `DSL` 9.12.4: this patch fixed an issue with `only exists` on multi-cardinality inputs. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.12.4.
-- `Jackson` 2.17.1: this release updates the library used to serialise/deserialise JSON.
+Modified condition for `Floating Rate` Option.
+- Addition of clause to allow posting of supplementary attribute `IndexReferenceInformation`
 
-_Review Directions_
+_Review directions_
 
-The changes can be reviewed in PR: [#3005](https://github.com/finos/common-domain-model/pull/3005)
+The changes can be reviewed in PR: [#3034](https://github.com/finos/common-domain-model/pull/3034)
