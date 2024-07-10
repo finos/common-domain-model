@@ -983,13 +983,12 @@ Additionally, the Instrument data types extend from InstrumentBase:
 
 ``` Haskell
 type InstrumentBase extends AssetBase:
-	isExchangeListed boolean (1..1)  
+    isExchangeListed boolean (0..1)  
     exchange LegalEntity (0..*)  
             
-    condition ExchangeListed:  
-        if isExchangeListed
-        then exchange exists
-        else exchange is absent 
+    condition ExchangeListed: 
+        if exchange exists
+        then isExchangeListed  
 ```
 
 The instrument assets also have their own definitions with additional attributes

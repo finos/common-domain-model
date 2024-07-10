@@ -25,13 +25,12 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase:  <"Defines the common attributes for all Instrument data types.">
-	isExchangeListed boolean (0..1)  <"Defines whether the Instrument is listed on a public exchange.">
+    isExchangeListed boolean (0..1)  <"Defines whether the Instrument is listed on a public exchange.">
     exchange LegalEntity (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
 
-    condition ExchangeListed:  <"An exchange must be specified for exchange-listed Instruments.">
-        if isExchangeListed
-        then exchange exists
-        else exchange is absent
+    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if exchange exists
+        then isExchangeListed  
 
 choice Instrument:  <"A type of Asset that is issued by one party to one or more others. ListedDerivative: A securitized derivative on another asset that is created by an exchange. Loan: An Asset that represents a loan or borrow obligation. Security: An Asset that is issued by a party to be held by or transferred to others.">
     ListedDerivative
