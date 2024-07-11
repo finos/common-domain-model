@@ -561,7 +561,7 @@ choice Asset:
 These attributes are:
 
 * Cash: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
-  data type is an `Identifier` which is a string that should be populated with the `CurrencyCodeEnum` for the currency
+  data type is an `Identifier`, populated with the currency code (using the `CurrencyCodeEnum` list) for the currency
   of the cash.
 * Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
   The applicable identifiers are the ISDA definitions for reference benchmarks.
