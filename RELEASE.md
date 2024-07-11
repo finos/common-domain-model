@@ -36,3 +36,5 @@ This release contains changes that are not backward-compatible:
 - The refactoring of `Transfer` to act upon an `Asset` rather than `Observable` impacts the use of the related functions.
 
 Samples and mappings for both have been updated accordingly.
+
+A full description of the backward-incompatible changes, and how persisted objects should be remapped, will be included in the release notes for the last tranche of the asset refactoring.
