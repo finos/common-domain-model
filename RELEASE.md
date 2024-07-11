@@ -12,7 +12,7 @@ New `Asset` data type:
 - Introduce the new data type `Asset` which is defined as "something that can be owned and transferred in the financial markets". The data type is implemented using the new Rune DSL feature `choice` that is available in [Release 9.10](https://github.com/finos/rune-dsl/releases/tag/9.10.0).
 - Introduce the additional Asset data sub-type called `Instrument`, also using `choice`, defined as "a type of Asset that is issued by one party to one or more others".
 - Create the new base class `InstrumentBase` to model common attributes across all `Instrument` data types.
-- Introduce the new enumerator `AssetIdTypeEnum` to define certain identifier sources unique to Assets.
+- Introduce the new enumerator `AssetIdTypeEnum`, to define certain identifier sources unique to Assets, as an extension of `ProductIdTypeEnum`.
 - Change the inheritance from `ProductBase` to `InstrumentBase` for `Loan`, `ListedDerivative`.
 - Add a reference on `Observable` to an `Asset` using an `AssetIdentifier`.
 
@@ -29,9 +29,9 @@ _Review directions_
 
 The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
 
-_Backward compatibility_
+_Backward-incompatible changes_
 
-This release contains changes with no backward compatibility:
+This release contains changes that are not backward-compatible:
 - The change in the inheritance for `Loan` and `ListedDerivative` impacts the use of identifiers in these data types.
 - The refactoring of `Transfer` to act upon an `Asset` rather than `Observable` impacts the use of the related functions.
 
