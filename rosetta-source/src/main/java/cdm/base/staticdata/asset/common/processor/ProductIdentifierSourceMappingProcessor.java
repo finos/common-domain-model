@@ -13,6 +13,12 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.util.List;
 
+/**
+ * Update product identifier source enum based on the instrumentIdScheme or productIdScheme.
+ *
+ * @see cdm.base.staticdata.asset.common.processor.AssetIdentifierTypeMappingProcessor
+ */
+@SuppressWarnings("unused")
 public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
 
 

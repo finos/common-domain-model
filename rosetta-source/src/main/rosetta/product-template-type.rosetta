@@ -23,6 +23,10 @@ import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
+type TransferableProduct:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with or without the addition of specific EconomicTerms.">
+    asset Asset (1..1)
+    economicTerms EconomicTerms (0..1)
+
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
@@ -234,6 +238,11 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
+    settlementCommitment SettlementCommitment (0..1)  <"This is a simple payout used to define the commitment to settle a trade, for example a purchase of a cash security.">
+
+    condition SettlementCommitmentIsExclusive: <"A SettlementCommitment can only be used on its own.">
+        if settlementCommitment exists
+        then settlementCommitment only exists
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
         if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
@@ -286,6 +295,9 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
+
+type SettlementCommitment extends PayoutBase:  <"This is a simple payout used to define the commitment to settle a trade, for example a purchase of a cash security.">
+    transferableProduct TransferableProduct (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
     [metadata key]
@@ -910,3 +922,4 @@ type EvergreenProvision: <"Specifies a transaction which automatically extends f
     noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
+    

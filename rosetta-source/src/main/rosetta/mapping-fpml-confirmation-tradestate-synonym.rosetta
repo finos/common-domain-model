@@ -1681,9 +1681,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "maximumDaysOfPostponement"]
 
     Loan:
-        + productIdentifier
-            [value "loan" meta "instrumentId"]
-            [hint "loan"]
         + borrower
             [value "borrower" path "loan"]
         + lien
@@ -1695,6 +1692,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + tranche
             [value "tranche" path "loan" meta "loanTrancheScheme"]
 
+    AssetIdentifier:
+        + identifier   
+            [value "instrumentId" path "loan" maps 2 mapper "AssetIdentifierType"]
+            [value "currency" maps 2 meta "currencyScheme"]
+        + identifierType   
+            [set to AssetIdTypeEnum -> CurrencyCode when "currency" exists]
+            
     ProductIdentifier:
         + identifier
             [value "instrumentId" path "bond" maps 2 mapper "ProductIdentifierSource"]
@@ -1702,7 +1706,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "instrumentId" path "mortgage" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "equity" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "index" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "loan" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "commodity" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" maps 2 mapper "ProductIdentifierSource"]
@@ -2074,6 +2077,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to FeeTypeEnum -> Premium when path = "equityPremium"]
             [set to FeeTypeEnum -> BrokerageCommission when "paymentType" = "Brokerage"]
             [set to FeeTypeEnum -> Novation when path = "novation->payment"]
+
+    Asset:
+        + Cash
+            [value "paymentAmount"]
+            [value "fixedAmount"]
 
     ContractDetails:
         + documentation
@@ -2532,7 +2540,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + cashflow
             [value "ignore"]
         + commodityPayout
-            [value "commoditySwap" , "floatingLeg" path "commoditySwap"]
+            [value "commoditySwap", "floatingLeg" path "commoditySwap"]
         + fixedPricePayout
             [value "fixedLeg" path "commoditySwap"]
             [value "fixedPayment" path "fixedLeg" , "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
@@ -2548,6 +2556,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVarianceSwap"]
             [value "fxVolatilitySwap"]
             [value "returnLeg"]
+        + settlementCommitment
+            [value "ignore"]
 
     Product:
         + contractualProduct

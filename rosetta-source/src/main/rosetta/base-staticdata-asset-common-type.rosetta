@@ -8,13 +8,33 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
+choice Asset:  <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the  attributes must be used."> 
+    Cash  <"An Asset that consists solely of a monetary holding in a currency.">
+    Commodity <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
+    DigitalAsset <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
+    Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
+
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (0..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+    taxonomy Taxonomy (0..1) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
         [metadata scheme]
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
+
+type InstrumentBase extends AssetBase:  <"Defines the common attributes for all Instrument data types.">
+    isExchangeListed boolean (0..1)  <"Defines whether the Instrument is listed on a public exchange.">
+    exchange LegalEntity (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
+
+    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if exchange exists
+        then isExchangeListed  
+
+choice Instrument:  <"A type of Asset that is issued by one party to one or more others. ListedDerivative: A securitized derivative on another asset that is created by an exchange. Loan: An Asset that represents a loan or borrow obligation. Security: An Asset that is issued by a party to be held by or transferred to others.">
+    ListedDerivative
+    Loan
+    Security
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
@@ -73,6 +93,7 @@ type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which i
         optional choice value, productQualifier
 
 type IndexReferenceInformation: <"A class defining information related to Index">
+    [deprecated] // to be replaced by IndexBase
     indexName string (0..1) <"The name of the index expressed as a free format string with an associated scheme.">
         [metadata scheme]
     indexId string (0..*) <"An index identifier (e.g. RED pair code).">
@@ -80,6 +101,21 @@ type IndexReferenceInformation: <"A class defining information related to Index"
 
     condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
         indexName exists or indexId exists
+
+type IndexBase extends AssetIdentifier: <"Identifies an index by referencing an identifier.">
+    name string (0..1)  <"A description of the Index.">
+    provider string (0..1) <"The organisation that creates or maintains the Index.">
+    assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
+    exchange string (0..*)  <"If the Index is listed, defines the public exchange(s) of the listing.">
+        [metadata scheme]
+    relatedExchange string (0..*)  <"Provides the related Exchanges, if applicable.">
+
+//choice Index: <"Defines the different types of Index.">
+//    CreditIndex
+//    EquityIndex
+//    FloatingIndex
+//    InflationIndex
+//    OtherIndex
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
@@ -134,23 +170,22 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 
 type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
 
-type ListedDerivative extends AssetBase: <"A securitized derivative on another asset.">
-    isExchangeTraded boolean (0..1) <"Identifies whether the derivative is traded on an exchange.">
-    exchange string (0..1) <" Identifies the exchange where the asset is listed, using the scheme definition http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
-        [metadata scheme]
-    exerciseTerms ExerciseTerms (1..1) <"Specifically the ExerciseDate.">
-    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
-    strike OptionStrike (0..1) <"Specifies the strike of the option.">
-
-    condition ExchangeTraded: <"The Exchange must be specified for exchange-traded assets.">
-        if isExchangeTraded
-        then exchange exists
-        else exchange is absent
+type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
+    expiration string (1..1) <"The Expiration Date of the contract, expressed using the same symbology as the contract identifier.">
+    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future, also following the identifier symbology.">
+    strike string (0..1) <"Specifies the strike of the option, using the identifier symbology.">
 
     condition Options: <"Options must have a strike price.">
         if optionType exists then strike exists else strike is absent
 
-type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
+enum OptionTypeEnum: <"The enumerated values to specify the type of the option. In FpML, OptionTypeEnum is a union with PutCallEnum, which specifies whether the option is a put or a call.">
+    Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
+    Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+    Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
+    Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
+    Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlier, at the same strike and same expiration date">
+
+type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
     lien string (0..1) <"Specifies the seniority level of the lien.">
         [metadata scheme]

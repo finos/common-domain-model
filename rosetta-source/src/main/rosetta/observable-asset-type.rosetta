@@ -8,7 +8,60 @@ import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
+import cdm.product.asset.*
 import cdm.mapping.config.*
+
+type FloatingIndex extends IndexBase:  <"Specification of the floating rate index details.">
+	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
+		[metadata scheme]
+	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
+
+    condition InterestRateAssetClass:
+        assetClass = AssetClassEnum -> InterestRate
+
+type InflationIndex extends IndexBase:  <"Specification of the inflation index details.">
+	inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
+		[metadata scheme]
+
+    condition InterestRateAssetClass:
+        assetClass = AssetClassEnum -> InterestRate
+
+type CreditIndex extends IndexBase: <"A class defining a Credit Default Swap Index .">
+    [metadata key]
+    indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
+    indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
+    indexAnnexDate date (0..1) <"A CDS index series annex date.">
+    indexAnnexSource IndexAnnexSourceEnum (0..1) <"A CDS index series annex source.">
+        [metadata scheme]
+    excludedReferenceEntity ReferenceInformation (0..*) <"Excluded reference entity.">
+    tranche Tranche (0..1) <"This element contains CDS tranche terms.">
+    settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
+    indexFactor number (0..1) <"Index Factor is the index version factor or percent, expressed as an absolute decimal value between 0 and 1, that multiplied by the original notional amount yields the notional amount covered by the seller of protection.">
+    seniority CreditSeniorityEnum (0..1) <"Seniority of debt instruments comprising the index.">
+
+    condition IndexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
+        if indexSeries exists then indexSeries >= 0
+
+    condition IndexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
+        if indexAnnexVersion exists then indexAnnexVersion >= 0
+
+    condition IndexFactor: <"Index factor is expressed as a decimal and should be a positive number between o and 1.">
+        if indexFactor exists
+        then indexFactor >= 0 and indexFactor <= 1
+
+    condition CreditAssetClass:
+        assetClass = AssetClassEnum -> Credit
+
+type EquityIndex extends IndexBase: <"Specification of the equity market index details.">
+
+    condition EquityAssetClass:
+        assetClass = AssetClassEnum -> Equity
+
+type OtherIndex extends IndexBase: <"Specification of a user-defined index that does not meet the criteria of other Index data types.">
+    description string (0..1) <"A description that defines the OtherIndex.">
+
+    condition AssetClassRequired:  
+        assetClass exists
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
     premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
@@ -108,6 +161,8 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
         [metadata location]
     productIdentifier ProductIdentifier (0..*) <"Comprises of an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
         [metadata location]
+    identifier AssetIdentifier (0..*) <"Comprises of an identifier and a symbology source. The associated metadata key denotes the ability to associate a hash value to the AssetIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.  This attribute will replace ProductIdentifier in the full release.">
+        [metadata location]   
     currencyPair QuotedCurrencyPair (0..1) <"Describes the composition of a rate that has been quoted or is to be quoted, including the two currencies and the quotation relationship between the two currencies.">
         [metadata location]
     optionReferenceType OptionReferenceTypeEnum (0..1) <"The underlying contract which is referenced when determining the final settlement price of the instrument. Eg. Rolling Front Month Future; Spot etc.">
@@ -416,3 +471,4 @@ type DividendApplicability: <"The parameters which define whether dividends are 
     optionsExchangeDividends boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
     additionalDividends boolean (0..1) <"If present and true, then additional dividends are applicable.">
     allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
+    
