@@ -561,11 +561,11 @@ choice Asset:
 These attributes are:
 
 * Cash: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
-  data type is an `Identifier` which should be populated with the `CurrencyCodeEnum` for the currency
+  data type is an `Identifier` which is a string that should be populated with the `CurrencyCodeEnum` for the currency
   of the cash.
 * Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
   The applicable identifiers are the ISDA definitions for reference benchmarks.
-* DigitalAsset An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.
+* DigitalAsset: An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.
 * Instrument: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
 
 The `Instrument` data type is further broken down using the `choice` construct:
