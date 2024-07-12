@@ -757,14 +757,16 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
 
 type NewPayoutCalculationInstruction: <"Specifies input and output data of a calculation based on payout terms. The input data are the observable data (fixing values) as well as the fixed data (all are described in payoutFormula e.g. strike, multiplier, etc.) and other payout formula terms (also described in payoutFormula e.g. aggreationMethod, capFloor, etc.), the reference to the trade payout leg, the calculationAgent (type AncillaryParty) and when any, the reference to the utility function used to perform the calculation. The outputs are the calculation results i.e. the final result itself (i.e. payoutAmount), as well as any intermediary results (included in payoutFormula).">
 
-    payoutAmount Quantity (1..1) <"The net resulting value of the PayoutCalculation, which from a functional stand point shall equal to: payoutQuantity value x payoutFormula value.">
+    payoutAmount Quantity (1..1) <"The net resulting value of the PayoutCalculation which from a functional stand point shall equal to: payoutQuantity value x payoutFormula value.">
         [metadata location]
+    payoutQuantity Quantity (0..1) <"The notional quantity referenced in the PayoutBase of the Payout at stake. From a calculation stand point, this is the value which shall be multiplied by the payoutFormula value, for producing the calculationResult value.">
+        [metadata address]
     payoutOrigin SettlementOrigin (0..1) <"The reference to the particular Payout from the Trade, which PayoutCalculation is relative to.">
     payoutFormula NewBespokePayoutFormula (0..1) <"The mathematical representation of the PayoutCalculation i.e. operators, fixed inputs, variable inputs, embedded formulas and intermediary results. From a calculation stand point, this is the value which shall be multiplied by the payoutQuantity value, for producing the payoutAmount value. ">
-    payoutQuantity Quantity (0..1) <"The notional quantity referenced in the PayoutBase of the Payout at stake. From a calculation stand point, this is the value which shall be multiplied by the payoutFormula value, for producing the calculationResult value.">
+         [metadata reference]
     calculationAgent AncillaryParty (0..1) <"The ancillary party that is producing the information represented in PayoutCalculation.">
-    calculationFunction string (0..1) <"If any, the reference to the utility function (i.e. func object in Process model) used for producing the payoutAmount.">
- 
+    calculationFunctionReference string (0..1) <"If any, the reference to the utility function (i.e. func object in Process model) used for producing the payoutAmount.">
+
     condition FormulaAndQuantity: <"From a functional stand point shall equal to: payoutQuantity value x payoutFormula value. Accordingly, when present, then these terms shall exist together.">
 
         (payoutFormula exists and payoutQuantity exists)
@@ -772,5 +774,5 @@ type NewPayoutCalculationInstruction: <"Specifies input and output data of a cal
 
     condition CalculationDetails: <"The purpose of PayoutCalculation is to document the calculation details which resulted in the payoutAmount, therefore either  payoutFormula is defined , else at at least a utility function shall be used and referenced for such purposes i.e. at least calculationFunction shall be defined.">
 
-        if calculationFunction is absent
+        if calculationFunctionReference is absent
         then payoutFormula exists

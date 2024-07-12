@@ -120,8 +120,8 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     condition OptionBespokePayoutFormula: <"The root object of the BespokePayoutFormula shall be restricted in accordance with the core formula of the Payout type it is describing, which for an optionPayout is [ max (0 ; differentialValue) ].">
         if bespokePayoutFormula exists
         then bespokePayoutFormula -> differentialValue only exists
-                and bespokePayoutFormula -> valueOperator -> capFloorBarrier -> barrierType all = NewCapFloorEnum -> Floor
-                and bespokePayoutFormula -> valueOperator -> capFloorBarrier -> barrierLevel -> fixedPrice -> value all = 0
+        and bespokePayoutFormula -> valueOperator -> capFloorBarrier -> barrierType all = NewCapFloorEnum -> Floor
+        and bespokePayoutFormula -> valueOperator -> capFloorBarrier -> barrierLevel -> baseValue -> fixedPrice -> value all = 0
 
     condition BespokePayoutFormulaRequiresObservationTerms:
         if bespokePayoutFormula exists
@@ -1050,13 +1050,15 @@ type NewBespokePayoutFormula extends NewCorePayoutValue: <"The generic set of co
     Such 'payout algebra' relies on four pillars :
     (1) a set of three atomic root functional operations, composable within each others, represented with type CorePayoutValue : one represents the trivial operation F(X)=X which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable) and two represent non-commutative operations, respectively a substraction F(X,Y)=X-Y and a division F(X,Y)=X/Y)
     (2) possible aggregation of multiple instance of any node in CorePayoutValue path, which is represented with type ValueAggregation : a set of commutative Operators e.g. Sum, Min, Max, Averaging, etc. 
-    In essence, combining CorePayoutValue and ValueAggregation components is the core engine of the algebra. Considering that the functional signification of each respective type is both human-readeable and machine-executable, the algebra components from the Product model are ready-made inputs for implementing any Process model.
-    Additionally, the core algebra is extended with typical operations inherited from derivative business (3) and with a way to represent basic logical conditions (4) :
-    (3) business operations are represented with type ValueOperator, mostly inspired from usual features found in structured product terms e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, etc.
+    Additionally, the core algebra is extended with typical operations inherited from derivative business represented with type ValueOperator (3) and with a way to represent basic logical conditions, which consists in interpreting the tree of paths (4) :
+    (3) business operations are represented with type ValueOperator, mostly inspired from usual features found in structured product terms e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, Divisor, etc. (additionaly, this component also contains an AlgebraicOperator that is an Enum list of basic operations e.g. NaturalLog, QuaredExponent, SquaredRoot, etc. mostly used for products which payout involve volatility or variance calculations)
     (4) intrepretation of the 'branching logic' per se, by considering whether (a) multiple instance exist at same node in array, else (b) multiple instances exist as series of attributes nested within each others :
-        (i) for representing associativity rules, that is to say the order according to which operations shall be executed (that is mostly described with parenthesis in usual languages) - use interpretation rule (a)
-        (ii) for representing logical condition 'OR' : use also the interpretation rule (a)
-        (iii) for logical condition 'AND' : use interpretation rule (b).">
+        (i) for representing logical condition 'OR' : use also the interpretation rule (a)
+        (ii) for logical condition 'AND' : use interpretation rule (b).
+    In essence, combining CorePayoutValue with ValueOperator and ValueAggregation is the core engine of the algebra. Considering that the functional signification of each respective type is both human-readeable and machine-executable, the algebra components from the Product model are ready-made inputs for implementing any Process model.
+    For clarity, the associativity rules are also represented ; by considering :
+        - the 'branching logic' of CorePayoutValue nodes when nested series exist : i.e. nested nodes obviously represent compounding order of related operations e.g. A(B(C(baseValue))) shall mean for instance : first apply C to baseValue, then apply B to resolved value, then apply A to resolved value
+        - and applying this ordering whenever multiple ValueOperator and ValueAggregation exist at same node level : multiplierDivisor( knockConditions( capFloor( algebricOperator ( valueAggregation ( baseValue) ), for instance say given node [X] has three attributes Multiplier [100], algebricOperator [SquaredExponent] and valueAggregation [SUM] this would accordinlgy represent operations in this precise compounding order : (100 x ( (Sum[X])^2) ). ">
         [metadata key]
 
     valueAggregation NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value.">
@@ -1074,7 +1076,7 @@ type NewBespokePayoutFormula extends NewCorePayoutValue: <"The generic set of co
 
 type NewCorePayoutValue: <"A set of three atomic root functional operations, composable within each others : one represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable) and two represent non-commutative operations, respectively a substraction [ F(X,Y)=X-Y ] and a division [ F(X,Y)=X/Y) ].">
 
-    primitiveValue NewPrimitiveValue (0..*) <"Represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable)">
+    primitiveValue NewPrimitiveValue (0..*) <"Represents the trivial operation [ F(X) = X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable)">
         [metadata reference]
     differentialValue NewDifferentialValue (0..*) <"Represents a substraction i.e. the funtional operation [ F(X,Y) = X - Y ] where : [X] designates a root payout component with positive arithmetic sign, which based on usual business convention is referred to as the 'long' term and [Y] designates a root payout component with a negative arithmetic sign, which based on usual business convention is referred to as the 'short' term of the substractive operation.">
         [metadata reference]
@@ -1087,6 +1089,7 @@ type NewDifferentialValue: <"Represents a substraction i.e. the funtional operat
     long NewLongOperator (1..1) <"The root node for defining the value which arithmetic sign is positive in a substractive operation, that is to say this is the anchor value that is decreased as as result of the substraction.">
     short NewShortOperator (1..1) <"The root node for defining the value which arithmetic sign is negative in a substractive operation, that is to say this is the operand value that is substracted to the anchor one.">
     valueOperator NewValueOperator (0..1) <"The set of operations mostly inspired from usual features found in structured product terms (e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, etc.) to be applied for resolving the value of the object for which this attribute is populated.">
+    valueAggregation NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated e.g. output from valueOperator or aggregationOperator.">
         [metadata reference]
@@ -1097,6 +1100,7 @@ type NewFractionalValue: <"Represents a division i.e. the funtional operation [ 
     numerator NewNumeratorOperator (1..1) <"The root node for defining a value which represents the numerator of a fractional operation.">
     denominator NewDenominatorOperator (1..1) <"The root node for defining a value which represents the denominator of a fractional operation.">
     valueOperator NewValueOperator (0..1) <"The set of operations mostly inspired from usual features found in structured product terms (e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, etc.) to be applied for resolving the value of the object for which this attribute is populated.">
+    valueAggregation NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated e.g. output from valueOperator or aggregationOperator.">
         [metadata reference]
@@ -1111,8 +1115,9 @@ type NewDenominatorOperator extends NewBespokePayoutFormula: <"The root node for
 
 type NewPrimitiveValue: <"Represents the trivial operation [ F(X)=X ] which path contains the end-input value (of type PrimitiveValue, with attributes of type PriceSchedule, QuantitySchedule, Observable)">
         [metadata key]
-        
-    baseValue NewBaseValue (1..*) <"The input of any operations represented within the root bespokePayoutFormula, with an optional choice for type with end-value : either PriceSchedule or QuantitySchedule. That is a unique value (after aggregation when need be), at the leave of the path tree built by any combination from the root CorePayoutValue level. This value is ultimately numerical at some point of the LifeCycle Event that represents the actual execution of the Payout terms.">
+    
+    baseValue NewBaseValue (0..1) <"The end-value to be considered as the input for the operation represented with the bespokePayoutFormula, that is ultimately a Price (fixed ot observable) or a Quantity.">
+    compositeValue NewBespokePayoutFormula (0..1) <"The root node for defining nesting series, whenever needed to further specify application of valueOperator to distinct packages of operation (as an indication, this component is to be used only when the formula involves advanced complexity, since most payout formula can be described without using such attribute).">
     observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
     valueAggregation NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value.">
     valueOperator NewValueOperator (0..1) <"The set of operations mostly inspired from usual features found in structured product terms (e.g. Cap, Floor, Knock-In, Knock-Out, Multiplier, etc.) to be applied for resolving the value of the object for which this attribute is populated.">
@@ -1120,18 +1125,17 @@ type NewPrimitiveValue: <"Represents the trivial operation [ F(X)=X ] which path
     calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated e.g. output from valueOperator or aggregationOperator.">
         [metadata reference]
     
-    condition Observable: 
+    condition BaseValueOrCompositeValue:
+    required choice baseValue, compositeValue
+
+    condition Observable: <"That is to avoid redundant information, since observablePrice is of type Observable, thus same type as observable.">
     if baseValue -> observablePrice exists
     then observationTerms -> observable is absent
 
-    condition AggregationExistsWhenMultipleBaseValueExist: <"Whenever multiple instances exist, the aggregation method must be defined.">
-    if baseValue count > 1
-    then valueAggregation -> aggregationMethod -> valueSeriesAggregation exists
-
-type NewValueAggregation: <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value i.e. the aggregationMethod represents a enumerated list of functional operations of type : [ F(X1, X2, ...Xn) = X0 ] where [X1], [X2], ..., X[Xn] are values of the parent object and [X0] is the unique output value after resolving, and where all types of functions are commutative e.g. Sum, Multiply, Min, Max, Average. Besides, the aggregationMethod is processing either values in array, else values in time series. Besides, multiple aggregation or ranking are composable in sorted manner via the aggregationLoop attribute (considering a matrix of dateValue with observable in row and date in column for instance, then any combination of vertical or horizontal aggreation can be represented). Optionnaly, a rankingMethod may be defined prior to aggregating the values, that is for instance used for representing so-called 'rainbow' features in some derivatives products, say net payout consisting in the 1th, the 2nd and the 3rd performance among multiple ones being compared, before ranked as such usually with distinct weights, before being aggregated to calculate the final value.">
+type NewValueAggregation: <"The aggregation operation to be applied for resolving multiple values of the object for which this attribute is populated, into one value i.e. the aggregationMethod represents a enumerated list of functional operations of type : [ F(X1, X2, ...Xn) = X0 ] where [X1], [X2], ..., X[Xn] are values of the parent object and [X0] is the unique output value after resolving, and where all types of functions are commutative e.g. Sum, Multiply, Min, Max, Average. Besides, the aggregationMethod is processing either values in array, else values in time series. Besides, multiple aggregation or ranking are composable in sorted manner via the aggregationLoop attribute (considering a matrix of dateValue with observable in row and date in column for instance, then any combination of vertical or horizontal aggreation can be represented). Optionnaly, a rankingMethod may be defined prior to aggregating the values, say for representing so-called 'rainbow' features in some derivatives products (example : net payout consisting in ranking the 1th, the 2nd and the 3rd performance among multiple ones being compared, usually with distinct weight per rank, before being aggregated to calculate the final value).">
 
     aggregationMethod NewAggregationMethod (1..1) <"Defines the method in which multiple values can be aggregated into a single value. It is a set of commutative functions  e.g. Sum, Multiply, Min, Max, Average. Importantly, two dimensions may be considered when aggregating : value series resulting from an object with unbound cardinality, else multiple value resulting from dateValue series - hence an optional choice below between the attributes which represent each of these two dimentions :  valueSeriesAggregation or datedValueSeriesAggregation.">
-    rankingMethod NewRankingMethod (0..1) <"Defines that one or several values shall be selected in regards of their rank in the value series e.g. the 2nd and/or the 3rd and/or the 'nth' when sorting either from lowest to the highest value in the series, or vice-versa.">
+    rankingMethod NewRankingMethod (0..*) <"Defines that one or several values shall be selected in regards of their rank in the value series e.g. the 2nd and/or the 3rd and/or the 'nth' when sorting either from lowest to the highest value in the series, or vice-versa. As an indication, when only one is to be selected that being either the Best or the Worst, then aggregationMethod shall be used (instead of rankingMethod, hence condition below) with Max or Min value, as relevant.">
     aggregationDate NewDateRelativeToEnum (0..1) <"The enumerated values to specify the type of date to be used as an anchor.">
     aggregationLoop NewValueAggregation (0..1) <"Permits to compound valueAggregation series in sorted manner, assuming that sorting order shall be read from the left end-value to the right start-value of the nested series e.g. say aggregationMethod(a) shall be applied first then aggregationMethod(b) shall apply to the calculatedValue(a), then one shall represent such loop as aggregationMethod(b)->aggregationLoop->aggregationMethod(a). As indication, such 'left-to-right' interpretation of nesting series is straight applicaiton of the base set theory interpretation per which the embedded inclusion of parties sets within each others is per se an ordering expression e.g. given sets of parties (a) and ((a),b) then considering embedded inclusions would result in resolving (a) as being the start value and ((a),b) being the subsequent value.">
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
@@ -1149,13 +1153,13 @@ type NewValueOperator: <"The set of operations mostly inspired from usual featur
         [metadata reference]
     algebraicOperator NewAlgebraicOperation (0..1) <"the set of mathematical functions mostly used when defining the calculation formua for variance return, volatility return or correlation return.">
         [metadata reference]
-    bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
 type NewAlgebraicOperation: <"the set of mathematical functions mostly used when defining the calculation formua for variance return, volatility return or correlation return.">
         [metadata key]
-
-    operationLoop NewAlgebraicOperation (0..1) <"Permits to compound algebraicOperator series in sorted manner, assuming that sorting order shall be read from the left end-value to the right start-value of the nested series e.g. say algebraicOperation(a)->NaturalLogarithm shall be applied first then algebraicOperation(b)->SquaredExponent shall apply to the calculatedValue(a) as part of a representation of variance performance ratio, then one shall represent such loop as algebraicOperator(b)->operationLoop->algebraicOperator(a). As indication, such 'left-to-right' interpretation of nesting series is straight applicaiton of the base set theory interpretation per which the embedded inclusion of parties sets within each others is per se an ordering expression e.g. given sets of parties (a) and ((a),b) then considering embedded inclusions would result in resolving (a) as being the start value and ((a),b) being the subsequent value.">
+    
     algebraicOperation NewAlgebraicOperationEnum (1..1)
+    operationLoop NewAlgebraicOperation (0..1) <"Permits to compound algebraicOperator series in sorted manner, assuming that sorting order shall be read from the left end-value to the right start-value of the nested series e.g. say algebraicOperation(a)->NaturalLogarithm shall be applied first then algebraicOperation(b)->SquaredExponent shall apply to the calculatedValue(a) as part of a representation of variance performance ratio, then one shall represent such loop as algebraicOperator(b)->operationLoop->algebraicOperator(a). As indication, such 'left-to-right' interpretation of nesting series is straight applicaiton of the base set theory interpretation per which the embedded inclusion of parties sets within each others is per se an ordering expression e.g. given sets of parties (a) and ((a),b) then considering embedded inclusions would result in resolving (a) as being the start value and ((a),b) being the subsequent value.">
+    bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
 type NewKnockCondition: <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute. Accordingly, this specifies that the existence of the parent object for which KnockCondition is defined as an attribute is contigent, either because it does not exists until the condition is verified as true, which is defined as the Knock-In type, or because it does exist unless the condition is verified as true, which is defined as the Knock-Out type.">
     [metadata key]
@@ -1175,7 +1179,7 @@ type NewKnockCondition: <"Represents the funtional operation [ F(X,In) = X x (Bo
 
 type NewTriggerCondition: <"Specifies the criteria for determining whether the KnockCondition is activated or not.">
 
-    triggerLevel NewBaseValue (1..1) <"The value of the trigger level.">
+    triggerLevel NewPrimitiveValue (1..1) <"The value of the trigger level.">
     triggerBaseRule TriggerTypeEnum (1..1) <"Specifies the criteria for determining whether the triggerLevel is deemed to have been knocked or not by the observable value.">
     triggerBasketRule NewTriggerTypeForBasketEnum (0..1) <"Specifies the conditions when multiple observable values shall be taken into account for determining whether the triggerLevel is deemed to have been knocked or not, for instance when the observable values are basket constituents.">
     targetTriggerRule NewTargetTrigger (0..1) <"Defines an additional rule to trigger, that consists in verifying whether the observable has touched or crossed the triggerLevel value a specified number of times, that being a cumulative condition being required for the trigger to be activated. As an example, this feature may be used for representing feature usually referred to by business as 'Target' where the Knock-In attribute of a Cap would require the trigger to be crossed, say 'n' times, i.e. the trigger has to be crossed for 'n' observation dates.">
@@ -1197,14 +1201,15 @@ type NewTargetTrigger: <"Defines an additional rule to trigger, that consists in
         [metadata reference]
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
-// condition CalculatedValueIsAnInteger:
-// if calculatedValue exists 
-// then calculatedValue -> value is int
+    // condition CalculatedValueIsAnInteger:
+    // if calculatedValue exists 
+    // then calculatedValue -> value is int
+    
 type NewCapFloorBarrier: <"Represents the functional operation [ F(X,Cap) = min(X,Cap) ] or the functional operation [ F(X,Floor) = max(X,Floor) ] where : [Cap] or [Floor] is the value of the barrierLevel for the given barrierType i.e. Cap or Floor and [X] is the value of the object for which CapFloor is defined as an attribute.">
     [metadata key]
 
     barrierType NewCapFloorEnum (1..1) <"The enumerated values to specify whether the barrier is a Cap or Floor.">
-    barrierLevel NewBaseValue (1..1) <"The value of the Cap or Floor level.">
+    barrierLevel NewPrimitiveValue (1..1) <"The value of the Cap or Floor level.">
     observationTerms ObservationTerms (0..1) <"Defines when and how to perform the observation of the value of the object for which observationTerms is optionally defined as an attribute. For clarity, this feature is optional when attached to any particular component, since observationTerms always exist upfront at Payout root level, meaning that by default, such upfront terms apply to any particular component for which an observation is required, unless otherwise specified when defining on purpose observationTerms for particular component.">
     knockCondition NewKnockCondition (0..1) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
         [metadata reference]
@@ -1223,36 +1228,32 @@ type NewMultiplierDivisor: <"Represents the functional operation [ F(X) = X x M 
         [metadata reference]
     bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
 
-type NewMultiplier: <"Represents the functional operation [ F(X) = X x M ] where : [M] is the value of the Multiplier and [X] is the value of the object for which Multiplier is defined as an attribute.">
+type NewMultiplier extends NewPrimitiveValue: <"Represents the functional operation [ F(X) = X x M ] where : [M] is the value of the Multiplier and [X] is the value of the object for which Multiplier is defined as an attribute.">
     [metadata key]
 
     observationCountValue NewObservationCount (0..1) <"Specifies when the multiplier value is an integer number of observations.">
-    baseValue NewBaseValue (0..1) <"Specifies when the multiplier value is either an observable price value, else a fixed price value, else a fixed quantity value.">
     dayCountFractionValue cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction value">
-    knockCondition NewKnockCondition (0..*) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
-        [metadata reference]
-    bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
+    applicableToNthRankValue NewRankingMethod (0..1) <"Specifies that the multiplier only applies to the corePayoutValue resolved in accordance with the referenced rankingMethod.">
+        [metadata reference]  
 
     condition ObservationValueIsKnockCount: <"Any bespoke name or description that may be specified.">
     if observationCountValue-> observationValueType = NewObservationCountEnum -> KnockedObservations
-    then knockCondition exists
+    then valueOperator -> knockCondition exists
 
     condition:
-    required choice baseValue, observationCountValue, dayCountFractionValue
+    required choice baseValue, compositeValue, observationCountValue, dayCountFractionValue
 
-type NewDivisor: <"Represents the functional operation [ F(X) = X x 1/D ] where : [D] is the value of the Divisor and [X] is the value of the object for which Divisor is defined as an attribute.">
+type NewDivisor extends NewPrimitiveValue: <"Represents the functional operation [ F(X) = X x 1/D ] where : [D] is the value of the Divisor and [X] is the value of the object for which Divisor is defined as an attribute.">
     [metadata key]
 
     observationCountValue NewObservationCount (0..1) <"Specifies when the divisor value is an integer number of observations.">
-    baseValue NewBaseValue (0..1) <"Specifies when the divisor value is either an observable price value, else a fixed price value, else a fixed quantity value.">
     dayCountFractionValue cdm.base.datetime.daycount.DayCountFractionEnum (0..1) <"The multiplier value is the dayCountFraction value">
-    knockCondition NewKnockCondition (0..*) <"Represents the funtional operation [ F(X,In) = X x (Boolean) ] or the functional operation [ F(X,Out) = X x (1 - Boolean) ] where : [In] or [Out] designates the knockType, [Boolean] equals [1] when the triggerCondition is verified as true, else equals [0], and [X] is the value of the object for which KnockCondition is defined as an attribute">
-        [metadata reference]
-    bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
+    applicableToNthRankValue NewRankingMethod (0..1) <"Specifies that the divisor only applies to the corePayoutValue resolved in accordance with the referenced rankingMethod.">
+        [metadata reference]  
     
     condition ObservationValueIsKnockCount: <"Any bespoke name or description that may be specified.">
     if observationCountValue-> observationValueType = NewObservationCountEnum -> KnockedObservations
-    then knockCondition exists
+    then valueOperator -> knockCondition exists
 
     condition:
     required choice baseValue, observationCountValue, dayCountFractionValue
@@ -1290,12 +1291,12 @@ type NewAutocallableProvision extends NewKnockCondition: <"Specifies that the ex
     condition DoNotDuplicateKnockOutForPrincipalPayment:
         earlyRedemptionPrincipalAmount -> knockCondition is absent
 
-type NewGuaranteedTerms:<"Represent a reference to any terms for which a restriction exists to the effect of early termination provisionfs. The description of the restriction itself is given by context i.e. depends on the description of the component that is precisely being referenced. That is to say GuaranteedTerms is a generic type where to defined any specific type of restriction, which content will vay in accordance with the item being referenced."> // as an indication, today only one business case was raised, but the type is defined in generic manner, so that the list of attributes can be extended as need be with no backward compatibility issues whenever other use cases would be raised. //
-    cumulationFeature CumulationFeature (0..1) 
+type NewGuaranteedTerms:<"Represent a reference to any terms for which a restriction exists to the effect of early termination provisionfs. The description of the restriction itself is given by context i.e. depends on the description of the component that is precisely being referenced. That is to say GuaranteedTerms is a generic type where to defined any specific type of restriction, which content will vay in accordance with the item being referenced."> 
+
+// as an indication, today only one business case was raised, but the type is defined in generic manner, so that the list of attributes can be extended as need be with no backward compatibility issues whenever other use cases would be raised. //
+
+    guarenteedCumulationPeriod NewObservationPeriodSchedule (0..*)
     [metadata reference]
 
-    condition GuaranteedCumulationFeature: <"Purpose is to reference only guaranteed periods.">
-    if cumulationFeature exists 
-    then cumulationFeature -> guarenteedPeriodNotwithstandingEarlyTermination exists
 
 
