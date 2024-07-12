@@ -25,7 +25,7 @@ import cdm.mapping.config.*
 
 type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
     productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    economicTerms EconomicTerms (0..1)  <"The price forming features, including payouts and provisions.">
+    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
 
 type TransferableProduct extends ProductBase:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with or without the addition of specific EconomicTerms.">
     asset Asset (1..1)
@@ -33,9 +33,6 @@ type TransferableProduct extends ProductBase:  <"A TransferableProduct is a type
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
-
-    condition EconomicTerms: <"As a negotiated product, a contractual product must have economic terms.">    
-        economicTerms exists
 
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
@@ -300,8 +297,12 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-type SettlementPayout extends PayoutBase:  <"This is a simple payout used to define the commitment to settle a trade, for example a purchase of a cash security.">
-    transferableProduct TransferableProduct (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
+type SettlementPayout extends PayoutBase:  <"This is a payout data type used to define the commitment to settle a trade in an Asset or TransferableProduct. Examples: a purchase of a cash security; an FX trade, either spot or forward.">
+    underlier Underlier (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
+
+choice Underlier:  <"The underlier of a payout which can be either an Asset or a Transferable Product, which is an Asset with Economic Terms.">
+    Asset  <"Identifies a transferable asset.">
+    TransferableProduct  <"Defines the transferable asset with an identifier and economic terms.">
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
     [metadata key]
