@@ -261,6 +261,21 @@ func Qualify_Reset: <"The qualification of a reset event from the fact that the 
             and beforeTradeState -> trade = afterTradeState -> trade
             and beforeTradeState -> resetHistory count + 1 = afterTradeState -> resetHistory count
 
+func Qualify_AssetTransfer: <"The qualification of an asset transfer from the fact that the only component is a transfer of an asset.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias transfer:
+        TransfersForDate(
+                businessEvent -> after -> transferHistory -> transfer,
+                businessEvent -> eventDate
+            )
+            only-element
+    set is_event:
+        transfer -> asset ->> identifier exists
+
 func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
     [qualification BusinessEvent]
     inputs:
@@ -274,7 +289,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
             )
             only-element
     set is_event:
-        transfer -> asset -> Instrument -> Security -> productIdentifier exists
+        transfer -> asset -> Instrument -> Security -> identifier exists
             and transfer -> quantity -> unit -> financialUnit only exists
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
