@@ -972,7 +972,7 @@ have an identifier, as illustrated below:
 
 ``` Haskell
 type AssetBase:
-    identifier AssetIdentifier (0..*)  
+    identifier AssetIdentifier (1..*)  
     taxonomy Taxonomy (0..1) 
 ```
 
