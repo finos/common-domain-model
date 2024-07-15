@@ -15,9 +15,9 @@ choice Asset:  <"An Asset is defined as something that can be owned and transfer
     Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
-    identifier AssetIdentifier (0..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
-       // [metadata address "pointsTo"=Observable->assetIdentifier]
-    taxonomy Taxonomy (0..1) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
+    identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+    //    [metadata address "pointsTo"=Observable->assetIdentifier]
+    taxonomy Taxonomy (0..1) <"Definedins the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -177,11 +177,6 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
 enum PutCallEnum:  <"The enumerated values to specify the types of listed derivative options.">
     Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
     Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
-
-enum OptionTypeEnum extends PutCallEnum: <"The enumerated values to specify the type or strategy of the option.">
-    Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
-    Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
-    Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlier, at the same strike and same expiration date">
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">

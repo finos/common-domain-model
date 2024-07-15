@@ -546,8 +546,14 @@ risk between two parties.
 The concept of "Asset" has been introduced in the CDM in version 6.0 to improve the modelling of simpler financial products
 and to continue the expansion of the CDM from beyond its heritage focus on over the counter derivatives.
 
-Specifically, the `Asset` data type models something that can be owned and transferred in the financial markets.  As a `choice`
-data type, one and only one of the  attributes must be used:
+:::tip[Definition: `Asset`]
+
+An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
+commodity, a loan or a security. As a choice data type, one and only one of the attributes must be used.
+
+:::
+
+The Asset data type is modelled as follows:
 
 ``` Haskell
 choice Asset:  
@@ -604,7 +610,6 @@ type Product:
   loan Loan (0..1)
   foreignExchange ForeignExchange (0..1)
   commodity Commodity (0..1)
-    [metadata address "pointsTo"=Observable->commodity]
   security Security (0..1)
   basket Basket (0..1)
 
@@ -655,36 +660,43 @@ tradable product and can be identified by a public identifier.
 
 ### Observable
 
+:::tip[Definition: `Observable`]
+
 The `Observable` data type specifies the reference object to be observed
 for a price, which could be an underlying asset or a reference to something
-which can be observed but not actually transfered, such as an index or
+which can be observed but not actually transferred, such as an index or
 a foreign exchange rate.
 
-The Observable data type requires the specification of either a
-`rateOption` (i.e. a floating rate index), `commodity`,
-`productIdentifier`, 
-`identifier` of an Asset,
-or `currencypair`. This choice constraint is
-supported by specifying a one-of condition, as shown below:
+:::
+
+In addition to `Asset` (something that can be held or transferred in the 
+financial markets), an `Observable` is composed of one and only one
+definition:
 
 ``` Haskell
 type Observable:
   [metadata key]
-  rateOption FloatingRateOption (0..1)
-    [metadata location]
-  commodity Commodity (0..1)
-    [metadata location]
-  productIdentifier ProductIdentifier (0..*)
-    [metadata location]
-  identifier AssetIdentifier (0..*)
-    [metadata location]
-  currencyPair QuotedCurrencyPair (0..1)
-    [metadata location]
-  optionReferenceType OptionReferenceTypeEnum (0..1)
 
-  condition ObservableChoice:
-    required choice rateOption, commodity, productIdentifier, currencyPair
+    asset Asset (0..1) 
+    assetIdentifier AssetIdentifier (0..1)
+        [metadata location]
+    basket Basket (0..1) 
+    currencyPair QuotedCurrencyPair (0..1) 
+        [metadata location]
+    index Index (0..1) 
+    productIdentifier ProductIdentifier (0..1)  
+        [metadata location]
+    rateOption FloatingRateOption (0..1) 
+        [metadata location]
+    
+    condition: one-of
 ```
+
+The definition of these attributes is as follows:
+
+* Basket:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
+* CurrencyPair:  The object to be observed is foreign exchange rate between two currencies.
+* Index:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
 
 ### Contractual Product
 
@@ -728,6 +740,17 @@ remaining economic terms of the contractual product are defined in
 
 ### Economic Terms
 
+:::tip[Definition: `EconomicTerms`]
+
+Represents the full set of features associated with a product: the payout component; 
+the notional/quantity; the effective date, termination date and the date adjustment 
+provisions which apply to all payouts. This data type also includes the legal provisions 
+which have valuation implications: cancelable provision; extendible provision; early 
+termination provision; and extraordinary events specification.  It defines all the 
+commitments between the parties to pay or transfer during the life of the trade.
+
+:::
+
 The CDM specifies the various sets of possible remaining economic terms
 using the `EconomicTerms` type. This type includes contractual
 provisions that are not specific to the type of payout, but do impact
@@ -756,6 +779,17 @@ responsibilities between the contractual parties. Payout types can be
 combined to compose a product. For example, an Equity Swap can be
 composed by combining an `InterestRatePayout` and an
 `PerformancePayout`.
+
+:::tip[Definition: `Payout`]
+
+Represents the set of future cashflow methodologies in the form of 
+specific payout data type(s) which result from the financial product.  
+Examples: a trade in a cash asset will use only a settlement payout; 
+for derivatives, two interest rate payouts can be combined to specify 
+an interest rate swap; one interest rate payout can be combined with 
+a credit default payout to specify a credit default swap.
+
+:::
 
 ``` Haskell
 type Payout:
@@ -795,7 +829,7 @@ The list of payouts that extend _PayoutBase_ are:
 -   `Cashflow`
 -   `PerformancePayout`
 -   `AssetPayout`
--   `SettlementCommitment`
+-   `SettlementPayout`
 -   the `ProtectionTerms` data type encapsulated in
     `CreditDefaultPayout`
 
@@ -972,7 +1006,7 @@ have an identifier, as illustrated below:
 
 ``` Haskell
 type AssetBase:
-    identifier AssetIdentifier (0..*)  
+    identifier AssetIdentifier (1..*)  
     taxonomy Taxonomy (0..1) 
 ```
 
@@ -1006,9 +1040,9 @@ type Loan extends InstrumentBase:
         [metadata scheme]
 
 type ListedDerivative extends InstrumentBase:
-    expiration string (1..1)
-    optionType OptionTypeEnum (0..1)
-    strike string (0..1)
+    deiveryTerm string (1..1)
+    optionType PutCallEnum (0..1)
+    strike number (0..1)
 
 condition Options:
      if optionType exists then strike exists else strike is absent
@@ -1022,7 +1056,7 @@ that have an identifier, as illustrated below:
 ``` Haskell
 type ProductBase:
   productTaxonomy ProductTaxonomy (0..*)
-  productIdentifier ProductIdentifier (0..*)
+  economicTerms EconomicTerms (1..1)
 ```
 
 The data types that extend from ProductBase are Commodity 
@@ -1047,7 +1081,7 @@ ISDA definitions for reference benchmarks. Security has a
 set of additional attributes, as shown below:
 
 ``` Haskell
-type Security extends ProductBase:
+type Security extends InstrumentBase:
   securityType SecurityTypeEnum (1..1)
   debtType DebtType (0..1)
   equityType EquityTypeEnum (0..1)
