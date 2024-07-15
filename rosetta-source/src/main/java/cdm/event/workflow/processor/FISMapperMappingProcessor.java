@@ -344,7 +344,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 					.build();
 			pq.getValue()
 					.getOrCreateObservable()
-					.setProductIdentifierValue(productIdentifier);
+					.addProductIdentifierValue(productIdentifier, 0);
 			// reference
 			Reference.ReferenceBuilder reference = Reference.builder();
 			PathValue<AssetPayout.AssetPayoutBuilder> secLendingPayout = getSecPO(tradeState);

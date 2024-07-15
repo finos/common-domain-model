@@ -194,7 +194,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
     private void setAsset(Asset.AssetBuilder assetBuilder, Path paymentAmountPath) {
         setValueAndUpdateMappings(paymentAmountPath.addElement("currency"),
                 xmlValue -> assetBuilder.getOrCreateCash().getOrCreateIdentifier(0)
-                        .getValue().setIdentifier(xmlValue)
+                        .setIdentifier(xmlValue)
                         .setIdentifierType(AssetIdTypeEnum.CURRENCY_CODE));
     }
 }
