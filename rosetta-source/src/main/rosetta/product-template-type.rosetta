@@ -421,11 +421,11 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then settlementTerms exists
 
     condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then (settlementTerms -> settlementDate -> valueDate exists
                     and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
                     and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent)
