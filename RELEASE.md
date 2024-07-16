@@ -41,7 +41,7 @@ Changes to `Security` data type:
 Support for FX Observables:
 - The data type `ForeignExchangeRate` has been created and added as a choice to `Index`; it also extends `IndexBase`.
 - This new data type contains the same attributes as the existing `FXRateObservable` which has been deprecated.
-- The 'ExchangeRate` and `ForeignExchange` data types have been deprecated and the deprecated `CrossRate` data type has been deleted.
+- The `ExchangeRate` and `ForeignExchange` data types have been deprecated and the deprecated `CrossRate` data type has been deleted.
 
 Refactoring of `Observable`:
 - The following data types have been added to `Observable` as new attributes: `Asset`, `Basket`, `Index`.
