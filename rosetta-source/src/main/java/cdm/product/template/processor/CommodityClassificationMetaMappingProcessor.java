@@ -23,14 +23,14 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
         List<ForwardPayout.ForwardPayoutBuilder> forwardPayoutBuilders = (List<ForwardPayout.ForwardPayoutBuilder>) builders;
         if (!forwardPayoutBuilders.isEmpty()) {
-            ForwardPayout.ForwardPayoutBuilder forwardPayoutBuilder = forwardPayoutBuilders.get(0);
-            // create reference
-            Reference.ReferenceBuilder referenceBuilder =
-                    forwardPayoutBuilder.getOrCreateUnderlier().getOrCreateCommodity().getOrCreateReference();
-            // create new mapping to make the reference work
-            Path commodityClassificationSynonymPath =
-                    synonymPath.addElement("commodityClassification", 0).addElement("code", 0);
-            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, getModelPath(), referenceBuilder));
+//            ForwardPayout.ForwardPayoutBuilder forwardPayoutBuilder = forwardPayoutBuilders.get(0);
+//            // create reference
+//            Reference.ReferenceBuilder referenceBuilder =
+//                    forwardPayoutBuilder.getOrCreateUnderlier().getOrCreateCommodity().getOrCreateReference();
+//            // create new mapping to make the reference work
+//            Path commodityClassificationSynonymPath =
+//                    synonymPath.addElement("commodityClassification", 0).addElement("code", 0);
+//            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, getModelPath(), referenceBuilder));
         }
     }
 

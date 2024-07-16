@@ -5,7 +5,6 @@ import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
 import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -1105,14 +1104,14 @@ class FunctionInputCreationTest {
                         .setUnderlier(Product.builder()
                                 .setSecurity(Security.builder()
                                         .setSecurityType(SecurityTypeEnum.EQUITY)
-                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-                                                .setValue(ProductIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
-                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-                                                        )
-                                                        .setSource(ProductIdTypeEnum.NAME))
-
-                                        ))
+//                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
+//                                                .setValue(ProductIdentifier.builder()
+//                                                        .setIdentifier(FieldWithMetaString.builder()
+//                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
+//                                                        )
+//                                                        .setSource(ProductIdTypeEnum.NAME))
+//
+//                                        ))
                                 )
                         )
 
@@ -1159,14 +1158,14 @@ class FunctionInputCreationTest {
                         .setUnderlier(Product.builder()
                                 .setSecurity(Security.builder()
                                         .setSecurityType(SecurityTypeEnum.EQUITY)
-                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-                                                .setValue(ProductIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
-                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-                                                        )
-                                                        .setSource(ProductIdTypeEnum.NAME))
-
-                                        ))
+//                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
+//                                                .setValue(ProductIdentifier.builder()
+//                                                        .setIdentifier(FieldWithMetaString.builder()
+//                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
+//                                                        )
+//                                                        .setSource(ProductIdTypeEnum.NAME))
+//
+//                                        ))
                                 )
                         )
 

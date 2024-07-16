@@ -155,10 +155,11 @@ public class TestObjectsFactory {
 	}
 
 	private Product getProduct(String productId) {
-		return Product.builder().setSecurity(Security.builder()
-				.addProductIdentifierValue(ProductIdentifier.builder()
-						.setIdentifier(FieldWithMetaString.builder().setValue(productId).build())
-						.setSource(ProductIdTypeEnum.CUSIP)))
+		return Product.builder()
+//				.setSecurity(Security.builder()
+//				.addProductIdentifierValue(ProductIdentifier.builder()
+//						.setIdentifier(FieldWithMetaString.builder().setValue(productId).build())
+//						.setSource(ProductIdTypeEnum.CUSIP)))
 				.build();
 	}
 
