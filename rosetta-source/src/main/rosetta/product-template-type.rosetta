@@ -27,8 +27,8 @@ type ProductBase: <"Serves as an abstract class to specify a product using a pro
     productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
 
-type TransferableProduct extends ProductBase:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with or without the addition of specific EconomicTerms.">
-    asset Asset (1..1)
+type TransferableProduct extends Asset:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with the addition of specific EconomicTerms.">
+    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
 
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
@@ -320,16 +320,6 @@ type Product: <"Defines the product that is the subject of a tradable product de
     condition:
         one-of
 
-type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
-    quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->quantity]
-    initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
-    interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
-    finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
-
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
     priceQuantity PriceQuantity (1..*) <"Specifies the settlement characteristics of a trade lot: price, quantity, observable (optionally) and the settlement terms. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap).">
@@ -431,11 +421,11 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then settlementTerms exists
 
     condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then (settlementTerms -> settlementDate -> valueDate exists
                     and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
                     and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent)

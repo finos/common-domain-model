@@ -11,8 +11,8 @@ import cdm.observable.common.*
 import cdm.product.asset.*
 import cdm.mapping.config.*
 
-//**ART**
-import cdm.product.template.*
+//**ART** Needed to support PriceQuantity in BasketConstituent, which will be refactored
+import cdm.product.common.settlement.*
 
 type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
@@ -21,6 +21,14 @@ type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate i
 
     condition InterestRateAssetClass: <"The asset class must be Interest Rate.">
         assetClass = AssetClassEnum -> InterestRate
+
+type ForeignExchangeRate extends IndexBase:  <"Specification of a rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
+    quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
+    primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
+    secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
+
+    condition FXAssetClass: <"The asset class must be Foreign Exchange.">
+        assetClass = AssetClassEnum -> ForeignExchange
 
 type InflationIndex extends IndexBase:  <"Specification of an index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
 	inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
@@ -156,16 +164,16 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
         value exists and datedValue is absent
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-    [metadata key]
+    //[metadata key]
     //**ART** Opportunity to make this a choice; currently not supported with annotation
 
     //**ART** Resolve this duplication of Asset and AssetIdentifier
     asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
-    assetIdentifier AssetIdentifier (0..1)
-        [metadata location]
+    // assetIdentifier AssetIdentifier (0..1)
+    //    [metadata location]
     basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
-    currencyPair QuotedCurrencyPair (0..1) <"The object to be observed is foreign exchange rate between two currencies.">
-        [metadata location]
+    // currencyPair QuotedCurrencyPair (0..1) <"The object to be observed is foreign exchange rate between two currencies.">
+    //     [metadata location]
     index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
     //**ART** Will remove ProductIdentifier and map to Asset in Phase 3
     productIdentifier ProductIdentifier (0..*)  <"Comprises an identifier and a source of a Product.">
@@ -178,6 +186,16 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+
+type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
+    quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->quantity]
+    initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]    
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -194,15 +212,9 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
     condition CurrencyUnitExists:
         unit -> currency exists
 
-type ExchangeRate: <"A class that is used for describing the exchange rate for a particular transaction.">
-    [deprecated]
-
-    crossRate CrossRate (0..*) <"An optional element that allow for definition of the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
-
 type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
-
+    [deprecated]
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
-        [metadata address "pointsTo"=Observable->currencyPair]
     primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
     secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
@@ -213,16 +225,6 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
     currency2 string (1..1) <"The second currency specified when a pair of currencies is to be evaluated.">
         [metadata scheme]
     quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
-
-type CrossRate extends QuotedCurrencyPair: <"A class that is used for including the currency exchange rates used to cross between the traded currencies for non-base currency FX contracts.">
-    [deprecated]
-
-    rate number (1..1) <"The exchange rate used to cross between the traded currencies.">
-    spotRate number (0..1) <"An optional element used for FX forwards and certain types of FX OTC options. For deals consummated in the FX Forwards Market, this represents the current market rate for a particular currency pair.">
-    forwardPoints number (0..1) <"An optional element used for deals consummated in the FX Forwards market. Forward points represent the interest rate differential between the two currencies traded and are quoted as a premium or a discount. Forward points are added to, or subtracted from, the spot rate to create the rate of the forward trade.">
-
-    condition CrossRate:
-        if forwardPoints exists then spotRate exists
 
 type Curve:
 
@@ -436,7 +438,6 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
-        [metadata address "pointsTo"=Observable->currencyPair]
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
