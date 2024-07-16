@@ -12,6 +12,8 @@ the development version.
 
 ---
 
+## Introduction to the Product Model
+
 Where applicable, the CDM follows the data structure of the Financial
 Products Markup Language (FpML), which is widely used in the OTC
 Derivatives market. For example, the CDM type `PayerReceiver` is
@@ -36,13 +38,402 @@ FpML, the CDM includes defined Synonyms that map to FpML (and other
 models) and can be used for transformation purposes. More details on
 Synonyms are provided in the Mapping (Synonym) section of this document.
 
+## Financial Products {#product}
+
+A financial product is an instrument that is used to transfer financial
+risk between two parties. 
+
+### Asset  {#asset}
+
+The concept of "Asset" has been introduced in the CDM in version 6.0 to improve the modelling of simpler financial products
+and to continue the expansion of the CDM from beyond its heritage focus on over the counter derivatives.
+
+:::tip[Definition: `Asset`]
+
+An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
+commodity, a loan or a security. As a choice data type, one and only one of the attributes must be used.
+
+:::
+
+The Asset data type is modelled as follows:
+
+``` Haskell
+choice Asset:  
+    Cash
+    Commodity
+    DigitalAsset
+    Instrument
+
+```
+
+These attributes are:
+
+* Cash: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
+  data type is an `Identifier`, populated with the currency code (using the `CurrencyCodeEnum` list) for the currency
+  of the cash.
+* Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
+  The applicable identifiers are the ISDA definitions for reference benchmarks.
+* DigitalAsset: An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.
+* Instrument: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
+
+The `Instrument` data type is further broken down using the `choice` construct:
+
+``` Haskell
+choice Instrument:  
+    ListedDerivative 
+    Loan
+    Security
+
+```
+
+with these attributes:
+* ListedDerivative: A securitized derivative on another asset that is created by an exchange.
+* Loan: An Asset that represents a loan or borrow obligation.
+* Security: An Asset that is issued by a party to be held by or transferred to others.
+
+### Product
+
+---
+**Note:**
+The Product data type will be further refactored before the release of CDM 6.
+
+---
+
+Financial products are represented in the
+`Product` type, which is also constrained by a `one-of` condition,
+meaning that for a single Tradable Product, there can only be one
+Product.
+
+``` Haskell
+type Product:
+  [metadata key]
+  contractualProduct ContractualProduct (0..1)
+  index Index (0..1)
+  loan Loan (0..1)
+  foreignExchange ForeignExchange (0..1)
+  commodity Commodity (0..1)
+  security Security (0..1)
+  basket Basket (0..1)
+
+  condition: one-of
+```
+
+The CDM allows any one of these products to included in a trade or used
+as an underlier for another product (see the *Underlier* section). One
+unlikely case for a direct trade is Index, which is primarily used as an
+underlier.
+
+Among this set of products, the contractual product is the most
+complicated and requires the largest data structure. In a contractual
+product, an exchange of financial risk is materialised by a unique
+bilateral contract that specifies the financial obligations of each
+party. The terms of the contract are specified at trade inception and
+apply throughout the life of the contract (which can last for decades
+for certain long-dated products), unless amended by mutual agreement.
+Contractual products are fungible (in other words, replaceable by other
+identical or similar contracts) only under specific terms: e.g. the
+existence of a close-out netting agreement between the parties.
+
+Given that each contractual product transaction is unique, all of the
+contract terms must be specified and stored in an easily accessible
+transaction lifecycle model so that each party can evaluate the
+financial and counterparty risks during the life of the agreement.
+
+Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
+Forwards) and private loans also represent an exchange of financial risk
+represented by a form of bilateral agreements. FX forwards and private
+loans can have an extended term, and are generally not fungible.
+However, these products share few other commonalities with contractual
+products such as Interest Rate Swaps. Therefore, they are defined
+separately.
+
+By contrast, in the case of the execution of a security (e.g. a listed
+equity), the exchange of finanical risk is a one-time event that takes
+place on the settlement date, which is usually within a few business
+days of the agreement. The other significant distinction is that
+securities are fungible instruments for which the terms and security
+identifiers are publically available. Therefore, the terms of the
+security do not have to be stored in a transaction lifecycle model, but
+can be referenced with public identifiers.
+
+An Index product is an exception because it's not directly tradable,
+but is included here because it can be referenced as an underlier for a
+tradable product and can be identified by a public identifier.
+
+### Observable
+
+:::tip[Definition: `Observable`]
+
+The `Observable` data type specifies the reference object to be observed
+for a price, which could be an underlying asset or a reference to something
+which can be observed but not actually transferred, such as an index or
+a foreign exchange rate.
+
+:::
+
+In addition to `Asset` (something that can be held or transferred in the 
+financial markets), an `Observable` is composed of one and only one
+definition:
+
+``` Haskell
+type Observable:
+  
+    asset Asset (0..1) 
+    basket Basket (0..1) 
+    index Index (0..1) 
+    productIdentifier ProductIdentifier (0..1)  
+        [metadata location]
+    rateOption FloatingRateOption (0..1) 
+        [metadata location]
+    
+    condition: one-of
+```
+
+The definition of these attributes is as follows:
+
+* Basket:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
+* CurrencyPair:  The object to be observed is foreign exchange rate between two currencies.
+* Index:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
+
+### Contractual Product
+
+The scope of contractual products in the current model are summarized
+below:
+
+-   **Interest rate derivatives**:
+    -   Interest Rate Swaps (incl. cross-currency swaps, non-deliverable
+        swaps, basis swaps, swaps with non-regular periods, ...)
+    -   Swaptions
+    -   Caps/floors
+    -   FRAs
+    -   OTC Options on Bonds
+-   **Credit derivatives**:
+    -   Credit Default Swaps (incl. baskets, tranche, swaps with
+        mortgage and loans underlyers, ...)
+    -   Options on Credit Default Swaps
+-   **Equity derivatives**:
+    -   Equity Swaps (single name)
+-   **Options**:
+    -   Any other OTC Options (incl. FX Options)
+-   **Securities Lending**:
+    -   Single underlyer, cash collateralised, open/term security loan
+-   **Repurchase Agreements**:
+    -   Open Term, Fixed Term, Fixed Rate, Floating Rate
+
+In the CDM, contractual products are represented by the
+`ContractualProduct` type:
+
+``` Haskell
+type ContractualProduct extends ProductBase:
+   [metadata key]
+   [metadata template]
+   economicTerms EconomicTerms (1..1)
+```
+
+Note that price, quantity and counterparties are defined in
+`TradableProduct` as these are attributes common to all products. The
+remaining economic terms of the contractual product are defined in
+`EconomicTerms` which is an encapsulated type in `ContractualProduct` .
+
+### Economic Terms
+
+:::tip[Definition: `EconomicTerms`]
+
+Represents the full set of features associated with a product: the payout component; 
+the notional/quantity; the effective date, termination date and the date adjustment 
+provisions which apply to all payouts. This data type also includes the legal provisions 
+which have valuation implications: cancelable provision; extendible provision; early 
+termination provision; and extraordinary events specification.  It defines all the 
+commitments between the parties to pay or transfer during the life of the trade.
+
+:::
+
+The CDM specifies the various sets of possible remaining economic terms
+using the `EconomicTerms` type. This type includes contractual
+provisions that are not specific to the type of payout, but do impact
+the value of the contract, such as effective date, termination date,
+date adjustments, and early termination provisions. A valid population
+of this type is constrained by a set of conditions which are not shown
+here in the interests of brevity.
+
+``` Haskell
+type EconomicTerms:
+  effectiveDate AdjustableOrRelativeDate (0..1)
+  terminationDate AdjustableOrRelativeDate (0..1)
+  dateAdjustments BusinessDayAdjustments (0..1)
+  payout Payout (1..1)
+  terminationProvision TerminationProvision (0..1)
+  calculationAgent CalculationAgent (0..1)
+  nonStandardisedTerms boolean (0..1)
+  collateral Collateral (0..1)
+```
+
+### Payout
+
+The `Payout` type defines the composable payout types, each of which
+describes a set of terms and conditions for the financial
+responsibilities between the contractual parties. Payout types can be
+combined to compose a product. For example, an Equity Swap can be
+composed by combining an `InterestRatePayout` and an
+`PerformancePayout`.
+
+:::tip[Definition: `Payout`]
+
+Represents the set of future cashflow methodologies in the form of 
+specific payout data type(s) which result from the financial product.  
+Examples: a trade in a cash asset will use only a settlement payout; 
+for derivatives, two interest rate payouts can be combined to specify 
+an interest rate swap; one interest rate payout can be combined with 
+a credit default payout to specify a credit default swap.
+
+:::
+
+``` Haskell
+type Payout:
+  [metadata key]
+  interestRatePayout InterestRatePayout (0..*)
+  creditDefaultPayout CreditDefaultPayout (0..1)
+  optionPayout OptionPayout (0..*)
+  commodityPayout CommodityPayout (0..*)
+  forwardPayout ForwardPayout (0..*)
+  fixedPricePayout FixedPricePayout (0..*)
+  cashflow Cashflow (0..*)
+  performancePayout PerformancePayout (0..*)
+  assetPayout AssetPayout (0..*)
+```
+
+A number of payout types extend a common data type called `PayoutBase`.
+This data type provides a common structure for attributes such as
+quantity, price, settlement terms and the payer/receiver direction which
+are expected to be common across many payouts.
+
+``` Haskell
+type PayoutBase:
+  payerReceiver PayerReceiver (1..1)
+  priceQuantity ResolvablePriceQuantity (0..1)
+  principalPayment PrincipalPayments (0..1)
+  settlementTerms SettlementTerms (0..1)
+```
+
+The list of payouts that extend _PayoutBase_ are:
+
+-   `InterestRatePayout`
+-   `CreditDefaultPayout`
+-   `OptionPayout`
+-   `CommodityPayout`
+-   `ForwardPayout`
+-   `FixedPricePayout`
+-   `Cashflow`
+-   `PerformancePayout`
+-   `AssetPayout`
+-   `SettlementPayout`
+-   the `ProtectionTerms` data type encapsulated in
+    `CreditDefaultPayout`
+
+For example:
+
+``` Haskell
+type InterestRatePayout extends PayoutBase:
+   [metadata key]
+   rateSpecification RateSpecification (0..1)
+   dayCountFraction DayCountFractionEnum (0..1)
+      [metadata scheme]
+   calculationPeriodDates CalculationPeriodDates (0..1)
+   paymentDates PaymentDates (0..1)
+   paymentDate AdjustableDate (0..1)
+   paymentDelay boolean (0..1)
+   resetDates ResetDates (0..1)
+   discountingMethod DiscountingMethod (0..1)
+   compoundingMethod CompoundingMethodEnum (0..1)
+   cashflowRepresentation CashflowRepresentation (0..1)
+   stubPeriod StubPeriod (0..1)
+   bondReference BondReference (0..1)
+   fixedAmount calculation (0..1)
+   floatingAmount calculation (0..1)
+```
+
+---
+**Note:**
+The code snippets above excludes the conditions in this data type for
+purposes of brevity.
+
+---
+
+The price and quantity attributes in the _PayoutBase_
+structure are positioned in the _ResolvablePriceQuantity_
+data type. This data type mirrors the _PriceQuantity_ data
+type and contains both the price and quantity schedules.
+
+In addition that data type supports the definition of additional
+information such as a quantity reference, a quantity multiplier or the
+indication that the quantity is resettable. Those are used to describe
+the quantity of a payout leg that may need to be calculated based on
+other inputs: e.g. an exchange rate for the foreign leg in a
+Cross-Currency Swap or a share price for the funding leg of an Equity
+Swap.
+
+``` Haskell
+type ResolvablePriceQuantity:
+  [metadata key]
+  resolvedQuantity Quantity (0..1)
+  quantitySchedule NonNegativeQuantitySchedule (0..1)
+    [metadata address "pointsTo"=PriceQuantity->quantity]
+  quantityReference ResolvablePriceQuantity (0..1)
+    [metadata reference]
+  quantityMultiplier QuantityMultiplier (0..1)
+  reset boolean (0..1)
+  futureValueNotional FutureValueAmount (0..1)
+  priceSchedule PriceSchedule (0..*)
+    [metadata address "pointsTo"=PriceQuantity->price]
+```
+
+By design, the CDM requires that each payout leg can only be associated
+with a single quantity schedule that defines this leg's contractual
+behaviour (e.g. for the payment of cashflows). In the `PriceQuantity`
+object, where that attribute is of multiple cardinality, other
+quantities may be provided "for information only" which can be
+inferred from the main quantity used in the payout leg: e.g. when a
+commodity quantity is associated to a frequency and needs to be
+multiplied by the period to get the total quantity.
+
+Both the `quantitySchedule` and `priceSchedule` attributes have a
+metadata address that point respectively to the `quantity` and `price`
+attributes in the `PriceQuantity` data type. This special
+cross-referencing annotation in the Rosetta DSL allows to parameterise
+an attribute whose value may be variable by associating it to an
+address. The attribute value does not need to be populated in the
+persisted object and can be provided by another object, using the
+address as a reference.
+
+Other model structures use the `[metadata address]` to point to
+`PriceQuantity->price`. An example include the `price` attribute in the
+`RateSchedule` data type, which is illustrated below:
+
+``` Haskell
+type RateSchedule:
+  price PriceSchedule (1..1)
+    [metadata address "pointsTo"=PriceQuantity->price]
+```
+
 ## TradableProduct {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
 quantity, and other details necessary to complete an execution of a
 security or a negotiated contract between two counterparties. Tradable
-products are represented by the `TradableProduct` type.
+products are represented by the `TradableProduct` data type.
+
+:::tip[Definition: `TradableProduct`]
+
+Definition of a financial product as ready to be traded, i.e. included in 
+an execution or contract, by associating a specific price and quantity to
+the product definition, plus optional conditions for any potential future
+quantity adjustment. A tradable product does not define the trade date,
+execution details or other information specific to the execution event
+but allows for multiple trade lots, quantities and prices, between the 
+same two counterparties.
+
+:::
 
 ``` Haskell
 type TradableProduct:
@@ -134,13 +525,26 @@ as a separate trade. Each trade is represented by a tradable product
 containing only 1 trade lot. In other markets, trading the same product
 with the same characteristics (except for price and quantity) is
 represented as part of the same trade. In this case, a single tradable
-product contains multiple trade lots represented as an array of the
+product contains mulle trade lots represented as an array of the
 `TradeLot` data type.
 
-When a trade can have multiple trade lots, increases (or upsize) and
+When a trade can have mulle trade lots, increases (or upsize) and
 decreases (or unwind) are treated differently. An increase adds a new
 `TradeLot` instance to the tradadable product, whereas a decrease
 reduces the quantity of one or more of the existing trade lots.
+
+:::tip[Definition: `Observable`]
+
+Specifies the prices and quantities of one or more trades, where the 
+same product could be traded multiple times with the same counterparty 
+but in different lots (at a different date, in a different quantity and 
+at a different price). One trade lot combined with a product definition 
+specifies the entire economics of a trade. The lifecycle mechanics of each 
+such trade lot (e.g. cashflow payments) is independent of the other lots. 
+In a trade decrease, the existing trade lot(s) are decreased of the 
+corresponding quantity (and an unwind fee may have to be settled).
+
+:::
 
 ---
 **Note:**
@@ -228,7 +632,7 @@ Equity Swap may specify both the number of shares and the notional (a
 currency amount equal to: number of shares x price per share) as
 quantities. In a Forward FX trade, the spot rate, forward points and
 forward rate (equal to spot rate + forward points) may all be specified
-as prices. When mutiple values are specified for either the price or
+as prices. When mule values are specified for either the price or
 quantity attributes in a single `PriceQuantity` instance, they will be
 tied by rules that enforce that they are internally consistent.
 
@@ -536,388 +940,6 @@ For instance in an FX spot or forward transaction, the respective units
 of the quantity and price will determine who is paying or receiving each
 currency.
 
-## Financial Product {#product}
-
-A financial product is an instrument that is used to transfer financial
-risk between two parties. 
-
-### Asset  {#asset}
-
-The concept of "Asset" has been introduced in the CDM in version 6.0 to improve the modelling of simpler financial products
-and to continue the expansion of the CDM from beyond its heritage focus on over the counter derivatives.
-
-:::tip[Definition: `Asset`]
-
-An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
-commodity, a loan or a security. As a choice data type, one and only one of the attributes must be used.
-
-:::
-
-The Asset data type is modelled as follows:
-
-``` Haskell
-choice Asset:  
-    Cash
-    Commodity
-    DigitalAsset
-    Instrument
-
-```
-
-These attributes are:
-
-* Cash: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
-  data type is an `Identifier`, populated with the currency code (using the `CurrencyCodeEnum` list) for the currency
-  of the cash.
-* Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
-  The applicable identifiers are the ISDA definitions for reference benchmarks.
-* DigitalAsset: An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.
-* Instrument: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
-
-The `Instrument` data type is further broken down using the `choice` construct:
-
-``` Haskell
-choice Instrument:  
-    ListedDerivative 
-    Loan
-    Security
-
-```
-
-with these attributes:
-* ListedDerivative: A securitized derivative on another asset that is created by an exchange.
-* Loan: An Asset that represents a loan or borrow obligation.
-* Security: An Asset that is issued by a party to be held by or transferred to others.
-
-### Product
-
----
-**Note:**
-The Product data type will be further refactored before the release of CDM 6.
-
----
-
-Financial products are represented in the
-`Product` type, which is also constrained by a `one-of` condition,
-meaning that for a single Tradable Product, there can only be one
-Product.
-
-``` Haskell
-type Product:
-  [metadata key]
-  contractualProduct ContractualProduct (0..1)
-  index Index (0..1)
-  loan Loan (0..1)
-  foreignExchange ForeignExchange (0..1)
-  commodity Commodity (0..1)
-  security Security (0..1)
-  basket Basket (0..1)
-
-  condition: one-of
-```
-
-The CDM allows any one of these products to included in a trade or used
-as an underlier for another product (see the *Underlier* section). One
-unlikely case for a direct trade is Index, which is primarily used as an
-underlier.
-
-Among this set of products, the contractual product is the most
-complicated and requires the largest data structure. In a contractual
-product, an exchange of financial risk is materialised by a unique
-bilateral contract that specifies the financial obligations of each
-party. The terms of the contract are specified at trade inception and
-apply throughout the life of the contract (which can last for decades
-for certain long-dated products), unless amended by mutual agreement.
-Contractual products are fungible (in other words, replaceable by other
-identical or similar contracts) only under specific terms: e.g. the
-existence of a close-out netting agreement between the parties.
-
-Given that each contractual product transaction is unique, all of the
-contract terms must be specified and stored in an easily accessible
-transaction lifecycle model so that each party can evaluate the
-financial and counterparty risks during the life of the agreement.
-
-Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
-Forwards) and private loans also represent an exchange of financial risk
-represented by a form of bilateral agreements. FX forwards and private
-loans can have an extended term, and are generally not fungible.
-However, these products share few other commonalities with contractual
-products such as Interest Rate Swaps. Therefore, they are defined
-separately.
-
-By contrast, in the case of the execution of a security (e.g. a listed
-equity), the exchange of finanical risk is a one-time event that takes
-place on the settlement date, which is usually within a few business
-days of the agreement. The other significant distinction is that
-securities are fungible instruments for which the terms and security
-identifiers are publically available. Therefore, the terms of the
-security do not have to be stored in a transaction lifecycle model, but
-can be referenced with public identifiers.
-
-An Index product is an exception because it's not directly tradable,
-but is included here because it can be referenced as an underlier for a
-tradable product and can be identified by a public identifier.
-
-### Observable
-
-:::tip[Definition: `Observable`]
-
-The `Observable` data type specifies the reference object to be observed
-for a price, which could be an underlying asset or a reference to something
-which can be observed but not actually transferred, such as an index or
-a foreign exchange rate.
-
-:::
-
-In addition to `Asset` (something that can be held or transferred in the 
-financial markets), an `Observable` is composed of one and only one
-definition:
-
-``` Haskell
-type Observable:
-  [metadata key]
-
-    asset Asset (0..1) 
-    assetIdentifier AssetIdentifier (0..1)
-        [metadata location]
-    basket Basket (0..1) 
-    currencyPair QuotedCurrencyPair (0..1) 
-        [metadata location]
-    index Index (0..1) 
-    productIdentifier ProductIdentifier (0..1)  
-        [metadata location]
-    rateOption FloatingRateOption (0..1) 
-        [metadata location]
-    
-    condition: one-of
-```
-
-The definition of these attributes is as follows:
-
-* Basket:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
-* CurrencyPair:  The object to be observed is foreign exchange rate between two currencies.
-* Index:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
-
-### Contractual Product
-
-The scope of contractual products in the current model are summarized
-below:
-
--   **Interest rate derivatives**:
-    -   Interest Rate Swaps (incl. cross-currency swaps, non-deliverable
-        swaps, basis swaps, swaps with non-regular periods, ...)
-    -   Swaptions
-    -   Caps/floors
-    -   FRAs
-    -   OTC Options on Bonds
--   **Credit derivatives**:
-    -   Credit Default Swaps (incl. baskets, tranche, swaps with
-        mortgage and loans underlyers, ...)
-    -   Options on Credit Default Swaps
--   **Equity derivatives**:
-    -   Equity Swaps (single name)
--   **Options**:
-    -   Any other OTC Options (incl. FX Options)
--   **Securities Lending**:
-    -   Single underlyer, cash collateralised, open/term security loan
--   **Repurchase Agreements**:
-    -   Open Term, Fixed Term, Fixed Rate, Floating Rate
-
-In the CDM, contractual products are represented by the
-`ContractualProduct` type:
-
-``` Haskell
-type ContractualProduct extends ProductBase:
-   [metadata key]
-   [metadata template]
-   economicTerms EconomicTerms (1..1)
-```
-
-Note that price, quantity and counterparties are defined in
-`TradableProduct` as these are attributes common to all products. The
-remaining economic terms of the contractual product are defined in
-`EconomicTerms` which is an encapsulated type in `ContractualProduct` .
-
-### Economic Terms
-
-:::tip[Definition: `EconomicTerms`]
-
-Represents the full set of features associated with a product: the payout component; 
-the notional/quantity; the effective date, termination date and the date adjustment 
-provisions which apply to all payouts. This data type also includes the legal provisions 
-which have valuation implications: cancelable provision; extendible provision; early 
-termination provision; and extraordinary events specification.  It defines all the 
-commitments between the parties to pay or transfer during the life of the trade.
-
-:::
-
-The CDM specifies the various sets of possible remaining economic terms
-using the `EconomicTerms` type. This type includes contractual
-provisions that are not specific to the type of payout, but do impact
-the value of the contract, such as effective date, termination date,
-date adjustments, and early termination provisions. A valid population
-of this type is constrained by a set of conditions which are not shown
-here in the interests of brevity.
-
-``` Haskell
-type EconomicTerms:
-  effectiveDate AdjustableOrRelativeDate (0..1)
-  terminationDate AdjustableOrRelativeDate (0..1)
-  dateAdjustments BusinessDayAdjustments (0..1)
-  payout Payout (1..1)
-  terminationProvision TerminationProvision (0..1)
-  calculationAgent CalculationAgent (0..1)
-  nonStandardisedTerms boolean (0..1)
-  collateral Collateral (0..1)
-```
-
-### Payout
-
-The `Payout` type defines the composable payout types, each of which
-describes a set of terms and conditions for the financial
-responsibilities between the contractual parties. Payout types can be
-combined to compose a product. For example, an Equity Swap can be
-composed by combining an `InterestRatePayout` and an
-`PerformancePayout`.
-
-:::tip[Definition: `Payout`]
-
-Represents the set of future cashflow methodologies in the form of 
-specific payout data type(s) which result from the financial product.  
-Examples: a trade in a cash asset will use only a settlement payout; 
-for derivatives, two interest rate payouts can be combined to specify 
-an interest rate swap; one interest rate payout can be combined with 
-a credit default payout to specify a credit default swap.
-
-:::
-
-``` Haskell
-type Payout:
-  [metadata key]
-  interestRatePayout InterestRatePayout (0..*)
-  creditDefaultPayout CreditDefaultPayout (0..1)
-  optionPayout OptionPayout (0..*)
-  commodityPayout CommodityPayout (0..*)
-  forwardPayout ForwardPayout (0..*)
-  fixedPricePayout FixedPricePayout (0..*)
-  cashflow Cashflow (0..*)
-  performancePayout PerformancePayout (0..*)
-  assetPayout AssetPayout (0..*)
-```
-
-A number of payout types extend a common data type called `PayoutBase`.
-This data type provides a common structure for attributes such as
-quantity, price, settlement terms and the payer/receiver direction which
-are expected to be common across many payouts.
-
-``` Haskell
-type PayoutBase:
-  payerReceiver PayerReceiver (1..1)
-  priceQuantity ResolvablePriceQuantity (0..1)
-  principalPayment PrincipalPayments (0..1)
-  settlementTerms SettlementTerms (0..1)
-```
-
-The list of payouts that extend _PayoutBase_ are:
-
--   `InterestRatePayout`
--   `CreditDefaultPayout`
--   `OptionPayout`
--   `CommodityPayout`
--   `ForwardPayout`
--   `FixedPricePayout`
--   `Cashflow`
--   `PerformancePayout`
--   `AssetPayout`
--   `SettlementPayout`
--   the `ProtectionTerms` data type encapsulated in
-    `CreditDefaultPayout`
-
-For example:
-
-``` Haskell
-type InterestRatePayout extends PayoutBase:
-   [metadata key]
-   rateSpecification RateSpecification (0..1)
-   dayCountFraction DayCountFractionEnum (0..1)
-      [metadata scheme]
-   calculationPeriodDates CalculationPeriodDates (0..1)
-   paymentDates PaymentDates (0..1)
-   paymentDate AdjustableDate (0..1)
-   paymentDelay boolean (0..1)
-   resetDates ResetDates (0..1)
-   discountingMethod DiscountingMethod (0..1)
-   compoundingMethod CompoundingMethodEnum (0..1)
-   cashflowRepresentation CashflowRepresentation (0..1)
-   stubPeriod StubPeriod (0..1)
-   bondReference BondReference (0..1)
-   fixedAmount calculation (0..1)
-   floatingAmount calculation (0..1)
-```
-
----
-**Note:**
-The code snippets above excludes the conditions in this data type for
-purposes of brevity.
-
----
-
-The price and quantity attributes in the _PayoutBase_
-structure are positioned in the _ResolvablePriceQuantity_
-data type. This data type mirrors the _PriceQuantity_ data
-type and contains both the price and quantity schedules.
-
-In addition that data type supports the definition of additional
-information such as a quantity reference, a quantity multiplier or the
-indication that the quantity is resettable. Those are used to describe
-the quantity of a payout leg that may need to be calculated based on
-other inputs: e.g. an exchange rate for the foreign leg in a
-Cross-Currency Swap or a share price for the funding leg of an Equity
-Swap.
-
-``` Haskell
-type ResolvablePriceQuantity:
-  [metadata key]
-  resolvedQuantity Quantity (0..1)
-  quantitySchedule NonNegativeQuantitySchedule (0..1)
-    [metadata address "pointsTo"=PriceQuantity->quantity]
-  quantityReference ResolvablePriceQuantity (0..1)
-    [metadata reference]
-  quantityMultiplier QuantityMultiplier (0..1)
-  reset boolean (0..1)
-  futureValueNotional FutureValueAmount (0..1)
-  priceSchedule PriceSchedule (0..*)
-    [metadata address "pointsTo"=PriceQuantity->price]
-```
-
-By design, the CDM requires that each payout leg can only be associated
-with a single quantity schedule that defines this leg's contractual
-behaviour (e.g. for the payment of cashflows). In the `PriceQuantity`
-object, where that attribute is of multiple cardinality, other
-quantities may be provided "for information only" which can be
-inferred from the main quantity used in the payout leg: e.g. when a
-commodity quantity is associated to a frequency and needs to be
-multiplied by the period to get the total quantity.
-
-Both the `quantitySchedule` and `priceSchedule` attributes have a
-metadata address that point respectively to the `quantity` and `price`
-attributes in the `PriceQuantity` data type. This special
-cross-referencing annotation in the Rosetta DSL allows to parameterise
-an attribute whose value may be variable by associating it to an
-address. The attribute value does not need to be populated in the
-persisted object and can be provided by another object, using the
-address as a reference.
-
-Other model structures use the `[metadata address]` to point to
-`PriceQuantity->price`. An example include the `price` attribute in the
-`RateSchedule` data type, which is illustrated below:
-
-``` Haskell
-type RateSchedule:
-  price PriceSchedule (1..1)
-    [metadata address "pointsTo"=PriceQuantity->price]
-```
-
 ## Reusable Components
 
 There are a number of components that are reusable across several payout
@@ -1001,29 +1023,25 @@ the merging tools. See
 
 #### Asset Identifiers
 
-The abstract data type AssetBase serves as a base for all Assets that 
-have an identifier, as illustrated below:
+The abstract data type AssetBase serves as a base for all Assets,
+as illustrated below:
 
 ``` Haskell
 type AssetBase:
-    identifier AssetIdentifier (1..*)  
+    identifier AssetIdentifier (1..*) 
     taxonomy Taxonomy (0..1) 
+    isExchangeListed boolean (0..1)
+    exchange LegalEntity (0..1)  
+        [metadata scheme]
+    relatedExchange LegalEntity (0..*)
 ```
 
-The data types that extend from AssetBase are Cash, 
-and DigitalAsset. 
+The data types that extend from AssetBase are the Asset
+data types (Cash, Commodity, DigitalAsset and Loan) and
+the Observable data types (Basket and Index).
 
-Additionally, the Instrument data types extend from InstrumentBase:
-
-``` Haskell
-type InstrumentBase extends AssetBase:
-    isExchangeListed boolean (0..1)  
-    exchange LegalEntity (0..*)  
-            
-    condition ExchangeListed: 
-        if exchange exists
-        then isExchangeListed  
-```
+Additionally, the Instrument data types extend from InstrumentBase,
+which itself extends from AssetBase.
 
 The instrument assets also have their own definitions with additional attributes
 which are required to uniquely identify the asset:
