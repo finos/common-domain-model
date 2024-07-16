@@ -11,8 +11,8 @@ import cdm.observable.common.*
 import cdm.product.asset.*
 import cdm.mapping.config.*
 
-//**ART**
-import cdm.product.template.*
+//**ART** Needed to support PriceQuantity in BasketConstituent, which will be refactored
+import cdm.product.common.settlement.*
 
 type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
@@ -178,6 +178,16 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+
+type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
+    quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->quantity]
+    initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+        [metadata address "pointsTo"=PriceQuantity->price]    
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
