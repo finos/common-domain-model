@@ -17,18 +17,20 @@ choice Asset:  <"An Asset is defined as something that can be owned and transfer
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..1) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
+    isExchangeListed boolean (0..1)  <"Defines whether the Asset is listed on a public exchange.">
+    exchange LegalEntity (0..1)  <"If the Asset is listed, defines the public exchange of the listing.">
+        [metadata scheme]
+    relatedExchange LegalEntity (0..*)  <"Provides the related Exchanges, if applicable.">
+
+    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if exchange exists
+        then isExchangeListed  
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase:  <"Defines the common attributes for all Instrument data types.">
-    isExchangeListed boolean (0..1)  <"Defines whether the Instrument is listed on a public exchange.">
-    exchange LegalEntity (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
-
-    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
-        if exchange exists
-        then isExchangeListed  
 
 choice Instrument:  <"A type of Asset that is issued by one party to one or more others.">
     ListedDerivative  <"A securitized derivative on another asset that is created by an exchange.">
@@ -100,9 +102,6 @@ type IndexBase extends AssetBase: <"Identifies an index by referencing an identi
     name string (0..1)  <"A description of the Index.">
     provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
     assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
-    exchange LegalEntity (0..*)  <"If the Index is listed, defines the public exchange(s) of the listing.">
-        [metadata scheme]
-    relatedExchange LegalEntity (0..*)  <"Provides the related Exchanges, if applicable.">
 
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
     CreditIndex  <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
@@ -119,6 +118,9 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
         taxonomy is absent
+
+    condition NoExchange: <"Cash cannot be a listed Asset.">
+        exchange is absent 
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
