@@ -111,10 +111,12 @@ choice Index: <"An Index is an Observable which is computed based on the prices,
     InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
     OtherIndex  <"An index created by a market participant which doesn't align with the other index types.">
 
-type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.">
+type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
-    condition IdentifierIsCurrencyCode: <"The identifier of a Cash Asset is used to identify the Currency.">
-        identifier -> identifierType any = AssetIdTypeEnum -> CurrencyCode
+    condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">    
+        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) count = 1
+        and
+        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier first to-enum CurrencyCodeEnum exists  
 
     condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
         taxonomy is absent
