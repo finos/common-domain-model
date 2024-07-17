@@ -35,7 +35,9 @@ the following dependency needs to be added to the project pom.xml:
 
 > _NOTE:_ All current CDM dependencies are available in Maven Central.
 > For CDM releases prior to version 4.0.0 the dependencies can be found in the ISDA repository: <artifactregistry://europe-west1-maven.pkg.dev/production-208613/isda-maven>
-> Add the following two snippets to the `<build>` and `<repositories>` sections of your project `pom.xml`:
+> Add the following two snippets to the `<build>` and `<repositories>` sections of your project `pom.xml`.
+> You can also use the `https` protocol instead of `artifactregistry`.
+> If you do this then the `<build>` extension is not necessary.
 >
 > ``` xml
 >
