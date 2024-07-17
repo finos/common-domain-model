@@ -1,40 +1,78 @@
-# _Product Model - Asset Refactoring: Asset, Index, Identifier_
+# _Product Model - Asset Refactoring: Basket, Index, Observable, Foreign Exchange_
 
 _Background_
 
 The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal is being developed - through a cross-industry Task Force - to implement this remodelling in the CDM.  
 
-This release includes the first tranche of changes to implement the refactored model (the first of three planned tranches in CDM 6).  It introduces some new data types and makes minor changes to others without significant impact to the Product structure itself.
+This release includes the second tranche of changes (of three planned tranches in CDM 6) to implement the refactored model. It introduces some new data types and makes changes to others; more significant refactoring ofthe Product structure will be introduced in the third release.
 
 _What is being released?_
 
-New `Asset` data type:
-- Introduce the new data type `Asset` which is defined as "something that can be owned and transferred in the financial markets". The data type is implemented using the new Rune DSL feature `choice` that is available in [Release 9.10](https://github.com/finos/rune-dsl/releases/tag/9.10.0).
-- Introduce the additional Asset data sub-type called `Instrument`, also using `choice`, defined as "a type of Asset that is issued by one party to one or more others".
-- Create the new base class `InstrumentBase` to model common attributes across all `Instrument` data types.
-- Introduce the new enumerator `AssetIdTypeEnum`, to define certain identifier sources unique to Assets, as an extension of `ProductIdTypeEnum`.
-- Change the inheritance from `ProductBase` to `InstrumentBase` for `Loan`, `ListedDerivative`.
-- Add a reference on `Observable` to an `Asset` using an `AssetIdentifier`.
+The word "update" below is to refer to a change to the modelling between this release and the previous release of Asset Refactoring changes (in CDM 6.0-dev.58).
 
-Changes to `Transfer`:
-- As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
-- This also results in changes to the `Qualify_SecurityTransfer` function.
+Updates to `AssetBase` data type:
+- The `identifier` attribute has been made mandatory.
+- The metadata scheme has been removed.
+- The attributes `isExchangeListed`, `exchange` and `relatedExchange` have been moved from `InstrumentBase` to `AssetBase`.
+- The type of the `exchange` and `relatedExchange` attributes has been updated from `string` to `LegalEntity`.
 
-Product Model:
-- Introduce a new data type on `Payout`: `SettlementCommitment` which models the settlement of an `Asset` for cash.
-- Introduce `TransferableProduct` as a type of Product which can be used in a `SettlementCommitment` for a basic cash settled trade of either an `Asset` with or without the addition of specific `EconomicTerms`.
-- Define the new `SettlementCommitment` data type to model this new kind of `Payout`.
+Updates to `Cash` data type:
+- Two new conditions have been added to ensure that `taxonomy` and `exchange` are not used for this asset type.
+
+Changes to `Commodity` data type:
+- Now extends from `AssetBase` not `ProductBase`.
+- Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
+
+Changes to `Index` and `IndexBase` data types:
+- The attributes `exchange` and `relatedExchange` have been removed from `IndexBase` as they will now be picked up from 'AssetBase`.
+- `Index` has been refactored from a `one-of` condition to a choice data type.
+- The data type `FloatingIndex` has been renamed `FloatingRateIndex`.
+- The documentation in the model on the index-related data types has been improved.
+- The qualification logic has been updated to reflect the new modelling of `Index` as an underlier on the relevant functions. 
+
+Updates to `ListedDerivative` data type:
+- Updates have been made to the attribute names and types introduced in the previous release to improve modelling and composition.
+- The condition on `VarianceReturnTerms` has been updated to reflect the new position of `ListedDerivative` in the product model.
+
+Changes to `Security` data type:
+- Now extends from `InstrumentBase` not `ProductBase`.
+- Temporary changes made to add `economicTerms` and `productTaxonomy` pending further refactoring in the third phase.
+
+Support for FX Observables:
+- The data type `ForeignExchangeRate` has been created and added as a choice to `Index`; it also extends `IndexBase`.
+- This new data type contains the same attributes as the existing `FXRateObservable` which has been deprecated.
+- The `ExchangeRate` and `ForeignExchange` data types have been deprecated and the deprecated `CrossRate` data type has been deleted.
+
+Refactoring of `Observable`:
+- The following data types have been added to `Observable` as new attributes: `Asset`, `Basket`, `Index`.
+- The following data types have been removed from `Observable`:  `Commodity` (now available as an `Asset`); `QuotedCurrencyPair` (replaced by the the FX observable data type inside `Index`).
+- The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
+- `Observable` now has a `one-of` condition (and will be updated to `choice` in the third phase).
+- The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
+
+Changes to `BasketConstituent`:
+- `BasketConstituent` now extends from `Observable`, not `Product`.
+- Moved from the product namespace to the observable namespace.
+- The qualification logic has been updated to reflect the new modelling of `BasketConstituent` as an underlier on the relevant functions.
+
+Updates to `TransferableProduct`:
+- The inheritance on this data type has been updated so that it now extends `Asset` but the attributes are unchanged.
+
+Updates to Payouts:
+- The documentation in the model on the payout-related data types has been improved.
+- The `SettlementCommitment` data type and attribute has been renamed `SettlementPayout`.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
+The changes can be reviewed in PR: [#3039](https://github.com/finos/common-domain-model/pull/3039)
 
 _Backward-incompatible changes_
 
 This release contains changes that are not backward-compatible:
-- The change in the inheritance for `Loan` and `ListedDerivative` impacts the use of identifiers in these data types.
-- The refactoring of `Transfer` to act upon an `Asset` rather than `Observable` impacts the use of the related functions.
-
-Samples and mappings for both have been updated accordingly.
+- Changes to the following data types are particularly impactful and have required updates to the mapping synonyms and samples:
+  - Commodity
+  - Index
+  - QuotedCurrencyPair
+  - FXRateObservable.
 
 A full description of the backward-incompatible changes, and how persisted objects should be remapped, will be included in the release notes for the last tranche of the asset refactoring.
