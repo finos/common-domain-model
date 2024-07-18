@@ -67,7 +67,7 @@ module.exports = {
             },
             {
               label: 'Derivatives Product and Business Event Working Group',
-              href: 'https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG',
+              href: 'https://cdm.finos.org/docs/CDM-Derivatives-Product-and-Business-Event-WG',
             },
             {
               label: 'Technology Architecture Working Group',
