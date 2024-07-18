@@ -12,7 +12,6 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 
 import static cdm.base.staticdata.asset.common.AssetIdentifier.AssetIdentifierBuilder;
-import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStringBuilder;
 
 /**
  * Update asset identifier type enum based on the instrumentIdScheme or productIdScheme.
@@ -26,14 +25,13 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
         super(modelPath, synonymPaths, context);
     }
 
-    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath().newSubPath("value")))
+    @Override
+    public <T> void mapBasic(Path synonymPath, T instance, RosettaModelObjectBuilder parent) {
+        MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath()))
                 .map(m -> m.getXmlPath())
                 .ifPresent(xmlPath -> {
                     AssetIdentifierBuilder assetIdentifierBuilder = (AssetIdentifierBuilder) parent;
-                    FieldWithMetaStringBuilder assetIdentifierValueBuilder = (FieldWithMetaStringBuilder) builder;
-
-                    updateSchemeAndSource(xmlPath, assetIdentifierBuilder, assetIdentifierValueBuilder);
+                    updateSchemeAndSource(xmlPath, assetIdentifierBuilder);
 
                     // If unset, set to OTHER
                     if (assetIdentifierBuilder.getIdentifierType() == null) {
@@ -42,18 +40,14 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
                 });
     }
 
-    protected void updateSchemeAndSource(Path xmlPath, AssetIdentifierBuilder assetIdentifierBuilder, FieldWithMetaStringBuilder assetIdentifierValueBuilder) {
+    protected void updateSchemeAndSource(Path xmlPath, AssetIdentifierBuilder assetIdentifierBuilder) {
         setValueAndUpdateMappings(xmlPath.addElement("instrumentIdScheme"),
                 xmlValue -> {
-                    // Update scheme
-                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
                     // Update Source
                     assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
                 });
         setValueAndUpdateMappings(xmlPath.addElement("productIdScheme"),
                 xmlValue -> {
-                    // Update scheme
-                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
                     // Update Source
                     assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
                 });

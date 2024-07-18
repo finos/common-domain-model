@@ -125,10 +125,11 @@ public class FxSwapContractCreation {
                                 .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency2Str))))
                 .setObservable(Observable.builder()
-                        .setCurrencyPairValue(QuotedCurrencyPair.builder()
-                                .setCurrency1Value(currency1Str)
-                                .setCurrency2Value(currency2Str)
-                                .setQuoteBasis(QuoteBasisEnum.CURRENCY_2_PER_CURRENCY_1)))
+//                        .setCurrencyPairValue(QuotedCurrencyPair.builder()
+//                                .setCurrency1Value(currency1Str)
+//                                .setCurrency2Value(currency2Str)
+//                                .setQuoteBasis(QuoteBasisEnum.CURRENCY_2_PER_CURRENCY_1))
+                )
                 .build();
     }
 
