@@ -119,7 +119,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter observable -> productIdentifier exists
+    add securityTransfers: transfers filter asset -> Instrument -> Security exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -213,12 +213,12 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 
     alias adjustedFinalValuationDate:
         ResolveAdjustableDate(
-                payout -> valuationDates -> valuationDatesFinal -> valuationDate
+                payout -> valuationDates -> finalValuationDate -> valuationDate
             )
     alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
         if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> valuationDatesInterim
-        else payout -> valuationDates -> valuationDatesFinal
+        then payout -> valuationDates -> interimValuationDate
+        else payout -> valuationDates -> finalValuationDate
     add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
         payout -> underlier -> security -> productIdentifier
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
@@ -243,9 +243,9 @@ func AdjustedValuationDates:
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
             ResolveAdjustableDates(
-                    valuationDates -> valuationDatesInterim -> valuationDates
+                    valuationDates -> interimValuationDate -> valuationDates
                 ),
-            ResolveAdjustableDate(valuationDates -> valuationDatesFinal -> valuationDate)
+            ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
 
@@ -587,14 +587,6 @@ func CalculateTransfer: <"Function specification to calculate a transfer, e.g. f
                 or instruction -> payout -> assetPayout exists
         then Create_CashTransfer(instruction)
 
-    add transfer: <"Assigns the result of the Create_SecurityTransfer function to the transferHistory attribute.">
-        if instruction -> payout -> securityPayout exists
-        then Create_SecurityTransfer(
-                    instruction -> tradeState,
-                    instruction -> date,
-                    instruction -> quantity
-                )
-
     add transfer: <"Assigns the result of the Create_AssetTransfer function to the transferHistory attribute.">
         if instruction -> payout -> assetPayout exists
         then Create_AssetTransfer(instruction)
@@ -623,20 +615,6 @@ func Create_CashTransfer: <"Defines how Transfer that represents an exchange of 
 
     set transfer: <"Resolves the cashflow due to be transferred from the trade and associated state.">
         ResolveTransfer(instruction)
-
-func Create_SecurityTransfer: <"Defines the creation of a Transfer, given a Trade State and date.">
-    inputs:
-        tradeState TradeState (1..1)
-        date date (1..1)
-        quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-    output:
-        transfer Transfer (1..1)
-
-    post-condition UnitsAndObservable:
-        if tradeState -> trade -> tradableProduct -> product -> security exists
-                and tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> settlementTerms -> transferSettlementType only-element = TransferSettlementEnum -> DeliveryVersusPayment
-        then transfer -> quantity -> unit -> currency only exists
-                and transfer -> observable -> productIdentifier exists
 
 func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of asset based on an asset payout, should be constructed.">
     inputs:
@@ -682,7 +660,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             ...
         }
 
-    add transfer -> observable -> productIdentifier:
+    add transfer -> asset -> Instrument -> Security  -> productIdentifier:
         assetPayout -> securityInformation -> security -> productIdentifier
 
     set transfer -> payerReceiver -> payerPartyReference:
@@ -914,15 +892,17 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
     alias tradableProduct: <"TradableProduct from the input TradeState">
         tradeState -> trade -> tradableProduct
 
-    alias tradeLot: <"For direction Decrease or Replace, get the TradeLot to update.">
-        if instruction -> direction <> QuantityChangeDirectionEnum -> Increase
-        then if instruction -> lotIdentifier exists
-            then FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier)
-                only-element
-            else tradableProduct -> tradeLot only-element
+    alias tradeLotExists: <"The quantity change instruction applies to an existing tradeLot">
+        FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier) exists
 
-    alias newPriceQuantity: <"Update PriceQuantity based on change and direction inputs. For an Increase, the change PriceQuantity will be added to the list of TradeLots. For a Decrease or Replace, apply the changes to the existing PriceQuantity.">
+    alias tradeLot: <"Get the existing trade lot if specified, or return only trade lot">
+        if tradeLotExists
+        then FilterTradeLot(tradableProduct -> tradeLot, instruction -> lotIdentifier)
+        else tradableProduct -> tradeLot only-element
+
+    alias newPriceQuantity: <"Update the PriceQuantity based on the change and direction inputs. For an increase, if the trade lot exists, apply the changes to the existing PriceQuantity; otherwise, add the changed PriceQuantity to the list of TradeLots. For a decrease or replace, apply the changes to the existing PriceQuantity.">
         if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+                and tradeLotExists = False
         then instruction -> change
         else UpdateAmountForEachMatchingQuantity(
                 tradeLot -> priceQuantity,
@@ -932,6 +912,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
 
     alias newTradeLots: <"Add or merge updated TradeLot.">
         if instruction -> direction = QuantityChangeDirectionEnum -> Increase
+                and tradeLotExists = False
         then AddTradeLot(
                     tradableProduct,
                     TradeLot {
@@ -939,7 +920,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
                         priceQuantity: newPriceQuantity
                     }
                 ) -> tradeLot
-        else MergeTradeLot(
+        else ReplaceTradeLot(
                 tradableProduct -> tradeLot,
                 TradeLot {
                     lotIdentifier: instruction -> lotIdentifier,
@@ -1078,7 +1059,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 
     post-condition InterestRatePayoutTerms: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
         if masterConfirmation exists
-        then // interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and 
+        then // interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
             interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 func Create_IndexTransitionTermsChange: <"Function specification to create a terms change that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">

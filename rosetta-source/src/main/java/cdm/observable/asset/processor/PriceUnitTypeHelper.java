@@ -23,13 +23,13 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 
 public class PriceUnitTypeHelper {
 
-    private final RosettaPath modelPath;
-    private final List<Mapping> mappings;
-    private final SynonymToEnumMap synonymToEnumMap;
+    protected final RosettaPath modelPath;
+    protected final List<Mapping> mappings;
+    protected final SynonymToEnumMap synonymToEnumMap;
 
-    private final RosettaPath unitCurrencyModelPath;
-    private final RosettaPath perUnitOfCurrencyModelPath;
-    private final RosettaPath perUnitOfCapacityModelPath;
+    protected final RosettaPath unitCurrencyModelPath;
+    protected final RosettaPath perUnitOfCurrencyModelPath;
+    protected final RosettaPath perUnitOfCapacityModelPath;
 
     public PriceUnitTypeHelper(RosettaPath modelPath, MappingContext context) {
         this.modelPath = modelPath;
@@ -227,7 +227,7 @@ public class PriceUnitTypeHelper {
         return false;
     }
 
-    private Optional<Mapping> getPackageSpreadCurrency(Path quoteSynonymPath) {
+    protected Optional<Mapping> getPackageSpreadCurrency(Path quoteSynonymPath) {
         Optional<Mapping> quoteCurrencyMapping = getNonNullMapping(mappings, quoteSynonymPath.addElement("currency"));
         if (quoteCurrencyMapping.isPresent()) {
             return quoteCurrencyMapping;
