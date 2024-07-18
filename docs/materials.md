@@ -2,6 +2,8 @@
 title: Common Domain Model Materials
 ---
 
+Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D)
+
 ## COMMON DOMAIN MODEL IN THE NEWS 
 
 ##### [CDM: data standardisation across the trade lifecycle](https://www.securitiesfinancetimes.com/sltimes/SFT_issue_324.pdf)
