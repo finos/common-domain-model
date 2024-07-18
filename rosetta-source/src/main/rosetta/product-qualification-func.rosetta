@@ -97,11 +97,7 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
         economicTerms -> payout -> forwardPayout only-element -> underlier
 
     set is_product:
-        // legacy
-        economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange exists
-            or economicTerms -> payout -> optionPayout -> underlier -> foreignExchange exists
-        // new
-            or economicTerms -> payout -> forwardPayout -> underlier -> index -> ForeignExchangeRate exists
+        economicTerms -> payout -> forwardPayout -> underlier -> index -> ForeignExchangeRate exists
             or economicTerms -> payout -> optionPayout -> underlier -> index -> ForeignExchangeRate exists
             or economicTerms -> payout -> performancePayout -> observationTerms -> observable -> index -> ForeignExchangeRate exists
             or optionUnderlier -> index ->> assetClass = AssetClassEnum -> ForeignExchange
@@ -118,6 +114,8 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
                 else False)
             or forwardUnderlier -> index ->> assetClass = AssetClassEnum -> ForeignExchange
             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> ForeignExchange
+            // legacy
+            or economicTerms -> payout -> optionPayout -> underlier -> foreignExchange exists
 
 func Qualify_AssetClass_Equity:
     inputs:
