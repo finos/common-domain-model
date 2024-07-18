@@ -2,6 +2,8 @@ package cdm.event.common.processor;
 
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.QuantitySchedule;
+import cdm.base.staticdata.asset.common.Asset;
+import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
@@ -125,6 +127,9 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
         // payment amount
         setQuantity(transferBuilder.getOrCreateQuantity(), paymentPath.addElement("paymentAmount"));
 
+        // payment amount
+        setAsset(transferBuilder.getOrCreateAsset(), paymentPath.addElement("paymentAmount"));
+
         // settlement date
         setValueAndUpdateMappings(paymentPath.addElement("paymentDate").addElement("adjustedDate"),
                 xmlValue ->
@@ -136,9 +141,9 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
         // payment type
         setValueAndOptionallyUpdateMappings(paymentPath.addElement("paymentType"),
                 xmlValue ->
-                    synonymToEnumMap.getEnumValueOptional(FeeTypeEnum.class, xmlValue)
-                            .map(transferBuilder.getOrCreateTransferExpression()::setPriceTransfer)
-                            .isPresent(),
+                        synonymToEnumMap.getEnumValueOptional(FeeTypeEnum.class, xmlValue)
+                                .map(transferBuilder.getOrCreateTransferExpression()::setPriceTransfer)
+                                .isPresent(),
                 getMappings(),
                 getModelPath());
 
@@ -184,5 +189,12 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 xmlValue -> quantityBuilder.setValue(new BigDecimal(xmlValue)));
         setValueAndUpdateMappings(basePath.addElement("currency"),
                 quantityBuilder.getOrCreateUnit().getOrCreateCurrency()::setValue);
+    }
+
+    private void setAsset(Asset.AssetBuilder assetBuilder, Path paymentAmountPath) {
+        setValueAndUpdateMappings(paymentAmountPath.addElement("currency"),
+                xmlValue -> assetBuilder.getOrCreateCash().getOrCreateIdentifier(0)
+                        .setIdentifierValue(xmlValue)
+                        .setIdentifierType(AssetIdTypeEnum.CURRENCY_CODE));
     }
 }

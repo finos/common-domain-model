@@ -38,7 +38,12 @@ module.exports = {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
-        }
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'left',
+          dropdownActiveClassDisabled: true,
+        },
       ],
     },
     footer: {

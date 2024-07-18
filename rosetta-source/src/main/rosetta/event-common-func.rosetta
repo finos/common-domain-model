@@ -119,7 +119,7 @@ func FilterSecurityTransfers:
     output:
         securityTransfers Transfer (0..*)
 
-    add securityTransfers: transfers filter observable -> productIdentifier exists
+    add securityTransfers: transfers filter asset -> Instrument -> Security exists
 
 func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on the InterestRatePayout should be used to locate and resolve the underlier's price, for example for the reset process.">
     inputs:
@@ -213,12 +213,12 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 
     alias adjustedFinalValuationDate:
         ResolveAdjustableDate(
-                payout -> valuationDates -> valuationDatesFinal -> valuationDate
+                payout -> valuationDates -> finalValuationDate -> valuationDate
             )
     alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
         if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> valuationDatesInterim
-        else payout -> valuationDates -> valuationDatesFinal
+        then payout -> valuationDates -> interimValuationDate
+        else payout -> valuationDates -> finalValuationDate
     add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
         payout -> underlier -> security -> productIdentifier
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
@@ -243,9 +243,9 @@ func AdjustedValuationDates:
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
             ResolveAdjustableDates(
-                    valuationDates -> valuationDatesInterim -> valuationDates
+                    valuationDates -> interimValuationDate -> valuationDates
                 ),
-            ResolveAdjustableDate(valuationDates -> valuationDatesFinal -> valuationDate)
+            ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
 
@@ -660,7 +660,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             ...
         }
 
-    add transfer -> observable -> productIdentifier:
+    add transfer -> asset -> Instrument -> Security  -> productIdentifier:
         assetPayout -> securityInformation -> security -> productIdentifier
 
     set transfer -> payerReceiver -> payerPartyReference:

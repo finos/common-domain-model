@@ -52,13 +52,21 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "singleUnderlyer" path "underlyer" , "underlyer"]
         + fxFeature
             [value "fxFeature"]
+        + portfolioReturnTerms
+            [value "ignore"]
+        + initialValuationPrice
+            [value "ignore"]
+        + interimValuationPrice
+            [value "ignore"]
+        + finalValuationPrice
+            [value "ignore"]
 
     ValuationDates:
-        + valuationDatesInitial
+        + initialValuationDate
             [value "initialPrice" path "rateOfReturn"]
-        + valuationDatesInterim
+        + interimValuationDate
             [value "valuationPriceInterim" path "rateOfReturn"]
-        + valuationDatesFinal
+        + finalValuationDate
             [value "valuationPriceFinal" path "rateOfReturn"]
             [value "valuation"]
             [hint "valuationDate"]
@@ -1673,9 +1681,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "maximumDaysOfPostponement"]
 
     Loan:
-        + productIdentifier
-            [value "loan" meta "instrumentId"]
-            [hint "loan"]
         + borrower
             [value "borrower" path "loan"]
         + lien
@@ -1687,6 +1692,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + tranche
             [value "tranche" path "loan" meta "loanTrancheScheme"]
 
+    AssetIdentifier:
+        + identifier   
+            [value "instrumentId" path "loan" maps 2 mapper "AssetIdentifierType"]
+            [value "currency" maps 2 meta "currencyScheme"]
+        + identifierType   
+            [set to AssetIdTypeEnum -> CurrencyCode when "currency" exists]
+            
     ProductIdentifier:
         + identifier
             [value "instrumentId" path "bond" maps 2 mapper "ProductIdentifierSource"]
@@ -1694,7 +1706,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "instrumentId" path "mortgage" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "equity" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "index" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "loan" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "commodity" maps 2 mapper "ProductIdentifierSource"]
             [value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" maps 2 mapper "ProductIdentifierSource"]
@@ -1714,15 +1725,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bondOption"]
             [value "genericProduct"]
         + productTaxonomy
-			[hint "primaryAssetClass"]
+            [hint "primaryAssetClass"]
             [hint "secondaryAssetClass"]
             [hint "fra"]
             [hint "creditDefaultSwapOption"]
             [hint "bondOption"]
             [hint "commoditySwaption"]
-			[hint "genericProduct"]
-			[hint "productType"]
-			[value "commodityClassification"]
+            [hint "genericProduct"]
+            [hint "productType"]
+            [value "commodityClassification"]
 
     ProductTaxonomy:
         + primaryAssetClass
@@ -1984,7 +1995,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 		[meta "id" path "trade"]
         + trade
             [value "trade" mapper "Party"]
-            [hint "party" , "account" , "quote", "partyTradeIdentifier"]
+            [hint "party" , "account" , "quote" , "partyTradeIdentifier"]
         + resetHistory
             [value "ignore"]
         + transferHistory
@@ -2066,6 +2077,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to FeeTypeEnum -> Premium when path = "equityPremium"]
             [set to FeeTypeEnum -> BrokerageCommission when "paymentType" = "Brokerage"]
             [set to FeeTypeEnum -> Novation when path = "novation->payment"]
+
+    Asset:
+        + Cash
+            [value "paymentAmount"]
+            [value "fixedAmount"]
 
     ContractDetails:
         + documentation
@@ -2268,19 +2284,19 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "features"]
             [hint "averagingMethod"]
         + observationTerms
-			[value "asian" path "features"]
-			[hint "pricingDates"]
-			[hint "calculationPeriodsSchedule"]
-			[value "equityValuation" path "equityExercise"]
-		+ schedule
-			[value "schedule"]
+            [value "asian" path "features"]
+            [hint "pricingDates"]
+            [hint "calculationPeriodsSchedule"]
+            [value "equityValuation" path "equityExercise"]
+        + schedule
+            [value "schedule"]
         + delivery
             [value "ignore"]
         + strike
-			[value "strike"]
-			[hint "strikePricePerUnit"]
-			[hint "strikePricePerUnitSchedule"]
-			[hint "spotRate"]
+            [value "strike"]
+            [hint "strikePricePerUnit"]
+            [hint "strikePricePerUnitSchedule"]
+            [hint "spotRate"]
         + underlier
             [value "singleUnderlyer" path "underlyer" , "underlyer"]
             [hint "bond" , "equity" , "mortgage" , "convertibleBond" , "index"]
@@ -2292,8 +2308,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "varianceSwapTransactionSupplement"]
             [hint "dividendSwapTransactionSupplement"]
         + optionType
-			[value "optionType"]
-			[set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
+            [value "optionType"]
+            [set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
 
     ExerciseTerms:
         + commencementDate
@@ -2540,6 +2556,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVarianceSwap"]
             [value "fxVolatilitySwap"]
             [value "returnLeg"]
+        + settlementCommitment
+            [value "ignore"]
 
     Product:
         + contractualProduct
