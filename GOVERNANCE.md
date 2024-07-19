@@ -93,7 +93,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 * It is anticipated that for at least the next several years (say 4-5) at least one major release will be planned each year.
   * *Rationale:* we anticipate that there will be an accumulation of desired changes that cannot be accommodated within a minor release and we wish to ensure that these can be addressed without undue delay
     
-*Any addition to the scope/contents of (or technical change to) a planned major release requires SWG approval
+* Any addition to the scope/contents of (or technical change to) a planned major release requires SWG approval
   * *Rationale:*   similar to the above guideline on scheduling major releases
     
 * If planned scope items for a major release are not available in time for the planned release date, the SWG will need to decide whether to slip the release date or drop the item, based on industry priorities
@@ -141,7 +141,7 @@ This section discusses how changes to the CDM are controlled within and between 
 ## 7.1 Change Control Principles
 
 * We are trying to ensure rapid, smooth, and predictable evolution of the model by controlling when and how breaking changes are introduced
-  * We want to allow changes where needed, with a defined process make those changes, to meet evolved and improved understanding of the business and technical requirements.
+  * We want to allow changes where needed, with defined process to make those changes, to meet evolved and improved understanding of the business and technical requirements.
   * We want to give ourselves some freedom to make changes more easily when there are newly introduced components/structures that may not be fully mature, but we don’t want to spend a lot of effort on planning for that.  We will do this using the defect approval guidelines, giving some scope for correcting recently introduced changes.
 * Prohibiting breaking changes within a major version should allow users to upgrade to minor versions more quickly and easily, and plan for when to implement larger changes
   * By  limiting and control the amount of change to key business models and technology structures,  CDM users can have confidence that functionality they develop using CDM will continue to work with new versions of CDM with minimal effort, at least for a defined period of time
@@ -162,7 +162,7 @@ This section discusses how changes to the CDM are controlled within and between 
   * Functionality shall not be removed between major versions without advance notice
 
 
-Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version x.y, it does not need to fully interoperate with version x.y-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version x.y, it should be able to interoperate with version x.y+1.
+Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
 
 ## 7.3 Change Control Evaluation and Enforcement
 
@@ -214,44 +214,42 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
 
-## 9.1 Dev Release Scheduling and Approvals
-* Dev releases may be scheduled by the maintainers  to optimize development resources, based on the queue of approved PRs
+## 9.1 Development Release Scheduling and Approvals
+* Development releases may be scheduled by the maintainers  to optimize development resources, based on the queue of approved PRs
   * There is no particular desired/expected release frequency; releases may be cut as soon as there is an approved PR, or several PRs may be consolidated into a single release at the convenience of the maintainers and dev staff
-  * *Rationale:*  Dev builds are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
-  * Each Dev Release shall require the approval of one maintainer once all the PRs are approved, and the test cass all pass successfully.
-* Dev releases shall be reported in brief to the CRWG and the SWG
+  * *Rationale:*  Development releases are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
+  * Each development release shall require the approval of one maintainer once all the PRs are approved, and the test cases all pass successfully.
+* Development release shall be reported in brief to the CRWG and the SWG
 
 ## 9.2 Major Production Release Build & Release Approvals
 
 * Major production releases will be scheduled by the SWG as described above
   * *(TODO:  insert a diagram of the promotion process)*
-* Each Major Production Release shall require the approval of two maintainers after the following are complete:
-  * The scope of the release is finalized and ratified by the SWG
-  * All approved PRs for the major release are complete
-  * The SWG reviews the final list of enhancements in the release and signs off on releasing the dev version into production
+* Each major production release shall require the approval of two maintainers after the following are complete:
+  * The scope of the major production release is finalized and ratified by the SWG
+  * All approved PRs for the major production release are complete
+  * The SWG reviews the final list of enhancements in the release and signs off on releasing the development version into production
 
 ## 9.3 Minor Production Release Scheduling and Approvals
 
 * Minor production releases may be scheduled by the maintainers based on the queue of approved PRs
 * Minor production releases to introduce enhancements should be combined  to minimize the number of production releases, targeting minor production releases to be issued around four weeks or so as long as there is a queue of approved PRs.  (This frequency can be increased in times of urgent need for new functionality).
   * *Rationale:*   Minimizing the number of production releases will help with supportability, by reducing the number of releases that end users wishing to remain current need to consider, and reducing communications overhead.
-* Each Minor Production Release shall require the approval of two maintainers.
-* Minor Production releases shall be reported in brief to the CRWG and the SWG, 
-* A roadmap of anticipated minor releases shall be reported by the maintainers to the CRWG based on PRs that are in process.
+* Each minor production release shall require the approval of two maintainers.
+* Minor production releases shall be reported in brief to the CRWG and the SWG, 
+* A roadmap of anticipated minor production release shall be reported by the maintainers to the CRWG based on PRs that are in process.
 
 ## 9.4  Production Patch Release Scheduling and Approvals
 
-* Patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approves defect correction PRs, or other non-functional PRs (e.g. security remediations).
-*  Patch releases require the approval of one maintainer
-*  Patch releases shall be reported to the CRWG.
+* Production patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approved defect correction PRs, or other non-functional PRs (e.g. security remediations).
+* Production patch releases require the approval of one maintainer
+* Production patch releasess shall be reported to the CRWG.
 
  ## 9.5 Summary of Release Approval Requirements
 
- | Type of Release        | Approval Requirement |  Notes                    |
-| ----------------------- | -------------------- |  -------------------------------------------  |
-| Development Release     | 1 maintainer         | Scheduling is up to the maintainer            |
-| Major Release (6.0.0)   | 2 maintainers         | Scheduling via SWG; Include analysis of the changes from last major release as part of the approval  |
-| Minor Release (6.1.0)   | 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly   |
-| Patch Release (6.1.1)    | 1 maintainer         | Scheduling is up to the maintainer            |
-
-
+| Type of Release      | Approval Requirement |  Notes                                        |
+| ---------------------| -------------------- |  -------------------------------------------  |
+| Development Release  | 1 maintainer         | Scheduling is up to the maintainer            |
+| Major Release (6.0.0)| 2 maintainers        | Scheduling via SWG; Include analysis of the changes from last major release as part of the approval  |
+| Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
+| Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
