@@ -16,6 +16,6 @@ Release states are defined as follows:
 * Unsupported/End of Life – There will be no bug fixes or other support for the version.  TBD: We may perform security scans on some more recent unsupported versions and report any identified vulnerabilities, but will not perform security remediations.
 
   
-At any point we want a maximum of 1 centrally supported? development version, 1 production version, and one maintenance version.
+At any point we want a maximum of 1 centrally supported development version, 1 production version, and one maintenance version.
 
 
