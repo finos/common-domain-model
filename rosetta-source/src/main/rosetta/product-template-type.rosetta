@@ -895,7 +895,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     [metadata key]
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-    securityInformation Product (1..1) <"Specifies the Purchased Security.  Within SecurityPayout we include a condition which validates that the product must be a Security (see below condition 'ProductMustBeSecurity').">
+    securityInformation Security (1..1) <"Specifies the Purchased Security.">
     durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
         [deprecated]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
@@ -904,9 +904,6 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
-
-    condition ProductMustBeSecurity: <"Validates that the Purchased Security must be a security.">
-        securityInformation -> security exists
 
     condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
         if dividendTerms exists
