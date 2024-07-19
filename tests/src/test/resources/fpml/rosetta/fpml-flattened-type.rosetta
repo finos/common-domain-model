@@ -1,0 +1,198 @@
+namespace fpml.flattened
+version "${project.version}"
+
+typeAlias NonEmptyScheme: <"The base class for all types which define coding schemes that must be populated.">
+    NormalizedString
+
+typeAlias NonEmptyURI: <"A URI that cannot be empty.">
+    string(pattern: "\\w+:(\\/?\\/?)[^\\s]+", minLength: 1)
+
+typeAlias NormalizedString: <"A normalized string">
+    string
+
+typeAlias Scheme: <"The base class for all types which define coding schemes that are allowed to be empty.">
+    NormalizedString
+
+typeAlias Token: <"A token. FpML redefines this type so that in some views it can enforce that it may not be empty">
+    string
+
+typeAlias NonEmptyToken: <"A non empty token. At least one character must be provided. FpML may define lenght restrictions in some views.">
+    string(minLength: 1)
+
+typeAlias Initial: string(minLength: 1, maxLength: 1)
+
+type Reference: <"The abstract base class for all types which define intra-document pointers.">
+
+type Party: <"A type defining a legal entity or a subdivision of a legal entity. Parties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.">
+
+    partyId PartyId (0..*) <"A party identifier, e.g. a S.W.I.F.T. bank identifier code (BIC).">
+    partyName PartyName (0..1) <"The legal name of the organization. A free format string. FpML does not define usage rules for this element.">
+    classification IndustryClassification (0..*) <"The party\'s industry sector classification.">
+    creditRating CreditRating (0..*) <"The party\'s credit rating.">
+    country CountryCode (0..1) <"The country where the party is domiciled.">
+    region Region (0..*) <"A code for a grouping of countries to which this belongs.">
+    jurisdiction GoverningLaw (0..*) <"The legal jurisdiction of the entity\'s registration.">
+    organizationType OrganizationType (0..*) <"The type of an organization\'s participantion in the OTC derivatives market.">
+    contactInfo ContactInformation (0..1) <"Information on how to contact the party using various means.">
+    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process .">
+    person Person (0..*) <"Optional information about people involved in a transaction or busines process. (These are eomployees of the party).">
+    groupType PartyGroupType (0..1) <"Party Group Type, e.g. JointAndSeveralLiability">
+    partyReference PartyReference (0..*) <"Reference to a party that is a member of the group of entities that are acting together as a single party in a transaction.">
+    id string (1..1) <"The id uniquely identifying the Party within the document.">
+
+type PartyId: <"The data type used for party identifiers.">
+
+    value NonEmptyScheme (1..1)
+    partyIdScheme NonEmptyURI (1..1)
+
+type PartyName: <"The data type used for the legal name of an organization.">
+
+    value Scheme (1..1)
+    partyNameScheme NonEmptyURI (0..1)
+
+type ContactInformation: <"A type that represents how to contact an individual or organization.">
+
+    telephone TelephoneNumber (0..*) <"A telephonic contact.">
+    email NormalizedString (0..*) <"An address on an electronic mail or messaging sysem .">
+    address Address (0..1) <"A postal or street address.">
+
+type BusinessUnit: <"A type that represents information about a unit within an organization.">
+
+    name NonEmptyToken (0..1) <"A name used to describe the organization unit">
+    businessUnitId Unit (0..1) <"An identifier used to uniquely identify organization unit">
+    contactInfo ContactInformation (0..1) <"Information on how to contact the unit using various means.">
+    country CountryCode (0..1) <"The ISO 3166 standard code for the country where the individual works.">
+    id string (0..1)
+
+type IndustryClassification: <"A party\'s industry sector classification.">
+    value Scheme (1..1)
+    industryClassificationScheme NonEmptyURI (0..1)
+
+type CreditRating: <"A party\'s credit rating.">
+
+    value Scheme (1..1)
+    creditRatingScheme NonEmptyURI (0..1)
+
+type CountryCode: <"The code representation of a country or an area of special sovereignty. By default it is a valid 2 character country code as defined by the ISO standard 3166-1 alpha-2 - Codes for representation of countries http://www.niso.org/standards/resources/3166.html.">
+
+    value Token (1..1)
+    countryScheme NonEmptyURI (0..1)
+
+type Region: <"A code that describes the world region of a counterparty. For example, NorthAmerica, Europe, Asia.">
+
+    value Scheme (1..1)
+    regionScheme NonEmptyURI (0..1)
+
+type GoverningLaw: <"Identification of the law governing the transaction.">
+
+    value Scheme (1..1)
+    governingLawScheme NonEmptyURI (0..1)
+
+type OrganizationType: <"A code that describes what type of role an organization plays, for example a SwapsDealer, a Major Swaps Participant, or Other">
+
+    value Token (1..1)
+    organizationTypeScheme NonEmptyURI (0..1)
+
+type TelephoneNumber: <"A type that represents a telephonic contact.">
+
+    //^type TelephoneTypeEnum (0..1) <"The type of telephone number (work, personal, mobile).">
+    //TODO: tilda type isn't working
+    telephoneNumberType TelephoneTypeEnum(0..1)
+    number NonEmptyToken (1..1) <"A telephonic contact.">
+
+type Unit: <"A type used to record information about a unit, subdivision, desk, or other similar business entity.">
+
+    value Scheme (1..1)
+    unitScheme NonEmptyURI (0..1)
+
+type Person: <"A type that represents information about a person connected with a trade or business process.">
+
+    honorific NormalizedString (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
+    firstName NormalizedString (1..1) <"Given name, such as John or Mary.">
+    middleName NormalizedString (0..*)
+    initial Initial (0..*)
+    surname NormalizedString (1..1) <"Family name, such as Smith or Jones.">
+    suffix NormalizedString (0..1) <"Name suffix, such as Jr., III, etc.">    personId PersonId (0..*) <"An identifier assigned by a system for uniquely identifying the individual">
+    businessUnitReference BusinessUnitReference (0..1) <"The unit for which the indvidual works.">
+    contactInfo ContactInformation (0..1) <"Information on how to contact the individual using various means.">
+    dateOfBirth date (0..1) <"The birth date of the person, e.g. 1970-01-01">
+    country CountryCode (0..1) <"The ISO 3166 standard code for the country where the individual works.">
+    id string (0..1)
+
+type PersonId: <"An identifier used to identify an individual person.">
+
+    value NonEmptyScheme (1..1)
+    personIdScheme NonEmptyURI (0..1)
+
+type BusinessUnitReference extends Reference: <"Reference to an organizational unit.">
+
+    href string (1..1)
+
+type RelatedPerson:
+
+	personReference PersonReference (1..1) <"The individual person that is related to this.">
+	role PersonRole (1..1) <"The category of the relationship. The related individual performs the role specified in this field for the base party. For example, if the role is \"Trader\", the related person acts acts or acted as the base party\'s trader.">
+
+type PersonReference extends Reference: <"Reference to an individual.">
+
+	href string (1..1)
+
+type PersonRole: <"A type describing a role played by a person in one or more transactions. Examples include roles such as Trader, Broker, MiddleOffice, Legal, etc. This can be extended to provide custom roles.">
+
+	value Scheme (1..1)
+	personRoleScheme NonEmptyURI (0..1)
+
+
+type PartySequence:
+
+    groupType PartyGroupType (1..1) <"Party Group Type, e.g. JointAndSeveralLiability">
+    partyReference PartyReference (2..*) <"Reference to a party that is a member of the group of entities that are acting together as a single party in a transaction.">
+
+type PartyGroupType: <"The data type used for party group classification.">
+
+    value Scheme (1..1)
+    partyGroupTypeScheme NonEmptyURI (0..1)
+
+type PartyReference extends Reference: <"Reference to a party.">
+
+    href string (1..1)
+
+type Address: <"A type that represents a physical postal address.">
+
+    streetAddress StreetAddress (0..1) <"The set of street and building number information that identifies a postal address within a city.">
+    city NonEmptyToken (0..1) <"The city component of a postal address.">
+    state NonEmptyToken (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons.">
+    country CountryCode (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+    postalCode NonEmptyToken (0..1) <"The code, required for computerised mail sorting systems, that is allocated to a physical address by a national postal authority.">
+
+type StreetAddress: <"A type that describes the set of street and building number information that identifies a postal address within a city.">
+
+    streetLine NonEmptyToken (1..*) <"An individual line of street and building number information, forming part of a postal address.">
+
+type Account: <"A generic account that represents any party\'s account at another party. Parties may be identified by the account at another party.">
+
+	accountId AccountId (1..*) <"An account identifier. For example an Account number.">
+	accountName AccountName (0..1) <"The name by which the account is known.">
+	accountType AccountType (0..1) <"The type of account. e.g., Client, House">
+	accountBeneficiary PartyReference (1..1) <"A reference to the party beneficiary of the account.">
+	servicingParty PartyReference (0..1) <"A reference to the party that services/supports the account.">
+	id string (1..1) <"The unique identifier for the account within the document.">
+
+type AccountId: <"The data type used for account identifiers.">
+
+	value NonEmptyScheme (1..1)
+	accountIdScheme NonEmptyURI (0..1) <"The identifier scheme used with this accountId. A unique URI to determine the authoritative issuer of these identifiers.">
+
+type AccountName: <"The data type used for the name of the account.">
+
+	value Scheme (1..1)
+	accountNameScheme NonEmptyURI (0..1) <"The identifier scheme used with this accountName. A unique URI to determine the source of the account name.">
+
+type AccountType: <"The data type used for account type.">
+
+	value Scheme (1..1)
+	accountTypeScheme NonEmptyURI (0..1) <"The identifier scheme used with this accountType. A unique URI to determine the the type of account.">
+
+type AccountReference extends Reference: <"Reference to an account.">
+
+	href string (1..1)

@@ -135,12 +135,155 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>com.regnosys.rosetta</groupId>
+                    <artifactId>rosetta-maven-plugin</artifactId>
+                    <version>${rosetta.dsl.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.regnosys.rosetta</groupId>
+                            <artifactId>com.regnosys.rosetta</artifactId>
+                            <version>${rosetta.dsl.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>com.regnosys.rosetta</groupId>
+                                    <artifactId>com.regnosys.rosetta.xcore</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.regnosys.rosetta</groupId>
+                            <artifactId>com.regnosys.rosetta.lib</artifactId>
+                            <version>${rosetta.dsl.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
         	</plugins>
         </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven-clean-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>src/generated</directory>
+                                    <includes>
+                                        <include>**/**</include>
+                                    </includes>
+                                    <followSymlinks>false</followSymlinks>
+                                </fileset>
+                                <fileset>
+                                    <directory>src/test/generated</directory>
+                                    <includes>
+                                        <include>**/**</include>
+                                    </includes>
+                                    <followSymlinks>false</followSymlinks>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes/fpml/rosetta</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/rosetta</directory>
+                                    <includes>
+                                        <include>*.rosetta</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.regnosys.rosetta</groupId>
+                <artifactId>rosetta-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>foo</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>testGenerate</goal>
+                        </goals>
+                        <configuration>
+                            <addOutputDirectoriesToCompileSourceRoots>false</addOutputDirectoriesToCompileSourceRoots>
+                            <sourceRoots>
+                                <sourceRoot>${project.basedir}/src/test/resources/fpml/rosetta</sourceRoot>
+                            </sourceRoots>
+                            <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                            <languages>
+                                <language>
+                                    <setup>com.regnosys.rosetta.RosettaStandaloneSetup</setup>
+                                    <outputConfigurations>
+                                        <!-- Default output folder -->
+                                        <outputConfiguration>
+                                            <outputDirectory>${project.basedir}/src/test/generated/java</outputDirectory>
+                                        </outputConfiguration>
+                                    </outputConfigurations>
+                                </language>
+                            </languages>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>add-generated-sources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.outputDirectory}/generated/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-generated-test-sources</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/test/generated/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

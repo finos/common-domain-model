@@ -1,0 +1,141 @@
+namespace fpml.flattened
+version "${project.version}"
+
+
+translate source FpML {
+
+    cdm.base.staticdata.party.Party from party Party, account Account, relatedPerson RelatedPerson, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+        [meta key from party -> id]
+        + name
+            [from party -> partyName -> value]
+            [meta scheme from party -> partyName -> partyNameScheme] // NOTE: synonym is wrong???
+            // [value "entityName" meta "entityNameScheme"]
+            // [value "entityName" path "referenceEntity" meta "entityNameScheme"]
+        + partyId
+            [from party -> partyId]
+        + person
+            [from party -> person]
+        + account
+            [from account, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + contactInformation
+            [from party -> contactInfo, party -> country]
+        + businessUnit
+            [from party -> businessUnit]
+        + personRole
+            [from relatedPerson]
+
+    cdm.base.staticdata.party.PartyIdentifier from PartyId:
+        + identifier
+            [from value]
+            [meta scheme from partyIdScheme]
+        // + identifier -> scheme
+        //     [from partyIdScheme]
+        + identifierType
+            [from partyIdScheme]
+
+//TODO: fix this in dsl
+    cdm.base.staticdata.party.PartyIdentifierTypeEnum from string:
+        // [from if item = "http://www.fpml.org/coding-scheme/external/iso17442"
+        //     then cdm.base.staticdata.party.PartyIdentifierTypeEnum -> LEI
+        //     else if item = "http://www.fpml.org/coding-scheme/external/iso9362"
+        //         then cdm.base.staticdata.party.PartyIdentifierTypeEnum -> BIC
+        //     else if item = "http://www.fpml.org/coding-scheme/external/iso10383"
+        //         then  cdm.base.staticdata.party.PartyIdentifierTypeEnum -> MIC]
+
+
+    cdm.base.staticdata.party.Account from Account, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+        [ meta key from id]
+        + partyReference
+            [meta reference from id, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + accountNumber
+            [from accountId only-element -> value]
+            [meta scheme from accountId only-element -> accountIdScheme ]
+        + accountName
+            [from accountName -> value]
+            [meta scheme from accountName -> accountNameScheme]
+        + accountType
+            [from accountType -> value to-enum cdm.base.staticdata.party.AccountTypeEnum]
+            [meta scheme from accountType -> accountTypeScheme]
+        + accountBeneficiary
+            [meta reference from accountBeneficiary -> href] //Is this ok for references?
+        + servicingParty
+            [meta reference from servicingParty -> href] //Is this ok for references?
+
+    string from accountId string, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+    [from if payerAccountReference -> href = accountId
+        then payerPartyReference -> href
+        else if receiverAccountReference -> href = accountId
+        then receiverPartyReference -> href
+        else accountId] //This recreated the mapper behavour however I beleive this is a mistake to stamp an accountId on a partyRererence
+
+    cdm.base.staticdata.party.NaturalPerson from Person:
+        [meta key from id]
+        + honorific
+            [from honorific]
+        + firstName
+            [from firstName]
+            // [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$1"]
+        + middleName
+            [from middleName]
+        + initial
+            [from initial]
+        + surname
+            [from surname]
+            // [value "personId" maps 2 pattern "([a-zA-Z]*).([a-zA-Z]*)" "$2"]
+        + suffix
+            [from suffix]
+        + dateOfBirth
+            [from dateOfBirth]
+
+    cdm.base.staticdata.party.ContactInformation from ContactInformation, country CountryCode:
+        + telephone
+            [from telephone]
+        + address
+            [from address, country]
+        + email
+            [from email]
+
+    cdm.base.staticdata.party.TelephoneNumber from TelephoneNumber:
+        + number
+            [from number]
+        + telephoneNumberType
+            [from telephoneNumberType]
+
+    //TODO: fix this in dsl
+    cdm.base.staticdata.party.TelephoneTypeEnum from TelephoneTypeEnum:
+        // [from
+        //     if item = TelephoneTypeEnum -> Work then cdm.base.staticdata.party.TelephoneTypeEnum -> Work
+        //     else if item = TelephoneTypeEnum -> Mobile then cdm.base.staticdata.party.TelephoneTypeEnum -> Mobile
+        //     else if item = TelephoneTypeEnum -> Fax then cdm.base.staticdata.party.TelephoneTypeEnum -> Fax
+        //     else if item = TelephoneTypeEnum -> Personal then cdm.base.staticdata.party.TelephoneTypeEnum -> Personal
+        // ]
+
+
+    cdm.base.staticdata.party.Address from Address, country CountryCode:
+        + street
+            // [value "streetAddress"]
+            [from streetAddress -> streetLine]
+        + city
+            [from city]
+        + state
+            [from state]
+        + country
+            [from country -> value]
+            [meta scheme from country -> countryScheme]
+        + postalCode
+            [from postalCode]
+
+    cdm.base.staticdata.party.BusinessUnit from BusinessUnit:
+        [meta key from id]
+        + name
+            [from name]
+        + contactInformation
+            [from contactInfo, country]
+
+    cdm.base.staticdata.party.NaturalPersonRole from RelatedPerson:
+        + personReference
+            [meta reference from personReference -> href]
+        + role
+            [from role -> value to-enum cdm.base.staticdata.party.NaturalPersonRoleEnum]
+            [meta scheme from role -> personRoleScheme]
+}
