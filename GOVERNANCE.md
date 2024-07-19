@@ -184,12 +184,12 @@ This section discusses how pull requests will be classified, reviewed, and appro
 
 Pull requests shall be classified into one of the following complexity categories:
 * Model change - bug fix – change to existing logic (without major redesign) to cause it to implement the original intended behaviour and design; generally used to address an oversight in a previous contribution.   
-  * *Backward compatibility:*  For defect corrections to production versions, the bug fix shall generally be backward-compatible with the existing design unless the existing design is newly introduced and so severely compromised that it cannot function unless something is changed.
-* MOdel change - Enhancement – new functionality or change to existing functionality required to meet a new business requirement.  
+  * *Backward compatibility:*  For defect corrections to production versions, the defect correction shall generally be backward-compatible with the existing design unless the existing design is newly introduced and so severely compromised that it cannot function unless something is changed.
+* Model change - Enhancement – new functionality or change to existing functionality required to meet a new business requirement.  
   * *Backward compatibility:*  If the change includes backward-incompatible changes, this shall be flagged as such and the change shall be targeted for a development version.
 * Technical change.  This is used to cover a variety of cases that don't affect the model itself, including updates to dependencies, mapping changes, test cases, etc.
 
-Pull requests shall be tagged in GitHub as described in discussion #2789 (https://github.com/finos/common-domain-model/discussions/2789) to implement the approval process.
+Pull requests shall be tagged in GitHub as described in discussion [#2789](https://github.com/finos/common-domain-model/discussions/2789) to implement the approval process.
 
 
 
