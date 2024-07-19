@@ -661,15 +661,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commodityClassification"]
             // Other
             [value "underlyer"]
-        + settlementTerms
-            [hint "settlementType"]
-            [hint "paymentDelay"]
-            [hint "paymentDate"]
-            [hint "adjustablePaymentDate"]
-            [hint "adjustedPaymentDate"]
-        + buyerSeller
-            [hint "payerPartyReference"]
-            [hint "receiverPartyReference"]
+        // + settlementTerms
+        //     [hint "settlementType"]
+        //     [hint "paymentDelay"]
+        //     [hint "paymentDate"]
+        //     [hint "adjustablePaymentDate"]
+        //     [hint "adjustedPaymentDate"]
+        // + buyerSeller
+        //     [hint "payerPartyReference"]
+        //     [hint "receiverPartyReference"]
         + effectiveDate
             [value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
@@ -987,12 +987,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "averagingPeriodOut"]
 
     ObservationTerms:
-        + pricingTime
+        + observationTime
             [value "pricingDates"]
             [value "fixingTime"]
             [value "fixingTime" path "fixingInformationSource"]
             [value "valuationTime"]
-        + pricingTimeType
+        + observationTimeType
             [value "pricingDates"]
         + calculationPeriodDates
             [hint "calculationPeriodsSchedule"]
@@ -1717,13 +1717,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "description" path "index" maps 2 mapper "ProductIdentifierSource"]
 
     ProductBase:
-        + productIdentifier
-            [hint "productId"]
-            [hint "commoditySwaption"]
-            [hint "fra"]
-            [hint "creditDefaultSwapOption"]
-            [hint "bondOption"]
-            [value "genericProduct"]
         + productTaxonomy
             [hint "primaryAssetClass"]
             [hint "secondaryAssetClass"]
@@ -1781,7 +1774,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]
 
     Security:
-        + productIdentifier
+        + identifier
             [value "bond" meta "instrumentId" mapper "BasketConstituent"]
             [value "convertibleBond" meta "instrumentId" mapper "BasketConstituent"]
             [value "mortgage" meta "instrumentId" mapper "BasketConstituent"]
@@ -1959,18 +1952,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "notionalAmountReference" meta "href"]
 
     Observable:
-        + commodity
-            [hint "commodity"]
-            [hint "commodityClassification"]
+//        + commodity  //**ART** needs to be mapped to Asset
+//            [hint "commodity"]
+//            [hint "commodityClassification"]
         + productIdentifier
             [hint "equity"]
             [hint "bond"]
             [hint "convertibleBond"]
             [hint "index"]
             [hint "exchangeTradedContractNearest"]
-        + currencyPair
-            [value "quotedCurrencyPair"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+        // + currencyPair   //**ART** Needs to be mapped to Index/ForeignExchangeRate
+        //     [value "quotedCurrencyPair"]
+        //     [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
 
     Cashflow:
 		[meta "id"]
@@ -2297,7 +2290,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "strikePricePerUnit"]
             [hint "strikePricePerUnitSchedule"]
             [hint "spotRate"]
-        + underlier
+        + productUnderlier
             [value "singleUnderlyer" path "underlyer" , "underlyer"]
             [hint "bond" , "equity" , "mortgage" , "convertibleBond" , "index"]
             [hint "swap"]
@@ -2556,7 +2549,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVarianceSwap"]
             [value "fxVolatilitySwap"]
             [value "returnLeg"]
-        + settlementCommitment
+        + settlementPayout
             [value "ignore"]
 
     Product:
@@ -2632,18 +2625,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + basket
             [value "basket"]
 
-    Index:
-        + productIdentifier
-            [value "index" meta "instrumentId" mapper "BasketConstituent"]
-            [value "index" meta "description"]
-            [hint "index"]
+//   Index:
+//        + identifier
+//            [value "index" meta "instrumentId" mapper "BasketConstituent"]
+//            [value "index" meta "description"]
+//            [hint "index"]
 
     Basket:
         + basketConstituent
             [value "basketConstituent"]
 
     Commodity:
-        + productIdentifier
+        + identifier
             [hint "commodity"]
         + priceQuoteType
             [value "specifiedPrice" path "commodity" maps 2]
@@ -3653,20 +3646,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "callCurrencyAmount"]
         + tenorPeriod
             [value "tenorPeriod"]
-        + exchangeRate
-            [value "exchangeRate"]
-
-    ExchangeRate:
-        + crossRate
-            [value "crossRate"]
-
-    CrossRate:
-        + rate
-            [value "rate"]
-        + spotRate
-            [value "spotRate"]
-        + forwardPoints
-            [value "forwardPoints"]
 
     FxRateSourceFixing:
         + settlementRateSource

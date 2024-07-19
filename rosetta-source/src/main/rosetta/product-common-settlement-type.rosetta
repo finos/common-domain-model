@@ -62,7 +62,7 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
         if quantityMultiplier exists
         then quantityReference -> reference exists
 
-type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
+type PayoutBase: <"A data type that contains the common attributes (e.g. payer and receiver parties) and validation conditions that apply across all payout types">
 
     payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
     priceQuantity ResolvablePriceQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
@@ -307,18 +307,26 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
         [metadata location]
     observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
-    buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
-    settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+    // buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
+    // settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
     effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
     condition RateOptionObservable: <"When the observable is a rate option, the price type must be interest rate and the arithmetic operator must be specified.">
         RateOptionObservableCondition
 
-    condition ObservableExists: <"When the arithmetic operator is specified, then an observable must be specified.">
-        if price -> arithmeticOperator exists then observable exists
+    condition RateOptionObservable: <"When the observable is a rate option, the price type must be interest rate and the arithmetic operator must be specified.">
+        RateOptionObservableCondition
+        // convert to index and cover additional scenarios including FX rate
 
-    condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
-        if buyerSeller exists then settlementTerms exists
+    condition CashQuantity:  <"If the quantity refers to cash in a currency, this should be modelled by setting the currency in the unit type of the quantity and not using an Observable. ">
+        ( quantity -> unit -> currency exists and observable is absent )
+        or
+        ( quantity -> unit -> currency is absent and observable exists )
+
+    condition ObservableExists: <"The Observable should be an Asset unless the arithmetic operator is being used.">
+        if price -> arithmeticOperator exists 
+        then observable -> asset is absent
+        else observable -> asset exists
 
 type FixedPrice: <"A predefined price accorded by the counterparties.">
 
