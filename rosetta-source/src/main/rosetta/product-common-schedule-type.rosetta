@@ -11,6 +11,7 @@ import cdm.observable.common.*
 import cdm.product.asset.*
 import cdm.product.common.settlement.*
 
+
 type CalculationPeriodData:
     startDate date (1..1)
     endDate date (1..1)
@@ -151,17 +152,39 @@ type RateSchedule: <"A class defining a schedule of rates or amounts in terms of
         [metadata address "pointsTo"=PriceQuantity->price]
 
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
+
     observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
     periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
     parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
+    observationDate RelativeDateOffset (0..1) <"The enumerated values to specify the type of date to be used as an anchor. That is notably used for further specifying when a particular type of date shall be observed, given a schedule of observation dates (example : each ObservationPeriodStartDate, etc.).">
 
-type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
-    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation.">
+  condition ObservationIsRelativeTo:
+    if (periodicSchedule exists or parametricDates exists or observationSchedule exists) 
+    and observationDate exists
+        then observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationDate 
+            or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodStartDate 
+                or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodEndDate
+
+
+type ObservationSchedule: <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
+
+    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation, optionaly with a weight associated to each date.">
+    observationPeriod NewObservationPeriodSchedule (0..*) <"Specifies manufactured schedule, composed of period series (mostly used when period are irregular, thus unlikely calculable based on periodic parameters).">
     dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 
     condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
         if observationDate -> adjustedDate is absent
         then observationDate -> unadjustedDate exists and dateAdjustments exists
+
+    condition ScheduleIsDateOrPeriod: <"Specifies a choice between a schedule made of date series via observationDate, else a schedule made of period series via observationPeriod.">
+    required choice observationDate, observationPeriod
+
+type NewObservationPeriodSchedule: <"Specifies manufactured period (mostly used when period are irregular, thus unlikely calculable as periodic fixed period in series based on frequency parameters).">
+         [metadata key]
+
+    startDate AdjustableOrRelativeDate (1..1) <"The start date of the schedule.">
+    endDate AdjustableOrRelativeDate (1..1) <"The end date of the schedule.">
+    numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
 
 type ObservationDate: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
     [metadata key]
@@ -175,18 +198,25 @@ type ObservationDate: <"Specifies a single date on which market observations tak
 
 type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multiple observations. ">
 
-    pricingTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
-    pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
+    observationTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
+    observationTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
     observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
     observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
     numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
+    observationMethod DeterminationMethodEnum (0..1) <"The enumerated values to specify the method according to which an amount or a date is determined.">
+    priceObservation PriceSchedule (0..1) <"Record the numerical value of the Price effectively observed for the Observable defined in observablePrice attribute.">
+      [metadata address]
 
-    condition PricingTime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
-        if pricingTimeType = TimeTypeEnum -> SpecificTime
-        then pricingTime exists
+    condition ObservationIsDatedValue: <"DatedValue must be used for the purpose of defining the date of the observation together with related value.">
+    if priceObservation exists
+    then priceObservation ->datedValue exists
+
+    condition Observationime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
+        if observationTimeType = TimeTypeEnum -> SpecificTime
+        then observationTime exists
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
     dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">

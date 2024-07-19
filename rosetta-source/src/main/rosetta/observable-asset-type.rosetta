@@ -9,6 +9,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.common.*
 import cdm.product.asset.*
+import cdm.product.common.settlement.*
 import cdm.mapping.config.*
 
 type FloatingIndex extends IndexBase:  <"Specification of the floating rate index details.">
@@ -263,6 +264,14 @@ type ValuationTerms: <"Defines how and when a performance type option or perform
     valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
     valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
     valuationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
+    initialValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"= PriceQuantity->price]
+    interimValuationPrice PriceSchedule (0..*) <"Specifies the net initial valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"= PriceQuantity->price]
+    finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    [metadata address "pointsTo"= PriceQuantity->price]
+    numberOfValuationDates int (0..1) <"The number of observation dates between initial valuation date and final valuation date.">
+
 
     condition ValuationMethod: <"Specifies the method according to which an amount or a date is determined.">
     if valuationMethod is absent
@@ -276,6 +285,7 @@ type ValuationBase: <"Defines how and when a performance type option or performa
     valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
     valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
     valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+    numberOfValuationDates int (0..1) <"The number of observation dates between initial valuation date and final valuation date.">
     
 
 type FxRateSourceFixing: <"Describes a rate source to be fixed and the date the fixing occurs">
