@@ -2,10 +2,20 @@ package com.regnosys.translate2;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.util.Modules;
+import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapperCreator;
+import com.rosetta.model.lib.process.PostProcessor;
 import fpml.flattened.Party;
 import fpml.flattened.PartyId;
+import fpml.flattened.translate.TranslatePartyAndRelatedPersonToPartyUsingFpML;
 import org.apache.commons.io.FileUtils;
+import org.finos.cdm.CdmRuntimeModule;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
@@ -25,6 +35,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FlattenedFpmlPartySerialisationTest {
 
+    private static Injector injector;
+
+    @BeforeAll
+    static void setUp() {
+        Module module = Modules.override(new CdmRuntimeModule())
+                .with(new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        bind(PostProcessor.class).to(WorkflowPostProcessor.class);
+                    }
+                });
+        injector = Guice.createInjector(module);
+    }
+
     @Test
     void testMinimalFpmlPartySerialisation() throws IOException, SAXException {
         ObjectMapper objectMapper = createObjectMapper("fpml.flattened");
@@ -43,6 +67,12 @@ public class FlattenedFpmlPartySerialisationTest {
         assertThat(partyId.getValue(), equalTo("549300VBWWV6BYQOWM67"));
         assertThat(partyId.getPartyIdScheme(), equalTo("http://www.fpml.org/coding-scheme/external/iso17442"));
         assertThat(party.getPartyName().getValue(), equalTo("PARTYA"));
+
+        TranslatePartyAndRelatedPersonToPartyUsingFpML translateFunc = injector.getInstance(TranslatePartyAndRelatedPersonToPartyUsingFpML.class);
+        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null);
+        System.out.println(cdmParty);
+        assertThat(cdmParty.getName().getValue(), equalTo("PARTYA"));
+        assertThat(cdmParty.getPartyId().get(0).getIdentifier().getValue(), equalTo("549300VBWWV6BYQOWM67"));
     }
 
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
