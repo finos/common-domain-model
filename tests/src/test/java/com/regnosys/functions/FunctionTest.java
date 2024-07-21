@@ -12,8 +12,10 @@ import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.testing.ExecutionDescriptor;
 import com.regnosys.rosetta.common.testing.FunctionRunner;
+import com.rosetta.model.lib.functions.ConditionValidator;
 import com.rosetta.model.lib.process.PostProcessor;
 import org.finos.cdm.CdmRuntimeModule;
+import org.isda.cdm.functions.NoOpConditionValidator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -58,6 +60,7 @@ class FunctionTest {
 				@Override
 				protected void configure() {
 					bind(PostProcessor.class).to(WorkflowPostProcessor.class);
+					bind(ConditionValidator.class).to(NoOpConditionValidator.class);
 				}
 			});
 		injector = Guice.createInjector(module);

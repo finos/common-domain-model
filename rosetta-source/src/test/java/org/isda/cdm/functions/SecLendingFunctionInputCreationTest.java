@@ -30,6 +30,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
+import com.rosetta.model.lib.functions.ConditionValidator;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
@@ -91,6 +92,7 @@ class SecLendingFunctionInputCreationTest {
                     @Override
                     protected void configure() {
                         bind(PostProcessor.class).to(WorkflowPostProcessor.class);
+                        bind(ConditionValidator.class).to(NoOpConditionValidator.class);
                     }
                 });
         injector = Guice.createInjector(module);
