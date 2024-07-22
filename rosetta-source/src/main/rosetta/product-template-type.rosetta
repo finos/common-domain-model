@@ -485,13 +485,20 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
         if basketPercentage exists
         then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
-type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
+type ForwardPayout extends PayoutBase: <"Represents a forward settling payout.">
     [metadata key]
 
+    fixedPrice PriceSchedule (0..1) < "The forward price.">
+    [metadata address "pointsTo"=PriceQuantity->price]
     underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+
+    condition FixedPrice: <"The fixed price is either represented at Payout level, else in PayoutBase, but cannot be represented in both place which might result in duplicated or inconsistent representation.">
+    // the logical condition we want to express is actually an optional choice, that is "optional choice fixedPrice, priceQuantity->priceSchedule" but for now we have to express it with another syntax
+    if  fixedPrice exists then priceQuantity->priceSchedule is absent
+    else priceQuantity->priceSchedule exists
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
         if underlier -> foreignExchange exists
