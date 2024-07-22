@@ -7,7 +7,8 @@ import com.regnosys.rosetta.common.translation.Path;
 import com.regnosys.rosetta.common.util.PathUtils;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import cdm.product.template.ProductBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 @SuppressWarnings("unused")
 public class BasketConstituentMappingProcessor extends MappingProcessor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasketConstituentMappingProcessor.class);
+    
     private final boolean isDividendPayoutRatioBasketConstituentModelPath;
 
     public BasketConstituentMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
@@ -38,22 +41,25 @@ public class BasketConstituentMappingProcessor extends MappingProcessor {
         if (isDividendPayoutRatioBasketConstituentModelPath
                 && (!isBasketConstituentSynonymPath(synonymPath) || !isDividendPayoutRatioSet())) {
             // remove data
-            removeData(parent);
-            // remove mappings
-            getMappings().removeAll(filterMappings(getMappings(), getModelPath()));
+            if (removeData(parent)) {
+                // remove mappings
+                getMappings().removeAll(filterMappings(getMappings(), getModelPath()));    
+            }
         }
     }
 
     /**
      * Blank out data, need to find a better way of doing this.
      */
-    private void removeData(RosettaModelObjectBuilder builder) {
-        if (builder instanceof ProductBase.ProductBaseBuilder) {
-            ProductBase.ProductBaseBuilder productBaseBuilder = (ProductBase.ProductBaseBuilder) builder;
-        }
+    private boolean removeData(RosettaModelObjectBuilder builder) {
         if (builder instanceof Security.SecurityBuilder) {
             Security.SecurityBuilder securityBuilder = (Security.SecurityBuilder) builder;
             securityBuilder.setSecurityType(null);
+            return true;
+        }
+        else {
+            LOGGER.warn("Could not remove data from dividendPayoutRatio.basketConstituent, type {}", builder.getType());
+            return false;
         }
     }
 
