@@ -181,7 +181,7 @@ type Observable:
     asset Asset (0..1) 
     basket Basket (0..1) 
     index Index (0..1) 
-    productIdentifier ProductIdentifier (0..1)  
+    productIdentifier ProductIdentifier (0..*)  
         [metadata location]
     rateOption FloatingRateOption (0..1) 
         [metadata location]
@@ -227,7 +227,7 @@ In the CDM, contractual products are represented by the
 type ContractualProduct extends ProductBase:
    [metadata key]
    [metadata template]
-   economicTerms EconomicTerms (1..1)
+   productIdentifier ProductIdentifier (0..*)
 ```
 
 Note that price, quantity and counterparties are defined in
@@ -1029,10 +1029,9 @@ as illustrated below:
 ``` Haskell
 type AssetBase:
     identifier AssetIdentifier (1..*) 
-    taxonomy Taxonomy (0..1) 
+    taxonomy Taxonomy (0..*) 
     isExchangeListed boolean (0..1)
     exchange LegalEntity (0..1)  
-        [metadata scheme]
     relatedExchange LegalEntity (0..*)
 ```
 
@@ -1105,6 +1104,7 @@ type Security extends InstrumentBase:
   equityType EquityTypeEnum (0..1)
   fundType FundProductTypeEnum (0..1)
   economicTerms EconomicTerms (0..1)
+  productTaxonomy ProductTaxonomy (0..*)
 
 condition DebtSubType:
   if securityType <> SecurityTypeEnum -> Debt
