@@ -1,11 +1,12 @@
 namespace fpml.flattened
 version "${project.version}"
 
+import cdm.base.staticdata.party.PartyIdentifierTypeEnum
+import cdm.base.staticdata.party.TelephoneTypeEnum
 
 translate source FpML {
 
-    //cdm.base.staticdata.party.Party from party Party, account Account, relatedPerson RelatedPerson, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
-    cdm.base.staticdata.party.Party from party Party, relatedPerson RelatedPerson:
+    cdm.base.staticdata.party.Party from party Party, account Account, relatedPerson RelatedPerson, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
         [meta key from party -> id]
         + name
             [from party -> partyName -> value]
@@ -16,8 +17,8 @@ translate source FpML {
             [from party -> partyId]
         + person
             [from party -> person]
-        // + account
-        //     [from account, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + account
+            [from account, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
         + contactInformation
             [from party -> contactInfo, party -> country]
         + businessUnit
@@ -34,40 +35,39 @@ translate source FpML {
         + identifierType
             [from partyIdScheme]
 
-//TODO: fix this in dsl
-    cdm.base.staticdata.party.PartyIdentifierTypeEnum from string:
-        // [from if item = "http://www.fpml.org/coding-scheme/external/iso17442"
-        //     then cdm.base.staticdata.party.PartyIdentifierTypeEnum -> LEI
-        //     else if item = "http://www.fpml.org/coding-scheme/external/iso9362"
-        //         then cdm.base.staticdata.party.PartyIdentifierTypeEnum -> BIC
-        //     else if item = "http://www.fpml.org/coding-scheme/external/iso10383"
-        //         then  cdm.base.staticdata.party.PartyIdentifierTypeEnum -> MIC]
+    //Bug in DSL requires fpml types to be imported https://github.com/finos/rune-dsl/issues/794
+    PartyIdentifierTypeEnum from string:
+        [from if item = "http://www.fpml.org/coding-scheme/external/iso17442"
+            then PartyIdentifierTypeEnum -> LEI
+            else if item = "http://www.fpml.org/coding-scheme/external/iso9362"
+                then PartyIdentifierTypeEnum -> BIC
+            else if item = "http://www.fpml.org/coding-scheme/external/iso10383"
+                then  PartyIdentifierTypeEnum -> MIC]
 
+    cdm.base.staticdata.party.Account from Account, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+        [ meta key from id]
+        + partyReference
+            [meta reference from id, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + accountNumber
+            [from accountId only-element -> value]
+            [meta scheme from accountId only-element -> accountIdScheme ]
+        + accountName
+            [from accountName -> value]
+            [meta scheme from accountName -> accountNameScheme]
+        + accountType
+            [from accountType -> value to-enum cdm.base.staticdata.party.AccountTypeEnum]
+            [meta scheme from accountType -> accountTypeScheme]
+        + accountBeneficiary
+            [meta reference from accountBeneficiary -> href] //Is this ok for references?
+        + servicingParty
+            [meta reference from servicingParty -> href] //Is this ok for references?
 
-    // cdm.base.staticdata.party.Account from Account, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
-    //     [ meta key from id]
-    //     + partyReference
-    //         [meta reference from id, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
-    //     + accountNumber
-    //         [from accountId only-element -> value]
-    //         [meta scheme from accountId only-element -> accountIdScheme ]
-    //     + accountName
-    //         [from accountName -> value]
-    //         [meta scheme from accountName -> accountNameScheme]
-    //     + accountType
-    //         [from accountType -> value to-enum cdm.base.staticdata.party.AccountTypeEnum]
-    //         [meta scheme from accountType -> accountTypeScheme]
-    //     + accountBeneficiary
-    //         [meta reference from accountBeneficiary -> href] //Is this ok for references?
-    //     + servicingParty
-    //         [meta reference from servicingParty -> href] //Is this ok for references?
-
-    // string from accountId string, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
-    // [from if payerAccountReference -> href = accountId
-    //     then payerPartyReference -> href
-    //     else if receiverAccountReference -> href = accountId
-    //     then receiverPartyReference -> href
-    //     else accountId] //This recreated the mapper behavour however I beleive this is a mistake to stamp an accountId on a partyRererence
+    string from accountId string, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+    [from if payerAccountReference -> href = accountId
+        then payerPartyReference -> href
+        else if receiverAccountReference -> href = accountId
+        then receiverPartyReference -> href
+        else accountId] //This recreated the mapper behavour however I beleive this is a mistake to stamp an accountId on a partyRererence
 
     cdm.base.staticdata.party.NaturalPerson from Person:
         [meta key from id]
@@ -102,15 +102,14 @@ translate source FpML {
         + telephoneNumberType
             [from telephoneNumberType]
 
-    //TODO: fix this in dsl
-    cdm.base.staticdata.party.TelephoneTypeEnum from TelephoneTypeEnum:
-        // [from
-        //     if item = TelephoneTypeEnum -> Work then cdm.base.staticdata.party.TelephoneTypeEnum -> Work
-        //     else if item = TelephoneTypeEnum -> Mobile then cdm.base.staticdata.party.TelephoneTypeEnum -> Mobile
-        //     else if item = TelephoneTypeEnum -> Fax then cdm.base.staticdata.party.TelephoneTypeEnum -> Fax
-        //     else if item = TelephoneTypeEnum -> Personal then cdm.base.staticdata.party.TelephoneTypeEnum -> Personal
-        // ]
-
+    //Bug in DSL requires fpml types to be imported https://github.com/finos/rune-dsl/issues/794
+    TelephoneTypeEnum from FpmlTelephoneTypeEnum:
+        [from
+            if item = FpmlTelephoneTypeEnum -> WORK then TelephoneTypeEnum -> Work
+            else if item = FpmlTelephoneTypeEnum -> MOBILE then TelephoneTypeEnum -> Mobile
+            else if item = FpmlTelephoneTypeEnum -> FAX then TelephoneTypeEnum -> Fax
+            else if item = FpmlTelephoneTypeEnum -> PERSONAL then TelephoneTypeEnum -> Personal
+        ]
 
     cdm.base.staticdata.party.Address from Address, country CountryCode:
         + street

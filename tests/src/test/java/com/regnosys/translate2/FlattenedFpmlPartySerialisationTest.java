@@ -12,7 +12,7 @@ import com.regnosys.rosetta.common.serialisation.RosettaObjectMapperCreator;
 import com.rosetta.model.lib.process.PostProcessor;
 import fpml.flattened.Party;
 import fpml.flattened.PartyId;
-import fpml.flattened.translate.TranslatePartyAndRelatedPersonToPartyUsingFpML;
+import fpml.flattened.translate.TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML;
 import org.apache.commons.io.FileUtils;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
@@ -68,8 +68,8 @@ public class FlattenedFpmlPartySerialisationTest {
         assertThat(partyId.getPartyIdScheme(), equalTo("http://www.fpml.org/coding-scheme/external/iso17442"));
         assertThat(party.getPartyName().getValue(), equalTo("PARTYA"));
 
-        TranslatePartyAndRelatedPersonToPartyUsingFpML translateFunc = injector.getInstance(TranslatePartyAndRelatedPersonToPartyUsingFpML.class);
-        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null);
+        TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
+        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null, null, null, null, null, null);
         System.out.println(cdmParty);
         assertThat(cdmParty.getName().getValue(), equalTo("PARTYA"));
         assertThat(cdmParty.getPartyId().get(0).getIdentifier().getValue(), equalTo("549300VBWWV6BYQOWM67"));
