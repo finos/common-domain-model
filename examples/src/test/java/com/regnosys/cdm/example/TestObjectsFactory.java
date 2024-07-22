@@ -161,7 +161,7 @@ public class TestObjectsFactory {
                                 .setIdentifierValue(productId)
                                 .setIdentifierType(AssetIdTypeEnum.CUSIP))
                         .setSecurityType(SecurityTypeEnum.DEBT))
-                        .build();
+                .build();
     }
 
     private SettlementTerms getSettlementTerms(LocalDate settlementDate, double dirtyPrice, long quantity, String settlementCurrency) {

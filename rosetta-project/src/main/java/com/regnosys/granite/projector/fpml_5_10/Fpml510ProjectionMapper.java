@@ -1446,10 +1446,10 @@ public class Fpml510ProjectionMapper {
 			.map(RateSpecification::getFloatingRate)
 			.map(floatingRate -> {
 				FloatingRateCalculation floatingRateCalculation = objectFactory.createFloatingRateCalculation();
-//				Optional.ofNullable(floatingRate.getRateOption()).map(ReferenceWithMetaFloatingRateOption::getValue).ifPresent(o -> {
-//					getFloatingRateIndex(o.getFloatingRateIndex()).ifPresent(floatingRateCalculation::setFloatingRateIndex);
-//					getPeriod(o.getIndexTenor()).ifPresent(floatingRateCalculation::setIndexTenor);
-//				});
+				Optional.ofNullable(floatingRate.getRateOption()).map(ReferenceWithMetaFloatingRateOption::getValue).ifPresent(o -> {
+					getFloatingRateIndex(o.getFloatingRateIndex()).ifPresent(floatingRateCalculation::setFloatingRateIndex);
+					getPeriod(o.getIndexTenor()).ifPresent(floatingRateCalculation::setIndexTenor);
+				});
 				Optional.ofNullable(floatingRate.getInitialRate())
 					.map(Price::getValue)
 					.ifPresent(floatingRateCalculation::setInitialRate);
@@ -1486,15 +1486,15 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-//	private Optional<FloatingRateIndex> getFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum cdmFloatingRateIndex) {
-//		return Optional.ofNullable(cdmFloatingRateIndex)
-//			.map(r -> {
-//				FloatingRateIndex floatingRateIndex = objectFactory.createFloatingRateIndex();
-//				getValue(r).ifPresent(floatingRateIndex::setValue);
-//				getScheme(r.getMeta()).ifPresent(floatingRateIndex::setFloatingRateIndexScheme);
-//				return floatingRateIndex;
-//			});
-//	}
+	private Optional<org.fpml.fpml_5.confirmation.FloatingRateIndex> getFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum cdmFloatingRateIndex) {
+		return Optional.ofNullable(cdmFloatingRateIndex)
+			.map(r -> {
+				org.fpml.fpml_5.confirmation.FloatingRateIndex floatingRateIndex = objectFactory.createFloatingRateIndex();
+				getValue(r).ifPresent(floatingRateIndex::setValue);
+				getScheme(r.getMeta()).ifPresent(floatingRateIndex::setFloatingRateIndexScheme);
+				return floatingRateIndex;
+			});
+	}
 
 	private Optional<Period> getPeriod(cdm.base.datetime.Period cdmPeriod) {
 		return Optional.ofNullable(cdmPeriod)
