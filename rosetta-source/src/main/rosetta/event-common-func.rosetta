@@ -128,8 +128,8 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
     output:
         identifiers ObservationIdentifier (1..1)
 
-    set identifiers -> observable -> rateOption:
-        payout -> rateSpecification -> floatingRate -> rateOption
+    set identifiers -> observable -> index:
+        payout -> rateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
 // ResolveInterestRateReset is similar to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
@@ -159,14 +159,14 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
         interestCashSettlementAmount Transfer (1..1)
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> fixedRate exists
+        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     interestRatePayout -> priceQuantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
-        else if interestRatePayout -> rateSpecification -> floatingRate exists
+        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     resets only-element -> resetValue -> value,
@@ -728,8 +728,8 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                 )
         else if payout -> performancePayout exists
         then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-        else if payout -> interestRatePayout -> rateSpecification -> floatingRate exists
-                or payout -> interestRatePayout -> rateSpecification -> fixedRate exists
+        else if payout -> interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+                or payout -> interestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then InterestCashSettlementAmount(
                     instruction -> tradeState,
                     payout -> interestRatePayout only-element,
@@ -1145,10 +1145,10 @@ func UpdateIndexTransitionPriceAndRateOption:
         then priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else priceQuantity -> price only-element -> value
 
-    set updatedPriceQuantity -> observable -> rateOption: <"If instruction exists, update the rate option.">
+    set updatedPriceQuantity -> observable -> index: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> rateOption
-        else priceQuantity -> observable -> rateOption
+        then instruction -> observable -> index
+        else priceQuantity -> observable -> index
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1161,9 +1161,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> rateOption -> indexTenor -> period = priceQuantity -> observable -> rateOption -> indexTenor -> period
+                observable -> index -> FloatingRateIndex -> indexTenor -> period = priceQuantity -> observable -> index -> FloatingRateIndex -> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> rateOption -> indexTenor -> periodMultiplier = priceQuantity -> observable -> rateOption -> indexTenor -> periodMultiplier
+                    and observable -> index -> FloatingRateIndex -> indexTenor -> periodMultiplier = priceQuantity -> observable -> index -> FloatingRateIndex -> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)
@@ -1266,14 +1266,14 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> fixedRate exists
+        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     billingQuantity,
                     recordEndDate,
                     calculationPeriodRange
                 )
-        else if interestRatePayout -> rateSpecification -> floatingRate exists
+        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     reset -> resetValue -> value,

@@ -203,7 +203,7 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition NoSharePriceDividendAdjustmentForeignExchange: <"If the underlier is an foreign exchange, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> index -> ForeignExchangeRate exists
+        if underlier -> index -> ForeignExchangeRateIndex exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
@@ -445,14 +445,14 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both.">
-        if productUnderlier -> Index -> ForeignExchangeRate exists
+        if productUnderlier -> Index -> ForeignExchangeRateIndex exists
         then (settlementTerms -> settlementDate -> valueDate exists
             and settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent )
         or (settlementTerms -> settlementDate -> valueDate is absent
             and settlementTerms -> settlementDate -> adjustableOrRelativeDate exists)
 
     condition Settlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-        if productUnderlier -> Index -> ForeignExchangeRate exists
+        if productUnderlier -> Index -> ForeignExchangeRateIndex exists
         then settlementTerms -> physicalSettlementTerms is absent
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
