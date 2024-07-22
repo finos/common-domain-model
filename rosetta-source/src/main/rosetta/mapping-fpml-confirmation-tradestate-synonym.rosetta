@@ -1694,6 +1694,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "tranche" path "loan" meta "loanTrancheScheme"]
 
     AssetBase:
+        + taxonomy
+            [value "commodityClassification"]
         + isExchangeListed
             [set to True when "bond->exchangeId" exists]
             [set to True when "convertibleBond->exchangeId" exists]
@@ -1757,7 +1759,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commoditySwaption"]
             [hint "genericProduct"]
             [hint "productType"]
-            [value "commodityClassification"]
+
+    Taxonomy:
+        + source
+            [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
+            [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
 
     ProductTaxonomy:
         + primaryAssetClass
@@ -1781,8 +1787,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "bondOption" mapper "TaxonomySource"]
             [value "productType" path "commoditySwaption" mapper "TaxonomySource"]
             [value "productType" path "genericProduct" mapper "TaxonomySource"]
-            [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
-            [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
 
     TaxonomyValue:
         + name
@@ -2100,6 +2104,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "fixedAmount"]
         + Commodity
             [hint "commodity"]
+            [hint "commodityClassification"]
         + DigitalAsset
             [value "ignore"]
         + Instrument
@@ -2366,6 +2371,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "quotedCurrencyPair"]
             [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
             [hint "commodity"]
+            [hint "commodityClassification"]
             [hint "commoditySwap"]
             [hint "varianceSwapTransactionSupplement"]
             [hint "dividendSwapTransactionSupplement"]
@@ -2478,8 +2484,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         [meta "id"]
         + pricingDates
             [value "pricingDates" path "calculation"]
-        //+ underlier
-        //    [value "commodity"]
         + paymentDates
             [value "paymentDates"]
             [value "relativePaymentDates"]
@@ -2593,11 +2597,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxSingleLeg"]
             [value "nearLeg"]
             [value "farLeg"]
-            [value "coalPhysicalLeg" path "commoditySwap"] // mapper "CommodityClassificationMeta"
-            [value "electricityPhysicalLeg" path "commoditySwap"] // mapper "CommodityClassificationMeta"
-            [value "environmentalPhysicalLeg" path "commoditySwap"] // mapper "CommodityClassificationMeta"
-            [value "gasPhysicalLeg" path "commoditySwap"] // mapper "CommodityClassificationMeta"
-            [value "oilPhysicalLeg" path "commoditySwap"] // mapper "CommodityClassificationMeta"
+            [value "coalPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "electricityPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "environmentalPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "gasPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
+            [value "oilPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
         + cashflow
             [value "ignore"]
@@ -2689,6 +2693,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "loan"]
         + commodity
             [hint "commodity"]
+            [hint "commodityClassification"]
             //[meta "specifiedPrice"]
         + security
             [value "underlyer"]
