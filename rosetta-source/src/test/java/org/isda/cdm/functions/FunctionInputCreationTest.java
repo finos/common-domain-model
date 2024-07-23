@@ -1803,6 +1803,24 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateBondExecutionInput() throws IOException {
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
+        BusinessEvent businessEvent = reKey(businessEventBuilder).build();
+        List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json", actual);
+    }
+
+    @Test
+    void validateRepoExecutionInput() throws IOException {
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json").toBuilder();
+        BusinessEvent businessEvent = reKey(businessEventBuilder).build();
+        List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json", actual);
+    }
+    
+    @Test
     void validateRollInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
@@ -2033,7 +2051,7 @@ class FunctionInputCreationTest {
         contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
         return tradeStateBuilder.build();
     }
-
+    
     private TradeState getRepoExecutionAfterTradeState() throws IOException {
         BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json");
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
