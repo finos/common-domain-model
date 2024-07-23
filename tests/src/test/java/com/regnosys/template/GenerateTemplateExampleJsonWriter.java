@@ -109,7 +109,7 @@ public class GenerateTemplateExampleJsonWriter {
 				.setValuationDates(null)
 				.setPaymentDates(null)
 				.setReturnTerms(null);
-//		performancePayoutBuilder.getUnderlier().getSecurity().setProductIdentifier(null);
+		performancePayoutBuilder.getUnderlier().getSecurity().setIdentifier(null);
 
 		InterestRatePayout.InterestRatePayoutBuilder interestRatePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 		interestRatePayoutBuilder
@@ -146,20 +146,20 @@ public class GenerateTemplateExampleJsonWriter {
 		PerformancePayout performancePayout = contractualProduct.getEconomicTerms().getPayout().getPerformancePayout().get(0);
 		InterestRatePayout interestRatePayout = contractualProduct.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 
-		ContractualProduct.ContractualProductBuilder contractualProductBuilder = ContractualProduct.builder();
-//			.setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
-//			.setEconomicTerms(EconomicTerms.builder()
-//				.setPayout(Payout.builder()
-//					.addPerformancePayout(PerformancePayout.builder()
-//						.setValuationDates(performancePayout.getValuationDates())
-//						.setPaymentDates(performancePayout.getPaymentDates())
-//						.setReturnTerms(performancePayout.getReturnTerms())
-//						.setUnderlier(Product.builder()
-//								.setSecurity(Security.builder()
-//									.addProductIdentifier(performancePayout.getUnderlier().getSecurity().getProductIdentifier()))))
-//					.addInterestRatePayout(InterestRatePayout.builder()
-//						.setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
-//						.setPaymentDates(interestRatePayout.getPaymentDates()))));
+		ContractualProduct.ContractualProductBuilder contractualProductBuilder = ContractualProduct.builder()
+			.setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
+			.setEconomicTerms(EconomicTerms.builder()
+				.setPayout(Payout.builder()
+					.addPerformancePayout(PerformancePayout.builder()
+						.setValuationDates(performancePayout.getValuationDates())
+						.setPaymentDates(performancePayout.getPaymentDates())
+						.setReturnTerms(performancePayout.getReturnTerms())
+						.setUnderlier(Product.builder()
+								.setSecurity(Security.builder()
+									.addIdentifier(performancePayout.getUnderlier().getSecurity().getIdentifier()))))
+					.addInterestRatePayout(InterestRatePayout.builder()
+						.setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
+						.setPaymentDates(interestRatePayout.getPaymentDates()))));
 
 		reKeyPostProcess(ContractualProduct.class, contractualProductBuilder.prune());
 
