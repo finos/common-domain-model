@@ -249,7 +249,6 @@ This section covers scheduling of minor, development, and patch releases, and ap
 
 | Type of Release      | Approval Requirement |  Notes                                        |
 | ---------------------| -------------------- |  -------------------------------------------  |
-| Development Release  | 1 maintainer         | Scheduling is up to the maintainer            |
 | Major Release (6.0.0)| 2 maintainers        | Scheduling via SWG; Include analysis of the changes from last major release as part of the approval  |
 | Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
 | Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
