@@ -142,7 +142,7 @@ This section discusses how changes to the CDM are controlled within and between 
 
 * We are trying to ensure rapid, smooth, and predictable evolution of the model by controlling when and how breaking changes are introduced
   * We want to allow changes where needed, with defined process to make those changes, to meet evolved and improved understanding of the business and technical requirements.
-  * We want to give ourselves some freedom to make changes more easily when there are newly introduced components/structures that may not be fully mature, but we don’t want to spend a lot of effort on planning for that.  We will do this using the defect approval guidelines, giving some scope for correcting recently introduced changes.
+  * We want to give ourselves some freedom to make changes more easily when there are newly introduced components/structures that may not be fully mature, but we don’t want to spend a lot of effort on planning for that. We will do this using the pull request approval guidelines for bug fixes, giving some scope for correcting recently introduced changes.
 * Prohibiting breaking changes within a major version should allow users to upgrade to minor versions more quickly and easily, and plan for when to implement larger changes
   * By  limiting and control the amount of change to key business models and technology structures,  CDM users can have confidence that functionality they develop using CDM will continue to work with new versions of CDM with minimal effort, at least for a defined period of time
 
