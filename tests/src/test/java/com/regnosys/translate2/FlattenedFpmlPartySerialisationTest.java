@@ -93,8 +93,10 @@ public class FlattenedFpmlPartySerialisationTest {
         TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
         cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null, null, null, null, null, null);
 
-        String out = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(party);
-        System.out.println(out);
+        ObjectMapper jsonObjectMapper = RosettaObjectMapperCreator.forJSON().create();
+        String translateResult = jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cdmParty);
+        String expected = loadResourceFile("fpml/expectations/full-fpml-test.json");
+        assertThat(translateResult, equalTo(expected));
     }
 
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
