@@ -10,9 +10,7 @@ import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapperCreator;
 import com.rosetta.model.lib.process.PostProcessor;
-import fpml.flattened.DataDocument;
-import fpml.flattened.Party;
-import fpml.flattened.PartyId;
+import fpml.flattened.*;
 import fpml.flattened.translate.TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML;
 import org.apache.commons.io.FileUtils;
 import org.finos.cdm.CdmRuntimeModule;
@@ -33,6 +31,7 @@ import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FlattenedFpmlPartySerialisationTest {
 
@@ -89,14 +88,20 @@ public class FlattenedFpmlPartySerialisationTest {
         DataDocument dataDocument = objectMapper.readValue(xml, DataDocument.class);
 
         Party party = dataDocument.getParty().stream().filter(p -> p.getId().equals("party3")).findFirst().orElseThrow();
+        Account account = dataDocument.getAccount().stream().filter(a -> a.getId().equals("primaryAct1")).findFirst().orElseThrow();
+        AccountReference payerAccountReference = AccountReference.builder().setHref("primaryAct1").build();
+        PartyReference payerPartyReference = PartyReference.builder().setHref("payerPartyReferenceHrefValue").build();
+        AccountReference receiverAccountReference = AccountReference.builder().setHref("someOtherAccount").build();
+        PartyReference receiverPartyReference = PartyReference.builder().setHref("receiverPartyReferenceHrefValue").build();
 
         TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
-        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null, null, null, null, null, null);
+        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, account, null, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference);
+
 
         ObjectMapper jsonObjectMapper = RosettaObjectMapperCreator.forJSON().create();
         String translateResult = jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cdmParty);
         String expected = loadResourceFile("fpml/expectations/full-fpml-test.json");
-        assertThat(translateResult, equalTo(expected));
+        assertEquals( expected, translateResult);
     }
 
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
