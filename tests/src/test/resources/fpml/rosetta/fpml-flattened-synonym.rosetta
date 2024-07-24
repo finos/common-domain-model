@@ -1,0 +1,135 @@
+namespace fpml.flattened
+version "${project.version}"
+
+import cdm.base.staticdata.party.PartyIdentifierTypeEnum
+import cdm.base.staticdata.party.TelephoneTypeEnum
+
+translate source FpML {
+
+    //Need to look at how we are going to call this from the level above. All the payer/receiver account and party references come from different products. Will this still require a custom mapper?
+    cdm.base.staticdata.party.Party from party Party, account Account, relatedPerson RelatedPerson, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+        [meta key from party -> id]
+        + name
+            [from party -> partyName -> value]
+            [meta scheme from party -> partyName -> partyNameScheme] // NOTE: synonym is wrong???
+        + partyId
+            [from party -> partyId]
+        + person
+            [from party -> person]
+        + account
+            [from account, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + contactInformation
+            [from party -> contactInfo, party -> country]
+        + businessUnit
+            [from party -> businessUnit]
+        + personRole
+            [from relatedPerson]
+
+    cdm.base.staticdata.party.PartyIdentifier from PartyId:
+        + identifier
+            [from value]
+            [meta scheme from partyIdScheme]
+        + identifierType
+            [from partyIdScheme]
+
+    //Bug in DSL requires fpml types to be imported https://github.com/finos/rune-dsl/issues/794
+    PartyIdentifierTypeEnum from string:
+        [from if item = "http://www.fpml.org/coding-scheme/external/iso17442"
+            then PartyIdentifierTypeEnum -> LEI
+            else if item = "http://www.fpml.org/coding-scheme/external/iso9362"
+                then PartyIdentifierTypeEnum -> BIC
+            else if item = "http://www.fpml.org/coding-scheme/external/iso10383"
+                then  PartyIdentifierTypeEnum -> MIC]
+
+    cdm.base.staticdata.party.Account from Account, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+        [ meta key from id]
+        + partyReference
+            [meta reference from id, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
+        + accountNumber
+            [from accountId only-element -> value]
+            [meta scheme from accountId only-element -> accountIdScheme ]
+        + accountName
+            [from accountName -> value]
+            [meta scheme from accountName -> accountNameScheme]
+        + accountType
+            [from accountType -> value to-enum cdm.base.staticdata.party.AccountTypeEnum]
+            [meta scheme from accountType -> accountTypeScheme]
+        + accountBeneficiary
+            [meta reference from accountBeneficiary -> href]
+        + servicingParty
+            [meta reference from servicingParty -> href]
+
+    string from accountId string, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
+    [from if payerAccountReference -> href = accountId
+        then payerPartyReference -> href
+        else if receiverAccountReference -> href = accountId
+        then receiverPartyReference -> href
+        else accountId] //This recreated the mapper behavour however I beleive this is a mistake to stamp an accountId on a partyRererence
+
+    cdm.base.staticdata.party.NaturalPerson from Person:
+        [meta key from id]
+        + honorific
+            [from honorific]
+        + firstName
+            [from firstName]
+        + middleName
+            [from middleName]
+        + initial
+            [from initial]
+        + surname
+            [from surname]
+        + suffix
+            [from suffix]
+        + dateOfBirth
+            [from dateOfBirth]
+
+    cdm.base.staticdata.party.ContactInformation from ContactInformation, country CountryCode:
+        + telephone
+            [from telephone]
+        + address
+            [from address, country]
+        + email
+            [from email]
+
+    cdm.base.staticdata.party.TelephoneNumber from TelephoneNumber:
+        + number
+            [from number]
+        + telephoneNumberType
+            [from telephoneNumberType]
+
+    //Bug in DSL requires fpml types to be imported https://github.com/finos/rune-dsl/issues/794
+    TelephoneTypeEnum from FpmlTelephoneTypeEnum:
+        [from
+            if item = FpmlTelephoneTypeEnum -> WORK then TelephoneTypeEnum -> Work
+            else if item = FpmlTelephoneTypeEnum -> MOBILE then TelephoneTypeEnum -> Mobile
+            else if item = FpmlTelephoneTypeEnum -> FAX then TelephoneTypeEnum -> Fax
+            else if item = FpmlTelephoneTypeEnum -> PERSONAL then TelephoneTypeEnum -> Personal
+        ]
+
+    cdm.base.staticdata.party.Address from Address, country CountryCode:
+        + street
+            [from streetAddress -> streetLine]
+        + city
+            [from city]
+        + state
+            [from state]
+        + country
+            [from country -> value]
+            [meta scheme from country -> countryScheme]
+        + postalCode
+            [from postalCode]
+
+    cdm.base.staticdata.party.BusinessUnit from BusinessUnit:
+        [meta key from id]
+        + name
+            [from name]
+        + contactInformation
+            [from contactInfo, country]
+
+    cdm.base.staticdata.party.NaturalPersonRole from RelatedPerson:
+        + personReference
+            [meta reference from personReference -> href]
+        + role
+            [from role -> value to-enum cdm.base.staticdata.party.NaturalPersonRoleEnum]
+            [meta scheme from role -> personRoleScheme]
+}
