@@ -10,6 +10,7 @@ import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapperCreator;
 import com.rosetta.model.lib.process.PostProcessor;
+import fpml.flattened.DataDocument;
 import fpml.flattened.Party;
 import fpml.flattened.PartyId;
 import fpml.flattened.translate.TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML;
@@ -58,9 +59,11 @@ public class FlattenedFpmlPartySerialisationTest {
         assertThat(isValidXml(xsdPath, xmlPath), equalTo(true));
 
         File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(xmlPath)).getFile());
-        String xml = stripDataDocument(FileUtils.readFileToString(file, "UTF-8"));
 
-        Party party = objectMapper.readValue(xml, Party.class);
+        String xml = FileUtils.readFileToString(file, "UTF-8");
+        DataDocument dataDocument = objectMapper.readValue(xml, DataDocument.class);
+
+        Party party = dataDocument.getParty().get(0);
 
         assertThat(party.getId(), equalTo("party1"));
         PartyId partyId = party.getPartyId().get(0);
@@ -101,39 +104,48 @@ public class FlattenedFpmlPartySerialisationTest {
     }
 
     private static ObjectMapper createObjectMapper(String packageName) throws IOException {
-        String formatted = String.format("               {\n" +
-                "                  \"%s.Party\": {\n" +
-                "                    \"xmlRootElementName\" : \"party\",\n" +
-                "                    \"attributes\": {\n" +
-                "                      \"id\": {\n" +
-                "                        \"xmlName\": \"id\",\n" +
-                "                        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  \"%s.PartyId\": {\n" +
-                "                    \"attributes\": {\n" +
-                "                      \"value\": {\n" +
-                "                        \"xmlRepresentation\": \"VALUE\"\n" +
-                "                      },\n" +
-                "                      \"partyIdScheme\": {\n" +
-                "                        \"xmlName\": \"partyIdScheme\",\n" +
-                "                        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  \"%s.PartyName\": {\n" +
-                "                    \"attributes\": {\n" +
-                "                      \"value\": {\n" +
-                "                        \"xmlRepresentation\": \"VALUE\"\n" +
-                "                      },\n" +
-                "                      \"partyNameScheme\": {\n" +
-                "                        \"xmlName\": \"partyNameScheme\",\n" +
-                "                        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                }", packageName, packageName, packageName, packageName);
+        String formatted = String.format("{\n" +
+                "  \"%s.DataDocument\": {\n" +
+                "    \"xmlRootElementName\": \"dataDocument\",\n" +
+                "    \"attributes\": {\n" +
+                "      \"fpmlVersion\": {\n" +
+                "        \"xmlName\": \"fpmlVersion\",\n" +
+                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"%s.Party\": {\n" +
+                "    \"xmlRootElementName\": \"party\",\n" +
+                "    \"attributes\": {\n" +
+                "      \"id\": {\n" +
+                "        \"xmlName\": \"id\",\n" +
+                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"%s.PartyId\": {\n" +
+                "    \"attributes\": {\n" +
+                "      \"value\": {\n" +
+                "        \"xmlRepresentation\": \"VALUE\"\n" +
+                "      },\n" +
+                "      \"partyIdScheme\": {\n" +
+                "        \"xmlName\": \"partyIdScheme\",\n" +
+                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"%s.PartyName\": {\n" +
+                "    \"attributes\": {\n" +
+                "      \"value\": {\n" +
+                "        \"xmlRepresentation\": \"VALUE\"\n" +
+                "      },\n" +
+                "      \"partyNameScheme\": {\n" +
+                "        \"xmlName\": \"partyNameScheme\",\n" +
+                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}", packageName, packageName, packageName, packageName);
 
         RosettaObjectMapperCreator rosettaObjectMapperCreator = RosettaObjectMapperCreator.forXML(new ByteArrayInputStream(formatted.getBytes()));
         return rosettaObjectMapperCreator.create();

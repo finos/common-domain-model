@@ -21,7 +21,17 @@ typeAlias NonEmptyToken: <"A non empty token. At least one character must be pro
 
 typeAlias Initial: string(minLength: 1, maxLength: 1)
 
+typeAlias FpMLVersion: Token
+
 type Reference: <"The abstract base class for all types which define intra-document pointers.">
+
+type DataDocument: <"A document containing trade and/or portfolio and/or party data without expressing any processing intention. A type defining a content model that is backwards compatible with older FpML releases and which can be used to contain sets of data without expressing any processing intention.">
+
+	fpmlVersion FpMLVersion (1..1) <"Indicate which version of the FpML Schema an FpML message adheres to.">
+	expectedBuild string (0..1) <"This optional attribute can be supplied by a message creator in an FpML instance to specify which build number of the schema was used to define the message when it was generated.">
+	actualBuild string (0..1) <"The specific build number of this schema version. This attribute is not included in an instance document. Instead, it is supplied by the XML parser when the document is validated against the FpML schema and indicates the build number of the schema file. Every time FpML publishes a change to the schema, validation rules, or examples within a version (e.g., version 4.2) the actual build number is incremented. If no changes have been made between releases within a version (i.e. from Trial Recommendation to Recommendation) the actual build number stays the same.">
+	party Party (0..*) <"A legal entity or a subdivision of a legal entity. Parties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.">
+	account Account (0..*) <"Optional account information used to precisely define the origination and destination of financial instruments.">
 
 type Party: <"A type defining a legal entity or a subdivision of a legal entity. Parties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.">
 
