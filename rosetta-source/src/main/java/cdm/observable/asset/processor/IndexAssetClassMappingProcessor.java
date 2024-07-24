@@ -1,6 +1,7 @@
 package cdm.observable.asset.processor;
 
 import cdm.base.staticdata.asset.common.AssetClassEnum;
+import cdm.base.staticdata.asset.common.IndexBase;
 import cdm.observable.asset.CreditIndex;
 import cdm.observable.asset.EquityIndex;
 import cdm.observable.asset.FloatingRateIndex;
@@ -25,16 +26,22 @@ public class IndexAssetClassMappingProcessor extends MappingProcessor {
     public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
         if (parent instanceof CreditIndex) {
             CreditIndex.CreditIndexBuilder builder = (CreditIndex.CreditIndexBuilder) parent;
-            builder.setAssetClass(AssetClassEnum.CREDIT);
+            setAssetClass(builder, AssetClassEnum.CREDIT);
         } else if (parent instanceof EquityIndex) {
             EquityIndex.EquityIndexBuilder builder = (EquityIndex.EquityIndexBuilder) parent;
-            builder.setAssetClass(AssetClassEnum.EQUITY);
+            setAssetClass(builder, AssetClassEnum.EQUITY);
         } else if (parent instanceof FloatingRateIndex) {
             FloatingRateIndex.FloatingRateIndexBuilder builder = (FloatingRateIndex.FloatingRateIndexBuilder) parent;
-            builder.setAssetClass(AssetClassEnum.INTEREST_RATE);
+            setAssetClass(builder, AssetClassEnum.INTEREST_RATE);
         } else if (parent instanceof ForeignExchangeRate) {
             ForeignExchangeRate.ForeignExchangeRateBuilder builder = (ForeignExchangeRate.ForeignExchangeRateBuilder) parent;
-            builder.setAssetClass(AssetClassEnum.FOREIGN_EXCHANGE);
+            setAssetClass(builder, AssetClassEnum.FOREIGN_EXCHANGE);
+        }
+    }
+
+    private void setAssetClass(IndexBase.IndexBaseBuilder builder, AssetClassEnum assetClass) {
+        if (builder.hasData()) {
+            builder.setAssetClass(assetClass);    
         }
     }
 }
