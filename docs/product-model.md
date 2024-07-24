@@ -45,9 +45,6 @@ risk between two parties.
 
 ### Asset  {#asset}
 
-The concept of "Asset" has been introduced in the CDM in version 6.0 to improve the modelling of simpler financial products
-and to continue the expansion of the CDM from beyond its heritage focus on over the counter derivatives.
-
 :::tip[Definition: `Asset`]
 
 An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
