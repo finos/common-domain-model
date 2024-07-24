@@ -28,10 +28,12 @@ public class OpenUnitsMappingProcessor extends MappingProcessor {
 		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
 		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
 		setQuantityUnit(unitTypeBuilder, getSingleUnderlierPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "commodity"), FinancialUnitEnum.WEIGHT);
 		// for basketConstituent
 		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "equity"), FinancialUnitEnum.SHARE);
 		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "bond"), FinancialUnitEnum.SHARE);
 		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "index"), FinancialUnitEnum.INDEX_UNIT);
+		setQuantityUnit(unitTypeBuilder, getBasketConstituentPath(openUnitPath, "commodity"), FinancialUnitEnum.WEIGHT);
 	}
 
 	private Path getSingleUnderlierPath(Path openUnitPath, String lastElement) {

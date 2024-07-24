@@ -612,8 +612,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "singleUnderlyer" path "underlyer"]
             [value "basket" path "underlyer"]
             [value "underlyer"]
-            [value "constituentWeight"]
-            [hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // Performance
             [value "fixedPayment"]
@@ -662,6 +660,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commodityClassification"]
             // Other
             [value "underlyer"]
+            [hint "basketConstituent"]
         + settlementTerms
             [hint "settlementType"]
             [hint "paymentDelay"]
@@ -1990,7 +1989,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + productIdentifier
             [value "ignore"]
         + basket
-            [value "ignore"]
+            [hint "basketConstituent"]
 
     Cashflow:
 		[meta "id"]
@@ -2712,6 +2711,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     Basket:
         + basketConstituent
             [value "basketConstituent"]
+            
+    BasketConstituent:
+        + quantity
+            [value "constituentWeight"]
+            [hint "constituentWeight"]
 
     Commodity:
         + identifier
@@ -2744,7 +2748,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "protectionTerms"]
             // Equity
             [value "returnLeg"]
-            [value "basketConstituent"]
+            [value "basket"]
             [value "interestLeg"]
             // Performance
             [value "varianceLeg"]
@@ -2798,9 +2802,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "fxOption" , "fxDigitalOption"]
             // Equity
             [value "returnSwap" , "equitySwapTransactionSupplement"]
-            [value "basket" path "returnSwap->returnLeg->underlyer"]
+            [value "underlyer" path "returnSwap->returnLeg"]
             [hint "equityOption"]
-            [value "basket" path "equityOption->underlyer"]
+            [value "underlyer" path "equityOption"]
             [value "brokerEquityOption"]
             // Performance
             [value "varianceSwap"]
@@ -3813,7 +3817,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "openUnits" mapper "OpenUnits"]
             [set to FinancialUnitEnum -> ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
             [set to FinancialUnitEnum -> Weight when path = "basketPercentage"]
-            [set to FinancialUnitEnum -> Weight when path = "basketConstituent->constituentWeight"]
+            [set to FinancialUnitEnum -> Weight when path = "constituentWeight->openUnits"]
         + currency
             [value "currency" maps 2 meta "currencyScheme"]
             [value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
