@@ -119,7 +119,7 @@ public class FlattenedFpmlPartySerialisationTest {
         File confFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("fpml/xml-conf.json")).getFile());
         String conf = FileUtils.readFileToString(confFile, "UTF-8");
 
-        String formatted = String.format(conf, packageName, packageName, packageName, packageName);
+        String formatted = conf.replace("%s", packageName);
 
         RosettaObjectMapperCreator rosettaObjectMapperCreator = RosettaObjectMapperCreator.forXML(new ByteArrayInputStream(formatted.getBytes()));
         return rosettaObjectMapperCreator.create();
