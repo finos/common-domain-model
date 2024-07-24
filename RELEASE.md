@@ -12,19 +12,18 @@ The word "update" below is to refer to a change to the modelling between this re
 
 Updates to `AssetBase` data type:
 - The `identifier` attribute has been made mandatory.
-- The metadata scheme has been removed.
 - The attributes `isExchangeListed`, `exchange` and `relatedExchange` have been moved from `InstrumentBase` to `AssetBase`.
 - The type of the `exchange` and `relatedExchange` attributes has been updated from `string` to `LegalEntity`.
 
 Updates to `Cash` data type:
-- Two new conditions have been added to ensure that `taxonomy` and `exchange` are not used for this asset type.
+- New conditions have been added to ensure that `taxonomy` and `exchange` are not used for this asset type.
 
 Changes to `Commodity` data type:
 - Now extends from `AssetBase` not `ProductBase`.
 - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
 
 Changes to `Index` and `IndexBase` data types:
-- The attributes `exchange` and `relatedExchange` have been removed from `IndexBase` as they will now be picked up from 'AssetBase`.
+- The attributes `exchange` and `relatedExchange` have been removed from `IndexBase` as they will now be picked up from `AssetBase`.
 - `Index` has been refactored from a `one-of` condition to a choice data type.
 - The data type `FloatingIndex` has been renamed `FloatingRateIndex`.
 - The documentation in the model on the index-related data types has been improved.
@@ -41,7 +40,7 @@ Changes to `Security` data type:
 Support for FX Observables:
 - The data type `ForeignExchangeRate` has been created and added as a choice to `Index`; it also extends `IndexBase`.
 - This new data type contains the same attributes as the existing `FXRateObservable` which has been deprecated.
-- The `ExchangeRate` and `ForeignExchange` data types have been deprecated and the deprecated `CrossRate` data type has been deleted.
+- The `ForeignExchange` data type has been deprecated and the deprecated `ExchangeRate` and `CrossRate` datas type have both been deleted.
 
 Refactoring of `Observable`:
 - The following data types have been added to `Observable` as new attributes: `Asset`, `Basket`, `Index`.
@@ -64,7 +63,7 @@ Updates to Payouts:
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3039](https://github.com/finos/common-domain-model/pull/3039)
+The changes can be reviewed in PR: [#3044](https://github.com/finos/common-domain-model/pull/3044)
 
 _Backward-incompatible changes_
 
