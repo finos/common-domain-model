@@ -36,6 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FlattenedFpmlPartySerialisationTest {
 
+    public static final String FPML_FLATTENED_PACKAGE = "fpml.flattened";
     private static Injector injector;
 
     @BeforeAll
@@ -52,15 +53,13 @@ public class FlattenedFpmlPartySerialisationTest {
 
     @Test
     void testMinimalFpmlPartySerialisation() throws IOException, SAXException {
-        ObjectMapper objectMapper = createObjectMapper("fpml.flattened");
+        ObjectMapper objectMapper = createObjectMapper();
 
         String xsdPath = "schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd";
         String xmlPath = "fpml/xml/minimal-party.xml";
         assertThat(isValidXml(xsdPath, xmlPath), equalTo(true));
 
-        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(xmlPath)).getFile());
-
-        String xml = FileUtils.readFileToString(file, "UTF-8");
+        String xml = loadResourceFile(xmlPath);
         DataDocument dataDocument = objectMapper.readValue(xml, DataDocument.class);
 
         Party party = dataDocument.getParty().get(0);
@@ -80,18 +79,22 @@ public class FlattenedFpmlPartySerialisationTest {
 
     @Test
     void testFullFpmlPartySerialisation() throws IOException, SAXException {
-        ObjectMapper objectMapper = createObjectMapper("fpml.flattened");
+        ObjectMapper objectMapper = createObjectMapper();
 
         String xsdPath = "schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd";
         String xmlPath = "fpml/xml/full-party-mapping-input-data.xml";
         assertThat(isValidXml(xsdPath, xmlPath), equalTo(true));
 
-        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(xmlPath)).getFile());
-
-        String xml = FileUtils.readFileToString(file, "UTF-8");
+        String xml = loadResourceFile(xmlPath);
         DataDocument dataDocument = objectMapper.readValue(xml, DataDocument.class);
 
-//        Party party = dataDocument.getParty().stream().filter(p -> p.getId().equals("party3")).findFirst().orElseThrow();
+        Party party = dataDocument.getParty().stream().filter(p -> p.getId().equals("party3")).findFirst().orElseThrow();
+
+        TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
+        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, null, null, null, null, null, null);
+
+        String out = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(party);
+        System.out.println(out);
     }
 
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
@@ -112,16 +115,19 @@ public class FlattenedFpmlPartySerialisationTest {
     }
 
     private File getFile(String location) {
-        return new File(getClass().getClassLoader().getResource(location).getFile());
+        return new File(Objects.requireNonNull(getClass().getClassLoader().getResource(location)).getFile());
     }
 
-    private ObjectMapper createObjectMapper(String packageName) throws IOException {
-        File confFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("fpml/xml-conf.json")).getFile());
-        String conf = FileUtils.readFileToString(confFile, "UTF-8");
+    private ObjectMapper createObjectMapper() throws IOException {
+        String conf = loadResourceFile("fpml/xml-conf.json");
 
-        String formatted = conf.replace("%s", packageName);
-
+        String formatted = conf.replace("%s", FPML_FLATTENED_PACKAGE);
         RosettaObjectMapperCreator rosettaObjectMapperCreator = RosettaObjectMapperCreator.forXML(new ByteArrayInputStream(formatted.getBytes()));
         return rosettaObjectMapperCreator.create();
+    }
+
+    private String loadResourceFile(String name) throws IOException {
+        File confFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(name)).getFile());
+        return FileUtils.readFileToString(confFile, "UTF-8");
     }
 }
