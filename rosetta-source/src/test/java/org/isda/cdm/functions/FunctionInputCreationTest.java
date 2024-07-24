@@ -4,7 +4,6 @@ import cdm.base.datetime.*;
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -506,13 +505,15 @@ class FunctionInputCreationTest {
                 // equity payout PQ
                 .addChange(PriceQuantity.builder()
                         .setObservable(Observable.builder()
-                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
-                                        .setMeta(createKey("productIdentifier-1"))
-                                        .setValue(ProductIdentifier.builder()
-                                                .setSource(ProductIdTypeEnum.OTHER)
-                                                .setIdentifier(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                                                        .setValue("SHPGY.O")))))
+                                .setAsset(Asset.builder()
+                                        .setInstrument(Instrument.builder()
+                                                .setSecurity(Security.builder()
+                                                        .setSecurityType(SecurityTypeEnum.EQUITY)
+                                                        .addIdentifier(AssetIdentifier.builder()
+                                                                .setIdentifierType(AssetIdTypeEnum.OTHER)
+                                                                .setIdentifier(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                                                                        .setValue("SHPGY.O")))))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -1102,22 +1103,10 @@ class FunctionInputCreationTest {
                         .setExDate(Date.of(2009, 2, 1))
                         .setPayDate(Date.of(2009, 2, 1))
                         .setUnderlier(Product.builder()
-                                .setSecurity(Security.builder()
-                                        .setSecurityType(SecurityTypeEnum.EQUITY)
-//                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-//                                                .setValue(ProductIdentifier.builder()
-//                                                        .setIdentifier(FieldWithMetaString.builder()
-//                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-//                                                        )
-//                                                        .setSource(ProductIdTypeEnum.NAME))
-//
-//                                        ))
-                                )
-                        )
-
-
-                );
-
+                                .setIndex(Index.builder()
+                                        .setEquityIndex(EquityIndex.builder()
+                                                .setAssetClass(AssetClassEnum.EQUITY)
+                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
         return observationEvent;
     }
 
@@ -1156,21 +1145,10 @@ class FunctionInputCreationTest {
                         .setExDate(Date.of(2009, 2, 13))
                         .setPayDate(Date.of(2009, 2, 13))
                         .setUnderlier(Product.builder()
-                                .setSecurity(Security.builder()
-                                        .setSecurityType(SecurityTypeEnum.EQUITY)
-//                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-//                                                .setValue(ProductIdentifier.builder()
-//                                                        .setIdentifier(FieldWithMetaString.builder()
-//                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-//                                                        )
-//                                                        .setSource(ProductIdTypeEnum.NAME))
-//
-//                                        ))
-                                )
-                        )
-
-
-                );
+                                .setIndex(Index.builder()
+                                        .setEquityIndex(EquityIndex.builder()
+                                                .setAssetClass(AssetClassEnum.EQUITY)
+                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(observationEvent);
@@ -1819,7 +1797,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json", actual);
     }
-    
+
     @Test
     void validateRollInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -2051,7 +2029,7 @@ class FunctionInputCreationTest {
         contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
         return tradeStateBuilder.build();
     }
-    
+
     private TradeState getRepoExecutionAfterTradeState() throws IOException {
         BusinessEvent executionBusinessEvent = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-output.json");
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
