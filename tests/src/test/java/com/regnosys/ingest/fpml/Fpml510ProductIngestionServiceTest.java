@@ -42,9 +42,4 @@ public class Fpml510ProductIngestionServiceTest extends IngestionTest<TradeState
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFromPath(BASE_DIR);
 	}
-
-	@Override
-	protected void assertExpectations(Expectation expectation, IngestionReport<TradeState> ingestionReport) throws JsonProcessingException {
-		
-	}
 }
