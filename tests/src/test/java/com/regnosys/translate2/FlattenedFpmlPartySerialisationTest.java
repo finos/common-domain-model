@@ -78,6 +78,22 @@ public class FlattenedFpmlPartySerialisationTest {
         assertThat(cdmParty.getPartyId().get(0).getIdentifier().getValue(), equalTo("549300VBWWV6BYQOWM67"));
     }
 
+    @Test
+    void testFullFpmlPartySerialisation() throws IOException, SAXException {
+        ObjectMapper objectMapper = createObjectMapper("fpml.flattened");
+
+        String xsdPath = "schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd";
+        String xmlPath = "fpml/xml/full-party-mapping-input-data.xml";
+        assertThat(isValidXml(xsdPath, xmlPath), equalTo(true));
+
+        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(xmlPath)).getFile());
+
+        String xml = FileUtils.readFileToString(file, "UTF-8");
+        DataDocument dataDocument = objectMapper.readValue(xml, DataDocument.class);
+
+//        Party party = dataDocument.getParty().stream().filter(p -> p.getId().equals("party3")).findFirst().orElseThrow();
+    }
+
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
         Validator validator = initValidator(xsdPath);
         try {
@@ -99,53 +115,11 @@ public class FlattenedFpmlPartySerialisationTest {
         return new File(getClass().getClassLoader().getResource(location).getFile());
     }
 
-    private String stripDataDocument(String xml) {
-        return xml.replaceAll("(?s)<dataDocument.+?>(.*)</dataDocument>", "$1");
-    }
+    private ObjectMapper createObjectMapper(String packageName) throws IOException {
+        File confFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("fpml/xml-conf.json")).getFile());
+        String conf = FileUtils.readFileToString(confFile, "UTF-8");
 
-    private static ObjectMapper createObjectMapper(String packageName) throws IOException {
-        String formatted = String.format("{\n" +
-                "  \"%s.DataDocument\": {\n" +
-                "    \"xmlRootElementName\": \"dataDocument\",\n" +
-                "    \"attributes\": {\n" +
-                "      \"fpmlVersion\": {\n" +
-                "        \"xmlName\": \"fpmlVersion\",\n" +
-                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"%s.Party\": {\n" +
-                "    \"xmlRootElementName\": \"party\",\n" +
-                "    \"attributes\": {\n" +
-                "      \"id\": {\n" +
-                "        \"xmlName\": \"id\",\n" +
-                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"%s.PartyId\": {\n" +
-                "    \"attributes\": {\n" +
-                "      \"value\": {\n" +
-                "        \"xmlRepresentation\": \"VALUE\"\n" +
-                "      },\n" +
-                "      \"partyIdScheme\": {\n" +
-                "        \"xmlName\": \"partyIdScheme\",\n" +
-                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  },\n" +
-                "  \"%s.PartyName\": {\n" +
-                "    \"attributes\": {\n" +
-                "      \"value\": {\n" +
-                "        \"xmlRepresentation\": \"VALUE\"\n" +
-                "      },\n" +
-                "      \"partyNameScheme\": {\n" +
-                "        \"xmlName\": \"partyNameScheme\",\n" +
-                "        \"xmlRepresentation\": \"ATTRIBUTE\"\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "}", packageName, packageName, packageName, packageName);
+        String formatted = String.format(conf, packageName, packageName, packageName, packageName);
 
         RosettaObjectMapperCreator rosettaObjectMapperCreator = RosettaObjectMapperCreator.forXML(new ByteArrayInputStream(formatted.getBytes()));
         return rosettaObjectMapperCreator.create();
