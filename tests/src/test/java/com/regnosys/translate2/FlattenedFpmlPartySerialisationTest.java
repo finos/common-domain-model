@@ -93,9 +93,15 @@ public class FlattenedFpmlPartySerialisationTest {
         PartyReference payerPartyReference = PartyReference.builder().setHref("payerPartyReferenceHrefValue").build();
         AccountReference receiverAccountReference = AccountReference.builder().setHref("someOtherAccount").build();
         PartyReference receiverPartyReference = PartyReference.builder().setHref("receiverPartyReferenceHrefValue").build();
+        RelatedPerson relatedPerson = RelatedPerson.builder()
+                .setPersonReference(PersonReference.builder().setHref("personReferenceHrefValue"))
+                .setRole(PersonRole.builder()
+                        .setPersonRoleScheme("personRoleSchemeValue")
+                        .setValue("Broker"))
+                .build();
 
         TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
-        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, account, null, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference);
+        cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, account, relatedPerson, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference);
 
 
         ObjectMapper jsonObjectMapper = RosettaObjectMapperCreator.forJSON().create();
