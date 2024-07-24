@@ -649,7 +649,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For FX:
             [value "fixing" path "nonDeliverableSettlement"]
             [value "fixing" path "cashSettlement"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+            [hint "quotedCurrencyPair"]
+            [hint "fixingInformationSource"]
+            [hint "features", "putCurrencyAmount" , "callCurrencyAmount", "strike"]
             [value "exchangeRate"]
             // For Repo:
             [value "floatingRateCalculation"]
@@ -785,13 +787,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     QuotedCurrencyPair:
         + currency1
             [value "currency1" maps 2 meta "currencyScheme"]
-            [value "currency" path "putCurrencyAmount" maps 2 set when "features->asian->rateObservationQuoteBasis" exists]
+            [value "currency" path "putCurrencyAmount" maps 2]
         + currency2
             [value "currency2" maps 2 meta "currencyScheme"]
-            [value "currency" path "callCurrencyAmount" maps 2 set when "features->asian->rateObservationQuoteBasis" exists]
+            [value "currency" path "callCurrencyAmount" maps 2]
         + quoteBasis
             [value "quoteBasis" maps 2]
-            [value "rateObservationQuoteBasis" path "features->asian" maps 2]
+            [value "rateObservationQuoteBasis" path "asian" maps 2]
+            [value "strikeQuoteBasis" maps 2]
 
     RateObservation:
 	 	[value "RateObservation" meta "id"]
@@ -2145,8 +2148,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + FloatingRateIndex
             [value "ignore"]
         + ForeignExchangeRate
+            [value "putCurrencyAmount"]
+            [value "callCurrencyAmount"]
+            [hint "putCurrencyAmount"]
+            [hint "callCurrencyAmount"]
             [value "quotedCurrencyPair"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+            [value "fixingInformationSource"]
+            [value "strike"]
+            [value "asian" path "features"]
         + InflationIndex
             [value "ignore"]
         + OtherIndex
@@ -2154,7 +2163,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     ForeignExchangeRate:
         + primaryFxSpotRateSource
-            [value "primaryRateSource" path "features->asian"]
+            [value "primaryRateSource"]
 
     ContractDetails:
         + documentation
