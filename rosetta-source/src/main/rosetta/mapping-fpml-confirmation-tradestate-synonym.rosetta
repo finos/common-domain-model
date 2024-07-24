@@ -1719,7 +1719,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "description" path "index" maps 2 mapper "ProductIdentifierSource"]
 
     ProductBase:
-        + productTaxonomy
+        + taxonomy
             [hint "primaryAssetClass"]
             [hint "secondaryAssetClass"]
             [hint "fra"]
@@ -1953,20 +1953,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + notionalAmountReference
             [value "notionalAmountReference" meta "href"]
 
-    Observable:
-//        + commodity  //**ART** needs to be mapped to Asset
-//            [hint "commodity"]
-//            [hint "commodityClassification"]
-        + productIdentifier
-            [hint "equity"]
-            [hint "bond"]
-            [hint "convertibleBond"]
-            [hint "index"]
-            [hint "exchangeTradedContractNearest"]
-        // + currencyPair   //**ART** Needs to be mapped to Index/ForeignExchangeRate
-        //     [value "quotedCurrencyPair"]
-        //     [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
-
     Cashflow:
 		[meta "id"]
         + priceQuantity
@@ -2077,6 +2063,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + Cash
             [value "paymentAmount"]
             [value "fixedAmount"]
+        + Commodity
+            [value "commodity"]
+            [meta "specifiedPrice"]
 
     ContractDetails:
         + documentation
@@ -2554,8 +2543,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + settlementPayout
             [value "ignore"]
 
-    Product:
-        + contractualProduct
+    ProductUnderlier:
+        + NonTransferableProduct
             // For Equity Swap:
             [value "returnSwap" , "equitySwapTransactionSupplement"]
             // For Swap Stream:
@@ -2614,24 +2603,26 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "fxVolatilitySwap"]
             [hint "genericProduct"]
             [hint "tradeHeader"]
-        + index
-            [hint "index"]
-        + loan
+
+    Instrument:
+        + Loan
             [hint "loan"]
-        + commodity
-            [value "commodity"]
-            [meta "specifiedPrice"]
-        + security
+        + ListedDerivative
+        + Security
             [value "underlyer"]
             [hint "bond" , "equity" , "mortgage" , "convertibleBond"]
+
+    Observable:
+        + index
+            [hint "index"]
         + basket
             [value "basket"]
 
-//   Index:
-//        + identifier
-//            [value "index" meta "instrumentId" mapper "BasketConstituent"]
-//            [value "index" meta "description"]
-//            [hint "index"]
+    IndexBase:
+      + identifier
+           [value "index" meta "instrumentId" mapper "BasketConstituent"]
+           [value "index" meta "description"]
+           [hint "index"]
 
     Basket:
         + basketConstituent
@@ -2747,18 +2738,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "notionalAdjustments" path "returnSwap->returnLeg" , "notionalAdjustments" path "equitySwapTransactionSupplement->returnLeg"]
 
     RateSpecification:
-        + fixedRate
+        + FixedRateSpecification
             [hint "fixedRateSchedule"]
             [hint "fixedRate"]
             [hint "fixedAmountCalculation"]
-        + floatingRate
+        + FloatingRateSpecification
             [value "floatingRateCalculation"]
             // For FRAs:
             [hint "floatingRateIndex" , "indexTenor"]
             // For Credit:
             [value "floatingAmountCalculation"]
             [value "floatingRate" path "floatingAmountCalculation"]
-        + inflationRate
+        + InflationRateSpecification
             [value "inflationRateCalculation"]
 
     StubPeriod:
@@ -3483,12 +3474,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + stepUpProvision
             [value "stepUpProvision"]
 
-    CreditIndexReferenceInformation:
+    CreditIndex:
 	 	[value "IndexReferenceInformation" meta "id"]
-        + indexName
-            [value "indexName" meta "indexNameScheme"]
-        + indexId
-            [value "indexId" meta "indexIdScheme"]
         + indexSeries
             [value "indexSeries"]
         + indexAnnexVersion

@@ -955,9 +955,9 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
 
     // Update trade with new TradableProduct.
     set quantityChange -> trade -> product: tradableProduct -> product
-    set quantityChange -> trade -> tradeLot: newTradeLots  
-    set quantityChange -> trade -> counterparty: tradableProduct -> counterparty
-    set quantityChange -> trade -> ancillaryParty: tradableProduct -> ancillaryParty
+    add quantityChange -> trade -> tradeLot: newTradeLots  
+    add quantityChange -> trade -> counterparty: tradableProduct -> counterparty
+    add quantityChange -> trade -> ancillaryParty: tradableProduct -> ancillaryParty
     set quantityChange -> trade -> adjustment: tradableProduct -> adjustment
 
     set quantityChange -> state -> positionState:
@@ -990,9 +990,9 @@ func Create_TermsChange: <"A specification of the inputs, outputs and constraint
 
     // Contract to be updated based on the new terms change inputs.
     set tradeState -> trade -> product: newProduct
-    set tradeState -> trade -> tradeLot: tradeState -> trade -> tradeLot
-    set tradeState -> trade -> counterparty: tradeState -> trade -> counterparty
-    set tradeState -> trade -> ancillaryParty: newAncillaryParty
+    add tradeState -> trade -> tradeLot: tradeState -> trade -> tradeLot
+    add tradeState -> trade -> counterparty: tradeState -> trade -> counterparty
+    add tradeState -> trade -> ancillaryParty: newAncillaryParty
     set tradeState -> trade -> adjustment: newAdjustment
 
 func FilterOpenTradeStates: <"Filter to only 'open' TradeState - where both the closedState and positionState are not set.">
@@ -1017,17 +1017,17 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
     // performancePayout PerformancePayout (1..1)
     output:
-        product Product (1..1)
+        product NonTransferableProduct (1..1)
 
-    alias payout: product -> contractualProduct -> economicTerms -> payout
+    alias payout: product -> economicTerms -> payout
 
 //	condition PriceReturnTermsOnlyExists:  performancePayout -> returnTerms -> priceReturnTerms only exists
     condition EquitySecurityType: <"Security must be equity (single name).">
         security -> securityType = SecurityTypeEnum -> Equity
 
-    add product -> contractualProduct -> economicTerms -> payout -> performancePayout:
+    add payout -> performancePayout:
         NewSingleNameEquityPerformancePayout(security, masterConfirmation)
-    add product -> contractualProduct -> economicTerms -> payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
+    add payout -> interestRatePayout: <"Equity and interest rate payouts must be set-up according to their corresponding payout specifications">
         if masterConfirmation exists
         then NewFloatingPayout(masterConfirmation)
 
@@ -1039,9 +1039,6 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
                 and payout -> forwardPayout is absent
                 and payout -> fixedPricePayout is absent
                 and payout -> optionPayout is absent
-
-    post-condition ContractualProductOnlyExists: <"Non-contractual product types must be absent.">
-        product -> contractualProduct only exists
 
 func NewSingleNameEquityPerformancePayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
@@ -1123,7 +1120,7 @@ func UpdateSpreadAdjustmentAndRateOptions: <"For each of the trade state's price
 
     set updatedTradeState: tradeState
 
-    set updatedTradeState -> trade -> tradeLot -> priceQuantity:
+    add updatedTradeState -> trade -> tradeLot -> priceQuantity:
         tradeState -> trade -> tradeLot only-element -> priceQuantity
             extract
                 UpdateIndexTransitionPriceAndRateOption(
@@ -1433,8 +1430,8 @@ func CheckTradeNotTransferableProduct:  <"Identifies whether the product inside 
         isNotTransferableProduct boolean (1..1)
     
     set isNotTransferableProduct:
-        if CheckTradeNotTransferableProduct(tradeState)
-        then False
+        if CheckTransferableProduct(tradeState -> trade -> product -> economicTerms)
+        then False else True 
 
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
     inputs:

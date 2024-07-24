@@ -14,6 +14,19 @@ import cdm.mapping.config.*
 //**ART** Needed to support PriceQuantity in BasketConstituent, which will be refactored
 import cdm.product.common.settlement.*
 
+type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
+    name string (0..1)  <"A description of the Index.">
+    provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
+    assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
+
+choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
+    CreditIndex  <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
+    EquityIndex  <"An index based on equity securities, e.g. the S&P 500.">
+    FloatingRateIndex  <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    ForeignExchangeRateIndex  <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
+    InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
+    OtherIndex  <"An index created by a market participant which doesn't align with the other index types.">
+
 type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
 		[metadata scheme]
@@ -24,6 +37,7 @@ type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate i
 
 type ForeignExchangeRateIndex extends IndexBase:  <"Specification of a rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
+        [metadata location]
     primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
     secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
@@ -164,10 +178,12 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
         value exists and datedValue is absent
 
 type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-    //**ART** Wil make this a choice in P3; currently not supported with annotation
+    //**ART** Should be a CHOICE; currently not supported with annotation
 
     asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
+        [metadata location]
     basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
+        [metadata location]
     index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
         [metadata location]
  
@@ -210,7 +226,7 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
     quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
 type Curve:
-
+    [deprecated]
     interestRateCurve InterestRateCurve (0..1)
     commodityCurve CommodityReferencePriceEnum (0..1)
         [metadata scheme]
@@ -219,7 +235,7 @@ type Curve:
         one-of
 
 type InterestRateCurve:
-
+    [deprecated]
     floatingRateIndex FloatingRateIndexEnum (1..1)
         [metadata scheme]
     tenor Period (1..1)
@@ -406,6 +422,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
+        [metadata address "pointsTo"=Observable->index->ForeignExchangeRateIndex->quotedCurrencyPair]
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">

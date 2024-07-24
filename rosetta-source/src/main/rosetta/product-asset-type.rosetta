@@ -28,7 +28,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Product (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    underlier Observable (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
@@ -230,7 +230,7 @@ type DividendPayoutRatio: <"A class describing the dividend payout ratio associa
     totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
     cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
     nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-    basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
+    basketConstituent Observable (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
 
     condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
         totalRatio >= 0 and totalRatio <= 1
@@ -284,7 +284,6 @@ type FloatingAmountProvisions:
     stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
 type CreditIndexReferenceInformation extends IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
-    [deprecated]  // to be replaced by CreditIndex
     [metadata key]
     indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
     indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
@@ -469,7 +468,7 @@ type DividendPeriod: <"Time bounded dividend payment periods, each with a divide
     startDate DividendPaymentDate (0..1) <"Dividend period start date.">
     endDate DividendPaymentDate (0..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-    basketConstituent Product (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
+    basketConstituent Observable (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
     dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 

@@ -184,11 +184,11 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
     set is_product:
         // CO:FixFlo
         ((economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedPricePayout) only exists
-                and economicTerms -> payout -> commodityPayout -> underlier -> commodity exists)
+                and economicTerms -> payout -> commodityPayout -> underlier -> asset -> Commodity exists)
                     // CO Basis
             or (economicTerms -> payout -> commodityPayout only exists
                 and economicTerms -> payout -> commodityPayout count = 2
-                and economicTerms -> payout -> commodityPayout -> underlier -> commodity count = 2)
+                and economicTerms -> payout -> commodityPayout -> underlier -> asset -> Commodity count = 2)
                     // CO Opt
             or (economicTerms -> payout -> optionPayout only exists
                 and (ProductUnderlierQualification(optionUnderlier, empty, AssetClassEnum -> Commodity) 
@@ -295,48 +295,27 @@ func Qualify_UnderlierObservable_Equity: <"Qualifies an Observable as having the
         is_product boolean (1..1)
 
     set is_product:
-        underlier -> asset -> Instrument -> Security -> securityType = SecurityTypeEnum -> Equity
-            or (underlier -> asset -> Instrument -> Security -> securityType = SecurityTypeEnum -> Fund
-                and underlier -> asset -> Instrument -> Security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-            or (underlier -> asset -> Instrument -> Security -> securityType = SecurityTypeEnum -> Fund
-                and underlier -> asset -> Instrument -> Security -> fundType = FundProductTypeEnum -> MutualFund)
-            or underlier -> asset -> Instrument -> Security -> securityType = SecurityTypeEnum -> Warrant
+        Qualify_SecurityTypeEquity(underlier -> asset -> Instrument -> Security)
             or underlier -> index ->> assetClass = AssetClassEnum -> Equity
             // Qualifies that the underlier is a basket composed of equity products only
             or (underlier -> basket exists
-                and (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-                    or (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Fund
-                        and underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> fundType any = FundProductTypeEnum -> ExchangeTradedFund)
-                    or (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Fund
-                        and underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> fundType any = FundProductTypeEnum -> MutualFund)
-                    or underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Warrant
-                    or underlier -> basket -> basketConstituent -> index ->> assetClass any = AssetClassEnum -> Equity 
+                and (Qualify_SecurityTypeEquity(underlier -> basket -> basketConstituent -> asset -> Instrument -> Security)
+                    or underlier -> basket -> basketConstituent -> index ->> assetClass all = AssetClassEnum -> Equity 
                     ))
 
-func Qualify_UnderlierProduct_Equity: <"Qualifies a product as having the Asset Class classification Equity.">
+func Qualify_SecurityTypeEquity:  <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
-        underlier Product (1..1)
+        security Security (1..*)
     output:
-        is_product boolean (1..1)
+        is_equity boolean (1..1)
 
-    set is_product:
-        underlier -> security -> securityType = SecurityTypeEnum -> Equity
-            or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
-                and underlier -> security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-            or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
-                and underlier -> security -> fundType = FundProductTypeEnum -> MutualFund)
-            or underlier -> security -> securityType = SecurityTypeEnum -> Warrant
-            or underlier -> index ->> assetClass = AssetClassEnum -> Equity
-            // Qualifies that the underlier is a basket composed of equity products only
-            or (underlier -> basket exists
-                and (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-                    or (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Fund
-                        and underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> fundType any = FundProductTypeEnum -> ExchangeTradedFund)
-                    or (underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Fund
-                        and underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> fundType any = FundProductTypeEnum -> MutualFund)
-                    or underlier -> basket -> basketConstituent -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Warrant
-                    or underlier -> basket -> basketConstituent -> index ->> assetClass any = AssetClassEnum -> Equity 
-                    ))
+    set is_equity:
+        security -> securityType all = SecurityTypeEnum -> Equity
+            or (security -> securityType all = SecurityTypeEnum -> Fund
+                and security -> fundType all = FundProductTypeEnum -> ExchangeTradedFund)
+            or (security -> securityType all = SecurityTypeEnum -> Fund
+                and security -> fundType all = FundProductTypeEnum -> MutualFund)
+            or security -> securityType all = SecurityTypeEnum -> Warrant 
 
 func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Swap.">
     inputs:
