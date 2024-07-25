@@ -1486,10 +1486,10 @@ public class Fpml510ProjectionMapper {
 			});
 	}
 
-	private Optional<FloatingRateIndex> getFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum cdmFloatingRateIndex) {
+	private Optional<org.fpml.fpml_5.confirmation.FloatingRateIndex> getFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum cdmFloatingRateIndex) {
 		return Optional.ofNullable(cdmFloatingRateIndex)
 			.map(r -> {
-				FloatingRateIndex floatingRateIndex = objectFactory.createFloatingRateIndex();
+				org.fpml.fpml_5.confirmation.FloatingRateIndex floatingRateIndex = objectFactory.createFloatingRateIndex();
 				getValue(r).ifPresent(floatingRateIndex::setValue);
 				getScheme(r.getMeta()).ifPresent(floatingRateIndex::setFloatingRateIndexScheme);
 				return floatingRateIndex;

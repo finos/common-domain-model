@@ -755,29 +755,30 @@ func ResolvePerformanceObservationIdentifiers:
         identifiers ObservationIdentifier (1..1)
 
     alias adjustedFinalValuationDate:
-        ResolveAdjustableDate( payout -> valuationDates -> finalValuationDate -> valuationDate)
+        ResolveAdjustableDate( payout -> valuationDates -> finalValuationDate -> valuationDate )
 
-    alias valuationDates:
-        if adjustedDate < adjustedFinalValuationDate then
-            payout -> valuationDates -> interimValuationDate
-        else
-            payout -> valuationDates -> finalValuationDate
+    alias valuationDates: 
+        if adjustedDate < adjustedFinalValuationDate
+        then payout -> valuationDates -> interimValuationDate
+        else payout -> valuationDates -> finalValuationDate
 
-    add identifiers -> observable -> productIdentifier:
-        payout -> underlier -> security -> productIdentifier
+    add identifiers -> observable -> asset -> Instrument -> Security -> identifier: 
+        payout -> underlier -> security -> identifier 
 
-    set identifiers -> observationDate:
-        AdjustedValuationDates( payout -> valuationDates )
+    set identifiers -> observationDate: 
+        AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
             then last
 
-    set identifiers -> observationTime:
-        ResolvePerformanceValuationTime(valuationDates -> valuationTime,
-            valuationDates -> valuationTimeType,
-            identifiers -> observable -> productIdentifier only-element,
-            valuationDates -> determinationMethod )
+    set identifiers -> observationTime: 
+        ResolvePerformanceValuationTime(
+                valuationDates -> valuationTime,
+                valuationDates -> valuationTimeType,
+                identifiers -> observable -> asset ->> identifier only-element,
+                valuationDates -> determinationMethod
+            )
 
-    set identifiers -> determinationMethodology -> determinationMethod:
+    set identifiers -> determinationMethodology -> determinationMethod: 
         valuationDates -> determinationMethod
 ```
 

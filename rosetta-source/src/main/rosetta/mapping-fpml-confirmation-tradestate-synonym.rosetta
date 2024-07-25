@@ -120,7 +120,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     DividendReturnTerms:
         + dividendPayoutRatio
             // Equity swaps
-            [value "singleUnderlyer" , "basketConstituent" path "basket" , "dividendConditions"]
+            [value "singleUnderlyer", "basketConstituent" path "basket", "dividendConditions" mapper "DividendPayoutBasketConstituent"]
             // Dividend swaps
             [hint "declaredCashDividendPercentage" , "declaredCashEquivalentDividendPercentage"]
         + dividendReinvestment
@@ -445,11 +445,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     InformationSource:
         + sourceProvider
-            [value "rateSource" meta "informationProviderScheme"]
+            [value "rateSource" maps 2 meta "informationProviderScheme"]
         + sourcePage
-            [value "rateSourcePage" meta "rateSourcePageScheme"]
+            [value "rateSourcePage" maps 2 meta "rateSourcePageScheme"]
         + sourcePageHeading
-            [value "rateSourcePageHeading"]
+            [value "rateSourcePageHeading" maps 2]
 
     InitialFixingDate:
         + relativeDateOffset
@@ -612,8 +612,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "singleUnderlyer" path "underlyer"]
             [value "basket" path "underlyer"]
             [value "underlyer"]
-            [value "constituentWeight"]
-            [hint "constituentWeight"]
             [value "notionalAmount" path "notional"]
             // Performance
             [value "fixedPayment"]
@@ -651,7 +649,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For FX:
             [value "fixing" path "nonDeliverableSettlement"]
             [value "fixing" path "cashSettlement"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+            [hint "quotedCurrencyPair"]
+            [hint "fixingInformationSource"]
+            [hint "features", "putCurrencyAmount" , "callCurrencyAmount", "strike"]
+            [value "exchangeRate"]
             // For Repo:
             [value "floatingRateCalculation"]
             // For Repo / Bond Options:
@@ -661,6 +662,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commodityClassification"]
             // Other
             [value "underlyer"]
+            [hint "basketConstituent"]
         + settlementTerms
             [hint "settlementType"]
             [hint "paymentDelay"]
@@ -785,13 +787,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     QuotedCurrencyPair:
         + currency1
             [value "currency1" maps 2 meta "currencyScheme"]
-            [value "currency" path "putCurrencyAmount" maps 2 set when "features->asian->rateObservationQuoteBasis" exists]
+            [value "currency" path "putCurrencyAmount" maps 2]
         + currency2
             [value "currency2" maps 2 meta "currencyScheme"]
-            [value "currency" path "callCurrencyAmount" maps 2 set when "features->asian->rateObservationQuoteBasis" exists]
+            [value "currency" path "callCurrencyAmount" maps 2]
         + quoteBasis
             [value "quoteBasis" maps 2]
-            [value "rateObservationQuoteBasis" path "features->asian" maps 2]
+            [value "rateObservationQuoteBasis" path "asian" maps 2]
+            [value "strikeQuoteBasis" maps 2]
 
     RateObservation:
 	 	[value "RateObservation" meta "id"]
@@ -987,12 +990,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "averagingPeriodOut"]
 
     ObservationTerms:
-        + pricingTime
+        + observationTime
             [value "pricingDates"]
             [value "fixingTime"]
             [value "fixingTime" path "fixingInformationSource"]
             [value "valuationTime"]
-        + pricingTimeType
+        + observationTimeType
             [value "pricingDates"]
         + calculationPeriodDates
             [hint "calculationPeriodsSchedule"]
@@ -1692,38 +1695,55 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + tranche
             [value "tranche" path "loan" meta "loanTrancheScheme"]
 
+    AssetBase:
+        + taxonomy
+            [value "commodityClassification"]
+        + isExchangeListed
+            [set to True when "bond->exchangeId" exists]
+            [set to True when "convertibleBond->exchangeId" exists]
+            [set to True when "loan->exchangeId" exists]
+            [set to True when "mortgage->exchangeId" exists]
+            [set to True when "equity->exchangeId" exists]
+            [set to True when "index->exchangeId" exists]
+            [set to True when "commodity->exchangeId" exists]
+            [set to True when "exchangeTradedContractNearest->exchangeId" exists]
+        + exchange
+            [value "bond"]
+            [value "convertibleBond"]
+            [value "loan"]
+            [value "mortgage"]
+            [value "equity"]
+            [value "index"]
+            [value "commodity"]
+            [value "exchangeTradedContractNearest"]
+
     AssetIdentifier:
         + identifier   
+            [value "instrumentId" path "bond" maps 2 mapper "AssetIdentifierType"]
+            [value "instrumentId" path "convertibleBond" maps 2 mapper "AssetIdentifierType"]
             [value "instrumentId" path "loan" maps 2 mapper "AssetIdentifierType"]
-            [value "currency" maps 2 meta "currencyScheme"]
+            [value "instrumentId" path "mortgage" maps 2 mapper "AssetIdentifierType"]
+            [value "instrumentId" path "equity" maps 2 mapper "AssetIdentifierType"]
+            [value "instrumentId" path "index" maps 2 mapper "AssetIdentifierType"]
+            [value "instrumentId" path "commodity" maps 2 mapper "AssetIdentifierType"]
+            [value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "AssetIdentifierType"]
+            [value "description" path "equity" maps 2 mapper "AssetIdentifierType"]
+            [value "currency" path "paymentAmount" maps 2 meta "currencyScheme"]
+            [value "currency" path "fixedAmount" maps 2 meta "currencyScheme"]
         + identifierType   
-            [set to AssetIdTypeEnum -> CurrencyCode when "currency" exists]
+            [set to AssetIdTypeEnum -> CurrencyCode when "paymentAmount->currency" exists]
+            [set to AssetIdTypeEnum -> CurrencyCode when "fixedAmount->currency" exists]
             
     ProductIdentifier:
         + identifier
-            [value "instrumentId" path "bond" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "convertibleBond" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "mortgage" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "equity" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "index" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "commodity" maps 2 mapper "ProductIdentifierSource"]
-            [value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "commoditySwaption" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "fra" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "creditDefaultSwapOption" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "bondOption" maps 2 mapper "ProductIdentifierSource"]
-            [value "description" path "equity" maps 2 mapper "ProductIdentifierSource"]
-            [value "description" path "index" maps 2 mapper "ProductIdentifierSource"]
+            [value "productId" path "genericProduct" maps 2 mapper "ProductIdentifierSource"]
 
     ProductBase:
-        + productIdentifier
-            [hint "productId"]
-            [hint "commoditySwaption"]
-            [hint "fra"]
-            [hint "creditDefaultSwapOption"]
-            [hint "bondOption"]
-            [value "genericProduct"]
         + productTaxonomy
             [hint "primaryAssetClass"]
             [hint "secondaryAssetClass"]
@@ -1733,7 +1753,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commoditySwaption"]
             [hint "genericProduct"]
             [hint "productType"]
-            [value "commodityClassification"]
+
+    Taxonomy:
+        + source
+            [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
+            [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
 
     ProductTaxonomy:
         + primaryAssetClass
@@ -1757,8 +1781,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "productType" path "bondOption" mapper "TaxonomySource"]
             [value "productType" path "commoditySwaption" mapper "TaxonomySource"]
             [value "productType" path "genericProduct" mapper "TaxonomySource"]
-            [set to TaxonomySourceEnum -> ISDA when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-1-commodity-classification"]
-            [set to TaxonomySourceEnum -> EMIR when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/esma-emir-refit-layer-1-commodity-classification"]
 
     TaxonomyValue:
         + name
@@ -1781,11 +1803,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [set to 3 when "code->commodityClassificationScheme" = "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification"]
 
     Security:
-        + productIdentifier
-            [value "bond" meta "instrumentId" mapper "BasketConstituent"]
-            [value "convertibleBond" meta "instrumentId" mapper "BasketConstituent"]
-            [value "mortgage" meta "instrumentId" mapper "BasketConstituent"]
-            [value "equity" meta "instrumentId" mapper "BasketConstituent"]
+        + identifier
             [value "equity" meta "description"]
             [meta "instrumentId"]
             [hint "bond"]
@@ -1959,18 +1977,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "notionalAmountReference" meta "href"]
 
     Observable:
-        + commodity
-            [hint "commodity"]
-            [hint "commodityClassification"]
         + productIdentifier
-            [hint "equity"]
-            [hint "bond"]
-            [hint "convertibleBond"]
-            [hint "index"]
-            [hint "exchangeTradedContractNearest"]
-        + currencyPair
-            [value "quotedCurrencyPair"]
-            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+            [value "ignore"]
+        + basket
+            [hint "basketConstituent"]
 
     Cashflow:
 		[meta "id"]
@@ -2080,8 +2090,65 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Asset:
         + Cash
-            [value "paymentAmount"]
-            [value "fixedAmount"]
+            [hint "paymentAmount"]
+            [hint "fixedAmount"]
+        + Commodity
+            [hint "commodity"]
+            [hint "commodityClassification"]
+        + DigitalAsset
+            [value "ignore"]
+        + Instrument
+            [hint "equity"]
+            [hint "bond"]
+            [hint "convertibleBond"]
+            [hint "loan"]
+            [hint "exchangeTradedContractNearest"]
+
+    Instrument:
+        + ListedDerivative
+            [hint "exchangeTradedContractNearest"]
+        + Loan
+            [hint "loan"]
+        + Security
+            [hint "equity"]
+            [hint "bond"]
+            [hint "convertibleBond"]
+
+    IndexBase:
+        + name
+            [value "description" path "index"]
+        + provider
+            [value "ignore"]
+        + assetClass
+            [value "index" mapper "IndexAssetClass"]
+            [value "quoteBasis" mapper "IndexAssetClass"]
+            [value "putCurrencyAmount" mapper "IndexAssetClass"]
+            [value "callCurrencyAmount" mapper "IndexAssetClass"]
+
+    Index:
+        + CreditIndex
+            [value "ignore"]
+        + EquityIndex
+            [hint "index"]
+        + FloatingRateIndex
+            [value "ignore"]
+        + ForeignExchangeRate
+            [value "putCurrencyAmount"]
+            [value "callCurrencyAmount"]
+            [hint "putCurrencyAmount"]
+            [hint "callCurrencyAmount"]
+            [value "quotedCurrencyPair"]
+            [value "fixingInformationSource"]
+            [value "strike"]
+            [value "asian" path "features"]
+        + InflationIndex
+            [value "ignore"]
+        + OtherIndex
+            [value "ignore"]
+
+    ForeignExchangeRate:
+        + primaryFxSpotRateSource
+            [value "primaryRateSource"]
 
     ContractDetails:
         + documentation
@@ -2302,8 +2369,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bond" , "equity" , "mortgage" , "convertibleBond" , "index"]
             [hint "swap"]
             [hint "creditDefaultSwap"]
-            [hint "putCurrencyAmount" , "callCurrencyAmount"]
-            [value "commodity"]
+            [hint "quotedCurrencyPair"]
+            [hint "features" , "putCurrencyAmount" , "callCurrencyAmount"]
+            [hint "commodity"]
+            [hint "commodityClassification"]
             [hint "commoditySwap"]
             [hint "varianceSwapTransactionSupplement"]
             [hint "dividendSwapTransactionSupplement"]
@@ -2416,8 +2485,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         [meta "id"]
         + pricingDates
             [value "pricingDates" path "calculation"]
-        + underlier
-            [value "commodity"]
         + paymentDates
             [value "paymentDates"]
             [value "relativePaymentDates"]
@@ -2556,7 +2623,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVarianceSwap"]
             [value "fxVolatilitySwap"]
             [value "returnLeg"]
-        + settlementCommitment
+        + settlementPayout
             [value "ignore"]
 
     Product:
@@ -2621,29 +2688,31 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "tradeHeader"]
         + index
             [hint "index"]
+            //[value "exchangeRate"]
+            //[hint "features", "putCurrencyAmount" , "callCurrencyAmount"]
         + loan
             [hint "loan"]
         + commodity
-            [value "commodity"]
-            [meta "specifiedPrice"]
+            [hint "commodity"]
+            [hint "commodityClassification"]
+            //[meta "specifiedPrice"]
         + security
             [value "underlyer"]
             [hint "bond" , "equity" , "mortgage" , "convertibleBond"]
         + basket
             [value "basket"]
 
-    Index:
-        + productIdentifier
-            [value "index" meta "instrumentId" mapper "BasketConstituent"]
-            [value "index" meta "description"]
-            [hint "index"]
-
     Basket:
         + basketConstituent
             [value "basketConstituent"]
+            
+    BasketConstituent:
+        + quantity
+            [value "constituentWeight"]
+            [hint "constituentWeight"]
 
     Commodity:
-        + productIdentifier
+        + identifier
             [hint "commodity"]
         + priceQuoteType
             [value "specifiedPrice" path "commodity" maps 2]
@@ -2673,7 +2742,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "protectionTerms"]
             // Equity
             [value "returnLeg"]
-            [value "basketConstituent"]
+            [value "basket"]
             [value "interestLeg"]
             // Performance
             [value "varianceLeg"]
@@ -2727,9 +2796,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "fxOption" , "fxDigitalOption"]
             // Equity
             [value "returnSwap" , "equitySwapTransactionSupplement"]
-            [value "basket" path "returnSwap->returnLeg->underlyer"]
+            [value "underlyer" path "returnSwap->returnLeg"]
             [hint "equityOption"]
-            [value "basket" path "equityOption->underlyer"]
+            [value "underlyer" path "equityOption"]
             [value "brokerEquityOption"]
             // Performance
             [value "varianceSwap"]
@@ -3171,7 +3240,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "entityName" path "referenceEntity" meta "entityNameScheme"]
             [value "initialDesignation"]
             [value "dealer"]
-        + name
+            [value "exchangeId" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "bond" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "convertibleBond" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "loan" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "mortgage" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "index" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "commodity" maps 2 meta "exchangeIdScheme"]
+            [value "relatedExchangeId" path "exchangeTradedContractNearest" maps 2 meta "exchangeIdScheme"]        + name
             [value "identifier"]
 
     NaturalPerson:
@@ -3653,20 +3730,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "callCurrencyAmount"]
         + tenorPeriod
             [value "tenorPeriod"]
-        + exchangeRate
-            [value "exchangeRate"]
-
-    ExchangeRate:
-        + crossRate
-            [value "crossRate"]
-
-    CrossRate:
-        + rate
-            [value "rate"]
-        + spotRate
-            [value "spotRate"]
-        + forwardPoints
-            [value "forwardPoints"]
 
     FxRateSourceFixing:
         + settlementRateSource
@@ -3746,7 +3809,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "openUnits" mapper "OpenUnits"]
             [set to FinancialUnitEnum -> ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
             [set to FinancialUnitEnum -> Weight when path = "basketPercentage"]
-            [set to FinancialUnitEnum -> Weight when path = "basketConstituent->constituentWeight"]
+            [set to FinancialUnitEnum -> Weight when path = "constituentWeight->openUnits"]
         + currency
             [value "currency" maps 2 meta "currencyScheme"]
             [value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]
@@ -7108,11 +7171,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + Standard
             [value "Standard"]
 
-    OptionTypeEnum:
+    PutCallEnum:
         + Put
             [value "Put"]
         + Call
             [value "Call"]
+        
+    OptionTypeEnum:
         + Payer
             [value "Payer"]
         + Receiver
