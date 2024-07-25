@@ -1,5 +1,6 @@
 package cdm.product.asset.processor;
 
+import cdm.observable.asset.Observable;
 import cdm.product.asset.DividendPayoutRatio;
 import cdm.product.template.Product;
 import com.regnosys.rosetta.common.translation.Mapping;
@@ -42,7 +43,7 @@ public class DividendPayoutBasketConstituentMappingProcessor extends MappingProc
         if (isBasketConstituentSynonymPath(synonymPath)) {
             List<DividendPayoutRatio.DividendPayoutRatioBuilder> dividendPayoutRatioBuilders =
                     (List<DividendPayoutRatio.DividendPayoutRatioBuilder>) builders;
-            List<Product.ProductBuilder> basketConstituentBuilders = dividendPayoutRatioBuilders.stream()
+            List<Observable.ObservableBuilder> basketConstituentBuilders = dividendPayoutRatioBuilders.stream()
                     .map(DividendPayoutRatio.DividendPayoutRatioBuilder::getBasketConstituent)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
