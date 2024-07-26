@@ -24,7 +24,10 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
         if exchange exists
         then isExchangeListed  
-        else relatedExchange is absent    
+
+    condition RelatedExchange:  <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent 
+        then relatedExchange is absent 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -98,8 +101,6 @@ type IndexReferenceInformation: <"A class defining information related to Index"
 
     condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
         indexName exists or indexId exists
-
-
 
 type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
