@@ -1,7 +1,7 @@
 package com.regnosys.cdm.example;
 
-import cdm.product.template.ContractualProduct;
 import cdm.product.template.EconomicTerms;
+import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.Payout;
 import cdm.product.template.meta.EconomicTermsMeta;
 import com.google.inject.Inject;
@@ -30,7 +30,7 @@ public class Qualification extends AbstractExample {
     public void example() {
         // Build an ContractualProduct containing an EconomicTerms with two InterestRatePayouts (e.g. an IRS).
         //
-        var contractualProduct = ContractualProduct.builder()
+        var nonTransferableProduct = NonTransferableProduct.builder()
                 .setEconomicTerms(EconomicTerms.builder()
                         .setPayout(Payout.builder()
                                 .addInterestRatePayout(getFixedRatePayout(BigDecimal.valueOf(0.05)))
@@ -45,7 +45,7 @@ public class Qualification extends AbstractExample {
 
         // Use the QualifyResultsExtractor helper to easily make use of qualification results
         //
-        var qualificationResult = new QualifyResultsExtractor<>(qualifyFunctions, contractualProduct.getEconomicTerms())
+        var qualificationResult = new QualifyResultsExtractor<>(qualifyFunctions, nonTransferableProduct.getEconomicTerms())
                 .getOnlySuccessResult()
                 .map(QualifyResult::getName)
                 .orElse("Failed to qualify");
@@ -57,7 +57,7 @@ public class Qualification extends AbstractExample {
         // Stamp the qualification value in the correct location using the qualification handler
         //
         EconomicTermsQualificationHandler qualificationHandler = new EconomicTermsQualificationHandler();
-        var contractualProductBuilder = contractualProduct.toBuilder();
+        var contractualProductBuilder = nonTransferableProduct.toBuilder();
         qualificationHandler.setQualifier(contractualProductBuilder, qualificationResult);
         assertThat(qualificationHandler.getQualifier(contractualProductBuilder), is("InterestRate_IRSwap_FixedFloat"));
     }

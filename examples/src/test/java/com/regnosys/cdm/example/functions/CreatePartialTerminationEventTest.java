@@ -1,7 +1,10 @@
 package com.regnosys.cdm.example.functions;
 
 import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.base.math.*;
+import cdm.base.math.NonNegativeQuantity;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.QuantityChangeDirectionEnum;
+import cdm.base.math.UnitType;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.PartyReferencePayerReceiver;
@@ -85,8 +88,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                                                                 .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
 
         // Transfer instruction specifying the partial termination fee
-        ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(0).getPartyReference();
-        ReferenceWithMetaParty receiverPartyReference = beforeTradeState.getTrade().getTradableProduct().getCounterparty().get(1).getPartyReference();
+        ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getCounterparty().get(0).getPartyReference();
+        ReferenceWithMetaParty receiverPartyReference = beforeTradeState.getTrade().getCounterparty().get(1).getPartyReference();
         TransferInstruction transferInstruction = TransferInstruction.builder()
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
@@ -157,7 +160,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         TradeState afterTradeState = businessEvent.getAfter().get(0);
 
         // Assert new decreased notional
-        NonNegativeQuantitySchedule quantity = afterTradeState.getTrade().getTradableProduct()
+        NonNegativeQuantitySchedule quantity = afterTradeState.getTrade()
                 .getTradeLot().get(0)
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0).getValue();

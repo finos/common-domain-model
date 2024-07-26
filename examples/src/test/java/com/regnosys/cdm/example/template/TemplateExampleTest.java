@@ -1,31 +1,20 @@
 package com.regnosys.cdm.example.template;
 
 import cdm.event.common.TradeState;
-import cdm.product.template.ContractualProduct;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
-import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
-import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
 import com.regnosys.rosetta.common.merging.MergeTemplateProcessStep;
 import com.regnosys.rosetta.common.merging.SimpleMerger;
 import com.regnosys.rosetta.common.merging.SimpleSplitter;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.RosettaModelObjectSupplier;
-import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.process.PostProcessStep;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.regnosys.cdm.example.util.ResourcesUtils.getObject;
-import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -44,29 +33,29 @@ public class TemplateExampleTest {
 	private RosettaModelObjectSupplier templateSupplier;
 	private Consumer<RosettaModelObjectBuilder> reKeyPostProcessor;
 
-	@BeforeEach
-	void setUp() throws IOException {
-		// ContractualProduct template object
-		ContractualProduct contractualProductTemplate =
-				getObject(ContractualProduct.class, "template/contractual-product-template.json");
-
-		// Simple implementation that returns the contractual product template based on type and global key
-		templateSupplier = new RosettaModelObjectSupplier() {
-			@Override
-			public <T extends RosettaModelObject> Optional<T> get(Class<T> clazz, String globalKey) {
-				if (ContractualProduct.class.isAssignableFrom(clazz) && globalKey.equals(contractualProductTemplate.getMeta().getGlobalKey())) {
-					return of((T) contractualProductTemplate);
-				}
-				return Optional.empty();
-			}
-		};
-
-		// Post-processors to re-generate key based on external keys which is injected into the merger / splitter.
-		// Real implementations may or may not need to post-process the result builder, depending on their approach to creating ids / keys.
-		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-		List<PostProcessStep> postProcessors = Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep));
-		reKeyPostProcessor = (builder) -> postProcessors.forEach(p -> p.runProcessStep(TradeState.class, builder));
-	}
+//	@BeforeEach
+//	void setUp() throws IOException {
+//		// ContractualProduct template object
+//		ContractualProduct contractualProductTemplate =
+//				getObject(ContractualProduct.class, "template/contractual-product-template.json");
+//
+//		// Simple implementation that returns the contractual product template based on type and global key
+//		templateSupplier = new RosettaModelObjectSupplier() {
+//			@Override
+//			public <T extends RosettaModelObject> Optional<T> get(Class<T> clazz, String globalKey) {
+//				if (ContractualProduct.class.isAssignableFrom(clazz) && globalKey.equals(contractualProductTemplate.getMeta().getGlobalKey())) {
+//					return of((T) contractualProductTemplate);
+//				}
+//				return Optional.empty();
+//			}
+//		};
+//
+//		// Post-processors to re-generate key based on external keys which is injected into the merger / splitter.
+//		// Real implementations may or may not need to post-process the result builder, depending on their approach to creating ids / keys.
+//		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
+//		List<PostProcessStep> postProcessors = Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep));
+//		reKeyPostProcessor = (builder) -> postProcessors.forEach(p -> p.runProcessStep(TradeState.class, builder));
+//	}
 
 	/**
 	 * The input is a TradeState that contains a partially populated ContractualProduct with a reference to a template, and following a template

@@ -1,11 +1,9 @@
 package com.regnosys.cdm.example;
 
-import cdm.base.datetime.AdjustableDates;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
-import cdm.base.staticdata.asset.common.Index;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
@@ -13,9 +11,11 @@ import cdm.event.common.Trade;
 import cdm.event.common.TradeIdentifier;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.product.asset.ForeignExchange;
-import cdm.product.common.settlement.*;
-import cdm.product.template.*;
+import cdm.product.common.settlement.Cashflow;
+import cdm.product.common.settlement.PriceQuantity;
+import cdm.product.common.settlement.ResolvablePriceQuantity;
+import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
@@ -73,15 +73,15 @@ public class FxSwapContractCreation {
 
         PriceQuantity priceQuantity = createPriceQuantity(currency1Str, quantity1, currency2Str, quantity2, rate);
 
-        Product underlier = createForeignExchangeUnderlier(
-                createExchangeCurrency(CounterpartyRoleEnum.PARTY_1, CounterpartyRoleEnum.PARTY_2),
-                createExchangeCurrency(CounterpartyRoleEnum.PARTY_2, CounterpartyRoleEnum.PARTY_1));
+//        Product underlier = createForeignExchangeUnderlier(
+//                createExchangeCurrency(CounterpartyRoleEnum.PARTY_1, CounterpartyRoleEnum.PARTY_2),
+//                createExchangeCurrency(CounterpartyRoleEnum.PARTY_2, CounterpartyRoleEnum.PARTY_1));
 
         Date settlementDate = of(2001, 10, 25);
 
         Date tradeDate = of(2001, 10, 23);
-
-        ContractualProduct contractualProduct = createContractualProduct(underlier, settlementDate);
+        
+//        ContractualProduct contractualProduct = createContractualProduct(underlier, settlementDate);
 
         TradeIdentifier citi123 = createIdentifier("CITI123", "http://www.citi.com/fx/trade-id", party1);
         TradeIdentifier barc987 = createIdentifier("BARC987", "http://www.barclays.com/fx/trade-id", party2);
@@ -89,7 +89,7 @@ public class FxSwapContractCreation {
         List<TradeIdentifier> identifiers = List.of(citi123, barc987);
         List<Party> parties = List.of(party1, party2);
 
-        return createFxSwapContract(identifiers, parties, priceQuantity, contractualProduct, tradeDate, party1, party2);
+        return createFxSwapContract(identifiers, parties, priceQuantity, null, tradeDate, party1, party2);
     }
 
     private PriceQuantity createPriceQuantity(String currency1Str, long quantity1, String currency2Str, long quantity2, double rate) {
@@ -125,10 +125,10 @@ public class FxSwapContractCreation {
                                 .setValue(BigDecimal.valueOf(quantity2))
                                 .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency2Str))))
-                .setObservable(Observable.builder()
-                        .setIndex(Index.builder()
-                                .setForeignExchangeRate(ForeignExchangeRate.builder()
-                                        .setQuotedCurrencyPair(QuotedCurrencyPair.builder()
+                .setObservableValue(Observable.builder()
+                        .setIndexValue(Index.builder()
+                                .setForeignExchangeRateIndex(ForeignExchangeRateIndex.builder()
+                                        .setQuotedCurrencyPairValue(QuotedCurrencyPair.builder()
                                                 .setCurrency1Value(currency1Str)
                                                 .setCurrency2Value(currency2Str)
                                                 .setQuoteBasis(QuoteBasisEnum.CURRENCY_2_PER_CURRENCY_1)))))
@@ -138,22 +138,21 @@ public class FxSwapContractCreation {
     private Trade createFxSwapContract(List<TradeIdentifier> identifiers,
                                        List<Party> parties,
                                        PriceQuantity priceQuantity,
-                                       ContractualProduct contractualProduct,
+                                       NonTransferableProduct product,
                                        Date tradeDate,
                                        Party party1,
                                        Party party2) {
         Trade trade = Trade.builder()
                 .addTradeIdentifier(identifiers)
-                .setTradableProduct(TradableProduct.builder()
-                        .addCounterparty(Counterparty.builder()
-                                .setPartyReferenceValue(party1)
-                                .setRole(CounterpartyRoleEnum.PARTY_1))
-                        .addCounterparty(Counterparty.builder()
-                                .setPartyReferenceValue(party2)
-                                .setRole(CounterpartyRoleEnum.PARTY_2))
-                        .addTradeLot(TradeLot.builder()
-                                .addPriceQuantity(priceQuantity))
-                        .setProduct(Product.builder().setContractualProduct(contractualProduct)))
+                .addCounterparty(Counterparty.builder()
+                        .setPartyReferenceValue(party1)
+                        .setRole(CounterpartyRoleEnum.PARTY_1))
+                .addCounterparty(Counterparty.builder()
+                        .setPartyReferenceValue(party2)
+                        .setRole(CounterpartyRoleEnum.PARTY_2))
+                .addTradeLot(TradeLot.builder()
+                        .addPriceQuantity(priceQuantity))
+                .setProduct(product)
                 .addParty(parties)
                 .setTradeDate(FieldWithMetaDate.builder().setValue(tradeDate).build())
                 .build();
@@ -161,14 +160,14 @@ public class FxSwapContractCreation {
         return addGlobalKey(Trade.class, trade);
     }
 
-    private Product createForeignExchangeUnderlier(Cashflow exchangedCurrency1, Cashflow exchangedCurrency2) {
-        return Product.builder()
-                        .setForeignExchange(ForeignExchange.builder()
-                                .setExchangedCurrency1(exchangedCurrency1)
-                                .setExchangedCurrency2(exchangedCurrency2)
-                                .build())
-                        .build();
-    }
+//    private Product createForeignExchangeUnderlier(Cashflow exchangedCurrency1, Cashflow exchangedCurrency2) {
+//        return Product.builder()
+//                .setForeignExchange(ForeignExchange.builder()
+//                        .setExchangedCurrency1(exchangedCurrency1)
+//                        .setExchangedCurrency2(exchangedCurrency2)
+//                        .build())
+//                .build();
+//    }
 
     private Cashflow createExchangeCurrency(CounterpartyRoleEnum payer, CounterpartyRoleEnum receiver) {
         return Cashflow.builder()
@@ -184,36 +183,36 @@ public class FxSwapContractCreation {
     }
 
 
-    private ContractualProduct createContractualProduct(Product underlier, Date settlementDate) {
-        return ContractualProduct.builder()
-                .setEconomicTerms(EconomicTerms.builder()
-                        .setPayout(Payout.builder()
-                                .addForwardPayout(ForwardPayout.builder()
-                                        .setSettlementTerms(SettlementTerms.builder()
-                                                .setSettlementDate(SettlementDate.builder()
-                                                        .setAdjustableDates(AdjustableDates.builder()
-                                                        .addAdjustedDateValue(settlementDate))))
-                                        .setUnderlier(underlier)))
-                .build());
-    }
+//    private ContractualProduct createContractualProduct(Product underlier, Date settlementDate) {
+//        return ContractualProduct.builder()
+//                .setEconomicTerms(EconomicTerms.builder()
+//                        .setPayout(Payout.builder()
+//                                .addForwardPayout(ForwardPayout.builder()
+//                                        .setSettlementTerms(SettlementTerms.builder()
+//                                                .setSettlementDate(SettlementDate.builder()
+//                                                        .setAdjustableDates(AdjustableDates.builder()
+//                                                                .addAdjustedDateValue(settlementDate))))
+//                                        .setUnderlier(underlier)))
+//                        .build());
+//    }
 
     private Party createParty(String partyId, String scheme) {
         return Party.builder().addPartyId(PartyIdentifier.builder()
                         .setIdentifierValue(partyId)
                         .setMeta(MetaFields.builder().setScheme(scheme).build())
-                                .build())
+                        .build())
                 .build();
     }
 
     private TradeIdentifier createIdentifier(String identifier, String scheme, Party issuer) {
         return TradeIdentifier.builder().addAssignedIdentifier(
-                AssignedIdentifier.builder().setIdentifier(
-                        FieldWithMetaString.builder().setValue(identifier)
-                                .setMeta(MetaFields.builder()
-                                        .setScheme(scheme)
-                                        .build())
+                        AssignedIdentifier.builder().setIdentifier(
+                                        FieldWithMetaString.builder().setValue(identifier)
+                                                .setMeta(MetaFields.builder()
+                                                        .setScheme(scheme)
+                                                        .build())
+                                                .build())
                                 .build())
-                        .build())
                 .setIssuerReference(ReferenceWithMetaParty.builder()
                         .setGlobalReference(getGlobalReference(issuer))
                         .build())

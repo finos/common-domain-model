@@ -1,9 +1,11 @@
 package com.regnosys.template;
 
-import cdm.base.staticdata.asset.common.Security;
 import cdm.event.common.TradeState;
 import cdm.product.asset.InterestRatePayout;
-import cdm.product.template.*;
+import cdm.product.template.EconomicTerms;
+import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.Payout;
+import cdm.product.template.PerformancePayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
@@ -44,147 +46,147 @@ import java.util.Arrays;
  * Generates sample json for com.regnosys.cdm.example.template.TemplateExample.
  */
 public class GenerateTemplateExampleJsonWriter {
-	private static final String INSTANCE_NAME = "target/FpML_5_10";
+    private static final String INSTANCE_NAME = "target/FpML_5_10";
 
-	@Inject RosettaTypeValidator validator;
-	@Inject QualifyProcessorStep qualifyProcessorStep;
+    @Inject
+    RosettaTypeValidator validator;
+    @Inject
+    QualifyProcessorStep qualifyProcessorStep;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GenerateTemplateExampleJsonWriter.class);
-	private static final String SAMPLE_PATH = "cdm-sample-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.xml";
-	private Injector injector;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenerateTemplateExampleJsonWriter.class);
+    private static final String SAMPLE_PATH = "cdm-sample-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.xml";
+    private Injector injector;
 
-	public static void main(String[] args) throws IOException {
-		new GenerateTemplateExampleJsonWriter().init(args);
-	}
+    public static void main(String[] args) throws IOException {
+        new GenerateTemplateExampleJsonWriter().init(args);
+    }
 
-	public void init(String[] args) throws IOException {
-		// Guice Injection
-		Module runtimeModule = new CdmRuntimeModule();
-		injector = Guice.createInjector(runtimeModule);
-		initialiseIngestionFactory(runtimeModule);
-		injector.injectMembers(this);
+    public void init(String[] args) throws IOException {
+        // Guice Injection
+        Module runtimeModule = new CdmRuntimeModule();
+        injector = Guice.createInjector(runtimeModule);
+        initialiseIngestionFactory(runtimeModule);
+        injector.injectMembers(this);
 
-		String outputPath = Arrays.stream(args).findFirst().orElse("target/template/");
-		LOGGER.info("Output path {}", outputPath);
+        String outputPath = Arrays.stream(args).findFirst().orElse("target/template/");
+        LOGGER.info("Output path {}", outputPath);
 
-		IngestionService ingestionService = IngestionFactory
-				.getInstance(INSTANCE_NAME)
-				.getService("FpML_5_Confirmation_To_TradeState");
+        IngestionService ingestionService = IngestionFactory
+                .getInstance(INSTANCE_NAME)
+                .getService("FpML_5_Confirmation_To_TradeState");
 
-		IngestionReport<TradeState> ingest = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
-		generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
-	}
+        IngestionReport<TradeState> ingest = ingestionService.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(Resources.getResource(SAMPLE_PATH)));
+        generateTemplateExamples(ingest.getRosettaModelInstance(), outputPath);
+    }
 
-	private void initialiseIngestionFactory(Module moduleRuntimeModule) {
-		IngestionFactory.init(INSTANCE_NAME,
-				GenerateTemplateExampleJsonWriter.class.getClassLoader(),
-				setupRuntimeModules(moduleRuntimeModule),
-				IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
-	}
+    private void initialiseIngestionFactory(Module moduleRuntimeModule) {
+        IngestionFactory.init(INSTANCE_NAME,
+                GenerateTemplateExampleJsonWriter.class.getClassLoader(),
+                setupRuntimeModules(moduleRuntimeModule),
+                IngestionTestUtil.getPostProcessors(injector).toArray(new PostProcessStep[0]));
+    }
 
-	private Module setupRuntimeModules(Module modelRuntimeModule) {
-		TerminalsStandaloneSetup.doSetup();
-		Module combinedModules = Modules.combine(modelRuntimeModule, new RosettaRuntimeModule());
-		injector = Guice.createInjector(combinedModules);
-		(new RosettaStandaloneSetup()).register(injector);
-		return combinedModules;
-	}
+    private Module setupRuntimeModules(Module modelRuntimeModule) {
+        TerminalsStandaloneSetup.doSetup();
+        Module combinedModules = Modules.combine(modelRuntimeModule, new RosettaRuntimeModule());
+        injector = Guice.createInjector(combinedModules);
+        (new RosettaStandaloneSetup()).register(injector);
+        return combinedModules;
+    }
 
-	private void generateTemplateExamples(TradeState tradeState, String outFolder) throws IOException {
-		ContractualProduct contractualProductTemplate = getContractualProductTemplate(tradeState);
-		writeFileToDisk(Paths.get(outFolder), "contractual-product-template.json", contractualProductTemplate);
+    private void generateTemplateExamples(TradeState tradeState, String outFolder) throws IOException {
+        NonTransferableProduct nonTransferableProductTemplate = getNonTransferableProductTemplate(tradeState);
+        writeFileToDisk(Paths.get(outFolder), "contractual-product-template.json", nonTransferableProductTemplate);
 
-		TradeState unmergedContract = getUnmergedContract(tradeState, contractualProductTemplate.getMeta().getGlobalKey());
-		writeFileToDisk(Paths.get(outFolder), "trade-state-unmerged.json", unmergedContract);
+        TradeState unmergedContract = getUnmergedContract(tradeState, nonTransferableProductTemplate.getMeta().getGlobalKey());
+        writeFileToDisk(Paths.get(outFolder), "trade-state-unmerged.json", unmergedContract);
 
-		TradeState mergedContract = getMergedContract(tradeState, contractualProductTemplate.getMeta().getGlobalKey());
-		writeFileToDisk(Paths.get(outFolder), "trade-state-merged.json", mergedContract);
-	}
+        TradeState mergedContract = getMergedContract(tradeState, nonTransferableProductTemplate.getMeta().getGlobalKey());
+        writeFileToDisk(Paths.get(outFolder), "trade-state-merged.json", mergedContract);
+    }
 
-	private ContractualProduct getContractualProductTemplate(TradeState inputTradeState) {
-		ContractualProduct.ContractualProductBuilder templateBuilder = inputTradeState.toBuilder().getTrade().getTradableProduct().getProduct().getContractualProduct();
+    private NonTransferableProduct getNonTransferableProductTemplate(TradeState inputTradeState) {
+        NonTransferableProduct.NonTransferableProductBuilder templateBuilder = inputTradeState.toBuilder().getTrade().getProduct();
 
-		PerformancePayout.PerformancePayoutBuilder performancePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getPerformancePayout().get(0);
-		performancePayoutBuilder
-				.setValuationDates(null)
-				.setPaymentDates(null)
-				.setReturnTerms(null);
-		performancePayoutBuilder.getUnderlier().getSecurity().setIdentifier(null);
+        PerformancePayout.PerformancePayoutBuilder performancePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getPerformancePayout().get(0);
+        performancePayoutBuilder
+                .setValuationDates(null)
+                .setPaymentDates(null)
+                .setReturnTerms(null);
+        performancePayoutBuilder.getUnderlier().getAsset().getValue().getInstrument().getSecurity().setIdentifier(null);
 
-		InterestRatePayout.InterestRatePayoutBuilder interestRatePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
-		interestRatePayoutBuilder
-			.setCalculationPeriodDates(null)
-			.setPaymentDates(null);
+        InterestRatePayout.InterestRatePayoutBuilder interestRatePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
+        interestRatePayoutBuilder
+                .setCalculationPeriodDates(null)
+                .setPaymentDates(null);
 
-		reKeyPostProcess(ContractualProduct.class, templateBuilder.prune());
+        reKeyPostProcess(NonTransferableProduct.class, templateBuilder.prune());
 
-		return templateBuilder.build();
-	}
+        return templateBuilder.build();
+    }
 
-	private TradeState getMergedContract(TradeState inputContract, String templateGlobalReference) {
-		TradeState.TradeStateBuilder mergedContractBuilder = inputContract.toBuilder();
-		mergedContractBuilder.getTrade().getTradableProduct().getProduct().getContractualProduct().getMeta().setTemplateGlobalReference(templateGlobalReference);
+    private TradeState getMergedContract(TradeState inputContract, String templateGlobalReference) {
+        TradeState.TradeStateBuilder mergedContractBuilder = inputContract.toBuilder();
+        mergedContractBuilder.getTrade().getProduct().getMeta().setTemplateGlobalReference(templateGlobalReference);
 
-		reKeyPostProcess(TradeState.class, mergedContractBuilder.prune());
+        reKeyPostProcess(TradeState.class, mergedContractBuilder.prune());
 
-		return mergedContractBuilder.build();
-	}
+        return mergedContractBuilder.build();
+    }
 
-	private TradeState getUnmergedContract(TradeState inputContract, String templateGlobalReference) {
-		ContractualProduct contractualProductInstance = getContractualProduct(inputContract, templateGlobalReference);
+    private TradeState getUnmergedContract(TradeState inputContract, String templateGlobalReference) {
+        NonTransferableProduct nonTransferableProductInstance = getNonTransferableProduct(inputContract, templateGlobalReference);
 
-		TradeState.TradeStateBuilder unmergedContractBuilder = inputContract.toBuilder();
-		unmergedContractBuilder.getTrade().getTradableProduct().getProduct().setContractualProduct(contractualProductInstance);
+        TradeState.TradeStateBuilder unmergedContractBuilder = inputContract.toBuilder();
+        unmergedContractBuilder.getTrade().setProduct(nonTransferableProductInstance);
 
-		reKeyPostProcess(TradeState.class, unmergedContractBuilder.prune());
+        reKeyPostProcess(TradeState.class, unmergedContractBuilder.prune());
 
-		return unmergedContractBuilder.build();
-	}
+        return unmergedContractBuilder.build();
+    }
 
-	private ContractualProduct getContractualProduct(TradeState inputContract, String templateGlobalReference) {
-		ContractualProduct contractualProduct = inputContract.getTrade().getTradableProduct().getProduct().getContractualProduct();
-		PerformancePayout performancePayout = contractualProduct.getEconomicTerms().getPayout().getPerformancePayout().get(0);
-		InterestRatePayout interestRatePayout = contractualProduct.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
+    private NonTransferableProduct getNonTransferableProduct(TradeState inputContract, String templateGlobalReference) {
+        NonTransferableProduct contractualProduct = inputContract.getTrade().getProduct();
+        PerformancePayout performancePayout = contractualProduct.getEconomicTerms().getPayout().getPerformancePayout().get(0);
+        InterestRatePayout interestRatePayout = contractualProduct.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 
-		ContractualProduct.ContractualProductBuilder contractualProductBuilder = ContractualProduct.builder()
-			.setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
-			.setEconomicTerms(EconomicTerms.builder()
-				.setPayout(Payout.builder()
-					.addPerformancePayout(PerformancePayout.builder()
-						.setValuationDates(performancePayout.getValuationDates())
-						.setPaymentDates(performancePayout.getPaymentDates())
-						.setReturnTerms(performancePayout.getReturnTerms())
-						.setUnderlier(Product.builder()
-								.setSecurity(Security.builder()
-									.addIdentifier(performancePayout.getUnderlier().getSecurity().getIdentifier()))))
-					.addInterestRatePayout(InterestRatePayout.builder()
-						.setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
-						.setPaymentDates(interestRatePayout.getPaymentDates()))));
+        NonTransferableProduct.NonTransferableProductBuilder contractualProductBuilder = NonTransferableProduct.builder()
+                .setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
+                .setEconomicTerms(EconomicTerms.builder()
+                        .setPayout(Payout.builder()
+                                .addPerformancePayout(PerformancePayout.builder()
+                                        .setValuationDates(performancePayout.getValuationDates())
+                                        .setPaymentDates(performancePayout.getPaymentDates())
+                                        .setReturnTerms(performancePayout.getReturnTerms())
+                                        .setUnderlier(performancePayout.getUnderlier()))
+                                .addInterestRatePayout(InterestRatePayout.builder()
+                                        .setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
+                                        .setPaymentDates(interestRatePayout.getPaymentDates()))));
 
-		reKeyPostProcess(ContractualProduct.class, contractualProductBuilder.prune());
+        reKeyPostProcess(NonTransferableProduct.class, contractualProductBuilder.prune());
 
-		return contractualProductBuilder.build();
-	}
+        return contractualProductBuilder.build();
+    }
 
-	private static void writeFileToDisk(Path folder, String filename, RosettaModelObject object) throws IOException {
-		Path path = folder.resolve(filename);
-		Files.createDirectories(path.getParent());
-		LOGGER.info("Writing path {}", path);
+    private static void writeFileToDisk(Path folder, String filename, RosettaModelObject object) throws IOException {
+        Path path = folder.resolve(filename);
+        Files.createDirectories(path.getParent());
+        LOGGER.info("Writing path {}", path);
 
-		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-			writer.write(toJson(object));
-		}
-	}
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(toJson(object));
+        }
+    }
 
-	private static String toJson(Object object) throws JsonProcessingException {
-		return RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
-	}
+    private static String toJson(Object object) throws JsonProcessingException {
+        return RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    }
 
-	private void reKeyPostProcess(Class<? extends RosettaModelObject> clazz, RosettaModelObjectBuilder builder) {
-		GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
-		Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep))
-			.forEach(p -> p.runProcessStep(clazz, builder));
+    private void reKeyPostProcess(Class<? extends RosettaModelObject> clazz, RosettaModelObjectBuilder builder) {
+        GlobalKeyProcessStep globalKeyProcessStep = new GlobalKeyProcessStep(NonNullHashCollector::new);
+        Arrays.asList(globalKeyProcessStep, new ReKeyProcessStep(globalKeyProcessStep))
+                .forEach(p -> p.runProcessStep(clazz, builder));
 
-	}
+    }
 }
 

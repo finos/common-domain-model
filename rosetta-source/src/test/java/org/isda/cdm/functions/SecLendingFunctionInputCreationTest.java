@@ -409,7 +409,7 @@ class SecLendingFunctionInputCreationTest {
     }
 
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {
-        return tradeState.build().toBuilder().getTrade().getTradableProduct()
+        return tradeState.build().toBuilder().getTrade()
                 .getCounterparty().stream()
                 .filter(c -> c.getRole() == counterpartyRoleEnum)
                 .map(Counterparty::getPartyReference)
@@ -419,7 +419,7 @@ class SecLendingFunctionInputCreationTest {
 
 
     private static List<NonNegativeQuantitySchedule> scaleQuantities(TradeState tradeState, double percent) {
-        return tradeState.build().toBuilder().getTrade().getTradableProduct()
+        return tradeState.build().toBuilder().getTrade()
                 .getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)

@@ -4,20 +4,16 @@ import cdm.base.datetime.AdjustableDates;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.base.staticdata.asset.common.*;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.party.*;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.legaldocumentation.common.ClosedState;
 import cdm.observable.asset.Money;
-import cdm.observable.asset.Observable;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;
-import cdm.product.template.Product;
-import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
@@ -70,11 +66,10 @@ public class TestObjectsFactory {
                                 .setExecutionVenue(LegalEntity.builder().setName(FieldWithMetaString.builder().setValue("Tradeweb").build()).build()))
                         .addTradeIdentifier(getIdentifier("tradeId" + tradeId, executingBrokerParty.getMeta().getExternalKey()))
                         .setTradeDate(FieldWithMetaDate.builder().setValue(Date.of(tradeDate)).build())
-                        .setTradableProduct(TradableProduct.builder()
-                                .setProduct(getProduct(cusip))
-                                .addTradeLot(TradeLot.builder()
-                                        .addPriceQuantity(getPriceQuantity(quantity, cusip, cleanPrice, tradedCurrency,
-                                                getSettlementTerms(settlementDate, dirtyPrice, quantity, tradedCurrency)))))
+//                        .setProduct(getProduct(cusip))
+                        .addTradeLot(TradeLot.builder()
+                                .addPriceQuantity(getPriceQuantity(quantity, cusip, cleanPrice, tradedCurrency,
+                                        getSettlementTerms(settlementDate, dirtyPrice, quantity, tradedCurrency))))
                         .addParty(clientParty)
                         .addParty(executingBrokerParty)
                         .addParty(counterpartyBrokerParty)
@@ -146,23 +141,23 @@ public class TestObjectsFactory {
                                 .setValue(BigDecimal.valueOf(notional))
                                 .setUnit(UnitType.builder()
                                         .setCurrencyValue(tradedCurrency))))
-                .setObservable(Observable.builder()
-                        .addProductIdentifierValue(ProductIdentifier.builder()
-                                .setIdentifierValue(productIdentifier)
-                                .setSource(ProductIdTypeEnum.CUSIP)))
-                .setSettlementTerms(settlementTerms)
+//                .setObservable(Observable.builder()
+//                        .addProductIdentifierValue(ProductIdentifier.builder()
+//                                .setIdentifierValue(productIdentifier)
+//                                .setSource(ProductIdTypeEnum.CUSIP)))
+//                .setSettlementTerms(settlementTerms)
                 .build();
     }
 
-    private Product getProduct(String productId) {
-        return Product.builder()
-                .setSecurity(Security.builder()
-                        .addIdentifier(AssetIdentifier.builder()
-                                .setIdentifierValue(productId)
-                                .setIdentifierType(AssetIdTypeEnum.CUSIP))
-                        .setSecurityType(SecurityTypeEnum.DEBT))
-                .build();
-    }
+//    private Product getProduct(String productId) {
+//        return Product.builder()
+//                .setSecurity(Security.builder()
+//                        .addIdentifier(AssetIdentifier.builder()
+//                                .setIdentifierValue(productId)
+//                                .setIdentifierType(AssetIdTypeEnum.CUSIP))
+//                        .setSecurityType(SecurityTypeEnum.DEBT))
+//                .build();
+//    }
 
     private SettlementTerms getSettlementTerms(LocalDate settlementDate, double dirtyPrice, long quantity, String settlementCurrency) {
         return SettlementTerms.builder()

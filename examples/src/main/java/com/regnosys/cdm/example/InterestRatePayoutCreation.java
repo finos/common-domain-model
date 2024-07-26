@@ -10,7 +10,8 @@ import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.Index;
 import cdm.observable.asset.Price;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
@@ -75,12 +76,13 @@ public class InterestRatePayoutCreation {
                                 .setPeriod(PeriodExtendedEnum.M)))
 
                 .setRateSpecification(RateSpecification.builder()
-                        .setFloatingRate(FloatingRateSpecification.builder()
-                                .setRateOptionValue(FloatingRateOption.builder()
-                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_LIBOR_BBA)
-                                        .setIndexTenor(Period.builder()
-                                                .setPeriod(PeriodEnum.M)
-                                                .setPeriodMultiplier(6)))))
+                        .setFloatingRateSpecification(FloatingRateSpecification.builder()
+                                .setRateOptionValue(Index.builder()
+                                        .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_LIBOR_BBA)
+                                                .setIndexTenor(Period.builder()
+                                                        .setPeriod(PeriodEnum.M)
+                                                        .setPeriodMultiplier(6))))))
 
                 .setPayerReceiver(PayerReceiver.builder()
                         .setPayer(CounterpartyRoleEnum.PARTY_1)
@@ -129,7 +131,7 @@ public class InterestRatePayoutCreation {
                                 .build())
                         .build())
                 .setRateSpecification(RateSpecification.builder()
-                        .setFixedRate(FixedRateSpecification.builder()
+                        .setFixedRateSpecification(FixedRateSpecification.builder()
                                 .setRateSchedule(RateSchedule.builder()
                                         .setPrice(ReferenceWithMetaPriceSchedule.builder()
                                                 .setReference(Reference.builder()
