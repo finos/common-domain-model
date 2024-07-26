@@ -1,12 +1,14 @@
-# _Infrastructure - Dependency Update_
+# _Infrastructure - Remove Unused Folders_
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release removes unused projects and folders to avoid the maintenance of legacy code.
 
-Version updates include:
-- `DSL` 9.14.0: Support for accessing meta features after a deep feature call. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.14.0
+The following folders have been removed:
+
+- /rosetta-project - legacy Java PoC project related to translating CDM to FpML 
+- /rosetta-source/src/main/resources/available-samples - folder contains samples that are duplicates of ingestion samples
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3064](https://github.com/finos/common-domain-model/pull/3064)
+The changes can be reviewed in PR: [#3066](https://github.com/finos/common-domain-model/pull/3066)
