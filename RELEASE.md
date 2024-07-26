@@ -1,4 +1,4 @@
-# _Infrastructure - Remove Legacy Project_
+# _Infrastructure - Remove Unused Folders_
 
 _What is being released?_
 
