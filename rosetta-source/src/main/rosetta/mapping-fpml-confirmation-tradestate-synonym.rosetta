@@ -390,6 +390,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "splitTicket"]
 
     FloatingRateIndex:
+        + floatingRateIndex
+            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + indexTenor
             [value "indexTenor" maps 2]
 
@@ -638,8 +640,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "numberOfOptions" mapper "NumberOfOptions"] // handles optionEntitlement
         + observable
             // For Swap Streams etc
-            [value "floatingRateCalculation" path "calculationPeriodAmount->calculation"]
-            [value "inflationRateCalculation" path "calculationPeriodAmount->calculation"]
+            [value "calculation" path "calculationPeriodAmount"] //floatingRateCalculation inflationRateCalculation
             // For FRA:
             [hint "floatingRateIndex" , "indexTenor"]
             // For Credit:
@@ -647,7 +648,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "floatingRate" path "floatingAmountCalculation"]
             // For Equity:
             [value "singleUnderlyer" path "underlyer"]
-            [value "floatingRateCalculation" path "interestCalculation"]
+            [value "interestCalculation"] // "floatingRateCalculation"
             [hint "equity"]
             [hint "index"]
             // For FX:
@@ -658,7 +659,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "features", "putCurrencyAmount" , "callCurrencyAmount", "strike"]
             [value "exchangeRate"]
             // For Repo:
-            [value "floatingRateCalculation"]
+            //[value "floatingRateCalculation"]
             // For Repo / Bond Options:
             [hint "bond" , "convertibleBond"]
             // For Commodity Swap Floating Leg
@@ -2562,8 +2563,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + settlementPayout
             [value "ignore"]
 
-    ProductUnderlier:
-        + NonTransferableProduct
+    TradableProduct:
+        + product // i.e. NonTransferableProduct
             // For Equity Swap:
             [value "returnSwap" , "equitySwapTransactionSupplement"]
             // For Swap Stream:
@@ -2636,6 +2637,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 //            [value "underlyer"]
 //            [hint "bond" , "equity" , "mortgage" , "convertibleBond"]
 
+    ProductUnderlier:
+        + NonTransferableProduct
+            // For Swap Stream:
+            [value "swap"]
+
     Observable:
         + basket
             [hint "basketConstituent"]
@@ -2683,7 +2689,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + EquityIndex
             [hint "index"]
         + FloatingRateIndex
-            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
+            [value "floatingRateCalculation"]
+            [hint "floatingRateIndex", "indexTenor"]
         + ForeignExchangeRateIndex
             [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
@@ -2694,7 +2701,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "strike"]
             [value "asian" path "features"]
         + InflationIndex
-            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
+            [value "inflationRateCalculation"]
         + OtherIndex
             [value "ignore"]
 
