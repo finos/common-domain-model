@@ -6,7 +6,6 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
-import cdm.product.template.*
 
 choice Asset:  <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used."> 
     Cash  <"An Asset that consists solely of a monetary holding in a currency.">
@@ -19,7 +18,7 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1)  <"Defines whether the Asset is listed on a public exchange.">
     exchange LegalEntity (0..1)  <"If the Asset is listed, defines the public exchange of the listing.">
-        //[metadata scheme]
+        [metadata scheme]
     relatedExchange LegalEntity (0..*)  <"Provides the related Exchanges, if applicable.">
 
     condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
@@ -103,19 +102,6 @@ type IndexReferenceInformation: <"A class defining information related to Index"
     condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
         indexName exists or indexId exists
 
-type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
-    name string (0..1)  <"A description of the Index.">
-    provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
-    assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
-
-choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
-    CreditIndex  <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
-    EquityIndex  <"An index based on equity securities, e.g. the S&P 500.">
-    FloatingRateIndex  <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
-    ForeignExchangeRate  <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
-    InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
-    OtherIndex  <"An index created by a market participant which doesn't align with the other index types.">
-
 type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
     condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">    
@@ -127,7 +113,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
         taxonomy is absent
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
-        exchange is absent 
+        exchange is absent and isExchangeListed is absent 
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -236,10 +222,6 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
     equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
-    //**ART** Economic Terms will be removed in Phase 3
-    economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
-    //**ART** ProductTaxonomy (which was previously inherited) added back as a workaround in Phase 2 prior to more extensive refactoring in Phase 3
-    productTaxonomy ProductTaxonomy (0..*)
 
     condition DebtSubType:
         if securityType <> SecurityTypeEnum -> Debt
@@ -252,10 +234,6 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     condition FundSubType:
         if securityType <> SecurityTypeEnum -> Fund
         then fundType is absent
-
-    condition BondEconomicTerms:
-        if economicTerms exists
-        then securityType = SecurityTypeEnum -> Debt
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
