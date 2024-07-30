@@ -42,7 +42,7 @@ translate source FpML {
                 then  PartyIdentifierTypeEnum -> MIC]
 
     cdm.base.staticdata.party.Account from Account, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
-        [ meta key from id]
+        [meta key from id]
         + partyReference
             [meta reference from id, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference]
         + accountNumber
@@ -60,11 +60,11 @@ translate source FpML {
             [meta reference from servicingParty -> href]
 
     string from accountId string, payerAccountReference AccountReference, payerPartyReference PartyReference, receiverAccountReference AccountReference, receiverPartyReference PartyReference:
-    [from if payerAccountReference -> href = accountId
-        then payerPartyReference -> href
-        else if receiverAccountReference -> href = accountId
-        then receiverPartyReference -> href
-        else accountId] //This recreated the mapper behavour however I beleive this is a mistake to stamp an accountId on a partyRererence
+        [from if payerAccountReference -> href = accountId
+            then payerPartyReference -> href
+            else if receiverAccountReference -> href = accountId
+            then receiverPartyReference -> href
+            else accountId] //This recreated the mapper behaviour however I believe this is a mistake to stamp an accountId on a partyRererence
 
     cdm.base.staticdata.party.NaturalPerson from Person:
         [meta key from id]
@@ -82,6 +82,8 @@ translate source FpML {
             [from suffix]
         + dateOfBirth
             [from dateOfBirth]
+        + contactInformation
+            [from contactInfo, country]
 
     cdm.base.staticdata.party.ContactInformation from ContactInformation, country CountryCode:
         + telephone
@@ -106,18 +108,18 @@ translate source FpML {
             else if item = FpmlTelephoneTypeEnum -> PERSONAL then TelephoneTypeEnum -> Personal
         ]
 
-    cdm.base.staticdata.party.Address from Address, country CountryCode:
+    cdm.base.staticdata.party.Address from address Address, countryOverride CountryCode:
         + street
-            [from streetAddress -> streetLine]
+            [from address -> streetAddress -> streetLine]
         + city
-            [from city]
+            [from address -> city]
         + state
-            [from state]
+            [from address -> state]
         + country
-            [from country -> value]
-            [meta scheme from country -> countryScheme]
+            [from countryOverride -> value default address -> country -> value]
+            [meta scheme from countryOverride -> countryScheme default address -> country -> countryScheme]
         + postalCode
-            [from postalCode]
+            [from address -> postalCode]
 
     cdm.base.staticdata.party.BusinessUnit from BusinessUnit:
         [meta key from id]
@@ -125,6 +127,34 @@ translate source FpML {
             [from name]
         + contactInformation
             [from contactInfo, country]
+        + identifier
+            [from item]
+
+    cdm.base.staticdata.identifier.Identifier from BusinessUnit:
+        // [meta key from id]
+        // [meta key from "id" path "versionedTradeId->tradeId"]
+        // + issuerReference
+        //    [value "issuer" meta "href"]
+        //    [value "partyReference" meta "href"]
+        //+ issuer
+        //    [value "issuer" maps 2 meta "issuerIdScheme"]
+        + assignedIdentifier
+            [from businessUnitId]
+
+    cdm.base.staticdata.identifier.AssignedIdentifier from Unit:
+        + identifier
+            [from value]
+            [meta scheme from unitScheme]
+        //    [value "tradeId" maps 2 meta "tradeIdScheme"]
+        //    [value "tradeId" path "versionedTradeId" meta "tradeIdScheme"]
+        //    [value "businessUnitId" meta "unitScheme"]
+        //    [value "eventId" meta "eventIdScheme"]
+        //    [value "messageId"]
+        //    [value "collateralPortfolio"]
+        //    [value "linkId" path "partyTradeIdentifier" mapper "LinkId"]
+        // + version
+        //    [value "version" path "versionedTradeId"]
+        //    [value "version"]
 
     cdm.base.staticdata.party.NaturalPersonRole from RelatedPerson:
         + personReference

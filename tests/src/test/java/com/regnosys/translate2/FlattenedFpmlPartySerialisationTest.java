@@ -1,18 +1,33 @@
 package com.regnosys.translate2;
 
 
+import cdm.event.common.TradeState;
+import cdm.event.workflow.WorkflowStep;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
+import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
+import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
+import com.regnosys.ingest.test.framework.ingestor.postprocess.PostProcessorRunner;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
+import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
+import com.regnosys.ingest.test.framework.ingestor.service.TranslatorOptionsFactory;
+import com.regnosys.rosetta.RosettaRuntimeModule;
+import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapperCreator;
+import com.regnosys.rosetta.common.util.UrlUtils;
+import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
+import com.rosetta.model.lib.process.PostProcessStep;
 import com.rosetta.model.lib.process.PostProcessor;
 import fpml.flattened.*;
 import fpml.flattened.translate.TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.xtext.common.TerminalsStandaloneSetup;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,8 +42,13 @@ import javax.xml.validation.Validator;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
+import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,17 +57,18 @@ public class FlattenedFpmlPartySerialisationTest {
 
     public static final String FPML_FLATTENED_PACKAGE = "fpml.flattened";
     private static Injector injector;
+    private static Module runtimeModule;
 
     @BeforeAll
     static void setUp() {
-        Module module = Modules.override(new CdmRuntimeModule())
+        runtimeModule = Modules.override(new CdmRuntimeModule())
                 .with(new AbstractModule() {
                     @Override
                     protected void configure() {
                         bind(PostProcessor.class).to(WorkflowPostProcessor.class);
                     }
                 });
-        injector = Guice.createInjector(module);
+        injector = Guice.createInjector(runtimeModule);
     }
 
     @Test
@@ -103,11 +124,30 @@ public class FlattenedFpmlPartySerialisationTest {
         TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML translateFunc = injector.getInstance(TranslatePaAndAcAndReAndAcAndPaAndAcAndPaToPartyUsingFpML.class);
         cdm.base.staticdata.party.Party cdmParty = translateFunc.evaluate(party, account, relatedPerson, payerAccountReference, payerPartyReference, receiverAccountReference, receiverPartyReference);
 
+        List<PostProcessStep> postProcessors = IngestionTestUtil.getPostProcessors(runtimeModule);
+        cdmParty = (cdm.base.staticdata.party.Party) new PostProcessorRunner(new ArrayList<>(postProcessors)).postProcess(cdmParty.getClass(), cdmParty.toBuilder()).build();
 
         ObjectMapper jsonObjectMapper = RosettaObjectMapperCreator.forJSON().create();
-        String translateResult = jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cdmParty);
+        String translate2Result = jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(cdmParty);
         String expected = loadResourceFile("fpml/expectations/full-fpml-test.json");
-        assertEquals( expected, translateResult);
+        assertEquals(expected, translate2Result);
+
+        // compare with translate 1
+        cdm.base.staticdata.party.Party translate1CdmParty = ingest(xmlPath, postProcessors).stream().filter(p -> "party3".equals(p.getMeta().getExternalKey())).findFirst().orElseThrow();
+        String translate1Result = jsonObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(translate1CdmParty);
+        assertEquals(translate1Result, translate2Result);
+    }
+
+    private List<? extends cdm.base.staticdata.party.Party> ingest(String xmlPath, List<PostProcessStep> postProcessors) throws IOException {
+        TerminalsStandaloneSetup.doSetup();
+        Module combinedModule = Modules.combine(runtimeModule, new RosettaRuntimeModule());
+        Injector injector = Guice.createInjector(combinedModule);
+        new RosettaStandaloneSetup().register(injector);
+        IngestionFactory.init(TranslatorOptionsFactory.getDefaultIngestionResource(IngestionTest.class.getClassLoader()), combinedModule, postProcessors.toArray(new PostProcessStep[0]));
+
+        IngestionService service = getFpml5ConfirmationToTradeState();
+        IngestionReport<TradeState> report = service.ingestValidateAndPostProcess(TradeState.class, UrlUtils.openURL(getClass().getClassLoader().getResource(xmlPath)));
+        return report.getRosettaModelInstance().getTrade().getParty();
     }
 
     public boolean isValidXml(String xsdPath, String xmlPath) throws IOException, SAXException {
