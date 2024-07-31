@@ -2,7 +2,6 @@ package cdm.product.asset.processor;
 
 import cdm.observable.asset.Observable;
 import cdm.product.asset.DividendPayoutRatio;
-import cdm.product.template.Product;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;

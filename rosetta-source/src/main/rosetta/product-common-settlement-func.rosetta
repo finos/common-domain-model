@@ -20,14 +20,14 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list o
     output:
         updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
 
-func RateOptionObservableCondition: <"Implementation for PriceQuantity.RateOptionObservable condition.">
+func InterestRateObservableCondition: <"Implementation for PriceQuantity.InterestRateObservable condition.">
     inputs:
         pq PriceQuantity (1..1)
     output:
         valid boolean (0..1)
 
     set valid:
-        if pq -> observable -> rateOption exists and pq -> price exists
+        if pq -> observable -> index -> FloatingRateIndex exists and pq -> price exists
         then pq -> price
                 extract [
                     priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
