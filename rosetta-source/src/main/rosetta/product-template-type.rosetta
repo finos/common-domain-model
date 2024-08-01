@@ -325,10 +325,45 @@ type TradeLot: <"Specifies the price and quantity of a trade lot, where the same
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
     priceQuantity PriceQuantity (1..*) <"Specifies the settlement characteristics of a trade lot: price, quantity, observable (optionally) and the settlement terms. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap).">
 
+type NewTradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
+ 
+ lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
+ lotTotalPosition NotionalPosition (1..1) <"Aggregated unique position at tradeLot level. As an indication, no Observable exists at this level, since it is precisely the resulting aggreation of multiple individual positions per Observable defined at lower granular level i.e. lotObservablePosition.">
+ [metadata location]
+ lotObservablePosition ObservablePriceQuantity (1..*) <"Specifies an Observable, with associated Quantity or Price, when any. This attribute has a multiple cardinality to allow to specify multiple observable, to be referenced in Payout components, as appropriate depending the product features e.g. multi-legs, multiple observable of basket, etc. As an indication, negative Quantity value is permitted, say to represent short position ; and negative Price value is permitted as well, say to represent a negative interest rate, etc.">
+ [metadata location]
+
+type NotionalPosition : <"The Quantity position as an aggregation of multiple Quantity (and Price, if any). As an indication, no Observable exists as an attribute, because the NotionalPosition represents the aggregation of any multiple individual positions from lower granular level where Price or Quantity associated to particular Observable may exist. Optionnaly, multiple Price may be defined, whether for representing the blended Price for multiple position at lower level, else to record the FX Price which links the master currency to the ones in individual positions, or for any other business cases where defining an aggregated Price at position level is relevant. 
+The [metadata location] feature permits to reference the NotionalQuantity in PayoutBase->priceQuantity, that is to represent the quantity to be multiplied by the Payout formula terms, in accordance with generic high level payout calculation : 'Payout Amount = NotionalPosition x Payout', where the NotionalPosition shall be amended from time to time by lifecyle Events, such as increase, decrease, notional reset, etc. via quantityChange Instruction. ">
+    [metadata key]
+    
+    notionalQuantity QuantitySchedule (1..*) <"The Quantity position as an aggregation of multiple Quantity (and Price, if any) The [metadata location] feature permits to reference the NotionalQuantity in PayoutBase->priceQuantity, that shall be amended from time to time by lifecyle Events, such as increase, decrease, notional reset, etc. via quantityChange Instruction.">
+        [metadata location]
+    notionalPrice PriceSchedule (0..*) <"The Price position as an aggregation of multiple Price, calculated with the appropriate formula ">
+        [metadata location]
+
+type TradeNotionalPosition : <"Aggregated total position at Trade level, optionally with aggregated position per Observable, or per currency">
+ 
+ tradeTotalPosition NotionalPosition (1..1) <"Aggregated unique position (in master currency), at Trade level. No particular observable exist, because this is precisely where to represent the aggregation of the multiple individual lotPosition. Net short total position is not permitted e.g. notionalQuantity attribute cannot have a negative value - hence condition attached. For clarity, at Trade inception, if only one tradeLot exists, then all values in tradeTotalPosition necessarily equal to all corresponding values in the tradeLot.">
+    [metadata reference]
+ tradeObservableTotalPosition ObservablePriceQuantity (0..*) <"Aggregated unique position per Observable at trade level, accross multiple tradeLot and/or multiple payout legs, when any. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap), including basket,etc. As an indication, negative Quantity value is permitted, say to represent short position and negative Price value as well is permitted, say to represent a negative interest rate, etc.">
+ 
+ //tradeCurrencyTotalPosition QuantitySchedule (0..*) <"Aggregated unique position per currency at trade level, across multiple tradeLot and/or multiple payout legs and/or multiple underliers, when any. This attribute has a multiple cardinality to allow to specify the price, quantity and observable of different legs in a single, composite product (e.g. a Swap), including basket,etc. As an indication, negative Quantity value is permitted, say to represent short position and negative Price value as well is permitted, say to represent a negative interest rate, etc.">
+
+condition TotalPositionCannotBeNegativeAtTrateLevel: <"Position may be short at lot level but cannot be net short at trade level, that is the ultimate level where multiple tradeLot are aggregated.">
+  if tradeTotalPosition -> notionalQuantity -> value exists
+  then tradeTotalPosition -> notionalQuantity -> value all >= 0.0
+   and if tradeTotalPosition -> notionalQuantity -> datedValue exists
+   then tradeTotalPosition -> notionalQuantity -> datedValue -> value all >= 0.0
+
+
 type TradableProduct: <"Definition of a product as ready to be traded, i.e. included in an execution or contract, by associating a specific price and quantity to this product plus an (optional) mechanism for any potential future quantity adjustment.">
 
     product Product (1..1) <"The underlying product to be included in a contract or execution.">
     tradeLot TradeLot (1..*) <"Specifies the price, quantity and effective date of each trade lot, when the same product may be traded multiple times in different lots with the same counterparty. In a trade increase, a new trade lot is added to the list, with the corresponding effective date. In a trade decrease, the existing trade lot(s) are decreased of the corresponding quantity (and an unwind fee may have to be settled). The multiple cardinality and the ability to increase existing trades is used for Equity Swaps in particular.">
+    [deprecated] // to be replaced by newTradeLot //
+    tradeLot_NEW NewTradeLot (1..*) <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots. Depending business needs and type of product at stake, position lifecycle, an increase may result in the creation of a new trade lot, else in updating an existing trade lot - functional trigger for distinguishing these alternate methods is the ">
+    tradePosition TradeNotionalPosition (1..1) <"Aggregated total position at Trade level, optionally with aggregated position per Observable, or per currency">
     counterparty Counterparty (2..2) <"Specifies the parties which are the two counterparties to the transaction.  The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the counterparty enum (e.g. CounterpartyEnum values Party1 or Party2). The counterparty enum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this counterparties attribute, which is positioned outside of the product definition, allows the counterparty enum to be associated with an actual party reference.">
         [docReference ICMA GMRA namingConvention "Party"
             provision "Parties entering into GMRA, as specified on page 1 of the GMRA and under 1. (a)."]
