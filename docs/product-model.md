@@ -45,7 +45,7 @@ risk between two parties.
 
 ### Asset  {#asset}
 
-:::tip[Definition: `Asset`]
+:::tip Definition: Asset
 
 An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
 commodity, a loan or a security. As a choice data type, one and only one of the attributes must be used.
@@ -159,7 +159,7 @@ tradable product and can be identified by a public identifier.
 
 ### Observable
 
-:::tip[Definition: `Observable`]
+:::tip Definition: Observable
 
 The `Observable` data type specifies the reference object to be observed
 for a price, which could be an underlying asset or a reference to something
@@ -234,7 +234,7 @@ remaining economic terms of the contractual product are defined in
 
 ### Economic Terms
 
-:::tip[Definition: `EconomicTerms`]
+:::tip Definition: EconomicTerms
 
 Represents the full set of features associated with a product: the payout component; 
 the notional/quantity; the effective date, termination date and the date adjustment 
@@ -274,7 +274,7 @@ combined to compose a product. For example, an Equity Swap can be
 composed by combining an `InterestRatePayout` and an
 `PerformancePayout`.
 
-:::tip[Definition: `Payout`]
+:::tip Definition: Payout
 
 Represents the set of future cashflow methodologies in the form of 
 specific payout data type(s) which result from the financial product.  
@@ -420,7 +420,7 @@ quantity, and other details necessary to complete an execution of a
 security or a negotiated contract between two counterparties. Tradable
 products are represented by the `TradableProduct` data type.
 
-:::tip[Definition: `TradableProduct`]
+:::tip Definition: TradableProduct
 
 Definition of a financial product as ready to be traded, i.e. included in 
 an execution or contract, by associating a specific price and quantity to
@@ -530,7 +530,7 @@ decreases (or unwind) are treated differently. An increase adds a new
 `TradeLot` instance to the tradadable product, whereas a decrease
 reduces the quantity of one or more of the existing trade lots.
 
-:::tip[Definition: `Observable`]
+:::tip Definition: Observable
 
 Specifies the prices and quantities of one or more trades, where the 
 same product could be traded multiple times with the same counterparty 
