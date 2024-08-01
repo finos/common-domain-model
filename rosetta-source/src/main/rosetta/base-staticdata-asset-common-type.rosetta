@@ -8,15 +8,27 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-choice Asset:  <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the  attributes must be used."> 
+choice Asset:  <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used."> 
     Cash  <"An Asset that consists solely of a monetary holding in a currency.">
     Commodity <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
     DigitalAsset <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
     Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
-    identifier AssetIdentifier (0..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
-    taxonomy Taxonomy (0..1) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
+    identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+    taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
+    isExchangeListed boolean (0..1)  <"Defines whether the Asset is listed on a public exchange.">
+    exchange LegalEntity (0..1)  <"If the Asset is listed, defines the public exchange of the listing.">
+        //[metadata scheme]
+    relatedExchange LegalEntity (0..*)  <"Provides the related Exchanges, if applicable.">
+
+    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if exchange exists
+        then isExchangeListed  
+
+    condition RelatedExchange:  <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent 
+        then relatedExchange is absent 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -24,28 +36,17 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase:  <"Defines the common attributes for all Instrument data types.">
-    isExchangeListed boolean (0..1)  <"Defines whether the Instrument is listed on a public exchange.">
-    exchange LegalEntity (0..*)  <"If the Instrument is listed, defines the public exchange(s) of the listing.">
 
-    condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
-        if exchange exists
-        then isExchangeListed  
-
-choice Instrument:  <"A type of Asset that is issued by one party to one or more others. ListedDerivative: A securitized derivative on another asset that is created by an exchange. Loan: An Asset that represents a loan or borrow obligation. Security: An Asset that is issued by a party to be held by or transferred to others.">
-    ListedDerivative
-    Loan
-    Security
+choice Instrument:  <"A type of Asset that is issued by one party to one or more others.">
+    ListedDerivative  <"A securitized derivative on another asset that is created by an exchange.">
+    Loan  <"An Asset that represents a loan or borrow obligation.">
+    Security <"An Asset that is issued by a party to be held by or transferred to others.">
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [metadata key]
     identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
         [metadata scheme]
     source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
-
-type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
-    productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-        [metadata address "pointsTo"=Observable->productIdentifier]
 
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
 
@@ -102,41 +103,45 @@ type IndexReferenceInformation: <"A class defining information related to Index"
     condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
         indexName exists or indexId exists
 
-type IndexBase extends AssetIdentifier: <"Identifies an index by referencing an identifier.">
+type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
     name string (0..1)  <"A description of the Index.">
-    provider string (0..1) <"The organisation that creates or maintains the Index.">
+    provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
     assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
-    exchange string (0..*)  <"If the Index is listed, defines the public exchange(s) of the listing.">
-        [metadata scheme]
-    relatedExchange string (0..*)  <"Provides the related Exchanges, if applicable.">
 
-//choice Index: <"Defines the different types of Index.">
-//    CreditIndex
-//    EquityIndex
-//    FloatingIndex
-//    InflationIndex
-//    OtherIndex
+choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
+    CreditIndex  <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
+    EquityIndex  <"An index based on equity securities, e.g. the S&P 500.">
+    FloatingRateIndex  <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    ForeignExchangeRate  <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
+    InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
+    OtherIndex  <"An index created by a market participant which doesn't align with the other index types.">
 
-type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
+type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
-type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.">
+    condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">    
+        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) count = 1
+        and
+        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier first to-enum CurrencyCodeEnum exists  
 
-    condition IdentifierIsCurrencyCode: <"The identifier of a Cash Asset is used to identify the Currency.">
-        identifier -> identifierType any = AssetIdTypeEnum -> CurrencyCode
+    condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
+        taxonomy is absent
 
-type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
+    condition NoExchange: <"Cash cannot be a listed Asset.">
+        exchange is absent 
+
+type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
 
     condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
-        if productTaxonomy -> value -> classification count > 1
-        then productTaxonomy -> value -> classification -> ordinal exists
+        if taxonomy -> value -> classification count > 1
+        then taxonomy -> value -> classification -> ordinal exists
 
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
-        if productTaxonomy exists
-        then (productTaxonomy -> source exists and productTaxonomy -> value exists)
+        if taxonomy exists
+        then (taxonomy -> source exists and taxonomy -> value exists)
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -171,19 +176,16 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
 
 type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
-    expiration string (1..1) <"The Expiration Date of the contract, expressed using the same symbology as the contract identifier.">
-    optionType OptionTypeEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future, also following the identifier symbology.">
-    strike string (0..1) <"Specifies the strike of the option, using the identifier symbology.">
+    deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23. Optional as this can be uniquely identified in the identifier.">
+    optionType PutCallEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
+    strike number (0..1) <"Specifies the strike of the option.">
 
     condition Options: <"Options must have a strike price.">
         if optionType exists then strike exists else strike is absent
 
-enum OptionTypeEnum: <"The enumerated values to specify the type of the option. In FpML, OptionTypeEnum is a union with PutCallEnum, which specifies whether the option is a put or a call.">
+enum PutCallEnum:  <"The enumerated values to specify the types of listed derivative options.">
     Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
     Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
-    Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
-    Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
-    Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlier, at the same strike and same expiration date">
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
@@ -227,14 +229,17 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
     condition:
         one-of
 
-type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
     equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+    //**ART** Economic Terms will be removed in Phase 3
     economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    //**ART** ProductTaxonomy (which was previously inherited) added back as a workaround in Phase 2 prior to more extensive refactoring in Phase 3
+    productTaxonomy ProductTaxonomy (0..*)
 
     condition DebtSubType:
         if securityType <> SecurityTypeEnum -> Debt
