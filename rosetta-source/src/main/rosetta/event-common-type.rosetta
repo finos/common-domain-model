@@ -237,7 +237,7 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
         [metadata reference]
     creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
         [metadata reference]
-    forwardPayout ForwardPayout (0..1) <"Represents a reference to a Forward Payout.">
+    forwardPayout SettlementPayout (0..1) <"Represents a reference to a Forward Payout.">
         [metadata reference]
     interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
         [metadata reference]
@@ -301,11 +301,11 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and partyRole -> role contains PartyRoleEnum -> Seller
     
     condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-        if product -> economicTerms -> payout -> settlementPayout only exists
+        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset -> Instrument -> Security exists
         then tradeLot -> priceQuantity -> price exists
 
     condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified on the settlementPayout.">
-        if product -> economicTerms -> payout -> settlementPayout only exists
+        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset -> Instrument -> Security exists
         then product -> economicTerms -> payout -> settlementPayout -> settlementTerms exists
 
     condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
@@ -483,8 +483,8 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
         then ( product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists 
            and product -> economicTerms -> payout -> performancePayout -> underlier -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity )     
-           or  product -> economicTerms -> payout -> optionPayout -> productUnderlier -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-           or  product -> economicTerms -> payout -> optionPayout -> productUnderlier -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Observable -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -707,9 +707,6 @@ type CollateralPosition extends Position: <"Specifies the individual components 
         if collateralPositionStatus exists
         then collateralPositionStatus = CollateralStatusEnum -> SettledAmount
                 or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount
-
-    condition CollateralMustBeTransferableAsset:  <"Collateral can only be a Transferable Product or Asset, not a NonTransferableProduct.">
-        product -> AssetUnderlier exists
 
 type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">
     callAmountInBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">

@@ -504,12 +504,12 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         else tradableProduct -> product -> economicTerms -> payout -> optionPayout only-element
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout.">
-        optionPayout -> productUnderlier 
+        optionPayout -> optionUnderlier 
 
     alias nonTransferableProduct:
-        if underlier -> NonTransferableProduct exists    
-        then underlier -> NonTransferableProduct
-        else Create_NonTransferableProduct(underlier -> TransferableProduct, optionPayout -> payerReceiver)
+        if underlier -> Product -> NonTransferableProduct exists    
+        then underlier -> Product -> NonTransferableProduct
+        else Create_NonTransferableProduct(underlier -> Product -> TransferableProduct, optionPayout -> payerReceiver)
 
     alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
         Create_Execution(
@@ -641,7 +641,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         transfer Transfer (1..1)
 
     alias assetPayout:
-        instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout only-element
+        instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
         FilterQuantityByFinancialUnit(
@@ -708,8 +708,8 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
     set transfer -> settlementDate -> adjustedDate: instruction -> date
 
     set transfer -> settlementOrigin -> assetPayout:
-        if instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout exists
-        then instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout only-element
+        if instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
+        then instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
             as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
@@ -758,7 +758,7 @@ func SecurityFinanceCashSettlementAmount:
         cashSettlementAmount Transfer (1..1)
 
     alias assetPayout:
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
         tradeState -> trade -> product -> economicTerms -> collateral
@@ -1036,7 +1036,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
         then payout -> interestRatePayout is absent
                 and payout -> cashflow is absent
                 and payout -> creditDefaultPayout is absent
-                and payout -> forwardPayout is absent
+                and payout -> settlementPayout is absent
                 and payout -> fixedPricePayout is absent
                 and payout -> optionPayout is absent
 
@@ -1239,7 +1239,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         tradeState -> trade -> product -> economicTerms -> payout -> interestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
         tradeState -> trade -> product -> economicTerms -> collateral
@@ -1369,7 +1369,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> AssetUnderlier -> TransferableProduct -> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
                 and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
@@ -1418,9 +1418,9 @@ func CheckTransferableProduct:  <"Identifies whether a product is transferable, 
     output:
         isTransferableProduct boolean (1..1)
 
-    set isTransferableProduct:
+    set isTransferableProduct:  <"If not an Index, then underlier must be an Asset or TransferableProduct.">
         if economicTerms -> payout -> settlementPayout only exists
-        and economicTerms -> payout -> settlementPayout -> underlier exists
+        and economicTerms -> payout -> settlementPayout -> underlier -> Index is absent
         then True    
 
 func CheckTradeNotTransferableProduct:  <"Identifies whether the product inside a TradeState is not transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
