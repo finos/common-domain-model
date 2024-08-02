@@ -49,7 +49,7 @@ public class SettlementFunctionHelper {
                         .setExecution(executionInstructionWithRefs))
                 .build());
 
-        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions, null, eventDate, null);
+        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions,null,eventDate,null);
         return postProcess(BusinessEvent.class, businessEvent);
     }
 
@@ -103,8 +103,8 @@ public class SettlementFunctionHelper {
     }
 
     public EventInstruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
-                                                            List<? extends Quantity> quantities,
-                                                            LocalDate transferDate) {
+                                                       List<? extends Quantity> quantities,
+                                                       LocalDate transferDate) {
         Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
         Quantity shareQuantity = getShareQuantity(quantities);
         TradeState before = getAfterState(executionBusinessEvent).orElse(null);
@@ -167,8 +167,10 @@ public class SettlementFunctionHelper {
     private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {
         return getAfterState(executionBusinessEvent)
                 .map(TradeState::getTrade)
+                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getProduct)
-                .map(NonTransferableProduct::getEconomicTerms)
+                .map(Product::getContractualProduct)
+                .map(ContractualProduct::getEconomicTerms)
                 .map(EconomicTerms::getCollateral)
                 .map(Collateral::getCollateralPortfolio)
                 .orElse(Collections.emptyList()).stream()
@@ -176,8 +178,8 @@ public class SettlementFunctionHelper {
                 .map(CollateralPortfolio::getCollateralPosition)
                 .flatMap(Collection::stream)
                 .map(CollateralPosition::getProduct)
-                .map(Underlier::getNonTransferableProduct)
-                .map(NonTransferableProduct::getEconomicTerms)
+                .map(Product::getContractualProduct)
+                .map(ContractualProduct::getEconomicTerms)
                 .map(EconomicTerms::getPayout)
                 .findFirst();
     }

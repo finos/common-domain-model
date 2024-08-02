@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
+import static cdm.observable.asset.metafields.ReferenceWithMetaFloatingRateOption.ReferenceWithMetaFloatingRateOptionBuilder;
+import static cdm.product.asset.FloatingRate.FloatingRateBuilder;
+import static cdm.product.asset.RateSpecification.RateSpecificationBuilder;
 import static cdm.product.template.processor.FraHelper.getDummyFloatingLegPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
@@ -54,7 +57,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 * Remove floating rate specification and fixing dates as these belongs on the floating leg.
 	 */
 	private void updateFixedLeg(InterestRatePayoutBuilder fixedLeg) {
-		fixedLeg.getRateSpecification().setFloatingRateSpecification(null);
+		fixedLeg.getRateSpecification().setFloatingRate(null);
 		
 		if (fixedLeg.getResetDates() != null) {
 			fixedLeg.getResetDates().setFixingDates(null);
@@ -67,7 +70,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	 * Flip payer/receiver parties (required as this leg was created as a copy of the fixed leg).
 	 */
 	private void updateFloatingLeg(Path synonymPath, InterestRatePayoutBuilder floatingLeg) {
-		floatingLeg.getRateSpecification().toBuilder().setFixedRateSpecification(null);
+		floatingLeg.getRateSpecification().toBuilder().setFixedRate(null);
 		floatingLeg.setPaymentDates(null);
 		
 		getReferenceMapping(synonymPath.addElement("notional").addElement("amount"))
@@ -106,7 +109,7 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
 		Reference.ReferenceBuilder reference = Optional.of(floatingLeg)
 				.map(b -> b.getRateSpecification())
-				.map(b -> b.getFloatingRateSpecification())
+				.map(b -> b.getFloatingRate())
 				.map(b -> b.getRateOption())
 				.map(b -> b.getReference())
 				.orElse(null);

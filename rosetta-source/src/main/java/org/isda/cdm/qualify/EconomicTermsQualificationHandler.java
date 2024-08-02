@@ -2,8 +2,8 @@ package org.isda.cdm.qualify;
 
 import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
+import cdm.product.template.ContractualProduct;
 import cdm.product.template.EconomicTerms;
-import cdm.product.template.ProductBase;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandler;
 
 import java.util.Collections;
@@ -15,7 +15,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 /**
  * Qualification handler for EconomicTerms
  */
-public class EconomicTermsQualificationHandler implements QualificationHandler<EconomicTerms, ProductBase, ProductBase.ProductBaseBuilder> {
+public class EconomicTermsQualificationHandler implements QualificationHandler<EconomicTerms, ContractualProduct, ContractualProduct.ContractualProductBuilder> {
 
     @Override
     public Class<EconomicTerms> getQualifiableClass() {
@@ -23,16 +23,16 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
     }
 
     @Override
-    public EconomicTerms getQualifiableObject(ProductBase product) {
-        return Optional.ofNullable(product)
-                .map(ProductBase::getEconomicTerms)
+    public EconomicTerms getQualifiableObject(ContractualProduct contractualProduct) {
+        return Optional.ofNullable(contractualProduct)
+                .map(ContractualProduct::getEconomicTerms)
                 .orElse(null);
     }
 
     @Override
-    public String getQualifier(ProductBase productBase) {
-        return Optional.ofNullable(productBase)
-                .map(ProductBase::getTaxonomy)
+    public String getQualifier(ContractualProduct contractualProduct) {
+        return Optional.ofNullable(contractualProduct)
+                .map(ContractualProduct::getProductTaxonomy)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(ProductTaxonomy::getProductQualifier)
@@ -42,10 +42,10 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
     }
 
     @Override
-    public void setQualifier(ProductBase.ProductBaseBuilder productBuilder, String qualifier) {
+    public void setQualifier(ContractualProduct.ContractualProductBuilder contractualProductBuilder, String qualifier) {
         // Find any existing ProductTaxonomy
         ProductTaxonomy.ProductTaxonomyBuilder productTaxonomyBuilder =
-                emptyIfNull(productBuilder.getTaxonomy())
+                emptyIfNull(contractualProductBuilder.getProductTaxonomy())
                         .stream()
                         .filter(t -> t.getProductQualifier() != null)
                         .findFirst()
@@ -57,7 +57,7 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
                     .setSource(TaxonomySourceEnum.ISDA);
         } else {
             // Or add new ProductTaxonomy
-            productBuilder.addTaxonomy(ProductTaxonomy.builder()
+            contractualProductBuilder.addProductTaxonomy(ProductTaxonomy.builder()
                     .setProductQualifier(qualifier)
                     .setSource(TaxonomySourceEnum.ISDA));
         }
