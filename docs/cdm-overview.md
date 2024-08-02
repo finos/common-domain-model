@@ -168,7 +168,7 @@ applications may be open source software or licensed under commercial
 terms. In particular:
 
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
-    Rune DSL, that provides the cumminity with a free and easy way to
+    Rune DSL, that provides the community with a free and easy way to
     contribute code to the CDM. Please refer to the [Rosetta
     Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
