@@ -77,16 +77,16 @@ Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to
 ![](/img/cdm-roadmap-2024-1.png)
 
 - The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
-- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
 # CDM Components
 
 **The CDM is made of three sets of components**, as laid-out in the FINOS
 CDM components diagram below:
 
--   The FINOS CDM Distribution (in *blue*)
--   The Rosetta DSL (in *grey*)
--   CDM Applications (in *green*)
+-   The FINOS CDM Distribution (in the centre, in *purple*)
+-   The Rune DSL (on the left, in *grey*)
+-   CDM Applications (on the right, in *blue*)
 
 ![](/img/cdm-components-diagram.png)
 
@@ -99,7 +99,7 @@ distribution is fully downloadable.
 The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
-    the Rosetta DSL and contained into a set of *.rosetta* files
+    the Rune DSL and contained into a set of *.rosetta* files
     organised as *namespaces*. The primary dimensions of the model are
     listed below and further described in the
     [common-domain-model](/docs/common-domain-model) of the
@@ -111,7 +111,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Reference Data
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
-    model definitions expressed in the Rosetta DSL using [available code
+    model definitions expressed in the Rune DSL using [available code
     generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
@@ -138,22 +138,22 @@ functions' executable code.
 
 ---
 
-## Rosetta DSL
+## Rune DSL
 
 The CDM is written in a Domain-Specific Language (DSL) called the
-*Rosetta DSL*, that comprises a [language](https://github.com/REGnosys/rosetta-dsl) (i.e. syntax, semantics and
+*Rune DSL*, that comprises a [language](https://github.com/finos/rune-dsl) (i.e. syntax, semantics and
 rules) and [code generators](https://github.com/REGnosys/rosetta-code-generators).
 
 The language includes one default code generator into [java](https://www.oracle.com/java/). To
 facilitate adoption and implementation of the CDM by the community of
-industry participants, the Rosetta DSL is available in open source under
+industry participants, the Rune DSL is available in open source under
 an Apache 2.0 license. This allows industry participants to write and
 share code generators into any other languages.
 
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component). The documentation also describes the
+the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---
@@ -168,13 +168,13 @@ applications may be open source software or licensed under commercial
 terms. In particular:
 
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
-    Rosetta DSL, that provides the cumminity with a free and easy way to
+    Rune DSL, that provides the cumminity with a free and easy way to
     contribute code to the CDM. Please refer to the [Rosetta
     Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
 ---
 **Note:**
-The CDM Portal and Rosetta have been developed by technology firm
+Rosetta has been developed by technology firm
 [REGnosys](https://regnosys.com). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 
