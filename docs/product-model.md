@@ -2,46 +2,22 @@
 title: Product Model
 ---
 
----
-**Note:**
-Some significant enhancements are being introduced to the Product Model
-in the CDM in version 6.  These are being driven by the Asset Refactoring
-Task Force.
-This documentation will be updated as these changes are released into
-the development version.
-
----
-
-## Introduction to the Product Model
-
-Where applicable, the CDM follows the data structure of the Financial
-Products Markup Language (FpML), which is widely used in the OTC
-Derivatives market. For example, the CDM type `PayerReceiver` is
-equivalent to the FpML PayerReceiver.model. Both of these are data
-structures used frequently throughout each respective model. In other
-cases, the CDM data structure is more normalised, per Development Guidelines. For example, price and quantity are
-represented in a single type, `TradableProduct`, which is shared by all
-products. Another example is the use of a composable product model
-whereby:
-
--   **Economic terms are specified by composition**, For example, the
-    `InterestRatePayout` type is a component used in the definition of
-    any product with one or more interest rate legs (e.g. Interest Rate
-    Swaps, Equity Swaps, and Credit Default Swaps).
--   **Product qualification is inferred** from those economic terms
-    rather than explicitly naming the product type, whereas FpML
-    qualifies the product explcitly through the *product* substitution
-    group.
-
-Regardless of whether the data structure is the same or different from
-FpML, the CDM includes defined Synonyms that map to FpML (and other
-models) and can be used for transformation purposes. More details on
-Synonyms are provided in the Mapping (Synonym) section of this document.
-
 ## Financial Products {#product}
 
 A financial product is an instrument that is used to transfer financial
 risk between two parties. 
+
+Within the CDM, a financial product is composed of several building blocks 
+to define the characteristics of the product that is traded between the parties.
+The most fundamental of these is an `Asset` which is used to represent the 
+basic transferable financial products such as cash, commodities or securities.
+
+The CDM also supports negotiated products, where the terms of the
+product are agreed between the parties, as is typically seen in the OTC 
+derivatives markets. The concept of `EconomicTerms` enables the modelling
+of these products through the use of composable `Payouts` which define the
+conditions of future cashflows that might be driven by terms such as 
+interest rates, options, or equity performance. 
 
 ### Asset  {#asset}
 
@@ -52,7 +28,7 @@ commodity, a loan or a security. As a choice data type, one and only one of the 
 
 :::
 
-The Asset data type is modelled as follows:
+The Asset data type is a `choice`:
 
 ``` Haskell
 choice Asset:  
@@ -60,18 +36,45 @@ choice Asset:
     Commodity
     DigitalAsset
     Instrument
-
 ```
 
-These attributes are:
+Each of the choice values are defined as data types within the model and each also extends a common base type
+`AssetBase`:
 
-* Cash: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
-  data type is an `Identifier`, populated with the currency code (using the `CurrencyCodeEnum` list) for the currency
+``` Haskell
+type AssetBase: 
+    identifier AssetIdentifier (1..*) 
+    taxonomy Taxonomy (0..*) 
+    isExchangeListed boolean (0..1) 
+    exchange LegalEntity (0..1)  
+    relatedExchange LegalEntity (0..*) 
+```
+
+The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
+in question. 
+
+The base type ensures that every instance of all types of an `Asset` has a defined `AssetIdentifier` which is
+itself composed of an `identifier` and an `identifierType` enumerator that defines the symbology source of the identifier,
+for example a CUSIP or ISIN.
+
+The base type also includes an optional `taxonomy` which aligns the asset to one of the asset classification
+sources defined by industry organisations, such as ISDA, or regulators, such as CFTC or EMIR. It is also possible
+to define the exchange listing characteristics of the asset.
+
+Conditions are applied on each of the asset types to enforce certain rules; for example, a `Cash` asset
+can not have an `exchange`.
+
+The `Asset` definitions are as follows:
+
+* **Cash**: An asset that consists solely of a monetary holding in a currency.  The only attribute on this
+  data type is the `Identifier`, populated with the currency code (using the `CurrencyCodeEnum` list) for the currency
   of the cash.
-* Commodity: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
-  The applicable identifiers are the ISDA definitions for reference benchmarks.
-* DigitalAsset: An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.
-* Instrument: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
+* **Commodity**: An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.
+  The applicable identifiers are the ISDA definitions for reference benchmarks. If no such benchmark exists, the
+  characteristics of a commodity asset can be more fully identified using a `CommodityProductDefinition`.
+* **DigitalAsset**: An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation
+  of other Assets.
+* **Instrument**: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
 
 The `Instrument` data type is further broken down using the `choice` construct:
 
@@ -80,48 +83,63 @@ choice Instrument:
     ListedDerivative 
     Loan
     Security
-
 ```
 
 with these attributes:
-* ListedDerivative: A securitized derivative on another asset that is created by an exchange.
-* Loan: An Asset that represents a loan or borrow obligation.
-* Security: An Asset that is issued by a party to be held by or transferred to others.
+* **ListedDerivative**: A securitized derivative on another asset that is created by an exchange.  If the particular
+  contract cannot be fully identified using the `identifier`, the optional `deliveryTerm`, `optionType` and
+  `strike` attributes can be populated.
+* **Loan**: An Asset that represents a loan or borrow obligation. As loans rarely have standard industry identifiers,
+  the data type includes optional attributes to help uniquely identify the loan, including `borrower`, `lien`,
+  `facilityType`, `creditAgreementDate` and `tranche`.
+* **Security**: An Asset that is issued by a party to be held by or transferred to others. As "security" covers a
+  broad gamut of assets, the `securityType` attribute (which is a list of enumerators including "Debt" and "Equity")
+  must always be specified. Further categorisation, by `debtType`, `equityType` and `FundType`, can also be used
+  and are governed by conditions on the data type definition.
 
-### Product
+### Observable
 
----
-**Note:**
-The Product data type will be further refactored before the release of CDM 6.
+In addition to assets, there are other parameters which can be observed in the markets and which can directly
+influence the pricing or outcomes of financial products. In the CDM, these are termed "Observables":
 
----
+:::tip Definition: Observable
 
-Financial products are represented in the
-`Product` type, which is also constrained by a `one-of` condition,
-meaning that for a single Tradable Product, there can only be one
-Product.
+The `Observable` data type specifies the reference object to be observed
+for a price, which could be an underlying asset or a reference to something
+which can be observed but not actually transferred, such as an index or
+a foreign exchange rate.
+
+:::
+
+In addition to `Asset` (something that can be held or transferred in the 
+financial markets), the `Observable` is a choice data type composed as follows:
 
 ``` Haskell
-type Product:
-  [metadata key]
-  contractualProduct ContractualProduct (0..1)
-  index Index (0..1)
-  loan Loan (0..1)
-  foreignExchange ForeignExchange (0..1)
-  commodity Commodity (0..1)
-  security Security (0..1)
-  basket Basket (0..1)
-
-  condition: one-of
+choice Observable:
+    Asset 
+    Basket 
+    Index  
 ```
 
-The CDM allows any one of these products to included in a trade or used
-as an underlier for another product (see the *Underlier* section). One
-unlikely case for a direct trade is Index, which is primarily used as an
-underlier.
+The definition of these attributes is as follows:
 
-Among this set of products, the contractual product is the most
-complicated and requires the largest data structure. In a contractual
+* **Asset**:  The inclusion of Asset in Observable enables the price of an asset to be included within the definition of another
+  financial product.
+* **Basket**:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
+* **Index**:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
+
+The CDM allows both Assets and Observables to included in a trade or used
+as an underlier for another product (see the *[Underlier](#underlier)* section). One
+unlikely case for a direct trade is Index, which is primarily used as an underlier.
+
+### Contractual Financial Products
+
+A contractual financial product is a bilateral agreement negotiated between two
+parties and is represented in the CDM with the `NonTransferableProduct` type. 
+(Its name is in direct contrast to `TransferableProduct` which is explained shortly.)
+
+Compared with Asset and Observable, the modelling of a contractual financial
+product is complicated and requires the largest data structure. In a contractual
 product, an exchange of financial risk is materialised by a unique
 bilateral contract that specifies the financial obligations of each
 party. The terms of the contract are specified at trade inception and
@@ -140,9 +158,6 @@ Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
 Forwards) and private loans also represent an exchange of financial risk
 represented by a form of bilateral agreements. FX forwards and private
 loans can have an extended term, and are generally not fungible.
-However, these products share few other commonalities with contractual
-products such as Interest Rate Swaps. Therefore, they are defined
-separately.
 
 By contrast, in the case of the execution of a security (e.g. a listed
 equity), the exchange of finanical risk is a one-time event that takes
@@ -153,48 +168,13 @@ identifiers are publically available. Therefore, the terms of the
 security do not have to be stored in a transaction lifecycle model, but
 can be referenced with public identifiers.
 
-An Index product is an exception because it's not directly tradable,
+An index-based product is an exception because it's not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
-### Observable
+### Contractual Product Scope
 
-:::tip Definition: Observable
-
-The `Observable` data type specifies the reference object to be observed
-for a price, which could be an underlying asset or a reference to something
-which can be observed but not actually transferred, such as an index or
-a foreign exchange rate.
-
-:::
-
-In addition to `Asset` (something that can be held or transferred in the 
-financial markets), an `Observable` is composed of one and only one
-definition:
-
-``` Haskell
-type Observable:
-  
-    asset Asset (0..1) 
-    basket Basket (0..1) 
-    index Index (0..1) 
-    productIdentifier ProductIdentifier (0..*)  
-        [metadata location]
-    rateOption FloatingRateOption (0..1) 
-        [metadata location]
-    
-    condition: one-of
-```
-
-The definition of these attributes is as follows:
-
-* Basket:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
-* CurrencyPair:  The object to be observed is foreign exchange rate between two currencies.
-* Index:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
-
-### Contractual Product
-
-The scope of contractual products in the current model are summarized
+The scope of contractual financial products in the current model are summarized
 below:
 
 -   **Interest rate derivatives**:
@@ -206,7 +186,7 @@ below:
     -   OTC Options on Bonds
 -   **Credit derivatives**:
     -   Credit Default Swaps (incl. baskets, tranche, swaps with
-        mortgage and loans underlyers, ...)
+        mortgage and loan underliers, ...)
     -   Options on Credit Default Swaps
 -   **Equity derivatives**:
     -   Equity Swaps (single name)
@@ -217,20 +197,34 @@ below:
 -   **Repurchase Agreements**:
     -   Open Term, Fixed Term, Fixed Rate, Floating Rate
 
-In the CDM, contractual products are represented by the
-`ContractualProduct` type:
+### NonTransferableProduct
+
+In the CDM, contractual financial products are represented by the
+`NonTransferableProduct` type:
+
+:::tip Definition: NonTransferableProduct
+
+A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. 
+The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot 
+be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) 
+post-execution lifecycle contexts.
+
+:::
 
 ``` Haskell
-type ContractualProduct extends ProductBase:
-   [metadata key]
-   [metadata template]
-   productIdentifier ProductIdentifier (0..*)
+type NonTransferableProduct:  
+    identifier ProductIdentifier (0..*) 
+    taxonomy ProductTaxonomy (0..*) 
+    economicTerms EconomicTerms (1..1)
 ```
 
-Note that price, quantity and counterparties are defined in
-`TradableProduct` as these are attributes common to all products. The
-remaining economic terms of the contractual product are defined in
-`EconomicTerms` which is an encapsulated type in `ContractualProduct` .
+The definition of these attributes is as follows:
+
+* **identifier**: As is the case for Assets, a product must have a unique identifier composed
+  of an `Identifier` string and a `ProductIdTypeEnum`.
+* **taxonomy**:  Defines the primary and secondary Asset Classes using the `AssetClassEnum`
+  which leverages the FpML classifications.
+* **economicTerms**:  Defines the price forming features.
 
 ### Economic Terms
 
@@ -292,7 +286,7 @@ type Payout:
   creditDefaultPayout CreditDefaultPayout (0..1)
   optionPayout OptionPayout (0..*)
   commodityPayout CommodityPayout (0..*)
-  forwardPayout ForwardPayout (0..*)
+  settlementPayout SettlementPayout (0..*)
   fixedPricePayout FixedPricePayout (0..*)
   cashflow Cashflow (0..*)
   performancePayout PerformancePayout (0..*)
@@ -318,12 +312,11 @@ The list of payouts that extend _PayoutBase_ are:
 -   `CreditDefaultPayout`
 -   `OptionPayout`
 -   `CommodityPayout`
--   `ForwardPayout`
+-   `SettlementPayout`
 -   `FixedPricePayout`
 -   `Cashflow`
 -   `PerformancePayout`
 -   `AssetPayout`
--   `SettlementPayout`
 -   the `ProtectionTerms` data type encapsulated in
     `CreditDefaultPayout`
 
@@ -412,6 +405,33 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
+### TransferableProduct
+
+We saw earlier that the data type `NonTransferableProduct` is used to define
+a negotiated contractual financial product between two parties and that this
+is done by modelling the `EconomicTerms` and `Payouts` agreen between them.
+
+This is in contrast with an `Asset` which is something that is transferable
+and not uniquely negotiated. The `Asset` data type provides for the identification
+of the financial product using publicly available identifiers.
+
+Sometimes the identifiers are not sufficient and there is a need to add the
+financial terms and cashflows.  This is facilitated through the use of the
+`TransferableProduct` data type.
+
+:::tip Definition: TransferableProduct
+
+A TransferableProduct is a type of Product which can be used in a 
+SettlementPayout for a basic cash settled trade of either an Asset
+with or without the addition of specific EconomicTerms.
+
+:::
+
+``` Haskell
+type TransferableProduct extends Asset:
+    economicTerms EconomicTerms (1..1)
+```
+
 ## TradableProduct {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
@@ -434,7 +454,7 @@ same two counterparties.
 
 ``` Haskell
 type TradableProduct:
-   product Product (1..1)
+   product NonTransferableProduct (1..1)
    tradeLot TradeLot (1..*)
    counterparty Counterparty (2..2)
    ancillaryParty AncillaryParty (0..*)
@@ -530,7 +550,7 @@ decreases (or unwind) are treated differently. An increase adds a new
 `TradeLot` instance to the tradadable product, whereas a decrease
 reduces the quantity of one or more of the existing trade lots.
 
-:::tip Definition: Observable
+:::tip Definition: TradeLot
 
 Specifies the prices and quantities of one or more trades, where the 
 same product could be traded multiple times with the same counterparty 
@@ -987,7 +1007,7 @@ product: an equity security.
 
 ### Data Templates
 
-The `ContractualProduct` type is specified with the
+The `NonTransferableProduct` type is specified with the
 `[metadata template]` annotation indicating that it is eligible to be
 used as a template.
 
@@ -1188,7 +1208,7 @@ positioned as a CDM enumeration.
 
 The output of the qualification function is used to populate the
 `productQualifier` attribute of the `ProductTaxonomy` object, which is
-created when a `ContractualProduct` object is created. The product
+created when a `NonTransferableProduct` object is created. The product
 taxonomy includes both the product qualification generated by the CDM
 and any additional product taxonomy information which may come from the
 originating document, such as FpML. In this case, taxonomy schemes may
