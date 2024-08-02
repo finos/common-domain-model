@@ -292,21 +292,14 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
         [deprecated]
 
-    // condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-    // if tradableProduct -> product -> security exists
-    // then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
-    condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+    condition PartyRoleBuyerSeller: <"When the product uses a settlement payout, both buyer and seller party roles must exist.">
         if product -> economicTerms -> payout -> settlementPayout only exists
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
     
-    condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset -> Instrument -> Security exists
+    condition Price: <"When the executed product is an Asset, the price must be specified.">
+        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset exists
         then tradeLot -> priceQuantity -> price exists
-
-    condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified on the settlementPayout.">
-        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset -> Instrument -> Security exists
-        then product -> economicTerms -> payout -> settlementPayout -> settlementTerms exists
 
     condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
         if executionDetails -> packageReference exists

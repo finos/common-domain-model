@@ -506,10 +506,21 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
         optionPayout -> optionUnderlier 
 
-    alias nonTransferableProduct:
-        if underlier -> Product -> NonTransferableProduct exists    
-        then underlier -> Product -> NonTransferableProduct
-        else Create_NonTransferableProduct(underlier -> Product -> TransferableProduct, optionPayout -> payerReceiver)
+    alias TransferableProduct:  <"If there is an Observable, extract the underlying Asset or Index and create a TransferableProduct.">
+        if underlier -> Observable exists
+        then if underlier -> Observable -> Asset exists
+            then Create_TransferableProductFromAsset (underlier -> Observable -> Asset, optionPayout -> payerReceiver)
+            else Create_TransferableProductFromIndex (underlier -> Observable -> Index, optionPayout -> payerReceiver)
+
+    alias nonTransferableProduct:  <"Create the NonTransferableProduct to be used in the exercise trade.">
+        if underlier -> Observable exists and TransferableProduct exists // Turn the Transferable from the previous step into a NonTransferable
+        then Create_NonTransferableProduct(TransferableProduct, optionPayout -> payerReceiver)
+        else
+            if underlier -> Product exists  // If underlier is a Product, then there is either a NonTransferableProduct or we can create one.
+            then if underlier -> Product -> NonTransferableProduct exists
+                then underlier -> Product -> NonTransferableProduct
+                else Create_NonTransferableProduct(underlier -> Product -> TransferableProduct, optionPayout -> payerReceiver)
+
 
     alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
         Create_Execution(
@@ -544,6 +555,26 @@ func Create_NonTransferableProduct:  <"Creates a NonTransferableProduct (ie Econ
         newProduct NonTransferableProduct (1..1)
 
     set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> TransferableProduct: underlier 
+    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
+    
+func Create_TransferableProductFromAsset:  <"Creates a TransferableProduct (ie EconomicTerms) from an Asset.">
+    inputs:
+        asset Asset (1..1)
+        payerReceiver PayerReceiver (1..1)
+    output:
+        newProduct TransferableProduct (1..1)
+
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Asset: asset 
+    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
+
+func Create_TransferableProductFromIndex:  <"Creates a TransferableProduct (ie EconomicTerms) from an Index.">
+    inputs:
+        index Index (1..1)
+        payerReceiver PayerReceiver (1..1)
+    output:
+        newProduct TransferableProduct (1..1)
+
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Index: index 
     set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
 
 func Create_Reset: <"Defines how a Reset should be constructed.">
