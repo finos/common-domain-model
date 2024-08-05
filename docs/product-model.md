@@ -258,7 +258,7 @@ type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
   dateAdjustments BusinessDayAdjustments (0..1)
-  payout Payout (1..1)
+  payout Payout (1..*)
   terminationProvision TerminationProvision (0..1)
   calculationAgent CalculationAgent (0..1)
   nonStandardisedTerms boolean (0..1)
@@ -286,20 +286,21 @@ a credit default payout to specify a credit default swap.
 :::
 
 ``` Haskell
-type Payout:
+choice Payout:
   [metadata key]
-  interestRatePayout InterestRatePayout (0..*)
-  creditDefaultPayout CreditDefaultPayout (0..1)
-  optionPayout OptionPayout (0..*)
-  commodityPayout CommodityPayout (0..*)
-  forwardPayout ForwardPayout (0..*)
-  fixedPricePayout FixedPricePayout (0..*)
-  cashflow Cashflow (0..*)
-  performancePayout PerformancePayout (0..*)
-  assetPayout AssetPayout (0..*)
+  AssetPayout
+  Cashflow
+  CommodityPayout
+  CreditDefaultPayout
+  FixedPricePayout
+  InterestRatePayout 
+  OptionPayout
+  PerformancePayout
+  SettlementPayout
+
 ```
 
-A number of payout types extend a common data type called `PayoutBase`.
+All the payout types extend a common data type called `PayoutBase`.
 This data type provides a common structure for attributes such as
 quantity, price, settlement terms and the payer/receiver direction which
 are expected to be common across many payouts.
@@ -311,21 +312,6 @@ type PayoutBase:
   principalPayment PrincipalPayments (0..1)
   settlementTerms SettlementTerms (0..1)
 ```
-
-The list of payouts that extend _PayoutBase_ are:
-
--   `InterestRatePayout`
--   `CreditDefaultPayout`
--   `OptionPayout`
--   `CommodityPayout`
--   `ForwardPayout`
--   `FixedPricePayout`
--   `Cashflow`
--   `PerformancePayout`
--   `AssetPayout`
--   `SettlementPayout`
--   the `ProtectionTerms` data type encapsulated in
-    `CreditDefaultPayout`
 
 For example:
 
