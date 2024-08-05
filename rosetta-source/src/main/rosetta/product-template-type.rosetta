@@ -23,10 +23,6 @@ import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
-type ProductBase: <"Serves as an abstract class to specify common attributes for all products.">
-    taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
-
 type TransferableProduct extends Asset:  <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
     economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
 
@@ -298,22 +294,23 @@ choice Payout: <"Represents the set of future cashflow methodologies in the form
     PerformancePayout    <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     SettlementPayout     <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
 
-choice Underlier:
-    Asset
-    Index
-    TransferableProduct
+choice Underlier:  <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, or the cash settlement of an index rate.">
+    Asset                <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used.">
+    Index                <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.">
+    TransferableProduct  <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
 
-choice OptionUnderlier:
-    Observable
-    Product
+choice OptionUnderlier:  <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
+    Observable           <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+    Product              <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
 
-choice Product:
-    TransferableProduct
-    NonTransferableProduct
+choice Product:  <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
+    TransferableProduct     <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    NonTransferableProduct  <"The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.">
 
 type NonTransferableProduct:  <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
+
     identifier ProductIdentifier (0..*) <"Comprises a identifier and a source to uniquely identify the nonTransferableProduct. ">
     taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
