@@ -979,31 +979,60 @@ type CalculationPeriodDates:
 
 ### Underlier
 
-The underlier attribute on types `OptionPayout`, `ForwardPayout` and
-`EquityPayout` allows for any product to be used as the underlier for a
-corresponding products option, forward, and equity swap.
-
-``` Haskell
-type OptionPayout extends PayoutBase:
-  [metadata key]
-  buyerSeller BuyerSeller (1..1)
-  feature OptionFeature (0..1)
-  observationTerms ObservationTerms (0..1)
-  schedule CalculationSchedule (0..1)
-  delivery AssetDeliveryInformation (0..1)
-  underlier Product (1..1)
-  optionType OptionTypeEnum (0..1)
-  exerciseTerms ExerciseTerms (1..1)
-  strike OptionStrike (0..1)
-```
+The concept of an underlier allows for financial products to be used
+to drive outcomes within the definition of a corresponding product, for example
+an option, forward, or equity swap.
 
 This nesting of the product component is another example of a composable
 product model. One use case is an interest rate swaption for which the
-high-level product uses the `OptionPayout` type and underlier is an
+high-level product uses the `OptionPayout` type and the underlier is an
 Interest Rate Swap composed of two `InterestRatePayout` types.
 Similiarly, the product underlying an Equity Swap composed of an
-`InterestRatePayout` and an `EquityPayout` would be a non-contractual
+`InterestRatePayout` and a `PerformancePayout` would be a transferable
 product: an equity security.
+
+In the simplest case, the underlier in an `AssetPayout` can only ever be
+a security, so the definition within this data type is constrained as such.
+
+In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
+is to influence the values of the future returns, so the appropriate data
+type to use for the underlier is an Observable.
+
+In the case of a `SettlementPayout`, there are a variety of possible
+outcomes as the settlement can be an Asset, the cash value of an Index, or
+a TransferableProduct.  Therefore, the choice data type `Underlier` has
+been defined and is used as the underlier attribute in this payout.
+
+Option financial products allow for an even greater range of outcomes, so
+the choice data type `OptionUnderlier` provides for both Observables and Products
+(itself also a choice data type) to be used in an `OptionPayout`.
+
+``` Haskell
+choice Underlier:
+    Asset
+    Index
+    TransferableProduct
+
+choice OptionUnderlier:
+    Observable
+    Product
+
+choice Product:
+    TransferableProduct
+    NonTransferableProduct
+```
+
+**Use of underliers in payouts**
+
+The following table summarises the use of underliers for each of the main payout data types.
+
+| **Payout**    | **Underlier Definition** | **Rationale** |
+| :-------- | :------- | :------- | 
+| `AssetPayout` | `securityInformation Security (1..1)` | The underlier must be a `security`
+| `CommodityPayout` | `underlier Observable (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
+| `OptionPayout` | `underlier OptionUnderlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
+| `PerformancePayout` | `underlier Observable (0..1)` | The underlier is a pricing mechanism, ie an Observable
+| `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
 
 ### Data Templates
 
