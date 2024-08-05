@@ -1173,10 +1173,10 @@ func UpdateIndexTransitionPriceAndRateOption:
         then priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else priceQuantity -> price only-element -> value
 
-    set updatedPriceQuantity -> observable -> Index: <"If instruction exists, update the rate option.">
+    set updatedPriceQuantity -> observable -> Index -> FloatingRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> Index
-        else priceQuantity -> observable -> Index
+        then instruction -> observable -> Index -> FloatingRateIndex
+        else priceQuantity -> observable -> Index -> FloatingRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1189,9 +1189,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> Index -> FloatingRateIndex -> indexTenor -> period = priceQuantity -> observable -> Index -> FloatingRateIndex -> indexTenor -> period
+                observable -> Index -> FloatingRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> Index -> FloatingRateIndex -> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> FloatingRateIndex -> indexTenor -> periodMultiplier
+                    and observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)

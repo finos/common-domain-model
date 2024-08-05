@@ -20,12 +20,15 @@ type IndexBase extends AssetBase: <"Identifies an index by referencing an identi
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
     CreditIndex  <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
     EquityIndex  <"An index based on equity securities, e.g. the S&P 500.">
-    FloatingRateIndex  <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    FloatingRateIndex  <"An index based in interest rates or inflation rates in a certain market.">
     ForeignExchangeRateIndex  <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
-    InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
     OtherIndex  <"An index created by a market participant which doesn't align with the other index types.">
 
-type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+choice FloatingRateIndex:  <"An index based in interest rates or inflation rates in a certain market.">
+    InterestRateIndex  <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    InflationIndex  <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
+
+type InterestRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
 	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
 		[metadata scheme]
 	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
@@ -45,6 +48,7 @@ type ForeignExchangeRateIndex extends IndexBase:  <"Specification of a rate base
 type InflationIndex extends IndexBase:  <"Specification of an index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
 	inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
 		[metadata scheme]
+    indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">    
 
     condition InterestRateAssetClass:  <"The asset class must be Interest Rate.">
         assetClass = AssetClassEnum -> InterestRate
