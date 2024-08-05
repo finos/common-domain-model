@@ -53,17 +53,19 @@ Examples of where the CDM can be used in the repo market:
 -   Capturing event history.
 -   Market standard taxonomy and mapping interface to other platforms.
 
-ICMA Contacts: \-\-\-\-\-\-\-\-\-\-\--Gabriel Callsen, Director
-<gabriel.callsen@icmagroup.org> +44 (0)20 7213 0334
+ICMA Contacts: 
 
-Tom Healey, FINXIS LLC, Consultant <tom.healey@icmagroup.org>
+| Contact | Role | Email | Phone
+| :--- | :--- | :--- | :--- | 
+| Gabriel Callsen | Director | <gabriel.callsen@icmagroup.org> | +44 (0)20 7213 0334 |
+| Tom Healey | FINXIS LLC, Consultant | <tom.healey@icmagroup.org> |
 
 # Scope
 
 The scope of the CDM Repo initiative was intended to define:
 
 -   Consistent definition of buyer-seller entities based on LEI data
--   Collateral, margin anf haircut attributes.
+-   Collateral, margin and haircut attributes.
 -   Flexible interest rate payout model to support complex structures.
 -   Standardized product taxonomy.
 -   Predefine lifecycle event processing and event history.
@@ -74,8 +76,9 @@ Building upon the CDM, the Repo CDM added new data types,
 attributes and events needed to create fixed term, open and floating
 rate repos, and execute various lifecycle events.
 
-A repo product is formed from a ContractualProduct as an extension of
-ProductBase. The payout structure for a repo is constructed using an
+A repo product is composed as a contracted financial product in the 
+normal manner (see the [Product Model](/product-model) section for more details).
+The payout structure for a repo is constructed using an
 `InterestRatePayout` for the cash loan and `AssetPayout` for the
 collateral.
 
@@ -92,18 +95,17 @@ from the PayoutBase.
 
 Collateral on a repo transaction is defined using `AssetPayout`.
 Security identification is set in the `securityInformation` attribute,
-which itself is a `Product` allowing for the possibility of creating
-products defined in terms of other products. Collateral may also be
+which is a `Security` Asset. Collateral may also be
 defined using parameters such as currency, country, maturity and other
-attributes available in `CollateralProvisions` to classify
+attributes available in `CollateralProvisions` to classify.
 
 ## Purchase Date and Repurchase Date
 
 In `economicTerms`, the `effectiveDate` attribute represents the repo
 purchase date and the `terminationDate` is the repurchase date. For an
 open repo the `terminationDate` is not set until the repo terminates.
-The external and global key references should include \"PurchaseDate and
-\"RepurchaseDate\":
+The external and global key references should include "PurchaseDate" and
+"RepurchaseDate":
 
 ``` Javascript
 "effectiveDate": {
@@ -200,13 +202,12 @@ Collateral is defined in `assetPayout->securityInformation`:
 ``` Javascript
 "securityInformation": {
     "security": {
-        "productIdentifier": [
+        "identifier": [
             {
-                "value": {
-                    "identifier": {
-                        "value": "GB00B24FF097"
-                    },
-                    "source": "ISIN"
+               "identifier": {
+                   "value": "GB00B24FF097"
+               },
+               "identifierType": "ISIN"
                 }],
         "securityType": "DEBT"
         }
@@ -273,8 +274,7 @@ components are needed:
 
 A fixed term, fixed rate repo example json structure can be found here:
 
-Fixed-Term,Fixed-Rate Repo Product :download:json
-\<code-snippets/fixed-term-fixed-rate-repo-product.json\>
+[Fixed-Term,Fixed-Rate Repo Product](https://github.com/finos/common-domain-model/blob/master/docs/code-snippets/fixed-term-fixed-rate-repo-product.json)
 
 The `priceQuantity` object is used to define the collateral value and
 repo rate.
