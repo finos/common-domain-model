@@ -57,6 +57,10 @@ Information disclosed in connection with any Working Group activity, including b
 
 ## 6. Major release scheduling guidelines
 
+The attached deck summarizes the governance guidelines discussed below. 
+
+[CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
+
 The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 ### 6.1 Objectives of defining major releases
