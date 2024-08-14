@@ -31,7 +31,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 # Working Groups
 
-**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new new CDM Working Group template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
+**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new CDM Working Group template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
 
 **2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
