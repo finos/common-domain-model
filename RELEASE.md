@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This issue was discusses at the CDM Derivatives Products and Business Events Working Group on August 14th, 2024 #3077 and resolves items 1, 2 and 4 from Issue #3087. Item 3 was discussed and will be contributed at a later time.
+This issue was discussed at the CDM Derivatives Products and Business Events Working Group on August 14th, 2024 #3077 and resolves items 1, 2 and 4 from Issue #3087. Item 3 was discussed and will be contributed at a later time.
 
 - Item 1: Zero Strike option
 In `PriceSchedule`, `Positive Price` condition requires `Cash Price` to be greater than `0`. This caused a CDM error for Zero Strike Option products.
