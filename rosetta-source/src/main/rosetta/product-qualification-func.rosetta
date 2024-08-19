@@ -36,7 +36,9 @@ func ObservableQualification:  <"Identifies whether the observable(s) have eithe
     set qualifies:
         observable -> Asset -> Instrument -> Security -> securityType all = securityType
         or observable -> Index ->> assetClass all = assetClass
-        or ObservableQualification(observable -> Basket -> basketConstituent, securityType, assetClass)
+        or if observable -> Basket exists
+            then ObservableQualification(observable -> Basket -> basketConstituent, securityType, assetClass) = True
+            else False
 
 /*
  * COMPOSABLE PRODUCT QUALIFICATION based on ISDA Taxonomy v2

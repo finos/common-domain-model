@@ -1,4 +1,4 @@
-package cdm.product.common.settlement.processor;
+package cdm.observable.asset.processor;
 
 import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.DatedValue;
@@ -21,8 +21,8 @@ import java.util.Optional;
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.math.UnitType.builder;
 import static cdm.observable.asset.PriceQuantity.*;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
+import static  cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static  cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;

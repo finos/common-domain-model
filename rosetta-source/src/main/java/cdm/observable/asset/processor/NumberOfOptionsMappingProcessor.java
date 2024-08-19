@@ -1,4 +1,4 @@
-package cdm.product.common.settlement.processor;
+package cdm.observable.asset.processor;
 
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
@@ -15,8 +15,8 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
+import static  cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static  cdm.observable.asset.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
 /**

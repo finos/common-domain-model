@@ -1,4 +1,4 @@
-package cdm.product.common.settlement.processor;
+package cdm.observable.asset.processor;
 
 import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 

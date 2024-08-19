@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.product.common.settlement.processor.PriceQuantityHelper;
+import cdm.observable.asset.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
