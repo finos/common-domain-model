@@ -94,15 +94,15 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
-    productUnderlier ProductUnderlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
+    optionUnderlier OptionUnderlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
     optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
-                and productUnderlier -> NonTransferableProduct -> economicTerms -> payout -> interestRatePayout only exists
-                and productUnderlier -> NonTransferableProduct -> economicTerms -> payout -> interestRatePayout count = 2
+                and optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout exists
+                and optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
         then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -184,24 +184,24 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
-        then underlier -> basket only exists
+        then underlier -> Basket only exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
 
     condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> index exists
+        if underlier -> Index exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition NoSharePriceDividendAdjustmentForeignExchange: <"If the underlier is an foreign exchange, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> index -> ForeignExchangeRateIndex exists
+        if underlier -> Index -> ForeignExchangeRateIndex exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
         if returnTerms -> correlationReturnTerms exists
-        then underlier -> basket only exists
+        then underlier -> Basket only exists
 
     condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
         if Qualify_UnderlierObservable_Equity(underlier) = False
@@ -237,16 +237,11 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
     creditDefaultPayout CreditDefaultPayout (0..1) <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
     optionPayout OptionPayout (0..*) <"The option payout.">
     commodityPayout CommodityPayout (0..*) <"Defines the payout for the floating leg of a Commodity Swap.">
-    forwardPayout ForwardPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
+    settlementPayout SettlementPayout (0..*) <"Represents a forward settling payout. The 'Underlier' attribute captures the underlying payout, which is settled according to the 'SettlementTerms' attribute. Both FX Spot and FX Forward should use this component.">
     fixedPricePayout FixedPricePayout (0..*) <"Defines a payout in which one or more payouts are defined as a fixed price.">
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
     assetPayout AssetPayout (0..*) <"Defines the assets and movements in a security financing transaction.">
-    settlementPayout SettlementPayout (0..1)  <"Defines the commitment to settle a trade in a TransferableProduct.">
-
-    condition SettlementPayoutIsExclusive: <"A SettlementPayout can only be used on its own.">
-        if settlementPayout exists
-        then settlementPayout only exists
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
         if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
@@ -272,7 +267,7 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         if optionPayout exists
         then optionPayout -> priceQuantity exists
-                or optionPayout -> productUnderlier -> NonTransferableProduct -> economicTerms -> payout -> interestRatePayout count = 2
+                or optionPayout -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
         if interestRatePayout count = 2
@@ -292,7 +287,7 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
             and assetPayout -> priceQuantity -> reset is absent
             and commodityPayout -> priceQuantity -> reset is absent
             and fixedPricePayout -> priceQuantity -> reset is absent
-            and forwardPayout -> priceQuantity -> reset is absent
+            and settlementPayout -> priceQuantity -> reset is absent
             and optionPayout -> priceQuantity -> reset is absent
             and cashflow -> priceQuantity -> reset is absent
 
@@ -300,22 +295,25 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-type SettlementPayout extends PayoutBase:  <"This is a payout data type used to define the commitment to settle a trade in an Asset or TransferableProduct. Examples: a purchase of a cash security; an FX trade, either spot or forward. The PayerReceiver in PayoutBase describes which party is the buyer/receiver of the asset defined in underlier, and which party is the seller/payer of this asset.  The price/quantity paid is defined in the currency PriceQuantity in TradeLot.">
-    underlier AssetUnderlier (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
+choice Underlier:
+    Asset
+    Index
+    TransferableProduct
 
-choice AssetUnderlier:  <"The underlier of a payout which can be either an Asset or a Transferable Product, which is an Asset with Economic Terms.">
-    Asset  <"Identifies a transferable asset.">
-    TransferableProduct  <"Defines the transferable asset with an identifier and economic terms.">
+choice OptionUnderlier:
+    Observable
+    Product
 
-choice Underlier:  <"The underlier of a payout which can be either an Asset or a Transferable Product, which is an Asset with Economic Terms.">
-    NonTransferableProduct  <"Specifies the financial product's economic terms, alongside the product identification and product taxonomy.">
-    AssetUnderlier <"The underlier of a payout which can be either an Asset or a Transferable Product, which is an Asset with Economic Terms.">
+choice Product:
+    TransferableProduct
+    NonTransferableProduct
 
-type NonTransferableProduct extends ProductBase:  <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+type NonTransferableProduct:  <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
-
-    identifier ProductIdentifier (0..*) 
+    identifier ProductIdentifier (0..*) <"Comprises a identifier and a source to uniquely identify the nonTransferableProduct. ">
+    taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
     
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
@@ -354,12 +352,12 @@ type TradableProduct: <"Definition of a product as ready to be traded, i.e. incl
         then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
     condition ForwardPayout_PredeterminedClearingOrganizationParty:
-        if product -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+        if product -> economicTerms -> payout -> settlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
         then ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
 
     condition PredeterminedClearingOrganizationParty:
         if ancillaryParty -> role contains AncillaryRoleEnum -> PredeterminedClearingOrganizationParty
-        then product -> economicTerms -> payout -> forwardPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
+        then product -> economicTerms -> payout -> settlementPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
                 or product -> economicTerms -> payout -> optionPayout -> settlementTerms -> physicalSettlementTerms -> predeterminedClearingOrganizationParty exists
 
     condition ExerciseNoticeReceiverPartyManual:
@@ -413,23 +411,27 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
         if basketPercentage exists
         then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
-type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
+type SettlementPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
     [metadata key]
 
-    productUnderlier ProductUnderlier (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
+    underlier Underlier (1..1) <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, or the cash settlement of an index rate.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    
+    condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
+        if underlier -> Asset -> Cash is absent
+        then settlementTerms exists
 
     condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both.">
-        if productUnderlier -> Index -> ForeignExchangeRateIndex exists
+        if underlier -> Index -> ForeignExchangeRateIndex only exists
         then (settlementTerms -> settlementDate -> valueDate exists
             and settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent )
         or (settlementTerms -> settlementDate -> valueDate is absent
             and settlementTerms -> settlementDate -> adjustableOrRelativeDate exists)
 
     condition Settlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-        if productUnderlier -> Index -> ForeignExchangeRateIndex exists
+        if underlier -> Index -> ForeignExchangeRateIndex exists
         then settlementTerms -> physicalSettlementTerms is absent
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">

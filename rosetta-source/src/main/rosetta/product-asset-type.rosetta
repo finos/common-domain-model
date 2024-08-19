@@ -28,7 +28,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Observable (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    underlier Commodity (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
@@ -283,7 +283,7 @@ type FloatingAmountProvisions:
     wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
     stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
-type CreditIndexReferenceInformation extends IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
+type CreditIndexReferenceInformation extends IndexBase: <"A class defining a Credit Default Swap Index.">
     [metadata key]
     indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
     indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
@@ -335,7 +335,6 @@ type ReferenceInformation: <"A class specifying the Credit Default Swap Referenc
         required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
-    //**ART3**
     security Security (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
     loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">
     primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">
@@ -347,6 +346,10 @@ type ReferenceObligation: <"A class to specify the reference obligation that is 
 
     condition AssetChoice: <"Represents the choice in a CDS contract.">
         required choice security, loan
+
+    condition MustBeDebtSecurity:  <"Only debt securities can be used as the reference obligation for a credit derivative.">
+        if security exists
+        then security -> securityType = SecurityTypeEnum -> Debt
 
     condition LegalEntityChoice: <"Represents the choice in a CDS contract..">
         optional choice primaryObligor, primaryObligorReference
@@ -516,7 +519,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
 
     condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
         if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> asset -> Instrument -> ListedDerivative exists
+        then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
         if valuationTerms -> futuresPriceValuation = True
@@ -534,11 +537,7 @@ type VolatilityReturnTerms extends ReturnTermsBase:
 
     volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
     volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
-    exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
-
-    condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
-        if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> asset -> Instrument -> Security exists
+    exchangeTradedContractNearest ListedDerivative (0..1) <"Specification of the exchange traded contract nearest.">
 
 type CorrelationReturnTerms extends ReturnTermsBase:
 
@@ -631,13 +630,13 @@ type ForeignExchange: <"From FpML: A type defining either a spot or forward FX t
 
 type BondReference: <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 
-    bond Asset (1..1) <"Reference to a bond underlier.">
+    bond Security (1..1) <"Reference to a bond underlier.">
     conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
     discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
     couponRate FixedRateSpecification (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">
 
-    condition BondUnderlier:  <"The underlier should be a security.">
-        bond -> Instrument -> Security exists
+    condition BondUnderlier:  <"The underlier should be a bond.">
+        bond -> securityType = SecurityTypeEnum -> Debt
 
 type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
 
@@ -688,7 +687,7 @@ type FloatingRateBase: <"A class defining a floating interest rate through the s
     [metadata key]
 
     rateOption Index (0..1)
-        [metadata address "pointsTo"=Observable->index]
+        [metadata address "pointsTo"=Observable->Index]
     spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
     capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
     floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">

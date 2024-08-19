@@ -18,7 +18,6 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1)  <"Defines whether the Asset is listed on a public exchange.">
     exchange LegalEntity (0..1)  <"If the Asset is listed, defines the public exchange of the listing.">
-        [metadata scheme]
     relatedExchange LegalEntity (0..*)  <"Provides the related Exchanges, if applicable.">
 
     condition ExchangeListed:  <"If Exchange is specified, it must be an exchange-listed Instrument.">
@@ -92,16 +91,6 @@ type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which i
     condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
         optional choice value, productQualifier
 
-type IndexReferenceInformation: <"A class defining information related to Index">
-    [deprecated] // to be replaced by IndexBase
-    indexName string (0..1) <"The name of the index expressed as a free format string with an associated scheme.">
-        [metadata scheme]
-    indexId string (0..*) <"An index identifier (e.g. RED pair code).">
-        [metadata scheme]
-
-    condition IndexAttributes: <"A required choice condition for either a floating rate or inflation rate index.">
-        indexName exists or indexId exists
-
 type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
 
     condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">    
@@ -151,8 +140,8 @@ type DeliveryDateParameters: <"Specifies a specific date or the parameters for i
 
 type CommodityReferenceFramework: <"Specifies the type of commodity.">
     commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
-    capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
-    weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
+    capacityUnit CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
+    weatherUnit WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
     currency string (1..1) <"Defines the currency in which the commodity is priced.">
         [metadata scheme]
 
@@ -168,10 +157,6 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
 
     condition Options: <"Options must have a strike price.">
         if optionType exists then strike exists else strike is absent
-
-enum PutCallEnum:  <"The enumerated values to specify the types of listed derivative options.">
-    Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
-    Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">

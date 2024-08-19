@@ -139,7 +139,7 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 
     condition PriceQuantity:
         priceQuantity -> price -> priceType contains PriceTypeEnum -> InterestRate
-            and priceQuantity -> observable -> index exists
+            and priceQuantity -> observable -> Index -> FloatingRateIndex exists
             and priceQuantity -> quantity is absent
 
 type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
@@ -211,7 +211,7 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
+type Transfer extends TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
     settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
     resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
@@ -237,7 +237,7 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
         [metadata reference]
     creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
         [metadata reference]
-    forwardPayout ForwardPayout (0..1) <"Represents a reference to a Forward Payout.">
+    forwardPayout SettlementPayout (0..1) <"Represents a reference to a Forward Payout.">
         [metadata reference]
     interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
         [metadata reference]
@@ -292,21 +292,14 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
         [deprecated]
 
-    // condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-    // if tradableProduct -> product -> security exists
-    // then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
-    condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
+    condition PartyRoleBuyerSeller: <"When the product uses a settlement payout, both buyer and seller party roles must exist.">
         if product -> economicTerms -> payout -> settlementPayout only exists
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
     
-    condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-        if product -> economicTerms -> payout -> settlementPayout only exists
+    condition Price: <"When the executed product is an Asset, the price must be specified.">
+        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Asset exists
         then tradeLot -> priceQuantity -> price exists
-
-    condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified on the settlementPayout.">
-        if product -> economicTerms -> payout -> settlementPayout only exists
-        then product -> economicTerms -> payout -> settlementPayout -> settlementTerms exists
 
     condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
         if executionDetails -> packageReference exists
@@ -482,9 +475,9 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
         then ( product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists 
-           and product -> economicTerms -> payout -> performancePayout -> underlier -> asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity )     
-           or  product -> economicTerms -> payout -> optionPayout -> productUnderlier -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-           or  product -> economicTerms -> payout -> optionPayout -> productUnderlier -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+           and product -> economicTerms -> payout -> performancePayout -> underlier -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity )     
+           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -707,9 +700,6 @@ type CollateralPosition extends Position: <"Specifies the individual components 
         if collateralPositionStatus exists
         then collateralPositionStatus = CollateralStatusEnum -> SettledAmount
                 or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount
-
-    condition CollateralMustBeTransferableAsset:  <"Collateral can only be a Transferable Product or Asset, not a NonTransferableProduct.">
-        product -> AssetUnderlier exists
 
 type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">
     callAmountInBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">
