@@ -48,7 +48,7 @@ import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.event.common.TradeState.TradeStateBuilder;
 import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
-import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 
 /**
  * This instance override the version in CDM so it can be kept up to date with ISLA model changes.

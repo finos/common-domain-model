@@ -5,7 +5,7 @@ import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.event.common.TradeState;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradableProduct;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;

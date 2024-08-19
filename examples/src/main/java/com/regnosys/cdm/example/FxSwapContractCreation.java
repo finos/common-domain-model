@@ -12,7 +12,7 @@ import cdm.event.common.TradeIdentifier;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.Cashflow;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import cdm.product.common.settlement.ResolvablePriceQuantity;
 import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.TradeLot;

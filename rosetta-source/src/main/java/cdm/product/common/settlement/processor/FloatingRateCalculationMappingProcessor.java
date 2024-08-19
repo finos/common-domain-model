@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.math.UnitType.builder;
-import static cdm.product.common.settlement.PriceQuantity.*;
+import static cdm.observable.asset.PriceQuantity.*;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
 import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;

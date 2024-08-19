@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.template.processor.FraHelper.getDummyFloatingLegPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.rosetta.model.lib.meta.Reference.ReferenceBuilder;

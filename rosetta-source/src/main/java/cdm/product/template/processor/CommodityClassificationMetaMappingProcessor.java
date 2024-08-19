@@ -4,7 +4,7 @@ import cdm.base.staticdata.asset.common.Commodity;
 import cdm.base.staticdata.asset.common.Taxonomy;
 import cdm.base.staticdata.asset.common.TaxonomyClassification;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
-import cdm.product.template.ForwardPayout;
+import cdm.product.template.SettlementPayout;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -28,10 +28,10 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-        List<ForwardPayout.ForwardPayoutBuilder> forwardPayoutBuilders = (List<ForwardPayout.ForwardPayoutBuilder>) builders;
-        if (!forwardPayoutBuilders.isEmpty()) {
-            ForwardPayout.ForwardPayoutBuilder forwardPayoutBuilder = forwardPayoutBuilders.get(0);
-            Commodity.CommodityBuilder commodityBuilder = forwardPayoutBuilder.getOrCreateProductUnderlier().getOrCreateAsset().getOrCreateCommodity();
+        List<SettlementPayout.SettlementPayoutBuilder> settlementPayoutBuilders = (List<SettlementPayout.SettlementPayoutBuilder>) builders;
+        if (!settlementPayoutBuilders.isEmpty()) {
+            SettlementPayout.SettlementPayoutBuilder settlementPayoutBuilder = settlementPayoutBuilders.get(0);
+            Commodity.CommodityBuilder commodityBuilder = settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateAsset().getOrCreateCommodity();
 
             List<Mapping> commodityClassificationMappings = getCommodityClassificationMappings(synonymPath.addElement("commodityClassification"));
             Map<Path, List<Mapping>> groupedCommodityClassificationMappings = groupMappings("commodityClassification", commodityClassificationMappings);

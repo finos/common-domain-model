@@ -10,10 +10,7 @@ import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PayerReceiver;
-import cdm.observable.asset.FloatingRateIndex;
-import cdm.observable.asset.Index;
-import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceTypeEnum;
+import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.ReferenceWithMetaPriceSchedule;
 import cdm.product.asset.FixedRateSpecification;
 import cdm.product.asset.FloatingRateSpecification;
@@ -79,10 +76,11 @@ public class InterestRatePayoutCreation {
                         .setFloatingRateSpecification(FloatingRateSpecification.builder()
                                 .setRateOptionValue(Index.builder()
                                         .setFloatingRateIndex(FloatingRateIndex.builder()
-                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_LIBOR_BBA)
+                                                .setInterestRateIndex(InterestRateIndex.builder()
+                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_LIBOR_BBA)
                                                 .setIndexTenor(Period.builder()
                                                         .setPeriod(PeriodEnum.M)
-                                                        .setPeriodMultiplier(6))))))
+                                                        .setPeriodMultiplier(6)))))))
 
                 .setPayerReceiver(PayerReceiver.builder()
                         .setPayer(CounterpartyRoleEnum.PARTY_1)

@@ -5,6 +5,7 @@ import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.Index;
+import cdm.observable.asset.InterestRateIndex;
 import com.rosetta.model.lib.records.Date;
 
 import java.math.BigDecimal;
@@ -25,11 +26,13 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 		Optional<FloatingRateIndex> floatingRateIndex = Optional.ofNullable(floatingRateOption)
 				.map(Index::getFloatingRateIndex);
 		FloatingRateIndexEnum floatingRateIndexEnum = floatingRateIndex
-				.map(FloatingRateIndex::getFloatingRateIndex)
+				.map(FloatingRateIndex::getInterestRateIndex)
+				.map(InterestRateIndex::getFloatingRateIndex)
 				.map(FieldWithMetaFloatingRateIndexEnum::getValue)
 				.orElse(null);
 		Period indexTenor = floatingRateIndex
-				.map(FloatingRateIndex::getIndexTenor)
+				.map(FloatingRateIndex::getInterestRateIndex)
+				.map(InterestRateIndex::getIndexTenor)
 				.orElse(null);
 		return Optional.ofNullable(cache.get(new FloatingRateIndexTenor(floatingRateIndexEnum, indexTenor)))
 				.flatMap(dateObservedValueMap -> Optional.ofNullable(dateObservedValueMap.get(observationDate)))
@@ -63,8 +66,8 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 		private final Period indexTenor;
 
 		public FloatingRateIndexTenor(FloatingRateIndex fro) {
-			this.floatingRateIndex = fro.getFloatingRateIndex().getValue();
-			this.indexTenor = fro.getIndexTenor();
+			this.floatingRateIndex = fro.getInterestRateIndex().getFloatingRateIndex().getValue();
+			this.indexTenor = fro.getInterestRateIndex().getIndexTenor();
 		}
 
 		public FloatingRateIndexTenor(FloatingRateIndexEnum floatingRateIndex, Period indexTenor) {

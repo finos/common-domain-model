@@ -4,8 +4,8 @@ import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.*;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -28,7 +28,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         // set up the interpolateForwardRate to always return 1.5
         binder.bind(InterpolateForwardRate.class).toInstance(new InterpolateForwardRate() {
             @Override
-            protected BigDecimal doEvaluate(ForwardPayout forward) {
+            protected BigDecimal doEvaluate(SettlementPayout settlementPayout) {
                 return BigDecimal.valueOf(1.5);
             }
         });
@@ -71,7 +71,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                 .setProduct(NonTransferableProduct.builder()
                         .setEconomicTerms(EconomicTerms.builder()
                                 .setPayout(Payout.builder()
-                                        .addForwardPayout(ForwardPayout.builder()))))
+                                        .addSettlementPayout(SettlementPayout.builder()))))
                 .addTradeLot(TradeLot.builder()
                         .addPriceQuantity(PriceQuantity.builder()
                                 .addQuantityValue(quantity1)

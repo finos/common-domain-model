@@ -14,7 +14,7 @@ import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import cdm.legaldocumentation.common.ClosedStateEnum;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;

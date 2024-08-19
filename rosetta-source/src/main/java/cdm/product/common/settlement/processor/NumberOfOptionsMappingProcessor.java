@@ -3,7 +3,7 @@ package cdm.product.common.settlement.processor;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;

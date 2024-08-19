@@ -5,6 +5,7 @@ import cdm.base.math.DatedValue;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.Index;
+import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProvider;
@@ -34,11 +35,12 @@ public class FloatingRateTestHelper {
     public static Index initFro() {
         return Index.builder()
                 .setFloatingRateIndex(FloatingRateIndex.builder()
-                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_ACT_365)
-                        .setIndexTenor(Period.builder()
-                                .setPeriod(PeriodEnum.M)
-                                .setPeriodMultiplier(3).build()))
-                        .build();
+                        .setInterestRateIndex(InterestRateIndex.builder()
+                                .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_ACT_365)
+                                .setIndexTenor(Period.builder()
+                                        .setPeriod(PeriodEnum.M)
+                                        .setPeriodMultiplier(3).build())))
+                .build();
     }
 
     public static ResetDates initResetDates(BusinessCenterEnum bc, int freq, int offsetDays, boolean inAdvance) {

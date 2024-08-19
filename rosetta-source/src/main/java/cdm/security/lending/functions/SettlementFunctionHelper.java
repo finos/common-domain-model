@@ -176,7 +176,6 @@ public class SettlementFunctionHelper {
                 .map(CollateralPortfolio::getCollateralPosition)
                 .flatMap(Collection::stream)
                 .map(CollateralPosition::getProduct)
-                .map(Underlier::getNonTransferableProduct)
                 .map(NonTransferableProduct::getEconomicTerms)
                 .map(EconomicTerms::getPayout)
                 .findFirst();

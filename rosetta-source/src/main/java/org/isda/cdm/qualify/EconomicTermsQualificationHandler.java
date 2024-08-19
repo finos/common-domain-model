@@ -3,7 +3,7 @@ package org.isda.cdm.qualify;
 import cdm.base.staticdata.asset.common.ProductTaxonomy;
 import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
 import cdm.product.template.EconomicTerms;
-import cdm.product.template.ProductBase;
+import cdm.product.template.NonTransferableProduct;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandler;
 
 import java.util.Collections;
@@ -15,7 +15,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
 /**
  * Qualification handler for EconomicTerms
  */
-public class EconomicTermsQualificationHandler implements QualificationHandler<EconomicTerms, ProductBase, ProductBase.ProductBaseBuilder> {
+public class EconomicTermsQualificationHandler implements QualificationHandler<EconomicTerms, NonTransferableProduct, NonTransferableProduct.NonTransferableProductBuilder> {
 
     @Override
     public Class<EconomicTerms> getQualifiableClass() {
@@ -23,16 +23,16 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
     }
 
     @Override
-    public EconomicTerms getQualifiableObject(ProductBase product) {
+    public EconomicTerms getQualifiableObject(NonTransferableProduct product) {
         return Optional.ofNullable(product)
-                .map(ProductBase::getEconomicTerms)
+                .map(NonTransferableProduct::getEconomicTerms)
                 .orElse(null);
     }
 
     @Override
-    public String getQualifier(ProductBase productBase) {
+    public String getQualifier(NonTransferableProduct productBase) {
         return Optional.ofNullable(productBase)
-                .map(ProductBase::getTaxonomy)
+                .map(NonTransferableProduct::getTaxonomy)
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(ProductTaxonomy::getProductQualifier)
@@ -42,7 +42,7 @@ public class EconomicTermsQualificationHandler implements QualificationHandler<E
     }
 
     @Override
-    public void setQualifier(ProductBase.ProductBaseBuilder productBuilder, String qualifier) {
+    public void setQualifier(NonTransferableProduct.NonTransferableProductBuilder productBuilder, String qualifier) {
         // Find any existing ProductTaxonomy
         ProductTaxonomy.ProductTaxonomyBuilder productTaxonomyBuilder =
                 emptyIfNull(productBuilder.getTaxonomy())

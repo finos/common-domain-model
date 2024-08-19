@@ -25,7 +25,6 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
 import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.template.NonTransferableProduct;
@@ -1101,7 +1100,7 @@ class FunctionInputCreationTest {
                                 .setIndex(Index.builder()
                                         .setEquityIndex(EquityIndex.builder()
                                                 .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
+                                                .setNameValue("VOLKSWAGEN AG VZO O.N.")))));
         return observationEvent;
     }
 
@@ -1143,7 +1142,7 @@ class FunctionInputCreationTest {
                                 .setIndex(Index.builder()
                                         .setEquityIndex(EquityIndex.builder()
                                                 .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
+                                                .setNameValue("VOLKSWAGEN AG VZO O.N.")))));
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(observationEvent);

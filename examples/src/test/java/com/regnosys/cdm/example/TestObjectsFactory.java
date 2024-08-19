@@ -11,6 +11,7 @@ import cdm.event.common.*;
 import cdm.legaldocumentation.common.ClosedState;
 import cdm.observable.asset.Money;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.*;

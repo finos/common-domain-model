@@ -12,7 +12,7 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.observable.asset.Price;
 import cdm.observable.event.Observation;
 import cdm.observable.event.ObservationIdentifier;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradeLot;
 import cdm.security.lending.functions.RunNewSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflow;
