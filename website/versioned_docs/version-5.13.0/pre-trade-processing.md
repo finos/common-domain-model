@@ -293,7 +293,7 @@ availability will know that they are acting as an agent in this instance.
 				{
 					"collateralType": "NonCash"
 				}
-			}
+			]
 		}
 	]
 }
