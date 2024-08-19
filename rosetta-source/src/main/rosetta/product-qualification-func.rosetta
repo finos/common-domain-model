@@ -143,20 +143,20 @@ func Qualify_AssetClass_Equity:
 
     set is_product:
         (economicTerms -> payout -> performancePayout -> underlier
-                    extract [ Qualify_UnderlierObservable_Equity(item) ]
-                all = True
-                and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
-                (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
-                    // Performance Payout + Fixed Price Payout (Dividend Swap)
-                    or (economicTerms -> payout -> performancePayout, economicTerms -> payout -> fixedPricePayout) only exists
-                        // Performance Payout only (Variance, Volatility and Correlation Swap)
-                    or economicTerms -> payout -> performancePayout only exists))
+                extract Qualify_UnderlierObservable_Equity
+                then all = True
+            and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
+            (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
+                // Performance Payout + Fixed Price Payout (Dividend Swap)
+                or (economicTerms -> payout -> performancePayout, economicTerms -> payout -> fixedPricePayout) only exists
+                    // Performance Payout only (Variance, Volatility and Correlation Swap)
+                or economicTerms -> payout -> performancePayout only exists))
             or (economicTerms -> payout -> optionPayout only exists
-                and (ObservableQualification(optionUnderlier -> Observable, empty, AssetClassEnum -> Equity) 
+                and (ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Equity, AssetClassEnum -> Equity) 
                     or if optionUnderlier -> Product exists
                         then Qualify_AssetClass_Equity(optionUnderlier -> Product ->> economicTerms) = True
                         else False
-                ))                  
+                ))
             or (economicTerms -> payout -> settlementPayout only exists
                 and (UnderlierQualification(
 						settlementUnderlier, empty, AssetClassEnum -> Equity) 
@@ -719,7 +719,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
                 // qualifies that only the option payout exist and all other payouts are absent
             and economicTerms -> payout -> optionPayout only exists
                 // qualifies that the underlier is an equity security
-            and (ObservableQualification(optionUnderlier -> Observable, empty, AssetClassEnum -> Equity) 
+            and (ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Equity, empty) 
                     or if optionUnderlier -> Product exists
                         then Qualify_AssetClass_Equity(optionUnderlier -> Product ->> economicTerms) = True
                         else False)
