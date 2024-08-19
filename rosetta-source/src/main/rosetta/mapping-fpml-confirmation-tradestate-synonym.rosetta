@@ -390,6 +390,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "splitTicket"]
 
     InterestRateIndex:
+        + floatingRateIndex
+            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + indexTenor
             [value "indexTenor" maps 2]
 
@@ -1594,6 +1596,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     InflationIndex:
         + inflationRateIndex
             [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
+        + indexTenor
+            [value "indexTenor" maps 2]
 
     MandatoryEarlyTermination:
 	 	[value "MandatoryEarlyTermination" meta "id"]
@@ -2303,6 +2307,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "strikePricePerUnit"]
             [hint "strikePricePerUnitSchedule"]
             [hint "spotRate"]
+            /*
         + optionUnderlier
             [value "singleUnderlyer" path "underlyer" , "underlyer"]
             [hint "bond" , "equity" , "mortgage" , "convertibleBond" , "index"]
@@ -2315,9 +2320,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commoditySwap"]
             [hint "varianceSwapTransactionSupplement"]
             [hint "dividendSwapTransactionSupplement"]
+            */
         + optionType
             [value "optionType"]
             [set to OptionTypeEnum -> Straddle when "swaptionStraddle" = True]
+
+    OptionUnderlier:
+        //+ Observable
+        + Product
+            [hint "swap"]
 
     ExerciseTerms:
         + commencementDate
@@ -2565,12 +2576,13 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + settlementPayout
             [value "ignore"]
 
-/*
+    Product:
+        + NonTransferableProduct
+            // For Swap Stream:
+            [value "swap"]
+
     TradableProduct:
         + product // i.e. NonTransferableProduct
-*/
-    ProductUnderlier:
-        + NonTransferableProduct
             // For Equity Swap:
             [value "returnSwap" , "equitySwapTransactionSupplement"]
             // For Swap Stream:
@@ -2645,6 +2657,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Observable:
         + Basket
+            [value "basket"]
             [hint "basketConstituent"]
 
     Asset:
@@ -2689,8 +2702,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "ignore"]
         + EquityIndex
             [hint "index"]
-        + FloatingRateIndex
-            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + ForeignExchangeRateIndex
             [value "putCurrencyAmount"]
             [value "callCurrencyAmount"]
@@ -2700,10 +2711,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fixingInformationSource"]
             [value "strike"]
             [value "asian" path "features"]
-        + FloatingRateIndex
-            [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + OtherIndex
             [value "ignore"]
+
+    FloatingRateIndex:
+        + InterestRateIndex
+            [value "floatingRateCalculation"]
+            [hint "floatingRateIndex", "indexTenor"]
+        + InflationIndex
+            [value "inflationRateCalculation"]
 
     ForeignExchangeRateIndex:
         + primaryFxSpotRateSource
