@@ -6,6 +6,7 @@ import cdm.base.math.UnitType;
 import cdm.product.common.settlement.PriceQuantity;
 import com.regnosys.rosetta.common.translation.*;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.math.BigDecimal;
@@ -47,18 +48,21 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
         Path baseModelPath = toPath(getModelPath());
         Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
+        
+
         MappingProcessorUtils.getNonNullMappedValue(synonymPath, getMappings()).ifPresent(xmlValue -> {
             quantityBuilder
                     .setValue(new BigDecimal(xmlValue))
                     .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.CONTRACT));
             // add new mapping rather than updating, otherwise the referencing breaks
             addMapping(synonymPath, xmlValue, mappedModelPath, xmlValue);
+            // clean up errors
+            updateReferenceMapping(synonymPath);
         });
     }
 
     private void setMultiplierAndUnit(Path synonymPath, NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity) {
         Path parentSynonymPath = synonymPath.getParent();
-
 
         setValueAndUpdateMappings(parentSynonymPath.addElement("optionEntitlement"),
                 (xmlValue) -> quantity.getOrCreateMultiplier().setValue(new BigDecimal(xmlValue)));
@@ -86,5 +90,16 @@ public class NumberOfOptionsMappingProcessor extends MappingProcessor {
 
     private void addMapping(Path xmlPath, Object xmlValue, Path modelPath, Object modelValue) {
         getMappings().add(new Mapping(xmlPath, xmlValue, modelPath, modelValue, null, true, true, false));
+    }
+
+    private void updateReferenceMapping(Path synonymPath) {
+        getMappings().stream()
+                .filter(m -> m.getXmlPath().equals(synonymPath))
+                .filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)
+                .filter(m -> m.getError() != null)
+                .forEach(m -> {
+                    m.setDuplicate(false);
+                    m.setError(null);
+                });
     }
 }
