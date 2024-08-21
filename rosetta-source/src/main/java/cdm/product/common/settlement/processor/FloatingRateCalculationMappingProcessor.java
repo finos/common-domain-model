@@ -73,7 +73,7 @@ public class FloatingRateCalculationMappingProcessor extends MappingProcessor {
         // price index must be incremented otherwise any references will break
         Path baseModelPath = toPath(getModelPath());
         Path amountModelPath = incrementPathElementIndex(baseModelPath, "price", emptyIfNull(priceQuantityBuilder.getPrice()).size());
-        updateMapping(mapping, amountModelPath);
+        addMapping(mapping.getXmlPath(), mapping.getXmlValue(), amountModelPath, mapping.getXmlValue());
         // add schedule (if exists)
         priceScheduleBuilder.setDatedValue(getSteps(mapping.getXmlPath().getParent(), amountModelPath.getParent()));
         // add to PriceQuantity
@@ -89,14 +89,6 @@ public class FloatingRateCalculationMappingProcessor extends MappingProcessor {
                         .setMeta(MetaFields.builder()
                                 .setScheme(currencyScheme)
                                 .build()));
-    }
-
-    private void updateMapping(Mapping mapping, Path modelPath) {
-        mapping.setRosettaPath(modelPath);
-        // clear errors
-        mapping.setError(null);
-        mapping.setCondition(true);
-        mapping.setDuplicate(false);
     }
 
     private List<DatedValue.DatedValueBuilder> getSteps(Path floorScheduleSynonymPath, Path priceScheduleModelPath) {
@@ -129,5 +121,9 @@ public class FloatingRateCalculationMappingProcessor extends MappingProcessor {
                 PathUtils.toRosettaPath(modelPath.addElement("stepDate")));
 
         return stepBuilder.hasData() ? Optional.of(stepBuilder) : Optional.empty();
+    }
+
+    private void addMapping(Path xmlPath, Object xmlValue, Path modelPath, Object modelValue) {
+        getMappings().add(new Mapping(xmlPath, xmlValue, modelPath, modelValue, null, true, true, false));
     }
 }
