@@ -205,7 +205,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
                     .setReference(reference);
             return Arrays.asList(
                     new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.amount")), value),
-                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRateSpecification.rateSchedule.price")), reference));
+                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRateSpecification.rateSchedule.price.reference")), reference));
         });
 
         commonMappings.put("Loan_Value", (indexes, value, tradeState) -> {
@@ -224,7 +224,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
                     .setReference(reference);
             return Arrays.asList(
                     new PathValue<>(pq.getModelPath().append(Path.parse("quantity[0].value.amount")), value),
-                    new PathValue<>(irp.getModelPath().append(Path.parse("priceQuantity.quantitySchedule")), reference));
+                    new PathValue<>(irp.getModelPath().append(Path.parse("priceQuantity.quantitySchedule.reference")), reference));
         });
 
         commonMappings.put("Loan_Value_Currency", (indexes, value, tradeState) -> {
