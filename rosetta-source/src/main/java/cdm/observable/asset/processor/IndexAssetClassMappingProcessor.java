@@ -20,15 +20,9 @@ public class IndexAssetClassMappingProcessor extends MappingProcessor {
 
     @Override
     public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
-        if (parent instanceof CreditIndex) {
-            CreditIndex.CreditIndexBuilder builder = (CreditIndex.CreditIndexBuilder) parent;
-            setAssetClass(builder, AssetClassEnum.CREDIT);
-        } else if (parent instanceof EquityIndex) {
+        if (parent instanceof EquityIndex) {
             EquityIndex.EquityIndexBuilder builder = (EquityIndex.EquityIndexBuilder) parent;
             setAssetClass(builder, AssetClassEnum.EQUITY);
-//        } else if (parent instanceof FloatingRateIndex) {
-//            FloatingRateIndex.FloatingRateIndexBuilder builder = (FloatingRateIndex.FloatingRateIndexBuilder) parent;
-//            setAssetClass(builder, AssetClassEnum.INTEREST_RATE);
         } else if (parent instanceof ForeignExchangeRateIndex) {
             ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder builder = (ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder) parent;
             setAssetClass(builder, AssetClassEnum.FOREIGN_EXCHANGE);
