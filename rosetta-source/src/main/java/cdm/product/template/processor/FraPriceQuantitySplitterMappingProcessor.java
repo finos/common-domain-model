@@ -73,10 +73,11 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private Optional<Mapping> getNonReferenceMapping(Path synonymPath) {
-		return filterMappings(getContext().getMappings(), synonymPath).stream()
+		return filterMappings(getMappings(), synonymPath).stream()
 				.filter(m -> !(m.getRosettaValue() instanceof ReferenceBuilder))
 				.filter(m -> Arrays.stream(m.getRosettaPath().getPathNames()).anyMatch("tradeLot"::equals))
 				.filter(m -> m.getXmlValue() != null)
+				.filter(m -> m.getRosettaValue() != null)
 				.findFirst();
 	}
 

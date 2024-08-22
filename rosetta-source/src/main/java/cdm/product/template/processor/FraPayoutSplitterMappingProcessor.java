@@ -103,15 +103,15 @@ public class FraPayoutSplitterMappingProcessor extends MappingProcessor {
 				false));
 	}
 
-	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLeg) {
-		Reference.ReferenceBuilder reference = Optional.of(floatingLeg)
-				.map(b -> b.getRateSpecification())
-				.map(b -> b.getFloatingRateSpecification())
-				.map(b -> b.getRateOption())
-				.map(b -> b.getReference())
-				.orElse(null);
+	private void updateFloatingRateIndexReference(Mapping mapping, InterestRatePayoutBuilder floatingLegBuilder) {
+		Reference.ReferenceBuilder reference = floatingLegBuilder
+				.getOrCreateRateSpecification()
+				.getOrCreateFloatingRateSpecification()
+				.getOrCreateRateOption()
+				.getOrCreateReference();
+		Path modelPath = PriceQuantityHelper.incrementPathElementIndex(mapping.getRosettaPath(), "interestRatePayout", 1);
 		mapping.setRosettaValue(reference);
-		mapping.setRosettaPath(PriceQuantityHelper.incrementPathElementIndex(mapping.getRosettaPath(), "interestRatePayout", 1));
+		mapping.setRosettaPath(modelPath);
 	}
 
 	private void updateFloatingLegParties(InterestRatePayoutBuilder floatingLeg) {

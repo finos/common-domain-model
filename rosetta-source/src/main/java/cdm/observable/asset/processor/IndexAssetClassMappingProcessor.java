@@ -21,17 +21,19 @@ public class IndexAssetClassMappingProcessor extends MappingProcessor {
     @Override
     public <T> void mapBasic(Path synonymPath, Optional<T> instance, RosettaModelObjectBuilder parent) {
         if (parent instanceof EquityIndex) {
-            setAssetClass((IndexBase.IndexBaseBuilder) parent, AssetClassEnum.EQUITY);
-        }
+            setAssetClass(parent, AssetClassEnum.EQUITY);
+        } else if (parent instanceof InterestRateIndex) {
+            setAssetClass(parent, AssetClassEnum.INTEREST_RATE);
+        } 
 //        else if (parent instanceof ForeignExchangeRateIndex) {
 //            ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder builder = (ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder) parent;
 //            setAssetClass(builder, AssetClassEnum.FOREIGN_EXCHANGE);
 //        }
     }
 
-    private void setAssetClass(IndexBase.IndexBaseBuilder builder, AssetClassEnum assetClass) {
+    private void setAssetClass(RosettaModelObjectBuilder builder, AssetClassEnum assetClass) {
         if (builder.hasData()) {
-            builder.setAssetClass(assetClass);
+            ((IndexBase.IndexBaseBuilder) builder).setAssetClass(assetClass);
         }
     }
 }
