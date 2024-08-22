@@ -1,5 +1,11 @@
 package cdm.product.template.processor;
 
+import cdm.base.staticdata.asset.common.AssetClassEnum;
+import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.Index;
+import cdm.observable.asset.Observable;
+import cdm.observable.asset.metafields.FieldWithMetaIndex;
+import cdm.observable.asset.metafields.FieldWithMetaObservable;
 import cdm.observable.asset.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -23,6 +29,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
  *
  * FpML synonyms map the input FpML onto a single PriceQuantity, then this mapper splits it into a fixed and floating PriceQuantity instances.
  */
+@SuppressWarnings("unused")
 public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 
 	public FraPriceQuantitySplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext context) {
@@ -48,6 +55,15 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 
 	private void updateFloatingLeg(Path synonymPath, PriceQuantityBuilder floatingLegPriceQuantity) {
 		floatingLegPriceQuantity.getPrice().clear();
+
+		Optional.ofNullable(floatingLegPriceQuantity)
+				.map(PriceQuantityBuilder::getObservable)
+				.map(FieldWithMetaObservable.FieldWithMetaObservableBuilder::getValue)
+				.map(Observable.ObservableBuilder::getIndex)
+				.map(FieldWithMetaIndex.FieldWithMetaIndexBuilder::getValue)
+				.map(Index.IndexBuilder::getFloatingRateIndex)
+				.map(FloatingRateIndex.FloatingRateIndexBuilder::getInterestRateIndex)
+				.ifPresent(builder -> builder.setAssetClass(AssetClassEnum.INTEREST_RATE));
 
 		getNonReferenceMapping(synonymPath.addElement("notional").addElement("amount"))
 				.ifPresent(this::updateFloatingLegQuantity);
