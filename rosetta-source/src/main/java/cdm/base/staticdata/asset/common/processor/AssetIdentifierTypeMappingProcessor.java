@@ -57,6 +57,13 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
                     // Update Source
                     assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
                 });
+        setValueAndUpdateMappings(xmlPath.addElement("indexIdScheme"),
+                xmlValue -> {
+                    // Update scheme
+                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    // Update Source
+                    assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
+                });
         if (xmlPath.endsWith("description")) {
             assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.NAME);
         }
