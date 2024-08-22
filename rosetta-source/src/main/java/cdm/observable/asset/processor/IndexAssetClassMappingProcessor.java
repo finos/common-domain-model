@@ -23,10 +23,11 @@ public class IndexAssetClassMappingProcessor extends MappingProcessor {
         if (parent instanceof EquityIndex) {
             EquityIndex.EquityIndexBuilder builder = (EquityIndex.EquityIndexBuilder) parent;
             setAssetClass(builder, AssetClassEnum.EQUITY);
-        } else if (parent instanceof ForeignExchangeRateIndex) {
-            ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder builder = (ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder) parent;
-            setAssetClass(builder, AssetClassEnum.FOREIGN_EXCHANGE);
         }
+//        else if (parent instanceof ForeignExchangeRateIndex) {
+//            ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder builder = (ForeignExchangeRateIndex.ForeignExchangeRateIndexBuilder) parent;
+//            setAssetClass(builder, AssetClassEnum.FOREIGN_EXCHANGE);
+//        }
     }
 
     private void setAssetClass(IndexBase.IndexBaseBuilder builder, AssetClassEnum assetClass) {
