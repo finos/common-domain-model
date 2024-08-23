@@ -15,4 +15,4 @@ The price referencing has been fixed in the following sample:
 
 - fpml-5-13 / products / interest-rate-derivatives / ird-ex37-zero-coupon-swap-known-amount-schedule.xml
 
-The changes can be reviewed in PR: [#3099](https://github.com/finos/common-domain-model/pull/3099)
+The changes can be reviewed in PR: [#3100](https://github.com/finos/common-domain-model/pull/3100)
