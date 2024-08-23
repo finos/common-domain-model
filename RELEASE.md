@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release updates the `DSL` dependency. 
 
 Version updates include:
 - `DSL` 9.15.0: patch for supporting tabulation of types with circular dependencies. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.15.0
