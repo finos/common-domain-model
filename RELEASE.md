@@ -1,8 +1,12 @@
 # _Infrastructure - Dependency Update_
 
+_Background_
+
+`DSL` 9.14.1 had a bug which caused a null pointer when generating java files and missing Java meta classes in the `Rosetta` platform for the user's workspaces after upgrade their workspaces showing static compile errors due missing java files. 
+
 _What is being released?_
 
-This release updates the `DSL` dependency to `fix the Static compile issue` users are experiencing after upgrading workspaces. This release doesn't include any changes to model.
+This release updates the `DSL` dependency to `fix the static compile issue`. This release doesn't include any changes to model.
 
 Version updates include:
 - `DSL` 9.15.0: patch for supporting tabulation of types with circular dependencies. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.15.0
