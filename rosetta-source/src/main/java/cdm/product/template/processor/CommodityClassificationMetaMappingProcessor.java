@@ -31,7 +31,7 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
         List<SettlementPayout.SettlementPayoutBuilder> settlementPayoutBuilders = (List<SettlementPayout.SettlementPayoutBuilder>) builders;
         if (!settlementPayoutBuilders.isEmpty()) {
             SettlementPayout.SettlementPayoutBuilder settlementPayoutBuilder = settlementPayoutBuilders.get(0);
-            Commodity.CommodityBuilder commodityBuilder = settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateAsset().getOrCreateCommodity();
+            Commodity.CommodityBuilder commodityBuilder = settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateAsset().getValue().getOrCreateCommodity();
 
             List<Mapping> commodityClassificationMappings = getCommodityClassificationMappings(synonymPath.addElement("commodityClassification"));
             Map<Path, List<Mapping>> groupedCommodityClassificationMappings = groupMappings("commodityClassification", commodityClassificationMappings);
