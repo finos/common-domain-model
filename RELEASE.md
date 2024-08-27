@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release updates the `DSL` dependency. 
+This release updates the `DSL` dependency to `fix the Static compile issue` users are experiencing after upgrading workspaces. This release doesn't include any changes to model.
 
 Version updates include:
 - `DSL` 9.15.0: patch for supporting tabulation of types with circular dependencies. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.15.0
