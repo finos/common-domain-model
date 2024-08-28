@@ -13,7 +13,14 @@ public class RoundToPrecisionImpl extends RoundToPrecision {
         if (value == null) return null;
         if (precision == null || roundingMode == null) return value;
 
-        return value.setScale(precision, toRoundingMode(roundingMode));
+        // calculate the scale factor based on the supplied precision
+        double scale = Math.pow(10.0, -1.0 * precision);
+        BigDecimal nearest = BigDecimal.valueOf(scale);
+
+        // divide by the scale factor using the rounding mode the multiply by it again
+        return value.divide(nearest)
+                .setScale(0, toRoundingMode(roundingMode))
+                .multiply(nearest);
     }
 
     private RoundingMode toRoundingMode(RoundingDirectionEnum roundingMode) {
@@ -23,7 +30,7 @@ public class RoundToPrecisionImpl extends RoundToPrecision {
             case DOWN:
                 return RoundingMode.DOWN;
             case NEAREST:
-                return RoundingMode.HALF_UP;
+                return RoundingMode.HALF_EVEN;
             default:
                 throw new IllegalArgumentException("Unsupported RoundingDirectionEnum " + roundingMode);
         }

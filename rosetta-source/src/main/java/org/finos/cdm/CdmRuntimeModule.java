@@ -60,7 +60,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
 		bind(Today.class).to(bindToday());
-		bind(ToTime.class).to(bindToTime());
 		bind(AddDays.class).to(bindAddDays());
 		bind(DayOfWeek.class).to(bindDayOfWeek());
 		bind(DateDifference.class).to(bindDateDifference());
@@ -128,10 +127,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Now> bindNow() {
 		return NowImpl.class;
-	}
-
-	protected Class<? extends ToTime> bindToTime() {
-		return ToTimeImpl.class;
 	}
 
 	protected Class<? extends AddDays> bindAddDays() {

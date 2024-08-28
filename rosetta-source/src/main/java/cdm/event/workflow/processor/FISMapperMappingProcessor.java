@@ -311,6 +311,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 			getColPro(tradeState)
 					.getValue()
 					.getOrCreateEligibleCollateral(0)
+					.getOrCreateCriteria(0)
 					.getOrCreateTreatment()
 					.getOrCreateValuationTreatment()
 					.setMarginPercentage(parseDecimal(value).divide(BigDecimal.valueOf(100)));
@@ -555,13 +556,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
 	private PathValue<AssetPayout.AssetPayoutBuilder> getSecPO(PathValue<TradeStateBuilder> ts) {
 		PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-		return new PathValue<>(et.getModelPath().addElement("collateral").addElement("collateralPortfolio", 0)
-				.addElement("collateralPosition", 0).addElement("product")
-				.addElement("contractualProduct").addElement("economicTerms")
-					.addElement("payout").addElement("assetPayout", 0),
-				et.getValue().getOrCreateCollateral().getOrCreateCollateralPortfolio(0).getOrCreateValue()
-						.getOrCreateCollateralPosition(0).getOrCreateProduct().getOrCreateContractualProduct()
-						.getOrCreateEconomicTerms().getOrCreatePayout().getOrCreateAssetPayout(0));
+		return new PathValue<>(et.getModelPath().addElement("payout").addElement("securityFinancePayout", 0),
+				et.getValue().getOrCreatePayout().getOrCreateAssetPayout(0));
 	}
 
 	private PathValue<CollateralProvisions.CollateralProvisionsBuilder> getColPro(PathValue<TradeStateBuilder> ts) {

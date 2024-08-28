@@ -11,9 +11,7 @@ import cdm.event.common.*;
 import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Return;
-import cdm.event.common.metafields.ReferenceWithMetaCollateralPortfolio;
 import cdm.event.workflow.EventInstruction;
-import cdm.product.collateral.Collateral;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -23,7 +21,9 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -171,17 +171,7 @@ public class SettlementFunctionHelper {
                 .map(TradableProduct::getProduct)
                 .map(Product::getContractualProduct)
                 .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getCollateral)
-                .map(Collateral::getCollateralPortfolio)
-                .orElse(Collections.emptyList()).stream()
-                .map(ReferenceWithMetaCollateralPortfolio::getValue)
-                .map(CollateralPortfolio::getCollateralPosition)
-                .flatMap(Collection::stream)
-                .map(CollateralPosition::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getPayout)
-                .findFirst();
+                .map(EconomicTerms::getPayout);
     }
 
     private Optional<Payout> getSecurityPayout(BusinessEvent executionBusinessEvent) {
