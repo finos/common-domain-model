@@ -44,29 +44,31 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
 
     protected void updateSchemeAndSource(Path xmlPath, AssetIdentifierBuilder assetIdentifierBuilder, FieldWithMetaStringBuilder assetIdentifierValueBuilder) {
         setValueAndUpdateMappings(xmlPath.addElement("instrumentIdScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update Source
-                    assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
-                });
+                xmlValue -> setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlValue));
+        
         setValueAndUpdateMappings(xmlPath.addElement("productIdScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update Source
-                    assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
-                });
+                xmlValue -> setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlValue));
+        
         setValueAndUpdateMappings(xmlPath.addElement("indexIdScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update Source
-                    assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
-                });
+                xmlValue -> setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlValue));
+
+        if (xmlPath.endsWith("paymentAmount")) {
+            assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.CURRENCY_CODE);
+
+            setValueAndUpdateMappings(xmlPath.addElement("currencyScheme"),
+                    xmlValue -> assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue));
+        }
+        
         if (xmlPath.endsWith("description")) {
             assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.NAME);
         }
+    }
+
+    private void setSchemeAndIdentifierType(AssetIdentifierBuilder assetIdentifierBuilder, FieldWithMetaStringBuilder assetIdentifierValueBuilder, String xmlValue) {
+        // Update scheme
+        assetIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+        // Update Source
+        assetIdentifierBuilder.setIdentifierType(getSourceEnum(xmlValue));
     }
 
     protected AssetIdTypeEnum getSourceEnum(String scheme) {

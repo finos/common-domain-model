@@ -128,7 +128,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
     output:
         identifiers ObservationIdentifier (1..1)
 
-    set identifiers -> observable -> Index:
+    set identifiers -> observable -> Index -> FloatingRateIndex:
         payout -> rateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
@@ -2218,9 +2218,7 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
     output:
         instruction PrimitiveInstruction (1..1)
 
-    
     condition ContractualProduct: <"Only a security finance contractual product can substitute collateral.">
-        //tradeState -> trade -> product -> economicTerms -> payout -> assetPayout exists // HH: fails for repo-and-bond/repo-substitution-input.json
         tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
 
     set instruction: <"Sets the second part of the split to be a new contract with a new asset payout.">

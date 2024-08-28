@@ -1745,8 +1745,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "instrumentId" path "exchangeTradedContractNearest" maps 2 mapper "AssetIdentifierType"]
             [value "description" path "equity" maps 2 mapper "AssetIdentifierType"]
             [value "indexId" maps 2 mapper "AssetIdentifierType"]
-            [value "currency" path "paymentAmount" maps 2 meta "currencyScheme"]
-            [value "currency" path "fixedAmount" maps 2 meta "currencyScheme"]
+            [value "currency" path "paymentAmount" maps 2 mapper "AssetIdentifierType"]
+            [value "currency" path "fixedAmount" maps 2 mapper "AssetIdentifierType"]
         + identifierType   
             [set to AssetIdTypeEnum -> CurrencyCode when "paymentAmount->currency" exists]
             [set to AssetIdTypeEnum -> CurrencyCode when "fixedAmount->currency" exists]
@@ -2437,10 +2437,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     SettlementPayout:
         [meta "id"]
-        - payerReceiver
-        - priceQuantity
+        + payerReceiver
+            [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
+            [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
         + priceQuantity
-            [hint "notional"]
+            [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
+            [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
+        + underlier
+            [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
+            [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
         + delivery
             [value "ignore"]
 
@@ -2504,7 +2509,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "buyerPartyReference"]
             [hint "sellerPartyReference"]
             [value "generalTerms"]
-            [value "exchangedCurrency1"] // HH: check this
         + priceQuantity
             // For Swap Stream and FRA: moved to InterestRatePayout
             [value "knownAmountSchedule" path "calculationPeriodAmount"]
@@ -2585,8 +2589,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "fxVarianceSwap"]
             [value "fxVolatilitySwap"]
             [value "returnLeg"]
-        + settlementPayout
-            [value "ignore"]
 
     Product:
         + NonTransferableProduct
@@ -2664,9 +2666,12 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "basketConstituent"]
 
     Asset:
-        + Cash
-            [hint "paymentAmount"]
-            [hint "fixedAmount"]
+        //+ Cash
+          //  [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
+            //[value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
+            //[hint "paymentAmount"]
+            //[hint "fixedAmount"]
+            //[value "exchangeRate"]
         + Commodity
             [hint "commodity"]
             [hint "commodityClassification"]

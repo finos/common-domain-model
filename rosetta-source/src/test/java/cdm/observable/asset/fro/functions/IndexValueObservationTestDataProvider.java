@@ -4,7 +4,6 @@ import cdm.base.datetime.Period;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
-import cdm.observable.asset.Index;
 import cdm.observable.asset.InterestRateIndex;
 import com.rosetta.model.lib.records.Date;
 
@@ -22,9 +21,8 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 	private final Map<FloatingRateIndexTenor, Map<Date, BigDecimal>> cache = new HashMap<>();
 
 	@Override
-	protected BigDecimal doEvaluate(Date observationDate, Index floatingRateOption) {
-		Optional<FloatingRateIndex> floatingRateIndex = Optional.ofNullable(floatingRateOption)
-				.map(Index::getFloatingRateIndex);
+	protected BigDecimal doEvaluate(Date observationDate, FloatingRateIndex floatingRateOption) {
+		Optional<FloatingRateIndex> floatingRateIndex = Optional.ofNullable(floatingRateOption);
 		FloatingRateIndexEnum floatingRateIndexEnum = floatingRateIndex
 				.map(FloatingRateIndex::getInterestRateIndex)
 				.map(InterestRateIndex::getFloatingRateIndex)

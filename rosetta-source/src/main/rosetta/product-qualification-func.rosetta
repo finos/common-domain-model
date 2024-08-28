@@ -152,7 +152,7 @@ func Qualify_AssetClass_Equity:
                     // Performance Payout only (Variance, Volatility and Correlation Swap)
                 or economicTerms -> payout -> performancePayout only exists))
             or (economicTerms -> payout -> optionPayout only exists
-                and (ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Equity, AssetClassEnum -> Equity)  // HH: Added SecurityTypeEnum -> Equity to qualify EquityOption_PriceReturnBasicPerformance_SingleName 
+                and (ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Equity, AssetClassEnum -> Equity) 
                     or if optionUnderlier -> Product exists
                         then Qualify_AssetClass_Equity(optionUnderlier -> Product ->> economicTerms) = True
                         else False
@@ -1068,7 +1068,7 @@ func Qualify_Transaction_OIS: <"Qualifies a product as having the Transaction cl
         is_product boolean (1..1)
 
     alias floatingRateIndex:
-        economicTerms -> payout -> interestRatePayout -> rateSpecification -> FloatingRateSpecification -> rateOption -> FloatingRateIndex -> InterestRateIndex -> floatingRateIndex
+        economicTerms -> payout -> interestRatePayout -> rateSpecification -> FloatingRateSpecification -> rateOption -> InterestRateIndex -> floatingRateIndex
 
     set is_product:
         floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND

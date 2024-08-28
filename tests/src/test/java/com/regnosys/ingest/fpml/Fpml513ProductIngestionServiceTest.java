@@ -26,7 +26,7 @@ public class Fpml513ProductIngestionServiceTest extends IngestionTest<TradeState
     // commodity-derivatives
     // credit-derivatives
     // fx-derivatives
-    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/products/"; // Temp
+    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/products/interest-rate-derivatives"; // Temp
 
     private static IngestionService ingestionService;
 

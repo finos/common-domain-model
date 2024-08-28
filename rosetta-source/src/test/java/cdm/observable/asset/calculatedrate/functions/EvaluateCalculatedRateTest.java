@@ -4,7 +4,6 @@ import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
-import cdm.observable.asset.Index;
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
@@ -47,10 +46,9 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
         Date end = Date.of(2021, 12, 10);
         CalculationPeriodBase calculationPeriod = period(st, end);
         DayCountFractionEnum dcf = DayCountFractionEnum.ACT_360;
-        Index.IndexBuilder fro = Index.builder()
-                .setFloatingRateIndex(FloatingRateIndex.builder()
-                        .setInterestRateIndex(InterestRateIndex.builder()
-                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15))
+        FloatingRateIndex.FloatingRateIndexBuilder fro = FloatingRateIndex.builder()
+                .setInterestRateIndex(InterestRateIndex.builder()
+                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15)
                         .build());
 
         List<Date> calcDates = dateList(st, end);
