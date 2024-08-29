@@ -171,6 +171,7 @@ module.exports = {
         },
         "gtag": {
           "trackingID": "G-9ZYPYF37E7"
+        }
       }
     ]
   ]
