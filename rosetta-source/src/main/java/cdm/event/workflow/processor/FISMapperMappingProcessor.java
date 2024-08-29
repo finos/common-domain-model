@@ -6,7 +6,10 @@ import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.asset.common.*;
+import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
+import cdm.base.staticdata.asset.common.AssetIdentifier;
+import cdm.base.staticdata.asset.common.Security;
+import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.event.common.ExecutionTypeEnum;
@@ -17,7 +20,6 @@ import cdm.product.collateral.CollateralProvisions;
 import cdm.product.collateral.CollateralTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.AssetPayout;
-import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -47,8 +49,8 @@ import static cdm.base.datetime.AdjustableDate.AdjustableDateBuilder;
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.event.common.TradeState.TradeStateBuilder;
-import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
+import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
 
 /**
  * This instance override the version in CDM so it can be kept up to date with ISLA model changes.
@@ -92,7 +94,6 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
         //sec lending payout
-        getSecPO(tradeState).getValue().getOrCreateDurationType().setDurationType(DurationTypeEnum.OPEN);
         getSecPO(tradeState).getValue().getOrCreateSecurityInformation().setSecurityType(SecurityTypeEnum.EQUITY);
 
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);

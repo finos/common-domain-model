@@ -868,29 +868,18 @@ type StrikeSchedule extends RateSchedule: <"A class describing a schedule of cap
     buyer PayerReceiverEnum (0..1) <"The buyer of the option.">
     seller PayerReceiverEnum (0..1) <"The party that has sold.">
 
-type CalculationAgentModel: <"This class corresponds to the FpML CalculationAgent.model.">
-    [deprecated]
-
-    calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
-    calculationAgentBusinessCenter BusinessCenterEnum (0..1) <"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located. The short-form confirm for a trade that is executed under a Sovereign or Asia-Pacific Master Confirmation Agreement (MCA), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent city. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent city.">
-
 type AssetPayout extends PayoutBase: <"Security finance payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction. Plus additional description for ICMA.">
     [metadata key]
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Security (1..1) <"Specifies the Purchased Security.">
-    durationType Duration (1..1) <"Specifies the Duration Terms of the Security Finance transaction. e.g. Open or Term.">
-        [deprecated]
+        // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     repoType RepoTypeEnum (0..1) <"Repurchase transactions and buy/sell-backs are both types of repo; this enumerator helps differentiate the two.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
-
-    condition DividendTermsValidation: <"Validates that if the transaction has Dividend Terms specified then the Duration should be Term.">
-        if dividendTerms exists
-        then durationType -> durationType = DurationTypeEnum -> Term
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">
@@ -901,11 +890,6 @@ type AssetLeg: <"Defines each asset movement of an asset payout.">
     settlementDate AdjustableOrRelativeDate (1..1) <"Specifies the settlement date of securities.  In a repo transaction the purchase date would always be the effective date as specified under Economic Terms, the repurchase date would always be the termination date as specified under Economic Terms.">
     deliveryMethod DeliveryMethodEnum (1..1) <"Specifies a delivery method for the security transaction.">
 
-type Duration: <"Specifies the Duration Terms of the Security Financing Transaction, and optionally any Evergreen terms.">
-    [deprecated]
-    durationType DurationTypeEnum (1..1) <"Specifies the Duration Terms of the Security Financing transaction. e.g. Open or Term.">
-    evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
-
 type EvergreenProvision: <"Specifies a transaction which automatically extends for a specified timeframe until the exercise of an embedded option.">
     singlePartyOption PartyRole (0..1) <"If evergreen termination is not available to both parties then this component specifies the buyer and seller of the option.">
     noticePeriod RelativeDateOffset (1..1) <"The length of each evergreen extension period relative to the effective date of the preceding contract.">
@@ -913,4 +897,3 @@ type EvergreenProvision: <"Specifies a transaction which automatically extends f
     noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
-    
