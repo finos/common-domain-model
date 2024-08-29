@@ -50,6 +50,7 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "fra", "notional", "currency")
+                        || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "swapStream", "calculationPeriodAmount", "knownAmountSchedule", "currency")
                         // Credit
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
