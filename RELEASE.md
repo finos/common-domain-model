@@ -7,6 +7,6 @@ This release updates the `DSL` dependency.
 Version updates include:
 - `DSL` 9.16.2: support for ingestion tabulators. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.2
 
-_Review directions_
+_Review directions_ 
 
 The changes can be reviewed in PR: [#3112](https://github.com/finos/common-domain-model/pull/3112)
