@@ -31,6 +31,11 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     underlier Product (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
+    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+
+    condition Observable: <"Observable cannot exist without related ObservationTerms, and vice-versa.">
+        (observable exists and observationTerms exists)
+        or (observable is absent and observationTerms is absent)
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -138,7 +143,6 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
     rateSpecification RateSpecification (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
     dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
         [metadata scheme]
-    calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
     paymentDates PaymentDates (0..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the reset dates).">
     paymentDate AdjustableDate (0..1) <"The payment date, where only one date is specified, as for the FRA product.">
     paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
@@ -151,6 +155,12 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
     fixedAmount calculation (0..1) <"Fixed Amount Calculation">
     floatingAmount calculation (0..1) <"Floating Amount Calculation">
     spreadCalculationMethod SpreadCalculationMethodEnum (0..1) <"Method by which spread is calculated. For example on an asset swap: 'ParPar' or 'Proceeds' may be the method indicated.">
+    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+
+    condition Observable: <"Observable cannot exist without related ObservationTerms, and vice-versa. Besides, when the observable is a rateOption, this must be defined under rateSpecification, hence the last condition term for avoiding any redundant definition.">
+        (observable exists and observationTerms exists)
+        or (observable is absent and observationTerms is absent)
+        and observable -> rateOption is absent
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -164,7 +174,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
         if priceQuantity -> futureValueNotional exists
-        then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+        then priceQuantity -> futureValueNotional -> valueDate = observationTerms -> calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
     condition RateSpecification: <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
         if rateSpecification is absent
@@ -172,16 +182,16 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
         if paymentDates -> firstPaymentDate exists
-                and calculationPeriodDates -> effectiveDate exists
-        then paymentDates -> firstPaymentDate > calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+                and observationTerms -> calculationPeriodDates -> effectiveDate exists
+        then paymentDates -> firstPaymentDate > observationTerms -> calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
     condition FpML_ird_23: <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
         if stubPeriod -> initialStub exists
-        then calculationPeriodDates -> firstRegularPeriodStartDate exists
+        then observationTerms -> calculationPeriodDates -> firstRegularPeriodStartDate exists
 
     condition FpML_ird_24: <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
         if stubPeriod -> finalStub exists
-        then calculationPeriodDates -> lastRegularPeriodEndDate exists
+        then observationTerms -> calculationPeriodDates -> lastRegularPeriodEndDate exists
 
     condition InitialStubFinalStub: <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
         if stubPeriod exists
@@ -195,17 +205,17 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
                 or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
     condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
-        if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
-                and paymentDates -> paymentFrequency -> periodMultiplier = calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+        if paymentDates -> paymentFrequency -> period = observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> period
+                and paymentDates -> paymentFrequency -> periodMultiplier = observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
         then (compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None)
 
     condition FpML_ird_7_2: <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
         if (paymentDates -> paymentFrequency -> period exists
-                    and calculationPeriodDates -> calculationPeriodFrequency -> period exists
-                    and paymentDates -> paymentFrequency -> period <> calculationPeriodDates -> calculationPeriodFrequency -> period)
+                    and observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> period exists
+                    and paymentDates -> paymentFrequency -> period <> observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> period)
                 or (paymentDates -> paymentFrequency -> periodMultiplier exists
-                    and calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier exists
-                    and paymentDates -> paymentFrequency -> periodMultiplier <> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
+                    and observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier exists
+                    and paymentDates -> paymentFrequency -> periodMultiplier <> observationTerms -> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
         then compoundingMethod exists
 
     condition FpML_ird_9: <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
@@ -217,7 +227,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
         if compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None
-        then calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
+        then observationTerms -> calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
 type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
 
