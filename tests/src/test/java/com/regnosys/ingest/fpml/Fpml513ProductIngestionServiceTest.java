@@ -14,19 +14,7 @@ import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeSt
 
 public class Fpml513ProductIngestionServiceTest extends IngestionTest<TradeState> {
 
-    // interest-rate-derivatives
-    // inflation-swaps    
-    // bond-options
-    // equity-swaps
-    // equity-options
-    // correlation-swaps
-    // variance-swaps
-    // dividend-swaps
-    // volatility-swaps
-    // commodity-derivatives
-    // credit-derivatives
-    // fx-derivatives
-    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/products/interest-rate-derivatives"; // Temp
+    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/products";
 
     private static IngestionService ingestionService;
 
