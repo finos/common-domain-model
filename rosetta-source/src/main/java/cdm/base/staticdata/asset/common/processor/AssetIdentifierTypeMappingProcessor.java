@@ -52,6 +52,9 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
         setValueAndUpdateMappings(xmlPath.addElement("indexIdScheme"),
                 xmlValue -> setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlValue));
 
+        setValueAndUpdateMappings(xmlPath.addElement("indexNameScheme"),
+                xmlValue -> setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlValue));
+
         if (xmlPath.endsWith("currency")) {
             assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.CURRENCY_CODE);
 
