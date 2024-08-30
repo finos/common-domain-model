@@ -63,6 +63,7 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("strike", "currency"), getPerUnitOfIndexOrShare())
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("strikePricePerUnit", "currency"), getPerUnitOfIndexOrShare())
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfIndexOrShare())
+                        || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "pricePerOption", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
                         // Fx
                         || updateFxOption(priceScheduleBuilder, synonymPath)
                         || updateCurrencyPerCurrencyUnitFromQuotedCurrencyPair(priceScheduleBuilder, synonymPath, "fxVarianceSwap",  Arrays.asList("quotedCurrencyPair", "quoteBasis"))
