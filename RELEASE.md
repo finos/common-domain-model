@@ -2,17 +2,11 @@
 
 _What is being released?_
 
-This release updates the `ingest-test-framework` dependency.
+This release updates the `DSL` dependency. 
 
 Version updates include:
-- `ingest-test-framework` 11.17.1: Add support for address/location references to be used on nested model types.
+- `DSL` 9.16.2: support for ingestion tabulators. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.2
 
-FpML Java mapping code that sets address/location references have been updated accordingly.  There are no changes to the model. 
+_Review directions_ 
 
-_Review directions_
-
-The price referencing has been fixed in the following sample:
-
-- fpml-5-13 / products / interest-rate-derivatives / ird-ex37-zero-coupon-swap-known-amount-schedule.xml
-
-The changes can be reviewed in PR: [#3099](https://github.com/finos/common-domain-model/pull/3099)
+The changes can be reviewed in PR: [#3112](https://github.com/finos/common-domain-model/pull/3112)
