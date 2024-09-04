@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.base.staticdata.asset.common.processor.AssetCashHelper;
+import cdm.base.staticdata.asset.common.processor.FxMetaHelper;
 import cdm.observable.asset.metafields.ReferenceWithMetaObservable;
 import cdm.product.template.Underlier;
 import com.regnosys.rosetta.common.translation.Mapping;
@@ -17,11 +17,11 @@ import java.util.List;
 @SuppressWarnings("unused") // used in generated code
 public class AssetCashMetaMappingProcessor extends MappingProcessor {
 
-    private final AssetCashHelper helper;
+    private final FxMetaHelper helper;
     
     public AssetCashMetaMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
-        this.helper = new AssetCashHelper(context.getMappings());
+        this.helper = new FxMetaHelper(context.getMappings());
     }
 
     @Override

@@ -15,11 +15,11 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class CashAssetIdentifierMappingProcessor extends MappingProcessor {
 
-    private final AssetCashHelper helper;
+    private final FxMetaHelper helper;
 
     public CashAssetIdentifierMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
-        this.helper = new AssetCashHelper(context.getMappings());
+        this.helper = new FxMetaHelper(context.getMappings());
     }
 
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {

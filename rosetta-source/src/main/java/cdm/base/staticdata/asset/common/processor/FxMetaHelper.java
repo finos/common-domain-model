@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 
-public class AssetCashHelper {
+public class FxMetaHelper {
     
     private final List<Mapping> mappings;
     
-    public AssetCashHelper(List<Mapping> mappings) {
+    public FxMetaHelper(List<Mapping> mappings) {
         this.mappings = mappings;
     }
     
@@ -52,7 +52,7 @@ public class AssetCashHelper {
                         false : null);
     }
 
-    private Optional<Path> getStrikeQuoteBasisCurrencySynonymPath(Path strikeQuoteBasisPath) {
+    public Optional<Path> getStrikeQuoteBasisCurrencySynonymPath(Path strikeQuoteBasisPath) {
         return getNonNullMappedValue(strikeQuoteBasisPath, mappings)
                 .flatMap(this::isUnderlierPutCurrency)
                 .map(isUnderlierPutCurrency -> {
