@@ -296,18 +296,14 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-choice Underlier:
-    Asset
-        [metadata address "pointsTo"=PriceQuantity->observable->Asset]
-    Index
-        [metadata address "pointsTo"=PriceQuantity->observable->Index]
-    Observable
+choice Underlier:  <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, a product, or the cash settlement of an index rate.  Conditions are usually applied when used in a data type, such as a payout, to ensure this aligns with the use case.">
+    Observable  <"Specifies the object to be observed for a price, it could be an asset or a reference.">
         [metadata address "pointsTo"=PriceQuantity->observable]   
-    Product
+    Product  <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
 
-choice Product:
-    TransferableProduct
-    NonTransferableProduct
+choice Product:  <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
+    TransferableProduct    <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    NonTransferableProduct <"The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.">
 
 type NonTransferableProduct:  <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
@@ -432,7 +428,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
         then settlementTerms -> cashSettlementTerms exists 
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier -> Asset -> Cash is absent
+        if underlier -> Observable -> Asset -> Cash is absent
         then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
