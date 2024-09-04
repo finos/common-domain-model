@@ -94,7 +94,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
-    optionUnderlier OptionUnderlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
+    optionUnderlier Underlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
     optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
@@ -301,11 +301,8 @@ choice Underlier:
         [metadata address "pointsTo"=PriceQuantity->observable->Asset]
     Index
         [metadata address "pointsTo"=PriceQuantity->observable->Index]
-    TransferableProduct
-
-choice OptionUnderlier:
     Observable
-        [metadata address "pointsTo"=PriceQuantity->observable]
+        [metadata address "pointsTo"=PriceQuantity->observable]   
     Product
 
 choice Product:
@@ -423,20 +420,20 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     
+    condition Underlier:  <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
+        underlier -> Product -> NonTransferableProduct is absent
+
+    condition Basket:  <"If the underlier is a basket, it must contain only transferable assets.">    
+        if underlier -> Observable -> Basket exists
+        then underlier -> Observable -> Basket -> basketConstituent -> Asset only exists
+
+    condition Index:  <"If the underlier is an Index, then it can only be cash settled.">
+        if underlier -> Observable -> Index exists
+        then settlementTerms -> cashSettlementTerms exists 
+
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
         if underlier -> Asset -> Cash is absent
         then settlementTerms exists
-
-    condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both.">
-        if underlier -> Index -> ForeignExchangeRateIndex only exists
-        then (settlementTerms -> settlementDate -> valueDate exists
-            and settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent )
-        or (settlementTerms -> settlementDate -> valueDate is absent
-            and settlementTerms -> settlementDate -> adjustableOrRelativeDate exists)
-
-    condition Settlement: <"For foreign exchange contracts, the settlement type must be either fx non-deliverable settlement or not specified, which implies physical settlement in the case of foreign exchange.">
-        if underlier -> Index -> ForeignExchangeRateIndex exists
-        then settlementTerms -> physicalSettlementTerms is absent
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists

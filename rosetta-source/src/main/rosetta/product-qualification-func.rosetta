@@ -22,7 +22,7 @@ func UnderlierQualification:  <"Identifies whether the underlier(s) have either 
     set qualifies:
         underlier -> Asset -> Instrument -> Security -> securityType all = securityType
         or underlier -> Index ->> assetClass all = assetClass
-        or underlier -> TransferableProduct -> Instrument -> Security -> securityType all = securityType
+        or underlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType all = securityType
         // The EconomicTerms of any TransferableProduct should be checked outside this function.
 
 func ObservableQualification:  <"Identifies whether the observable(s) have either the specified securityType or assetClass.">
@@ -73,8 +73,8 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                 ))
             or (economicTerms -> payout -> settlementPayout only exists
                 and (UnderlierQualification(settlementUnderlier, SecurityTypeEnum -> Debt, AssetClassEnum -> InterestRate) 
-                    or if settlementUnderlier -> TransferableProduct exists
-                        then Qualify_AssetClass_InterestRate(settlementUnderlier -> TransferableProduct -> economicTerms) = True
+                    or if settlementUnderlier -> Product ->> economicTerms exists
+                        then Qualify_AssetClass_InterestRate(settlementUnderlier -> Product ->> economicTerms) = True
                         else False
                 ))
 
@@ -101,8 +101,8 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                 ))
             or (economicTerms -> payout -> settlementPayout only exists
                 and (UnderlierQualification(settlementUnderlier, empty, AssetClassEnum -> Credit) 
-                    or if settlementUnderlier -> TransferableProduct exists
-                        then Qualify_AssetClass_Credit(settlementUnderlier -> TransferableProduct -> economicTerms) = True
+                    or if settlementUnderlier -> Product ->> economicTerms exists
+                        then Qualify_AssetClass_Credit(settlementUnderlier -> Product ->> economicTerms) = True
                         else False
                 ))
                     // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier)
@@ -161,9 +161,9 @@ func Qualify_AssetClass_Equity:
             or (economicTerms -> payout -> settlementPayout only exists
                 and (UnderlierQualification(
 						settlementUnderlier, empty, AssetClassEnum -> Equity) 
-                    or if settlementUnderlier -> TransferableProduct exists
+                    or if settlementUnderlier -> Product ->> economicTerms exists
                         then Qualify_AssetClass_Equity(
-									settlementUnderlier -> TransferableProduct -> economicTerms) = True
+									settlementUnderlier -> Product ->> economicTerms) = True
                         else False
                 ))
 
@@ -199,10 +199,10 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
             or (((economicTerms -> payout -> settlementPayout, economicTerms -> payout -> fixedPricePayout) only exists
                     or (economicTerms -> payout -> settlementPayout, economicTerms -> payout -> commodityPayout) only exists)
                 and (economicTerms -> payout -> settlementPayout -> underlier -> Asset -> Commodity exists
-                    or settlementUnderlier -> TransferableProduct -> Commodity exists
-                    or if settlementUnderlier -> TransferableProduct exists
+                    or settlementUnderlier -> Product -> TransferableProduct -> Commodity exists
+                    or if settlementUnderlier -> Product ->> economicTerms exists
                         then Qualify_AssetClass_Commodity(
-									settlementUnderlier -> TransferableProduct -> economicTerms) = True
+									settlementUnderlier -> Product ->> economicTerms) = True
                         else False
                 ))        
 
@@ -1420,7 +1420,7 @@ func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate B
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
             and (forwardPayout -> underlier -> Asset -> Instrument -> Security only exists
-              or forwardPayout -> underlier -> TransferableProduct -> Instrument -> Security only exists)
+              or forwardPayout -> underlier -> Product -> TransferableProduct -> Instrument -> Security only exists)
 
 func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
     [qualification Product]
