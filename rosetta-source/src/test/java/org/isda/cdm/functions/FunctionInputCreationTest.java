@@ -20,6 +20,7 @@ import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.*;
+import cdm.observable.asset.Observable;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
@@ -27,10 +28,7 @@ import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
-import cdm.product.template.NonTransferableProduct;
-import cdm.product.template.ProductUnderlier;
-import cdm.product.template.TradableProduct;
-import cdm.product.template.TradeLot;
+import cdm.product.template.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1124,17 +1122,18 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
-    ObservationEvent getCorporateActionObservationEvent() {
+    private ObservationEvent getCorporateActionObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
                         .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
                         .setExDate(Date.of(2009, 2, 1))
                         .setPayDate(Date.of(2009, 2, 1))
-                        .setUnderlier(ProductUnderlier.builder()
-                                .setIndex(Index.builder()
-                                        .setEquityIndex(EquityIndex.builder()
-                                                .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setNameValue("VOLKSWAGEN AG VZO O.N.")))));
+                        .setUnderlier(Underlier.builder()
+                                .setObservableValue(Observable.builder()
+                                        .setIndexValue(Index.builder()
+                                                .setEquityIndex(EquityIndex.builder()
+                                                        .setAssetClass(AssetClassEnum.EQUITY)
+                                                        .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
         return observationEvent;
     }
 
@@ -1174,11 +1173,12 @@ class FunctionInputCreationTest {
                         .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
                         .setExDate(Date.of(2009, 2, 13))
                         .setPayDate(Date.of(2009, 2, 13))
-                        .setUnderlier(ProductUnderlier.builder()
-                                .setIndex(Index.builder()
-                                        .setEquityIndex(EquityIndex.builder()
-                                                .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setNameValue("VOLKSWAGEN AG VZO O.N.")))));
+                        .setUnderlier(Underlier.builder()
+                                .setObservableValue(Observable.builder()
+                                        .setIndexValue(Index.builder()
+                                                .setEquityIndex(EquityIndex.builder()
+                                                        .setAssetClass(AssetClassEnum.EQUITY)
+                                                        .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(observationEvent);

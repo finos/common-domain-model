@@ -29,7 +29,7 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
             SettlementPayout.SettlementPayoutBuilder settlementPayoutBuilder = settlementPayoutBuilders.get(0);
             // create reference
             Reference.ReferenceBuilder referenceBuilder =
-                    settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateAsset().getOrCreateReference();
+                    settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateObservable().getOrCreateReference();
             // create new mapping to make the reference work
             Path commodityClassificationSynonymPath =
                     synonymPath
@@ -38,7 +38,7 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
             Path modelPath = PathUtils.toPath(getModelPath());
             Path referenceModelPath = incrementPathElementIndex(modelPath, "settlementPayout", 0)
                     .addElement("underlier")
-                    .addElement("Asset")
+                    .addElement("Observable")
                     .addElement("reference");
             getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, referenceModelPath, referenceBuilder));
         }

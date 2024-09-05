@@ -32,8 +32,8 @@ public class AssetCashMetaMappingProcessor extends MappingProcessor {
 
     private void setReference(Path currencyPath, RosettaModelObjectBuilder builder) {
         if (builder instanceof Underlier.UnderlierBuilder) {
-            Reference.ReferenceBuilder reference = ((Underlier.UnderlierBuilder) builder).getOrCreateAsset().getOrCreateReference();
-            addMapping(currencyPath, "Asset", reference);
+            Reference.ReferenceBuilder reference = ((Underlier.UnderlierBuilder) builder).getOrCreateObservable().getOrCreateReference();
+            addMapping(currencyPath, "Observable", reference);
         } else if (builder instanceof ReferenceWithMetaObservable.ReferenceWithMetaObservableBuilder) {
             Reference.ReferenceBuilder reference = ((ReferenceWithMetaObservable.ReferenceWithMetaObservableBuilder) builder).getOrCreateReference();
             addMapping(currencyPath, null, reference);
