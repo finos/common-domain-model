@@ -554,7 +554,7 @@ func Create_NonTransferableProduct:  <"Creates a NonTransferableProduct (ie Econ
     output:
         newProduct NonTransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> TransferableProduct: underlier 
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Product -> TransferableProduct: underlier 
     set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
     
 func Create_TransferableProductFromAsset:  <"Creates a TransferableProduct (ie EconomicTerms) from an Asset.">
@@ -564,7 +564,7 @@ func Create_TransferableProductFromAsset:  <"Creates a TransferableProduct (ie E
     output:
         newProduct TransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Asset: asset 
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset: asset 
     set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
 
 func Create_TransferableProductFromIndex:  <"Creates a TransferableProduct (ie EconomicTerms) from an Index.">
@@ -574,7 +574,7 @@ func Create_TransferableProductFromIndex:  <"Creates a TransferableProduct (ie E
     output:
         newProduct TransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Index: index 
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index: index 
     set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
 
 func Create_Reset: <"Defines how a Reset should be constructed.">
@@ -1451,7 +1451,7 @@ func CheckTransferableProduct:  <"Identifies whether a product is transferable, 
 
     set isTransferableProduct:  <"If not an Index, then underlier must be an Asset or TransferableProduct.">
         if economicTerms -> payout -> settlementPayout only exists
-        and economicTerms -> payout -> settlementPayout -> underlier -> Index is absent
+        and economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index is absent
         then True    
 
 func CheckTradeNotTransferableProduct:  <"Identifies whether the product inside a TradeState is not transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
