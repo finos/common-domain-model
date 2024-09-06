@@ -113,7 +113,7 @@ public class GenerateTemplateExampleJsonWriter {
                 .setValuationDates(null)
                 .setPaymentDates(null)
                 .setReturnTerms(null);
-        performancePayoutBuilder.getUnderlier().getValue().getAsset().getValue().getInstrument().getSecurity().setIdentifier(null);
+        performancePayoutBuilder.getUnderlier().getObservable().getValue().getAsset().getValue().getInstrument().getSecurity().setIdentifier(null);
 
         InterestRatePayout.InterestRatePayoutBuilder interestRatePayoutBuilder = templateBuilder.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
         interestRatePayoutBuilder
