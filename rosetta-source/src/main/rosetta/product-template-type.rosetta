@@ -161,8 +161,8 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
     valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Observable (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-        [metadata address "pointsTo"=PriceQuantity->observable]
+    underlier Underlier (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    //    [metadata address "pointsTo"=PriceQuantity->observable]
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
     returnTerms ReturnTerms (0..1) <"Specifies the type of return of a performance payout.">
     portfolioReturnTerms PortfolioReturnTerms (0..*) <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level">
@@ -172,6 +172,9 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
         [metadata address "pointsTo"=PriceQuantity->price]
     finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
         [metadata address "pointsTo"=PriceQuantity->price]
+
+    condition Underlier: <"The underlier on a performance payout can only be an observable.">
+        underlier -> Observable only exists
 
     condition PorfolioOrStraightReturn:
         required choice returnTerms, portfolioReturnTerms    
@@ -185,27 +188,27 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
-        then underlier -> Basket only exists
+        then underlier -> Observable -> Basket only exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
 
     condition NoSharePriceDividendAdjustmentIndex: <"If the underlier is an index, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> Index exists
+        if underlier -> Observable -> Index exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition NoSharePriceDividendAdjustmentForeignExchange: <"If the underlier is an foreign exchange, sharePriceAdjustment and sharePriceDividendAdjustment cannot exist.">
-        if underlier -> Index -> ForeignExchangeRateIndex exists
+        if underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
         then returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
                 and returnTerms -> volatilityReturnTerms -> sharePriceDividendAdjustment is absent
 
     condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
         if returnTerms -> correlationReturnTerms exists
-        then underlier -> Basket only exists
+        then underlier -> Observable -> Basket only exists
 
     condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
-        if Qualify_UnderlierObservable_Equity(underlier) = False
+        if Qualify_UnderlierObservable_Equity(underlier -> Observable) = False
         then returnTerms -> varianceReturnTerms -> dividendApplicability is absent
                 and returnTerms -> varianceReturnTerms -> equityUnderlierProvisions is absent
                 and returnTerms -> varianceReturnTerms -> sharePriceDividendAdjustment is absent
