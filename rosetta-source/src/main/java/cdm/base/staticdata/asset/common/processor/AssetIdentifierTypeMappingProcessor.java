@@ -16,8 +16,6 @@ import static com.rosetta.model.metafields.FieldWithMetaString.FieldWithMetaStri
 
 /**
  * Update asset identifier type enum based on the instrumentIdScheme or productIdScheme.
- * 
- * @see cdm.base.staticdata.asset.common.processor.ProductIdentifierSourceMappingProcessor
  */
 @SuppressWarnings("unused")
 public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
@@ -44,8 +42,6 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
     }
 
     protected void updateSchemeAndSource(Path xmlPath, Path baseModelPath, AssetIdentifierBuilder assetIdentifierBuilder, FieldWithMetaStringBuilder assetIdentifierValueBuilder) {
-        System.out.println(String.format("value %s mapped to path %s", assetIdentifierBuilder.getIdentifier().getValue(), baseModelPath));
-        
         setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlPath.addElement("instrumentIdScheme"), baseModelPath);
 
         setSchemeAndIdentifierType(assetIdentifierBuilder, assetIdentifierValueBuilder, xmlPath.addElement("productIdScheme"), baseModelPath);
