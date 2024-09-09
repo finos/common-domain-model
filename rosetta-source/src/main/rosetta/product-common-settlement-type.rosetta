@@ -47,8 +47,7 @@ type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be se
 type ResolvablePriceQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
     [metadata key]
 
-    // CumulationFeature is a temporary PLACE-HOLDER component, current description is draft in regards of full features at target //
-    quantityCumulation CumulationFeature (0..*) <"Describe provisions which define how the quantity is incremented over time.">
+    quantityCumulation CumulationFeature (0..1) <"Specifies cumulation dates i.e. dates on which a given quantity is incremented over time.">
     resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
     quantitySchedule NonNegativeQuantitySchedule (0..1) <"A payout's quantity specified as a schedule, which may also contain a single value if that quantity is constant. There can only be a single quantity schedule applicable to a payout: e.g. the notional for an interest rate leg. The quantity must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
@@ -64,8 +63,13 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
         if quantityMultiplier exists
         then quantityReference -> reference exists
 
-type CumulationFeature: <"Describe provisions which define how the quantity is incremented over time. When cumulationDates only is defined, the cumulation for such particular period is 'guarenteed'. In case the cumulation would be 'contigent', Knock-In conditions may be defined. Besides, a 'lever' may also be defined i.e. multiplier value to apply on the quantity incremented. Main business case is to define 'Accumulator' or 'Decumulator' products, which final payoff calculation eventually consists in applying the payout formula to an aggregated quantity, that being a sum of multiple quantity increment periods - hence the multiple cardinality of this attribute. For intance, say A + B + C + ... + N-1 are distinct cumulation conditions in termsheet, then such payoff would be represented by defining N distinct CumulationFeature in array e.g. CumulationFeature[A], CumulationFeature[B], CumulationFeature[C], [...], CumulationFeature[N-1], each with any appropriate 'guaranteed' or 'contigent' and/or 'levered' features, as need be.">
-    // CumulationFeature is a temporary PLACE-HOLDER component, current description is draft in regards of full features at target //
+type CumulationFeature : <"Specifies cumulation dates i.e. dates on which a given quantity is incremented over time. As an indication, products for which such feature is used are often referred to as Accumulator or Decumulator, or Target Forward, etc. (non-exhaustive list). Besides, these products may contain knock-out early termination features, hence required clarification, whether cumulation is guarenteed until the end of the period or not, upon the occurence an early termination.">
+    [metadata key]
+
+    cumulationDate NewDateRelativeToEnum (1..1) <"Specifies cumulation dates i.e. dates on which a given quantity is incremented over time.">
+    guaranteedCumulationPeriodNotwithstandingEarlyTermination NewObservationPeriodSchedule (0..*) <"The schedule periods for which the cumulation is guarenteed untill the end of the period, notwithstanding the occurrence of an any early termination, elsewhere defined in the trade documentation.">
+    cumulationSchedule NonNegativeQuantitySchedule (0..*) <"Specifies the quantity cumulation in schedule by populating datedValue. Unbound cardinality permits to represent schedules of distinct types of quantity, for instance one may be the cumulation of nominal amount (example : ESMA field 59), another one may be the cumulation in number of asset units (example : ESMA field 60), etc.">
+    [metadata address "pointsTo"=PriceQuantity->quantity]
 
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
@@ -252,6 +256,7 @@ type SettlementDate: <"A data defining the settlement date(s) for cash or physic
     businessDateRange BusinessDateRange (0..1) <"A range of contiguous business days. This attribute is meant to be merged with the 'settlementDate' at some future point once we refactor 'Date' to use a single complex type across the model. This attributes was formerly part of 'CashSettlementPaymentDate', as included into 'OptionCashSettlement' (which is now merged into a unique 'CashSettlementTerms' data type.">
     cashSettlementBusinessDays int (0..1) <"The number of business days used in the determination of the cash settlement payment date. If a cash settlement amount is specified, the cash settlement payment date will be this number of business days following the calculation of the final price. If a cash settlement amount is not specified, the cash settlement payment date will be this number of business days after all conditions to settlement are satisfied. ISDA 2003 Term: Cash Settlement Date. This attribute was formerly part of 'CashSettlementTerms' as used for credit event settlement, which now includes a common 'SettlementDate' attribute.">
     paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
+    settlementDaysOffset RelativeDateOffset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">
 
     condition BusinessDays: <"FpML specifies cashSettlementBusinessDays as a nonNegativeInteger. If cashSettlementBusinessDays is not specified, then another settlement date method must be specified.">
         if cashSettlementBusinessDays exists
@@ -358,12 +363,14 @@ type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchange
     finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
 
 type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
-    [metadata key]
-    principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
+       [metadata key]
+    principalPaymentDate AdjustableOrRelativeDate (0..1) <"The date where the PrincipalPayment shall be settled.">
     payerReceiver PayerReceiver (0..1) <"Specifies the parties responsible for making and receiving payments defined by this structure.">
     principalAmount Money (0..1) <"When known at the time the transaction is made, the cash amount to be paid.">
+      [metadata address]
     discountFactor number (0..1) <"The value representing the discount factor used to calculate the present value of the principal payment amount.">
     presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
+    knockCondition cdm.product.template.NewKnockCondition (0..1)
 
     condition PrincipalAmount:
         required choice principalAmount, presentValuePrincipalAmount
