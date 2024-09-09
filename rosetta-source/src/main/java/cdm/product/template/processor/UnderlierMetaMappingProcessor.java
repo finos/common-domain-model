@@ -9,7 +9,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
 
-@SuppressWarnings("unsed") // used in generated code
+@SuppressWarnings("unused") // used in generated code
 public class UnderlierMetaMappingProcessor extends MappingProcessor {
 
     public UnderlierMetaMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
