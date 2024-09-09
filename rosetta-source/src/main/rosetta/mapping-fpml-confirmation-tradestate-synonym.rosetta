@@ -2017,7 +2017,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "index" meta "instrumentId" mapper "UnderlierMeta"]
             [value "mortgage" meta "instrumentId" mapper "UnderlierMeta"]
             [value "commodity" meta "instrumentId" mapper "UnderlierMeta"]
-            [value "strikeQuoteBasis" mapper "AssetCashMeta" mapper "UnderlierMeta"]
+            [value "strikeQuoteBasis" mapper "AssetCashMeta"]
+            [value "quotedCurrencyPair" meta "quoteBasis"]
 
     Product:
         + NonTransferableProduct
@@ -2315,6 +2316,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + underlier
             [value "singleUnderlyer" path "underlyer"]
             [value "basketConstituent" path "underlyer->basket"]
+            [hint "quotedCurrencyPair"]
         + fxFeature
             [value "fxFeature"]
         + portfolioReturnTerms
@@ -2608,7 +2610,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     Asset:
         + Cash
-            [value "quoteBasis" path "quotedCurrencyPair" mapper "CashAssetIdentifier"]
+            [value "quoteBasis" path "exchangeRate->quotedCurrencyPair" mapper "CashAssetIdentifier"]
             [value "strikeQuoteBasis" mapper "CashAssetIdentifier"]
             [hint "paymentAmount"]
         + Commodity
@@ -2713,13 +2715,18 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + EquityIndex
             [hint "index"]
         + ForeignExchangeRateIndex
-            [value "ignore"]
+            [value "quotedCurrencyPair"]
+            [value "fixingInformationSource"]
         + OtherIndex
             [value "ignore"]
 
     EquityIndex:
         + assetClass
             [value "index" mapper "IndexAssetClass"]
+
+    ForeignExchangeRateIndex:
+        + primaryFxSpotRateSource
+            [value "primaryRateSource"]
 
     Basket:
         + basketConstituent
@@ -2772,17 +2779,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "repo"]
             [value "genericProduct" mapper "InterestRateForwardDebtPrice"]
             [value "productSummary"]
-            
-            // Additional payment
-            // Options: Quantity and Observable (Except Swaption, Credit Default Swaption)
-            //[hint "underlyer"] // Equity Option
-            //[value "fxOption"]
-            //[value "fxDigitalOption"]
-            //[value "equityOption"]
-            //[merge "commodity"]
-            //[hint "notionalQuantity"] // Commodity Option
-            //[value "commodityOption"]
-            //[hint "numberOfOptions" , "optionEntitlement" , "entitlementCurrency"] // For Equity / Bond Option
         + lotIdentifier
             [value "ignore"]
 
@@ -2866,13 +2862,16 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "equity"]
             [hint "index"]
             // For FX:
-            [value "exchangeRate"]
+            [hint "exchangeRate"]
             [value "strike"]
+            // For FX variance:
+            [hint "quotedCurrencyPair"]
+            [hint "fixingInformationSource"]
+            
             //[hint "features", "putCurrencyAmount" , "callCurrencyAmount", "strike"]
             //[value "fixing" path "nonDeliverableSettlement"]
             //[value "fixing" path "cashSettlement"]
-            //[hint "quotedCurrencyPair"]
-            //[hint "fixingInformationSource"]
+
             // For Repo / Bond Options:
             [hint "bond" , "convertibleBond"]
             // For Commodity Swap Floating Leg
