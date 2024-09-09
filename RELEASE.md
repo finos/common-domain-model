@@ -6,6 +6,7 @@ This release updates the `DSL` dependency.
 
 Version updates include:
 - `DSL` 9.16.3: bug fix for tabulators and validation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.3
+- `DSL` 9.16.5: performance improvements for tabulators. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.5
 
 This release also updates `ISOCurrencyCodeEnum` based on updated reference data scheme ISO Standard 4217.
 
