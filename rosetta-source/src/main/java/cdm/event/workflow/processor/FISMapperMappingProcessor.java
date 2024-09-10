@@ -346,7 +346,6 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
                     .getOrCreateObservable()
                     .getOrCreateValue()
                     .getOrCreateAsset()
-                    .getOrCreateValue()
                     .getOrCreateInstrument()
                     .setSecurity(security);
             // reference

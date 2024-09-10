@@ -19,8 +19,8 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
-import cdm.observable.asset.*;
 import cdm.observable.asset.Observable;
+import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
@@ -28,7 +28,10 @@ import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
-import cdm.product.template.*;
+import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.TradableProduct;
+import cdm.product.template.TradeLot;
+import cdm.product.template.Underlier;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,8 +44,6 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.meta.Key;
 import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
@@ -1130,7 +1131,7 @@ class FunctionInputCreationTest {
                         .setPayDate(Date.of(2009, 2, 1))
                         .setUnderlier(Underlier.builder()
                                 .setObservableValue(Observable.builder()
-                                        .setIndexValue(Index.builder()
+                                        .setIndex(Index.builder()
                                                 .setEquityIndex(EquityIndex.builder()
                                                         .setAssetClass(AssetClassEnum.EQUITY)
                                                         .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
@@ -1175,7 +1176,7 @@ class FunctionInputCreationTest {
                         .setPayDate(Date.of(2009, 2, 13))
                         .setUnderlier(Underlier.builder()
                                 .setObservableValue(Observable.builder()
-                                        .setIndexValue(Index.builder()
+                                        .setIndex(Index.builder()
                                                 .setEquityIndex(EquityIndex.builder()
                                                         .setAssetClass(AssetClassEnum.EQUITY)
                                                         .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
@@ -1953,7 +1954,7 @@ class FunctionInputCreationTest {
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
         assertJsonEquals(resourceName, actual);
     }
-    
+
     @Test
     void validateShapingEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -1983,7 +1984,7 @@ class FunctionInputCreationTest {
         List<PriceQuantity> actual = build(reKey(priceQuantityBuilder));
         assertJsonEquals(resourceName, actual);
     }
-    
+
     @Test
     void validatePartialDeliveryEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -2056,7 +2057,7 @@ class FunctionInputCreationTest {
         Collateral actual = reKey(collateralBuilder).build();
         assertJsonEquals(resourceName, actual);
     }
-    
+
     @Test
     void validateRepoSubstitutionPriceQuantity() throws IOException {
         String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json";
@@ -2064,7 +2065,7 @@ class FunctionInputCreationTest {
         List<TradeLot> actual = build(reKey(tradeLotBuilders));
         assertJsonEquals(resourceName, actual);
     }
-    
+
     @Test
     void validateSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();

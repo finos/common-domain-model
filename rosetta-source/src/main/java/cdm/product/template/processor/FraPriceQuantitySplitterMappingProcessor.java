@@ -57,7 +57,6 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 				.getOrCreateObservable()
 				.getOrCreateValue()
 				.getOrCreateIndex()
-				.getOrCreateValue()
 				.getOrCreateFloatingRateIndex()
 				.getOrCreateValue()
 				.getOrCreateInterestRateIndex();
