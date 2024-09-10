@@ -10,11 +10,11 @@ import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
 public class BuyerSellerPartyHelper {
 
-    public static boolean isBuyerReceiver(Path synonymPath, RosettaPath modelPath) {
+    public static boolean isBuyerAsReceiver(Path synonymPath, RosettaPath modelPath) {
         return !(isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath));
     }
 
-    public static boolean isSellerPayer(Path synonymPath, RosettaPath modelPath) {
+    public static boolean isSellerAsPayer(Path synonymPath, RosettaPath modelPath) {
         return !(isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath));
     }
     

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import static cdm.base.staticdata.party.processor.BuyerSellerPartyHelper.isSellerPayer;
+import static cdm.base.staticdata.party.processor.BuyerSellerPartyHelper.isSellerAsPayer;
 
 /**
  * FpML mapping processor.
@@ -29,7 +29,7 @@ public class SellerAsPayerOrReceiverMappingProcessor extends PayerReceiverMappin
 	@Override
 	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
 		Consumer<CounterpartyRoleEnum> setter =
-				isSellerPayer(synonymPath, getModelPath()) ? builder::setPayer : builder::setReceiver;
+				isSellerAsPayer(synonymPath, getModelPath()) ? builder::setPayer : builder::setReceiver;
 		helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, setter);
 	}
 }

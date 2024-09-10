@@ -11,7 +11,7 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.base.staticdata.party.processor.BuyerSellerPartyHelper.isBuyerReceiver;
+import static cdm.base.staticdata.party.processor.BuyerSellerPartyHelper.isBuyerAsReceiver;
 
 @SuppressWarnings("unused")
 public class SwaptionOptionTypeMappingProcessor extends MappingProcessor {
@@ -26,6 +26,7 @@ public class SwaptionOptionTypeMappingProcessor extends MappingProcessor {
     }
 
     private OptionTypeEnum getOptionType(Path synonymPath) {
-        return isBuyerReceiver(synonymPath, getModelPath()) ? OptionTypeEnum.CALL : OptionTypeEnum.PUT;
+        // for options, this is always true
+        return isBuyerAsReceiver(synonymPath, getModelPath()) ? OptionTypeEnum.CALL : OptionTypeEnum.PUT;
     }
 }
