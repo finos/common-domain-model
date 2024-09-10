@@ -1,7 +1,9 @@
 package cdm.observable.asset.processor;
 
 import cdm.base.staticdata.asset.common.AssetClassEnum;
-import cdm.observable.asset.*;
+import cdm.observable.asset.EquityIndex;
+import cdm.observable.asset.IndexBase;
+import cdm.observable.asset.InterestRateIndex;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;

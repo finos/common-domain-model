@@ -12,8 +12,8 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static  cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static  cdm.observable.asset.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
+import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencableQuantityBuilder;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 
 /**

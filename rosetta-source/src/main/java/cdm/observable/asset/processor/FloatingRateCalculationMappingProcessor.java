@@ -20,9 +20,9 @@ import java.util.Optional;
 
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.math.UnitType.builder;
-import static cdm.observable.asset.PriceQuantity.*;
-import static  cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static  cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
+import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.*;
+import static cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule.FieldWithMetaNonNegativeQuantityScheduleBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 public class UpdateAmountForEachQuantityImpl extends UpdateAmountForEachQuantity {
