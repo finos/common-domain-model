@@ -8,6 +8,7 @@ Version updates include:
 - `DSL` 9.16.3: bug fix for tabulators and validation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.3
 - `DSL` 9.16.5: performance improvements for tabulators. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.5
 - `DSL` 9.16.6: bug fix for meta generation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.6
+- `DSL` 9.16.7: bug fix for report generation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.7
 
 _Review directions_
 
