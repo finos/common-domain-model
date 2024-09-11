@@ -1890,15 +1890,15 @@ class FunctionInputCreationTest {
         Create_PairOffInstruction create_pairOffInstruction = injector.getInstance(Create_PairOffInstruction.class);
 
         List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
-        List<Instruction> rekeyedPairOffInstruction = pairOffInstruction.stream().map(i -> {
-            Instruction.InstructionBuilder instructionBuilder = i.toBuilder();
-            reKey(instructionBuilder);
-            return instructionBuilder.build();
-        }).collect(Collectors.toList());
+        List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
+                .map(Instruction::toBuilder)
+                .map(b -> reKey(b))
+                .map(Instruction::build)
+                .collect(Collectors.toList());
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
-
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstruction, null, tradeDate, tradeDate);
+        
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstructions, null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/pair-off-input.json", actual);
     }
 
