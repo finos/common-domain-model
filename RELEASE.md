@@ -11,6 +11,7 @@ Version updates include:
 - `DSL` 9.16.7: bug fix for report generation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.7
 - `DSL` 9.17.0: new syntax features. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.17.0
 - `DSL` 9.17.1: bug fix for global key generation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.17.1
+- `DSL` 9.17.2: bug fix for ingestion id mapping. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.17.2
 
 _Review directions_
 
