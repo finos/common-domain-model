@@ -530,9 +530,9 @@ func Create_Execution:
 
 ``` Haskell
 type ExecutionInstruction:
-  product Product (1..1)
+  product NonTransferableProduct (1..1)
   priceQuantity PriceQuantity (1..*)
-  counterparty  Counterparty (2..2)
+  counterparty Counterparty (2..2)
   ancillaryParty AncillaryParty (0..*)
   parties Party (2..*)
   partyRoles PartyRole (0..*)
@@ -543,6 +543,7 @@ type ExecutionInstruction:
       [metadata id]
   tradeIdentifier TradeIdentifier (1..*)
   collateral Collateral (0..1)
+  lotIdentifier Identifier (0..1)
 ```
 
 #### Contract Formation Primitive

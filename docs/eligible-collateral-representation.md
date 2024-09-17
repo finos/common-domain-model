@@ -220,13 +220,13 @@ type AssetCriteria:
   agencyRating AgencyRatingCriteria (0..*)
   maturityType MaturityTypeEnum (0..1)
   maturityRange PeriodRange (0..1)
-  productIdentifier ProductIdentifier (0..*)
+  assetIdentifier AssetIdentifier (0..*)
   collateralTaxonomy CollateralTaxonomy (0..*)
   domesticCurrencyIssued boolean (0..1)
   listing ListingType (0..1)
 
-   condition AssetCriteriaChoice:
-       optional choice collateralAssetType, collateralTaxonomy, productIdentifier
+  condition AssetCriteriaChoice:
+    optional choice collateralAssetType, collateralTaxonomy, assetIdentifier
 ```
 
 -   `collateralAssetType` Represents a filter based on the asset product

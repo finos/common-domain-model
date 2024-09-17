@@ -34,6 +34,7 @@ The Asset data type is a `choice`:
 choice Asset:  
     Cash
     Commodity
+      [metadata location]
     DigitalAsset
     Instrument
 ```
@@ -213,9 +214,11 @@ post-execution lifecycle contexts.
 
 ``` Haskell
 type NonTransferableProduct:  
-    identifier ProductIdentifier (0..*) 
-    taxonomy ProductTaxonomy (0..*) 
-    economicTerms EconomicTerms (1..1)
+  [metadata key]
+  [metadata template]
+  identifier ProductIdentifier (0..*) 
+  taxonomy ProductTaxonomy (0..*) 
+  economicTerms EconomicTerms (1..1)
 ```
 
 The definition of these attributes is as follows:
@@ -613,8 +616,7 @@ type PriceQuantity:
   quantity NonNegativeQuantitySchedule (0..*)
     [metadata location]
   observable Observable (0..1)
-  buyerSeller BuyerSeller (0..1)
-  settlementTerms SettlementTerms (0..1)
+    [metadata location]
   effectiveDate AdjustableOrRelativeDate (0..1)
 ```
 
@@ -1009,12 +1011,8 @@ the choice data type `OptionUnderlier` provides for both Observables and Product
 
 ``` Haskell
 choice Underlier:
-    Asset
-    Index
-    TransferableProduct
-
-choice OptionUnderlier:
     Observable
+        [metadata address "pointsTo"=PriceQuantity->observable]
     Product
 
 choice Product:
@@ -1118,7 +1116,7 @@ that have an identifier, as illustrated below:
 
 ``` Haskell
 type ProductBase:
-  productTaxonomy ProductTaxonomy (0..*)
+  taxonomy ProductTaxonomy (0..*)
   economicTerms EconomicTerms (1..1)
 ```
 
@@ -1149,20 +1147,18 @@ type Security extends InstrumentBase:
   debtType DebtType (0..1)
   equityType EquityTypeEnum (0..1)
   fundType FundProductTypeEnum (0..1)
-  economicTerms EconomicTerms (0..1)
-  productTaxonomy ProductTaxonomy (0..*)
 
-condition DebtSubType:
-  if securityType <> SecurityTypeEnum -> Debt
-  then debtType is absent
+  condition DebtSubType:
+    if securityType <> SecurityTypeEnum -> Debt
+    then debtType is absent
 
-condition EquitySubType:
-  if securityType <> SecurityTypeEnum -> Equity
-  then equityType is absent
+  condition EquitySubType:
+    if securityType <> SecurityTypeEnum -> Equity
+    then equityType is absent
 
-condition FundSubType:
-  if securityType <> SecurityTypeEnum -> Fund
-  then fundType is absent
+  condition FundSubType:
+    if securityType <> SecurityTypeEnum -> Fund
+    then fundType is absent
 ```
 
 The product identifier will uniquely identify the security. The
