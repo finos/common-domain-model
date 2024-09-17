@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 
 @SuppressWarnings("unused")
 public class OpenUnitsMappingProcessor extends MappingProcessor {
