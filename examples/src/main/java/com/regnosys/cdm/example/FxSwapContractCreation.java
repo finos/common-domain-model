@@ -12,7 +12,6 @@ import cdm.event.common.TradeIdentifier;
 import cdm.observable.asset.*;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.common.settlement.Cashflow;
-import cdm.observable.asset.PriceQuantity;
 import cdm.product.common.settlement.ResolvablePriceQuantity;
 import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.TradeLot;
@@ -80,7 +79,7 @@ public class FxSwapContractCreation {
         Date settlementDate = of(2001, 10, 25);
 
         Date tradeDate = of(2001, 10, 23);
-        
+
 //        ContractualProduct contractualProduct = createContractualProduct(underlier, settlementDate);
 
         TradeIdentifier citi123 = createIdentifier("CITI123", "http://www.citi.com/fx/trade-id", party1);
@@ -126,7 +125,7 @@ public class FxSwapContractCreation {
                                 .setUnit(UnitType.builder()
                                         .setCurrencyValue(currency2Str))))
                 .setObservableValue(Observable.builder()
-                        .setIndexValue(Index.builder()
+                        .setIndex(Index.builder()
                                 .setForeignExchangeRateIndex(ForeignExchangeRateIndex.builder()
                                         .setQuotedCurrencyPairValue(QuotedCurrencyPair.builder()
                                                 .setCurrency1Value(currency1Str)
