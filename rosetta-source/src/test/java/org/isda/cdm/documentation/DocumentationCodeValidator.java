@@ -73,9 +73,9 @@ public class DocumentationCodeValidator {
         if (invalidSnippets > 0) {
             LOGGER.error("Found [" + invalidSnippets + "] code-snippets that don't match model text.");
         }
-//        if (invalidCodeBlocks + invalidSnippets != 0) {
-//            System.exit(1);
-//        }
+        if (invalidCodeBlocks + invalidSnippets != 0) {
+            System.exit(1);
+        }
     }
 
     long validate(List<String> code, String model) {
