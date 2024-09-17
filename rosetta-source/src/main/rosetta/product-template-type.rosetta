@@ -88,7 +88,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     optionUnderlier Underlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
-    optionType OptionTypeEnum (1..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
+    optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
@@ -128,6 +128,10 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 
     condition OptionStylePresent: <"This condition ensures that an optionPayout contains the style of option within its exercise terms.">
         exerciseTerms -> style exists
+    
+    condition OptionTypePresent: <"This condition ensures that an option type is set when the underlier is not a non-transferable product.">
+        if optionUnderlier -> Product -> NonTransferableProduct is absent
+        then optionType exists
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
 
