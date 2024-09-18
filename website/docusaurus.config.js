@@ -33,6 +33,7 @@ module.exports = {
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
+        {to: 'docs/cdm-materials', label: 'CDM Resources', position: 'right'},
         {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
@@ -67,7 +68,7 @@ module.exports = {
             },
             {
               label: 'Derivatives Product and Business Event Working Group',
-              href: 'https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG',
+              href: 'https://cdm.finos.org/docs/CDM-Derivatives-Product-and-Business-Event-WG',
             },
             {
               label: 'Technology Architecture Working Group',

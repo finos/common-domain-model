@@ -23,15 +23,17 @@ import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
-type TransferableProduct:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with or without the addition of specific EconomicTerms.">
-    asset Asset (1..1)
-    economicTerms EconomicTerms (0..1)
+type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
+    productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
+    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
+
+type TransferableProduct extends Asset:  <"A TransferableProduct is a type of Product which can be used in a SettlementCommitment for a basic cash settled trade of either an Asset with the addition of specific EconomicTerms.">
+    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
 
 type ContractualProduct extends ProductBase: <" A class to specify the contractual products' economic terms, alongside their product identification and product taxonomy. The contractual product class is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
-
-    economicTerms EconomicTerms (1..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source.">
 
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
@@ -226,7 +228,7 @@ type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type o
   finalValuationPrice PriceSchedule (0..*) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
    [metadata address "pointsTo"=PriceQuantity->price]
 
-type Payout: <"A class to represent the set of future cashflow methodologies in the form of specific payout class(es) that can be associated for the purpose of specifying a financial product. For example, two interest rate payouts can be combined to specify an interest rate swap, or one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
+type Payout: <"Represents the set of future cashflow methodologies in the form of specific payout data type(s) which result from the financial product.  Examples: a trade in a cash asset will use only a settlement payout; for derivatives, two interest rate payouts can be combined to specify an interest rate swap; one interest rate payout can be combined with a credit default payout to specify a credit default swap.">
     [metadata key]
 
     interestRatePayout InterestRatePayout (0..*) <"All of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg).">
@@ -237,12 +239,12 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
     fixedPricePayout FixedPricePayout (0..*) <"Defines a payout in which one or more payouts are defined as a fixed price.">
     cashflow Cashflow (0..*) <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     performancePayout PerformancePayout (0..*) <"The performance payout, which encompasses the equity price returns, dividend returns, volatility return, variance return and correlation provisions.">
-    assetPayout AssetPayout (0..*) <"The security payout when the product involves some form of securities, such as collateral in a securities financing transaction">
-    settlementCommitment SettlementCommitment (0..1)  <"This is a simple payout used to define the commitment to settle a trade, for example a purchase of a cash security.">
+    assetPayout AssetPayout (0..*) <"Defines the assets and movements in a security financing transaction.">
+    settlementPayout SettlementPayout (0..1)  <"Defines the commitment to settle a trade in a TransferableProduct.">
 
-    condition SettlementCommitmentIsExclusive: <"A SettlementCommitment can only be used on its own.">
-        if settlementCommitment exists
-        then settlementCommitment only exists
+    condition SettlementPayoutIsExclusive: <"A SettlementPayout can only be used on its own.">
+        if settlementPayout exists
+        then settlementPayout only exists
 
     condition ReturnType_Total_Requires_Dividends: <"A total return implies both a price and a dividend return">
         if performancePayout -> returnTerms -> priceReturnTerms -> returnType all = ReturnTypeEnum -> Total
@@ -296,8 +298,12 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-type SettlementCommitment extends PayoutBase:  <"This is a simple payout used to define the commitment to settle a trade, for example a purchase of a cash security.">
-    transferableProduct TransferableProduct (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
+type SettlementPayout extends PayoutBase:  <"This is a payout data type used to define the commitment to settle a trade in an Asset or TransferableProduct. Examples: a purchase of a cash security; an FX trade, either spot or forward.">
+    underlier Underlier (1..1)  <"A transferable Asset with or without the addition of specific EconomicTerms.">
+
+choice Underlier:  <"The underlier of a payout which can be either an Asset or a Transferable Product, which is an Asset with Economic Terms.">
+    Asset  <"Identifies a transferable asset.">
+    TransferableProduct  <"Defines the transferable asset with an identifier and economic terms.">
 
 type Product: <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
     [metadata key]
@@ -307,25 +313,13 @@ type Product: <"Defines the product that is the subject of a tradable product de
     loan Loan (0..1) <"Identifies a loan by referencing a product identifier and an optional set of attributes.">
     foreignExchange ForeignExchange (0..1) <"Defines a foreign exchange spot or forward transaction.">
     commodity Commodity (0..1) <"Identifies a commodity by referencing a product identifier.">
-        [metadata address "pointsTo"=Observable->commodity]
+     //**ART**
+     //   [metadata address "pointsTo"=Observable->commodity]
     security Security (0..1) <"Identifies a security by referencing a product identifier and a security type, plus an optional set of attributes.">
     basket Basket (0..1) <"Identifies a custom basket by referencing a product identifier and its constituents.">
 
     condition:
         one-of
-
-type Basket extends ProductBase: <"Defines a custom basket by referencing a product identifier and its consituents.">
-  basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
-
-type BasketConstituent extends Product :<"Identifies the constituents of the basket">
-quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
- [metadata address "pointsTo"=PriceQuantity->quantity]
-initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
- [metadata address "pointsTo"=PriceQuantity->price]
-interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
- [metadata address "pointsTo"=PriceQuantity->price]
-finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
- [metadata address "pointsTo"=PriceQuantity->price]
 
 type TradeLot: <"Specifies the price and quantity of a trade lot, where the same product could be traded multiple times with the same counterparty but in different lots (at a different date, in a different quantity and at a different price). One trade lot combined with a product definition specifies the entire economics of a trade. The lifecycle mechanics of each such trade lot (e.g. cashflow payments) is independent of the other lots.">
     lotIdentifier Identifier (0..*) <"Specifies one or more identifiers for the lot, if any.">
@@ -428,11 +422,11 @@ type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. T
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then settlementTerms exists
 
     condition SettlementDate: <"For foreign exchange contracts, either the settlementDate is set or the cashflowDates, but not both. When the cashflowDates are set, they must be the same for the 2 legs of the currency pair.">
-        if underlier -> foreignExchange exists
+        if underlier -> index -> ForeignExchangeRate exists
         then (settlementTerms -> settlementDate -> valueDate exists
                     and underlier -> foreignExchange -> exchangedCurrency1 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent
                     and underlier -> foreignExchange -> exchangedCurrency2 -> settlementTerms -> settlementDate -> adjustableOrRelativeDate is absent)

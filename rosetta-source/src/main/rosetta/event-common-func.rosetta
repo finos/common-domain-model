@@ -219,8 +219,8 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         if adjustedDate < adjustedFinalValuationDate
         then payout -> valuationDates -> interimValuationDate
         else payout -> valuationDates -> finalValuationDate
-    add identifiers -> observable -> productIdentifier: <"Represents the identifer for the equity underlier.">
-        payout -> underlier -> security -> productIdentifier
+    add identifiers -> observable -> asset -> Instrument -> Security -> identifier: <"Represents the identifer for the equity underlier.">
+        payout -> underlier -> security -> identifier 
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -229,7 +229,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> productIdentifier only-element,
+                identifiers -> observable -> asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
@@ -253,7 +253,7 @@ func ResolvePerformanceValuationTime: <"Defines how to resolve the observation t
     inputs:
         valuationTime BusinessCenterTime (0..1) <"Represents the Equity Valuation terms from the Equity product definition.">
         valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
-        productIdentifier ProductIdentifier (1..1) <"Specifies the product identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
+        assetIdentifier AssetIdentifier (1..1) <"Specifies the asset identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
         determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
     output:
         time TimeZone (1..1)
@@ -263,7 +263,7 @@ func ResolvePerformanceValuationTime: <"Defines how to resolve the observation t
     set time:
         if valuationTimeType exists
         then ResolveTimeZoneFromTimeType(
-                    productIdentifier,
+                    assetIdentifier,
                     valuationTimeType,
                     determinationMethod
                 )
@@ -660,8 +660,8 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             ...
         }
 
-    add transfer -> asset -> Instrument -> Security  -> productIdentifier:
-        assetPayout -> securityInformation -> security -> productIdentifier
+    add transfer -> asset -> Instrument -> Security  -> identifier:
+        assetPayout -> securityInformation -> security -> identifier
 
     set transfer -> payerReceiver -> payerPartyReference:
         if instruction -> payerReceiver -> payer exists
@@ -772,8 +772,8 @@ func SecurityFinanceCashSettlementAmount:
         if quantity exists
         then quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
-    condition ProductIdentifiersMatch:
-        tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> productIdentifier = assetPayout -> securityInformation -> security -> productIdentifier
+    condition IdentifiersMatch:
+        tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> observable -> asset ->> identifier = assetPayout -> securityInformation -> security -> identifier
 
     set cashSettlementAmount -> quantity -> value:
         securityPrice -> value * securityQuantity -> value * marginRatio
@@ -2314,7 +2314,6 @@ func Create_Cashflow:
     inputs:
         amount number (1..1)
         currency string (1..1)
-            [metadata scheme]
         settlementDate SettlementDate (1..1)
         payerReceiver PayerReceiver (1..1)
         cashflowType CashflowType (1..1)
