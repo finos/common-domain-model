@@ -1,40 +1,106 @@
-# _Product Model - Asset Refactoring: Asset, Index, Identifier_
+# _Implementation of the Standardized Schedule Method for Initial Margin Calculation in CDM_
+# _Standardised Schedule - Key Features_
 
 _Background_
 
-The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal is being developed - through a cross-industry Task Force - to implement this remodelling in the CDM.  
-
-This release includes the first tranche of changes to implement the refactored model (the first of three planned tranches in CDM 6).  It introduces some new data types and makes minor changes to others without significant impact to the Product structure itself.
+The financial crisis that began in 2007 highlighted significant weaknesses in the resilience of banks and market participants to financial and economic shocks. To address these vulnerabilities and curb excessive risk-taking, the Basel Committee on Banking Supervision (BCBS) published the D499 document in April 2020, detailing new margin requirements aimed at reducing systemic risk and promoting central clearing. These requirements mandate that Initial Margin (IM) be calculated using either a quantitative model or a standardized method, ensuring uniformity and comprehensive coverage of counterparty risk.
 
 _What is being released?_
 
-New `Asset` data type:
-- Introduce the new data type `Asset` which is defined as "something that can be owned and transferred in the financial markets". The data type is implemented using the new Rune DSL feature `choice` that is available in [Release 9.10](https://github.com/finos/rune-dsl/releases/tag/9.10.0).
-- Introduce the additional Asset data sub-type called `Instrument`, also using `choice`, defined as "a type of Asset that is issued by one party to one or more others".
-- Create the new base class `InstrumentBase` to model common attributes across all `Instrument` data types.
-- Introduce the new enumerator `AssetIdTypeEnum`, to define certain identifier sources unique to Assets, as an extension of `ProductIdTypeEnum`.
-- Change the inheritance from `ProductBase` to `InstrumentBase` for `Loan`, `ListedDerivative`.
-- Add a reference on `Observable` to an `Asset` using an `AssetIdentifier`.
+The implementation of the Standardized Schedule Method for calculating Initial Margin (IM) within the Common Domain Model (CDM) is being released. This release introduces a structured approach to computing IM, providing a conservative and straightforward alternative for market participants who either lack the resources to develop quantitative models or prefer not to use third-party services.
 
-Changes to `Transfer`:
-- As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
-- This also results in changes to the `Qualify_SecurityTransfer` function.
+Key components of this release include:
+- New enumerations have been created to cover the asset typologies and subtypes of financial products included in this methodology.
+- Functions have been developed to extract the duration and notional of financial products in accordance with specification D499.
+- After extracting the necessary data, additional functions have been developed to compute the initial margin by integrating the extracted data with the model formulas.
+- A package of examples of various covered products has been assembled to test the functionality of the implemented functions.
 
-Product Model:
-- Introduce a new data type on `Payout`: `SettlementCommitment` which models the settlement of an `Asset` for cash.
-- Introduce `TransferableProduct` as a type of Product which can be used in a `SettlementCommitment` for a basic cash settled trade of either an `Asset` with or without the addition of specific `EconomicTerms`.
-- Define the new `SettlementCommitment` data type to model this new kind of `Payout`.
+Data types
+
+- Added new `StandardizedSchedule` type.
+- Added new `GrossInitialMarginAndMarkToMarketValue` type.
+- Added new `CreditEvent` type.
+
+Enumerations
+
+- Added new `StandardizedScheduleAssetClassEnum` enumeration.
+- Added new `StandardizedScheduleProductClassEnum` enumeration.
+
+Functions
+
+- Added new `AdjustableDateResolution` function.
+    - A fall back for unadjustedDate when adjustedDate is only available.
+- Added new `AdjustableOrAdjustedOrRelativeDateResolution` function.
+    - A fall back for unadjustedDate when adjustedDate is only available.
+- Added new `AuxiliarEffectiveDate` function.
+    - Extracts the effective date of specific products such as interest rate swaps and swaptions.
+- Added new `AuxiliarTerminationDate` function.
+    - Extracts the termination date of specific products such as interest rate swaps and swaptions.
+- Added new `BuildStandardizedSchedule` function.
+    - Takes a trade and uses qualification to extract the relevant information to populate the grid that will be used to calculate the gross initial margin.
+- Added new `DateDifferenceYears` function.
+    - Computes the difference in years between two dates. All years are supposed to have 365 days.
+- Added new `EconomicTermsForProduct` function.
+    - Extracts the economic terms from a product.
+- Added new `FXFarLeg` function.
+    - Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.
+- Added new `GetGrossInitialMarginFromStandardizedSchedule` function.
+    - Takes the grid information from an specific trade and calculates the gross initial margin.
+- Added new `GetIMRequirement` function.
+    - Computes the IM requirement, which is required in the calculation of the gross initial margin. It depends exclusively on the asset class of the trade and, in some cases, on the duration as well.
+- Added new `GetNetInitialMarginFromBaseCurrencyExposure` function.
+    - Computes the net initial margin, taking the gross initial margin result and the mark to market value."
+- Added new `IsCreditNthToDefault` function.
+    - Identifies a product as a CR basket Nth to default.
+- Added new `IsFXDeliverableOption` function.
+    - Identifies a product as an FX deliverable option.
+- Added new `IsFXNonDeliverableOption` function.
+    - Identifies a product as an FX non-deliverable option.
+- Added new `IsIRSwaptionStraddle` function.
+    - Identifies a product as an IR swaption straddle.
+- Added new `IsIRSwapWithCallableBermudanRightToEnterExitSwaps` function.
+    - Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.
+- Added new `ProductForTrade` function.
+    - Extracts the product from a trade.
+- Added new `StandardizedScheduleAssetClass` function.
+    - Identifies the asset class of a trade, according to the standardized schedule classification.
+- Added new `StandardizedScheduleCommodityForwardNotionalAmount` function.
+    - Extracts the notional amount of a CO forward. Floating price forwards not supported.
+- Added new `StandardizedScheduleCommoditySwapFixedFloatNotionalAmount` function.
+    - Extracts the notional amount of a CO fixed float swap.
+- Added new `StandardizedScheduleDuration` function.
+    - Extracts the duration of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.
+- Added new `StandardizedScheduleEquityForwardNotionalAmount` function.
+    - Extracts the notional amount of an EQ forward.
+- Added new `StandardizedScheduleFXNDFNotional` function.
+    - Extracts the notional amount and currency of an FX non-deliverable forward.
+- Added new `StandardizedScheduleFXNDONotional` function.
+    - Extracts the notional amount and currency of an FX non-deliverable option.
+- Added new `StandardizedScheduleFXSwapNotional` function.
+    - Extracts the notional amount and currency of an FX swap.
+- Added new `StandardizedScheduleFXVarianceNotionalAmount` function.
+    - Extracts the notional amount of an FX variance swap.
+- Added new `StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ` function.
+    - Extracts the notional currency for all products that have it populated in the resolvable priceQuantity.
+- Added new `StandardizedScheduleMonetaryNotionalFromResolvablePQ` function.
+    - Extracts the notional amount for all products that have it populated in the resolvable priceQuantity.
+- Added new `StandardizedScheduleNotional` function.
+    - Extracts the notional amount of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.
+- Added new `StandardizedScheduleNotionalCurrency` function.
+    - Extracts the notional currency of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.
+- Added new `StandardizedScheduleOptionNotionalAmount` function.
+    - Extracts the notional amount of a CO or EQ option.
+- Added new `StandardizedScheduleProductClass` function.
+    - Identifies the product class of a trade, according to the standardized schedule classification.
+- Added new `StandardizedScheduleVarianceSwapNotionalAmount` function.
+    - Extracts the notional amount of an EQ variance swap.
+- Added new `UnderlierForProduct` function.
+   - Extracts the underlier product.
 
 _Review directions_
 
+In the Rosetta Platform, select the Textual Browser and inspect each of the changes identified above.
+
+In the Rosetta Platform, select Function and select the ones you want to test and upload a sample from our test pack.
+
 The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
-
-_Backward-incompatible changes_
-
-This release contains changes that are not backward-compatible:
-- The change in the inheritance for `Loan` and `ListedDerivative` impacts the use of identifiers in these data types.
-- The refactoring of `Transfer` to act upon an `Asset` rather than `Observable` impacts the use of the related functions.
-
-Samples and mappings for both have been updated accordingly.
-
-A full description of the backward-incompatible changes, and how persisted objects should be remapped, will be included in the release notes for the last tranche of the asset refactoring.
