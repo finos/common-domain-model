@@ -103,7 +103,7 @@ In the Rosetta Platform, select the Textual Browser and inspect each of the chan
 
 In the Rosetta Platform, select Function and select the ones you want to test and upload a sample from our test pack.
 
-The changes can be reviewed in PR: [#3022](https://github.com/finos/common-domain-model/pull/3022)
+The changes can be reviewed in PR: [#3140](https://github.com/finos/common-domain-model/pull/3140)
 
 
 # _Infrastructure - Dependency and Reference Data Update_
