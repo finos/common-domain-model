@@ -18,4 +18,4 @@ Version updates include:
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3126](https://github.com/finos/common-domain-model/pull/3126)
+The changes can be reviewed in PR: [#3126](https://github.com/finos/common-domain-model/pull/3126) [#3142](https://github.com/finos/common-domain-model/pull/3142)
