@@ -232,7 +232,7 @@ type DividendPayoutRatio: <"A class describing the dividend payout ratio associa
     totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
     cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
     nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-    basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
+    basketConstituent Observable (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
 
     condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
         totalRatio >= 0 and totalRatio <= 1
@@ -470,7 +470,7 @@ type DividendPeriod: <"Time bounded dividend payment periods, each with a divide
     startDate DividendPaymentDate (0..1) <"Dividend period start date.">
     endDate DividendPaymentDate (0..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-    basketConstituent Product (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
+    basketConstituent Observable (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
     dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
@@ -516,9 +516,9 @@ type VarianceReturnTerms extends ReturnTermsBase:
         if vegaNotionalAmount -> value exists
         then vegaNotionalAmount -> value > 0
 
-    condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
+    condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
         if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> productIdentifier exists
+        then exchangeTradedContractNearest -> asset -> Instrument -> ListedDerivative exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
         if valuationTerms -> futuresPriceValuation = True
@@ -627,16 +627,14 @@ type BoundedCorrelation: <"Describes correlation bounds, which form a cap and a 
     maximumBoundaryPercent number (0..1) <"Maximum Boundary as a percentage of the Strike Price.">
 
 type ForeignExchange: <"From FpML: A type defining either a spot or forward FX transactions.">
-
+    [deprecated]
     exchangedCurrency1 Cashflow (1..1) <"This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.">
     exchangedCurrency2 Cashflow (1..1) <"This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.">
     tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">
-    exchangeRate ExchangeRate (0..1) <"The rate of exchange between the two currencies.">
-        [deprecated]
 
 type BondReference: <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 
-    bond ProductIdentifier (1..1) <"Reference to a bond underlier.">
+    bond AssetIdentifier (1..1) <"Reference to a bond underlier.">
     conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
     discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
     couponRate FixedRateSpecification (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">

@@ -43,13 +43,6 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
     }
 
     protected void updateSchemeAndSource(Path xmlPath, ProductIdentifier.ProductIdentifierBuilder productIdentifierBuilder, FieldWithMetaString.FieldWithMetaStringBuilder productIdentifierValueBuilder) {
-        setValueAndUpdateMappings(xmlPath.addElement("instrumentIdScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update Source
-                    productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
-                });
         setValueAndUpdateMappings(xmlPath.addElement("productIdScheme"),
                 xmlValue -> {
                     // Update scheme
@@ -57,9 +50,6 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
                     // Update Source
                     productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
                 });
-        if (xmlPath.endsWith("description")) {
-            productIdentifierBuilder.setSource(ProductIdTypeEnum.NAME);
-        }
     }
 
     protected ProductIdTypeEnum getSourceEnum(String scheme) {
