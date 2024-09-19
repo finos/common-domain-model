@@ -4,11 +4,7 @@ import cdm.base.math.CapacityUnitEnum;
 import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import com.regnosys.rosetta.common.translation.MappingContext;
-import com.regnosys.rosetta.common.translation.MappingProcessor;
-import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
-import com.regnosys.rosetta.common.translation.Path;
-import com.regnosys.rosetta.common.util.PathUtils;
+import com.regnosys.rosetta.common.translation.*;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
@@ -41,19 +37,20 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
     }
 
     private Optional<NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder> getTotalNotionalQuantity(Path synonymPath, int index) {
-        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantity = NonNegativeQuantitySchedule.builder();
+        NonNegativeQuantitySchedule.NonNegativeQuantityScheduleBuilder quantityBuilder = NonNegativeQuantitySchedule.builder();
 
         Path baseModelPath = toPath(getModelPath()).addElement("amount");
         Path mappedModelPath = incrementPathElementIndex(baseModelPath, "quantity", index);
 
-        MappingProcessorUtils.setValueAndUpdateMappings(synonymPath,
-                (xmlValue) -> quantity
-                        .setValue(new BigDecimal(xmlValue))
-                        .setUnit(UnitType.builder().setCapacityUnit(findCapacityUnitEnum(synonymPath.getParent()))),
-                getMappings(),
-                PathUtils.toRosettaPath(mappedModelPath));
-
-        return quantity.hasData() ? Optional.of(quantity) : Optional.empty();
+        MappingProcessorUtils.getNonNullMappedValue(synonymPath, getMappings()).ifPresent(xmlValue -> {
+            quantityBuilder
+                    .setValue(new BigDecimal(xmlValue))
+                    .setUnit(UnitType.builder().setCapacityUnit(findCapacityUnitEnum(synonymPath.getParent())));
+            // add new mapping rather than updating, otherwise the referencing breaks
+            addMapping(synonymPath, xmlValue, mappedModelPath, xmlValue);
+        });
+        
+        return quantityBuilder.hasData() ? Optional.of(quantityBuilder) : Optional.empty();
     }
 
     private CapacityUnitEnum findCapacityUnitEnum(Path legSynonymPath) {
@@ -66,5 +63,9 @@ public class TotalNotionalQuantityMappingProcessor extends MappingProcessor {
     private Optional<CapacityUnitEnum> getCapacityUnitEnum(Path quantityUnitPath) {
         return getNonNullMappedValue(quantityUnitPath, getMappings())
                 .flatMap(xmlValue -> getSynonymToEnumMap().getEnumValueOptional(CapacityUnitEnum.class, xmlValue));
+    }
+
+    private void addMapping(Path xmlPath, Object xmlValue, Path modelPath, Object modelValue) {
+        getMappings().add(new Mapping(xmlPath, xmlValue, modelPath, modelValue, null, true, true, false));
     }
 }
