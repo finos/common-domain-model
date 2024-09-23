@@ -107,6 +107,11 @@ class SecLendingFunctionInputCreationTest {
     }
 
     @Test
+    void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/block-execution-trade-state.json", getBlockExecutionTradeState());
+    }
+
+    @Test
     void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
