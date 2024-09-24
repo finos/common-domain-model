@@ -10,9 +10,9 @@ import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.event.Observation;
 import cdm.observable.event.ObservationIdentifier;
-import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradeLot;
 import cdm.security.lending.functions.RunNewSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflow;
@@ -39,6 +39,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -78,10 +79,11 @@ class SecLendingFunctionInputCreationTest {
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
     public static final String EXECUTION_INSTRUCTION_JSON = "/cdm-sample-files/functions/sec-lending/block-execution-instruction.json";
+    public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "cdm-sample-files/functions/sec-lending/block-execution-trade-state.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
     public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/sec-lending/new-settlement-workflow-func-input.json";
-
+    
     private static Injector injector;
 
     @BeforeAll
@@ -108,7 +110,20 @@ class SecLendingFunctionInputCreationTest {
 
     @Test
     void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/block-execution-trade-state.json", getBlockExecutionTradeState());
+        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
+        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
+        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
+
+        TradeState.TradeStateBuilder tradeStateBuilder = createExecution.evaluate(executionInstruction).toBuilder();
+
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(TradeState.class, tradeStateBuilder);
+        
+        assertJsonEquals(BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
+    }
+
+    private static TradeState getBlockExecutionTradeStateJson() throws IOException {
+        return ResourcesUtils.getObjectAndResolveReferences(TradeState.class, BLOCK_EXECUTION_TRADE_STATE_JSON);
     }
 
     @Test
@@ -161,7 +176,7 @@ class SecLendingFunctionInputCreationTest {
 
     private CreateBusinessEventInput getAllocationInput() throws IOException {
         // Agent Lender lends 200k SDOL to Borrower CP001
-        TradeState blockExecutionTradeState = getBlockExecutionTradeState();
+        TradeState blockExecutionTradeState = getBlockExecutionTradeStateJson();
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
@@ -350,19 +365,6 @@ class SecLendingFunctionInputCreationTest {
                         .build())
                 .build();
     }
-
-
-    private static TradeState getBlockExecutionTradeState() throws IOException {
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
-        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
-        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
-
-        TradeState tradeState = createExecution.evaluate(executionInstruction);
-
-        assertNotNull(tradeState, "Expected an after trade state");
-        return tradeState;
-    }
-
 
     private static TradeState getTransferTradeState() throws IOException {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
