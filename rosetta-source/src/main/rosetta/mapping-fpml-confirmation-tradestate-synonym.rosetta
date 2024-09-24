@@ -1291,7 +1291,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // Swap Stream
             [value "notionalStepSchedule" path "notionalSchedule" meta "initialValue"]
             [meta "initialValue"]
-            // FRA and FX Variance Swap
+            // FRA, Bond Forward, and FX Variance Swap
             [value "notional" meta "amount"]
             // Equity Swap - Only mapping the notional amount in the payout, not the no. shares
             [value "notionalAmount" meta "amount"]
@@ -2272,8 +2272,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + priceQuantity
             [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
             [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
+            [hint "notional"]
         + underlier
             [value "quoteBasis" path "exchangeRate->quotedCurrencyPair" mapper "AssetCashMeta"]
+            [value "underlyer"]
         + delivery
             [value "ignore"]
 
@@ -2870,11 +2872,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For FX variance:
             [hint "quotedCurrencyPair"]
             [hint "fixingInformationSource"]
-            
-            //[hint "features", "putCurrencyAmount" , "callCurrencyAmount", "strike"]
-            //[value "fixing" path "nonDeliverableSettlement"]
-            //[value "fixing" path "cashSettlement"]
-
             // For Repo / Bond Options:
             [hint "bond" , "convertibleBond"]
             // For Commodity Swap Floating Leg
@@ -2882,6 +2879,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "commodityClassification"]
             // Other
             [value "basket" path "underlyer"]
+            [value "underlyer"] // For bond forwards (generic products)
         + effectiveDate
             [value "ignore"] // Do not map, until a canonical representation of effective date is built in the CDM and existing effective date attributes can be re-directed here
 
