@@ -4,31 +4,31 @@ title: Product Model
 
 ## Financial Products {#product}
 
-A financial product is an instrument that is used to transfer financial
+In the CDM, a financial product describes a thing that is used to transfer financial
 risk between two parties. 
 
-Within the CDM, a financial product is composed of several building blocks 
-to define the characteristics of the product that is traded between the parties.
-The most fundamental of these is an `Asset` which is used to represent the 
-basic transferable financial products such as cash, commodities or securities.
-
-The CDM also supports negotiated products, where the terms of the
-product are agreed between the parties, as is typically seen in the OTC 
-derivatives markets. The concept of `EconomicTerms` enables the modelling
-of these products through the use of composable `Payouts` which define the
-conditions of future cashflows that might be driven by terms such as 
-interest rates, options, or equity performance. 
+The model is based on several building blocks
+to define the characteristics of that risk transfer.
+The most fundamental of these building blocks is an `Asset`, which represents 
+a basic financial product such as cash, a commodity or security.
+From those basic transferable assets, any other financial product can be built using
+other composable building blocks called `Payout` that are assembled to represent the 
+`EconomicTerms` of that product.
+A `Payout` is a parametric description of the flow of one or more
+assets between two parties in the future - for instance, but not exclusively,
+cashflows when that asset is cash - and may itself be contingent on the future value
+or performance of that asset or other.
 
 ### Asset  {#asset}
 
 :::tip Definition: Asset
 
-An Asset is defined as something that can be owned and transferred in the financial markets, for example, cash, a 
-commodity, a loan or a security. As a choice data type, one and only one of the attributes must be used.
+An Asset is defined as something that can be held by one party and is transferable from one party to another: for example, cash, a 
+commodity, a loan or a security.
 
 :::
 
-The Asset data type is a `choice`:
+The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
 ``` Haskell
 choice Asset:  
@@ -59,7 +59,7 @@ itself composed of an `identifier` and an `identifierType` enumerator that defin
 for example a CUSIP or ISIN.
 
 The base type also includes an optional `taxonomy` which aligns the asset to one of the asset classification
-sources defined by industry organisations, such as ISDA, or regulators, such as CFTC or EMIR. It is also possible
+sources defined by industry organisations, such as ISDA, or regulators, such as CFTC or ESMA. It is also possible
 to define the exchange listing characteristics of the asset.
 
 Conditions are applied on each of the asset types to enforce certain rules; for example, a `Cash` asset
@@ -100,20 +100,18 @@ with these attributes:
 
 ### Observable
 
-In addition to assets, there are other parameters which can be observed in the markets and which can directly
-influence the pricing or outcomes of financial products. In the CDM, these are termed "Observables":
+In addition to assets, there are variables which can be observed in the markets and which can directly
+influence the outcomes of financial products. In the CDM, these are termed "observables".
 
 :::tip Definition: Observable
 
 The `Observable` data type specifies the reference object to be observed
-for a price, which could be an underlying asset or a reference to something
-which can be observed but not actually transferred, such as an index or
-a foreign exchange rate.
+for a price. It could be an underlying asset (something that can be held or transferred),
+or a reference to something which can be observed but not transferred, such as an index.
 
 :::
 
-In addition to `Asset` (something that can be held or transferred in the 
-financial markets), the `Observable` is a choice data type composed as follows:
+In addition to `Asset` , the `Observable` is a choice data type composed as follows:
 
 ``` Haskell
 choice Observable:
@@ -129,24 +127,94 @@ The definition of these attributes is as follows:
 * **Basket**:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
 * **Index**:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
 
-The CDM allows both Assets and Observables to included in a trade or used
-as an underlier for another product (see the *[Underlier](#underlier)* section). One
-unlikely case for a direct trade is Index, which is primarily used as an underlier.
+The CDM allows both assets and observables to be used as underlying building blocks to construct
+more complex products (see the *[Underlier](#underlier)* section).
 
-### Contractual Financial Products
+### Product
 
-A contractual financial product is a bilateral agreement negotiated between two
-parties and is represented in the CDM with the `NonTransferableProduct` type. 
-(Its name is in direct contrast to `TransferableProduct` which is explained shortly.)
+The model defines a product by three attributes:
 
-Compared with Asset and Observable, the modelling of a contractual financial
-product is complicated and requires the largest data structure. In a contractual
-product, an exchange of financial risk is materialised by a unique
-bilateral contract that specifies the financial obligations of each
-party. The terms of the contract are specified at trade inception and
+* **identifier**: a product must have a unique identifier composed of an `identifier` string
+and an `identifierType` enumerator that defines the symbology source of the identifier.
+* **taxonomy**: a product can be classified according to one or more classification sources.
+Compared to assets, the taxonomy value can be _inferred_ from the product's economic terms
+rather than explicitly naming the product type.
+* **economicTerms**: a parametric representation of the future financial obligations (e.g. cashflows)
+generated by the product, built by composing payouts.
+
+The first two attributes are common with the definition of an asset. Therefore, the defining feature
+of a product compared with an asset is that it includes economic terms.
+
+There are two types of products:
+
+* A **transferable product** associates an asset, itself transferable, with the economic terms describing that asset.
+* A **non-transferable product** describes a commitment between two parties to exchange a flow of assets in the future.
+
+#### TransferableProduct
+
+Because an asset is a basic type of financial product, the `Asset` data type only needs to provide limited information
+about that product: essentially it allows to identify the product using publicly available identifiers.
+
+Sometimes, there is a need to specify the full economic terms of that product, when that product in turn
+generates some asset flow - e.g. cashflows in the case of a loan, bond or equity (dividends). 
+This is supported by the `TransferableProduct` data type.
+
+:::tip Definition: TransferableProduct
+
+A TransferableProduct is a type of Product which allows to specify the EconomicTerms of an Asset.
+It can be used as the underlier of a basic Payout that describes the buying and selling of that Asset.
+
+:::
+
+``` Haskell
+type TransferableProduct extends Asset:
+    economicTerms EconomicTerms (1..1)
+```
+
+Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
+In that case, those attributes are of type, respectively, `AssetIdentifier` and `Taxonomy`.
+
+#### NonTransferableProduct
+
+By contrast with a transferable product, which can be held by a single party who can in turn transfer it to another,
+some financial products consist of bilateral agreements between two parties. As such, they cannot be freely transferred
+by one of the parties to a third party (at least not without the consent of the other party). Such product is usually
+materialised by a financial contract between those parties and can also be referred to as a "contractual" product.
+
+In the CDM, those products are represented by the `NonTransferableProduct` type:
+
+:::tip Definition: NonTransferableProduct
+
+A non-transferable product represents a financial product that is agreed bilaterally between two parties.
+The data type species the financial product's economic terms alongside its identifier and taxonomy.
+A non-transferable product is instantiated by a trade between the two parties (through a TradableProduct) and evolves
+through the CDM's lifecycle event model.
+
+:::
+
+``` Haskell
+type NonTransferableProduct:  
+  [metadata key]
+  [metadata template]
+  identifier ProductIdentifier (0..*) 
+  taxonomy ProductTaxonomy (0..*) 
+  economicTerms EconomicTerms (1..1)
+```
+
+While a `NonTransferableProduct` shares the `identifier` and `taxonomy` attributes with its `TransferableProduct` counterpart,
+those attributes use different types, respectively:
+
+* **`ProductIdentifier`** uses a more restrictive enumerator to specify the `identifierType` compared to `AssetIdentifier`.
+* **`ProductTaxonomy`** enriches the simpler `Taxonomy` data type with the product's primary and secondary asset classes
+using the `AssetClassEnum`, which leverages the FpML classification.
+
+Compared with Asset and Observable, which are minimally defined,
+the modelling of a contractual product requires a larger data structure.
+
+The terms of the contract are specified at trade inception and
 apply throughout the life of the contract (which can last for decades
-for certain long-dated products), unless amended by mutual agreement.
-Contractual products are fungible (in other words, replaceable by other
+for certain long-dated products) unless amended by mutual agreement.
+Contractual products may be fungible (replaceable by other
 identical or similar contracts) only under specific terms: e.g. the
 existence of a close-out netting agreement between the parties.
 
@@ -173,10 +241,9 @@ An index-based product is an exception because it's not directly tradable,
 but is included here because it can be referenced as an underlier for a
 tradable product and can be identified by a public identifier.
 
-### Contractual Product Scope
+#### Product Scope
 
-The scope of contractual financial products in the current model are summarized
-below:
+The scope of (non-transferable) products in the model is summarized below:
 
 -   **Interest rate derivatives**:
     -   Interest Rate Swaps (incl. cross-currency swaps, non-deliverable
@@ -197,37 +264,6 @@ below:
     -   Single underlyer, cash collateralised, open/term security loan
 -   **Repurchase Agreements**:
     -   Open Term, Fixed Term, Fixed Rate, Floating Rate
-
-### NonTransferableProduct
-
-In the CDM, contractual financial products are represented by the
-`NonTransferableProduct` type:
-
-:::tip Definition: NonTransferableProduct
-
-A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. 
-The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot 
-be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) 
-post-execution lifecycle contexts.
-
-:::
-
-``` Haskell
-type NonTransferableProduct:  
-  [metadata key]
-  [metadata template]
-  identifier ProductIdentifier (0..*) 
-  taxonomy ProductTaxonomy (0..*) 
-  economicTerms EconomicTerms (1..1)
-```
-
-The definition of these attributes is as follows:
-
-* **identifier**: As is the case for Assets, a product must have a unique identifier composed
-  of an `Identifier` string and a `ProductIdTypeEnum`.
-* **taxonomy**:  Defines the primary and secondary Asset Classes using the `AssetClassEnum`
-  which leverages the FpML classifications.
-* **economicTerms**:  Defines the price forming features.
 
 ### Economic Terms
 
@@ -266,7 +302,7 @@ type EconomicTerms:
 
 The `Payout` type defines the composable payout types, each of which
 describes a set of terms and conditions for the financial
-responsibilities between the contractual parties. Payout types can be
+obligation between the contractual parties. Payout types can be
 combined to compose a product. For example, an Equity Swap can be
 composed by combining an `InterestRatePayout` and an
 `PerformancePayout`.
@@ -406,33 +442,6 @@ Other model structures use the `[metadata address]` to point to
 type RateSchedule:
   price PriceSchedule (1..1)
     [metadata address "pointsTo"=PriceQuantity->price]
-```
-
-### TransferableProduct
-
-We saw earlier that the data type `NonTransferableProduct` is used to define
-a negotiated contractual financial product between two parties and that this
-is done by modelling the `EconomicTerms` and `Payouts` agreen between them.
-
-This is in contrast with an `Asset` which is something that is transferable
-and not uniquely negotiated. The `Asset` data type provides for the identification
-of the financial product using publicly available identifiers.
-
-Sometimes the identifiers are not sufficient and there is a need to add the
-financial terms and cashflows.  This is facilitated through the use of the
-`TransferableProduct` data type.
-
-:::tip Definition: TransferableProduct
-
-A TransferableProduct is a type of Product which can be used in a 
-SettlementPayout for a basic cash settled trade of either an Asset
-with or without the addition of specific EconomicTerms.
-
-:::
-
-``` Haskell
-type TransferableProduct extends Asset:
-    economicTerms EconomicTerms (1..1)
 ```
 
 ## TradableProduct {#tradable-product}
