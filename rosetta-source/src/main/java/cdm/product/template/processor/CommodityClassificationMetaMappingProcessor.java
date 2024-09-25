@@ -30,7 +30,8 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
             // create new mapping to make the reference work
             Path commodityClassificationSynonymPath =
                     synonymPath.addElement("commodityClassification", 0).addElement("code", 0);
-            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, getModelPath(), referenceBuilder));
+            RosettaPath modelPath = getModelPath().getParent().newSubPath("forwardPayout", 0).newSubPath("underlier").newSubPath("commodity").newSubPath("reference");
+            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, modelPath, referenceBuilder));
         }
     }
 
