@@ -672,7 +672,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         transfer Transfer (1..1)
 
     alias assetPayout:
-        instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
+        instruction -> tradeState -> trade -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias tradeQuantity: <"Security quantity obtained by filtering on the trade quantity">
         FilterQuantityByFinancialUnit(
@@ -739,8 +739,8 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
     set transfer -> settlementDate -> adjustedDate: instruction -> date
 
     set transfer -> settlementOrigin -> assetPayout:
-        if instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
-        then instruction -> tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
+        if instruction -> tradeState -> trade -> product -> economicTerms -> payout -> assetPayout exists
+        then instruction -> tradeState -> trade -> product -> economicTerms -> payout -> assetPayout only-element
             as-key
 
 func ResolveTransfer: <"Defines how to calculate the amount due to be transferred after a Reset Event.">
@@ -789,7 +789,7 @@ func SecurityFinanceCashSettlementAmount:
         cashSettlementAmount Transfer (1..1)
 
     alias assetPayout:
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
         tradeState -> trade -> product -> economicTerms -> collateral
@@ -1270,7 +1270,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         tradeState -> trade -> product -> economicTerms -> payout -> interestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout only-element
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> assetPayout only-element
 
     alias collateral:
         tradeState -> trade -> product -> economicTerms -> collateral
@@ -1400,7 +1400,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         is_event boolean (1..1)
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
                 and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
@@ -2219,7 +2219,7 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
         instruction PrimitiveInstruction (1..1)
 
     condition ContractualProduct: <"Only a security finance contractual product can substitute collateral.">
-        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> economicTerms -> payout -> assetPayout exists
+        tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> assetPayout exists
 
     set instruction: <"Sets the second part of the split to be a new contract with a new asset payout.">
         PrimitiveInstruction {

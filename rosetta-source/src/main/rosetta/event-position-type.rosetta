@@ -31,7 +31,7 @@ type CounterpartyPosition extends ContractBase: <"A Position describes the accum
 type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
 
     priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
-    product NonTransferableProduct (1..1) <"The product underlying the position.">
+    product Product (1..1) <"The product underlying the position.">
     cashBalance Money (0..1) <"The aggregate cost of proceeds">
     tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
         [metadata reference]
@@ -45,6 +45,9 @@ type PortfolioState: <"State-full representation of a Portfolio that describes a
     condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
         if lineage -> portfolioStateReference is absent
         then positions is absent and lineage -> eventReference is absent
+
+    condition NonTransferable: <"The Product in a PortfolioState should be a nonTransferableProduct.">
+        positions -> product -> NonTransferableProduct only exists
 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
     dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
