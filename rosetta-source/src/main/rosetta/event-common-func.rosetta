@@ -1,4 +1,4 @@
-namespace cdm.event.common: <"Business event concepts: primitives, contract state and associated state transition function specifications.">
+override namespace cdm.event.common: <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
 import cdm.base.*
@@ -376,6 +376,7 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
     inputs:
         stockSplitInstruction StockSplitInstruction (1..1)
         before TradeState (1..1)
+        eventDate date (0..1)
     output:
         after TradeState (1..1)
 
@@ -427,7 +428,7 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
             quantityChange: quantityChangeInstruction,
             ...
         }
-    set after: Create_TradeState(primitiveInstruction, before)
+    set after: Create_TradeState(primitiveInstruction, before, eventDate)
 
 func Create_Execution: <"Specifies the function to compose an execution based on a minimum required set of inputs: product, quantity, parties, etc.">
     inputs:
@@ -489,6 +490,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     inputs:
         exerciseInstruction ExerciseInstruction (1..1) <"Instruction containing the terms of the option exercise.">
         originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+        eventDate date (0..1)
     output:
         exercise TradeState (1..*)
 
@@ -523,7 +525,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         optionPayout exists
 
     add exercise: <"Reduces notional / quantity of option by the amount exercised.">
-        Create_TradeState(exerciseInstruction -> exerciseQuantity, originalTrade)
+        Create_TradeState(exerciseInstruction -> exerciseQuantity, originalTrade, eventDate)
 
     add exercise: <"Adds the replacement trade">
         execution
@@ -835,11 +837,12 @@ func Create_Split: <"Defines the logic for splitting a trade into separate copie
     inputs:
         breakdown PrimitiveInstruction (1..*) <"Each primitive instruction contains the set of instructions to be applied to each post-split trade.">
         originalTrade TradeState (1..1) <"The original trade to be split, which must be of single cardinality.">
+        eventDate date (0..1)
     output:
         splitTrade TradeState (1..*)
 
     add splitTrade: <"Iterate over each breakdown and apply the set of primitive instructions to each copy of the original trade.">
-        breakdown extract Create_TradeState(item, originalTrade)
+        breakdown extract Create_TradeState(item, originalTrade, eventDate)
 
 func Create_PartyChange: <"Defines the logic for changing one of the counterparties on a trade. A new trade identifier must be specified as a change of party results in a new trade. An ancillary party can also be specified, for instance to refer to the original executing party on the new trade.">
     inputs:
@@ -2416,14 +2419,16 @@ func Create_BusinessEvent: <"Creates a business event from instructions containi
                 if item -> primitiveInstruction -> split exists
                 then Create_Split(
                             item -> primitiveInstruction -> split -> breakdown,
-                            item -> before
+                            item -> before,
+                            eventDate
                         )
                 else if item -> primitiveInstruction -> exercise exists
                 then Create_Exercise(
                             item -> primitiveInstruction -> exercise,
-                            item -> before
+                            item -> before,
+                            eventDate
                         )
-                else [Create_TradeState(item -> primitiveInstruction, item -> before)]
+                else [Create_TradeState(item -> primitiveInstruction, item -> before, eventDate)]
             then flatten
 
 // TODO: we should have a condition to ensure that no trade is 'lost' between the before(s) and the after(s).
@@ -2442,6 +2447,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
     inputs:
         primitiveInstruction PrimitiveInstruction (0..1) <"The set of primitive instructions to apply to the trade.">
         before TradeState (0..1) <"The original trade on which the primitive instructions are applied">
+        eventDate date (0..1) <"Blah Blah">
     output:
         after TradeState (1..1) <"The returned trade state must be of single cardinality. Where a different trade is created and the original trade must be persisted (for instance showing as 'closed'), it should be preceded by a split instruction.">
 
@@ -2511,7 +2517,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
         then valuation
-        else Create_StockSplit(primitiveInstruction -> stockSplit, valuation)
+        else Create_StockSplit(primitiveInstruction -> stockSplit, valuation, eventDate)
 
     condition NoSplit: <"The primitive instruction cannot contain a split, as this function is designed to return a single trade state.">
         primitiveInstruction -> split is absent
@@ -2523,7 +2529,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
         then ClosedState {
                 state: ClosedStateEnum -> Terminated,
-                activityDate: empty, // TODO: set this property
+                activityDate: eventDate,
                 ...
             }
 

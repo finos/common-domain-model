@@ -1,4 +1,4 @@
-namespace cdm.product.qualification
+override namespace cdm.product.qualification
 version "${project.version}"
 
 import cdm.base.datetime.*
@@ -182,7 +182,8 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
                     else False)
                     // CO Fwd
             or (((economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists
-                    or (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists)
+                    or (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists
+                    or economicTerms -> payout -> forwardPayout only exists)
                 and (economicTerms -> payout -> forwardPayout -> underlier -> commodity exists
                     or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity
                     or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Commodity))
@@ -277,7 +278,7 @@ func Qualify_UnderlierProduct_Equity: <"Qualifies a product as having the Asset 
             or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
                 and underlier -> security -> fundType = FundProductTypeEnum -> OtherFund)
             or underlier -> security -> securityType = SecurityTypeEnum -> Certificate
-            or (underlier -> index exists /* and underlier -> index -> indexType = IndexTypeEnum -> Equity */ ) // No FpML mappings exist for IndexTypeEnum
+            or (underlier -> index exists and underlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity) // No FpML mappings exist for IndexTypeEnum
                 // Qualifies that the underlier is a basket composed of equity products only
             or (underlier -> basket exists
                 and (underlier -> basket -> basketConstituent -> security -> securityType any = SecurityTypeEnum -> Equity
@@ -1690,4 +1691,6 @@ func Qualify_Commodity_Forward: <"Qualifies a product as a Forward that will be 
         Qualify_AssetClass_Commodity(economicTerms) = True
             and ((economicTerms -> payout -> forwardPayout, economicTerms -> payout -> fixedPricePayout) only exists
                 or // Fixed Price Forward
-                (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists) // Floating Price Forward
+                (economicTerms -> payout -> forwardPayout, economicTerms -> payout -> commodityPayout) only exists // Floating Price Forward
+                or // Price Return Vanilla Forward
+                (economicTerms -> payout -> forwardPayout only exists))
