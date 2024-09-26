@@ -200,13 +200,13 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
             PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
             irp.getValue()
                     .getOrCreateRateSpecification()
-                    .getFixedRateSpecification()
+                    .getOrCreateFixedRateSpecification()
                     .getOrCreateRateSchedule()
                     .getOrCreatePrice()
                     .setReference(reference);
             return Arrays.asList(
                     new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.amount")), value),
-                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRateSpecification.rateSchedule.price.reference")), reference));
+                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.FixedRateSpecification.rateSchedule.price.reference")), reference));
         });
 
         commonMappings.put("Loan_Value", (indexes, value, tradeState) -> {
