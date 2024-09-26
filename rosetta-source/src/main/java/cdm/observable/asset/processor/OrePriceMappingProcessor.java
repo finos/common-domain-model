@@ -1,4 +1,4 @@
-package cdm.product.common.settlement.processor;
+package cdm.observable.asset.processor;
 
 import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceSchedule;
