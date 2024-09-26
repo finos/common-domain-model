@@ -10,14 +10,14 @@ risk between two parties.
 The model is based on several building blocks
 to define the characteristics of that risk transfer.
 The most fundamental of these building blocks is an `Asset`, which represents 
-a basic financial product such as cash, a commodity or security.
+a basic, transferable financial product such as cash, a commodity or security.
 From those basic transferable assets, any other financial product can be built using
 other composable building blocks called `Payout` that are assembled to represent the 
-`EconomicTerms` of that product.
-A `Payout` is a parametric description of the flow of one or more
-assets between two parties in the future - for instance, but not exclusively,
-cashflows when that asset is cash - and may itself be contingent on the future value
-or performance of that asset or other.
+complete `EconomicTerms` of that product.
+A `Payout` is a parametric description of the commitment between two parties to the transfer
+of one or more assets in the future - for instance, but not exclusively, future cashflows
+when that asset is cash. These future transfers may be contingent on the future value
+or performance of that asset or other, as in the case of options.
 
 ### Asset  {#asset}
 
@@ -101,17 +101,18 @@ with these attributes:
 ### Observable
 
 In addition to assets, there are variables which can be observed in the markets and which can directly
-influence the outcomes of financial products. In the CDM, these are termed "observables".
+influence the outcomes of financial products. In the CDM, the observed value represents the price of
+an "observable".
 
 :::tip Definition: Observable
 
-The `Observable` data type specifies the reference object to be observed
-for a price. It could be an underlying asset (something that can be held or transferred),
-or a reference to something which can be observed but not transferred, such as an index.
+The `Observable` data type specifies the reference object whose price is to be observed.
+It could be an underlying asset, if it can be held or transferred,
+or something which can be observed but not transferred, such as an index.
 
 :::
 
-In addition to `Asset` , the `Observable` is a choice data type composed as follows:
+In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
 ``` Haskell
 choice Observable:
@@ -120,19 +121,18 @@ choice Observable:
     Index  
 ```
 
-The definition of these attributes is as follows:
-
 * **Asset**:  The inclusion of Asset in Observable enables the price of an asset to be included within the definition of another
-  financial product.
+financial product.
 * **Basket**:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
-* **Index**:  The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.
+* **Index**:  The object to be observed is an Index, ie an observable whose value is computed on the prices, rates or valuations
+of a number of assets.
 
-The CDM allows both assets and observables to be used as underlying building blocks to construct
+The CDM allows both products and observables to be used as underlying building blocks to construct
 more complex products (see the *[Underlier](#underlier)* section).
 
 ### Product
 
-The model defines a product by three attributes:
+The model defines a product using three attributes:
 
 * **identifier**: a product must have a unique identifier composed of an `identifier` string
 and an `identifierType` enumerator that defines the symbology source of the identifier.
@@ -148,7 +148,7 @@ of a product compared with an asset is that it includes economic terms.
 There are two types of products:
 
 * A **transferable product** associates an asset, itself transferable, with the economic terms describing that asset.
-* A **non-transferable product** describes a commitment between two parties to exchange a flow of assets in the future.
+* A **non-transferable product** describes a commitment between two parties to one or more transfers of assets in the future.
 
 #### TransferableProduct
 
@@ -156,7 +156,7 @@ Because an asset is a basic type of financial product, the `Asset` data type onl
 about that product: essentially it allows to identify the product using publicly available identifiers.
 
 Sometimes, there is a need to specify the full economic terms of that product, when that product in turn
-generates some asset flow - e.g. cashflows in the case of a loan, bond or equity (dividends). 
+generates some future asset transfers - e.g. cashflows in the case of a loan, bond or equity (dividends). 
 This is supported by the `TransferableProduct` data type.
 
 :::tip Definition: TransferableProduct
@@ -187,8 +187,8 @@ In the CDM, those products are represented by the `NonTransferableProduct` type:
 
 A non-transferable product represents a financial product that is agreed bilaterally between two parties.
 The data type species the financial product's economic terms alongside its identifier and taxonomy.
-A non-transferable product is instantiated by a trade between the two parties (through a TradableProduct) and evolves
-through the CDM's lifecycle event model.
+A non-transferable product is instantiated by a trade between the two parties that defines the tradable product,
+and evolves through the CDM's lifecycle event model.
 
 :::
 
@@ -209,7 +209,8 @@ those attributes use different types, respectively:
 using the `AssetClassEnum`, which leverages the FpML classification.
 
 Compared with Asset and Observable, which are minimally defined,
-the modelling of a contractual product requires a larger data structure.
+the modelling of a contractual product requires a larger data structure
+to support the representation of economic terms.
 
 The terms of the contract are specified at trade inception and
 apply throughout the life of the contract (which can last for decades
@@ -220,8 +221,8 @@ existence of a close-out netting agreement between the parties.
 
 Given that each contractual product transaction is unique, all of the
 contract terms must be specified and stored in an easily accessible
-transaction lifecycle model so that each party can evaluate the
-financial and counterparty risks during the life of the agreement.
+transaction lifecycle model so that each party can evaluate their
+financial risks during the life of the agreement.
 
 Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
 Forwards) and private loans also represent an exchange of financial risk
