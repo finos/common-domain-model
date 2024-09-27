@@ -9,7 +9,6 @@ import cdm.product.template.PerformancePayout;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
@@ -22,10 +21,8 @@ import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.regnosys.rosetta.common.hashing.ReKeyProcessStep;
-import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.UrlUtils;
-import com.regnosys.rosetta.common.validation.RosettaTypeValidator;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.process.PostProcessStep;
@@ -39,7 +36,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -48,13 +44,9 @@ import java.util.Arrays;
 public class GenerateTemplateExampleJsonWriter {
     private static final String INSTANCE_NAME = "target/FpML_5_10";
 
-    @Inject
-    RosettaTypeValidator validator;
-    @Inject
-    QualifyProcessorStep qualifyProcessorStep;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateTemplateExampleJsonWriter.class);
     private static final String SAMPLE_PATH = "cdm-sample-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.xml";
+    
     private Injector injector;
 
     public static void main(String[] args) throws IOException {
@@ -96,13 +88,14 @@ public class GenerateTemplateExampleJsonWriter {
 
     private void generateTemplateExamples(TradeState tradeState, String outFolder) throws IOException {
         NonTransferableProduct nonTransferableProductTemplate = getNonTransferableProductTemplate(tradeState);
-        writeFileToDisk(Paths.get(outFolder), "contractual-product-template.json", nonTransferableProductTemplate);
+        Path outPath = Path.of(outFolder);
+        writeFileToDisk(outPath, "product-template.json", nonTransferableProductTemplate);
 
         TradeState unmergedContract = getUnmergedContract(tradeState, nonTransferableProductTemplate.getMeta().getGlobalKey());
-        writeFileToDisk(Paths.get(outFolder), "trade-state-unmerged.json", unmergedContract);
+        writeFileToDisk(outPath, "trade-state-unmerged.json", unmergedContract);
 
         TradeState mergedContract = getMergedContract(tradeState, nonTransferableProductTemplate.getMeta().getGlobalKey());
-        writeFileToDisk(Paths.get(outFolder), "trade-state-merged.json", mergedContract);
+        writeFileToDisk(outPath, "trade-state-merged.json", mergedContract);
     }
 
     private NonTransferableProduct getNonTransferableProductTemplate(TradeState inputTradeState) {
@@ -146,11 +139,11 @@ public class GenerateTemplateExampleJsonWriter {
     }
 
     private NonTransferableProduct getNonTransferableProduct(TradeState inputContract, String templateGlobalReference) {
-        NonTransferableProduct contractualProduct = inputContract.getTrade().getProduct();
-        PerformancePayout performancePayout = contractualProduct.getEconomicTerms().getPayout().getPerformancePayout().get(0);
-        InterestRatePayout interestRatePayout = contractualProduct.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
+        NonTransferableProduct product = inputContract.getTrade().getProduct();
+        PerformancePayout performancePayout = product.getEconomicTerms().getPayout().getPerformancePayout().get(0);
+        InterestRatePayout interestRatePayout = product.getEconomicTerms().getPayout().getInterestRatePayout().get(0);
 
-        NonTransferableProduct.NonTransferableProductBuilder contractualProductBuilder = NonTransferableProduct.builder()
+        NonTransferableProduct.NonTransferableProductBuilder productBuilder = NonTransferableProduct.builder()
                 .setMeta(MetaAndTemplateFields.builder().setTemplateGlobalReference(templateGlobalReference))
                 .setEconomicTerms(EconomicTerms.builder()
                         .setPayout(Payout.builder()
@@ -163,9 +156,9 @@ public class GenerateTemplateExampleJsonWriter {
                                         .setCalculationPeriodDates(interestRatePayout.getCalculationPeriodDates())
                                         .setPaymentDates(interestRatePayout.getPaymentDates()))));
 
-        reKeyPostProcess(NonTransferableProduct.class, contractualProductBuilder.prune());
+        reKeyPostProcess(NonTransferableProduct.class, productBuilder.prune());
 
-        return contractualProductBuilder.build();
+        return productBuilder.build();
     }
 
     private static void writeFileToDisk(Path folder, String filename, RosettaModelObject object) throws IOException {
