@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cdm.base.staticdata.party.PayerReceiver.*;
+import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**

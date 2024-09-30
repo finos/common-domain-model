@@ -32,7 +32,7 @@ public class PartyMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		Optional.ofNullable(((Trade.TradeBuilder) builder).getTradableProduct())
+		Optional.ofNullable((Trade.TradeBuilder) builder)
 				.map(this::createHelper)
 				.ifPresent(PartyMappingHelper::addCounterparties);
 	}
