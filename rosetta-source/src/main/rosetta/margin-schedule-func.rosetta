@@ -11,7 +11,6 @@ import cdm.product.qualification.*
 import cdm.product.template.*
 import cdm.product.common.settlement.*
 
-
 func BuildStandardizedSchedule: <"Takes a trade and uses qualification to extract the relevant information to populate the grid that will be used to calculate the gross initial margin.">
     inputs: 
         trade Trade (1..1)
@@ -298,136 +297,136 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
     alias economicTerms: trade -> product -> economicTerms
 
     set notionalCurrency:
-    if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_BaseProduct_CrossCurrency(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
-    then (
-        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    // IR Exotic swap with an exotic coupon against a floating leg not supported
-    else if Qualify_InterestRate_CapFloor(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout only-element -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_InterestRate_Fra(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter rateSpecification -> FixedRateSpecification exists then only-element then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
-    or Qualify_CreditDefaultSwap_Index(economicTerms)
-    or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
-    or IsCreditNthToDefault(economicTerms)
-    then (
-        economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_CreditDefaultSwaption(economicTerms)
-    then (
-        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    // Credit Total return swap on a bond not supported
-    else if Qualify_ForeignExchange_Swap(economicTerms)
-    then (
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> value
-    )
-    else if Qualify_ForeignExchange_NDS(economicTerms)
-    then "AAA" //Recieve side notional and currency. What does that mean?
-    else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
-    then (
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if Qualify_ForeignExchange_NDF(economicTerms)
-    then (
-        StandardizedScheduleFXNDFNotional(economicTerms -> payout -> settlementPayout only-element) -> unit -> currency
-    )
-    else if IsFXDeliverableOption(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if IsFXNonDeliverableOption(economicTerms)
-    then (
-        StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> unit -> currency
-    )   
-    else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
-    then (
-        economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
-    )
-    else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
-    then "AAA" //Vega notional amount not mapped in the product
-    else if Qualify_ForeignExchange_ParameterReturnCorrelation(economicTerms)
-    then "AAA" //No sample trades
-    else if Qualify_EquityOption_PriceReturnBasicPerformance_Basket(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_Index(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_SingleName(economicTerms)
-    //To determine if the method used applies to the following equity options:
-    // or Qualify_EquityOption_ParameterReturnVolatility_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnCorrelation_Basket(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_Index(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency
-    )
-    else if Qualify_BaseProduct_EquityForward(economicTerms)
-    then (
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_SingleName(economicTerms)
-    then "AAA" //All dividend swaps are defined with a monetary payment, no strike price or number of shares
-    // EQ Deliverable Option F not supported
-    else if Qualify_EquitySwap_ParameterReturnVariance_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
-    then (
-        economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
-    )
-    else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_SingleName(economicTerms)
-    then "AAA" //Is volatility amount = vega notional amount?
-    // EQ Contract fo Difference (CFD) not supported
-    else if Qualify_BaseProduct_EquitySwap(economicTerms)
-    then "AAA" //No initial value or current value available in the test samples
-    else if Qualify_Commodity_Forward(economicTerms)
-    then (
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
-    )
-    else if Qualify_Commodity_Option(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency 
-    )
-    else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
-    then (
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
-    )
-    else if Qualify_Commodity_Swap_Basis(economicTerms)
-    then "AAA" //No spot price available
-    else if Qualify_Commodity_Swaption(economicTerms)
-    then (
-        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
-    )
-    // CO Contract for Difference (CFD) not supported
+        if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
+        then (
+            economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if Qualify_BaseProduct_CrossCurrency(economicTerms)
+        then (
+            economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
+        then (
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        // IR Exotic swap with an exotic coupon against a floating leg not supported
+        else if Qualify_InterestRate_CapFloor(economicTerms)
+        then (
+            economicTerms -> payout -> interestRatePayout only-element -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if Qualify_InterestRate_Fra(economicTerms)
+        then (
+            economicTerms -> payout -> interestRatePayout filter rateSpecification -> FixedRateSpecification exists then only-element then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
+            or Qualify_CreditDefaultSwap_Index(economicTerms)
+            or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
+            or IsCreditNthToDefault(economicTerms)
+        then (
+            economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if Qualify_CreditDefaultSwaption(economicTerms)
+        then (
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        // Credit Total return swap on a bond not supported
+        else if Qualify_ForeignExchange_Swap(economicTerms)
+        then (
+            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if Qualify_ForeignExchange_NDS(economicTerms)
+        then "AAA" // Receive side notional and currency. What does that mean?
+        else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
+        then (
+            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if Qualify_ForeignExchange_NDF(economicTerms)
+        then (
+            StandardizedScheduleFXNDFNotional(economicTerms -> payout -> settlementPayout only-element) -> unit -> currency
+        )
+        else if IsFXDeliverableOption(economicTerms)
+        then (
+            economicTerms -> payout -> optionPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if IsFXNonDeliverableOption(economicTerms)
+        then (
+            StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> unit -> currency
+        )   
+        else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
+        then (
+            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
+        )
+        else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
+        then "AAA" //Vega notional amount not mapped in the product
+        else if Qualify_ForeignExchange_ParameterReturnCorrelation(economicTerms)
+        then "AAA" //No sample trades
+        else if Qualify_EquityOption_PriceReturnBasicPerformance_Basket(economicTerms)
+            or Qualify_EquityOption_PriceReturnBasicPerformance_Index(economicTerms)
+            or Qualify_EquityOption_PriceReturnBasicPerformance_SingleName(economicTerms)
+            //To determine if the method used applies to the following equity options:
+            // or Qualify_EquityOption_ParameterReturnVolatility_Basket(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnVolatility_Index(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnVolatility_SingleName(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnVariance_Basket(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnVariance_Index(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnVariance_SingleName(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnCorrelation_Basket(economicTerms)
+            // // or Qualify_EquityOption_ParameterReturnCorrelation_Index(economicTerms)
+            // // or Qualify_EquityOption_ParameterReturnCorrelation_SingleName(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnDividend_Basket(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
+            // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
+        then (
+            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency
+        )
+        else if Qualify_BaseProduct_EquityForward(economicTerms)
+        then (
+            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnDividend_SingleName(economicTerms)
+        then "AAA" //All dividend swaps are defined with a monetary payment, no strike price or number of shares
+        // EQ Deliverable Option F not supported
+        else if Qualify_EquitySwap_ParameterReturnVariance_Basket(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
+        then (
+            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
+        )
+        else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
+            or Qualify_EquitySwap_ParameterReturnVolatility_SingleName(economicTerms)
+        then "AAA" //Is volatility amount = vega notional amount?
+        // EQ Contract fo Difference (CFD) not supported
+        else if Qualify_BaseProduct_EquitySwap(economicTerms)
+        then "AAA" //No initial value or current value available in the test samples
+        else if Qualify_Commodity_Forward(economicTerms)
+        then (
+            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
+        )
+        else if Qualify_Commodity_Option(economicTerms)
+        then (
+            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency 
+        )
+        else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
+        then (
+            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+        )
+        else if Qualify_Commodity_Swap_Basis(economicTerms)
+        then "AAA" //No spot price available
+        else if Qualify_Commodity_Swaption(economicTerms)
+        then (
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+        )
+        // CO Contract for Difference (CFD) not supported
 
 func AuxiliarEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
     inputs: trade Trade (1..1)
