@@ -6,7 +6,7 @@ import com.google.common.io.Resources;
 import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.RosettaModelObject;
-import org.finos.cdm.processor.CdmReferenceConfig;
+import org.isda.cdm.processor.CdmReferenceConfig;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

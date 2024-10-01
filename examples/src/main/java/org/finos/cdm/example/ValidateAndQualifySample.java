@@ -23,7 +23,6 @@ public class ValidateAndQualifySample extends AbstractExample {
     @Inject
     QualifyProcessorStep qualifyProcessor;
 
-    
     @Override
     public void example() throws RuntimeException {
         // Deserialise (and resolve references)
@@ -41,5 +40,9 @@ public class ValidateAndQualifySample extends AbstractExample {
         // Validate
         ValidationReport validationReport = validateProcessor.runProcessStep(TradeState.class, tradeStateBuilder);
         validationReport.logReport(); // logs validation failures as DEBUG and validation success as TRACE
+    }
+
+    public static void main(String[] args) {
+        new ValidateAndQualifySample().run();
     }
 }
