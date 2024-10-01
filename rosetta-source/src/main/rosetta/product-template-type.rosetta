@@ -170,13 +170,10 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
         [metadata address "pointsTo"=PriceQuantity->price]
 
     condition Underlier: <"The underlier on a performance payout can only be an observable.">
-        underlier -> Observable only exists
+        underlier -> Observable exists
 
-    condition PorfolioOrStraightReturn:
-        required choice returnTerms, portfolioReturnTerms    
-
-    // condition PorfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
-    //     required choice returnTerms, portfolioReturnTerms
+    condition PortfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
+        required choice returnTerms, portfolioReturnTerms
 
     condition PortofolioReturnIsMultipleReturns: <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
         if portfolioReturnTerms exists
@@ -184,7 +181,7 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
-        then underlier -> Observable -> Basket only exists
+        then underlier -> Observable -> Basket exists
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
@@ -201,7 +198,7 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
 
     condition CorrelationUnderlierOnlyBasket: <"Correlation Return Terms can only have a basket as underlier, since it needs to compute the correlation between two or more products.">
         if returnTerms -> correlationReturnTerms exists
-        then underlier -> Observable -> Basket only exists
+        then underlier -> Observable -> Basket exists
 
     condition EquitySpecificAttributes: <"Equity specific attributes cannot be present in non-equity products.">
         if Qualify_UnderlierObservable_Equity(underlier -> Observable) = False
