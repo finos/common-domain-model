@@ -195,7 +195,6 @@ and evolves through the CDM's lifecycle event model.
 ``` Haskell
 type NonTransferableProduct:  
   [metadata key]
-  [metadata template]
   identifier ProductIdentifier (0..*) 
   taxonomy ProductTaxonomy (0..*) 
   economicTerms EconomicTerms (1..1)
@@ -1041,37 +1040,6 @@ The following table summarises the use of underliers for each of the main payout
 | `OptionPayout` | `underlier OptionUnderlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
 | `PerformancePayout` | `underlier Observable (0..1)` | The underlier is a pricing mechanism, ie an Observable
 | `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
-
-### Data Templates
-
-The `NonTransferableProduct` type is specified with the
-`[metadata template]` annotation indicating that it is eligible to be
-used as a template.
-
-Financial markets often trade a high volume of trades with near
-identical contractual product data. Templates provide a way to store
-this data more efficiently. The contractual product data which is
-duplicated on each contract can be extracted into a single template and
-replaced by a reference. This allows each trade to specify only the
-unique contractual product data. The template reference can be resolved
-to a template object which can then be merged in to form a single,
-complete object.
-
-For instance, Equity Swaps used by Equity Financing desks sometimes
-refer to a *Master Confirmation* agreement, which is an overall
-agreement that specifies all the standard Equity Swap terms that do not
-need to be renegotiated on each trade. Each contractual product would
-only specify the unique product details (such as start and end date,
-underlier, price and spread) together with a reference to the Master
-Confirmation containing the template product details.
-
-Code libraries, written in Java and distributed with the CDM, contain
-tools to merge CDM objects together. Implementors may extend these
-merging tools to change the merging strategy to suit their requirements.
-The CDM Java Examples download, available via the [CDM Portal Downloads
-page](https://cdm.finos.org/docs/download/), contains a example demonstrating usage of a data template and
-the merging tools. See
-`com.regnosys.cdm.example.template.TemplateExample`.
 
 ### Identifiers
 
