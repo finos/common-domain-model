@@ -104,7 +104,10 @@ type CounterpartyPositionBusinessEvent: <"A business event represents a life cyc
     after CounterpartyPositionState (0..*) <"Specifies the after position state(s) created.">
 
 type ObservationInstruction: <"Specifies inputs needed to process an observation.">
-    observationEvent ObservationEvent (1..1) <"Contains all information related to an observation.">
+    observationEvent ObservationEvent (0..1) <"Contains all information related to the observation of a market event, such as Credit Default Event or Corporate Action Event.">
+    observationFixing ObservationFixing (0..*) <"Records the fixing value of an observable price on a given fixing date.">
+
+    condition: one-of
 
 type ValuationInstruction: <"Specifies inputs needed to process a valuation.">
     valuation Valuation (1..*) <"Contains all information related to a valuation.">
@@ -210,6 +213,19 @@ type ObservationEvent: <"Specifies the necessary information to create any obser
 
     condition:
         one-of
+
+type ObservationFixing: <"Records the fixing value of an observable price on a given fixing date. Observations of market data fixing are made independently to business events or trade life-cycle events, so data instances of Observation can be created independently of any other model type, hence it is annotated as a root type. Observations will be broadly reused in many situations, so references to Observation are supported via the 'key' annotation. ObservationTerms is an optionnal attribute, mostly used when ObservationFixing is used as root-type (independently to business events or trade life-cycle events), else such terms are already described in the terms of the Trade to which ObservationFixing relates to.">
+    [rootType]
+    [metadata key]
+
+    observationTerms cdm.product.common.schedule.ObservationTerms (0..1) <"Defines the source, determination method, time and schedules which describe how and when an observable shall be effectively observed">
+    observationValues Observable (1..*) <"The observable and the related price observations.">
+    lotIdentifier Identifier (0..*) <"Identifier for any existing lot where the observable shall be updated with new price observation values.">
+    
+    condition PriceObservationExists: <"Populating priceObservation is optional at Observable level, yet it is compulsory as part of ObservationFixing which purpose is precisly to represent priceObservation values.">
+    observationValues -> priceObservation exists
+
+    
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
     [metadata key]
