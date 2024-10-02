@@ -89,11 +89,7 @@ func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amo
     set result:
         tradeStates
             extract [
-                CompareTradeLotToAmount(
-                        item -> trade -> tradeLot only-element,
-                        op,
-                        amount
-                    )
+                CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount)
             ] all = True
 
 func TransfersForDate:
@@ -221,7 +217,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         else payout -> valuationDates -> finalValuationDate
 
     set identifiers -> observable: <"Represents the identifer for the equity underlier.">
-        payout -> underlier -> Observable 
+        payout -> underlier -> Observable
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -234,7 +230,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
-        payout -> observationTerms -> informationSource -> primarySource        
+        payout -> observationTerms -> informationSource -> primarySource
     set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
         valuationDates -> determinationMethod
 
@@ -245,9 +241,7 @@ func AdjustedValuationDates:
         adjustedValuationDates date (0..*)
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
-            ResolveAdjustableDates(
-                    valuationDates -> interimValuationDate -> valuationDates
-                ),
+            ResolveAdjustableDates(valuationDates -> interimValuationDate -> valuationDates),
             ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
@@ -496,7 +490,7 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         exercise TradeState (1..*)
 
     alias tradableProduct: <"Extracts the originally traded product.">
-        originalTrade -> trade 
+        originalTrade -> trade
 
     alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
@@ -504,23 +498,33 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
         else tradableProduct -> product -> economicTerms -> payout -> optionPayout only-element
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
-        optionPayout -> optionUnderlier 
+        optionPayout -> optionUnderlier
 
-    alias TransferableProduct:  <"If there is an Observable, extract the underlying Asset or Index and create a TransferableProduct.">
+    alias TransferableProduct: <"If there is an Observable, extract the underlying Asset or Index and create a TransferableProduct.">
         if underlier -> Observable exists
         then if underlier -> Observable -> Asset exists
-            then Create_TransferableProductFromAsset (underlier -> Observable -> Asset, optionPayout -> payerReceiver)
-            else Create_TransferableProductFromIndex (underlier -> Observable -> Index, optionPayout -> payerReceiver)
+            then Create_TransferableProductFromAsset(
+                        underlier -> Observable -> Asset,
+                        optionPayout -> payerReceiver
+                    )
+            else Create_TransferableProductFromIndex(
+                    underlier -> Observable -> Index,
+                    optionPayout -> payerReceiver
+                )
 
-    alias nonTransferableProduct:  <"Create the NonTransferableProduct to be used in the exercise trade.">
+    alias nonTransferableProduct: <"Create the NonTransferableProduct to be used in the exercise trade.">
         if underlier -> Observable exists and TransferableProduct exists // Turn the Transferable from the previous step into a NonTransferable
-        then Create_NonTransferableProduct(TransferableProduct, optionPayout -> payerReceiver)
-        else
-            if underlier -> Product exists  // If underlier is a Product, then there is either a NonTransferableProduct or we can create one.
-            then if underlier -> Product -> NonTransferableProduct exists
-                then underlier -> Product -> NonTransferableProduct
-                else Create_NonTransferableProduct(underlier -> Product -> TransferableProduct, optionPayout -> payerReceiver)
-
+        then Create_NonTransferableProduct(
+                    TransferableProduct,
+                    optionPayout -> payerReceiver
+                )
+        else if underlier -> Product exists // If underlier is a Product, then there is either a NonTransferableProduct or we can create one.
+        then if underlier -> Product -> NonTransferableProduct exists
+            then underlier -> Product -> NonTransferableProduct
+            else Create_NonTransferableProduct(
+                    underlier -> Product -> TransferableProduct,
+                    optionPayout -> payerReceiver
+                )
 
     alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
         Create_Execution(
@@ -547,35 +551,41 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     add exercise: <"Adds the replacement trade">
         execution
 
-func Create_NonTransferableProduct:  <"Creates a NonTransferableProduct (ie EconomicTerms) from an underlier.">
+func Create_NonTransferableProduct: <"Creates a NonTransferableProduct (ie EconomicTerms) from an underlier.">
     inputs:
         underlier TransferableProduct (1..1)
         payerReceiver PayerReceiver (1..1)
     output:
         newProduct NonTransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Product -> TransferableProduct: underlier 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
-    
-func Create_TransferableProductFromAsset:  <"Creates a TransferableProduct (ie EconomicTerms) from an Asset.">
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Product -> TransferableProduct:
+        underlier
+    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver:
+        payerReceiver
+
+func Create_TransferableProductFromAsset: <"Creates a TransferableProduct (ie EconomicTerms) from an Asset.">
     inputs:
         asset Asset (1..1)
         payerReceiver PayerReceiver (1..1)
     output:
         newProduct TransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset: asset 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset:
+        asset
+    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver:
+        payerReceiver
 
-func Create_TransferableProductFromIndex:  <"Creates a TransferableProduct (ie EconomicTerms) from an Index.">
+func Create_TransferableProductFromIndex: <"Creates a TransferableProduct (ie EconomicTerms) from an Index.">
     inputs:
         index Index (1..1)
         payerReceiver PayerReceiver (1..1)
     output:
         newProduct TransferableProduct (1..1)
 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index: index 
-    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver: payerReceiver
+    set newProduct -> economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index:
+        index
+    set newProduct -> economicTerms -> payout -> settlementPayout -> payerReceiver:
+        payerReceiver
 
 func Create_Reset: <"Defines how a Reset should be constructed.">
     inputs:
@@ -709,7 +719,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             ...
         }
 
-    add transfer -> asset -> Instrument -> Security  -> identifier:
+    add transfer -> asset -> Instrument -> Security -> identifier:
         assetPayout -> securityInformation -> identifier
 
     set transfer -> payerReceiver -> payerPartyReference:
@@ -791,8 +801,7 @@ func SecurityFinanceCashSettlementAmount:
     alias assetPayout:
         tradeState -> trade -> product -> economicTerms -> payout -> assetPayout only-element
 
-    alias collateral:
-        tradeState -> trade -> product -> economicTerms -> collateral
+    alias collateral: tradeState -> trade -> product -> economicTerms -> collateral
 
     alias securityQuantity: <"Specifies the number of securities.">
         if quantity exists
@@ -838,7 +847,7 @@ func SecurityFinanceCashSettlementAmount:
                 ) -> partyReference
         else if assetPayout -> payerReceiver -> receiver exists
         then ExtractCounterpartyByRole(
-                    tradeState -> trade ->  counterparty,
+                    tradeState -> trade -> counterparty,
                     assetPayout -> payerReceiver -> receiver
                 ) -> partyReference
 
@@ -986,7 +995,7 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
 
     // Update trade with new TradableProduct.
     set quantityChange -> trade -> product: tradableProduct -> product
-    set quantityChange -> trade -> tradeLot: newTradeLots  
+    set quantityChange -> trade -> tradeLot: newTradeLots
     set quantityChange -> trade -> counterparty: tradableProduct -> counterparty
     set quantityChange -> trade -> ancillaryParty: tradableProduct -> ancillaryParty
     set quantityChange -> trade -> adjustment: tradableProduct -> adjustment
@@ -1272,8 +1281,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
         tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> assetPayout only-element
 
-    alias collateral:
-        tradeState -> trade -> product -> economicTerms -> collateral
+    alias collateral: tradeState -> trade -> product -> economicTerms -> collateral
 
     alias haircutPercentage:
         (1.0 - collateral -> collateralProvisions -> eligibleCollateral only-element -> treatment -> valuationTreatment -> haircutPercentage)
@@ -1443,26 +1451,27 @@ func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlem
             lotIdentifier: empty
         }
 
-func CheckTransferableProduct:  <"Identifies whether a product is transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
+func CheckTransferableProduct: <"Identifies whether a product is transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
         isTransferableProduct boolean (1..1)
 
-    set isTransferableProduct:  <"If not an Index, then underlier must be an Asset or TransferableProduct.">
+    set isTransferableProduct: <"If not an Index, then underlier must be an Asset or TransferableProduct.">
         if economicTerms -> payout -> settlementPayout only exists
-        and economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index is absent
-        then True    
+                and economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Index is absent
+        then True
 
-func CheckTradeNotTransferableProduct:  <"Identifies whether the product inside a TradeState is not transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
-    inputs: 
+func CheckTradeNotTransferableProduct: <"Identifies whether the product inside a TradeState is not transferable, that is, it has only an Asset or a Transferable Product in a single Settlement Payout.">
+    inputs:
         tradeState TradeState (1..1)
     output:
         isNotTransferableProduct boolean (1..1)
-    
+
     set isNotTransferableProduct:
         if CheckTransferableProduct(tradeState -> trade -> product -> economicTerms)
-        then False else True 
+        then False
+        else True
 
 func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a trade roll. A trade roll consists in closing an existing trade and entering into a new one which has the same characteristics as the old one, except with an extended termination date and (possibly) a different price.">
     inputs:
@@ -1648,18 +1657,12 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
     output:
         is_event boolean (1..1)
 
-    alias beforeTrade:
-        businessEvent -> instruction only-element -> before -> trade
-    alias beforeProduct:
-        beforeTrade -> product
-    alias beforeEconomicterms:
-        beforeProduct -> economicTerms
-    alias openTrade:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade    
-    alias openProduct:
-        openTrade -> product
-    alias openEconomicTerms:
-        openProduct -> economicTerms
+    alias beforeTrade: businessEvent -> instruction only-element -> before -> trade
+    alias beforeProduct: beforeTrade -> product
+    alias beforeEconomicterms: beforeProduct -> economicTerms
+    alias openTrade: FilterOpenTradeStates(businessEvent -> after) only-element -> trade
+    alias openProduct: openTrade -> product
+    alias openEconomicTerms: openProduct -> economicTerms
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
 
     alias beforePriceQuantityRateOnly: <"The rate value before. There must be 1 and only 1.">
@@ -1991,8 +1994,7 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
     output:
         instruction PrimitiveInstruction (1..1)
 
-    alias oldPriceQuantity:
-        tradeState -> trade -> tradeLot -> priceQuantity
+    alias oldPriceQuantity: tradeState -> trade -> tradeLot -> priceQuantity
 
     alias currentAssetPrice: <"Filter interest rate price and make it into a single element">
         oldPriceQuantity
@@ -2059,8 +2061,7 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
     output:
         instruction PrimitiveInstruction (1..1)
 
-    alias oldPriceQuantity:
-        tradeState -> trade -> tradeLot -> priceQuantity
+    alias oldPriceQuantity: tradeState -> trade -> tradeLot -> priceQuantity
 
     alias currentAssetPrice: <"Filter interest rate price and make it into a single element">
         oldPriceQuantity
@@ -2377,8 +2378,7 @@ func Create_CashflowTermsChangeInstruction:
         termsChangeInstruction TermsChangeInstruction (1..1)
 
     set termsChangeInstruction -> product: product
-    add termsChangeInstruction -> product -> economicTerms -> payout -> cashflow:
-        cashFlow
+    add termsChangeInstruction -> product -> economicTerms -> payout -> cashflow: cashFlow
 
 func Create_Cashflow:
     inputs:
@@ -2623,7 +2623,9 @@ func ExtractAfterTradableProduct:
         tradableProduct TradableProduct (0..1)
 
     set tradableProduct:
-        CreateTradableProduct(FilterOpenTradeStates(businessEvent -> after) only-element -> trade)
+        CreateTradableProduct(
+                FilterOpenTradeStates(businessEvent -> after) only-element -> trade
+            )
 
 func ExtractTradePurchasePrice:
     inputs:

@@ -289,7 +289,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
                 businessEvent -> eventDate
             )
     set is_event:
-        transfers -> asset -> Instrument -> Security only exists
+        transfers -> asset -> Instrument -> Security exists
             and transfers -> quantity -> unit -> currency only exists
             and FilterCashTransfers(transfers) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
                     transfers
@@ -363,8 +363,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
         FilterQuantityByFinancialUnit(beforeQuantities, FinancialUnitEnum -> Share)
             only-element -> value
 
-    alias afterQuantities:
-        afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
+    alias afterQuantities: afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
 
     alias afterNoOfUnits:
         FilterQuantityByFinancialUnit(afterQuantities, FinancialUnitEnum -> Share)
