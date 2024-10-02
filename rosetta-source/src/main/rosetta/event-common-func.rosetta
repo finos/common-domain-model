@@ -220,7 +220,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         then payout -> valuationDates -> interimValuationDate
         else payout -> valuationDates -> finalValuationDate
     add identifiers -> observable -> asset -> Instrument -> Security -> identifier: <"Represents the identifer for the equity underlier.">
-        payout -> underlier -> security -> identifier 
+        payout -> underlier -> security -> identifier
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
         AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
@@ -242,9 +242,7 @@ func AdjustedValuationDates:
         adjustedValuationDates date (0..*)
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
-            ResolveAdjustableDates(
-                    valuationDates -> interimValuationDate -> valuationDates
-                ),
+            ResolveAdjustableDates(valuationDates -> interimValuationDate -> valuationDates),
             ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
         ]
             sort
@@ -660,7 +658,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
             ...
         }
 
-    add transfer -> asset -> Instrument -> Security  -> identifier:
+    add transfer -> asset -> Instrument -> Security -> identifier:
         assetPayout -> securityInformation -> security -> identifier
 
     set transfer -> payerReceiver -> payerPartyReference:
