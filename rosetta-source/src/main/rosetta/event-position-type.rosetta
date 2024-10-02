@@ -9,7 +9,6 @@ import cdm.event.common.*
 import cdm.event.workflow.*
 import cdm.observable.asset.*
 import cdm.product.collateral.*
-import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 type ContractBase: <"Encapsulates data features common to trade and position.">
@@ -47,13 +46,16 @@ type PortfolioState: <"State-full representation of a Portfolio that describes a
         if lineage -> portfolioStateReference is absent
         then positions is absent and lineage -> eventReference is absent
 
+    condition NonTransferable: <"The Product in a PortfolioState should be a nonTransferableProduct.">
+        positions -> product -> NonTransferableProduct exists
+
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
     dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
     totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
     positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
     party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
         [metadata reference]
-    product Product (0..*) <"To aggregate based on a selection of products.">
+    product NonTransferableProduct (0..*) <"To aggregate based on a selection of products.">
     productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
     tradeReference Trade (0..*)
         [metadata reference]

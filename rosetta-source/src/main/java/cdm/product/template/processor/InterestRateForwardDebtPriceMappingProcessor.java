@@ -18,9 +18,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import static cdm.base.math.UnitType.builder;
-import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.incrementPathElementIndex;
-import static cdm.product.common.settlement.processor.PriceQuantityHelper.toReferencablePriceBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
+import static cdm.observable.asset.processor.PriceQuantityHelper.incrementPathElementIndex;
+import static cdm.observable.asset.processor.PriceQuantityHelper.toReferencablePriceBuilder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 import static com.regnosys.rosetta.common.util.PathUtils.toPath;
