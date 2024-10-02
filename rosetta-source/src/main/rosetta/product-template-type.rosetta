@@ -175,9 +175,6 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     condition PortfolioOrStraightReturn:
         required choice returnTerms, portfolioReturnTerms    
 
-    // condition PortfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
-    //     required choice returnTerms, portfolioReturnTerms
-
     condition PortfolioReturnIsMultipleReturns: <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
         if portfolioReturnTerms exists
         then portfolioReturnTerms count > 1
@@ -427,7 +424,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
         then settlementTerms -> cashSettlementTerms exists 
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier -> Observable -> Asset -> Cash is absent
+        if underlier -> Observable -> Asset -> Cash exists
         then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -864,7 +861,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     [metadata key]
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-    securityInformation Security (1..1) <"Specifies the Purchased Security.">
+    underlier Asset (1..1) <"Specifies the Purchased Asset, usually a Security.">
         // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
@@ -872,6 +869,9 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
+
+    condition UnderlierNotCash: <"The purchased asset in an assetPayout should not be cash.">    
+        underlier -> Cash is absent
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">

@@ -191,31 +191,29 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
         economicTerms -> payout -> settlementPayout only-element -> underlier
 
     set is_product:
-        // CO:FixFlo
-        ((economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedPricePayout) only exists
-                and economicTerms -> payout -> commodityPayout -> underlier exists)
-                    // CO Basis
-            or (economicTerms -> payout -> commodityPayout only exists
-                and economicTerms -> payout -> commodityPayout count = 2
-                and economicTerms -> payout -> commodityPayout -> underlier count = 2)
-                    // CO Opt
-            or (economicTerms -> payout -> optionPayout only exists
-                and (optionUnderlier -> Observable -> Asset -> Commodity exists
-                    or optionUnderlier -> Product -> TransferableProduct -> Commodity exists
-                    or if optionUnderlier -> Product exists
-                        then Qualify_AssetClass_Commodity(optionUnderlier -> Product ->> economicTerms) = True
-                        else False
+        // Regular Commodity Swap
+        ( economicTerms -> payout -> commodityPayout, economicTerms -> payout -> fixedPricePayout) only exists
+        // Commodity Basis Swap
+        or (economicTerms -> payout -> commodityPayout only exists
+            and economicTerms -> payout -> commodityPayout count = 2)
+        // Commodity Option
+        or (economicTerms -> payout -> optionPayout only exists
+            and (optionUnderlier -> Observable -> Asset -> Commodity exists
+                or optionUnderlier -> Product -> TransferableProduct -> Commodity exists
+                or if optionUnderlier -> Product exists
+                    then Qualify_AssetClass_Commodity(optionUnderlier -> Product ->> economicTerms) = True
+                    else False
                 ))          
-                    // CO Fwd
-            or (((economicTerms -> payout -> settlementPayout, economicTerms -> payout -> fixedPricePayout) only exists
-                    or (economicTerms -> payout -> settlementPayout, economicTerms -> payout -> commodityPayout) only exists)
-                and (economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset -> Commodity exists
-                    or settlementUnderlier -> Product -> TransferableProduct -> Commodity exists
-                    or if settlementUnderlier -> Product ->> economicTerms exists
-                        then Qualify_AssetClass_Commodity(
-									settlementUnderlier -> Product ->> economicTerms) = True
-                        else False
-                ))        
+        // Commodity Spot or Forward
+        or (((economicTerms -> payout -> settlementPayout, economicTerms -> payout -> fixedPricePayout) only exists
+            or (economicTerms -> payout -> settlementPayout, economicTerms -> payout -> commodityPayout) only exists)
+            and (economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset -> Commodity exists
+                or settlementUnderlier -> Product -> TransferableProduct -> Commodity exists
+                or if settlementUnderlier -> Product ->> economicTerms exists
+                   then Qualify_AssetClass_Commodity(
+						settlementUnderlier -> Product ->> economicTerms) = True
+                    else False
+            ))        
 
 /*
  * ENDOF Qualification of ISDA Taxonomy V2 Level 1 - ASSETCLASS:
@@ -293,32 +291,32 @@ func Qualify_CreditDefaultSwaption: <"This product qualification is temporary un
 
 func Qualify_UnderlierObservable_Equity: <"Qualifies an Observable as having the Asset Class classification Equity.">
     inputs:
-        underlier Observable (1..1)
+        observable Observable (1..1)
     output:
         is_product boolean (1..1)
 
     set is_product:
-        Qualify_SecurityTypeEquity(underlier -> Asset -> Instrument -> Security)
-            or underlier -> Index ->> assetClass = AssetClassEnum -> Equity
+        Qualify_SecurityTypeEquity(observable -> Asset -> Instrument -> Security)
+            or observable -> Index ->> assetClass = AssetClassEnum -> Equity
             // Qualifies that the underlier is a basket composed of equity products only
-            or (underlier -> Basket exists
-                and (Qualify_SecurityTypeEquity(underlier -> Basket -> basketConstituent -> Asset -> Instrument -> Security)
-                    or underlier -> Basket -> basketConstituent -> Index ->> assetClass all = AssetClassEnum -> Equity 
+            or (observable -> Basket exists
+                and (observable -> Basket -> basketConstituent -> Asset -> Instrument -> Security extract Qualify_SecurityTypeEquity(item)
+                    or observable -> Basket -> basketConstituent -> Index ->> assetClass all = AssetClassEnum -> Equity 
                     ))
 
 func Qualify_SecurityTypeEquity:  <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
-        security Security (1..*)
+        security Security (1..1)
     output:
         is_equity boolean (1..1)
 
     set is_equity:
-        security -> securityType all = SecurityTypeEnum -> Equity
-            or (security -> securityType all = SecurityTypeEnum -> Fund
-                and security -> fundType all = FundProductTypeEnum -> ExchangeTradedFund)
-            or (security -> securityType all = SecurityTypeEnum -> Fund
-                and security -> fundType all = FundProductTypeEnum -> MutualFund)
-            or security -> securityType all = SecurityTypeEnum -> Warrant 
+        security -> securityType = SecurityTypeEnum -> Equity
+            or (security -> securityType = SecurityTypeEnum -> Fund
+                and security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+            or (security -> securityType = SecurityTypeEnum -> Fund
+                and security -> fundType = FundProductTypeEnum -> MutualFund)
+            or security -> securityType = SecurityTypeEnum -> Warrant 
 
 func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Swap.">
     inputs:
@@ -731,8 +729,8 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
             and economicTerms -> payout -> optionPayout only exists
                 // qualifies that the underlier is an asset
             and economicTerms -> payout -> optionPayout only-element -> optionUnderlier -> Observable -> Asset exists
-                // qualifies that the underlier is an equity security
-            and ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Equity, empty) 
+                // qualifies that the underlier is a security (already verified as equity)
+            and optionUnderlier -> Observable -> Asset -> Instrument -> Security only exists 
                 // qualifies that no feature other than averaging exists
             and (economicTerms -> payout -> optionPayout -> feature is absent
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists)
