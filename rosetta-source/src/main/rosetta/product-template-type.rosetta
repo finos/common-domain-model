@@ -25,10 +25,10 @@ import cdm.mapping.config.*
 
 type ProductBase: <"Serves as an abstract class to specify common attributes for all products.">
     taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
+    economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
 
-type TransferableProduct extends Asset:  <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
-    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
+type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+    economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
@@ -68,8 +68,7 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
                 and terminationDate exists
-        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
-                or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
+        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
@@ -128,7 +127,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 
     condition OptionStylePresent: <"This condition ensures that an optionPayout contains the style of option within its exercise terms.">
         exerciseTerms -> style exists
-    
+
     condition OptionTypePresent: <"This condition ensures that an option type is set when the underlier is not a non-transferable product.">
         if optionUnderlier -> Product -> NonTransferableProduct is absent
         then optionType exists
@@ -173,16 +172,15 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
         underlier -> Observable exists
 
     condition PortfolioOrStraightReturn:
-        required choice returnTerms, portfolioReturnTerms    
+        required choice returnTerms, portfolioReturnTerms
 
     // condition PortfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
-    //     required choice returnTerms, portfolioReturnTerms
-
+    // required choice returnTerms, portfolioReturnTerms
     condition PortfolioReturnIsMultipleReturns: <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
         if portfolioReturnTerms exists
         then portfolioReturnTerms count > 1
 
-    condition UnderlierOfPortfolioIsBasket:<"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
+    condition UnderlierOfPortfolioIsBasket: <"A portfolio made of multiple individual legs in portfolio, is a strategy that consider the Basket in transparency, thus having a Basket as an underlier of the PerformancePayout that is aggregation level and multiple individual legs in portfolio, each with an underlier to correspond to each Basket consituent. This is particular usage of portfolio attribute, hence the condition, being aknowledged that other usages would not require Basket to exist at this level, for instance a dispersion strategy where 'N+1' multiple portfolio return legs would exist, '1' with underlier->Basket, other 'N' ones with single underliers, where the Basket is at same level as the other legs (therefore no aggregation shall exist via Basket at PerformancePayout level.">
         if portfolioReturnTerms -> priceReturnTerms exists
         then underlier -> Observable -> Basket exists
 
@@ -215,13 +213,13 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
                 and returnTerms -> correlationReturnTerms -> equityUnderlierProvisions is absent
                 and returnTerms -> correlationReturnTerms -> sharePriceDividendAdjustment is absent
 
-type PortfolioReturnTerms extends ReturnTerms : <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level.">
+type PortfolioReturnTerms extends ReturnTerms: <"Specifies an individual type of return of a Performance Payout, when such individual return is part of an aggregation of multiple similar returns, at Performance Payout level.">
     [metadata key]
 
     payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each individual return leg.">
     underlier Observable (1..1) <"Defines the product that is the subject of a tradable product definition, an underlying product definition, a physical exercise, a position, or other purposes.">
         [metadata address "pointsTo"=PriceQuantity->observable]
-    quantity NonNegativeQuantitySchedule (0..1 ) <"Specifies a quantity schedule for the underlier, which applies to each individual return leg.">
+    quantity NonNegativeQuantitySchedule (0..1) <"Specifies a quantity schedule for the underlier, which applies to each individual return leg.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
     initialValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
         [metadata address "pointsTo"=PriceQuantity->price]
@@ -295,22 +293,22 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
         if performancePayout -> priceQuantity -> reset contains True
         then interestRatePayout exists
 
-choice Underlier:  <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, a product, or the cash settlement of an index rate.  Conditions are usually applied when used in a data type, such as a payout, to ensure this aligns with the use case.">
-    Observable  <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-        [metadata address "pointsTo"=PriceQuantity->observable]   
-    Product  <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
+choice Underlier: <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, a product, or the cash settlement of an index rate.  Conditions are usually applied when used in a data type, such as a payout, to ensure this aligns with the use case.">
+    Observable <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+        [metadata address "pointsTo"=PriceQuantity->observable]
+    Product <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
 
-choice Product:  <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
-    TransferableProduct    <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
+choice Product: <"Enables either a TransferableProduct or a NonTransferableProduct to be used in an underlier.">
+    TransferableProduct <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
     NonTransferableProduct <"The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.">
 
-type NonTransferableProduct:  <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
+type NonTransferableProduct: <"A data type to specify the financial product's economic terms, alongside the product identification and product taxonomy. The non-transferable product data type represents a product that can be traded (as part of a TradableProduct) but cannot be transferred to others.  It is meant to be used across the pre-execution, execution and (as part of the Contract) post-execution lifecycle contexts.">
     [metadata key]
     [metadata template]
     identifier ProductIdentifier (0..*) <"Comprises a identifier and a source to uniquely identify the nonTransferableProduct. ">
     taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    economicTerms EconomicTerms (1..1)  <"The price forming features, including payouts and provisions.">
-    
+    economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
+
     condition PrimaryAssetClass: <"Specifies that when nonStandardisedTerms are True that a primary asset class must be specified.">
         if economicTerms -> nonStandardisedTerms = True
         then taxonomy -> primaryAssetClass exists
@@ -414,17 +412,17 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-    
-    condition Underlier:  <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
+
+    condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
         underlier -> Product -> NonTransferableProduct is absent
 
-    condition Basket:  <"If the underlier is a basket, it must contain only transferable assets.">    
+    condition Basket: <"If the underlier is a basket, it must contain only transferable assets.">
         if underlier -> Observable -> Basket exists
         then underlier -> Observable -> Basket -> basketConstituent -> Asset only exists
 
-    condition Index:  <"If the underlier is an Index, then it can only be cash settled.">
+    condition Index: <"If the underlier is an Index, then it can only be cash settled.">
         if underlier -> Observable -> Index exists
-        then settlementTerms -> cashSettlementTerms exists 
+        then settlementTerms -> cashSettlementTerms exists
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
         if underlier -> Observable -> Asset -> Cash is absent
@@ -865,7 +863,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     securityInformation Security (1..1) <"Specifies the Purchased Security.">
-        // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
+    // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     repoType RepoTypeEnum (0..1) <"Repurchase transactions and buy/sell-backs are both types of repo; this enumerator helps differentiate the two.">

@@ -296,7 +296,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         if product -> economicTerms -> payout -> settlementPayout only exists
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
-    
+
     condition Price: <"When the executed product is an Asset, the price must be specified.">
         if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Observable -> Asset exists
         then tradeLot -> priceQuantity -> price exists
@@ -470,14 +470,14 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
         if product -> economicTerms -> payout -> interestRatePayout exists
-        then FpmlIrd8(CreateTradableProduct(item),account) = True
+        then FpmlIrd8(CreateTradableProduct(item), account) = True
 
     condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
-        then ( product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists 
-           and product -> economicTerms -> payout -> performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity )     
-           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-           or  product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+        then (product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
+                    and product -> economicTerms -> payout -> performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity)
+                or product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+                or product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -723,4 +723,3 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
     marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
     marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
     agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
-    
