@@ -720,11 +720,12 @@ type FutureValueAmount: <"A class defining a currency and a future value date.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
     currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
         [metadata scheme]
-    calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
+    calculationPeriodNumberOfDays NonNegativeQuantitySchedule (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
+        [metadata address "pointsTo"=PriceQuantity->quantity]
     valueDate date (1..1) <"Adjusted value date of the future value amount.">
 
     condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
-        calculationPeriodNumberOfDays >= 0
+        calculationPeriodNumberOfDays -> value >= 0
 
 type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 
