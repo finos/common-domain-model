@@ -24,26 +24,6 @@ func UnderlierQualification:  <"Identifies whether the underlier(s) have either 
         or underlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType = securityType
         // The EconomicTerms of any TransferableProduct or a NonTransferableProduct should be checked outside this function.
 
-// func UnderlierPayoutQualification:  <"Identifies whether the underlier(s) in a payout have either the specified securityType or assetClass.">
-//     inputs: 
-//         payout Payout (0..1)
-//         securityType SecurityTypeEnum (0..1)
-//         assetClass AssetClassEnum (0..1)
-//     output:
-//         qualifies boolean (1..1)
-
-//     alias underlier:  <"Scenario is that only Option or Settlement payouts exists.">
-//         if payout -> optionPayout only exists
-//         then payout -> optionPayout -> optionUnderlier 
-//         else if payout -> settlementPayout only exists
-//         then payout -> settlementPayout -> underlier
-
-//     alias qualifiesList:  <"Validate whether the underlier(s) in the payout meet the specificed criteria.">
-//         underlier extract UnderlierQualification(item, securityType, assetClass) = True
-
-//     set qualifies:  <"Check that the qualification condition is true for all of the underliers.">
-//         qualifiesList all = True
-
 func ObservableQualification:  <"Identifies whether the observable(s) have either the specified securityType or assetClass.">
     inputs:
         observable Observable (0..1)  <"An Observable is an Asset, Basket or Index.">
@@ -76,18 +56,26 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
     output:
         is_product boolean (1..1)
 
-    alias underlier:  <"Underliers might qualify if they are exclusively used in an Option or Settlement payouts.">
-        [ economicTerms -> payout -> optionPayout only-element -> underlier, economicTerms -> payout -> settlementPayout only-element -> underlier ]
+    alias optionUnderlier: 
+        economicTerms -> payout -> optionPayout only-element -> underlier
+    alias settlementUnderlier:
+        economicTerms -> payout -> settlementPayout only-element -> underlier
 
     set is_product:
-        <"Qualifies if there is one of:
-        - an Interest Rate payout
-        - a payout with an asset underlier with is an interest rate or debt asset
-        - a payout with an underlier which qualifies as an interest rate product.">
         economicTerms -> payout -> interestRatePayout only exists
-        or underlier extract UnderlierQualification(item, SecurityTypeEnum -> Debt, AssetClassEnum -> InterestRate)
-        or if underlier -> Product exists 
-            then [ underlier -> Product ->> economicTerms extract Qualify_AssetClass_InterestRate(item) ] 
+            or (economicTerms -> payout -> optionPayout only exists
+                and (ObservableQualification(optionUnderlier -> Observable, SecurityTypeEnum -> Debt, AssetClassEnum -> InterestRate) 
+                    or optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType = SecurityTypeEnum -> Debt
+                    or if optionUnderlier -> Product exists
+                        then Qualify_AssetClass_InterestRate(optionUnderlier -> Product ->> economicTerms) = True
+                        else False
+                ))
+            or (economicTerms -> payout -> settlementPayout only exists
+                and (UnderlierQualification(settlementUnderlier, SecurityTypeEnum -> Debt, AssetClassEnum -> InterestRate) 
+                    or if settlementUnderlier -> Product ->> economicTerms exists
+                        then Qualify_AssetClass_InterestRate(settlementUnderlier -> Product ->> economicTerms) = True
+                        else False
+                ))
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
     inputs:
@@ -133,15 +121,16 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
 
     set is_product:
         (economicTerms -> payout -> settlementPayout only exists     
-                and economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset -> Cash exists)
-            or economicTerms -> payout -> performancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
-            or (economicTerms -> payout -> optionPayout only exists
-                and (optionUnderlier -> Observable -> Asset -> Cash exists
-                    or if optionUnderlier -> Product exists
-                        then Qualify_AssetClass_ForeignExchange(optionUnderlier -> Product ->> economicTerms) = True
-                        else False
-                ))
-            or UnderlierQualification(settlementUnderlier, empty, AssetClassEnum -> ForeignExchange)
+            and (   economicTerms -> payout -> settlementPayout -> underlier -> Observable -> Asset -> Cash exists
+                or  UnderlierQualification(settlementUnderlier, empty, AssetClassEnum -> ForeignExchange))
+            )
+        or  economicTerms -> payout -> performancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+        or  (economicTerms -> payout -> optionPayout only exists
+            and (optionUnderlier -> Observable -> Asset -> Cash exists
+                or if optionUnderlier -> Product exists
+                    then Qualify_AssetClass_ForeignExchange(optionUnderlier -> Product ->> economicTerms) = True
+                    else False
+            ))
 
 func Qualify_AssetClass_Equity:
     inputs:
