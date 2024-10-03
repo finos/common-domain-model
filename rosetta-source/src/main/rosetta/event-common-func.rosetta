@@ -495,29 +495,31 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
     output:
         exercise TradeState (1..*)
 
-    alias tradableProduct: <"Extracts the originally traded product.">
-        originalTrade -> trade 
-
     alias optionPayout: <"Extracts the optionPayout from exerciseInstruction if provided or from the original trade if absent">
         if exerciseInstruction -> exerciseOption exists
         then exerciseInstruction -> exerciseOption
-        else tradableProduct -> product -> economicTerms -> payout -> optionPayout only-element
+        else originalTrade -> trade -> product -> economicTerms -> payout -> optionPayout only-element
 
     alias underlier: <"Extracts the underlying financial product, upon which the option decision is contingent. Requires that the original contract contains an option payout that contains an Observable or a Product as the underlier.">
-        optionPayout -> optionUnderlier 
+        optionPayout -> underlier 
 
-    alias nonTransferableProduct:  <"Find or create the NonTransferableProduct to be used in the exercise trade.">
+    alias resultProduct:  <"Find or create the the non transferable product that will result from the exercise.">
         if underlier -> Product -> NonTransferableProduct exists // It already exists, no need to create
         then underlier -> Product -> NonTransferableProduct
         else Create_NonTransferableProduct(underlier, optionPayout -> payerReceiver)
 
+    alias productWithDirection:  <"If the option is a Put, then the direction on the result product needs to be flipped from that on the underlier.">
+        if optionPayout -> optionType = OptionTypeEnum -> Put
+        then Update_ProductDirection(resultProduct, optionPayout -> payerReceiver -> payer, optionPayout -> payerReceiver -> receiver)
+        else resultProduct
+
     alias execution: <"Creates the execution primitive describing the exchange of the underlying product, either as a cash transfer or as the formation of a new contractual product between parties.">
         Create_Execution(
                 ExecutionInstruction {
-                    product: nonTransferableProduct,
-                    priceQuantity: tradableProduct -> tradeLot only-element -> priceQuantity,
-                    counterparty: tradableProduct -> counterparty,
-                    ancillaryParty: tradableProduct -> ancillaryParty,
+                    product: productWithDirection,
+                    priceQuantity: originalTrade -> trade -> tradeLot only-element -> priceQuantity,
+                    counterparty: originalTrade -> trade -> counterparty,
+                    ancillaryParty: originalTrade -> trade -> ancillaryParty,
                     parties: originalTrade -> trade -> party,
                     partyRoles: originalTrade -> trade -> partyRole,
                     executionDetails: empty,
@@ -535,6 +537,18 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
 
     add exercise: <"Adds the replacement trade">
         execution
+
+func Update_ProductDirection:  <"Flips the payer and receiver on a product (used when a Put Option is exercised).">
+    inputs:
+        before NonTransferableProduct (1..1)
+        originalPayer CounterpartyRoleEnum (1..1)
+        originalReceiver CounterpartyRoleEnum (1..1) 
+    output:
+        after NonTransferableProduct (1..1)
+    
+    set after: before
+    set after -> economicTerms -> payout -> optionPayout -> payerReceiver -> payer: originalReceiver
+    set after -> economicTerms -> payout -> optionPayout -> payerReceiver -> receiver: originalPayer 
 
 func Create_NonTransferableProduct:  <"Creates a NonTransferableProduct (ie EconomicTerms) from an underlier.">
     inputs:
