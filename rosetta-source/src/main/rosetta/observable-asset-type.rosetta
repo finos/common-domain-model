@@ -108,6 +108,7 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     composite PriceComposite (0..1) <"(Optionally) Specifies the underlying price components if the price can be expressed as a composite: e.g. dirty price = clean price + accrued.">
     arithmeticOperator ArithmeticOperationEnum (0..1) <"(Optionally) When the price is to be understood as an operator to apply to an observable, i.e. a spread, multiplier or min/max.">
     cashPrice CashPrice (0..1) <"(Optionally when the price type is cash) Additional attributes that further define a cash price, e.g. what type of fee it is.">
+    determinationDate DateRelativeToEnum (0..1) <"The type of date on which the price is determinated.">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
         if priceType = PriceTypeEnum -> Variance
@@ -176,8 +177,20 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
     //**ART** Will remove rateOption and map to Index in Phase 3    
     rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
         [metadata location]
+        
+    priceObservation PriceSchedule (0..*) <"Specifies dated value series corresponding to price observation and related observation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata address] permits to update the price schedule in accordance with the lifecycle schedule (for instance by adding one more datedValue in the schedule, per each effective price observation, as a result of an event where PriceScheule is defined with the correponding [metadata location].">
+        [metadata address "pointsTo"=PriceQuantity->price]
+
+    condition:
+    required choice asset, basket, index
+
+    condition ResetPrice: <"Reset Price only applies to an observable rate.">
+    if priceObservation -> determinationDate any = DateRelativeToEnum -> ResetDate
+    then index -> FloatingRateIndex exists
     
-    condition: one-of
+    condition ObservationIsDatedValue: <"Price fixing must associate the price value observed with the fixing date on which it is effectively observed.">
+    if priceObservation exists
+    then priceObservation -> datedValue exists
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
