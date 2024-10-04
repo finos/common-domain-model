@@ -23,10 +23,6 @@ import cdm.product.collateral.*
 
 import cdm.mapping.config.*
 
-type ProductBase: <"Serves as an abstract class to specify common attributes for all products.">
-    taxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-    economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
-
 type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
 
@@ -47,7 +43,6 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     terminationProvision TerminationProvision (0..1) <"Contains optional provisions pertaining to the termination characteristics of a contract.">
     calculationAgent CalculationAgent (0..1) <"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.">
     nonStandardisedTerms boolean (0..1) <"Specifies, when boolean value is True, that additional economic terms exist that have not been included in the product representation.">
-    // ICMA-P2
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
 
     condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
@@ -68,7 +63,8 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate exists
                 and terminationDate exists
-        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
+        then payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> unadjustedDate
+                or payout -> interestRatePayout -> paymentDates -> lastRegularPaymentDate all < terminationDate -> adjustableDate -> adjustedDate
 
     condition IndependentCalculationAgent:
         if calculationAgent -> calculationAgentParty exists
@@ -86,15 +82,15 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
-    optionUnderlier Underlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
+    underlier Underlier (1..1) <"The financial product underlying the option, which can be of any type including an Asset, Basket, Index or a NonTransferableProduct.">
     optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
-                and optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout exists
-                and optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
+                and underlier -> Product ->> economicTerms -> payout -> interestRatePayout exists
+                and underlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
         then settlementTerms -> physicalSettlementTerms -> clearedPhysicalSettlement exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -129,7 +125,7 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
         exerciseTerms -> style exists
 
     condition OptionTypePresent: <"This condition ensures that an option type is set when the underlier is not a non-transferable product.">
-        if optionUnderlier -> Product -> NonTransferableProduct is absent
+        if underlier -> Product -> NonTransferableProduct is absent
         then optionType exists
 
 type ReturnTerms: <"Specifies the type of return of a performance payout.">
@@ -174,8 +170,6 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     condition PortfolioOrStraightReturn:
         required choice returnTerms, portfolioReturnTerms
 
-    // condition PortfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
-    // required choice returnTerms, portfolioReturnTerms
     condition PortfolioReturnIsMultipleReturns: <"No single portfolioReturnTerms instance shall exist because it would be a duplicate of straight returnTerms.">
         if portfolioReturnTerms exists
         then portfolioReturnTerms count > 1
@@ -265,7 +259,7 @@ type Payout: <"Represents the set of future cashflow methodologies in the form o
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         if optionPayout exists
         then optionPayout -> priceQuantity exists
-                or optionPayout -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
+                or optionPayout -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout count = 2
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
         if interestRatePayout count = 2
@@ -425,7 +419,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
         then settlementTerms -> cashSettlementTerms exists
 
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
-        if underlier -> Observable -> Asset -> Cash is absent
+        if underlier -> Observable -> Asset -> Cash exists
         then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -862,14 +856,17 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     [metadata key]
 
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
-    securityInformation Security (1..1) <"Specifies the Purchased Security.">
-    // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
+    underlier Asset (1..1) <"Specifies the Purchased Asset, usually a Security.">
+        // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
     repoType RepoTypeEnum (0..1) <"Repurchase transactions and buy/sell-backs are both types of repo; this enumerator helps differentiate the two.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
+
+    condition UnderlierNotCash: <"The purchased asset in an assetPayout should not be cash.">    
+        underlier -> Cash is absent
 
 type DividendTerms: <"Information related to dividends and payments.">
     manufacturedIncomeRequirement DividendPayoutRatio (1..1) <"Specifies the proportion of the value of the dividend on the borrowed shares that the borrower is legally obligated to return to the lender.">

@@ -1119,20 +1119,6 @@ condition Options:
      if optionType exists then strike exists else strike is absent
 ```
 
-#### Product Identifiers
-
-The abstract data type ProductBase serves as a base for all products
-that have an identifier, as illustrated below:
-
-``` Haskell
-type ProductBase:
-  taxonomy ProductTaxonomy (0..*)
-  economicTerms EconomicTerms (1..1)
-```
-
-The data types that extend from ProductBase are Commodity 
-and Security. 
-
 ---
 **Note:**
 The conditions for this data type are excluded from the snippet above

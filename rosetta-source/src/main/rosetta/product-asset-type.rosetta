@@ -221,10 +221,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
 choice RateSpecification: <" A data type to specify the fixed interest rate, floating interest rate or inflation rate.">
 
-    FixedRateSpecification <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
-    FloatingRateSpecification <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
+    FixedRateSpecification     <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
+    FloatingRateSpecification  <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
     InflationRateSpecification <"An inflation rate calculation definition.">
-
+    
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
     totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
@@ -284,29 +284,6 @@ type FloatingAmountProvisions:
     wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
     stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
-type CreditIndexReferenceInformation extends IndexBase: <"A class defining a Credit Default Swap Index.">
-    [metadata key]
-    indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
-    indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
-    indexAnnexDate date (0..1) <"A CDS index series annex date.">
-    indexAnnexSource IndexAnnexSourceEnum (0..1) <"A CDS index series annex source.">
-        [metadata scheme]
-    excludedReferenceEntity ReferenceInformation (0..*) <"Excluded reference entity.">
-    tranche Tranche (0..1) <"This element contains CDS tranche terms.">
-    settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
-    indexFactor number (0..1) <"Index Factor is the index version factor or percent, expressed as an absolute decimal value between 0 and 1, that multiplied by the original notional amount yields the notional amount covered by the seller of protection.">
-    seniority CreditSeniorityEnum (0..1) <"Seniority of debt instruments comprising the index.">
-
-    condition IndexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
-        if indexSeries exists then indexSeries >= 0
-
-    condition IndexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
-        if indexAnnexVersion exists then indexAnnexVersion >= 0
-
-    condition IndexFactor: <"Index factor is expressed as a decimal and should be a positive number between o and 1.">
-        if indexFactor exists
-        then indexFactor >= 0 and indexFactor <= 1
-
 type InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
 
     interestShortfallCap InterestShortfallCapEnum (1..1) <"Specifies the nature of the interest Shortfall cap (i.e. Fixed Cap or Variable Cap) in the case where it is applicable. ISDA 2003 Term: Interest Shortfall Cap.">
@@ -348,7 +325,7 @@ type ReferenceObligation: <"A class to specify the reference obligation that is 
     condition AssetChoice: <"Represents the choice in a CDS contract.">
         required choice security, loan
 
-    condition MustBeDebtSecurity: <"Only debt securities can be used as the reference obligation for a credit derivative.">
+    condition MustBeDebtSecurity:  <"Only debt securities can be used as the reference obligation for a credit derivative.">
         if security exists
         then security -> securityType = SecurityTypeEnum -> Debt
 
@@ -638,7 +615,7 @@ type BondReference: <"Reference to a bond underlier to represent an asset swap o
     discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
     couponRate FixedRateSpecification (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">
 
-    condition BondUnderlier: <"The underlier should be a bond.">
+    condition BondUnderlier:  <"The underlier should be a bond.">
         bond -> securityType = SecurityTypeEnum -> Debt
 
 type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
@@ -710,8 +687,6 @@ type FloatingRateSpecification extends FloatingRate: <"A class to specify the fl
     averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
     negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
-//    condition FloatingRateIndex:
-//        rateOption -> InterestRateIndex exists
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
     [metadata key]
     rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
@@ -757,3 +732,4 @@ type FixedAmountCalculationDetails: <"Type for reporting the detailed results of
     fixedRate number (1..1) <"The value of the fixed rate that was used.">
     yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
     calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
+    

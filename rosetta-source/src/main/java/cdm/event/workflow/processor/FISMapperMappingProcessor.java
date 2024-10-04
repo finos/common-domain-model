@@ -94,7 +94,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
         //sec lending payout
-        getSecPO(tradeState).getValue().getOrCreateSecurityInformation().setSecurityType(SecurityTypeEnum.EQUITY);
+        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
 
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
@@ -353,7 +353,9 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
             PathValue<AssetPayout.AssetPayoutBuilder> secLendingPayout = getSecPO(tradeState);
             secLendingPayout
                     .getValue()
-                    .setSecurityInformation(security);
+                    .getOrCreateUnderlier()
+                    .getOrCreateInstrument()
+                    .setSecurity(security);
             return Arrays.asList(
                     new PathValue<>(pq.getModelPath().append(Path.parse("observable.value.Asset.value.Instrument.security")), value),
                     new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.identifier.identifier.value")), reference));
