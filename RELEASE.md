@@ -13,18 +13,14 @@ _What is being released?_
 Product Refactoring:
 - This release completes the refactoring of the major financial product data types, that is `Asset`, `Observable`, and `Index`, and combines their use in a new structure for financial products.
 - The new data type `NonTransferableProduct` has replaced the former `ContractualProduct` and is the main "product" data type used on a trade; it appears as the attribute `product` on the data type `TradableProduct`.
-- There is no longer a data type called `Product`; all financial products should be composed into the `EconomicTerms` of a `NonTransferableProduct`.
+- On a `Trade`, all financial products should be composed into the `EconomicTerms` of a `NonTransferableProduct`.
 - *Separate PR but included here for completeness* The data type `payout` is now a choice construct with the consequence that references to specific instances of a specific payout should refer to the capitalised data type name rather than an attribute, for example `economicTerms -> payout -> performancePayout` becomes `economicTerms -> payout -> PerformancePayout`. This has large impact in terms of the number of changes in this PR.
 
 Underliers:
-- Whereas all underliers were previously defined to use data type `product`, this has now been improved so that the different instances using the concept of an underlier haev been explicitly defined using a type tailored to this use.
-- Accordingly, the following new choice data types have been created:  `Underlier`, `ProductUnderlier`, `OptionUnderlier` and `Product`.
-- Payouts with changed underliers:
-  - `OptionPayout` now uses `OptionUnderlier`.
-  - `PerformancePayout` now uses `Observable`.
-  - `CommodityPayout` now uses `Commodity`.
-  - `VolatilityReturnTerms` now uses `ListedDerivative`.
-  - `BondReference` now uses `Security`.
+- An `Underlier` represents the financial product that will be physically or cash settled.
+- Whereas all underliers were previously defined to use data type `product`, this has now been improved so that they can also be an `Observable` when the case warrants it.
+- `Underlier` is modelled as a choice data type, that is, it can either be an `Observable` or a `Product`.
+- A `Product` is also a choice type, either a `TransferableProduct` (a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms), or a     NonTransferableProduct (a product that can be traded, as part of a TradableProduct, but cannot be transferred to others).
 
 Product and Trade Hierarchy:
 - The `Trade` data type now extends `TradableProduct`; this means that the latter is "hidden" in many uses in the CDM, eg in the graphical view, and one level within the hierarchy is removed when generating JSON.  This change has resulted to updates to 100s of occurences to path accesses within the model (particularly in the Event and Product functions).  For example, the previous access path `tradeState -> trade -> tradableProduct -> tradeLot` has become `tradeState -> trade -> tradeLot`. 
@@ -36,7 +32,7 @@ Product details:
 - `Index`
   - `Index` is now an `Observable` and the replaces the existing data type `rateOption`.
   - The path `observable -> rateOption` has become `observable -> Index -> FloatingRateIndex`.
-  - Data type `CreditIndexReferenceInformation` now extends `IndexBase`.
+  - Data type `CreditIndex` now extends `IndexBase`.
 
 ProductQualification:
 - Additional functions have been created to ease with the qualification process: `UnderlierQualification`. `ObservableQualification`.
@@ -59,7 +55,6 @@ Event Model:
 - The function `NewEquitySwapProduct` now creates a `NonTransferableProduct` not a generic product.
 - Event processing has been refactored to handle the new modeling of `TradableProduct`.
 - The unused data types `Affirmation` and `Confirmation` have been removed.
-- A `Position` is now composed from a `NonTransferableProduct` rather than a generic `Product`; this data type was used as this representation of a position reflects a pre-settled state and therefore is not (yet) fungible or transferable.
 
 Observable:
 - The attribute `Observable` has been removed from `ObservationTerms` where it created duplication.
@@ -86,7 +81,7 @@ Documentation updates:
 
 _Review directions_
 
-The changes can be reviewed in PR: [#XXX](https://github.com/finos/common-domain-model/pull/XXX)
+The changes can be reviewed in PR: [#3127](https://github.com/finos/common-domain-model/pull/3127)
 
 _Backward-incompatible changes_
 
