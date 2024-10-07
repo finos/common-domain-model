@@ -1105,12 +1105,13 @@ class FunctionInputCreationTest {
                         .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
                         .setExDate(Date.of(2009, 2, 1))
                         .setPayDate(Date.of(2009, 2, 1))
-                        .setUnderlier(Underlier.builder()
-                                .setObservableValue(Observable.builder()
-                                        .setIndex(Index.builder()
-                                                .setEquityIndex(EquityIndex.builder()
-                                                        .setAssetClass(AssetClassEnum.EQUITY)
-                                                        .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
+                );
         return observationEvent;
     }
 
@@ -1148,12 +1149,13 @@ class FunctionInputCreationTest {
                         .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
                         .setExDate(Date.of(2009, 2, 13))
                         .setPayDate(Date.of(2009, 2, 13))
-                        .setUnderlier(Underlier.builder()
-                                .setObservableValue(Observable.builder()
-                                        .setIndex(Index.builder()
-                                                .setEquityIndex(EquityIndex.builder()
-                                                        .setAssetClass(AssetClassEnum.EQUITY)
-                                                        .setNameValue("VOLKSWAGEN AG VZO O.N."))))));
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
+                );
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(observationEvent);

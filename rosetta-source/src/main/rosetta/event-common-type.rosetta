@@ -21,6 +21,7 @@ import cdm.product.asset.*
 import cdm.product.collateral.*
 import cdm.product.common.*
 import cdm.product.common.settlement.*
+import cdm.product.qualification.*
 import cdm.product.template.*
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
@@ -236,7 +237,7 @@ type SettlementOrigin: <"Defines the origin to the transfer as a reference for l
         [metadata reference]
     creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
         [metadata reference]
-    forwardPayout SettlementPayout (0..1) <"Represents a reference to a Forward Payout.">
+    settlementPayout SettlementPayout (0..1) <"Represents a reference to a Settlement Payout.">
         [metadata reference]
     interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
         [metadata reference]
@@ -291,14 +292,11 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
         [deprecated]
 
-    condition PartyRoleBuyerSeller: <"When the product uses a settlement payout, both buyer and seller party roles must exist.">
+    condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
         if product -> economicTerms -> payout -> settlementPayout only exists
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
-
-    condition Price: <"When the executed product is an Asset, the price must be specified.">
-        if product -> economicTerms -> payout -> settlementPayout only-element -> underlier -> Observable -> Asset exists
-        then tradeLot -> priceQuantity -> price exists
+                and tradeLot -> priceQuantity -> price exists
 
     condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
         if executionDetails -> packageReference exists
@@ -469,14 +467,13 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
         if product -> economicTerms -> payout -> interestRatePayout exists
-        then FpmlIrd8(CreateTradableProduct(item), account) = True
+        then FpmlIrd8(item,account) = True
 
-    condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout.">
+    condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout or an equity option payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
-        then (product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
-                    and product -> economicTerms -> payout -> performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity)
-                or product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Observable -> Asset -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
-                or product -> economicTerms -> payout -> optionPayout -> optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType any = SecurityTypeEnum -> Equity
+        then ( product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
+               or product -> economicTerms -> payout -> optionPayout exists )
+            and Qualify_AssetClass_Equity(product -> economicTerms)
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -527,11 +524,11 @@ type CreditEvent: <"Specifies the relevant data regarding a credit event.">
     publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
     referenceInformation ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
 
-type CorporateAction: <"Specifies the relevant data regarding a corporate action">
+type CorporateAction: <"Specifies the relevant data regarding a corporate action.">
     corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
     exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-    underlier Underlier (1..1) <"The entity impacted by the corporate action.">
+    underlier Instrument (1..1) <"The instrument (ie security, loan or listed derivative) impacted by the corporate action.">
 
 type TransferBase:
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
@@ -722,3 +719,4 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
     marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
     marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
     agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
+    

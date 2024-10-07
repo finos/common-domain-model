@@ -453,8 +453,8 @@ func AuxiliarEffectiveDate: <"Extracts the effective date of specific products s
             extract AdjustableDateResolution
             then min)
         // interestRateSwaptions
-        else if economicTerms -> payout -> optionPayout only-element -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
-        then (economicTerms -> payout -> optionPayout only-element -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
+        else if economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
+        then (economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
             extract AdjustableDateResolution
             then min)
 
@@ -465,14 +465,14 @@ func AuxiliarTerminationDate: <"Extracts the termination date of specific produc
     alias economicTerms: trade -> product -> economicTerms
 
     set terminationDate:
-    // interestRatePayout
+        // interestRatePayout
         if economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
                 then (economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
                     extract AdjustableDateResolution
                     then max)
-    // interestRateSwaptions
-        else if economicTerms -> payout -> optionPayout only-element -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
-        then (economicTerms -> payout -> optionPayout only-element -> optionUnderlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
+        // interestRateSwaptions
+        else if economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
+        then (economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
             extract AdjustableDateResolution
             then max)
 
@@ -487,62 +487,33 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
     alias underlier: UnderlierForProduct(product)
 
     alias transactionEffectiveDate:
-        AdjustableOrAdjustedOrRelativeDateResolution(
-                ConvertToAdjustableOrAdjustedOrRelativeDate(economicTerms -> effectiveDate)
-            )
+        AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(economicTerms -> effectiveDate))
     alias transactionTerminationDate:
-        AdjustableOrAdjustedOrRelativeDateResolution(
-                ConvertToAdjustableOrAdjustedOrRelativeDate(
-                        economicTerms -> terminationDate
-                    )
-            )
+        AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(economicTerms -> terminationDate))
     alias transactionTenorInYears:
         if transactionEffectiveDate exists and transactionTerminationDate exists
         then DateDifferenceYears(transactionEffectiveDate, transactionTerminationDate)
     alias underlyingTransactionEffectiveDate:
-        AdjustableOrAdjustedOrRelativeDateResolution(
-                ConvertToAdjustableOrAdjustedOrRelativeDate(
-                        underlier -> Product ->> economicTerms -> effectiveDate
-                    )
-            )
+        AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(underlier -> Product ->> economicTerms -> effectiveDate))
     alias underlyingTransactionTerminationDate:
-        AdjustableOrAdjustedOrRelativeDateResolution(
-                ConvertToAdjustableOrAdjustedOrRelativeDate(
-                        underlier -> Product ->> economicTerms -> terminationDate
-                    )
-            )
+        AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(underlier -> Product ->> economicTerms -> terminationDate))
     alias underlyingTransactionTenorInYears:
-        if underlyingTransactionEffectiveDate exists
-                and underlyingTransactionTerminationDate exists
-        then DateDifferenceYears(
-                    underlyingTransactionEffectiveDate,
-                    underlyingTransactionTerminationDate
-                )
+        if underlyingTransactionEffectiveDate exists and underlyingTransactionTerminationDate exists
+        then DateDifferenceYears(underlyingTransactionEffectiveDate, underlyingTransactionTerminationDate)
     alias optionExpiry:
-        economicTerms -> payout -> optionPayout only-element -> exerciseTerms
-            then extract
-                if style = OptionExerciseStyleEnum -> American
-                then AdjustableOrAdjustedOrRelativeDateResolution(
-                            ConvertToAdjustableOrAdjustedOrRelativeDate(
-                                    expirationDate only-element
-                                )
-                        )
-                else if style = OptionExerciseStyleEnum -> European
-                then (expirationDate
-                    max [
-                        AdjustableOrAdjustedOrRelativeDateResolution(
-                                ConvertToAdjustableOrAdjustedOrRelativeDate(item)
-                            )
-                    ]
-                    extract
-                        AdjustableOrAdjustedOrRelativeDateResolution(
-                                ConvertToAdjustableOrAdjustedOrRelativeDate(item)
-                            ))
-                else if style = OptionExerciseStyleEnum -> Bermuda
-                then (if exerciseDates -> adjustableDates exists
-                    then AdjustableDatesResolution(exerciseDates -> adjustableDates)
-                        max [ item ]
-                        extract item)
+        economicTerms -> payout -> optionPayout only-element -> exerciseTerms then extract
+        if style = OptionExerciseStyleEnum -> American then AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(expirationDate only-element))
+        else if style = OptionExerciseStyleEnum -> European then (
+            expirationDate 
+            max [AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(item))]
+            extract AdjustableOrAdjustedOrRelativeDateResolution(ConvertToAdjustableOrAdjustedOrRelativeDate(item))
+        )
+        else if style = OptionExerciseStyleEnum -> Bermuda then (
+            if exerciseDates -> adjustableDates exists then 
+                AdjustableDatesResolution(exerciseDates -> adjustableDates)
+                max [item]
+                extract item
+        )
     alias timeToOptionExpiryInYears:
         if transactionEffectiveDate exists and optionExpiry exists
         then DateDifferenceYears(transactionEffectiveDate, optionExpiry)
@@ -613,9 +584,9 @@ func UnderlierForProduct: <"Extracts the underlier product.">
         underlier Underlier (1..1)
 
     set underlier:
-        if product -> economicTerms -> payout -> optionPayout exists
-        then product -> economicTerms -> payout -> optionPayout only-element -> optionUnderlier
-        else if product -> economicTerms -> payout -> settlementPayout exists
+        if product -> economicTerms -> payout -> optionPayout exists 
+        then product -> economicTerms -> payout -> optionPayout only-element-> underlier
+        else if product -> economicTerms -> payout -> settlementPayout exists 
         then product -> economicTerms -> payout -> settlementPayout only-element -> underlier
 
 func AdjustableOrAdjustedOrRelativeDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
@@ -730,6 +701,7 @@ func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based o
 //     set quantity:
 //     // extractedExchangedCurrency only-element -> priceQuantity -> quantitySchedule
 //         farLeg -> priceQuantity -> quantitySchedule
+
 func StandardizedScheduleFXNDFNotional: <"Extracts the notional amount and currency of an FX non-deliverable forward.">
     inputs:
         settlementPayout SettlementPayout (0..1)
@@ -737,11 +709,13 @@ func StandardizedScheduleFXNDFNotional: <"Extracts the notional amount and curre
         quantity NonNegativeQuantitySchedule (0..1)
 
     // alias settlementCurrency: settlementPayout -> settlementTerms -> settlementCurrency
+
     // alias exchangedCurrencies:
     // [
     // forwardPayout -> underlier -> foreignExchange -> exchangedCurrency1,
     // forwardPayout -> underlier -> foreignExchange -> exchangedCurrency2
     // ]
+
     set quantity:
         // exchangedCurrencies filter priceQuantity -> quantitySchedule -> unit -> currency = settlementCurrency then only-element then priceQuantity -> quantitySchedule
         settlementPayout -> priceQuantity -> quantitySchedule
@@ -759,6 +733,7 @@ func StandardizedScheduleFXNDONotional: <"Extracts the notional amount and curre
     // optionPayout -> underlier -> foreignExchange -> exchangedCurrency1,
     // optionPayout -> underlier -> foreignExchange -> exchangedCurrency2
     // ]
+    
     set quantity:
         // exchangedCurrencies filter priceQuantity -> quantitySchedule -> unit -> currency = settlementCurrency then only-element then priceQuantity -> quantitySchedule
         optionPayout -> priceQuantity -> quantitySchedule
@@ -774,86 +749,85 @@ func StandardizedScheduleFXVarianceNotionalAmount: <"Extracts the notional amoun
     set amount: (vegaNotionalAmount -> value) / (0.02 * (fixedRate -> value))
 
 func StandardizedScheduleOptionNotionalAmount: <"Extracts the notional amount of a CO or EQ option.">
-    inputs:
-        optionPayout OptionPayout (0..1)
-    output:
-        amount number (0..1)
-    alias strikePrice: optionPayout -> strike -> strikePrice -> value
+    inputs: optionPayout OptionPayout (0..1)
+    output: amount number (0..1)
+    alias strikePrice:
+    optionPayout -> strike -> strikePrice -> value
     alias notionalQuantity:
-        optionPayout -> priceQuantity -> quantitySchedule
-            then (if multiplier exists
-                then value * multiplier -> value
-                else value)
-    set amount: strikePrice * notionalQuantity
+    optionPayout -> priceQuantity -> quantitySchedule then (
+        if multiplier exists then value * multiplier -> value
+        else value
+    )
+    set amount:
+    strikePrice * notionalQuantity
 
 func StandardizedScheduleEquityForwardNotionalAmount: <"Extracts the notional amount of an EQ forward.">
-    inputs:
-        forwardPayout SettlementPayout (0..1)
-    output:
-        amount number (0..1)
+    inputs: settlementPayout SettlementPayout (0..1)
+    output: amount number (0..1)
 
     alias forwardPrice:
-        forwardPayout -> priceQuantity -> priceSchedule only-element -> value
+        settlementPayout -> priceQuantity -> priceSchedule only-element -> value
     alias notionalQuantity:
-        forwardPayout -> priceQuantity -> quantitySchedule
-            then (if multiplier exists then value * multiplier -> value else value)
+        settlementPayout -> priceQuantity -> quantitySchedule then 
+            (if multiplier exists then value * multiplier -> value else value )
 
-    set amount: forwardPrice * notionalQuantity
+    set amount:
+        forwardPrice * notionalQuantity
 
 func StandardizedScheduleVarianceSwapNotionalAmount: <"Extracts the notional amount of an EQ variance swap.">
-    inputs:
-        performancePayout PerformancePayout (0..1)
-    output:
-        amount number (0..1)
+    inputs: performancePayout PerformancePayout (0..1)
+    output: amount number (0..1)
     alias varianceAmount:
-        performancePayout -> priceQuantity -> quantitySchedule
-            then (if multiplier exists
-                then value * multiplier -> value
-                else value)
-            then if item >= 1 then 0.01 * item else item
+    performancePayout -> priceQuantity -> quantitySchedule then (
+        if multiplier exists then value * multiplier -> value
+        else value
+    ) then if item >= 1 then 0.01*item else item
     alias volatilityStrikePrice:
-        performancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> value
-    set amount: 200 * varianceAmount * volatilityStrikePrice
+    performancePayout -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> value
+    set amount: 
+    200 * varianceAmount * volatilityStrikePrice
 
 func StandardizedScheduleCommodityForwardNotionalAmount: <"Extracts the notional amount of a CO forward. Floating price forwards not supported.">
-    inputs:
-        economicTerms EconomicTerms (0..1)
-    output:
-        amount number (0..1)
-
+    inputs: economicTerms EconomicTerms (0..1)
+    output: amount number (0..1)
+    
     alias forwardPrice:
         economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> value
-
+    
     alias notionalQuantity:
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule
-            then (if multiplier exists
-                then value * multiplier -> value
-                else value)
+        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule 
+        then (
+            if multiplier exists then value * multiplier -> value
+            else value
+        )
 
-    set amount: forwardPrice * notionalQuantity
+    set amount:
+    forwardPrice * notionalQuantity
 
 func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the notional amount of a CO fixed float swap.">
-    inputs:
-        economicTerms EconomicTerms (0..1)
-    output:
-        amount number (0..1)
+    inputs: economicTerms EconomicTerms (0..1)
+    output: amount number (0..1)
     alias fixedPrice:
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> value
+    economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> value
     alias notionalQuantity:
-        economicTerms -> payout -> commodityPayout only-element -> priceQuantity -> quantitySchedule
-            then (if multiplier exists
-                then value * multiplier -> value
-                else value)
-    set amount: fixedPrice * notionalQuantity
+    economicTerms -> payout -> commodityPayout only-element -> priceQuantity -> quantitySchedule then (
+        if multiplier exists then value * multiplier -> value
+        else value
+    )
+    set amount:
+    fixedPrice * notionalQuantity
 
 func DateDifferenceYears: <"Computes the difference in years between two dates. All years are supposed to have 365 days.">
+
     inputs:
         firstDate date (1..1) <"The earlier date.">
         secondDate date (1..1) <"The later date.">
     output:
-        difference number (1..1)
+        difference number (1..1) 
 
-    set difference: DateDifference(firstDate, secondDate) / 365.0
+    set difference:
+        
+        DateDifference(firstDate, secondDate)/365.0
 
 func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.">
     inputs:
@@ -869,8 +843,8 @@ func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option."
     output:
         is_Product boolean (1..1)
     set is_Product:
-        Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
+        Qualify_ForeignExchange_VanillaOption(economicTerms) and
+        economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
 
 func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable option.">
     inputs:
@@ -878,8 +852,8 @@ func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable o
     output:
         is_Product boolean (1..1)
     set is_Product:
-        Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
+        Qualify_ForeignExchange_VanillaOption(economicTerms) and
+        economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
 
 func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
     inputs:
@@ -887,8 +861,7 @@ func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
     output:
         is_Product boolean (1..1)
     set is_Product:
-        Qualify_InterestRate_Option_Swaption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> optionType = OptionTypeEnum -> Straddle
+        Qualify_InterestRate_Option_Swaption(economicTerms) and economicTerms -> payout -> optionPayout only-element -> optionType = OptionTypeEnum -> Straddle
 
 func IsIRSwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.">
     inputs:
@@ -896,60 +869,54 @@ func IsIRSwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product a
     output:
         is_Product boolean (1..1)
     set is_Product:
-        Qualify_BaseProduct_IRSwap(economicTerms)
-            and economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseTerms -> style = OptionExerciseStyleEnum -> Bermuda
+    Qualify_BaseProduct_IRSwap(economicTerms) and economicTerms -> terminationProvision -> earlyTerminationProvision -> optionalEarlyTermination -> exerciseTerms -> style = OptionExerciseStyleEnum -> Bermuda
 
 func GetNetInitialMarginFromExposure: <"Computes the net initial margin, taking the gross initial margin result and the mark to market value for each trade in the portfolio.">
     inputs:
         exposure Exposure (0..1)
     output:
         initialMargin StandardizedScheduleInitialMargin (0..1)
-    alias tradePortfolio: exposure -> tradePortfolio
-    alias positions: tradePortfolio -> positions
+    alias tradePortfolio:
+        exposure -> tradePortfolio
+    alias positions:
+        tradePortfolio -> positions
     alias tradeInitialMargin:
-        positions
-            extract
-                StandardizedScheduleTradeInfo {
-                    assetClass: BuildStandardizedSchedule(item -> tradeReference -> trade) -> assetClass,
-                    productClass: BuildStandardizedSchedule(item -> tradeReference -> trade) -> productClass,
-                    grossInitialMargin: GetGrossInitialMarginFromStandardizedSchedule(
-                                BuildStandardizedSchedule(item -> tradeReference -> trade)
-                            ),
-                    markToMarketValue: item -> tradeReference -> valuationHistory
-                            filter method = ValuationTypeEnum -> MarkToMarket
-                            then only-element
-                            then amount
-                }
-    alias totalGIM: tradeInitialMargin -> grossInitialMargin -> value sum
-    alias netCurrentReplacementCost: tradeInitialMargin -> markToMarketValue -> value sum
+        positions extract
+            StandardizedScheduleTradeInfo {
+                assetClass: BuildStandardizedSchedule(item -> tradeReference -> trade) -> assetClass,
+                productClass: BuildStandardizedSchedule(item -> tradeReference -> trade) -> productClass,
+                grossInitialMargin : GetGrossInitialMarginFromStandardizedSchedule(BuildStandardizedSchedule(item -> tradeReference -> trade)),
+                markToMarketValue : item -> tradeReference -> valuationHistory filter method = ValuationTypeEnum -> MarkToMarket then only-element then amount
+            }
+    alias totalGIM:
+        tradeInitialMargin -> grossInitialMargin -> value sum
+    alias netCurrentReplacementCost:
+        tradeInitialMargin -> markToMarketValue -> value sum
     alias grossCurrentReplacementCost:
-        tradeInitialMargin -> markToMarketValue
-            filter item -> value > 0
-            then value sum
-    alias netToGrossRatio: netCurrentReplacementCost / grossCurrentReplacementCost
-    add initialMargin -> tradeInfo: tradeInitialMargin
+        tradeInitialMargin -> markToMarketValue filter item -> value > 0 then value sum
+    alias netToGrossRatio:
+        netCurrentReplacementCost / grossCurrentReplacementCost
+    add initialMargin -> tradeInfo:
+        tradeInitialMargin
     set initialMargin -> netInitialMargin -> value:
-        0.4 * totalGIM + 0.6 * totalGIM * netToGrossRatio
+        0.4*totalGIM + 0.6*totalGIM*netToGrossRatio  
     set initialMargin -> netInitialMargin -> unit -> currency:
         tradeInitialMargin -> markToMarketValue -> unit -> currency distinct only-element
 
 func Create_ExposureFromTrades: <"Builds an Exposure structure from a collection of trades.">
-    inputs:
-        trades TradeState (0..*)
-    output:
-        exposure Exposure (0..1)
+    inputs: trades TradeState (0..*)
+    output: exposure Exposure (0..1)
 
     add exposure -> tradePortfolio -> positions:
-        trades
-            extract
-                Position {
-                    cashBalance: empty,
-                    priceQuantity: item -> trade -> tradeLot -> priceQuantity,
-                    tradeReference: empty,
-                    product: Product {
-                            NonTransferableProduct: item -> trade -> product,
-                            ...
-                        }
-                }
+        trades extract Position {
+            cashBalance: empty,
+            priceQuantity: item -> trade -> tradeLot -> priceQuantity,
+            tradeReference: empty,
+            product: Product {
+                NonTransferableProduct: item -> trade -> product,
+                ...
+            }
+        }
 
-    set exposure -> tradePortfolio -> lineage -> tradeReference: trades -> trade first
+    set exposure -> tradePortfolio -> lineage -> tradeReference:
+        trades -> trade first

@@ -12,7 +12,7 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
     output:
         value number (1..1)
 
-    alias forwardPayout: <"Alias to the forward pay out.">
+    alias settlementPayout: <"Alias to the forward pay out.">
         trade -> product -> economicTerms -> payout -> settlementPayout only-element
 
     alias quotedCurrency: <"The quoted currency.">
@@ -34,16 +34,16 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
     alias baseQuantity: <"Base quantity amount.">
         FilterQuantityByCurrency(quantities, baseCurrency) only-element -> value
 
-    alias interpolatedRate: InterpolateForwardRate(forwardPayout)
+    alias interpolatedRate: InterpolateForwardRate(settlementPayout)
 
-    condition ForwardPayoutExists: <"The forwardPayout on the contract must exist.">
+    condition SettlementPayoutExists: <"The settlementPayout on the contract must exist.">
         trade -> product -> economicTerms -> payout -> settlementPayout exists
 
     set value: (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 
 func InterpolateForwardRate:
     inputs:
-        forward SettlementPayout (1..1)
+        settlementPayout SettlementPayout (1..1)
     output:
         result number (1..1)
 
