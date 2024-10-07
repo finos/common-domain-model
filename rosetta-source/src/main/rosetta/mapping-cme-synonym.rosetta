@@ -120,12 +120,34 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
     WorkflowState:
         + workflowStatus
             [value "RptTyp" path "TrdCaptRpt"]
+        + partyCustomisedWorkflow
+            [value "RptSide" path "TrdCaptRpt"]
 
     MessageInformation:
         + sentBy
             [value "SSub" path "Hdr"]
         + sentTo
             [value "TID" path "Hdr"]
+
+    PartyCustomisedWorkflow:
+        + partyName
+            [value "ID" path "Pty"]
+
+    CustomisedWorkflow:
+        + itemName
+            [set to "ClientOrderId" when path = "ClOrdID"]
+            [set to "TradeOriginationSystem" when path = "InptSrc"]
+            [set to "OriginatingTradeId" when path = "OrigTrdID"]
+            [set to "ExecutionTime" when path = "TrdRegTS->TS"]
+            [set to "PartyType" when path = "Pty->R"]
+            [set to "PartyIdentifier" when path = "Pty->Src"]
+        + itemValue
+            [value "ClOrdID"]
+            [value "InptSrc"]
+            [value "OrigTrdID"]
+            [value "TS" path "TrdRegTS"]
+            [set to "Customer Account" when "Pty->R" = "24"]
+            [set to "Custom" when "Pty->Src" = "D"]
 
     AssignedIdentifier:
         + identifier
