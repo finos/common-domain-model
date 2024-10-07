@@ -288,7 +288,7 @@ func Qualify_UnderlierObservable_Equity: <"Qualifies an Observable as having the
             or observable -> Index ->> assetClass = AssetClassEnum -> Equity
             // Qualifies that the underlier is a basket composed of equity products only
             or (observable -> Basket exists
-                and observable -> Basket -> basketConstituent extract Qualify_UnderlierObservable_Equity(item))
+                and observable -> Basket -> basketConstituent extract [ Qualify_UnderlierObservable_Equity ] any = True)
 
 func Qualify_SecurityTypeEquity:  <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
@@ -1535,7 +1535,7 @@ func Qualify_ForeignExchange_ParameterReturnCorrelation: <"Qualifies a product a
             and // qualifies that the underlier is a basket
             performancePayout -> underlier -> Observable -> Basket exists
             and // qualifies that the product is FX (i.e.: the basket is constituted by foreign exchange constituents)
-            performancePayout -> underlier -> Observable -> Basket -> basketConstituent -> Index -> ForeignExchangeRateIndex exists
+            performancePayout -> underlier -> Observable -> Basket -> basketConstituent extract [ Index -> ForeignExchangeRateIndex exists ] all = True
             
 func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
     [qualification Product]
