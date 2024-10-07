@@ -20,8 +20,8 @@ contribution of the FINOS CDM for Repo and Bonds Steering Committee.
 The repo product model in the CDM does not follow any pre-defined
 taxonomy such as FpML or any regulatory model such as SFTR. Instead the
 repo model is agnostic to external models, messaging standards and
-technology. The fundmental concepts in the repo model are based on
-industry defintions of financial products, the GMRA and the ERCC Best
+technology. The fundamental concepts in the repo model are based on
+industry definitions of financial products, the GMRA and the ERCC Best
 Practices Guide.
 
 Repurchase transactions are represented in the CDM as contractual
@@ -30,19 +30,19 @@ The types of repo products that can be defined in the CDM is almost
 unlimited using the `InterestRatePayout` and `AssetPayout` structure. At
 a minimum the model supports basic repo transactions, fixed term repo,
 open repo, fixed rate and floating rate with optionality for early
-termination, evergreen and extendible. The model also support
+termination, evergreen and extendable. The model also support
 buy/sell-back transactions.
 
 Repo lifecycle events are supported through a set of functions that
 accept a small set of inputs to auto-generate primitive instructions
 needed to execute business events. Repo lifecycle events include,
-rolling, re-rating, interium payments, pair-off and shaping.
+rolling, re-rating, interim payments, pair-off and shaping.
 
 # Benefits
 
 The benefits of using the CDM for repo transactions is that it provides
 a standard digital representation of the data required to define a repo
-product and a standardized set of lifecyle events.
+product and a standardized set of lifecycle events.
 
 Examples of where the CDM can be used in the repo market:
 
@@ -77,7 +77,7 @@ attributes and events needed to create fixed term, open and floating
 rate repos, and execute various lifecycle events.
 
 A repo product is composed as a contracted financial product in the 
-normal manner (see the [Product Model](/product-model) section for more details).
+normal manner (see the [Product Model](/docs/product-model) section for more details).
 The payout structure for a repo is constructed using an
 `InterestRatePayout` for the cash loan and `AssetPayout` for the
 collateral.
