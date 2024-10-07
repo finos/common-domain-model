@@ -20,29 +20,36 @@ func BuildStandardizedSchedule: <"Takes a trade and uses qualification to extrac
     inputs: 
         trade Trade (1..1)
     output: standardizedSchedule StandardizedSchedule (1..1)
-    set standardizedSchedule -> assetClass:
+    alias assetClass:
         StandardizedScheduleAssetClass(trade)
-    set standardizedSchedule -> productClass:
+    alias productClass:
         StandardizedScheduleProductClass(trade)
+    set standardizedSchedule -> assetClass:
+        assetClass
+    set standardizedSchedule -> productClass:
+        productClass
     set standardizedSchedule -> notional:
-        StandardizedScheduleNotional(trade)
+        StandardizedScheduleNotional(trade, assetClass, productClass)
     set standardizedSchedule -> notionalCurrency:
-        StandardizedScheduleNotionalCurrency(trade)
+        StandardizedScheduleNotionalCurrency(trade, assetClass, productClass)
     set standardizedSchedule -> durationInYears:
-        StandardizedScheduleDuration(trade)
+        StandardizedScheduleDuration(trade, assetClass, productClass)
 
 func GetGrossInitialMarginFromStandardizedSchedule: <"Takes the grid information from an specific trade and calculates the gross initial margin.">
     inputs: 
         standardizedSchedule StandardizedSchedule (1..1)
-    output: grossInitialMargin Quantity (0..1)
+    output: grossInitialMargin Money (0..1)
     alias initialMarginRequirement:
-        GetIMRequirement(standardizedSchedule -> assetClass, standardizedSchedule -> durationInYears)
+        GetStandardizedScheduleMarginRate(standardizedSchedule -> assetClass, standardizedSchedule -> durationInYears)
     set grossInitialMargin -> value:
         standardizedSchedule -> notional * initialMarginRequirement * 0.01
     set grossInitialMargin -> unit -> currency:
         standardizedSchedule -> notionalCurrency
 
-func StandardizedScheduleAssetClass: <"Identifies the asset class of a trade, according to the standardized schedule classification.">
+    post-condition PositiveGrossInitialMargin: <"Ensure gross initial margin is greater than 0">
+        grossInitialMargin -> value > 0
+
+func StandardizedScheduleAssetClass: <"Identifies the asset class of a trade from qualifying functions, according to the standardized schedule classification.">
     inputs: trade Trade (1..1)
     output: assetClass StandardizedScheduleAssetClassEnum (0..1)
     alias product:
@@ -56,7 +63,7 @@ func StandardizedScheduleAssetClass: <"Identifies the asset class of a trade, ac
     else if Qualify_AssetClass_Equity(economicTerms) then StandardizedScheduleAssetClassEnum -> Equity
     else if Qualify_AssetClass_Commodity(economicTerms) then StandardizedScheduleAssetClassEnum -> Commodity
 
-func StandardizedScheduleProductClass: <"Identifies the product class of a trade, according to the standardized schedule classification.">
+func StandardizedScheduleProductClass: <"Identifies the product class of a trade from qualifying functions, according to the standardized schedule classification.">
     inputs: trade Trade (1..1)
     output: productClass StandardizedScheduleProductClassEnum (0..1)
     alias product:
@@ -154,281 +161,271 @@ func StandardizedScheduleProductClass: <"Identifies the product class of a trade
     // CO Contract for Difference (CFD) not supported
 
 func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.">
-    inputs: trade Trade (1..1)
+    inputs: 
+        trade Trade (1..1)
+        assetClass StandardizedScheduleAssetClassEnum (1..1)
+        productClass StandardizedScheduleProductClassEnum (1..1)
     output: notional number (0..1)
     alias product:
         ProductForTrade(trade)
     alias economicTerms:
         EconomicTermsForProduct(product)
     set notional:
-    if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+    if assetClass = StandardizedScheduleAssetClassEnum -> InterestRates then (
+        if productClass = StandardizedScheduleProductClassEnum -> Swap or productClass = StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
+        then (
+            economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> CrossCurrencySwap
+        then (
+            economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
+        then (
+            UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
+        // IR Exotic swap with an exotic coupon against a floating leg not supported
+        else if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            economicTerms -> payout -> interestRatePayout only-element -> priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> ForwardRateAgreement
+        then (
+            economicTerms -> payout -> interestRatePayout filter rateSpecification -> fixedRate exists then only-element then priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
     )
-    else if Qualify_BaseProduct_CrossCurrency(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
-    else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
-    then (
-        UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
-    // IR Exotic swap with an exotic coupon against a floating leg not supported
-    else if Qualify_InterestRate_CapFloor(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout only-element -> priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
-    else if Qualify_InterestRate_Fra(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter rateSpecification -> fixedRate exists then only-element then priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
-    else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
-    or Qualify_CreditDefaultSwap_Index(economicTerms)
-    or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
-    or IsCreditNthToDefault(economicTerms)
-    then (
-        economicTerms -> payout -> creditDefaultPayout -> priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
-    else if Qualify_CreditDefaultSwaption(economicTerms)
-    then (
-        UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> priceQuantity
-        then StandardizedScheduleMonetaryNotionalFromResolvablePQ
-    )
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Credit then (
+        if productClass = StandardizedScheduleProductClassEnum -> SingleNameCreditDefaultSwap
+        or productClass = StandardizedScheduleProductClassEnum -> IndexCDS
+        or productClass = StandardizedScheduleProductClassEnum -> IndexTranche
+        or productClass = StandardizedScheduleProductClassEnum -> CreditNthToDefault
+        then (
+            economicTerms -> payout -> creditDefaultPayout -> priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption
+        then (
+            UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> priceQuantity
+            then StandardizedScheduleMonetaryNotionalFromResolvablePQ
+        )
     // Credit Total return swap on a bond not supported
-    else if Qualify_ForeignExchange_Swap(economicTerms)
-    then (
-        StandardizedScheduleFXSwapNotional(FXFarLeg(product)) -> value
     )
-    else if Qualify_ForeignExchange_NDS(economicTerms)
-    then 0.0 //Recieve side notional and currency. What does that mean?
-    else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
-    then (
-        economicTerms -> payout -> forwardPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> value
+    else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange then (
+        if productClass = StandardizedScheduleProductClassEnum -> DeliverableSwap
+        then (
+            StandardizedScheduleFXSwapNotional(FXFarLeg(product)) -> value
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableCrossCurrencySwap
+        then 0.0 //Recieve side notional and currency. What does that mean?
+        else if productClass = StandardizedScheduleProductClassEnum -> DeliverableForward
+        then (
+            economicTerms -> payout -> forwardPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> value
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableForward
+        then (
+            StandardizedScheduleFXNDFNotional(economicTerms -> payout -> forwardPayout only-element) -> value
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> DeliverableOption
+        then (
+            economicTerms -> payout -> optionPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> value
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableOption
+        then (
+            StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> value
+        )    
+        else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
+        then (
+            StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout -> performancePayout only-element)
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
+        then 0.0 //Vega notional amount not mapped in the product
+        else if productClass = StandardizedScheduleProductClassEnum -> CorrelationSwap
+        then 0.0 //No sample trades
     )
-    else if Qualify_ForeignExchange_NDF(economicTerms)
-    then (
-        StandardizedScheduleFXNDFNotional(economicTerms -> payout -> forwardPayout only-element) -> value
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Equity then (
+        if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element)
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Forward
+        then (
+            StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout -> forwardPayout only-element)
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> DividendSwap
+        then 0.0 //All dividend swaps are defined with a monetary payment, no strike price or number of shares
+        else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
+        then (
+            StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout -> performancePayout only-element)
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
+        then 0.0 //Is volatility amount = vega notional amount?
+        // EQ Contract fo Difference (CFD) not supported
+        else if productClass = StandardizedScheduleProductClassEnum -> SwapsAndPortfolioSwaps
+        then 0.0 //No initial value or current value available in the test samples
     )
-    else if IsFXDeliverableOption(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> value
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Commodity then (
+        if productClass = StandardizedScheduleProductClassEnum -> Forward
+        then (
+            StandardizedScheduleCommodityForwardNotionalAmount(economicTerms) //Floating price forwards not supported
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element) 
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> FixedFloatSwap
+        then (
+            StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(economicTerms)
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> BasisSwap
+        then 0.0 //No spot price available
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption
+        then (
+            StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForProduct(product) -> contractualProduct -> economicTerms)
+        )
+        // CO Contract for Difference (CFD) not supported
     )
-    else if IsFXNonDeliverableOption(economicTerms)
-    then (
-        StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> value
-    )    
-    else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
-    then (
-        StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout -> performancePayout only-element)
-    )
-    else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
-    then 0.0 //Vega notional amount not mapped in the product
-    else if Qualify_ForeignExchange_ParameterReturnCorrelation(economicTerms)
-    then 0.0 //No sample trades
-    else if Qualify_EquityOption_PriceReturnBasicPerformance_Basket(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_Index(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_SingleName(economicTerms)
-    //To determine if the method used applies to the following equity options:
-    // or Qualify_EquityOption_ParameterReturnVolatility_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnCorrelation_Basket(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_Index(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
-    then (
-        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element)
-    )
-    else if Qualify_BaseProduct_EquityForward(economicTerms)
-    then (
-        StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout -> forwardPayout only-element)
-    )
-    else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_SingleName(economicTerms)
-    then 0.0 //All dividend swaps are defined with a monetary payment, no strike price or number of shares
-    else if Qualify_EquitySwap_ParameterReturnVariance_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
-    then (
-        StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout -> performancePayout only-element)
-    )
-    else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_SingleName(economicTerms)
-    then 0.0 //Is volatility amount = vega notional amount?
-    // EQ Contract fo Difference (CFD) not supported
-    else if Qualify_BaseProduct_EquitySwap(economicTerms)
-    then 0.0 //No initial value or current value available in the test samples
-    else if Qualify_Commodity_Forward(economicTerms)
-    then (
-        StandardizedScheduleCommodityForwardNotionalAmount(economicTerms) //Floating price forwards not supported
-    )
-    else if Qualify_Commodity_Option(economicTerms)
-    then (
-        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element) 
-    )
-    else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
-    then (
-        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(economicTerms)
-    )
-    else if Qualify_Commodity_Swap_Basis(economicTerms)
-    then 0.0 //No spot price available
-    else if Qualify_Commodity_Swaption(economicTerms)
-    then (
-        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForProduct(product) -> contractualProduct -> economicTerms)
-    )
-    // CO Contract for Difference (CFD) not supported
+
+    post-condition PositiveNotional: <"Ensure notional is greater than 0">
+        notional > 0
  
 func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.">
-    inputs: trade Trade (1..1)
+    inputs: 
+        trade Trade (1..1)
+        assetClass StandardizedScheduleAssetClassEnum (1..1)
+        productClass StandardizedScheduleProductClassEnum (1..1)
     output: notionalCurrency string (0..1)
     alias product:
         ProductForTrade(trade)
     alias economicTerms:
         EconomicTermsForProduct(product)
     set notionalCurrency:
-    if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+    if assetClass = StandardizedScheduleAssetClassEnum -> InterestRates then (
+        if productClass = StandardizedScheduleProductClassEnum -> Swap or productClass = StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
+        then (
+            economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> CrossCurrencySwap
+        then (
+            economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
+        then (
+            UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        // IR Exotic swap with an exotic coupon against a floating leg not supported
+        else if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            economicTerms -> payout -> interestRatePayout only-element -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> ForwardRateAgreement
+        then (
+            economicTerms -> payout -> interestRatePayout filter rateSpecification -> fixedRate exists then only-element then priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
     )
-    else if Qualify_BaseProduct_CrossCurrency(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Credit then (
+        if productClass = StandardizedScheduleProductClassEnum -> SingleNameCreditDefaultSwap
+        or productClass = StandardizedScheduleProductClassEnum -> IndexCDS
+        or productClass = StandardizedScheduleProductClassEnum -> IndexTranche
+        or productClass = StandardizedScheduleProductClassEnum -> CreditNthToDefault
+        then (
+            economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption
+        then (
+            UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+        )
+        // Credit Total return swap on a bond not supported
     )
-    else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
-    then (
-        UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+    else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange then (
+        if productClass = StandardizedScheduleProductClassEnum -> DeliverableSwap
+        then (
+            StandardizedScheduleFXSwapNotional(FXFarLeg(product)) -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableCrossCurrencySwap
+        then "AAA" //Recieve side notional and currency. What does that mean?
+        else if productClass = StandardizedScheduleProductClassEnum -> DeliverableForward
+        then (
+            economicTerms -> payout -> forwardPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableForward
+        then (
+            StandardizedScheduleFXNDFNotional(economicTerms -> payout -> forwardPayout only-element) -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> DeliverableOption
+        then (
+            economicTerms -> payout -> optionPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> NonDeliverableOption
+        then (
+            StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> unit -> currency
+        )   
+        else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
+        then (
+            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
+        then "AAA" //Vega notional amount not mapped in the product
+        else if productClass = StandardizedScheduleProductClassEnum -> CorrelationSwap
+        then "AAA" //No sample trades
     )
-    // IR Exotic swap with an exotic coupon against a floating leg not supported
-    else if Qualify_InterestRate_CapFloor(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout only-element -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Equity then (
+        if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Forward
+        then (
+            economicTerms -> payout -> forwardPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> DividendSwap
+        then "AAA" //All dividend swaps are defined with a monetary payment, no strike price or number of shares
+        // EQ Deliverable Option F not supported
+        else if productClass = StandardizedScheduleProductClassEnum -> VarianceSwap
+        then (
+            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> VolatilitySwap
+        then "AAA" //Is volatility amount = vega notional amount?
+        // EQ Contract fo Difference (CFD) not supported
+        else if productClass = StandardizedScheduleProductClassEnum -> SwapsAndPortfolioSwaps
+        then "AAA" //No initial value or current value available in the test samples
     )
-    else if Qualify_InterestRate_Fra(economicTerms)
-    then (
-        economicTerms -> payout -> interestRatePayout filter rateSpecification -> fixedRate exists then only-element then priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
+    else if assetClass = StandardizedScheduleAssetClassEnum -> Commodity then (
+        if productClass = StandardizedScheduleProductClassEnum -> Forward
+        then (
+            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> Option
+        then (
+            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency 
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> FixedFloatSwap
+        then (
+            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+        )
+        else if productClass = StandardizedScheduleProductClassEnum -> BasisSwap
+        then "AAA" //No spot price available
+        else if productClass = StandardizedScheduleProductClassEnum -> Swaption
+        then (
+            UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+        )
+        // CO Contract for Difference (CFD) not supported
     )
-    else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
-    or Qualify_CreditDefaultSwap_Index(economicTerms)
-    or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
-    or IsCreditNthToDefault(economicTerms)
-    then (
-        economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    else if Qualify_CreditDefaultSwaption(economicTerms)
-    then (
-        UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
-        then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
-    )
-    // Credit Total return swap on a bond not supported
-    else if Qualify_ForeignExchange_Swap(economicTerms)
-    then (
-        StandardizedScheduleFXSwapNotional(FXFarLeg(product)) -> unit -> currency
-    )
-    else if Qualify_ForeignExchange_NDS(economicTerms)
-    then "AAA" //Recieve side notional and currency. What does that mean?
-    else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
-    then (
-        economicTerms -> payout -> forwardPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if Qualify_ForeignExchange_NDF(economicTerms)
-    then (
-        StandardizedScheduleFXNDFNotional(economicTerms -> payout -> forwardPayout only-element) -> unit -> currency
-    )
-    else if IsFXDeliverableOption(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> underlier -> foreignExchange -> exchangedCurrency1 -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if IsFXNonDeliverableOption(economicTerms)
-    then (
-        StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> unit -> currency
-    )   
-    else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
-    then (
-        economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
-    )
-    else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
-    then "AAA" //Vega notional amount not mapped in the product
-    else if Qualify_ForeignExchange_ParameterReturnCorrelation(economicTerms)
-    then "AAA" //No sample trades
-    else if Qualify_EquityOption_PriceReturnBasicPerformance_Basket(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_Index(economicTerms)
-    or Qualify_EquityOption_PriceReturnBasicPerformance_SingleName(economicTerms)
-    //To determine if the method used applies to the following equity options:
-    // or Qualify_EquityOption_ParameterReturnVolatility_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVolatility_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnVariance_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnCorrelation_Basket(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_Index(economicTerms)
-    // // or Qualify_EquityOption_ParameterReturnCorrelation_SingleName(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Basket(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
-    // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency
-    )
-    else if Qualify_BaseProduct_EquityForward(economicTerms)
-    then (
-        economicTerms -> payout -> forwardPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
-    )
-    else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnDividend_SingleName(economicTerms)
-    then "AAA" //All dividend swaps are defined with a monetary payment, no strike price or number of shares
-    // EQ Deliverable Option F not supported
-    else if Qualify_EquitySwap_ParameterReturnVariance_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
-    then (
-        economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
-    )
-    else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
-    or Qualify_EquitySwap_ParameterReturnVolatility_SingleName(economicTerms)
-    then "AAA" //Is volatility amount = vega notional amount?
-    // EQ Contract fo Difference (CFD) not supported
-    else if Qualify_BaseProduct_EquitySwap(economicTerms)
-    then "AAA" //No initial value or current value available in the test samples
-    else if Qualify_Commodity_Forward(economicTerms)
-    then (
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
-    )
-    else if Qualify_Commodity_Option(economicTerms)
-    then (
-        economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency 
-    )
-    else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
-    then (
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
-    )
-    else if Qualify_Commodity_Swap_Basis(economicTerms)
-    then "AAA" //No spot price available
-    else if Qualify_Commodity_Swaption(economicTerms)
-    then (
-        UnderlierForProduct(product) -> contractualProduct -> economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
-    )
-    // CO Contract for Difference (CFD) not supported
+
+    post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
+        notionalCurrency to-enum ISOCurrencyCodeEnum exists
 
 func AuxiliarEffectiveDate: <"Extracts the effective date of specific products such as interest rate swaps and swaptions.">
     inputs: trade Trade (1..1)
@@ -469,7 +466,10 @@ func AuxiliarTerminationDate: <"Extracts the termination date of specific produc
             then max)
 
 func StandardizedScheduleDuration: <"Extracts the duration of a trade, according to the product class-depending extraction method defined in the ISDA industry survey.">
-    inputs: trade Trade (1..1)
+    inputs: 
+        trade Trade (1..1)
+        assetClass StandardizedScheduleAssetClassEnum (1..1)
+        productClass StandardizedScheduleProductClassEnum (1..1)
     output: durationInYears number (0..1)
     alias product:
         ProductForTrade(trade)
@@ -509,37 +509,40 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
         if transactionEffectiveDate exists and optionExpiry exists
         then DateDifferenceYears(transactionEffectiveDate, optionExpiry)
     alias genericDurationInYears:
-        if Qualify_BaseProduct_IRSwap(economicTerms) 
-        or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
-        or Qualify_BaseProduct_CrossCurrency(economicTerms)
-        or Qualify_InterestRate_Fra(economicTerms)
-        or Qualify_CreditDefaultSwap_SingleName(economicTerms)
-        or Qualify_CreditDefaultSwap_Index(economicTerms)
-        or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
-        or IsCreditNthToDefault(economicTerms)
-        then transactionTenorInYears
-        else if Qualify_InterestRate_Option_Swaption(economicTerms)
-        or Qualify_CreditDefaultSwaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
-        then (
-            if timeToOptionExpiryInYears exists and underlyingTransactionTenorInYears exists
-            then timeToOptionExpiryInYears + underlyingTransactionTenorInYears
-            else if timeToOptionExpiryInYears exists
+        if (assetClass = StandardizedScheduleAssetClassEnum -> InterestRates or assetClass = StandardizedScheduleAssetClassEnum -> Credit) then (
+            if productClass = StandardizedScheduleProductClassEnum -> Swap
+            or productClass = StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
+            or productClass = StandardizedScheduleProductClassEnum -> CrossCurrencySwap
+            or productClass = StandardizedScheduleProductClassEnum -> ForwardRateAgreement
+            or productClass = StandardizedScheduleProductClassEnum -> SingleNameCreditDefaultSwap
+            or productClass = StandardizedScheduleProductClassEnum -> IndexCDS
+            or productClass = StandardizedScheduleProductClassEnum -> IndexTranche
+            or productClass = StandardizedScheduleProductClassEnum -> CreditNthToDefault
+            then transactionTenorInYears
+            else if (productClass = StandardizedScheduleProductClassEnum -> Swaption or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle)
+            then (
+                if timeToOptionExpiryInYears exists and underlyingTransactionTenorInYears exists
+                then timeToOptionExpiryInYears + underlyingTransactionTenorInYears
+                else if timeToOptionExpiryInYears exists
+                then timeToOptionExpiryInYears
+                else if underlyingTransactionTenorInYears exists
+                then underlyingTransactionTenorInYears
+            )
+            else if productClass = StandardizedScheduleProductClassEnum -> Option
             then timeToOptionExpiryInYears
-            else if underlyingTransactionTenorInYears exists
-            then underlyingTransactionTenorInYears
+            // IR Exotic swap with an exotic coupon against a floating leg not supported
+            // Credit Total return swap on a bond not supported
         )
-        else if Qualify_InterestRate_CapFloor(economicTerms)
-        or Qualify_InterestRate_Option_DebtOption(economicTerms)
-        then timeToOptionExpiryInYears
-        // IR Exotic swap with an exotic coupon against a floating leg not supported
-        // Credit Total return swap on a bond not supported
     alias auxiliarDurationInYears:
         DateDifferenceYears(AuxiliarEffectiveDate(trade),AuxiliarTerminationDate(trade))
     set durationInYears:
         if genericDurationInYears exists then genericDurationInYears
         else auxiliarDurationInYears
 
-func GetIMRequirement: <"Computes the IM requirement, which is required in the calculation of the gross initial margin. It depends exclusively on the asset class of the trade and, in some cases, on the duration as well.">
+    post-condition PositiveDuration: <"Ensure duration is greater than 0.">
+        durationInYears > 0
+
+func GetStandardizedScheduleMarginRate: <"Computes the margin rate, which is required in the calculation of the gross initial margin. It depends exclusively on the asset class of the trade and, in some cases, on the duration as well.">
     inputs: 
         assetClass StandardizedScheduleAssetClassEnum (1..1)
         durationInYears number (1..1)
@@ -559,11 +562,13 @@ func GetIMRequirement: <"Computes the IM requirement, which is required in the c
         else if assetClass = StandardizedScheduleAssetClassEnum -> Equity then 15.0
         else if assetClass = StandardizedScheduleAssetClassEnum -> Commodity then 15.0
 
+//Potential move to other namespaces
 func ProductForTrade: <"Extracts the product from a trade.">
     inputs: trade Trade (1..1)
     output: product Product (0..1)
     set product: trade -> tradableProduct -> product
-        
+
+//Potential move to other namespaces     
 func EconomicTermsForProduct: <"Extracts the economic terms from a product.">
     inputs: product Product (1..1)
     output: economicTerms EconomicTerms (0..1)
@@ -571,6 +576,7 @@ func EconomicTermsForProduct: <"Extracts the economic terms from a product.">
         if product -> contractualProduct -> economicTerms exists then product -> contractualProduct -> economicTerms
         else if product -> security -> securityType = SecurityTypeEnum -> ListedDerivative and product -> security -> economicTerms exists then product -> security -> economicTerms
 
+//Potential move to other namespaces
 func UnderlierForProduct: <"Extracts the underlier product.">
     inputs: product Product (1..1)
     output: underlierProduct Product (1..1)
@@ -580,6 +586,7 @@ func UnderlierForProduct: <"Extracts the underlier product.">
         else if EconomicTermsForProduct (product) -> payout -> forwardPayout exists then
             EconomicTermsForProduct (product) -> payout -> forwardPayout only-element -> underlier
 
+//Potential move to other namespaces
 func AdjustableOrAdjustedOrRelativeDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
     inputs:
         adjustableDate AdjustableOrAdjustedOrRelativeDate (1..1)
@@ -589,6 +596,7 @@ func AdjustableOrAdjustedOrRelativeDateResolution: <"A fall back for unadjustedD
         if adjustableDate -> unadjustedDate exists then adjustableDate -> unadjustedDate
         else adjustableDate -> adjustedDate
 
+//Potential move to other namespaces
 func AdjustableDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
     inputs:
         adjustableDate AdjustableDate (1..1)
@@ -599,6 +607,7 @@ func AdjustableDateResolution: <"A fall back for unadjustedDate when adjustedDat
         if adjustableDate -> unadjustedDate exists then adjustableDate -> unadjustedDate
         else adjustableDate -> adjustedDate
 
+//Potential move to other namespaces
 func AdjustableDatesResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
     inputs:
         adjustableDates AdjustableDates (1..1)
@@ -639,6 +648,7 @@ func StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ: <"Extracts th
                 else priceQuantity -> quantitySchedule -> unit -> currency
             )
 
+//Potential move to other namespaces
 func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
     inputs: product Product (1..1)
     output: nearLegPayout ForwardPayout (0..1)
@@ -785,6 +795,7 @@ func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the n
     set amount:
     fixedPrice * notionalQuantity
 
+//Potential move to other namespaces
 func DateDifferenceYears: <"Computes the difference in years between two dates. All years are supposed to have 365 days.">
 
     inputs:
@@ -797,6 +808,7 @@ func DateDifferenceYears: <"Computes the difference in years between two dates. 
         
         DateDifference(firstDate, secondDate)/365.0
 
+//Potential move to other namespaces
 func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -805,6 +817,7 @@ func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.
     set is_Product:
         economicTerms -> payout -> creditDefaultPayout -> generalTerms -> basketReferenceInformation -> nthToDefault exists
 
+//Potential move to other namespaces
 func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -814,6 +827,7 @@ func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option."
         Qualify_ForeignExchange_VanillaOption(economicTerms) and
         economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
 
+//Potential move to other namespaces
 func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable option.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -823,6 +837,7 @@ func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable o
         Qualify_ForeignExchange_VanillaOption(economicTerms) and
         economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
 
+//Potential move to other namespaces
 func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -831,6 +846,7 @@ func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
     set is_Product:
         Qualify_InterestRate_Option_Swaption(economicTerms) and economicTerms -> payout -> optionPayout only-element -> optionType = OptionTypeEnum -> Straddle
 
+//Potential move to other namespaces
 func IsIRSwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.">
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -870,6 +886,15 @@ func GetNetInitialMarginFromExposure: <"Computes the net initial margin, taking 
         0.4*totalGIM + 0.6*totalGIM*netToGrossRatio  
     set initialMargin -> netInitialMargin -> unit -> currency:
         tradeInitialMargin -> markToMarketValue -> unit -> currency distinct only-element
+
+    post-condition NonNegativeNetInitialMargin: <"Ensure net initial margin is non-negative">
+        initialMargin -> netInitialMargin -> value >= 0
+
+    post-condition TotalGIMAddition: <"Ensure that only a single currency exists">
+        tradeInitialMargin -> grossInitialMargin -> unit -> currency distinct count = 1
+
+    post-condition NGRAddition: <"Ensure that only a single currency exists">
+        tradeInitialMargin -> markToMarketValue -> unit -> currency distinct count = 1
 
 func Create_ExposureFromTrades: <"Builds an Exposure structure from a collection of trades.">
     inputs:
