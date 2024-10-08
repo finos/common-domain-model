@@ -1,0 +1,27 @@
+namespace cdm.poc
+version "${project.version}"
+
+report EuropeanParliament EmissionPerformanceStandardsEU in real-time
+    from VehicleOwnership
+    when IsEuroStandardsCoverage
+    with type EuropeanParliamentReport
+
+// Definition for regulatory references:
+body Authority EuropeanParliament
+
+corpus Regulation "Regulation (EU) 2019/631" EmissionPerformanceStandardsEU
+
+eligibility rule IsEuroStandardsCoverage from VehicleOwnership:
+    filter
+        vehicle -> vehicleClassification = VehicleClassificationEnum -> M1_Passengers
+            or vehicle -> vehicleClassification = VehicleClassificationEnum -> M2_Passengers
+            or vehicle -> vehicleClassification = VehicleClassificationEnum -> M3_Passengers
+            or vehicle -> vehicleClassification = VehicleClassificationEnum -> N1I_Commercial
+
+reporting rule VehicleRegistrationID from VehicleOwnership:
+    extract vehicle -> registrationID
+        as "Vehicle Registration ID"
+
+reporting rule VehicleClassificationType from VehicleOwnership: <"Classification type of the vehicle">
+    extract vehicle -> vehicleClassification
+        as "Vehicle Classification Type"
