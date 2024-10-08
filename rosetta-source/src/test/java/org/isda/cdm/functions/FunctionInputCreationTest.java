@@ -23,19 +23,18 @@ import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
+import cdm.observable.asset.metafields.FieldWithMetaFloatingRateIndex;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
 import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
-import cdm.product.template.ContractualProduct;
-import cdm.product.template.Product;
+import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
+import cdm.product.template.Underlier;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import util.ResourcesUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
 
 import static org.isda.cdm.functions.FunctionUtils.guard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.ResourcesUtils.reKey;
+import static util.ResourcesUtils.*;
 
 class FunctionInputCreationTest {
 
@@ -434,14 +434,16 @@ class FunctionInputCreationTest {
                                         .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))))
                 // interest rate payout PQ
                 .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
-                                        .setMeta(createKey("rateOption-1"))
-                                        .setValue(FloatingRateOption.builder()
-                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                                                .setIndexTenor(Period.builder()
-                                                        .setPeriod(PeriodEnum.M)
-                                                        .setPeriodMultiplier(1)))))
+                        .setObservableValue(Observable.builder()
+                                .setIndex(Index.builder()
+                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                                .setMeta(createKey("rateOption-1"))
+                                                .setValue(FloatingRateIndex.builder()
+                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                .setIndexTenor(Period.builder()
+                                                                        .setPeriod(PeriodEnum.M)
+                                                                        .setPeriodMultiplier(1)))))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -474,7 +476,7 @@ class FunctionInputCreationTest {
 
     private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade().getTradableProduct();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade();
         TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
 
         //Take a copy of the trade lot
@@ -504,7 +506,7 @@ class FunctionInputCreationTest {
                                 .setIdentifierValue("LOT-2")))
                 // equity payout PQ
                 .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
+                        .setObservableValue(Observable.builder()
                                 .setAsset(Asset.builder()
                                         .setInstrument(Instrument.builder()
                                                 .setSecurity(Security.builder()
@@ -528,14 +530,16 @@ class FunctionInputCreationTest {
                                         .setPriceType(PriceTypeEnum.ASSET_PRICE))))
                 // interest rate payout PQ
                 .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
-                                        .setMeta(createKey("rateOption-1"))
-                                        .setValue(FloatingRateOption.builder()
-                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                                                .setIndexTenor(Period.builder()
-                                                        .setPeriod(PeriodEnum.M)
-                                                        .setPeriodMultiplier(1)))))
+                        .setObservableValue(Observable.builder()
+                                .setIndex(Index.builder()
+                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                                .setMeta(createKey("rateOption-1"))
+                                                .setValue(FloatingRateIndex.builder()
+                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                .setIndexTenor(Period.builder()
+                                                                        .setPeriod(PeriodEnum.M)
+                                                                        .setPeriodMultiplier(1)))))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -584,8 +588,8 @@ class FunctionInputCreationTest {
 
     private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
         Trade trade = tradeState.getTrade();
-        List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
-        UnitType currencyUnitType = trade.getTradableProduct().getTradeLot().stream()
+        List<? extends Counterparty> counterparties = trade.getCounterparty();
+        UnitType currencyUnitType = trade.getTradeLot().stream()
                 .map(TradeLot::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
@@ -661,7 +665,7 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
 
         Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder.getTradableProduct();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder;
 
         TradeLot.TradeLotBuilder tradeLotBuilder = tradableProductBuilder.getTradeLot().get(0);
         tradeLotBuilder
@@ -675,7 +679,6 @@ class FunctionInputCreationTest {
 
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradableProductBuilder
                 .getProduct()
-                .getContractualProduct()
                 .getEconomicTerms()
                 .getPayout()
                 .getInterestRatePayout();
@@ -1096,17 +1099,19 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
-    ObservationEvent getCorporateActionObservationEvent() {
+    private ObservationEvent getCorporateActionObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
                         .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
                         .setExDate(Date.of(2009, 2, 1))
                         .setPayDate(Date.of(2009, 2, 1))
-                        .setUnderlier(Product.builder()
-                                .setIndex(Index.builder()
-                                        .setEquityIndex(EquityIndex.builder()
-                                                .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
+                );
         return observationEvent;
     }
 
@@ -1144,11 +1149,13 @@ class FunctionInputCreationTest {
                         .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
                         .setExDate(Date.of(2009, 2, 13))
                         .setPayDate(Date.of(2009, 2, 13))
-                        .setUnderlier(Product.builder()
-                                .setIndex(Index.builder()
-                                        .setEquityIndex(EquityIndex.builder()
-                                                .setAssetClass(AssetClassEnum.EQUITY)
-                                                .setName("VOLKSWAGEN AG VZO O.N.")))));
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
+                );
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(observationEvent);
@@ -1389,14 +1396,12 @@ class FunctionInputCreationTest {
         tradeStateBuilder.getTrade().addPartyRole(reportingPartyRole);
         // effective and termination date
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayouts = tradeStateBuilder.getTrade()
-                .getTradableProduct()
                 .getProduct()
-                .getContractualProduct()
                 .getEconomicTerms()
                 .getPayout()
                 .getInterestRatePayout();
         interestRatePayouts.stream()
-                .filter(payout -> payout.getRateSpecification().getFloatingRate() != null)
+                .filter(payout -> payout.getRateSpecification().getFloatingRateSpecification() != null)
                 .findFirst()
                 .ifPresent(floatingLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
@@ -1404,7 +1409,7 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         interestRatePayouts.stream()
-                .filter(payout -> payout.getRateSpecification().getFixedRate() != null)
+                .filter(payout -> payout.getRateSpecification().getFixedRateSpecification() != null)
                 .findFirst()
                 .ifPresent(fixedLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = fixedLeg.getCalculationPeriodDates();
@@ -1412,7 +1417,7 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         // quantity
-        tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream()
+        tradeStateBuilder.getTrade().getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
@@ -1432,7 +1437,7 @@ class FunctionInputCreationTest {
 
     private TradeState getQuantityChangeEquitySwapTradeState() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradeLot().get(0);
         tradeLotBuilder.addLotIdentifier(Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setIdentifierValue("LOT-1")));
@@ -1449,12 +1454,15 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setIndexTransition(IndexTransitionInstruction.builder()
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(6))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                                                .setValue(FloatingRateIndex.builder()
+                                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                .setIndexTenor(Period.builder()
+                                                                                        .setPeriod(PeriodEnum.M)
+                                                                                        .setPeriodMultiplier(6)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.003))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
@@ -1483,14 +1491,17 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setIndexTransition(IndexTransitionInstruction.builder()
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
-                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(3))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                                                .setValue(FloatingRateIndex.builder()
+                                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                        .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                .setIndexTenor(Period.builder()
+                                                                                        .setPeriod(PeriodEnum.M)
+                                                                                        .setPeriodMultiplier(3)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.002))
                                                 .setUnit(UnitType.builder().setCurrencyValue("USD"))
@@ -1498,15 +1509,17 @@ class FunctionInputCreationTest {
                                                 .setPriceType(PriceTypeEnum.INTEREST_RATE)
                                                 .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndex(
-                                                                FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(3))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                                                .setValue(FloatingRateIndex.builder()
+                                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                .setIndexTenor(Period.builder()
+                                                                                        .setPeriod(PeriodEnum.M)
+                                                                                        .setPeriodMultiplier(3)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.001))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
@@ -1558,7 +1571,6 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
         // Update quantity to an incorrect value (which is corrected later)
         tradeStateWithIncorrectQuantity.getTrade()
-                .getTradableProduct()
                 .getTradeLot()
                 .stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
@@ -1610,7 +1622,6 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
         // Update quantity to an incorrect value (which is corrected later)
         tradeStateWithIncorrectQuantity.getTrade()
-                .getTradableProduct()
                 .getTradeLot()
                 .stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
@@ -1780,6 +1791,7 @@ class FunctionInputCreationTest {
         return workflowStep.build();
     }
 
+
     @Test
     void validateBondExecutionInput() throws IOException {
         BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
@@ -1803,7 +1815,7 @@ class FunctionInputCreationTest {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
         AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
-        List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
+        List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradeLot().get(0).getPriceQuantity();
 
         Create_RollPrimitiveInstruction create_rollPrimitiveInstruction = injector.getInstance(Create_RollPrimitiveInstruction.class);
         PrimitiveInstruction rollPrimitiveInstruction = create_rollPrimitiveInstruction.evaluate(executionTradeState,
@@ -1853,15 +1865,15 @@ class FunctionInputCreationTest {
         Create_PairOffInstruction create_pairOffInstruction = injector.getInstance(Create_PairOffInstruction.class);
 
         List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
-        List<Instruction> rekeyedPairOffInstruction = pairOffInstruction.stream().map(i -> {
-            Instruction.InstructionBuilder instructionBuilder = i.toBuilder();
-            reKey(instructionBuilder);
-            return instructionBuilder.build();
-        }).collect(Collectors.toList());
+        List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
+                .map(Instruction::toBuilder)
+                .map(b -> reKey(b))
+                .map(Instruction::build)
+                .collect(Collectors.toList());
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstruction, null, tradeDate, tradeDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstructions, null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/pair-off-input.json", actual);
     }
 
@@ -1911,6 +1923,14 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateShapingPrimitiveInstructionTradeLots() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json";
+        List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
+        List<TradeLot> actual = build(reKey(tradeLotBuilders));
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
     void validateShapingEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
@@ -1930,6 +1950,14 @@ class FunctionInputCreationTest {
 
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
+    }
+
+    @Test
+    void validatePartialDeliveryDeliveredPriceQuantity() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json";
+        List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilder = toBuilder(ResourcesUtils.getObjectList(PriceQuantity.class, resourceName));
+        List<PriceQuantity> actual = build(reKey(priceQuantityBuilder));
+        assertJsonEquals(resourceName, actual);
     }
 
     @Test
@@ -1998,6 +2026,22 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateRepoSubstitutionCollateral() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json";
+        Collateral.CollateralBuilder collateralBuilder = ResourcesUtils.getObject(Collateral.class, resourceName).toBuilder();
+        Collateral actual = reKey(collateralBuilder).build();
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
+    void validateRepoSubstitutionPriceQuantity() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json";
+        List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
+        List<TradeLot> actual = build(reKey(tradeLotBuilders));
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
     void validateSubstitutionEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-effective-date.json");
@@ -2021,12 +2065,12 @@ class FunctionInputCreationTest {
 
     private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
-        ContractualProduct.ContractualProductBuilder contractualProductBuilder =
-                tradeStateBuilder.getTrade().getTradableProduct().getProduct().getContractualProduct();
-        List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = contractualProductBuilder.getProductTaxonomy().stream()
+        NonTransferableProduct.NonTransferableProductBuilder nonTransferableProductBuilder =
+                tradeStateBuilder.getTrade().getProduct();
+        List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = nonTransferableProductBuilder.getTaxonomy().stream()
                 .filter(taxonomy -> taxonomy.getSource() == null || !taxonomy.getSource().equals(TaxonomySourceEnum.ISDA))
                 .collect(Collectors.toList());
-        contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
+        nonTransferableProductBuilder.setTaxonomy(newProductTaxonomies);
         return tradeStateBuilder.build();
     }
 
@@ -2036,7 +2080,7 @@ class FunctionInputCreationTest {
     }
 
     @Test
-    void validateEligibleCollateralScheduleHelper() throws IOException {
+    void validateEligibleCollateralScheduleHelper() {
         // Common criteria - GILTS
         EligibleCollateralCriteria common = EligibleCollateralCriteria.builder()
                 .addAsset(AssetCriteria.builder()
@@ -2100,16 +2144,20 @@ class FunctionInputCreationTest {
                 .build();
     }
 
-    private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
-        String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
-        String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
-        if (!expectedJson.equals(actualJson)) {
-            if (WRITE_EXPECTATIONS) {
-                writeExpectation(expectedJsonPath, actualJson);
+    private void assertJsonEquals(String expectedJsonPath, Object actual) {
+        try {
+            String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
+            String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
+            if (!expectedJson.equals(actualJson)) {
+                if (WRITE_EXPECTATIONS) {
+                    writeExpectation(expectedJsonPath, actualJson);
+                }
             }
+            assertEquals(expectedJson, actualJson,
+                    "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        assertEquals(expectedJson, actualJson,
-                "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
     private void writeExpectation(String writePath, String json) {

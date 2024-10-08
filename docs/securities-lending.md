@@ -45,8 +45,8 @@ In a cash loan, the lender lends the borrower the requested securities,
 and the borrower provides cash as collateral against the securities that they 
 are borrowing. 
 
-Loans against cash collateral are formed as a `ContractualProduct` that 
-includes an `InterestRatePayout` for the cash collateral, held under 
+Loans against cash collateral are formed as a `SettlemenetPayout` that 
+includes an `TransferableProduct` using a `Cash` asset for the cash collateral, held under 
 `economicTerms->collateral`, and an `AssetPayout` for the security being lent,
 held under `economicTerms->payout`.
 
@@ -73,17 +73,17 @@ security being lent is provided below:
     },
 	"collateralPortfolio": [ {
 	    "collateralPosition": [ {
-		    "product": {
-	          "contractualProduct": {
 	            "economicTerms": {
                   "payout": {
-	                "interestRatePayout": [
-					  {
-					    ...
-					  }
-					]
-				  }
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"cash": {
+					}
 				}
+			    ...
+			  }
+			]
 			  }
 	        }
 		} ]
@@ -99,8 +99,8 @@ In a non-cash loan, the lender lends the borrower the requested securities,
 and the borrower provides collateral in the form of other securities or 
 products. 
 
-Loans against non-cash collateral are formed as a `ContractualProduct` that 
-includes an `AssetPayout` for the non-cash collateral, held under 
+Loans against non-cash collateral are formed as a `NonTransferableProduct` that 
+includes a `SettlementPayout` containing with an `Asset` for the non-cash collateral, held under 
 `economicTerms->collateral`, and another `AssetPayout` for the security being 
 lent, held under `economicTerms->payout`.
 
@@ -127,17 +127,17 @@ the security being lent is provided below:
     },
 	"collateralPortfolio": [ {
 	    "collateralPosition": [ {
-		    "product": {
-	          "contractualProduct": {
 	            "economicTerms": {
                   "payout": {
-	                "assetPayout": [
-					  {
-					    ...
-					  }
-					]
-				  }
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"security": {
+					}
 				}
+			    ...
+			  }
+			]
 			  }
 	        }
 		} ]
@@ -152,8 +152,8 @@ In a cash pool loan, the lender lends the borrower the requested securities,
 and takes cash as collateral from a cash pool held by the lender on behalf of 
 the borrower. 
 
-Loans against cash collateral are formed as a `ContractualProduct` that 
-includes an `InterestRatePayout` for the cash collateral, held under 
+Loans against cash collateral are formed as a `NonTransferableProduct` that 
+includes an `SettlementPayout` for the cash collateral, held under 
 `economicTerms->collateral`, and an `AssetPayout` for the security being lent,
 held under `economicTerms->payout`.
 
@@ -171,7 +171,7 @@ be defined in the `AssetPayout` of the product. This can be done using the
 `security` type under `securityInformation`. 
 
 The details of the security should be entered in the attributes held within 
-the `security->productIdentifier` type, being the `identifier` and the `source`. 
+the `security->identifier` type, being the `identifier` and the `source`. 
 
 ### Parties, Party Roles and Counterparties
 
@@ -207,7 +207,7 @@ receiver of the collateral.
 
 The key factors that affect the earnings on a securities lending trade are the 
 interest rate, price, loan quantity and loan value. These are all held in the 
-`priceQuantity` type, which is represented as a list, allowing multiple items  
+`priceQuantity` type, which is represented as a list, allowing multiple items
 to be specified.
 
 *Note: where a trade has multiple lots associated to it, each `tradeLot` can* 
@@ -394,15 +394,15 @@ security being lent should be populated. However, it is recommended that the
 `settlementDate` under both `assetPayout -> settlementTerms` types are set.
 
 For a trade against cash there would be an `assetPayout` for the securities 
-being lent and an `interestRatePayout` for the cash being used as collateral. 
+being lent and a `settlementPayout` for the cash being used as collateral. 
 The security settlement date should be placed in the `settlementDate` under 
 `settlementTerms` in the `assetPayout`, and the cash settlement date should 
 be placed in the `settlementDate` under `settlementTerms` in the 
-`interestRatePayout`.
+`settlementPayout`.
 
 *Note: For DVP trades the cash and security settlement dates will be the same.*
 *They should still be set under the `assetPayout->settlementTerms->settlementDate`*
-*and `interestRatePayout->settlementTerms->settlementDate` types as described*
+*and `settlementPayout->settlementTerms->settlementDate` types as described*
 *above.*
 
 #### Termination Date

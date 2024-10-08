@@ -1,5 +1,6 @@
 package cdm.base.staticdata.party.processor;
 
+import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.Path;
@@ -8,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isCreditFundingLeg;
-import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra;
+import static cdm.base.staticdata.party.processor.BuyerSellerPartyHelper.isBuyerAsReceiver;
 
 /**
  * FpML mapping processor.
@@ -27,11 +28,8 @@ public class BuyerAsReceiverOrPayerMappingProcessor extends PayerReceiverMapping
 
 	@Override
 	void setCounterparty(Path synonymPath, PayerReceiverBuilder builder, PartyMappingHelper helper) {
-		RosettaPath modelPath = getModelPath();
-		if (isCreditFundingLeg(modelPath, synonymPath) || isFra(modelPath, synonymPath)) {
-			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setPayer);
-		} else {
-			helper.setCounterpartyRoleEnum(modelPath, synonymPath, builder::setReceiver);
-		}
+		Consumer<CounterpartyRoleEnum> setter =
+				isBuyerAsReceiver(synonymPath, getModelPath()) ? builder::setReceiver : builder::setPayer;
+		helper.setCounterpartyRoleEnum(getModelPath(), synonymPath, setter);
 	}
 }

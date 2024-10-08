@@ -5,11 +5,8 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.rates.*
-
 import cdm.event.common.*
-
 import cdm.observable.asset.*
-
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.schedule.*
@@ -27,8 +24,12 @@ synonym source ORE_1_0_39 extends ORE
         + tradeIdentifier
         + party
             [value "Envelope" path "Trade"]
-        + tradableProduct
-            [value "Trade" mapper "ORECounterparty"]
+        + product
+            [value "SwapData" path "Trade"]
+        + tradeLot
+            [value "Trade"]
+        + counterparty
+             [value "Trade" mapper "ORECounterparty"]
         + party
             [value "Envelope" path "Trade"]
 
@@ -40,7 +41,7 @@ synonym source ORE_1_0_39 extends ORE
         + partyReference
             [value "Envelope"]
         + role
-            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct -> counterparty]
+            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> counterparty]
 
     PriceSchedule:
         + value
@@ -74,10 +75,6 @@ synonym source ORE_1_0_39 extends ORE
         + datedValue
             [value "step"]
 
-    Product:
-        + contractualProduct
-            [value "SwapData"]
-
     Payout:
         + interestRatePayout
             [value "LegData"]
@@ -88,7 +85,7 @@ synonym source ORE_1_0_39 extends ORE
             [value "ignore"]
         + commodityPayout
             [value "ignore"]
-        + forwardPayout
+        + settlementPayout
             [value "ignore"]
         + fixedPricePayout
             [value "ignore"]
@@ -130,16 +127,16 @@ synonym source ORE_1_0_39 extends ORE
         + unadjustedDate
             [value "StartDate"]
 
-    FloatingRateOption:
+    InterestRateIndex:
         + floatingRateIndex
             [value "Index" maps 2]
 
     RateSpecification:
-        + fixedRate
+        + FixedRateSpecification
             [value "FixedLegData"]
-        + floatingRate
+        + FloatingRateSpecification
             [value "FloatingLegData"]
-        + inflationRate
+        + InflationRateSpecification
             [value "ignore"]
 
     FixedRateSpecification:

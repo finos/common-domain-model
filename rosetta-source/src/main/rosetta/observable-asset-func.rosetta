@@ -24,3 +24,16 @@ func FilterPrice: <"Filter list of prices based on price type.">
                 then item -> priceExpression = priceExpression
                 else True
             then only-element
+
+func InterestRateObservableCondition: <"Implementation for PriceQuantity.InterestRateObservable condition.">
+    inputs:
+        pq PriceQuantity (1..1)
+    output:
+        valid boolean (0..1)
+
+    set valid:
+        if pq -> observable -> Index -> FloatingRateIndex exists and pq -> price exists
+        then pq -> price
+                extract [
+                    priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
+                ] all = True
