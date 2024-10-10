@@ -152,41 +152,41 @@ func ResolveInterestRateReset: <"Defines how to resolve the reset value for an I
 func InterestCashSettlementAmount: <"Defines the performance calculations relevent for a fixed or floating rate payout.">
     inputs:
         tradeState TradeState (1..1)
-        InterestRatePayout InterestRatePayout (1..1)
+        interestRatePayout InterestRatePayout (1..1)
         resets Reset (1..*)
         date date (1..1)
     output:
         interestCashSettlementAmount Transfer (1..1)
 
     alias performance:
-        if InterestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then FixedAmount(
-                    InterestRatePayout,
-                    InterestRatePayout -> priceQuantity -> quantitySchedule -> value,
+                    interestRatePayout,
+                    interestRatePayout -> priceQuantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
-        else if InterestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
         then FloatingAmount(
-                    InterestRatePayout,
+                    interestRatePayout,
                     resets only-element -> resetValue -> value,
-                    InterestRatePayout -> priceQuantity -> quantitySchedule -> value,
+                    interestRatePayout -> priceQuantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
     alias payer:
         ExtractCounterpartyByRole(
                 tradeState -> trade -> counterparty,
-                InterestRatePayout -> payerReceiver -> payer
+                interestRatePayout -> payerReceiver -> payer
             ) -> partyReference
     alias receiver:
         ExtractCounterpartyByRole(
                 tradeState -> trade -> counterparty,
-                InterestRatePayout -> payerReceiver -> receiver
+                interestRatePayout -> payerReceiver -> receiver
             ) -> partyReference
     set interestCashSettlementAmount -> quantity -> value: performance
     set interestCashSettlementAmount -> quantity -> unit -> currency:
-        InterestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+        interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
     set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
         if performance >= 0 then payer else receiver
     set interestCashSettlementAmount -> payerReceiver -> receiverPartyReference:
@@ -194,8 +194,8 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releve
 
     set interestCashSettlementAmount -> settlementDate -> adjustedDate: date
 
-    set interestCashSettlementAmount -> settlementOrigin -> interestRatePayout:
-        InterestRatePayout as-key
+    set interestCashSettlementAmount -> settlementOrigin -> InterestRatePayout:
+        interestRatePayout as-key
 
 func ResolveReset: <"Defines the interface for adopters to resolve a reset, given a trade state and a date.">
     inputs:
@@ -322,7 +322,7 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
+    set equityCashSettlementAmount -> settlementOrigin -> PerformancePayout:
         equityPerformancePayout as-key
 
 func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance' means, in respect of an Equity Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent as of the Equity Valuation Date to which the Equity Cash Settlement Amount relates, pursuant to the following formula: Equity Performance = (Rate Of Return)  Equity Notional Amount.">
@@ -721,7 +721,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
 
     set transfer -> settlementDate -> adjustedDate: instruction -> date
 
-    set transfer -> settlementOrigin -> assetPayout:
+    set transfer -> settlementOrigin -> AssetPayout:
         if instruction -> tradeState -> trade -> product -> economicTerms -> payout -> AssetPayout exists
         then instruction -> tradeState -> trade -> product -> economicTerms -> payout -> AssetPayout only-element
             as-key
@@ -746,7 +746,7 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                 or payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then InterestCashSettlementAmount(
                     instruction -> tradeState,
-                    payout -> InterestRatePayout only-element,
+                    payout -> InterestRatePayout,
                     instruction -> resets,
                     instruction -> date
                 )
@@ -839,7 +839,7 @@ func SecurityFinanceCashSettlementAmount:
 
     set cashSettlementAmount -> settlementDate -> adjustedDate: date
 
-    set cashSettlementAmount -> settlementOrigin -> assetPayout: assetPayout as-key
+    set cashSettlementAmount -> settlementOrigin -> AssetPayout: assetPayout as-key
 
 func Create_Split: <"Defines the logic for splitting a trade into separate copies. The split instruction contains a breakdown into N set of primitive instructions. Each set contains the primitive instructions to be applied to each post-split trade, eventually producing N trades. The split function underpins a number of business events such as clearing or allocation.">
     inputs:
@@ -1059,33 +1059,33 @@ func NewSingleNameEquityPerformancePayout: <"Function specification to create th
         security Security (1..1)
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
     output:
-        PerformancePayout PerformancePayout (1..1)
+        performancePayout PerformancePayout (1..1)
 
     condition EquitySecurityType: <"Security must be equity (single name).">
         security -> securityType = SecurityTypeEnum -> Equity
 
-    set PerformancePayout -> returnTerms -> priceReturnTerms -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> returnTerms -> priceReturnTerms -> returnType: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         // if masterConfirmation -> typeOfSwapElection -> Price exists
         // or masterConfirmation -> typeOfSwapElection -> Total exists then
         masterConfirmation -> typeOfSwapElection
 
-    set PerformancePayout -> valuationDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> valuationDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> valuationDates
-    set PerformancePayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> equityCashSettlementDates
-    set PerformancePayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> settlementTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> settlementTerms
 
 func NewFloatingPayout: <"Function specification to create the interest rate (floating) payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1)
     output:
-        InterestRatePayout InterestRatePayout (1..1)
+        interestRatePayout InterestRatePayout (1..1)
 
     post-condition InterestRatePayoutTerms: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
         if masterConfirmation exists
         then // InterestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
-            InterestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
+            interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 func Create_IndexTransitionTermsChange: <"Function specification to create a terms change that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
     inputs:
