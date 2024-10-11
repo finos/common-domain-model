@@ -414,6 +414,7 @@ func Create_TradeState:
   inputs:
     primitiveInstruction PrimitiveInstruction (0..1)
     before TradeState (0..1)
+    eventDate date (0..1)
   output:
     after TradeState (1..1)
 ```
@@ -458,12 +459,13 @@ func Create_Split:
   inputs:
     breakdown PrimitiveInstruction (1..*)
     originalTrade TradeState (1..1)
+    eventDate date (0..1)
   output:
     splitTrade TradeState (1..*)
 
   add splitTrade:
     breakdown
-      extract Create_TradeState(item, originalTrade)
+      extract Create_TradeState(item, originalTrade, eventDate)
 ```
 
 Examples of how primitive operators work are illustrated below.
