@@ -319,17 +319,17 @@ a credit default payout to specify a credit default swap.
 :::
 
 ``` Haskell
-type Payout:
+choice Payout:
   [metadata key]
-  interestRatePayout InterestRatePayout (0..*)
-  creditDefaultPayout CreditDefaultPayout (0..1)
-  optionPayout OptionPayout (0..*)
-  commodityPayout CommodityPayout (0..*)
-  settlementPayout SettlementPayout (0..*)
-  fixedPricePayout FixedPricePayout (0..*)
-  cashflow Cashflow (0..*)
-  performancePayout PerformancePayout (0..*)
-  assetPayout AssetPayout (0..*)
+  InterestRatePayout 
+  CreditDefaultPayout
+  OptionPayout 
+  CommodityPayout 
+  SettlementPayout 
+  FixedPricePayout 
+  Cashflow 
+  PerformancePayout 
+  AssetPayout
 ```
 
 A number of payout types extend a common data type called `PayoutBase`.
