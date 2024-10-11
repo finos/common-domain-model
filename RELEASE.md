@@ -14,13 +14,13 @@ Payout:
 - The `Payout` data type has been refactored as a `Choice`.  `Choice` data types work slightly different from the regular `one-of` condition because they force each of the members of the choice to have a single cardinality.  Therefore, the use of `Payout`, for example on `EconomicTerms` and `ResetInstruction`, now have multiple cardinality.
 
 SettlementOrigin:
-- .
+- The `SettlementPayout` data type has also been refactored as a `Choice`.
 
 Product Qualification:
-- .
+- Some minor changes have been made to the product qualification functions to ensure that the functionality and logic is unaffected by this change.
 
 Documentation updates:
-- .
+- The CDM documentation on the FINOS website has been updated.
 
 _Review directions_
 
