@@ -19,7 +19,7 @@ public class BuyerSellerPartyHelper {
     }
     
     private static boolean isCreditFundingLeg(RosettaPath modelPath, Path synonymPath) {
-        boolean interestRatePayout = subPath("interestRatePayout", toPath(modelPath)).isPresent();
+        boolean interestRatePayout = subPath("InterestRatePayout", toPath(modelPath)).isPresent();
         boolean creditDefaultSwapGeneralTerms = subPath("generalTerms", synonymPath)
                 .map(path -> path.endsWith("creditDefaultSwap", "generalTerms"))
                 .orElse(false);
@@ -27,7 +27,7 @@ public class BuyerSellerPartyHelper {
     }
 
     private static boolean isFra(RosettaPath modelPath, Path synonymPath) {
-        boolean interestRatePayout = subPath("interestRatePayout", toPath(modelPath)).isPresent();
+        boolean interestRatePayout = subPath("InterestRatePayout", toPath(modelPath)).isPresent();
         boolean fra = Arrays.stream(synonymPath.getPathNames()).anyMatch("fra"::equals);
         return interestRatePayout && fra;
     }
