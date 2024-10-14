@@ -611,7 +611,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..1)
+  payout Payout (1..*)
     [metadata reference]
   rateRecordDate date (0..1)
   resetDate date (1..1)

@@ -555,7 +555,7 @@ func EquityCashSettlementAmount:
         equityCashSettlementAmount Transfer (1..1)
 
     alias equityPerformancePayout:
-        tradeState -> trade -> product -> economicTerms -> payout -> performancePayout only-element
+        tradeState -> trade -> product -> economicTerms -> payout -> PerformancePayout only-element
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -585,7 +585,7 @@ func EquityCashSettlementAmount:
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
+    set equityCashSettlementAmount -> settlementOrigin -> PerformancePayout:
         equityPerformancePayout as-key
 ```
 
@@ -732,8 +732,8 @@ func Create_Reset:
        else instruction -> resetDate
 
    alias observationIdentifiers:
-       if payout -> performancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> performancePayout only-element, instruction -> resetDate)
-       else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
+       if payout -> PerformancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> PerformancePayout only-element, instruction -> resetDate)
+       else if payout -> InterestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> InterestRatePayout only-element, observationDate)
 
    alias observation:
        ResolveObservation([observationIdentifiers], empty)
@@ -742,8 +742,8 @@ func Create_Reset:
        tradeState
 
    add reset -> resetHistory:
-       if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
-       else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
+       if payout -> PerformancePayout count = 1 then ResolvePerformanceReset(payout -> PerformancePayout only-element, observation, instruction -> resetDate)
+       else if payout -> InterestRatePayout exists then ResolveInterestRateReset(payout -> InterestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 ```
 
 First, `ResolvePerformanceObservationIdentifiers` defines the specific
