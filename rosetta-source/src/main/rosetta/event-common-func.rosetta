@@ -1033,8 +1033,6 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
     output:
         product NonTransferableProduct (1..1)
 
-    alias payouts: product -> economicTerms -> payout
-
 	condition PriceReturnTermsOnlyExists: 
 	    performancePayout -> returnTerms -> priceReturnTerms only exists
 
@@ -1056,12 +1054,12 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 
     post-condition PayoutType: <"Other payout types must be absent.">
         if masterConfirmation is absent
-        then payouts -> InterestRatePayout is absent
-                and payouts -> Cashflow is absent
-                and payouts -> CreditDefaultPayout is absent
-                and payouts -> SettlementPayout is absent
-                and payouts -> FixedPricePayout is absent
-                and payouts -> OptionPayout is absent
+        then product -> economicTerms -> payout -> InterestRatePayout is absent
+                and product -> economicTerms -> payout -> Cashflow is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout is absent
+                and product -> economicTerms -> payout -> SettlementPayout is absent
+                and product -> economicTerms -> payout -> FixedPricePayout is absent
+                and product -> economicTerms -> payout -> OptionPayout is absent
 
 func NewSingleNameEquityPerformancePayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
