@@ -164,7 +164,7 @@ public class SettlementFunctionHelper {
                 .build();
     }
 
-    private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {
+    private List<? extends Payout> getPayouts(BusinessEvent executionBusinessEvent) {
         return getAfterState(executionBusinessEvent)
                 .map(TradeState::getTrade)
                 .map(TradableProduct::getProduct)
