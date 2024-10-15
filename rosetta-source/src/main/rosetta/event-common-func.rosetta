@@ -333,18 +333,18 @@ func EquityPerformance: <"Part 1 Section 12 of the 2018 ISDA CDM Equity Confirma
     output:
         equityPerformance number (1..1)
 
-    alias PerformancePayout:
+    alias performancePayout:
         trade -> product -> economicTerms -> payout -> PerformancePayout only-element
     alias periodStartPrice: <"Only works in the case of a single trade lot.">
         ResolvePerformancePeriodStartPrice(
-                PerformancePayout,
+                performancePayout,
                 trade -> tradeLot only-element -> priceQuantity -> price,
                 trade -> tradeLot -> priceQuantity -> observable only-element,
                 date
             )
     alias periodEndPrice: observation
     alias numberOfSecurities:
-        PerformancePayout -> priceQuantity -> quantitySchedule -> value / periodStartPrice -> value
+        performancePayout -> priceQuantity -> quantitySchedule -> value / periodStartPrice -> value
     alias rateOfReturn: RateOfReturn(periodStartPrice, periodEndPrice)
     alias notionalAmount: EquityNotionalAmount(numberOfSecurities, periodEndPrice)
 
