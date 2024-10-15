@@ -1,6 +1,6 @@
 # Community Specification Governance Policy 1.0
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements in this document.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements.
 
 ## 1. Roles
 
