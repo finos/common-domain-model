@@ -11,9 +11,7 @@ import cdm.event.common.*;
 import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Return;
-import cdm.event.common.metafields.ReferenceWithMetaCollateralPortfolio;
 import cdm.event.workflow.EventInstruction;
-import cdm.product.collateral.Collateral;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -23,7 +21,9 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,7 +49,7 @@ public class SettlementFunctionHelper {
                         .setExecution(executionInstructionWithRefs))
                 .build());
 
-        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions,null,eventDate,null);
+        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions, null, eventDate, null);
         return postProcess(BusinessEvent.class, businessEvent);
     }
 
@@ -75,7 +75,7 @@ public class SettlementFunctionHelper {
     }
 
     private LocalDate settlementDate(BusinessEvent businessEvent, Function<List<? extends AssetLeg>, AssetLeg> assetLegSelector) {
-        return getSecurityPayout(businessEvent)
+        return getAssetPayout(businessEvent)
                 .map(Payout::getAssetPayout)
                 .filter(x -> !x.isEmpty()).map(Iterables::getLast)
                 .map(AssetPayout::getAssetLeg)
@@ -89,7 +89,7 @@ public class SettlementFunctionHelper {
     }
 
     public EventInstruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
-        Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
+        Payout payout = getAssetPayout(executionBusinessEvent).orElse(null);
         TradeState before = getAfterState(executionBusinessEvent).orElse(null);
         CalculateTransferInstruction calculateTransferInstruction =
                 CalculateTransferInstruction.builder()
@@ -103,9 +103,9 @@ public class SettlementFunctionHelper {
     }
 
     public EventInstruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
-                                                       List<? extends Quantity> quantities,
-                                                       LocalDate transferDate) {
-        Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
+                                                            List<? extends Quantity> quantities,
+                                                            LocalDate transferDate) {
+        Payout payout = getAssetPayout(executionBusinessEvent).orElse(null);
         Quantity shareQuantity = getShareQuantity(quantities);
         TradeState before = getAfterState(executionBusinessEvent).orElse(null);
         CalculateTransferInstruction calculateTransferInstruction =
@@ -167,24 +167,12 @@ public class SettlementFunctionHelper {
     private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {
         return getAfterState(executionBusinessEvent)
                 .map(TradeState::getTrade)
-                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getCollateral)
-                .map(Collateral::getCollateralPortfolio)
-                .orElse(Collections.emptyList()).stream()
-                .map(ReferenceWithMetaCollateralPortfolio::getValue)
-                .map(CollateralPortfolio::getCollateralPosition)
-                .flatMap(Collection::stream)
-                .map(CollateralPosition::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getPayout)
-                .findFirst();
+                .map(NonTransferableProduct::getEconomicTerms)
+                .map(EconomicTerms::getPayout);
     }
 
-    private Optional<Payout> getSecurityPayout(BusinessEvent executionBusinessEvent) {
+    private Optional<Payout> getAssetPayout(BusinessEvent executionBusinessEvent) {
         return getPayout(executionBusinessEvent)
                 .map(Payout::getAssetPayout)
                 .map(securityFinancePayouts -> Payout.builder().setAssetPayout(securityFinancePayouts)

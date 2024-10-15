@@ -27,8 +27,11 @@ public class ModelClassValidationTest {
                 .build();
 
 		ValidationResult<? super Trade> result = new TradeMeta().validator().validate(null, tradeState);
-		assertEquals(
-				"'tradeIdentifier' is a required field but does not exist.; 'tradeDate' is a required field but does not exist.; 'tradableProduct' is a required field but does not exist.",
+		assertEquals("'product' is a required field but does not exist.; " +
+						"'tradeLot' is a required field but does not exist.; " +
+						"'counterparty' is a required field but does not exist.; " +
+						"'tradeIdentifier' is a required field but does not exist.; " +
+						"'tradeDate' is a required field but does not exist.",
 				result.getFailureReason().orElse("No error message"));
 	}
 
