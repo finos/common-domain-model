@@ -1091,7 +1091,7 @@ func NewFloatingPayout: <"Function specification to create the interest rate (fl
 
     post-condition InterestRatePayoutTerms: <"Interest rate payout must inherit terms from the Master Confirmation Agreement when it exists.">
         if masterConfirmation exists
-        then // InterestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
+        then // interestRatePayout -> calculationPeriodDates = masterConfirmation -> equityCalculationPeriod and
             interestRatePayout -> paymentDates = masterConfirmation -> equityCashSettlementDates
 
 func Create_IndexTransitionTermsChange: <"Function specification to create a terms change that contains changes to the floating rate indexes and adds an adjustment spread to any existing spread.">
@@ -1256,7 +1256,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
                 FinancialUnitEnum -> Share
             )
 
-    alias InterestRatePayout: <"The interest payout that represents the lending fee.">
+    alias interestRatePayout: <"The interest payout that represents the lending fee.">
         tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
 
     alias assetPayout: <"The security finance payout that represents the securities lent.">
@@ -1284,16 +1284,16 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
     alias performance:
-        if InterestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
         then FixedAmount(
-                    InterestRatePayout,
+                    interestRatePayout,
                     billingQuantity,
                     recordEndDate,
                     calculationPeriodRange
                 )
-        else if InterestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
         then FloatingAmount(
-                    InterestRatePayout,
+                    interestRatePayout,
                     reset -> resetValue -> value,
                     billingQuantity,
                     recordEndDate,
@@ -1303,19 +1303,19 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
     alias payerPartyReference:
         ExtractCounterpartyByRole(
                 tradeState -> trade -> counterparty,
-                InterestRatePayout -> payerReceiver -> payer
+                interestRatePayout -> payerReceiver -> payer
             ) -> partyReference
 
     alias receiverPartyReference:
         ExtractCounterpartyByRole(
                 tradeState -> trade -> counterparty,
-                InterestRatePayout -> payerReceiver -> receiver
+                interestRatePayout -> payerReceiver -> receiver
             ) -> partyReference
 
     set transfer -> quantity -> value: performance
 
     set transfer -> quantity -> unit -> currency:
-        InterestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
+        interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
     set transfer -> payerReceiver -> payerPartyReference:
         if performance >= 0
@@ -2268,15 +2268,15 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
     output:
         instruction PrimitiveInstruction (1..1) <"Result is a Terms Change Instruction.">
 
-    alias InterestRatePayout:
+    alias interestRatePayout:
         tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
 
     alias cashflow: <"A fully structured CashFlow or the following need to be provided to create a cashflow.">
         Create_Cashflow(
                 interestAmount -> value,
-                InterestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency,
+                interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency,
                 settlementDate,
-                InterestRatePayout -> payerReceiver,
+                interestRatePayout -> payerReceiver,
                 CashflowType {
                     cashflowType: ScheduledTransferEnum -> NetInterest,
                     ... // TODO: set either cashPrice or priceExpression.
@@ -2285,7 +2285,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
             )
 
     condition InterestRatePayoutExists: <"Only a contractual product with a single interest rate payout can have an on-demand interest payment.">
-        InterestRatePayout exists
+        interestRatePayout exists
 
     condition Currency: <"The currency of the interest amount must match the currency of the original interest rate payout.">
         interestAmount -> unit -> currency = InterestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
