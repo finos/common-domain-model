@@ -28,7 +28,7 @@ The following examples show the function behaviour:
 - `RoundToSignificantFigures(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
 - `RoundToSignificantFigures(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
 
-This would be a new function, so there would be no compatibility issues.
+This is a new function, so there are no compatibility issues.
 
 _Review Directions_
 
