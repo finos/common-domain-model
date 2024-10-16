@@ -676,11 +676,15 @@ class FunctionInputCreationTest {
                 .getQuantity().get(0)
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
 
-        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradableProductBuilder
-                .getProduct()
-                .getEconomicTerms()
-                .getPayout()
-                .getInterestRatePayout();
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders =
+                tradeBuilder
+                        .getProduct()
+                        .getEconomicTerms()
+                        .getPayout()
+                        .stream()
+                        .map(Payout.PayoutBuilder::getInterestRatePayout)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
         Date effectiveDate = Date.of(2018, 4, 3);
         Date terminationDate = Date.of(2026, 2, 8);
