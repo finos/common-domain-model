@@ -1029,12 +1029,8 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
     inputs:
         security Security (1..1) <"The underlying Equity asset for the swap.">
         masterConfirmation EquitySwapMasterConfirmation2018 (0..1) <"An (optional) pointer to the Master Confirmation Agreement, if any, that holds further inputs to the Equity Swap">
-        performancePayout PerformancePayout (1..1)
     output:
         product NonTransferableProduct (1..1)
-
-	condition PriceReturnTermsOnlyExists: 
-	    performancePayout -> returnTerms -> priceReturnTerms only exists
 
     condition EquitySecurityType: <"Security must be equity (single name).">
         security -> securityType = SecurityTypeEnum -> Equity
@@ -1054,12 +1050,7 @@ func NewEquitySwapProduct: <"Function specification to create an Equity Swap acc
 
     post-condition PayoutType: <"Other payout types must be absent.">
         if masterConfirmation is absent
-        then product -> economicTerms -> payout -> InterestRatePayout is absent
-                and product -> economicTerms -> payout -> Cashflow is absent
-                and product -> economicTerms -> payout -> CreditDefaultPayout is absent
-                and product -> economicTerms -> payout -> SettlementPayout is absent
-                and product -> economicTerms -> payout -> FixedPricePayout is absent
-                and product -> economicTerms -> payout -> OptionPayout is absent
+        then product -> economicTerms -> payout extract [ PerformancePayout exists ] all = True
 
 func NewSingleNameEquityPerformancePayout: <"Function specification to create the equity payout part of an Equity Swap according to the 2018 ISDA CDM Equity Confirmation template.">
     inputs:
