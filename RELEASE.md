@@ -1,8 +1,8 @@
-# *CDM Model - RoundToPrecision Function*
+# *CDM Model - RoundToSignificantFigures Function*
 
 _Background_
 
-This release contains a bug fix for `RoundToSignificantFigures` function, as described in issue [#3154](https://github.com/finos/common-domain-model/issues/3154).
+This release contains a new function for `RoundToSignificantFigures` function, as described in issue [#3154](https://github.com/finos/common-domain-model/issues/3154).
 
 _What is being released?_
 
