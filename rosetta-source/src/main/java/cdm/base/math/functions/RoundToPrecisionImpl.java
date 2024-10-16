@@ -9,11 +9,11 @@ public class RoundToPrecisionImpl extends RoundToPrecision {
 
     // round a supplied value to the specified precision (in decimal places).
     @Override
-    protected BigDecimal doEvaluate(BigDecimal value, Integer precision, RoundingDirectionEnum roundingMode) {
+    protected BigDecimal doEvaluate(BigDecimal value, Integer precision, RoundingDirectionEnum roundingMode, Boolean removeTrailingZero) {
         if (value == null) return null;
         if (precision == null || roundingMode == null) return value;
-
-        return value.setScale(precision, toRoundingMode(roundingMode));
+        BigDecimal roundedValue = value.setScale(precision, toRoundingMode(roundingMode));
+        return removeTrailingZero ? roundedValue.stripTrailingZeros() : roundedValue;
     }
 
     private RoundingMode toRoundingMode(RoundingDirectionEnum roundingMode) {
