@@ -121,13 +121,12 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
         is_product boolean (1..1)
 
     alias optionUnderlier: economicTerms -> payout -> OptionPayout only-element -> underlier
-    alias settlementUnderlier:
-        economicTerms -> payout -> SettlementPayout only-element -> underlier
+    alias settlementUnderliers: economicTerms -> payout -> SettlementPayout -> underlier
 
     set is_product:
         (SettlementPayoutOnlyExists(economicTerms)
-            and (economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Asset -> Cash exists
-                or UnderlierQualification(settlementUnderlier, empty, AssetClassEnum -> ForeignExchange)) // multiple SettlementPayouts can exist but only one is checked
+            and (settlementUnderliers extract [ Observable -> Asset -> Cash exists ] all = True
+                or settlementUnderliers extract [ UnderlierQualification(item, empty, AssetClassEnum -> ForeignExchange) ] all = True)
             )
             or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
             or (SingleOptionPayoutOnlyExists(economicTerms)
