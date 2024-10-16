@@ -16,20 +16,18 @@ ffunc RoundToPrecisionRemoveTrailingZero: <"Round a number to the supplied preci
         roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
     output:
         roundedValue number (1..1) <"The value to the desired precision">
-    condition NonNegativePrecision:
+
+    condition NonNegativePrecision: <"The number of decimal digits of precision should be greater than or equal to zero.">
         precision >= 0
 ```
 
 The following examples show the function behaviour:
-- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 5, RoundingDirectionEnum -> NEAREST)` = 1023.1
-- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 5, RoundingDirectionEnum -> UP)` = 1023.2
-- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 5, RoundingDirectionEnum -> DOWN)` = 1023.1
-- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
-- `RoundToPrecisionRemoveTrailingZero(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
-- `RoundToPrecisionRemoveTrailingZero(1023, 5, RoundingDirectionEnum -> NEAREST)` = 1023
-- `RoundToPrecisionRemoveTrailingZero(999999999, 4, RoundingDirectionEnum -> NEAREST)` = 999999999
+- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12346
+- `RoundToPrecisionRemoveTrailingZero(1023.12000, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12
+- `RoundToPrecisionRemoveTrailingZero(1023, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023
+- `RoundToPrecisionRemoveTrailingZero(999999999, 4, RoundingDirectionEnum -> NEAREST, true)` = 999999999
 
-This would be a new function, so there would be no compatibility issues.
+This would is new function, so there are no compatibility issues.
 
 _Review Directions_
 
@@ -67,7 +65,7 @@ The following examples show the function behaviour:
 - `RoundToSignificantFigures(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
 - `RoundToSignificantFigures(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
 
-This would be a new function, so there would be no compatibility issues.
+This is a new function, so there are no compatibility issues.
 
 _Review Directions_
 
