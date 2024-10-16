@@ -14,7 +14,7 @@ func RoundToPrecision: <"Round a rate to the supplied precision, using the suppl
         value number (1..1) <"The original (unrounded) number.">
         precision int (1..1) <"The number of decimal digits of precision.">
         roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-        removeTrailingZero boolean (1..1) <"Flag to specify whether to remove trailing zeros.">
+        removeTrailingZeros boolean (1..1) <"Flag to specify whether to remove trailing zeros.">
     output:
         roundedValue number (1..1) <"The value to the desired precision">
 ```
