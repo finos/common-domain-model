@@ -32,9 +32,9 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.Payout;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
-import cdm.product.template.Underlier;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -665,9 +665,8 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
 
         Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder;
 
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradableProductBuilder.getTradeLot().get(0);
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeBuilder.getTradeLot().get(0);
         tradeLotBuilder
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0)
@@ -1102,9 +1101,9 @@ class FunctionInputCreationTest {
     private ObservationEvent getCorporateActionObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
-                        .setExDate(Date.of(2009, 2, 1))
-                        .setPayDate(Date.of(2009, 2, 1))
+                                .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
+                                .setExDate(Date.of(2009, 2, 1))
+                                .setPayDate(Date.of(2009, 2, 1))
 //                        .setUnderlier(Underlier.builder()
 //                                .setObservableValue(Observable.builder()
 //                                        .setIndex(Index.builder()
@@ -1146,9 +1145,9 @@ class FunctionInputCreationTest {
 
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
-                        .setExDate(Date.of(2009, 2, 13))
-                        .setPayDate(Date.of(2009, 2, 13))
+                                .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
+                                .setExDate(Date.of(2009, 2, 13))
+                                .setPayDate(Date.of(2009, 2, 13))
 //                        .setUnderlier(Underlier.builder()
 //                                .setObservableValue(Observable.builder()
 //                                        .setIndex(Index.builder()
@@ -1399,7 +1398,10 @@ class FunctionInputCreationTest {
                 .getProduct()
                 .getEconomicTerms()
                 .getPayout()
-                .getInterestRatePayout();
+                .stream()
+                .map(Payout.PayoutBuilder::getInterestRatePayout)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         interestRatePayouts.stream()
                 .filter(payout -> payout.getRateSpecification().getFloatingRateSpecification() != null)
                 .findFirst()
