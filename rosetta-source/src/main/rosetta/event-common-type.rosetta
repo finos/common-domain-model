@@ -212,7 +212,8 @@ type TransferState: <"Defines the fundamental financial information associated w
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
 type Transfer extends TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
-    settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+    settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
     resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
@@ -230,27 +231,6 @@ type ScheduledTransfer:
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
         if transferType = ScheduledTransferEnum -> CorporateAction
         then corporateActionTransferType exists
-
-choice SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-
-    AssetPayout         <"Represents a reference to an Asset Payout.">
-        [metadata reference]
-    CommodityPayout     <"Represents a reference to a Commodity Payout.">
-        [metadata reference]
-    CreditDefaultPayout <"Represents a reference to a Credit Default Payout.">
-        [metadata reference]
-    FixedPricePayout    <"Represents a reference to a Fixed Price Payout">
-        [metadata reference]
-    InterestRatePayout  <"Represents a reference to an Interest Rate Payout.">
-        [metadata reference]
-    OptionPayout        <"Represents a reference to an Option Payout.">
-        [metadata reference]        
-    PerformancePayout   <"Represents a reference to a Performance Payout.">
-        [metadata reference]
-    SettlementPayout    <"Represents a reference to a Settlement Payout.">
-        [metadata reference]
-    SettlementTerms     <"Represents a reference to settlement terms, which may have been specified at execution.">
-        [metadata reference]
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
