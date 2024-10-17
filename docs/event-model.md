@@ -301,7 +301,8 @@ type TransferState:
 
 ``` Haskell
 type Transfer extends TransferBase:
-  settlementOrigin SettlementOrigin (0..1)
+  settlementOrigin Payout (0..1)
+    [metadata reference]
   resetOrigin Reset (0..1)
   transferExpression TransferExpression (1..1)
 ```
@@ -611,7 +612,7 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..1)
+  payout Payout (1..*)
     [metadata reference]
   rateRecordDate date (0..1)
   resetDate date (1..1)
