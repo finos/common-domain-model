@@ -301,7 +301,8 @@ type TransferState:
 
 ``` Haskell
 type Transfer extends TransferBase:
-  settlementOrigin SettlementOrigin (0..1)
+  settlementOrigin Payout (0..1)
+    [metadata reference]
   resetOrigin Reset (0..1)
   transferExpression TransferExpression (1..1)
 ```

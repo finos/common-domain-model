@@ -554,8 +554,12 @@ func EquityCashSettlementAmount:
     output:
         equityCashSettlementAmount Transfer (1..1)
 
+    alias payout:
+        tradeState -> trade -> product -> economicTerms -> payout 
+            filter PerformancePayout exists 
+            then only-element
     alias equityPerformancePayout:
-        tradeState -> trade -> product -> economicTerms -> payout -> PerformancePayout only-element
+        payout -> PerformancePayout
     alias equityPerformance:
         EquityPerformance(
                 tradeState -> trade,
@@ -585,8 +589,8 @@ func EquityCashSettlementAmount:
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin -> PerformancePayout:
-        equityPerformancePayout as-key
+    set equityCashSettlementAmount -> settlementOrigin:
+        payout as-key
 ```
 
 ``` Haskell

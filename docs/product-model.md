@@ -363,7 +363,6 @@ For example:
 
 ``` Haskell
 type InterestRatePayout extends PayoutBase:
-   [metadata key]
    rateSpecification RateSpecification (0..1)
    dayCountFraction DayCountFractionEnum (0..1)
       [metadata scheme]
