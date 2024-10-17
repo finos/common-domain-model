@@ -4,6 +4,7 @@ import cdm.base.math.RoundingDirectionEnum;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 public class RoundToPrecisionImpl extends RoundToPrecision {
 
@@ -13,7 +14,7 @@ public class RoundToPrecisionImpl extends RoundToPrecision {
         if (value == null) return null;
         if (precision == null || roundingMode == null) return value;
         BigDecimal roundedValue = value.setScale(precision, toRoundingMode(roundingMode));
-        return removeTrailingZero ? roundedValue.stripTrailingZeros() : roundedValue;
+        return Optional.ofNullable(removeTrailingZero).orElse(false) ? roundedValue.stripTrailingZeros() : roundedValue;
     }
 
     private RoundingMode toRoundingMode(RoundingDirectionEnum roundingMode) {
