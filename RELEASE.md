@@ -1,37 +1,28 @@
-# *CDM Model - RoundToSignificantFigures Function*
+# _Product Model - Asset Refactoring: Payout as a Choice_
 
 _Background_
 
-This release contains a new function for `RoundToSignificantFigures` function, as described in issue [#3154](https://github.com/finos/common-domain-model/issues/3154).
+The Asset Refactoring initiative (see https://github.com/finos/common-domain-model/issues/2805) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional  financial products and markets.  A proposal has been agreed - through a cross-industry Task Force - to implement this remodelling in the CDM.
+
+This release includes some additional functionality (following three planned major tranches of work in CDM 6 to implement the refactored model).
 
 _What is being released?_
 
-This release creates the new function `cdm.base.math.RoundToSignificantFigures` to round to the significant number of decimal places.
+Payout:
+- The `Payout` data type has been refactored as a `Choice`.  `Choice` data types work slightly different from the regular `one-of` condition because they force each of the members of the choice to have a single cardinality.  Therefore, the use of `Payout`, for example on `EconomicTerms` and `ResetInstruction`, now have multiple cardinality.
 
-```
-func RoundToSignificantFigures: <"Round a number to the supplied significant figures, using the supplied rounding direction.">
-    inputs:
-        value number (1..1) <"The original (unrounded) number.">
-        significantFigures int (1..1) <"The number of significant figures.">
-        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-    output:
-        roundedValue number (1..1) <"The value to the desired number of significant figures.">
-        
-    condition NonZeroSignificantFigures: <"The number of significant figures should be greater than zero.">
-        significantFigures > 0
-```
+Product Qualification:
+- Some minor changes have been made to the product qualification functions to ensure that the functionality and logic is unaffected by this change.
 
-The following examples show the function behaviour:
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> NEAREST)` = 1023.1
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> UP)` = 1023.2
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> DOWN)` = 1023.1
-- `RoundToSignificantFigures(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
-- `RoundToSignificantFigures(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
+Documentation updates:
+- The CDM documentation on the FINOS website has been updated.
 
-This is a new function, so there are no compatibility issues.
+_Review directions_
 
-_Review Directions_
+The changes can be reviewed in PR: [#3178](https://github.com/finos/common-domain-model/pull/3178)
 
-In Rosetta, select the Textual Browser and inspect the changes identified above.
+_Backward-incompatible changes_
 
-Changes can be reviewed in PR [#3179](https://github.com/finos/common-domain-model/pull/3179)
+This release contains changes that are not backward-compatible:
+- All references to a payout need to be updated as references to a payout are now treated as capitalised Data Types rather than lower case Attributes.  For example, a previous reference might have read:  `payout -> interestRatePayout -> floatingAmount` must now be written as:  `payout -> InterestRatePayout -> floatingAmount`.
+- Logic or mapping that expects certain cardinality may need to be reviewed; see the explanation above.
