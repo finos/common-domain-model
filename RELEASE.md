@@ -1,15 +1,15 @@
-# *CDM Model - RoundToPrecisionRemoveTrailingZero Function*
+# *CDM Model - RoundToPrecisionRemoveTrailingZeros Function*
 
 _Background_
 
-This release contains a new function for `RoundToPrecisionRemoveTrailingZero` function, as described in issue [#2915](https://github.com/finos/common-domain-model/issues/2915#issuecomment-2393577467).
+This release contains a new function for `RoundToPrecisionRemoveTrailingZeros` function, as described in issue [#2915](https://github.com/finos/common-domain-model/issues/2915#issuecomment-2393577467).
 
 _What is being released?_
 
-This release creates the new function `cdm.base.math.RoundToPrecisionRemoveTrailingZero` to not add any trailing 0's in the end if they do not already exist.
+This release creates the new function `cdm.base.math.RoundToPrecisionRemoveTrailingZeros` to not add any trailing 0's in the end if they do not already exist.
 
 ```
-ffunc RoundToPrecisionRemoveTrailingZero: <"Round a number to the supplied precision, using the supplied rounding direction.">
+ffunc RoundToPrecisionRemoveTrailingZeros: <"Round a number to the supplied precision, using the supplied rounding direction.">
     inputs:
         value number (1..1) <"The original (unrounded) number.">
         precision int (1..1) <"The number of decimal digits of precision.">
@@ -22,10 +22,10 @@ ffunc RoundToPrecisionRemoveTrailingZero: <"Round a number to the supplied preci
 ```
 
 The following examples show the function behaviour:
-- `RoundToPrecisionRemoveTrailingZero(1023.123456789, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12346
-- `RoundToPrecisionRemoveTrailingZero(1023.12000, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12
-- `RoundToPrecisionRemoveTrailingZero(1023, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023
-- `RoundToPrecisionRemoveTrailingZero(999999999, 4, RoundingDirectionEnum -> NEAREST, true)` = 999999999
+- `RoundToPrecisionRemoveTrailingZeros(1023.123456789, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12346
+- `RoundToPrecisionRemoveTrailingZeros(1023.12000, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12
+- `RoundToPrecisionRemoveTrailingZeros(1023, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023
+- `RoundToPrecisionRemoveTrailingZeros(999999999, 4, RoundingDirectionEnum -> NEAREST, true)` = 999999999
 
 This would is new function, so there are no compatibility issues.
 

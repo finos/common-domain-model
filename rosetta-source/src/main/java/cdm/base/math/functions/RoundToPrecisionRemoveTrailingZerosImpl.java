@@ -5,7 +5,7 @@ import cdm.base.math.RoundingDirectionEnum;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class RoundToPrecisionRemoveTrailingZeroImpl extends RoundToPrecisionRemoveTrailingZero {
+public class RoundToPrecisionRemoveTrailingZerosImpl extends RoundToPrecisionRemoveTrailingZeros {
 
     // round a supplied value to the specified precision (in decimal places).
     @Override
