@@ -127,8 +127,6 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
         then terminationDate exists
 
 type OptionPayout extends PayoutBase: <" The option payout specification terms. The associated globalKey denotes the ability to associate a hash value to the respective OptionPayout instantiation for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-    [metadata key]
-
     buyerSeller BuyerSeller (1..1)
     feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
     observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
@@ -200,8 +198,6 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
             or correlationReturnTerms only exists
 
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
-    [metadata key]
-
     observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
     valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
@@ -399,8 +395,6 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
         then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
 type SettlementPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
-    [metadata key]
-
     underlier Underlier (1..1) <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, or the cash settlement of an index rate.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
@@ -459,8 +453,6 @@ type SchedulePeriod: <"A class that defines the period of a schedule. The period
     deliveryPeriod CalculationScheduleDeliveryPeriods (0..1) <"Period and time profile over which the delivery takes place.">
 
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-    [metadata key]
-
     paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
     fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
@@ -852,8 +844,6 @@ type StrikeSchedule extends RateSchedule: <"A class describing a schedule of cap
     seller PayerReceiverEnum (0..1) <"The party that has sold.">
 
 type AssetPayout extends PayoutBase: <"Security finance payout specification in case the product payout involves some form of security collateral, as in a securities financing transaction. Plus additional description for ICMA.">
-    [metadata key]
-
     assetLeg AssetLeg (1..*) <"Defines each asset movement as a buy/sell at different dates, typically 1 near leg and 1 far leg in a securities financing transaction.">
     underlier Asset (1..1) <"Specifies the Purchased Asset, usually a Security.">
     // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
