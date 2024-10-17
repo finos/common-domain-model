@@ -40,7 +40,7 @@ class RoundToPrecisionRemoveTrailingZeroImplTest {
     void shouldRoundToNearest7DecimalPlaces() {
         RoundToPrecisionRemoveTrailingZeroImpl func = new RoundToPrecisionRemoveTrailingZeroImpl();
         BigDecimal result = func.doEvaluate(BigDecimal.valueOf(1023.1), 7, RoundingDirectionEnum.NEAREST);
-        assertEquals("1023.1000000", result.toPlainString());
+        assertEquals("1023.1", result.toPlainString());
     }
     
     @Test
@@ -54,6 +54,6 @@ class RoundToPrecisionRemoveTrailingZeroImplTest {
     void shouldRoundDownTo4DecimalPlacesRemovingTrailingZeros() {
         RoundToPrecisionRemoveTrailingZeroImpl func = new RoundToPrecisionRemoveTrailingZeroImpl();
         BigDecimal result = func.doEvaluate(BigDecimal.valueOf(999999999), 4, RoundingDirectionEnum.NEAREST);
-        assertEquals("99999999", result.toPlainString());
+        assertEquals("999999999", result.toPlainString());
     }
 }
