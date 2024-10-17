@@ -2,7 +2,7 @@
 
 _Background_
 
-In an earlier release function `cdm.base.math.RoundToSignificantFigures` was added, however it was missing configuration.
+In an earlier release, function `cdm.base.math.RoundToSignificantFigures` was added, however it was missing configuration.
 
 _What is being released?_
 
