@@ -3,18 +3,18 @@ package cdm.base.math.functions;
 import cdm.base.math.RoundingDirectionEnum;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Optional;
 
-public class RoundToPrecisionImpl extends RoundToPrecision {
+public class RoundToSignificantFiguresImpl extends RoundToSignificantFigures {
 
-    // round a supplied value to the specified precision (in decimal places).
+    // round a supplied value to the specified significant figures
     @Override
-    protected BigDecimal doEvaluate(BigDecimal value, Integer precision, RoundingDirectionEnum roundingMode, Boolean removeTrailingZero) {
+    protected BigDecimal doEvaluate(BigDecimal value, Integer significantFigures, RoundingDirectionEnum roundingMode) {
         if (value == null) return null;
-        if (precision == null || roundingMode == null) return value;
-        BigDecimal roundedValue = value.setScale(precision, toRoundingMode(roundingMode));
-        return Optional.ofNullable(removeTrailingZero).orElse(false) ? roundedValue.stripTrailingZeros() : roundedValue;
+        if (significantFigures == null || roundingMode == null) return value;
+        
+        return value.round(new MathContext(significantFigures, toRoundingMode(roundingMode)));
     }
 
     private RoundingMode toRoundingMode(RoundingDirectionEnum roundingMode) {
