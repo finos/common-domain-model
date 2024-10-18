@@ -68,7 +68,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + observationHistory
             [value "ignore"]
 
-    Trade:
+    
+     Trade:
         + tradeIdentifier
             [value "partyTradeIdentifier"]
             [value "partyTradeIdentifier" path "tradeHeader"]
@@ -80,14 +81,15 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "party"]
         + partyRole
             [value "determiningParty" , "barrierDeterminationAgent" , "hedgingParty" , "brokerPartyReference" mapper "PartyRole"]
-            [value "partyTradeIdentifier" path "tradeHeader" , "partyTradeInformation" path "tradeHeader"]
+            //[value "partyTradeIdentifier" path "tradeHeader" , "partyTradeInformation" path "tradeHeader"]
+            [value "partyReference" path "tradeHeader->partyTradeInformation" mapper "RelatedPartyRole"]
         + clearedDate
             [value "clearedDate" path "tradeHeader"]
         + collateral
             [value "collateral"]
         + account
             [value "account"]
-
+            
     TradeIdentifier:
         + identifierType
             // [set to TradeIdentifierTypeEnum -> UniqueSwapIdentifier when "tradeId->tradeIdScheme" = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier" and "issuer->issuerIdScheme" = "http://www.fpml.org/coding-scheme/external/cftc/issuer-identifier"]
@@ -2285,6 +2287,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "paymentDate"]
         + schedule
             [value "ignore"]
+
 
     FixedPrice:
         + price
