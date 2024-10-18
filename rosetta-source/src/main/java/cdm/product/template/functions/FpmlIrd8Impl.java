@@ -3,6 +3,7 @@ package cdm.product.template.functions;
 import cdm.base.staticdata.party.Account;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.event.common.Trade;
 import cdm.product.template.TradableProduct;
 
 import java.util.List;
@@ -16,12 +17,12 @@ import java.util.Optional;
 public class FpmlIrd8Impl extends FpmlIrd8 {
 
 	@Override
-	protected Boolean doEvaluate(TradableProduct tradableProduct, List<? extends Account> accounts) {
-		if ( tradableProduct.getCounterparty() == null || tradableProduct.getCounterparty().size() != 2)
+	protected Boolean doEvaluate(Trade trade, List<? extends Account> accounts) {
+		if ( trade.getCounterparty() == null || trade.getCounterparty().size() != 2)
 			return false;
 
-		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(tradableProduct.getCounterparty().get(0)).map(Counterparty::getPartyReference);
-		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(tradableProduct.getCounterparty().get(1)).map(Counterparty::getPartyReference);
+		Optional<ReferenceWithMetaParty> party1 = Optional.ofNullable(trade.getCounterparty().get(0)).map(Counterparty::getPartyReference);
+		Optional<ReferenceWithMetaParty> party2 = Optional.ofNullable(trade.getCounterparty().get(1)).map(Counterparty::getPartyReference);
 
 		if (!party1.isPresent() || !party2.isPresent())
 			return false;

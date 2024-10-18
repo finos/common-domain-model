@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMapping;
 
 public class RelativeNotionalAmountMappingProcessor extends MappingProcessor {
 

@@ -3,8 +3,8 @@ package cdm.product.asset.floatingrate.functions;
 import cdm.base.datetime.*;
 import cdm.base.math.DatedValue;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationTestDataProvider;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class FloatingRateTestHelper {
 
-    public static IndexValueObservation initIndexData(FloatingRateOption fro) {
+    public static IndexValueObservation initIndexData(FloatingRateIndex fro) {
         IndexValueObservationTestDataProvider testDataProvider = new IndexValueObservationTestDataProvider();
         testDataProvider.setDefaultValue(0.01);
         testDataProvider.setValue(fro, Date.of(2021, 6, 1), 0.02);
@@ -31,14 +31,13 @@ public class FloatingRateTestHelper {
         return testDataProvider;
     }
 
-    public static FloatingRateOption initFro() {
-        return FloatingRateOption.builder()
-                .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_ACT_365)
-                        .build())
-                .setIndexTenor(Period.builder()
-                        .setPeriod(PeriodEnum.M)
-                        .setPeriodMultiplier(3).build())
+    public static FloatingRateIndex initFro() {
+        return FloatingRateIndex.builder()
+                .setInterestRateIndex(InterestRateIndex.builder()
+                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_ACT_365)
+                        .setIndexTenor(Period.builder()
+                                .setPeriod(PeriodEnum.M)
+                                .setPeriodMultiplier(3).build()))
                 .build();
     }
 
@@ -62,7 +61,7 @@ public class FloatingRateTestHelper {
                 .build();
     }
 
-    public static FloatingRateSpecification initFloatingRate(FloatingRateOption fro) {
+    public static FloatingRateSpecification initFloatingRate(FloatingRateIndex fro) {
         double[] capRates = {0.06, 0.065, 0.07, 0.075};
         double[] floorRates = {0.005, 0.01, 0.015, 0.020};
         double[] spreadRates = {0.002, 0.0021, 0.0022, 0.0023};

@@ -35,9 +35,9 @@ class PartyMappingHelperTest {
 	private static final Path RECEIVER_XML_PATH = Path.parse("dataDocument.trade.swap.swapStream[0].receiverPartyReference.href");
 
 	private static final RosettaPath PAYER_MODEL_PATH = RosettaPath.valueOf(
-			"Contract.tradableProduct.product.contractualProduct.economicTerms.payout.interestRatePayout(0).payerReceiver.payer");
+			"Trade.product.economicTerms.payout.interestRatePayout(0).payerReceiver.payer");
 	private static final RosettaPath RECEIVER_MODEL_PATH = RosettaPath.valueOf(
-			"Contract.tradableProduct.product.contractualProduct.economicTerms.payout.interestRatePayout(0).payerReceiver.receiver");
+			"Trade.product.economicTerms.payout.interestRatePayout(0).payerReceiver.receiver");
 
 	private static final String PAYER_PARTY_REF = "p1";
 	private static final String RECEIVER_PARTY_REF = "p2";
