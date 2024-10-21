@@ -1,15 +1,12 @@
-# *CDM Model - RoundToSignificantFigures Function*
-
-_Background_
-
-In an earlier release, function `cdm.base.math.RoundToSignificantFigures` was added, however it was missing configuration.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-Added missing Guice configuration for Java function implementation for `cdm.base.math.RoundToSignificantFigures`.
+This release updates the `DSL` dependency.
 
-_Review Directions_
+Version updates include:
+- `DSL` 9.20.0: support for passing metadata to functions and highlighting fixes. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.20.0
 
-In Rosetta, select the Textual Browser and inspect the changes identified above.
+_Review directions_
 
-Changes can be reviewed in PR [#3184](https://github.com/finos/common-domain-model/pull/3184)
+The changes can be reviewed in PR: [#xxxx](https://github.com/finos/common-domain-model/pull/xxxx)
