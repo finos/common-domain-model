@@ -147,15 +147,10 @@ func Qualify_AssetClass_Equity:
         economicTerms -> payout -> SettlementPayout only-element -> underlier
 
     set is_product:
-        (economicTerms -> payout -> PerformancePayout -> underlier -> Observable
-            extract Qualify_UnderlierObservable_Equity
-            then all = True
-                and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
-                    PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
-                    // Performance Payout + Fixed Price Payout (Dividend Swap)
-                    or PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
-                    // Performance Payout only (Variance, Volatility and Correlation Swap)
-                    or PerformancePayoutOnlyExists(economicTerms -> payout)))
+        (economicTerms -> payout -> PerformancePayout exists
+            and economicTerms -> payout -> PerformancePayout -> underlier -> Observable
+                    extract [ Qualify_UnderlierObservable_Equity ] 
+                    all = True)
         or (economicTerms -> payout only-element -> OptionPayout exists
             and (Qualify_UnderlierObservable_Equity(optionUnderlier -> Observable) 
                 or if optionUnderlier -> Product exists
@@ -166,7 +161,7 @@ func Qualify_AssetClass_Equity:
             and (Qualify_UnderlierObservable_Equity(settlementUnderlier -> Observable) 
                 or if settlementUnderlier -> Product ->> economicTerms exists
                     then Qualify_AssetClass_Equity(
-                                settlementUnderlier -> Product ->> economicTerms) = True
+                            settlementUnderlier -> Product ->> economicTerms) = True
                     else False
             ))
 
@@ -719,7 +714,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
                 // qualifies that the underlier is an asset
             and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Asset exists
                 // qualifies that the underlier is a security (already verified as equity)
-            and optionUnderlier -> Observable -> Asset -> Instrument -> Security only exists 
+            and optionUnderlier -> Observable -> Asset -> Instrument -> Security exists 
                     // qualifies that no feature other than averaging exists
             and (economicTerms -> payout -> OptionPayout -> feature is absent
                 or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists)
@@ -1406,7 +1401,7 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
                 // qualifies that only the option payout exists and all other payouts are absent
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies the underlyer of the option as a debt security
-            and optionPayout -> underlier -> Observable extract [ ObservableQualification(item, SecurityTypeEnum -> Debt, empty) ] all = True 
+            and optionPayout -> underlier -> Observable extract [ ObservableQualification(item, SecurityTypeEnum -> Debt, empty) ] all = True
 
 func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate Bond Forward based on economic terms, which is defined as a transaction in which one party agrees to pay an agreed price for a specified amount of a bond of an issuer or a basket of bonds of several issuers at a future date and the other party agrees to pay a price for the same amount of the same bond to be set on a specified date in the future.">
     [qualification Product]
@@ -1683,7 +1678,10 @@ func InterestRatePayoutOnlyExists: <"At least one InterestRatePayout exists and 
         result boolean (1..1)
     
     set result:
-        payouts extract [ InterestRatePayout exists ] all = True
+        payouts 
+            extract InterestRatePayout exists
+            then all = True 
+            then default False
 
 func SettlementPayoutOnlyExists: <"At least one SettlementPayout exists and no other payouts exist.">
     inputs:
@@ -1692,7 +1690,10 @@ func SettlementPayoutOnlyExists: <"At least one SettlementPayout exists and no o
         result boolean (1..1)
     
     set result:
-        payouts extract [ SettlementPayout exists ] all = True
+        payouts 
+            extract SettlementPayout exists
+            then all = True 
+            then default False
 
 func PerformancePayoutOnlyExists: <"At least one PerformancePayout exists and no other payouts exist.">
     inputs:
@@ -1701,7 +1702,10 @@ func PerformancePayoutOnlyExists: <"At least one PerformancePayout exists and no
         result boolean (1..1)
     
     set result:
-        payouts extract [ PerformancePayout exists ] all = True
+        payouts 
+            extract PerformancePayout exists
+            then all = True 
+            then default False
 
 func CommodityPayoutOnlyExists: <"At least one CommodityPayout exists and no other payouts exist.">
     inputs:
@@ -1710,7 +1714,10 @@ func CommodityPayoutOnlyExists: <"At least one CommodityPayout exists and no oth
         result boolean (1..1)
     
     set result:
-        payouts extract [ CommodityPayout exists ] all = True
+        payouts 
+            extract CommodityPayout exists
+            then all = True 
+            then default False
 
 func PerformancePayoutAndFixedPricePayoutOnlyExists: <"At least one PerformancePayout exists, and at least one FixedPricePayout exists, and no other payouts exist.">
     inputs:
