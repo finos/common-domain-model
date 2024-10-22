@@ -149,7 +149,13 @@ func Qualify_AssetClass_Equity:
     set is_product:
         (economicTerms -> payout -> PerformancePayout -> underlier -> Observable
             extract Qualify_UnderlierObservable_Equity
-            then all = True)
+            then all = True
+                and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
+                    PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
+                    // Performance Payout + Fixed Price Payout (Dividend Swap)
+                    or PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
+                    // Performance Payout only (Variance, Volatility and Correlation Swap)
+                    or PerformancePayoutOnlyExists(economicTerms -> payout)))
         or (economicTerms -> payout only-element -> OptionPayout exists
             and (Qualify_UnderlierObservable_Equity(optionUnderlier -> Observable) 
                 or if optionUnderlier -> Product exists
