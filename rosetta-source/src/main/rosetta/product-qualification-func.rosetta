@@ -149,29 +149,20 @@ func Qualify_AssetClass_Equity:
     set is_product:
         (economicTerms -> payout -> PerformancePayout -> underlier -> Observable
             extract Qualify_UnderlierObservable_Equity
-            then all = True
-                    and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
-                        (economicTerms -> payout count = 2 
-                            and economicTerms -> payout -> InterestRatePayout exists 
-                            and economicTerms -> payout -> PerformancePayout exists)
-                        // Performance Payout + Fixed Price Payout (Dividend Swap)
-                        or (economicTerms -> payout -> PerformancePayout exists 
-                            and economicTerms -> payout -> FixedPricePayout exists)
-                        // Performance Payout only (Variance, Volatility and Correlation Swap)
-                        or PerformancePayoutOnlyExists(economicTerms -> payout)))
-            or (economicTerms -> payout only-element -> OptionPayout exists
-                and (Qualify_UnderlierObservable_Equity(optionUnderlier -> Observable) 
-                    or if optionUnderlier -> Product exists
-                        then Qualify_AssetClass_Equity(optionUnderlier -> Product ->> economicTerms) = True
-                        else False
-                ))
-            or (economicTerms -> payout only-element -> SettlementPayout exists
-                and (Qualify_UnderlierObservable_Equity(settlementUnderlier -> Observable) 
-                    or if settlementUnderlier -> Product ->> economicTerms exists
-                        then Qualify_AssetClass_Equity(
-									settlementUnderlier -> Product ->> economicTerms) = True
-                        else False
-                ))
+            then all = True)
+        or (economicTerms -> payout only-element -> OptionPayout exists
+            and (Qualify_UnderlierObservable_Equity(optionUnderlier -> Observable) 
+                or if optionUnderlier -> Product exists
+                    then Qualify_AssetClass_Equity(optionUnderlier -> Product ->> economicTerms) = True
+                    else False
+            ))
+        or (economicTerms -> payout only-element -> SettlementPayout exists
+            and (Qualify_UnderlierObservable_Equity(settlementUnderlier -> Observable) 
+                or if settlementUnderlier -> Product ->> economicTerms exists
+                    then Qualify_AssetClass_Equity(
+                                settlementUnderlier -> Product ->> economicTerms) = True
+                    else False
+            ))
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
     inputs:
@@ -327,11 +318,9 @@ func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset C
         // all underliers must be equity asset class
         Qualify_AssetClass_Equity(economicTerms) = True
             and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
-                (economicTerms -> payout count = 2 
-                    and economicTerms -> payout -> InterestRatePayout exists 
-                    and economicTerms -> payout -> PerformancePayout exists)
+                PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
                 // Performance Payout + Fixed Price Payout (Dividend Swap)
-                or (economicTerms -> payout -> PerformancePayout exists and economicTerms -> payout -> FixedPricePayout exists)
+                or PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
                 // Performance Payout only (Variance, Volatility and Correlation Swap)
                 or (PerformancePayoutOnlyExists(economicTerms -> payout)))
 
@@ -466,7 +455,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a produc
             economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Basket exists
             and ( // Intended final payout structure
             // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
-                (economicTerms -> payout count = 3
+                (PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
                     and economicTerms -> payout -> InterestRatePayout count = 1
                     and economicTerms -> payout -> PerformancePayout count = 2)
                 or // Provisional payout structure
@@ -650,9 +639,7 @@ func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"Qualifies a produc
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that there is one fixed price and one performance payout
-            (economicTerms -> payout count = 2 
-                and economicTerms -> payout -> PerformancePayout exists 
-                and economicTerms -> payout -> FixedPricePayout exists)
+            PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
             and economicTerms -> payout -> PerformancePayout count = 1
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
@@ -673,9 +660,8 @@ func Qualify_EquitySwap_ParameterReturnDividend_Index: <"Qualifies a product as 
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that there is one fixed price and one performance payout
-            (economicTerms -> payout -> PerformancePayout exists and economicTerms -> payout -> FixedPricePayout exists)
-            and 
-            economicTerms -> payout -> PerformancePayout count = 1
+            PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
+            and economicTerms -> payout -> PerformancePayout count = 1
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
             and // qualifies that underlier is an index
@@ -695,9 +681,7 @@ func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that there is one fixed price and one performance payout
-            (economicTerms -> payout count = 2 
-                and economicTerms -> payout -> PerformancePayout exists 
-                and economicTerms -> payout -> FixedPricePayout exists)
+            PerformancePayoutAndFixedPricePayoutOnlyExists(economicTerms -> payout)
             and economicTerms -> payout -> PerformancePayout count = 1
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
@@ -1721,3 +1705,28 @@ func CommodityPayoutOnlyExists: <"At least one CommodityPayout exists and no oth
     
     set result:
         payouts extract [ CommodityPayout exists ] all = True
+
+func PerformancePayoutAndFixedPricePayoutOnlyExists: <"At least one PerformancePayout exists, and at least one FixedPricePayout exists, and no other payouts exist.">
+    inputs:
+        payouts Payout (0..*)
+    output:
+        result boolean (1..1)
+    
+    set result:
+        payouts -> PerformancePayout exists 
+        and payouts -> FixedPricePayout exists
+        // check no other payouts exist
+        and payouts extract [ PerformancePayout exists or FixedPricePayout exists ] all = True
+
+func PerformancePayoutAndInterestRatePayoutOnlyExists: <"At least one PerformancePayout exists, and at least one InterestRatePayout exists, and no other payouts exist.">
+    inputs:
+        payouts Payout (0..*)
+    output:
+        result boolean (1..1)
+    
+    set result:
+        payouts -> PerformancePayout exists 
+        and payouts -> InterestRatePayout exists
+        // check no other payouts exist
+        and payouts extract [ PerformancePayout exists or InterestRatePayout exists ] all = True
+
