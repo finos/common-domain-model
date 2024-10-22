@@ -145,6 +145,38 @@ func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of 
     add acceptedWorkflowStep -> account:
         acceptedWorkflowStep -> businessEvent -> after -> trade -> account distinct
 
+func Create_CancelledWorkflowStepFromInstruction: <"Represents the cancellation of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage.">
+	[creation WorkflowStep]
+	inputs:
+		proposedWorkflowStep WorkflowStep (1..1)
+	output:
+		cancelledWorkflowStep WorkflowStep (1..1)
+
+	condition ProposedEventExists: <"The previous step being cancelled must be a proposed step containing an instruction.">
+		proposedWorkflowStep -> proposedEvent exists
+
+	condition CancelledProposedStep: <"The previous step must be a cancel">
+		proposedWorkflowStep -> action = ActionEnum -> Cancel
+
+	condition RejectedProposedStep: <"The previous step cannot be rejected.">
+		proposedWorkflowStep -> rejected <> True
+
+	set cancelledWorkflowStep -> action: proposedWorkflowStep -> action
+	set cancelledWorkflowStep -> messageInformation: proposedWorkflowStep -> messageInformation
+	add cancelledWorkflowStep -> timestamp: proposedWorkflowStep -> timestamp
+	add cancelledWorkflowStep -> eventIdentifier: proposedWorkflowStep -> eventIdentifier
+	set cancelledWorkflowStep -> previousWorkflowStep: proposedWorkflowStep -> previousWorkflowStep as-key
+
+	set cancelledWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+		Create_BusinessEvent(
+		    proposedWorkflowStep -> proposedEvent -> instruction,
+		    proposedWorkflowStep -> proposedEvent -> intent,
+		    proposedWorkflowStep -> proposedEvent -> eventDate,
+		    proposedWorkflowStep -> proposedEvent -> effectiveDate )
+
+    add cancelledWorkflowStep -> party: cancelledWorkflowStep -> businessEvent -> after -> trade -> party distinct
+    add cancelledWorkflowStep -> account: cancelledWorkflowStep -> businessEvent -> after -> trade -> account distinct
+
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
     [creation WorkflowStep]
     inputs:
