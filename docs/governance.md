@@ -1,5 +1,5 @@
 ---
-title: Development Guidelines
+title: Governance
 ---
 
 # Governance
