@@ -77,11 +77,13 @@ Changes can be reviewed in PR [#3180](https://github.com/finos/common-domain-mod
 
 _What is being released?_
 
-This release updates the DSL dependency.
+This release updates the `DSL` dependency.
 
 Version updates include:
-- DSL 9.19.0: support for `switch` operation on `choice` types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.19.0
+- `DSL` 9.19.0: support for `switch` operation on `choice` types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.19.0
+- `DSL` 9.20.0: support for passing metadata to functions and highlighting fixes. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.20.0
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3153](https://github.com/finos/common-domain-model/pull/3153)
+The `DSL` 9.19.0 changes can be reviewed in PR: [#3153](https://github.com/finos/common-domain-model/pull/3153)
+The `DSL` 9.20.0 changes can be reviewed in PR: [#3192](https://github.com/finos/common-domain-model/pull/3192)
