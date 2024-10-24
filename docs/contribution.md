@@ -11,7 +11,9 @@ Contributions to the CDM have to comply with the following set of design princip
 * **Composability** where objects are composed and qualified from the bottom up
 * **Mapping** to existing industry messaging formats
 * **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers \
+* **Modularisation** into logical layers
+
+* To learn more about these, please visit our [Design Principles](design-principles.md) page. 
 
 ## CDM development guidelines 
 
