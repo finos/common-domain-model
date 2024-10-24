@@ -335,6 +335,7 @@ type Payout: <"A class to represent the set of future cashflow methodologies in 
         if optionPayout exists
         then optionPayout -> priceQuantity exists
                 or optionPayout -> underlier -> contractualProduct -> economicTerms -> payout -> interestRatePayout count = 2
+                or optionPayout -> underlier -> foreignExchange exists
 
     condition DayCountFraction: <"FpML specifies a required dayCountFraction element as part of the swapStream/calculationPeriodAmount/calculation. As standardized CDS don't have such specified day count fraction, the cardinality has been relaxed as part of the CDM. This data rule specifies that if the product has two interest rate streams, this provision must exist.">
         if interestRatePayout count = 2
@@ -830,15 +831,19 @@ type AmericanExercise: <"A class defining the exercise period for an American st
     relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
     earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
     latestExerciseTime BusinessCenterTime (0..1) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
-    expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
+    expirationTime BusinessCenterTime (0..1) <"The latest time for exercise on expirationDate.">
     expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
     multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
     exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
+
+condition ExpirationTimeChoice: <"Condition to validate the existence of correlation between expirationTime and expirationTimeType">
+    ExpirationTimeType(expirationTime, expirationTimeType)
 
 type AutomaticExercise: <"A type to define automatic exercise of a swaption. With automatic exercise the option is deemed to have exercised if it is in the money by more than the threshold amount on the exercise date.">
 
     thresholdRate number (0..1) <"A threshold rate. The threshold of 0.10% would be represented as 0.001">
     isApplicable boolean (0..1) <"Boolean that indicates if it has an automaticExercise">
+
 type BermudaExercise: <"A class defining the Bermuda option exercise dates and the expiration date together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fee.">
     [metadata key]
 
@@ -846,10 +851,13 @@ type BermudaExercise: <"A class defining the Bermuda option exercise dates and t
     relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
     earliestExerciseTime BusinessCenterTime (1..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on each Bermuda option exercise date and the expiration date.">
     latestExerciseTime BusinessCenterTime (0..1) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
-    expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
+    expirationTime BusinessCenterTime (0..1) <"The latest time for exercise on expirationDate.">
     expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
     multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
     exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
+
+condition ExpirationTimeChoice: <"Condition to validate the existence of correlation between expirationTime and expirationTimeType">
+        ExpirationTimeType(expirationTime, expirationTimeType)
 
 type EuropeanExercise: <"A class defining the exercise period for a European style option together with any rules governing the notional amount of the underlying which can be exercised on any given exercise date and any associated exercise fees.">
     [metadata key]
@@ -857,11 +865,14 @@ type EuropeanExercise: <"A class defining the exercise period for a European sty
     expirationDate AdjustableOrRelativeDate (1..*) <"The last day within an exercise period for an American style option. For a European style option it is the only day within the exercise period.">
     relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.">
     earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) on the expiration date.">
-    expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate.">
+    expirationTime BusinessCenterTime (0..1) <"The latest time for exercise on expirationDate.">
     expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
     partialExercise PartialExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.3. Partial Exercise, the buyer of the option has the right to exercise all or less than all the notional amount of the underlying swap on the expiration date, but may not exercise less than the minimum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
     exerciseFee ExerciseFee (0..1) <"A fee to be paid on exercise. This could be represented as an amount or a rate and notional reference on which to apply the rate.">
 
+condition ExpirationTimeChoice: <"Condition to validate the existence of correlation between expirationTime and expirationTimeType">
+        ExpirationTimeType(expirationTime, expirationTimeType)
+        
 type ExerciseFee extends PayerReceiver: <"A class defining the fee payable on exercise of an option. This fee may be defined as an amount or a percentage of the notional exercised. As a difference with FpML, it extends the BuyerSeller class.">
 
     notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document.">
