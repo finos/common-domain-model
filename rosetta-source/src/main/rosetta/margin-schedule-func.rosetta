@@ -171,28 +171,40 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
     set notional:
     if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
     then (
-        economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
+        economicTerms -> payout -> InterestRatePayout 
+        filter priceQuantity -> quantitySchedule exists
+        then first 
+        then priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     else if Qualify_BaseProduct_CrossCurrency(economicTerms)
     then (
-        economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity
+        economicTerms -> payout -> InterestRatePayout 
+        filter (True /*how do we identify the receiver party?*/) 
+        then first 
+        then priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
     then (
-        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity
+        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout 
+        filter (priceQuantity -> quantitySchedule exists) 
+        then first 
+        then priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     // IR Exotic swap with an exotic coupon against a floating leg not supported
     else if Qualify_InterestRate_CapFloor(economicTerms)
     then (
-        economicTerms -> payout -> interestRatePayout only-element -> priceQuantity
+        economicTerms -> payout -> InterestRatePayout only-element -> priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     else if Qualify_InterestRate_Fra(economicTerms)
     then (
-        economicTerms -> payout -> interestRatePayout filter rateSpecification -> FixedRateSpecification exists then only-element then priceQuantity
+        economicTerms -> payout -> InterestRatePayout 
+        filter rateSpecification -> FixedRateSpecification exists 
+        then only-element 
+        then priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
@@ -200,40 +212,40 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
     or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
     or IsCreditNthToDefault(economicTerms)
     then (
-        economicTerms -> payout -> creditDefaultPayout -> priceQuantity
+        economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     else if Qualify_CreditDefaultSwaption(economicTerms)
     then (
-        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> creditDefaultPayout -> priceQuantity
+        UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
         then StandardizedScheduleMonetaryNotionalFromResolvablePQ
     )
     // Credit Total return swap on a bond not supported
     else if Qualify_ForeignExchange_Swap(economicTerms)
     then (
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> value
+        economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule -> value
     )
     else if Qualify_ForeignExchange_NDS(economicTerms)
     then 0.0 //Recieve side notional and currency. What does that mean?
     else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
     then (
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> value
+        economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule -> value
     )
     else if Qualify_ForeignExchange_NDF(economicTerms)
     then (
-        economicTerms -> payout -> settlementPayout only-element -> settlementTerms -> cashSettlementTerms -> cashSettlementAmount only-element -> value
+        economicTerms -> payout -> SettlementPayout only-element -> settlementTerms -> cashSettlementTerms -> cashSettlementAmount only-element -> value
     )
     else if IsFXDeliverableOption(economicTerms)
     then (
-        economicTerms -> payout -> optionPayout only-element -> priceQuantity -> quantitySchedule -> value
+        economicTerms -> payout -> OptionPayout only-element -> priceQuantity -> quantitySchedule -> value
     )
     else if IsFXNonDeliverableOption(economicTerms)
     then (
-        StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> value
+        StandardizedScheduleFXNDONotional(economicTerms -> payout -> OptionPayout only-element) -> value
     )    
     else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
     then (
-        StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout -> performancePayout only-element)
+        StandardizedScheduleFXVarianceNotionalAmount(economicTerms -> payout -> PerformancePayout only-element)
     )
     else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
     then 0.0 //Vega notional amount not mapped in the product
@@ -256,11 +268,11 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
             // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
     then (
-        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element)
+        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> OptionPayout only-element)
     )
     else if Qualify_BaseProduct_EquityForward(economicTerms)
     then (
-        StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout -> settlementPayout only-element)
+        StandardizedScheduleEquityForwardNotionalAmount(economicTerms -> payout -> SettlementPayout only-element)
     )
     else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
             or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
@@ -270,7 +282,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
             or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
     then (
-        StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout -> performancePayout only-element)
+        StandardizedScheduleVarianceSwapNotionalAmount(economicTerms -> payout -> PerformancePayout only-element)
     )
     else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
             or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
@@ -285,7 +297,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
     )
     else if Qualify_Commodity_Option(economicTerms)
     then (
-        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> optionPayout only-element) 
+        StandardizedScheduleOptionNotionalAmount(economicTerms -> payout -> OptionPayout only-element) 
     )
     else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
     then (
@@ -309,28 +321,40 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
     set notionalCurrency:
         if Qualify_BaseProduct_IRSwap(economicTerms) or IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
         then (
-            economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            economicTerms -> payout -> InterestRatePayout 
+            filter priceQuantity -> quantitySchedule exists
+            then first 
+            then priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         else if Qualify_BaseProduct_CrossCurrency(economicTerms)
         then (
-            economicTerms -> payout -> interestRatePayout filter (True /*how do we identify the receiver party?*/) then first then priceQuantity 
+            economicTerms -> payout -> InterestRatePayout 
+            filter (True /*how do we identify the receiver party?*/) 
+            then first 
+            then priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         else if Qualify_InterestRate_Option_Swaption(economicTerms) or IsIRSwaptionStraddle(economicTerms)
         then (
-            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> interestRatePayout filter (priceQuantity -> quantitySchedule exists) then first then priceQuantity 
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout 
+            filter priceQuantity -> quantitySchedule exists
+            then first 
+            then priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         // IR Exotic swap with an exotic coupon against a floating leg not supported
         else if Qualify_InterestRate_CapFloor(economicTerms)
         then (
-            economicTerms -> payout -> interestRatePayout only-element -> priceQuantity 
+            economicTerms -> payout -> InterestRatePayout only-element -> priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         else if Qualify_InterestRate_Fra(economicTerms)
         then (
-            economicTerms -> payout -> interestRatePayout filter rateSpecification -> FixedRateSpecification exists then only-element then priceQuantity 
+            economicTerms -> payout -> InterestRatePayout 
+            filter rateSpecification -> FixedRateSpecification exists 
+            then only-element 
+            then priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         else if Qualify_CreditDefaultSwap_SingleName(economicTerms)
@@ -338,40 +362,40 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             or Qualify_CreditDefaultSwap_IndexTranche(economicTerms)
             or IsCreditNthToDefault(economicTerms)
         then (
-            economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         else if Qualify_CreditDefaultSwaption(economicTerms)
         then (
-            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> creditDefaultPayout -> priceQuantity 
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity 
             then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ
         )
         // Credit Total return swap on a bond not supported
         else if Qualify_ForeignExchange_Swap(economicTerms)
         then (
-            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+            economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
         )
         else if Qualify_ForeignExchange_NDS(economicTerms)
         then "AAA" // Receive side notional and currency. What does that mean?
         else if Qualify_ForeignExchange_Spot_Forward(economicTerms)
         then (
-            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+            economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
         )
         else if Qualify_ForeignExchange_NDF(economicTerms)
         then (
-            StandardizedScheduleFXNDFNotional(economicTerms -> payout -> settlementPayout only-element) -> unit -> currency
+            StandardizedScheduleFXNDFNotional(economicTerms -> payout -> SettlementPayout only-element) -> unit -> currency
         )
         else if IsFXDeliverableOption(economicTerms)
         then (
-            economicTerms -> payout -> optionPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+            economicTerms -> payout -> OptionPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
         )
         else if IsFXNonDeliverableOption(economicTerms)
         then (
-            StandardizedScheduleFXNDONotional(economicTerms -> payout -> optionPayout only-element) -> unit -> currency
+            StandardizedScheduleFXNDONotional(economicTerms -> payout -> OptionPayout only-element) -> unit -> currency
         )   
         else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
         then (
-            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
+            economicTerms -> payout -> PerformancePayout only-element -> returnTerms -> varianceReturnTerms -> varianceStrikePrice -> unit -> currency
         )
         else if Qualify_ForeignExchange_ParameterReturnVolatility(economicTerms)
         then "AAA" //Vega notional amount not mapped in the product
@@ -394,11 +418,11 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             // or Qualify_EquityOption_ParameterReturnDividend_Index(economicTerms)
             // or Qualify_EquityOption_ParameterReturnDividend_SingleName(economicTerms)
         then (
-            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency
+            economicTerms -> payout -> OptionPayout only-element -> strike -> strikePrice -> unit -> currency
         )
         else if Qualify_BaseProduct_EquityForward(economicTerms)
         then (
-            economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
+            economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule -> unit -> currency
         )
         else if Qualify_EquitySwap_ParameterReturnDividend_Basket(economicTerms)
             or Qualify_EquitySwap_ParameterReturnDividend_Index(economicTerms)
@@ -409,7 +433,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             or Qualify_EquitySwap_ParameterReturnVariance_Index(economicTerms)
             or Qualify_EquitySwap_ParameterReturnVariance_SingleName(economicTerms)
         then (
-            economicTerms -> payout -> performancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
+            economicTerms -> payout -> PerformancePayout only-element -> returnTerms -> varianceReturnTerms -> volatilityStrikePrice -> unit -> currency
         )
         else if Qualify_EquitySwap_ParameterReturnVolatility_Basket(economicTerms)
             or Qualify_EquitySwap_ParameterReturnVolatility_Index(economicTerms)
@@ -420,21 +444,21 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
         then "AAA" //No initial value or current value available in the test samples
         else if Qualify_Commodity_Forward(economicTerms)
         then (
-            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
+            economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency //Floating price forwards not supported
         )
         else if Qualify_Commodity_Option(economicTerms)
         then (
-            economicTerms -> payout -> optionPayout only-element -> strike -> strikePrice -> unit -> currency 
+            economicTerms -> payout -> OptionPayout only-element -> strike -> strikePrice -> unit -> currency 
         )
         else if Qualify_Commodity_Swap_FixedFloat(economicTerms)
         then (
-            economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+            economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
         )
         else if Qualify_Commodity_Swap_Basis(economicTerms)
         then "AAA" //No spot price available
         else if Qualify_Commodity_Swaption(economicTerms)
         then (
-            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
+            UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency
         )
         // CO Contract for Difference (CFD) not supported
 
@@ -448,13 +472,13 @@ func AuxiliarEffectiveDate: <"Extracts the effective date of specific products s
 
     set effectiveDate:
         // interestRatePayout
-        if economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
-        then (economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
+        if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
+        then (economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
             extract AdjustableDateResolution
             then min)
         // interestRateSwaptions
-        else if economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
-        then (economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
+        else if economicTerms -> payout -> OptionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate exists
+        then (economicTerms -> payout -> OptionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate
             extract AdjustableDateResolution
             then min)
 
@@ -466,13 +490,13 @@ func AuxiliarTerminationDate: <"Extracts the termination date of specific produc
 
     set terminationDate:
         // interestRatePayout
-        if economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
-                then (economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
+        if economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
+                then (economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
                     extract AdjustableDateResolution
                     then max)
         // interestRateSwaptions
-        else if economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
-        then (economicTerms -> payout -> optionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
+        else if economicTerms -> payout -> OptionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate exists
+        then (economicTerms -> payout -> OptionPayout only-element -> underlier -> Product ->> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> terminationDate -> adjustableDate
             extract AdjustableDateResolution
             then max)
 
@@ -519,7 +543,7 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
                     underlyingTransactionTerminationDate
                 )
     alias optionExpiry:
-        economicTerms -> payout -> optionPayout only-element -> exerciseTerms
+        economicTerms -> payout -> OptionPayout only-element -> exerciseTerms
             then extract
                 if style = OptionExerciseStyleEnum -> American
                 then AdjustableOrAdjustedOrRelativeDateResolution(
@@ -613,10 +637,10 @@ func UnderlierForProduct: <"Extracts the underlier product.">
         underlier Underlier (1..1)
 
     set underlier:
-        if product -> economicTerms -> payout -> optionPayout exists
-        then product -> economicTerms -> payout -> optionPayout only-element-> underlier
-        else if product -> economicTerms -> payout -> settlementPayout exists
-        then product -> economicTerms -> payout -> settlementPayout only-element -> underlier
+        if product -> economicTerms -> payout -> OptionPayout exists
+        then product -> economicTerms -> payout -> OptionPayout only-element-> underlier
+        else if product -> economicTerms -> payout -> SettlementPayout exists
+        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
 
 func AdjustableOrAdjustedOrRelativeDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
     inputs:
@@ -682,7 +706,7 @@ func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based o
     output:
         farLegPayout SettlementPayout (0..1)
 
-    alias settlementPayout: product -> economicTerms -> payout -> settlementPayout
+    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
 
     set farLegPayout:
         // value date
@@ -830,10 +854,10 @@ func StandardizedScheduleCommodityForwardNotionalAmount: <"Extracts the notional
         amount number (0..1)
 
     alias forwardPrice:
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> value
+        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> value
 
     alias notionalQuantity:
-        economicTerms -> payout -> settlementPayout only-element -> priceQuantity -> quantitySchedule
+        economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule
             then (if multiplier exists
                 then value * multiplier -> value
                 else value)
@@ -846,9 +870,9 @@ func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the n
     output:
         amount number (0..1)
     alias fixedPrice:
-        economicTerms -> payout -> fixedPricePayout only-element -> fixedPrice -> price -> value
+        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> value
     alias notionalQuantity:
-        economicTerms -> payout -> commodityPayout only-element -> priceQuantity -> quantitySchedule
+        economicTerms -> payout -> CommodityPayout only-element -> priceQuantity -> quantitySchedule
             then (if multiplier exists
                 then value * multiplier -> value
                 else value)
@@ -869,7 +893,7 @@ func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.
     output:
         is_Product boolean (1..1)
     set is_Product:
-        economicTerms -> payout -> creditDefaultPayout -> generalTerms -> basketReferenceInformation -> nthToDefault exists
+        economicTerms -> payout -> CreditDefaultPayout only-element -> generalTerms -> basketReferenceInformation -> nthToDefault exists
 
 func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option.">
     inputs:
@@ -878,7 +902,7 @@ func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option."
         is_Product boolean (1..1)
     set is_Product:
         Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
+            and economicTerms -> payout -> OptionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
 
 func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable option.">
     inputs:
@@ -887,7 +911,7 @@ func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable o
         is_Product boolean (1..1)
     set is_Product:
         Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
+            and economicTerms -> payout -> OptionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
 
 func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
     inputs:
@@ -896,7 +920,7 @@ func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
         is_Product boolean (1..1)
     set is_Product:
         Qualify_InterestRate_Option_Swaption(economicTerms)
-            and economicTerms -> payout -> optionPayout only-element -> optionType = OptionTypeEnum -> Straddle
+            and economicTerms -> payout -> OptionPayout only-element -> optionType = OptionTypeEnum -> Straddle
 
 func IsIRSwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.">
     inputs:
