@@ -29,6 +29,8 @@ Section](#) of the CDM documentation.
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
 
+Information on semantic versioning, backwards compatibility and version availability can be found []here(versioning.md)
+
 ## Semantic Versioning
 
 The CDM is released using the semantic versioning 2.0 system - See
