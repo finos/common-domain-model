@@ -1,4 +1,4 @@
-# *CDM Product Model - Underlier in Corporate Action
+# *CDM Product Model* - Underlier in Corporate Action
 
 _Background_
 
