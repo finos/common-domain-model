@@ -13,7 +13,7 @@ technology or service vendors. It describes:
 -   What a Maintainer should do to review the changes
 -   How to release a new CDM version once changes have been approved
 
-# Modelling-platforms
+# Modelling Platforms
 Development of the CDM is supported through various modelling platforms,
 including [Rosetta](https://rosetta-technology.io) and [Legend](https://legend.finos.org/studio). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
