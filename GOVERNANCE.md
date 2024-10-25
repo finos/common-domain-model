@@ -2,6 +2,8 @@
 
 This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements in this document.
 
+The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org/docs/contribution).
+
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
@@ -56,6 +58,10 @@ Inspired by [ANSI’s Essential Requirements for Due Process](https://share.ansi
 Information disclosed in connection with any Working Group activity, including but not limited to meetings, Contributions, and submissions, is not confidential, regardless of any markings or statements to the contrary. Notwithstanding the foregoing, if the Working Group is collaborating via a private repository, the Participants will not make any public disclosures of that information contained in that private repository without the Approval of the Working Group.
 
 ## 6. Major release scheduling guidelines
+
+The attached deck summarizes the governance guidelines discussed below. 
+
+[CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
 The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
