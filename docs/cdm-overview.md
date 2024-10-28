@@ -67,7 +67,7 @@ documentation.
 The CDM [governance framework](governance.md) regulates
 the development of the CDM in open source.
 
-An outline of the governance framework can be found [here](https://github.com/igallizugaro/common-domain-model/blob/igallizugaro-website-review/.github/Group-Roles-Scope.png)
+A diagram outlining the groups involved can be found [here](https://github.com/igallizugaro/common-domain-model/blob/igallizugaro-website-review/.github/Group-Roles-Scope.png)
 
 ## Scope
 
