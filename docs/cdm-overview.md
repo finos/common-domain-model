@@ -69,7 +69,9 @@ the development of the CDM in open source.
 
 ## Scope
 
-The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
+The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
+
+There are no patents involved in the CDM.
 
 ## CDM 2024 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
