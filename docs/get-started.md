@@ -44,14 +44,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](design-principles.md) and
+-   Review the [design principles](design-principles.md) and
     [governance](/docs/cdm-overview#governance)
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and follows
+[agile-development-approach](development-approach.md) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -86,7 +86,7 @@ When editing the CDM, please go through the following modelling
 checklist:
 
 -   CDM version: use the latest available [development
-    version](#version-availability)
+    version](versioning.md)
 -   Syntax: no syntax warnings or errors
 -   Compilation: model compiles ok with no *static compilation* errors
 -   Testing: all translate regression tests expectations for mapping,
@@ -169,7 +169,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the [namespace-documentation](/docs/namespace) section for more details.
+Please refer to the [namespace-documentation](namespace.md) section for more details.
 
 ### Descriptions
 
@@ -201,7 +201,7 @@ following contribution checklist:
 A contribution should be a whole [releasable
 unit](#what-is-a-releasable-unit) and its size calibrated in accordance
 with the CDM's [agile development
-approach](#agile-development-approach).
+approach](development-approach.md).
 
 ---
 
@@ -454,7 +454,7 @@ release notes), they will be specified as such.
 
 The model should be referred to as *the CDM*, without any ownership
 mention. The only exception is the [Overview of the FINOS
-CDM](/docs/cdm-overview) section at the beginning of the user
+CDM](cdm-overview.md) section at the beginning of the user
 documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
