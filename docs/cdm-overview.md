@@ -67,6 +67,8 @@ documentation.
 The CDM [governance framework](governance.md) regulates
 the development of the CDM in open source.
 
+An outline of the governance framework can be found [here](https://github.com/igallizugaro/common-domain-model/blob/igallizugaro-website-review/.github/Group-Roles-Scope.png)
+
 ## Scope
 
 The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
