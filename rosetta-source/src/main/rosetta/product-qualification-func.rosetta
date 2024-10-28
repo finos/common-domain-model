@@ -278,7 +278,7 @@ func Qualify_UnderlierProduct_Equity: <"Qualifies a product as having the Asset 
             or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
                 and underlier -> security -> fundType = FundProductTypeEnum -> OtherFund)
             or underlier -> security -> securityType = SecurityTypeEnum -> Certificate
-            or (underlier -> index exists and underlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
+            or (underlier -> index exists /* and underlier -> index -> indexType = IndexTypeEnum -> Equity */ ) // No FpML mappings exist for IndexTypeEnum
                 // Qualifies that the underlier is a basket composed of equity products only
             or (underlier -> basket exists
                 and (underlier -> basket -> basketConstituent -> security -> securityType any = SecurityTypeEnum -> Equity
@@ -745,7 +745,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> quanto  exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> composite  exists)
-            and economicTerms -> nonStandardisedTerms = False
+            and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
             
 func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Option with an index as underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is an index and 2) No special option feature exists other than option averaging.">
     [qualification Product]
@@ -769,7 +769,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a produ
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> quanto  exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> composite  exists)
-            and economicTerms -> nonStandardisedTerms = False
+            and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Option with a basket underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a basket and 2) No special option feature exists other than option averaging.">
     [qualification Product]
@@ -793,7 +793,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a prod
                 or economicTerms -> payout -> optionPayout -> feature -> averagingFeature only exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> quanto  exists
                 or economicTerms -> payout -> optionPayout -> feature -> fxFeature only-element -> composite  exists)
-            and economicTerms -> nonStandardisedTerms = False
+            and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
 
 func Qualify_EquityOption_ParameterReturnVariance_SingleName: <"Qualifies a product as an Equity Variance Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout and 2) the underlying product is a Single Name Equity Variance Swap">
     [qualification Product]
