@@ -20,7 +20,7 @@ The Collateral Working Group plays a pivotal role in the CDM ecosystem by provid
 
 ## Subscribe
 
-To subscribe to the [collateral workin group mailing list](https://lists.finos.org/g/cdm-collateral-wg) and stay updated on meetings and agenda, please send an email to [cdm-collateral-wg+subscribe@lists.finos.org](mailto:cdm-collateral-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+To subscribe to the [collateral working group mailing list](https://lists.finos.org/g/cdm-collateral-wg) and stay updated on meetings and agenda, please send an email to [cdm-collateral-wg+subscribe@lists.finos.org](mailto:cdm-collateral-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
 
 ---
 
