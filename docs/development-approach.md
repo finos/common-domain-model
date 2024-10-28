@@ -110,7 +110,7 @@ achievable during a single sprint.
 
 ---
 **Note:**
-A CDM [release](#version-management) may contain more than 1 releasable
+A CDM [release](versioning.md) may contain more than 1 releasable
 unit. Every unit should still be shippable in isolation, even if they
 may end-up being shipped as a group.
 
