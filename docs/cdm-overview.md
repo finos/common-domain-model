@@ -77,7 +77,6 @@ There are no patents involved in the CDM.
 Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
 
 The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](roadmap.mdx)
-![CDM Release Guidelines Task Force Summary - July 2 2024](https://github.com/finos/common-domain-model/assets/7291088/9542593d-b63e-4447-8a21-cfec1df65221)
 
 Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
