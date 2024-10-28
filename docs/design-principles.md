@@ -190,7 +190,6 @@ outer-most as follows:
 ![](/img/namespaces.png)
 
 Namespaces have many benefits:
-
 -   Accelerated understanding of the model by allowing users to easily
     see a high-level view of the model and easily find, select, and
     study specific areas of interest
