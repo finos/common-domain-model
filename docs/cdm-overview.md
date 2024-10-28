@@ -73,10 +73,8 @@ The CDM covers OTC derivatives, cash securities, securities financing, commoditi
 
 ## CDM 2024 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
-![](/img/cdm-roadmap-2024-2.png)
-![](/img/cdm-roadmap-2024-1.png)
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](ROADMAP.MD)
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
 # CDM Components
