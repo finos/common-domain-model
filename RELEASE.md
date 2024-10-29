@@ -1,4 +1,4 @@
-# *CDM Model - Equity Products*
+# *CDM Model - Equity Product Qualification and Validation*
 
 _Background_
 
