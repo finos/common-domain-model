@@ -7,6 +7,7 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
 import cdm.observable.common.*
+import cdm.base.datetime.*
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
     inputs:
@@ -114,3 +115,15 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
         accounts Account (0..*)
     output:
         success boolean (1..1) <"Validation result">
+
+func ExpirationTimeType: <"Conditional Validation function to check the existence of correlation between expiration Time and expiration Time Type.">
+    inputs: 
+        expirationTime BusinessCenterTime (0..1)
+        expirationTimeType ExpirationTimeTypeEnum (0..1)
+    output: 
+        success boolean (1..1)
+    
+    set success:
+        (if expirationTime exists and expirationTimeType exists then expirationTimeType = ExpirationTimeTypeEnum -> SpecificTime)
+        and 
+        (if expirationTimeType exists and expirationTimeType = ExpirationTimeTypeEnum -> SpecificTime then expirationTime exists) 
