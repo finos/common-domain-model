@@ -544,8 +544,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
     private PathValue<InterestRatePayoutBuilder> getIRP(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("payout").addElement("interestRatePayout", 0),
-                et.getValue().getOrCreatePayout().getOrCreateInterestRatePayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 1).addElement("InterestRatePayout"),
+                et.getValue().getOrCreatePayout(1).getOrCreateInterestRatePayout());
     }
 
     private PathValue<EconomicTermsBuilder> getEcTerms(PathValue<TradeStateBuilder> ts) {
@@ -556,8 +556,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
     private PathValue<AssetPayout.AssetPayoutBuilder> getSecPO(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("payout").addElement("assetPayout", 0),
-                et.getValue().getOrCreatePayout().getOrCreateAssetPayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 0).addElement("AssetPayout"),
+                et.getValue().getOrCreatePayout(0).getOrCreateAssetPayout());
     }
 
     private PathValue<CollateralProvisions.CollateralProvisionsBuilder> getColPro(PathValue<TradeStateBuilder> ts) {
