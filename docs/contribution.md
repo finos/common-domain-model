@@ -61,6 +61,6 @@ development by the CDM Maintainer team.
  To learn more, visit our [development approach](development-approach.md) page. 
 
 
-# Get Started - How to Contribute 
+# How to Contribute 
 
 A detailed guide on how to contribute, editing and testing can be found on our [Get Started](get-started.md) page. 
