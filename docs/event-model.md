@@ -793,7 +793,7 @@ that involves multiple before trades being downsized or terminated and
 new trades being created between multiple parties, all of which must
 happen concurrently.
 
-### Event Qualification {#event-qualification-section}
+### Event Qualification
 
 **The CDM qualifies lifecycle events as a function of their primitive
 components** rather than explicitly declaring the event type. The CDM
