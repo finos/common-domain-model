@@ -1,6 +1,5 @@
-package cdm.product.asset.processor;
+package cdm.product.common.settlement.processor;
 
-import cdm.product.common.settlement.ResolvablePriceQuantity;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -13,17 +12,34 @@ import com.rosetta.model.lib.path.RosettaPath;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
-public class FeeLegMappingProcessor extends MappingProcessor {
+import static cdm.product.common.settlement.ResolvablePriceQuantity.ResolvablePriceQuantityBuilder;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 
-    public FeeLegMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+@SuppressWarnings("unused")
+public class CdsFeeLegMetaMappingProcessor extends MappingProcessor {
+
+    public CdsFeeLegMetaMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
     }
 
     @Override
-    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+    public void map(Path protectionTermsCalculationAmountSynonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+        if (!protectionTermsCalculationAmountSynonymPath.endsWith("protectionTerms", "calculationAmount", "amount")) {
+            return;
+        }
+        
         // find all mappings mapped to this InterestRatePayout
-        List<Mapping> legPriceQuantityMappings = filterMappingForModelPath(PathUtils.toPath(getModelPath()));
+        Path modelPath = PathUtils.toPath(getModelPath().getParent());
+        List<Mapping> legPriceQuantityMappings = filterMappingForModelPath(modelPath);
+
+        if (isDuplicateInterestRatePayout(modelPath)) {
+            // remove mapped data
+            ((ResolvablePriceQuantityBuilder) parent).setQuantitySchedule(null);
+            // remove mappings
+            getMappings().removeAll(legPriceQuantityMappings);
+            return;
+        }
+        
         // filter to reference mappings
         List<Mapping> legReferenceMappings = legPriceQuantityMappings.stream()
                 .filter(m -> m.getRosettaValue() instanceof Reference.ReferenceBuilder)
@@ -32,26 +48,30 @@ public class FeeLegMappingProcessor extends MappingProcessor {
         if (containsPathElement(legReferenceMappings, "feeLeg")
                 && containsPathElement(legReferenceMappings, "protectionTerms")) {
             // remove duplicate mapping - protection terms
-            Path notionalPath = synonymPath.addElement("calculationAmount").addElement("amount");
+            Path notionalPath = protectionTermsCalculationAmountSynonymPath;
             List<Mapping> notionalMappings = legPriceQuantityMappings.stream()
                     .filter(m -> m.getXmlPath().nameIndexMatches(notionalPath))
                     .collect(Collectors.toList());
             getMappings().removeAll(notionalMappings);
             legPriceQuantityMappings.removeAll(notionalMappings);
             // remove duplicate mapping - id
-            Path idPath = synonymPath.addElement("calculationAmount").addElement("id");
+            Path idPath = protectionTermsCalculationAmountSynonymPath.getParent().addElement("id");
             List<Mapping> idMappings = legPriceQuantityMappings.stream()
                     .filter(m -> m.getXmlPath().nameIndexMatches(idPath))
                     .collect(Collectors.toList());
             if (getMappings().removeAll(idMappings)) {
                 // blank out any id / external key mappings from the protection terms
-                ((ResolvablePriceQuantity.ResolvablePriceQuantityBuilder) builder).getOrCreateMeta().setExternalKey(null);
+                ((ResolvablePriceQuantityBuilder) parent).getOrCreateMeta().setExternalKey(null);
             }
             legPriceQuantityMappings.removeAll(idMappings);
 
             // update remaining mappings to success
             legPriceQuantityMappings.forEach(this::updateMappingSuccess);
         }
+    }
+
+    private static Boolean isDuplicateInterestRatePayout(Path modelPath) {
+        return subPath("payout", modelPath).map(Path::getLastElement).map(e -> e.forceGetIndex() > 1).orElse(false);
     }
 
     private List<Mapping> filterMappingForModelPath(Path modelPath) {
