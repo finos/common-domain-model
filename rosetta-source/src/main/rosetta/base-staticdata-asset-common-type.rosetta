@@ -35,6 +35,7 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
+    instrumentType InstrumentTypeEnum (1..1) <"Identifies the type of an instrument using an enumerated list.">
 
 choice Instrument: <"A type of Asset that is issued by one party to one or more others.">
     ListedDerivative <"A securitized derivative on another asset that is created by an exchange.">
@@ -204,21 +205,20 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
 type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
-    securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
     equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
     condition DebtSubType:
-        if securityType <> SecurityTypeEnum -> Debt
+        if instrumentType <> InstrumentTypeEnum -> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if securityType <> SecurityTypeEnum -> Equity
+        if instrumentType <> InstrumentTypeEnum -> Equity
         then equityType is absent
 
     condition FundSubType:
-        if securityType <> SecurityTypeEnum -> Fund
+        if instrumentType <> InstrumentTypeEnum -> Fund
         then fundType is absent
 
 type DebtType: <"Specifies the type of debt instrument.">
@@ -277,7 +277,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    securityType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -291,15 +291,15 @@ type AssetType: <"Represents a class to allow specification of the asset product
                 and fundType is absent
 
     condition BondSubType:
-        if securityType <> SecurityTypeEnum -> Debt
+        if securityType <> InstrumentTypeEnum -> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if securityType <> SecurityTypeEnum -> Equity
+        if securityType <> InstrumentTypeEnum -> Equity
         then equityType is absent
 
     condition FundSubType:
-        if securityType <> SecurityTypeEnum -> Fund
+        if securityType <> InstrumentTypeEnum -> Fund
         then fundType is absent
 
     condition OtherAssetSubType:
