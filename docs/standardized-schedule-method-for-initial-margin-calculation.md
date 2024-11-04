@@ -11,17 +11,9 @@ In response, the **G20 mandated reforms** aimed at **increasing transparency** a
 - **Reporting Requirements**: Mandated reporting of all trades to trade repositories allows regulators to monitor market activities, assess risks, and implement necessary interventions.
 - **Higher Capital Requirements**: Stricter capital requirements for non-centrally cleared derivatives were established to ensure financial institutions maintain adequate buffers against potential losses.
 
-The **Basel Committee on Banking Supervision** (BCBS) and the **International Organization of Securities Commissions** (IOSCO) introduced **margin requirements** that mandate the exchange of collateral to mitigate systemic risks.
+To address systemic risks, the **Basel Committee on Banking Supervision** (BCBS) and the **International Organization of Securities Commissions** (IOSCO) introduced **margin requirements** mandating collateral exchanges. Two main methods were developed for calculating intial margin (IM): **Standard Initial Margin Model** (SIMM) and the **Standardized Schedule**.
 
-## Introduction to SIMM
-
-The **Standard Initial Margin Model** (SIMM) is a framework proposed by the International Swaps and Derivatives Association (ISDA) that **standardizes the calculation of initial margin for non-centrally cleared derivatives**. It aims to provide a consistent methodology that all market participants can adopt. 
-
-The primary goal of SIMM is to ensure **consistent margin calculations across market participants**, enhancing transparency and simplifying the process for conflict resolution.
-
-Individual margin models often lead to inconsistencies and operational complexities. SIMM proposes a standardized approach to **minimize these challenges**, ensuring that the methodology used is consistent and understandable across different institutions. 
-
-As regulatory scrutiny increases and market dynamics evolve, adopting a standardized margin model like SIMM helps financial institutions navigate the complexities of compliance and risk management effectively.
+The **Standard Initial Model** (SIMM), developed by ISDA, offers a risk-sensitive, standardized IM calculation reflecting netting and diversification benefits, making it suitable larger institutions with complex portfolios. In contrast, the **Standardized Schedule** provides a simpler, conservative calculation method facilitating compliance for smaller firms or those without advanced modeling capabilities. Both approaches helps institutions meet BCBS-IOSCO guidelines, balancing regulatory compliance with effective risk management.
 
 ## Standardized Schedule Method
 
@@ -65,7 +57,7 @@ This formula is critical as it allows for a comprehensive assessment of risk whi
 
 ## CDM Implementation Overview
 
-Our implementation aims to accomplish the following:
+The CDM Standardized Schedule implementation aims to accomplish the following:
 
 - **Development of Standardized Margin Schedule Method**: Create a consistent approach for calculating initial margins across various financial products.
 - **Enhancement of Accuracy and Efficiency**: Improve the precision of margin calculations to better reflect financial risks. Reduce time and resources needed for margin computations
@@ -226,8 +218,8 @@ If no exposures are present, it sets the initial margin value to zero, indicatin
 
 ## Conclusions
 
-- **Margin Calculations**: The structured approach within the CDM improves clarity and precision in margin calculations
-- **Standarization**: Implementing SIMM ensures consistent regulatory compliance and reduces dispute risks
-- **Risk Management**: Standardized methodologies enhance risk assessments and streamline workflows
+- **Margin Calculations**: The structured approach within the CDM improves clarity and precision in margin calculations.
+- **Standarization**: A unified calculation method supports consistent regulatory compliance and minimizes dispute risks.
+- **Risk Management**: Standardized methodologies enhance risk assessments and streamline workflows.
 - **Market Stability**: This initiative fosters transparency and promotes stability in the OTC derivatives market.
 
