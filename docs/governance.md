@@ -193,7 +193,7 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 | Type of PR          | Backward Compatible |  Backward Incompatible                        |
 | --------------------| --------------------|  ---------------------------------------------|
-| Model - Bug fix     |1 maintainer – separate from the submitter, preferably from a separate organization | 2 maintainers; must have been reviewed by the CRWG,; if for a production version, SWG must approve; only used for recently introduced functionality  |
+| Model - Bug fix     |1 maintainer – separate from the submitter, preferably from a separate organization | 2 maintainers; must have been reviewed by the CRWG; if for a production version, SWG must approve; only used for recently introduced functionality  |
 | Model - Enhancement | 2 maintainers; must have been approved by a WG or the CRWG | 2 maintainers; must be on roadmap or approved by SWG; must have been approved by a WG or the CRWG; must go into a dev version; at least one maintainer must be from a separate organization   |
 | Technical - e.g. dependency update, change to mapping, reference data, documentation, changes to samples…. | At least one;  additional review up to the maintainer’s discretion – e.g. might need to consult the Technology Architecture Working Group (TAWG) | Must be approved by the TAWG; must go into a dev version |
 
