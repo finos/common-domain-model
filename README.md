@@ -106,8 +106,6 @@ If you'd like to receive official updates, please send an email to help@finos.or
 
 Finally, as mentioned above, another great way to interact with the community is to attend a [Working Group](docs/working-groups.md)
 
-
-
 ### 
 **Need help?**
 
@@ -182,7 +180,7 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 
-If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
+If you would like to get in touch with the CDM maintainer team, contact them through their [mailing list](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
 
 ## License
 
