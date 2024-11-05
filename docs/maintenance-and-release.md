@@ -26,7 +26,7 @@ once it is approved:
     Contributor or work on adjusting the test expectations.
 -   **Additional documentation**: If the contributor provided additional
     documentation, the Maintainer should update the CDM documentation by
-    editing the *documentation.rst* file in GitHub.
+    editing the *documentation.rst* file in GitHub. Please click here to visit the [documentation style guide](documentation-style-guide.md) page.
 -   **Documentation code snippets**: To avoid stale documentation, the
     CDM build process verifies that any code snippets in the
     documentation exists and is in line with the model itself. The
@@ -92,3 +92,5 @@ new model:
 When the release process is handled through Rosetta Deploy, the
 Maintainer should contact the Rosetta support team to request that
 deployment and discuss a timeline for the release.
+
+
