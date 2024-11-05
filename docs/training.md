@@ -31,10 +31,3 @@ This course prepares professionals and developers to streamline and optimize the
 ### CDM Collateral Start-up Guide
 
 This resource is designed to learn more about the CDM for collateral management and how to implement it. This is targeted to the business user and structured as a set of short tutorials, giving you the opportunity to interact with the CDM and understand the features and tools available.
-
-- [Module A: Introduction to the CDM](https://www.isda.org/collateral-initiative-start-up-guide-module-a/)
-- [Module B: Accessing the CDM](https://www.isda.org/collateral-initiative-start-up-guide-module-b/)
-- [Module C: How the CDM works](https://www.isda.org/collateral-initiative-start-up-guide-module-c/)
-- [Module D: How the CDM is used](https://www.isda.org/collateral-initiative-start-up-guide-module-d/)
-- [Module E: Collateral Use Cases](https://www.isda.org/collateral-initiative-start-up-guide-module-e/)
-- [Module F: Advanced Features](https://www.isda.org/collateral-initiative-start-up-guide-module-f/)
