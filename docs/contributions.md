@@ -14,7 +14,6 @@ new version. The CDM release history is available in the [Release
 Section](#) of the CDM documentation.
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
-
 Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md)
 
 
@@ -29,7 +28,6 @@ two high-level principles:
 2.  Delivery of small, releasable changes that contribute to that
     business value (sometimes referred to as *shippable increments*) -
     i.e. no "big bang" changes
-
 
  To learn more, visit our [development approach](development-approach.md) page. 
 
@@ -68,7 +66,6 @@ associated products and CDM users remain invited to leverage the tools
 of their choosing. This contribution guide has been contextualised with
 references to Rosetta to ease understanding and align with the current
 process.
-
 ---
 
 ## Before you start modelling
