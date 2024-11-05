@@ -4,7 +4,7 @@ title: CDM Steering Working Group
 
 ## Overview
 
-The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
+The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups. 
 
 ### Responsibilities:
 
@@ -13,6 +13,8 @@ The Steering Working Group serves as the driving force behind the strategic dire
 - Approve new FINOS Working Groups (WGs).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
 - Provide final release approval.
+- The first Steering Group of each calendar year will include a review of existing governance measures and wording on the agenda for re-ratification.
+
 
 ## Meetings
 
@@ -20,7 +22,7 @@ The Steering Working Group serves as the driving force behind the strategic dire
 
 ## 2024 Roadmap
 
-[Steering WG Roadmap](ROADMAP.md)
+[Steering WG Roadmap](roadmap.mdx)
 
 ## Subscribe
 
