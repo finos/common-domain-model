@@ -1,4 +1,4 @@
-# Get Started
+# Contributions 
 This page will take you through how to contribute to the CDM, the necessary steps to take beforehand, editing and testing. 
 
 # How to Contribute
