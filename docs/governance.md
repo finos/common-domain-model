@@ -3,7 +3,7 @@ title: Governance
 ---
 
 # Governance
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements.
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
 ## 1. Roles
 
@@ -20,7 +20,7 @@ Each Working Group may include the following roles. Additional roles may be adop
 
 ## 2. Decision Making
 
-* 2.1. Consensus-Based Decision Making. Working Groups make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
+* 2.1. Consensus-Based Decision Making. [Working Groups](working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
 
 * 2.2. Appeal Process. Decisions may be appealed via a pull request or an issue, and that appeal will be considered by the Maintainer in good faith, who will respond in writing within a reasonable time.
 
