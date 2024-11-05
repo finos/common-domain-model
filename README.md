@@ -83,7 +83,7 @@ Proposals for an entity to be given maintainership status or to have maintainers
 
 ## CDM Design Principles and Development Guidelines
 
-Contributions to the CDM have to comply with a set of [Design Principles](docs/design-principles.md) to be in line with the [CDM Development Guidelines](https://cdm.finos.org/docs/contribution).
+Contributions to the CDM must comply with a set of [Design Principles](docs/design-principles.md) to be in line with the [CDM Development Guidelines](https://cdm.finos.org/docs/contribution).
 
 
 ## Getting involved 
@@ -108,7 +108,8 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+Finally, as mentioned above, another great way to interact with the community is to attend a [Working Group](docs/working-groups.md)
+
 
 
 ### 
@@ -118,7 +119,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 ## Roadmap
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](ROADMAP.md).
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](docs/roadmap.mdx)
 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
@@ -156,7 +157,7 @@ Steps:
 
 ## Documentation
 
-The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](https://cdm.finos.org/docs/contribution#documentation-style-guide)
+The CDM has extensive documentation which is kept up to date. Any change to the CDM should be accompanied by documentation. See docs guide [here](docs/documentation-style-guide.md)
 
 
 _NOTE:_ Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the FINOS Clabot tool (or [EasyCLA](https://community.finos.org/docs/governance/Software-Projects/easycla)). Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA.
