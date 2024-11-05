@@ -50,7 +50,7 @@ Information disclosed in connection with any Working Group activity, including b
 
 The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
-### 6.1 Objectives of defining major releases
+### 5.1 Objectives of defining major releases
 
 * To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
   - Changes to existing functionality that may create challenges for upgrading [testing]
@@ -59,21 +59,21 @@ The Steering Working Group has the role of defining major releases of CDM and sh
 * To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
 * To promote planned and new CDM capabilities to encourage adoption
   
-### 6.2 Objectives of defining guidelines for scheduling and approving major releases
+### 5.2 Objectives of defining guidelines for scheduling and approving major releases
 
 * To ensure that major releases are planned, scheduled, and approved in a predictable, consistent, and transparent way
   - Ensure smoother development
   - Reduce conflict
 * To ensure that we follow industry best-practices for evolving software.
   
-### 6.3 Overall Principles for Scheduling Major Releases
+### 5.3 Overall Principles for Scheduling Major Releases
 
 * Major releases shall be planned ahead of time and these plans reviewed and approved by the SWG  so that consumers of CDM are aware of the planned changes and can plan for those changes.
 There is a balance between moving too quickly (and creating many changes, potentially discouraging adoption) and moving too slowly (and not addressing major issues in a timely fashion).  The SWG will be tasked with assessing and maintaining that balance and communicating its decisions.  That balance is likely to change over time as the CDM software matures; likely major release frequency will slow down in the future.
 * Part of the role of the guidelines will be to help the CDM SWG to resist pressure to create too many major releases.  However, the guidelines need to provide the SWG with enough flexibility to address major challenges relatively quickly and flexibly when required.
   * Defining the guidelines is important to implement the above objective
     
-### 6.4 Detailed Guidelines – Scheduling Major Releases
+### 5.4 Detailed Guidelines – Scheduling Major Releases
 
 * No major release will be planned/scheduled  (decision and content) without formal approval at a meeting of the SWG
   * *Rationale:*  Designation of a major release is an important decision that requires transparency and control
@@ -94,7 +94,7 @@ There is a balance between moving too quickly (and creating many changes, potent
     
 * These guidelines can be amended by the SWG following a formal review process
 
-### 6.5 Detailed Guidelines – Long Term Planning and Outreach
+### 5.5 Detailed Guidelines – Long Term Planning and Outreach
 
 * Ideally the SWG will establish plans for upcoming major releases for at least the following 9-12 months
   * *Rationale:*  this provides transparency for the users and potential users of CDM (supporting adoption)
@@ -102,7 +102,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 * Major release schedules shall be published on the CDM GitHub repository once approved by the SWG (in https://github.com/finos/common-domain-model/blob/master/ROADMAP.md)
   * *Rationale:* as above
 
-### 6.6 Detailed Guidelines – Changes vs.  Major Versions
+### 5.6 Detailed Guidelines – Changes vs.  Major Versions
 
 * Breaking changes (as defined in the change control guidelines) can only be implemented in a major version
   - *Rationale:* this is required to ensure that within a single major version there is stability across minor versions.
@@ -116,7 +116,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 * When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
   - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
-## 7.0 Change Control Guidelines
+## 6.0 Change Control Guidelines
 
 This section discusses how changes to the CDM are controlled within and between releases, in particular:
 
@@ -129,7 +129,7 @@ This section discusses how changes to the CDM are controlled within and between 
   * How we want to ensure that the rules are evaluated and enforced during development
   * This includes development processes (e.g. review and approval) as well as automated tooling (e.g. regression test cases)
 
-## 7.1 Change Control Principles
+## 6.1 Change Control Principles
 
 * We are trying to ensure rapid, smooth, and predictable evolution of the model by controlling when and how breaking changes are introduced
   * We want to allow changes where needed, with defined process to make those changes, to meet evolved and improved understanding of the business and technical requirements.
@@ -137,7 +137,7 @@ This section discusses how changes to the CDM are controlled within and between 
 * Prohibiting breaking changes within a major version should allow users to upgrade to minor versions more quickly and easily, and plan for when to implement larger changes
   * By  limiting and control the amount of change to key business models and technology structures,  CDM users can have confidence that functionality they develop using CDM will continue to work with new versions of CDM with minimal effort, at least for a defined period of time
 
-## 7.2 Change Control Rules
+## 6.2 Change Control Rules
 
 * Unless explicitly indicated otherwise, components of CDM (such as data types and functions) will be under change control once released into production.
 * Within multiple minor releases of a single major release, the following will not be changed:
@@ -155,7 +155,7 @@ This section discusses how changes to the CDM are controlled within and between 
 
 Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
 
-## 7.3 Change Control Evaluation and Enforcement
+## 6.3 Change Control Evaluation and Enforcement
 
 * Designers and contributors to CDM are responsible for being aware of and following the change control guidelines.  This includes flagging pull requests when they involve breaking changes to controlled objects.
   * Backward incompatible changes shall be documented and include a migration guide (remap from old structures and functions to the new)
@@ -167,11 +167,11 @@ Please note that full, bidirectional interoperability between minor versions is 
 
 
 
-## 8.0 Pull Request Classification and Approval Guidelines
+## 7.0 Pull Request Classification and Approval Guidelines
 
 This section discusses how pull requests will be classified, reviewed, and approved.
 
-## 8.1 PR Classification
+## 7.1 PR Classification
 
 Pull requests shall be classified into one of the following complexity categories:
 * Model change - bug fix – change to existing logic (without major redesign) to cause it to implement the original intended behaviour and design; generally used to address an oversight in a previous contribution.   
@@ -184,7 +184,7 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 
 
-## 8.2 Summary of PR approval requirements
+## 7.2 Summary of PR approval requirements
 
 * PRs shall be classified into Model defect corrections (bug fixes to correct existing functionality) vs. Model enhancements (new designs or capabilities) vs. technical.
 * There shall be an indication of whether a PR includes any backward-incompatible changes.
@@ -201,18 +201,18 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 
 
-## 9.0 Release Build Approval Guidelines
+## 8.0 Release Build Approval Guidelines
 
 This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
 
-## 9.1 Development Release Scheduling and Approvals
+## 8.1 Development Release Scheduling and Approvals
 * Development releases may be scheduled by the maintainers to optimize development resources, based on the queue of approved PRs
   * There is no particular desired/expected release frequency; releases may be cut as soon as there is an approved PR, or several PRs may be consolidated into a single release at the convenience of the maintainers and dev staff
   * *Rationale:*  Development releases are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
   * Each development release shall require the approval of one maintainer once all the PRs are approved, and the test cases all pass successfully.
 * Development releases shall be reported in brief to the CRWG and the SWG
 
-## 9.2 Major Production Release Build & Release Approvals
+## 8.2 Major Production Release Build & Release Approvals
 
 * Major production releases will be scheduled by the SWG as described above
   * *(TODO:  insert a diagram of the promotion process)*
@@ -221,7 +221,7 @@ This section covers scheduling of minor, development, and patch releases, and ap
   * All approved PRs for the major production release are complete
   * The SWG reviews the final list of enhancements in the release and signs off on releasing the development version into production
 
-## 9.3 Minor Production Release Scheduling and Approvals
+## 8.3 Minor Production Release Scheduling and Approvals
 
 * Minor production releases may be scheduled by the maintainers based on the queue of approved PRs
 * Minor production releases to introduce enhancements should be combined  to minimize the number of production releases, targeting minor production releases to be issued around four weeks or so as long as there is a queue of approved PRs.  (This frequency can be increased in times of urgent need for new functionality).
@@ -230,13 +230,13 @@ This section covers scheduling of minor, development, and patch releases, and ap
 * Minor production releases shall be reported in brief to the CRWG and the SWG, 
 * A roadmap of anticipated minor production releases shall be reported by the maintainers to the CRWG based on PRs that are in process.
 
-## 9.4  Production Patch Release Scheduling and Approvals
+## 8.4  Production Patch Release Scheduling and Approvals
 
 * Production patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approved defect correction PRs, or other non-functional PRs (e.g. security remediations).
 * Production patch releases require the approval of one maintainer
 * Production patch releases shall be reported to the CRWG.
 
- ## 9.5 Summary of Release Approval Requirements
+ ## 8.5 Summary of Release Approval Requirements
 
 | Type of Release      | Approval Requirement |  Notes                                        |
 | ---------------------| -------------------- |  -------------------------------------------  |
