@@ -10,9 +10,6 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 **Join us on the Second and Last Wednesday at 11:30 AM EST (4:30PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-## 2024 Roadmap
-
-![DPBE Roadmap](/img/dpbe-roadmap.png)
 
 ## Subscribe
 
