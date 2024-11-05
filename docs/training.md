@@ -1,3 +1,6 @@
+---
+title: Free CDM Training Courses
+---
 
 # [Introduction to the Common Domain Model (CDM) (LFEL1016)](https://training.linuxfoundation.org/express-learning/introduction-to-the-common-domain-model-cdm-lfel1016/?utm_campaign=Common%20Domain%20Model%20CDM&utm_content=312991265&utm_medium=social&utm_source=linkedin&hss_channel=lcp-18473937)
 
@@ -20,4 +23,18 @@ Learn to use the Common Domain Model (CDM) to standardize data for various finan
 
 This course prepares professionals and developers to streamline and optimize their financial products and processes by leveraging the Common Domain Model (CDM) to create standardized, interoperable services for diverse financial products.
 
-# [ENROLL Today!](https://training.linuxfoundation.org/express-learning/introduction-to-the-common-domain-model-cdm-lfel1016/?utm_campaign=Common%20Domain%20Model%20CDM&utm_content=312991265&utm_medium=social&utm_source=linkedin&hss_channel=lcp-18473937)
+### [ENROLL Today!](https://training.linuxfoundation.org/express-learning/introduction-to-the-common-domain-model-cdm-lfel1016/?utm_campaign=Common%20Domain%20Model%20CDM&utm_content=312991265&utm_medium=social&utm_source=linkedin&hss_channel=lcp-18473937)
+
+# [CDM for Collateral Initiatives Use Cases](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
+#### For more information, go to: [CDM-Collateral Initiatives Fact Sheet](https://www.isda.org/2023/04/12/cdm-collateral-initiatives-fact-sheet/).
+ 
+### CDM Collateral Start-up Guide
+
+This resource is designed to learn more about the CDM for collateral management and how to implement it. This is targeted to the business user and structured as a set of short tutorials, giving you the opportunity to interact with the CDM and understand the features and tools available.
+
+- [Module A: Introduction to the CDM](https://www.isda.org/collateral-initiative-start-up-guide-module-a/)
+- [Module B: Accessing the CDM](https://www.isda.org/collateral-initiative-start-up-guide-module-b/)
+- [Module C: How the CDM works](https://www.isda.org/collateral-initiative-start-up-guide-module-c/)
+- [Module D: How the CDM is used](https://www.isda.org/collateral-initiative-start-up-guide-module-d/)
+- [Module E: Collateral Use Cases](https://www.isda.org/collateral-initiative-start-up-guide-module-e/)
+- [Module F: Advanced Features](https://www.isda.org/collateral-initiative-start-up-guide-module-f/)
