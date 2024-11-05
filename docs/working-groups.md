@@ -9,12 +9,12 @@ Changes to the CDM may be proposed by CDM Working Groups, individual corporate c
 The following Working Groups are currently activated or about to be set up for this project:
 
 
-*[CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md) - bi-weekly
-*[CDM Derivatives Product and Business Event Working Group](CDM-Derivatives-Product-and-Business-Event-WG.md) - bi-weekly
-*[CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
-*[CDM Structured Products Working Group](CDM-Structured-Products-WG.md) - monthly
-*[CDM Technology Architecture Working Group](CDM-Technology-Architecture-WG.md) - monthly
-*[CDM Steering Working Group](CDM-Steering-WG.md) - quarterly 
+* [CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md) - bi-weekly
+* [CDM Derivatives Product and Business Event Working Group](CDM-Derivatives-Product-and-Business-Event-WG.md) - bi-weekly
+* [CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
+* [CDM Structured Products Working Group](CDM-Structured-Products-WG.md) - monthly
+* [CDM Technology Architecture Working Group](CDM-Technology-Architecture-WG.md) - monthly
+* [CDM Steering Working Group](CDM-Steering-WG.md) - quarterly 
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
