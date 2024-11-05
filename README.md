@@ -20,7 +20,7 @@ Read more about project contribution guidelines, principles, frequently asked qu
 
 ### Roles
 
-The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific [Working Group](docs/working-groups.md):
 
 * Maintainers - those who drive consensus within the working group
 * [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
@@ -28,7 +28,8 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 ### Active Working Groups
 
-The following Working Groups are currently activated or about to be set up for this project:
+Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
+The active Working Groups are covered by our [Working Groups](docs/working-groups.md) page.
 
 * [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
 * [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
@@ -41,7 +42,6 @@ The following Working Groups are currently activated or about to be set up for t
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
 * [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
 
-Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 
 ![](.github/finos-cdm-governance-structure.png)
 
@@ -81,19 +81,10 @@ Proposals for an entity to be given maintainership status or to have maintainers
 
 **CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
-## CDM Design Principles
+## CDM Design Principles and Development Guidelines
 
-Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
+Contributions to the CDM have to comply with a set of [Design Principles](docs/design-principles.md) to be in line with the [CDM Development Guidelines](https://cdm.finos.org/docs/contribution).
 
-* **Normalisation** through abstraction of common components
-* **Composability** where objects are composed and qualified from the bottom up
-* **Mapping** to existing industry messaging formats
-* **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers \
-
-## CDM development guidelines 
-
-The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.finos.org/docs/contribution).
 
 ## Getting involved 
 
