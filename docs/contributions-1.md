@@ -1,6 +1,38 @@
 # Contributions 
 This page will take you through how to contribute to the CDM, the necessary steps to take beforehand, editing and testing. 
 
+## CDM development guidelines 
+
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+
+## Version Management
+
+The CDM is developed, built and released using standard software
+source-control management. Each new released version is announced to
+users via a *release note* that describes the change introduced by that
+new version. The CDM release history is available in the [Release
+Section](#) of the CDM documentation.
+
+![](/img/CDM–Semantic-Versioning-Refresher.png)
+
+Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md)
+
+
+## Agile Development Approach
+
+The on-going development of the CDM adheres to a methodology inspired by
+the *Agile* software development framework. This methodology is based on
+two high-level principles:
+
+1.  Focus on business value from the user's perspective, encapsulated
+    in the concept of *user story*
+2.  Delivery of small, releasable changes that contribute to that
+    business value (sometimes referred to as *shippable increments*) -
+    i.e. no "big bang" changes
+
+
+ To learn more, visit our [development approach](development-approach.md) page. 
+
 # How to Contribute
 
 The purpose of this section is to provide guidance for submitting,
