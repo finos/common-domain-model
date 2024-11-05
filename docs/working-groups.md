@@ -1,6 +1,19 @@
 ## Working Groups
 
+Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
+
+## Roles
+
+1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.
+
+1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the CDM maintainers via email. If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
+
+1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the Community Specification License. Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
+
+1.4. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
+
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
+
 
 **Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
