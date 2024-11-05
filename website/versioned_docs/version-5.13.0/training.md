@@ -26,6 +26,7 @@ This course prepares professionals and developers to streamline and optimize the
 ### [ENROLL Today!](https://training.linuxfoundation.org/express-learning/introduction-to-the-common-domain-model-cdm-lfel1016/?utm_campaign=Common%20Domain%20Model%20CDM&utm_content=312991265&utm_medium=social&utm_source=linkedin&hss_channel=lcp-18473937)
 
 # [CDM for Collateral Initiatives Use Cases](https://www.isda.org/2023/02/16/isda-collateral-initiatives/)
+
 #### For more information, go to: [CDM-Collateral Initiatives Fact Sheet](https://www.isda.org/2023/04/12/cdm-collateral-initiatives-fact-sheet/).
  
 ### CDM Collateral Start-up Guide
