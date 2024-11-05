@@ -152,13 +152,13 @@ func Create_CancelledWorkflowStepFromInstruction: <"Represents the cancellation 
 	output:
 		cancelledWorkflowStep WorkflowStep (1..1)
 
-	condition ProposedEventExists: <"The previous step being cancelled must be a proposed step containing an instruction.">
+	condition ProposedEventExists: <"The instruction must have a proposed event">
 		proposedWorkflowStep -> proposedEvent exists
 
-	condition CancelledProposedStep: <"The previous step must be a cancel">
+	condition CancelledProposedStep: <"The proposed event must be a cancel">
 		proposedWorkflowStep -> action = ActionEnum -> Cancel
 
-	condition RejectedProposedStep: <"The previous step cannot be rejected.">
+	condition RejectedProposedStep: <"The proposed event cannot be rejected.">
 		proposedWorkflowStep -> rejected <> True
 
 	set cancelledWorkflowStep -> action: proposedWorkflowStep -> action
