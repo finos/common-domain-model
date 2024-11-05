@@ -90,7 +90,7 @@ Where the "Release" injunction is attached to a deploy-type task.
 
 ## Delivery of small releasable units
 
-### What is a releasable unit
+### What is a releasable unit?
 
 To maintain on-going momentum in the development of the CDM, delivery is
 organised around small but releasable units of change. This means that
