@@ -1,6 +1,6 @@
 ## Model maintenance and release
 
-After learning about (how to edit)[editing.md] the model, please refer to this section to learn more about its maintenance. 
+After learning about [how to edit](editing.md) the model, please refer to this section to learn more about its maintenance. 
 
 ## Introduction
 
