@@ -109,7 +109,7 @@ CDM.
 
 ## Editing the model
 
-    Please refer to the [editing](editing.md) section to learn about editing the model in more detail.
+Please refer to the [Editing](editing.md) section which covers editing the model in more detail.
     
 ### Contributing
 
