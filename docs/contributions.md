@@ -107,12 +107,14 @@ Unless explicitly instructed by a CDM Maintainer, a Contributor can only
 ever develop changes to a development (i.e. pre-release) version of the
 CDM.
 
+---
+
 ## Editing the model
 
 Please refer to the [Editing](editing.md) section which covers editing the model in more detail.
-    
-### Contributing
 
+---   
+## Contributing
 Changes are contributed by submitting a Pull Request for review into the
 CDM source-control repository. This pull request will invoke a build
 process to compile and run all CDM unit tests and regression tests.
@@ -128,12 +130,9 @@ we recommend labelling the pull request with the user story label, i.e.
 
 ![](/img/operating-model-3.png)
 
----
 **Note:**
 All contributions are submitted as candidate changes to be incorporated
 under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
-
----
 
 When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
@@ -148,7 +147,6 @@ documentation, release notes or new sample data using Rosetta, so these
 must be provided to the CDM Maintainers via Slack or email.
 
 ---
-
 ### Documentation
 
 The CDM documentation must be kept up-to-date with the model in
@@ -171,6 +169,7 @@ how to review. Please refer to the
 [content-of-release-notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
+---
 ## Reviewing model changes
 
 ### Review checklist
