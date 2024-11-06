@@ -20,62 +20,20 @@ Read more about project contribution guidelines, principles, frequently asked qu
 
 ### Roles
 
-The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific [Working Group](docs/working-groups.md):
+The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md):Mantainers, Editors and Participants. 
 
-* Maintainers - those who drive consensus within the working group
-* [Editors](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
-### Active Working Groups
+### Working Groups
 
 Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
 The active Working Groups are covered by our [Working Groups](docs/working-groups.md) page.
 
-* [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
-* [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
-* [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
-* [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
-* [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
-* [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG)
-* [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
-* [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
-* [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
-* [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
-
 
 ![](.github/finos-cdm-governance-structure.png)
-
-## Working Groups
-
-**Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
-
-**Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
-
-* Participants of the CDM Steering Working Group approve DRAFT specification releases.
-* Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
 
 
 ![](.github/Group-Roles-Scope.png)
 
-
-**Appointment of CDM Maintainers:**
-
-Maintainers are designated as either Organisational Representatives (OrgRep) or Private individuals. Private individuals are maintainers in their own right, acting on their own volition and not representing another legal entity. OrgReps are appointed by their organisation, acting on behalf and for that organisation. Organisations are recommended to appoint at least two representatives for coverage purposes. Organizations may change their OrgReps at any time.
-
-A list of Maintainers along with their type will be kept visible within the governance documentation provided on the repo and mini-site.
-
-* Additional Maintainers may be proposed by Participants. Proposed new Private individuals or new organisations will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
-
- * Proven experience in data modelling and/or software development in financial markets.
- * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).Private individuals and Organisations may choose to rescind their maintainership at will but must notify the other maintainers. Any entity who has chosen to rescind their maintainership, but then at a later time would like to re-join the maintainer team, is subject to the voting process outlined above. Additionally any OrgRep who has been replaced by their organisation, but wishes to remain a maintainer as a Private Individual will also need to go through the voting process. For the voting purposes, each Organization will have one vote.
-
- Maintaining entities or representatives can have their maintainer status revoked by unanimous vote of other maintainers. This measure is expected to be used only in extreme circumstances such as in the event of a maintainer being inactive for a significant period of time, or being found to no longer meet the requirements of being a maintainer set out above. This is not intended to be an exhaustive list of circumstances.
-
-Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
-
-**CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
-
-**CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
 ## CDM Design Principles and Development Guidelines
 
