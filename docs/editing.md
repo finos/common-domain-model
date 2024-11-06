@@ -93,7 +93,7 @@ Please refer to the [namespace-documentation](namespace.md) section for more det
 
 All model components (e.g. types, attributes, conditions, functions
 etc.) should be specified with descriptions in accordance with the [CDM
-Documentation Style Guide](#documentation-style-guide).
+Documentation Style Guide](documentation-style-guide.md).
 
 ## Contributing model changes
 
