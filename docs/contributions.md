@@ -100,15 +100,13 @@ these steps:
     early feedback. CDM Maintainers are appointed by the CDM Owners as
     and when relevant. Please contact
     [cdm@lists.finos.org](mailto:cdm@lists.finos.org).
-
 ---
+
 **Note:**
 Unless explicitly instructed by a CDM Maintainer, a Contributor can only
 ever develop changes to a development (i.e. pre-release) version of the
 CDM.
-
 ---
-
 ## Editing the model
 
 Please refer to the [Editing](editing.md) section which covers editing the model in more detail.
@@ -207,6 +205,7 @@ Slack, email or in direct meetings.
 
 ---
 **Note:**
+
 Depending on the size, complexity or impact of a contribution, the CDM
 Maintainer can recommend for the contribution to be presented with an
 appropriate level of details with the CDM Architecture and Review
@@ -214,6 +213,7 @@ Committee for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
+
 ---
 
 ## Model maintenance
@@ -307,4 +307,5 @@ deployment and discuss a timeline for the release.
 ---
 ## Documentation Style Guide 
 
-Please visit the [Documentation Style Guide page](documentation-style-guide.md) for reccomendations for editors of CDM documentation. 
+Please visit the [Documentation Style Guide](documentation-style-guide.md) to read about
+reccomendations for editors of CDM documentation. 
