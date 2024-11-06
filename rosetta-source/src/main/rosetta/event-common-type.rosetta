@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
@@ -564,7 +565,83 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
     exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-    underlier Product (1..1) <"The entity impacted by the corporate action.">
+    recordDate date (0..1) <"The date on which the account phyical balance and related underlier ownership is recorded by the custodian.">
+    announcementDate date (0..1) <"The date on which the corporate action is announced by the issuer.">
+	underlier Underlier (1..1) <"The asset impacted by the corporate action.">
+    adjustmentTerms AdjustmentTerms (0..1) <"Specifies any additional details e.g. further descriptions depending on the particular type of Corporate Action, adjustmentFactor, calculations">
+    informationSource InformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+    dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+      [metadata location]
+
+    condition DividendObservation: <"Price type is restricted to record observations of dividends.">
+    if dividendObservation exists
+    then dividendObservation -> priceType = PriceTypeEnum -> Dividend
+
+type AdjustmentTerms:<"Describes the terms involved in the calculation formula used for adjusting the price of the underlier impacted by a Corporate Action i.e. adjustedPrice = lastFixingPrice x (priceAdjustmentFactor->factorMultiplier).">
+
+    lastFixingPrice_priorAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
+       [metadata location]
+    adjustedPrice_afterAdjustment Price (0..1) <"The new price of the Underlier affected by the CorporateAction, before before any adjustment with regards to the CorporateAction.">
+       [metadata location]
+    priceAdjustmentFactor PriceAdjustmentFactor (1..1) <"Describes the components required for the purpose of documenting the calculation of an adjustment factor to be applied to the price of the underlier impacted by a Corporate Action.">
+
+type PriceAdjustmentFactor :
+    adjustmentFactorValue number (1..1) <"The multipler value that is used to adjust any terms of the trade in order to neutralize or to compensate for the economic effect of the corporate action.">
+    adjustmentFactorCalculation PriceAdjustmentFactorCalculationTerms (0..1)
+
+type PriceAdjustmentFactorCalculationTerms :<"Describes the components required for the purpose of documenting the calculation of an adjustment factor to be applied to the price of the underlier impacted by a Corporate Action">
+    shareForShareRatio number (0..1)
+    shareForRightsRatio number (0..1)
+    shareForBonusRatio number (0..1)
+    subscriptionPrice Price (0..1)
+    netFiscalRatioPercentage number (0..1)
+    spinOffPrice SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+    mergerPrice Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+    accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
+    lastFixingPrice_priorAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
+       [metadata address "pointsTo"=AdjustmentTerms->lastFixingPrice_priorAdjustment]
+    dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+      [metadata address "pointsTo"=CorporateAction->dividendObservation]
+
+   condition SpinOffOrMerger :
+   optional choice spinOffPrice, mergerPrice, accrualFactor
+
+type AccrualFactor :<"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
+    accrualRate PriceSchedule (1..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
+       [metadata location]
+    accrualFactorCalculationTerms AccrualFactorCalculationTerms (0..1)
+    interpolationRate boolean (0..1)
+
+        condition AccrualPriceIsRate:
+        accrualRate -> priceType = PriceTypeEnum -> InterestRate
+
+     //   condition InterpolationTerms: 
+     //   if accrualFactorCalculationTerms -> shortStubInterpolationTerms exists 
+     //   or accrualFactorCalculationTerms -> longStubInterpolationTerms exists
+     //   then interpolationRate is boolean = true
+
+type AccrualFactorCalculationTerms:
+    tenorTillMaturity number (0..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
+    dayCountFraction DayCountFractionEnum (0..1) <"The enumerated values to specify the day count fraction.">
+    shortStubInterpolationTerms FloatingRateSpecification (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
+    longStubInterpolationTerms FloatingRateSpecification (0..1)  <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
+
+        condition TenorExistsInInterpolation:
+        if shortStubInterpolationTerms exists 
+        or longStubInterpolationTerms exists
+        then shortStubInterpolationTerms -> rateOption -> indexTenor exists
+        and longStubInterpolationTerms -> rateOption -> indexTenor exists
+
+type SpinOff :<"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+    parentCompanyPrice Observable (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action, as well as the related price observation.">
+    childCompanyPrice Observable (1..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action, as well as the related price observation.">
+
+type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+    purchaserCompanyPrice Observable (0..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action, as well as the related price observation.">
+    acquiredCompanyPrice Observable (0..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action, as well as the related price observation.">
+
+type InterpolationRateCalculationTerms:<"Describes the rate and related tenor, for short stub and long stub respectively, when the accrualRate optionnaly results from an interpolation method.">
+
 
 type TransferBase:
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
