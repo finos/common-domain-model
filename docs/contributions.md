@@ -107,6 +107,26 @@ Unless explicitly instructed by a CDM Maintainer, a Contributor can only
 ever develop changes to a development (i.e. pre-release) version of the
 CDM.
 
+## Editing the model
+
+When editing the CDM, please go through the following modelling
+checklist and refer to the [editing](editing.md) section:
+
+-   CDM version: use the latest available [development
+    version](#version-availability)
+-   Syntax: no syntax warnings or errors
+-   Compilation: model compiles ok with no *static compilation* errors
+-   Testing: all translate regression tests expectations for mapping,
+    validation and qualification maintained or improved. Additional test
+    samples may be needed if use-case is not covered by existing
+    samples.
+-   Namespace: all model components positioned in the correct namespace
+-   Descriptions: all model components have descriptions
+
+The following sections detail that checklist. When using the Rosetta
+Design web application to edit the model, the Contributor should also
+refer to the [Rosetta Design Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta).
+
 Changes are contributed by submitting a Pull Request for review into the
 CDM source-control repository. This pull request will invoke a build
 process to compile and run all CDM unit tests and regression tests.
