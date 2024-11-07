@@ -13,24 +13,24 @@ export const featuresTwoHeader = [
             </>
         ),
     },
-    // {
-    //   title: <>WHAT ARE THE BENEFITS OF THE CDM?</>,
-    //   description: (
-    //        <>
-    //         <br />
-    //        <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
-    //         <br />
-    //         <br />
-    //         <ul>
-    //             <li>Enables interoperability and straight-through processing across firms, solutions, and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.</li>
-    //             <br />
-    //             <li>Accelerates financial technology innovation by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.</li>
-    //             <br />
-    //             <li>Delivers better regulatory oversight, promotes transparency and alignment between regulators and market participants, and enables consistency in regulatory reporting by providing a standard representation of trade data and supporting machine-executable reporting requirements.</li>
-    //         </ul>
-    //       </>
-    //     ),
-    // },
+       {
+         title: <>WHAT ARE THE BENEFITS OF THE CDM?</>,
+        description: (
+             <>
+              <br />
+             <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
+             <br />
+              <br />
+              <ul>
+                  <li>Enables interoperability and straight-through processing across firms, solutions, and platforms, reducing the need for reconciliation caused by variations in how each firm records trade lifecycle events.</li>
+                  <br />
+                  <li>Accelerates financial technology innovation by providing a common, readily operational foundation for how technologies like distributed ledger, smart contracts, cloud computing, and artificial intelligence can be applied to financial markets.</li>
+                  <br />
+                  <li>Delivers better regulatory oversight, promotes transparency and alignment between regulators and market participants, and enables consistency in regulatory reporting by providing a standard representation of trade data and supporting machine-executable reporting requirements.</li>
+              </ul>
+            </>
+          ),
+      },
     // {
     //     title: <>WHAT IS THE PURPOSE OF THE CDM?</>,
     //     description: (
