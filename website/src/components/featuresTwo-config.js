@@ -8,7 +8,7 @@ export const featuresTwo = [
         ),
     },
     {
-        title: <>Innovation Enablement:<br/><br/></>,
+        title: <>Innovation Enablement:</>,
         description: (
             <>Provides a common framework that can accelerate the adoption and implementation of new technologies​</>
         ),
@@ -18,7 +18,7 @@ export const featuresTwo = [
         description: (
             <>Minimizes the need for custom integrations and manual reconciliation, leading to substantial cost savings</>
         ),
-    }
+    },
     {
         title: <>ENHANCE INTEROPERABILITY & STRAIGHT THROUGH PROCESSING</>,
         description: (
@@ -27,7 +27,7 @@ export const featuresTwo = [
         imageUrl: '/img/feature-images/share.svg',
     },
     {
-        title: <>DELIVERS BETTER REGULATORY OVERSIGHT<br/><br/></>,
+        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
         imageUrl: '/img/feature-images/book-open.svg',
         description: (
             <>Promotes transparency and alignment between regulators and market participants</>
