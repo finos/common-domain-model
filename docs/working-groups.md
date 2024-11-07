@@ -2,6 +2,12 @@
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
+![](.github/finos-cdm-governance-structure.png)
+
+
+![](.github/Group-Roles-Scope.png)
+
+
 ## Roles
 
 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining and documenting evidence of consensus as well as coordinating appeals. In the event a clear consensus is not reached, Maintaners may call for a simple majority vote of Participants to determine outcomes.
