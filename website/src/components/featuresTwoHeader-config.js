@@ -13,24 +13,24 @@ export const featuresTwoHeader = [
             </>
         ),
     },
-    // {
-    //     title: <>WHAT ARE THE BENEFITS OF THE CDM?</>,
-    //    description: (
-    //         <>
-    //          <br />
-    //         <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
-    //         <br />
-    //          <br />
-    //          <ul>
-    //              <li>Standardization: Establishes a universal language for financial transactions, simplifying communication and interoperability between different systems and parties..</li>
-    //              <br />
-    //              <li>Increased Transparency: Makes it easier for all stakeholders, including regulators, to understand and oversee market activities..</li>
-    //              <br />
-    //              <li>Reduced Costs: Minimizes the need for custom integrations and manual reconciliation, leading to substantial cost savings.</li>
-    //          </ul>
-    //        </>
-    //      ),
-    // },
+     {
+         title: <>WHAT ARE THE BENEFITS OF THE CDM FOR THE INDUSTRY?</>,
+        description: (
+             <>
+              <br />
+             <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
+             <br />
+              <br />
+              <ul>
+                  <li>Standardization: Establishes a universal language for financial transactions, simplifying communication and interoperability between different systems and parties..</li>
+                  <br />
+                  <li>Increased Transparency: Makes it easier for all stakeholders, including regulators, to understand and oversee market activities..</li>
+                  <br />
+                  <li>Reduced Costs: Minimizes the need for custom integrations and manual reconciliation, leading to substantial cost savings.</li>
+              </ul>
+            </>
+          ),
+     },
     // {
     //     title: <>WHAT IS THE PURPOSE OF THE CDM?</>,
     //     description: (
