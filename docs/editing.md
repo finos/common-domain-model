@@ -203,7 +203,7 @@ through the following review checklist:
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-downstream dependencies section for more details.
+[downstream dependencies](maintenance-and-release) section for more details.
 
 ---
 
