@@ -2,10 +2,7 @@
 
 _What is being released?_
 
-This release updates the `bundle` dependency.
-
-Version updates include:
-- `bundle` 11.24.2: support for Choice Type
+This release updates the rune dependencies to version `11.24.2`. This update includes support for visualising the `Choice Type` elements in the Rosetta User Interface.
 
 _Review directions_
 
