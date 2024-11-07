@@ -10,10 +10,13 @@ _What is being released?_
 
 AssetCriteria:
 - The attribute `assetIdentifier` has been refactored to model an actual asset, specified using the `Asset` choice data type, rather than just an identifier. The attribute name has also been updated to `specificAssets` to make it clear that it is a list of specific assets, all of whom are eligible to be pledged as collateral.  The condition on the data type has been updated too.
+  
+ListingType:
+- The cardinality of the three attributes in the data type `ListingType` (which is used in `AssetCriteria`) has been changed to none-to-many (rather than none or one); the attributes are `exchange`, `sector`, `index`. Without this, it would be only possible to select one of the values.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#32288](https://github.com/finos/common-domain-model/pull/3228)
+The changes can be reviewed in PR: [#3228](https://github.com/finos/common-domain-model/pull/3228)
 
 _Backward-incompatible changes_
 
