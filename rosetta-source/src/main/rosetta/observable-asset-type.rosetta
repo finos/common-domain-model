@@ -163,7 +163,7 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
     condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
         value exists and datedValue is absent
 
-type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference. Optionnaly, related observations or valuations may also be populated by referencing via metadata address.">
     //**ART** Wil make this a choice in P3; currently not supported with annotation
 
     asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
@@ -177,7 +177,14 @@ type Observable: <"Specifies the object to be observed for a price, it could be 
     rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
         [metadata location]
     
-    condition: one-of
+    priceObservation PriceSchedule (0..*) <"Specifies dated value series corresponding to price observation and related observation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata address] permits to update the schedule along with any type of lifecycle event where a price observation ay represented (e.g. by adding one more datedValue in array per each effective observation).">
+         [metadata address "pointsTo"=PriceQuantity->price]
+
+    condition:
+    required choice asset, basket, index
+
+    condition DatedValue: <"Price fixing associates a price value with the fixing date it relates to.">
+    if priceObservation exists then priceObservation -> datedValue exists
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
@@ -185,12 +192,12 @@ type Basket extends AssetBase: <"Defines a custom basket by referencing an ident
 type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
-    initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
-    interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
-    finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]    
+  //  initialValuationPrice PriceSchedule (0..*) <"Specifies an initial price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+       // [metadata address "pointsTo"=PriceQuantity->price]
+  //  interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+      //  [metadata address "pointsTo"=PriceQuantity->price]
+//    finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
+      //  [metadata address "pointsTo"=PriceQuantity->price]    
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -261,20 +268,28 @@ type SwapCurveValuation: <"A class to specify a valuation swap curve, which is u
     spread number (1..1) <"Spread in basis points over the floating rate index.">
     side QuotationSideEnum (0..1) <"The side (bid/mid/ask) of the measure.">
 
-type ValuationDates: <"Defines how and when a performance type option or performance type swap is to be valued, including initial, interim and final valuation dates.">
+type ValuationTerms: <"Defines how and when a performance type option or performance type swap is to be valued, including initial, interim and final valuation dates.">
 
-    initialValuationDate PerformanceValuationDates (0..1) <"Specifies the initial valuation dates of the underlyer.">
-    interimValuationDate PerformanceValuationDates (0..1) <"Specifies the interim valuation dates of the underlyer.">
-    finalValuationDate PerformanceValuationDates (1..1) <"Specifies the final valuation dates of the underlyer.">
+    initialValuation ValuationBase (0..1) <"Specifies the initial valuation dates of the underlyer.">
+    interimValuation ValuationBase (0..1) <"Specifies the interim valuation dates of the underlyer.">
+    finalValuation ValuationBase (1..1) <"Specifies the final valuation dates of the underlyer.">
+    valuationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
+    valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
+    valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+    informationSource InformationSourceBase (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+    precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of valuations.">
 
-type PerformanceValuationDates: <"Defines how and when a performance type option or performance type swap is to be valued.">
+type ValuationBase: <"Defines how and when a performance type option or performance type swap is to be valued.">
     [metadata key]
 
-    determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
+    valuationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
     valuationDates AdjustableRelativeOrPeriodicDates (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
     valuationDate AdjustableOrRelativeDate (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Pricing Date">
     valuationTime BusinessCenterTime (0..1) <"The specific time of day at which the calculation agent values the underlying. The SpecificTime is the only case when the valuationTime (time + business center location  e.g. 10:00:00 USNY) should be provided. You should be able to provide just the valuationTime without valuationTimeType, which infer that this is a specific time.">
     valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
+    informationSource InformationSourceBase (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+    precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of valuations.">
+    numberOfValuatioNDates int (0..1) <"The number of valuation dates between the initial valuation date and the final valuation date.">
 
 type FxRateSourceFixing: <"Describes a rate source to be fixed and the date the fixing occurs">
 
@@ -325,10 +340,10 @@ type FxRate: <"A class describing the rate of a currency conversion: pair of cur
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.">
     rate number (0..1) <"The rate of exchange between the two currencies of the leg of a deal. Must be specified with a quote basis.">
 
-type FxSpotRateSource: <"A class defining the rate source and fixing time for an FX rate.">
+type InformationSourceBase: <"The information source where a published or displayed market price will be obtained.">
 
-    primarySource InformationSource (1..1) <"The primary source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
-    secondarySource InformationSource (0..1) <"An alternative, or secondary, source for where the rate observation will occur. Will typically be either a page or a reference bank published rate.">
+    primarySource InformationSource (1..1) <"The primary source for where a published or displayed market price will be obtained. Will typically be either a page or a reference bank published price.">
+    secondarySource InformationSource (0..1) <"An alternative, or secondary, source for where a published or displayed market price will be obtained. Will typically be either a page or a reference bank published price.">
 
 type RateObservation: <"A class defining parameters associated with an individual observation or fixing. This class forms part of the cashflow representation of a stream.">
     [metadata key]
@@ -433,7 +448,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
-    informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+    informationSource InformationSourceBase (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
     dealerOrCCP AncillaryEntity (0..1) <"Holds an identifier for the reference entity that is agreed by both parties as a basis for cash settlement calculations. This could be a dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement in a credit event. ISDA 2003 Term: Dealer. This could be the clearing organization (CCP, DCO) to which the trade should be cleared, as applicable for cash-settled swaptions.">

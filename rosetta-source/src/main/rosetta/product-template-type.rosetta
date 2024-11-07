@@ -93,7 +93,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
 
     buyerSeller BuyerSeller (1..1)
     feature OptionFeature (0..1) <"The option feature, such as quanto, Asian, barrier, knock.">
-    observationTerms ObservationTerms (0..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. To be used for option contracts that reference a benchmark price.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     underlier Product (1..1) <"The product underlying the option, which can be of any type including ContractualProduct or Security.">
@@ -160,8 +159,6 @@ type ReturnTerms: <"Specifies the type of return of a performance payout.">
 type PerformancePayout extends PayoutBase: <"Contains the necessary specifications for all performance payouts, encompassing equity return, dividend, variance, volatility and correlation products.">
     [metadata key]
 
-    observationTerms ObservationTerms (0..1) <"Defines how and when a performance type option or performance type swap is to be observed.">
-    valuationDates ValuationDates (1..1) <"Defines how and when a performance type option or performance type swap is to be valued, including both interim and final valuation.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
     underlier Product (0..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..*) <"Defines quanto or composite FX features that are included in the swap leg.">
@@ -174,6 +171,9 @@ type PerformancePayout extends PayoutBase: <"Contains the necessary specificatio
     finalValuationPrice PriceSchedule (0..*) <"Specifies the net final valuation price(s) of the underlier at Performance Payout level. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
     [metadata address "pointsTo"=PriceQuantity->price]
 
+    condition ValuationTermsExists:
+    valuationTerms exists
+    
     condition PorfolioOrStraightReturn: <"Allowing for both returnTerms and portfolioReturnTerms to co-exist, would cause confusion by breaking the aggregation logic that is at parent node level.">
     required choice returnTerms, portfolioReturnTerms
 
@@ -656,7 +656,7 @@ type Composite: <"Specifies the conditions to be applied for converting into a r
 
     determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which an amount or a date is determined.">
     relativeDate RelativeDateOffset (0..1) <"A date specified as some offset to another date (the anchor date).">
-    fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
+    fxSpotRateSource InformationSourceBase (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
     fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type FxFeature: <"A type for defining FX Features.">
@@ -716,7 +716,7 @@ type PassThroughItem: <"Class to represent a single pass through payment.">
 type Quanto: <"Determines the currency rate that the seller of the equity amounts will apply at each valuation date for converting the respective amounts into a currency that is different from the currency denomination of the underlier.">
 
     fxRate FxRate (0..*) <"Specifies a currency conversion rate.">
-    fxSpotRateSource FxSpotRateSource (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
+    fxSpotRateSource InformationSourceBase (0..1) <"Specifies the methodology (reference source and, optionally, fixing time) to be used for determining a currency conversion rate.">
     fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
 
 type StrategyFeature: <"A class for defining option strategy features.">

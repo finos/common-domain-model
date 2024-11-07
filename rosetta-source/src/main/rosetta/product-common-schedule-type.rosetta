@@ -101,7 +101,7 @@ type DateRelativeToCalculationPeriodDates: <"A data to:  provide the ability to 
 
 type DateRelativeToValuationDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
-    valuationDatesReference PerformanceValuationDates (1..*) <"A set of href pointers to valuation period dates defined somewhere else in the document.">
+    valuationDatesReference ValuationBase (1..*) <"A set of href pointers to valuation period dates defined somewhere else in the document.">
         [metadata reference]
 
 type DateRelativeToPaymentDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
@@ -121,7 +121,7 @@ type FxLinkedNotionalSchedule: <"A data to:  describe a notional schedule where 
     varyingNotionalCurrency string (1..1) <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
         [metadata scheme]
     varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">
-    fxSpotRateSource FxSpotRateSource (1..1) <"The information source and time at which the spot currency exchange rate will be observed.">
+    fxSpotRateSource InformationSourceBase (1..1) <"The information source and time at which the spot currency exchange rate will be observed.">
     fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
     varyingNotionalInterimExchangePaymentDates RelativeDateOffset (1..1) <"The dates on which interim exchanges of notional are paid. Interim exchanges will arise as a result of changes in the spot currency exchange amount or changes in the constant notional schedule (e.g. amortisation).">
 
@@ -151,17 +151,40 @@ type RateSchedule: <"A class defining a schedule of rates or amounts in terms of
         [metadata address "pointsTo"=PriceQuantity->price]
 
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
-    observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
-    periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
-    parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
 
-type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
-    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation.">
+    observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable. When no weight is specified, then weight of each date is assumed to be 1.0">
+    periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place. Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
+    parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
+    observationDate RelativeDateOffset (0..1) <"The enumerated values to specify the type of date to be used as an anchor. That is notably used for further specifying when a particular type of date shall be observed, given a schedule of observation dates (example : each ObservationPeriodStartDate, etc.).">
+
+   condition ObservationIsRelativeTo:<"ObservationDate may be relative to a various kinds of dates via DateRelativeToEnum, which Enum list contains on purpose various types of dates defined with other type than ObservationDates e.g. ValuationDates, SettlementDates, etc. Yet in the case where the dates are defined with attributes which precisely belong to ObservationDates per se i.e. observationSchedule or periodicSchedule or parametricDates then for consistency purposes the usage of Enum list via DateRelativeToEnum shall be restricted to values that correspond to ObservationDates.">
+    if (periodicSchedule exists or parametricDates exists or observationSchedule exists) 
+     and observationDate exists
+      then observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationDate 
+        or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodStartDate 
+          or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodEndDate
+
+
+type ObservationSchedule: <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable. When no weight is specified, then weight of each date is assumed to be 1.0">
+
+    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation, optionaly with a weight associated to each date.">
+    observationPeriod ObservationPeriodSchedule (0..*) <"Specifies manufactured schedule, composed of period series (mostly used when period are irregular, thus unlikely calculable based on periodic parameters).">
     dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 
     condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-        if observationDate -> adjustedDate is absent
-        then observationDate -> unadjustedDate exists and dateAdjustments exists
+    if observationDate -> adjustedDate is absent
+    then observationDate -> unadjustedDate exists and dateAdjustments exists
+
+  condition ScheduleIsDateOrPeriod: <"Specifies a choice between a schedule made of date series via observationDate, else a schedule made of period series via observationPeriod.">
+  required choice observationDate, observationPeriod
+
+type ObservationPeriodSchedule: <"Specifies manufactured period (mostly used when period are irregular, thus unlikely calculable as periodic fixed period in series based on frequency parameters).">
+    [metadata key]
+
+    startDate AdjustableOrRelativeDate (1..1) <"The start date of the schedule.">
+    endDate AdjustableOrRelativeDate (1..1) <"The end date of the schedule.">
+    numberOfObservationDates int (0..1) <"The number of observation dates between the observation start date and the observation end date.">
+
 
 type ObservationDate: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
     [metadata key]
@@ -177,10 +200,13 @@ type ObservationTerms: <"Class containing terms that are associated with observi
 
     observationTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
     observationTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
-    informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+    informationSource InformationSourceBase (0..1) <"The information source where a published or displayed market price will be obtained.">
+    observationMethod DeterminationMethodEnum (0..1) <"The enumerated values to specify the method according to which an amount or a date is determined.">
     precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
-    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+   
+    observable Observable (0..1) // TO BE REMOVED : part of ARTForce //
+   
     observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
     numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
 

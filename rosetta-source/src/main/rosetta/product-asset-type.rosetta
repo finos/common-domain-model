@@ -482,7 +482,7 @@ type PriceReturnTerms:
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
 
-    valuationTerms ValuationTerms (1..1) <"Contains all non-date valuation information.">
+    valuationProvisions ValuationProvisions(1..1) <"Contains all non-date valuation information.">
     annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
     dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
     equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
@@ -521,7 +521,7 @@ type VarianceReturnTerms extends ReturnTermsBase:
         then exchangeTradedContractNearest -> asset -> Instrument -> ListedDerivative exists
 
     condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
-        if valuationTerms -> futuresPriceValuation = True
+        if valuationProvisions -> futuresPriceValuation = True
         then exchangeTradedContractNearest exists
 
     condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
@@ -555,7 +555,7 @@ type CorrelationReturnTerms extends ReturnTermsBase:
     condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
         correlationStrikePrice -> value > -1 and correlationStrikePrice -> value < 1
 
-type ValuationTerms:
+type ValuationProvisions:
     futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
     optionsPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions">
     numberOfValuationDates int (0..1) <"The number of valuation dates between valuation start date and valuation end date.">

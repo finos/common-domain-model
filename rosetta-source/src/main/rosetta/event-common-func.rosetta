@@ -213,39 +213,39 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
 
     alias adjustedFinalValuationDate:
         ResolveAdjustableDate(
-                payout -> valuationDates -> finalValuationDate -> valuationDate
+                payout -> valuationTerms -> finalValuation -> valuationDate
             )
     alias valuationDates: <"Determine which valuation date to get valuation time and type from.">
         if adjustedDate < adjustedFinalValuationDate
-        then payout -> valuationDates -> interimValuationDate
-        else payout -> valuationDates -> finalValuationDate
+        then payout -> valuationTerms -> interimValuation
+        else payout -> valuationTerms -> finalValuation
     add identifiers -> observable -> asset -> Instrument -> Security -> identifier: <"Represents the identifer for the equity underlier.">
         payout -> underlier -> security -> identifier 
     set identifiers -> observationDate: <"Specifies the date for which to retrieve the market data value(s). Selects the most recent valuation date.">
-        AdjustedValuationDates(payout -> valuationDates)
+        AdjustedValuationDates(payout -> valuationTerms)
             filter item <= adjustedDate
             then last
     set identifiers -> observationTime: <"Specifies the time for which to retrieve the market data value(s).">
         ResolvePerformanceValuationTime(
-                valuationDates -> valuationTime,
-                valuationDates -> valuationTimeType,
+                payout -> valuationTerms -> valuationTime,
+                payout -> valuationTerms -> valuationTimeType,
                 identifiers -> observable -> asset ->> identifier only-element,
-                valuationDates -> determinationMethod
+                payout -> valuationTerms -> valuationMethod
             )
     set identifiers -> determinationMethodology -> determinationMethod: <"Identifies a more specific price should multiple prices for the underlier be available at the given date time, for example bid or ask prices.">
-        valuationDates -> determinationMethod
+        valuationDates -> valuationMethod
 
 func AdjustedValuationDates:
     inputs:
-        valuationDates ValuationDates (1..1)
+        valuationTerms ValuationTerms (1..1)
     output:
         adjustedValuationDates date (0..*)
     set adjustedValuationDates: <"Build sorted list of adjusted valuation dates.">
         [
             ResolveAdjustableDates(
-                    valuationDates -> interimValuationDate -> valuationDates
+                    valuationTerms -> interimValuation -> valuationDates
                 ),
-            ResolveAdjustableDate(valuationDates -> finalValuationDate -> valuationDate)
+            ResolveAdjustableDate(valuationTerms -> finalValuation -> valuationDate)
         ]
             sort
 
@@ -254,7 +254,7 @@ func ResolvePerformanceValuationTime: <"Defines how to resolve the observation t
         valuationTime BusinessCenterTime (0..1) <"Represents the Equity Valuation terms from the Equity product definition.">
         valuationTimeType TimeTypeEnum (0..1) <"The time of day at which the calculation agent values the underlying, for example the official closing time of the exchange.">
         assetIdentifier AssetIdentifier (1..1) <"Specifies the asset identifier, along with the source, which should be used to determine the correct valuation time i.e. close times are different across exchanges.">
-        determinationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
+        valuationMethod DeterminationMethodEnum (1..1) <"Specifies the method according to which an amount or a date is determined.">
     output:
         time TimeZone (1..1)
     set time:
@@ -265,7 +265,7 @@ func ResolvePerformanceValuationTime: <"Defines how to resolve the observation t
         then ResolveTimeZoneFromTimeType(
                     assetIdentifier,
                     valuationTimeType,
-                    determinationMethod
+                    valuationMethod
                 )
 
 func ResolvePerformanceReset: <"Defines how to resolve the reset value for a performance payout.">
@@ -1044,7 +1044,7 @@ func NewSingleNameEquityPerformancePayout: <"Function specification to create th
         // or masterConfirmation -> typeOfSwapElection -> Total exists then
         masterConfirmation -> typeOfSwapElection
 
-    set performancePayout -> valuationDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
+    set performancePayout -> valuationTerms: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> valuationDates
     set performancePayout -> paymentDates: <"Equity payout must inherit terms from the Master Confirmation Agreement.">
         masterConfirmation -> equityCashSettlementDates
