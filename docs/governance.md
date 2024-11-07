@@ -3,6 +3,32 @@ title: Governance
 ---
 
 # Governance
+
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
+
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
+
+For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
+
+A proposal can be defined at a conceptual level or a logical level (i.e.
+in code). In each case, the proposal must be developed in line with the
+CDM [design-principles](/docs/cdm-overview#design-principles) and
+[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
+to FINOS staff and the Architecture & Review Committee for approval. In
+some instances, the proposal may not be immediately approved but may be
+assigned to an existing or new Working Group for the purpose of
+reviewing, revising or extending the proposal.
+
+Once approved, the amendment will be scheduled to be merged with the
+CDM's main code branch by the CDM Maintainers.
+
+### Roles
+The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+
+* Maintainers - those who drive consensus within the working group
+* Editors - those who codify ideas into a formal specification
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+
 This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
 
