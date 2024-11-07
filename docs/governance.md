@@ -22,6 +22,9 @@ reviewing, revising or extending the proposal.
 Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
+
+
 ### Roles
 The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
 
@@ -29,7 +32,6 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 * Editors - those who codify ideas into a formal specification
 * Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
 
 ## 1. Decision Making
