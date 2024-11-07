@@ -226,7 +226,7 @@ type AssetCriteria:
   listing ListingType (0..1)
 
   condition AssetCriteriaChoice:
-    optional choice collateralAssetType, collateralTaxonomy, assetIdentifier
+    optional choice collateralAssetType, collateralTaxonomy, specificAssets
 ```
 
 -   `collateralAssetType` Represents a filter based on the asset product
