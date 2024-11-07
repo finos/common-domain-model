@@ -17,7 +17,7 @@ export const featuresTwoHeader = [
     //   title: <>WHAT ARE THE BENEFITS OF THE CDM?</>,
     //   description: (
     //        <>
-   //         <br />
+    //         <br />
     //        <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
     //         <br />
     //         <br />
