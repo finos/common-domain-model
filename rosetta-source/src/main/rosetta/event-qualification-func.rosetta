@@ -45,7 +45,8 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
     set is_event:
         businessEvent -> instruction -> primitiveInstruction -> transfer only exists
             and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
+            and (transferInstructions -> grossTransfer -> transfer -> deliverableQuantity -> unit -> currency exists 
+            or transferInstructions -> netTransfer -> transfer -> deliverableQuantity -> unit -> currency exists)
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
     [qualification BusinessEvent]
@@ -59,8 +60,8 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
                 businessEvent -> eventDate
             )
     set is_event:
-        transfersForDate -> quantity -> unit -> currency exists
-            and transfersForDate -> quantity -> unit -> financialUnit exists
+        transfersForDate -> deliverableQuantity -> unit -> currency exists
+            and transfersForDate -> deliverableQuantity -> unit -> financialUnit exists
             and transfersForDate count = 2
 
 func Qualify_ClearedTrade:
@@ -275,7 +276,7 @@ func Qualify_SecurityTransfer: <"The qualification of a security transfer from t
             only-element
     set is_event:
         transfer -> asset -> Instrument -> Security exists
-            and transfer -> quantity -> unit -> financialUnit only exists
+            and transfer -> deliverableQuantity -> unit -> financialUnit only exists
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
     [qualification BusinessEvent]
@@ -290,7 +291,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
             )
     set is_event:
         transfers -> asset -> Instrument -> Security exists
-            and transfers -> quantity -> unit -> currency only exists
+            and transfers -> deliverableQuantity -> unit -> currency only exists
             and FilterCashTransfers(transfers) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
                     transfers
                 )

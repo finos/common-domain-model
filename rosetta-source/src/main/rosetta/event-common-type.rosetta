@@ -125,7 +125,17 @@ type CalculateTransferInstruction: <"Defines the tradeState or payout on which t
     date date (0..1)
 
 type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
-    transferState TransferState (0..*) <"Specifies the terms and state of a transfers.">
+    grossTransfer TransferState (1..*) <"Specifies the terms and state of a transfers.">
+    netTransfer TransferState (0..1) <"Specifies the terms and state of a unique net transfer, resulting from the aggregation of several individual transfers. Multiple cardinality optionnaly permits to represent multiple netting per distinct criteria, depending business need and related implementation, main use case being multiple netTransfer per each currency, given multiple currency exist accross multiple transferState.">
+
+  condition MultipleIndividualTransferExistInNetTransfer: <"Assuming a minimim of two transfers is required per each net transfer (2 gross x 1 net). Besides, all gross transfer shall have same status being Netted.">
+      if netTransfer exists
+      then grossTransfer count > 1
+      and grossTransfer -> transferStatus all = TransferStatusEnum -> Netted
+
+  condition NetTransferIsNotNetted: <"Per se, the net transfer cannot be netted, that being the status of the multiple gross transfers of which net transfer is an aggregation.">
+      if netTransfer exists
+      then netTransfer -> transferStatus <> TransferStatusEnum -> Netted
 
 type QuantityChangeInstruction: <"Instructions required to create a Quantity Change Primitive Event, which can be either an increase, a decrease or a replacement. An increase adds a new trade lot to the original trade, whereas a decrease subtracts from an existing trade lot's quantity. A replacement updates the quantity of an existing trade lot to the new value.">
     change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
@@ -209,7 +219,7 @@ type TransferState: <"Defines the fundamental financial information associated w
     [metadata key]
     [rootType]
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
-    transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
+    transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its settlement life-cycle.">
 
 type Transfer extends TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
     settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
@@ -507,21 +517,28 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
     underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
 
-type TransferBase:
+type TransferBase: <"Describes transfer core components e.g. the amount of the asset to be transferred, the parties to the transfer and their role and settlement date, as well as optional additional features for further speciying for instance the nominal value of the quantity being transfered, and related price (example : physically settled option is being exercised, deliverableQuantity= 10 share, price= 2 USD/share with priceType AssetPrice and notionalQuantity= 20 USD, other use case: dividend payment for 0.09 div points, given 100 shares, USD ccy : deliverableQuantity= 9 USD, price= 0.09 USD/share with priceType Dividend and notionalQuantity= 100 USD ; and a lot of other ones, etc.">
+
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
-    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
+    deliverableQuantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
+    notionalQuantity NonNegativeQuantity (0..1) <"Optionally represents the notional value or nominal amount of the asset to be transferred.">
+    price Price (0..1) <"Optionally represents the price at which the asset is transferred.">
     asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
     payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+    condition NotionalQuantityUnitIsMoney:
+    if notionalQuantity exists 
+        then notionalQuantity -> unit -> currency exists
+
+    condition DeliverableQuantityUnitExists:
+    if asset -> Cash exists
+        then deliverableQuantity -> unit -> currency exists
+    else if asset -> Commodity exists
+        then deliverableQuantity -> unit -> capacityUnit exists
+    else if asset -> Instrument exists
+        then deliverableQuantity -> unit -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
