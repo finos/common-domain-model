@@ -244,9 +244,11 @@ type AssetCriteria:
     or original maturity.
 -   `maturityRange` Represents a filter based on the underlying asset
     maturity.
--   `specificAssets` Represents a filter based on specific assets which
--   are acceptable as collateral (e.g. specific securities, loand, equities,
-    commodities or other assets etc).
+-   `specificAssets` Represents a filter based on specific assets which 
+    are acceptable as collateral (e.g. specific securities, loans, equities,
+    commodities or other assets etc).  Assets may be defined using the
+    `Asset` data type, including by reference to an identifier such
+    as ISIN, CUSIP, etc.
 -   `collateralTaxonomy` Specifies the collateral taxonomy, which is
     composed of a taxonomy value and a taxonomy source.
 -   `domesticCurrencyIssued` Identifies that the Security must be
