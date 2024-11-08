@@ -195,8 +195,9 @@ type TradeState: <"Defines the fundamental financial information that can be cha
     trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
     state State (0..1) <"Represents the State of the Trade through its life-cycle.">
     resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+    observationFixingHistory ObservationFixing (0..*) <"Records the fixing value of an observable price on a given fixing date.">
     transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
-    observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
+    observationEventHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
     valuationHistory Valuation (0..*)
 
 type CounterpartyPositionState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each PositionState specifies where a Position is in its life-cycle. PositionState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
@@ -214,18 +215,64 @@ type ObservationEvent: <"Specifies the necessary information to create any obser
     condition:
         one-of
 
-type ObservationFixing: <"Records the fixing value of an observable price on a given fixing date. Observations of market data fixing are made independently to business events or trade life-cycle events, so data instances of Observation can be created independently of any other model type, hence it is annotated as a root type. Observations will be broadly reused in many situations, so references to Observation are supported via the 'key' annotation. ObservationTerms is an optionnal attribute, mostly used when ObservationFixing is used as root-type (independently to business events or trade life-cycle events), else such terms are already described in the terms of the Trade to which ObservationFixing relates to.">
+type ObservationFixing: <"Records the fixing value of an observable price on a given fixing date. Observations of market data fixing are made independently to business events or trade life-cycle events, so data instances of Observation can be created independently of any other model type, hence it is annotated as a root type. Observations will be broadly re-used in many situations, so references to Observation are supported via the 'key' annotation. ObservationTerms is an optionnal attribute, mostly used when ObservationFixing is used as root-type (independently to business events or trade life-cycle events), else such terms are already described in the terms of the Trade to which ObservationFixing relates to.">
     [rootType]
     [metadata key]
 
     observationTerms cdm.product.common.schedule.ObservationTerms (0..1) <"Defines the source, determination method, time and schedules which describe how and when an observable shall be effectively observed">
-    observationValues Observable (1..*) <"The observable and the related price observations.">
+    observationValue ObservationValue (1..*) <"The observable and the related price observations.">
     lotIdentifier Identifier (0..*) <"Identifier for any existing lot where the observable shall be updated with new price observation values.">
-    
-    condition PriceObservationExists: <"Populating priceObservation is optional at Observable level, yet it is compulsory as part of ObservationFixing which purpose is precisly to represent priceObservation values.">
-    observationValues -> priceObservation exists
+        [metadata reference]
 
+type ObservationValue:<"The observable and the related price observations. In case the price observation is not straight price but is resolved as an input, when applying a calculation desribed in the payout terms, then such resolving method may be populated with related input i.e. the resolvable price values. It is assumed that any kind of observation always associate an observable, a price value, and an observation date, hence the condition below that forces DatedValue component to be populated that for representing series of expected pairs i.e. per each price value observed, we expect an observation date.">
+
+    resolvedValue Observable (1..1) <"The observable and the related net price observation, possibly resulting from resolvingMethod applied to resolvableValue.">
+    resolvableValue Observable (0..*) <"The observable and the related price observation, inputs of a resolving method, which expected output shall be the resolvedValue.">
+    resolvingMethod PriceResolvingMethod (0..1) < "The method used for resolving a price resolvableValue (inputs) into price resolvedValue (output) e.g. an averaging method, a performance return ratio, etc. more generally this represents any attribute of a Payout that describes a calculation that is applicable to an observable price.">
     
+            condition PriceObservationExists: <"Populating priceObservation is optional at Observable level, yet it is compulsory as part of ObservationFixing which purpose is precisly to represent priceObservation values, also an observation shall consists in a pair of data : the observation date and the related observed value, hence specifying condition that datedValue must exist.">
+                resolvedValue -> priceObservation -> datedValue exists
+                and if resolvableValue exists then resolvableValue -> priceObservation -> datedValue exists
+
+            condition ResolvableValue: <"The value to be resolved as well as the method how it shall be resolved relate to each other conceptually, hence condition that whe either exists, the other one as well.">
+                if resolvableValue exists then resolvingMethod exists
+                and if resolvingMethod exists then resolvableValue exists
+
+type PriceResolvingMethod: < "The method used for resolving a price resolvableValue (inputs) into price resolvedValue (output) e.g. an averaging method, a performance return ratio, etc. more generally this represents any attribute of a Payout that describes a calculation that is applicable to an observable price. This type is designed as a generic class, which list of attributes may be extended in backward-compatibility as need be">
+
+    payoutOrigin SettlementOrigin (1..1)
+    knockIn Trigger (0..1)
+        [metadata reference]
+    knockOut Trigger (0..1)
+         [metadata reference]
+    cap Trigger (0..1)
+         [metadata reference]
+    floor Trigger (0..1)
+         [metadata reference]
+    averagingMethod AveragingCalculationMethod (0..1)
+        [metadata reference]
+    compoundingMethod CompoundingMethodEnum (0..1)
+        [metadata address]
+    discountingMethod DiscountingTypeEnum (0..1)
+        [metadata address]
+    bespokePayoutFormula string (0..1) // string as being placeholder for now, waiting for genuine set of CDM type object to be release, that is Structured Product WG outcome
+    rateCalculationMethod string (0..1) // shall have new type which attributes would be mainly all the items from cdm.observable.asset.calculatedrate
+    aggregationMethod string (0..1) 
+
+
+type PayoutResolvingMethod : <"Placeholder type - not added as an attribute for now"> // if wanting to consider exhaustively all resolving methods at stake in payout terms, w shall distinguish two complementary layers where calculation/resolving method may exist in termsheets : price level (a) and/or at higher payout level in the fomrula (b) where a price reso:ving method may be embedded, that is to say we may have payout terms per wich gross price is input into other terms, thus involing only PayoutResolvingMethod, else the payout per se is standard and only the price is being resolved thus only PriceResolvingMethod is involbved, and eventually more compley terms where bothexist i.e PriceResolvingMethod is embedded in a PayoutResolvingMethod
+    
+    payoutOrigin SettlementOrigin (1..1)
+    knockIn Trigger (0..1)
+    knockOut Trigger (0..1)
+    cap Trigger (0..1)
+    floor Trigger (0..1)
+    averagingMethod AveragingCalculationMethod (0..1)
+    compoundingMethod CompoundingMethodEnum (0..1)
+    discountingMethod DiscountingTypeEnum (0..1)
+    bespokePayoutFormula string (0..1) // string as being placeholder for now, waiting for genuine set of CDM type object to be release, that is Structured Product WG outcome
+    rateCalculationMethod string (0..1) // shall have new type which attributes would be mainly all the items from cdm.observable.asset.calculatedrate
+    aggregationMethod string (0..1) 
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
     [metadata key]
