@@ -7,9 +7,10 @@ import cdm.base.staticdata.party.*
 
 import cdm.observable.asset.*
 import cdm.observable.common.*
+import cdm.base.staticdata.asset.common.*
 
 type Trigger: <"Trigger point at which feature is effective.">
-
+         [metadata key]  
     level PriceSchedule (0..2) <"The trigger level.">
     creditEvents CreditEvents (0..1)
     creditEventsReference CreditEvents (0..1)
@@ -104,6 +105,53 @@ type Observation: <"Defines a single, numerical value that was observed in the m
     [metadata key]
     observedValue Price (1..1) <"Specifies the observed value as a number.">
     observationIdentifier ObservationIdentifier (1..1) <"Represents the observation was made i.e. how to uniquely identify the observed value among the population of all available market data.">
+
+type ObservationValues_V1: <"The observable and its related observations, each being of type DatedValue for the puporse of associating the observed price value with the corresponding observation date. Different kinds of price fixing may be optionally populated, depending on business context and language used in the relevant documentation applicable to such business e.g. priceObservation is the most generic kind to designate a fixing observation, whereas valuationPrice and resetPrice have more restricted usage in context (as an example, say ISDA Equity Definition is the referenced documentation, then most probably valuationPrice could be required, etc.)">
+
+    asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
+    basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
+    index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
+    
+    priceObservation PriceSchedule (0..*) <"Specifies dated value series corresponding to price observation and related observation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata location] permits to update any corresponding component with [metadata address] in the Product model (e.g. by adding one more datedValue in array per each effective valuation).">
+        [metadata location]
+
+    valuationPrice PriceSchedule (0..*) <"Specifies dated value series corresponding to valuation price and related valuation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata location] permits to update any corresponding component with [metadata address] in the Product model (e.g. by adding one more datedValue in array per each effective valuation).">
+        [metadata location]
+
+    resetPrice PriceSchedule (0..*) <"Specifies dated value series corresponding to valuation price and related valuation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata location] permits to update any corresponding component with [metadata address] in the Product model (e.g. by adding one more datedValue in array per each effective valuation).">
+        [metadata location]
+
+    condition:
+    required choice asset, basket, index
+
+    condition ResetPrice: <"Reset Price only applies to observable which relates to rate products.">
+    if resetPrice exists
+    then index -> FloatingRateIndex exists
+
+    condition DatedValue: <"Price fixing consists must associate a price value with the fixing date it relates to.">
+    if resetPrice exists then resetPrice -> datedValue exists
+    and if priceObservation exists then priceObservation -> datedValue exists
+    and if valuationPrice exists then valuationPrice -> datedValue exists
+
+type ObservationValues_V2: <"The observable and its related observations, each being of type DatedValue for the puporse of associating the observed price value with the corresponding observation date. Different kinds of price fixing may be optionally populated, depending on business context and language used in the relevant documentation applicable to such business e.g. priceObservation is the most generic kind to designate a fixing observation, whereas valuationPrice and resetPrice have more restricted usage in context (as an example, say ISDA Equity Definition is the referenced documentation, then most probably valuationPrice could be required, etc.)">
+
+    asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
+    basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
+    index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
+    
+    priceObservation PriceSchedule (0..*) <"Specifies dated value series corresponding to price observation and related observation date. The multiple cardinality permits to represent different kinds of prices for the same asset (e.g. when an asset is represented in two currencies, etc.). The [metadata location] permits to update any corresponding component with [metadata address] in the Product model (e.g. by adding one more datedValue in array per each effective valuation).">
+        [metadata location]
+
+    condition:
+    required choice asset, basket, index
+
+    condition ResetPrice :<"Reset Price only applies to observable which relates to rate products.">
+    if index -> FloatingRateIndex exists and priceObservation exists
+    then priceObservation -> determinationDate any = DateRelativeToEnum -> FixingDate
+    or priceObservation -> determinationDate any = DateRelativeToEnum -> ResetDate
+
+    condition DatedValue: <"Price fixing consists must associate a price value with the fixing date it relates to.">
+    if priceObservation exists then priceObservation -> datedValue exists
 
 type ObservationIdentifier: <"Defines the parameters needed to uniquely identify a piece of data among the population of all available market data.">
     observable Observable (1..1) <"Represents the asset or rate to which the observation relates.">
