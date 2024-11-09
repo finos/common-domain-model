@@ -577,20 +577,13 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     if dividendObservation exists
     then dividendObservation -> priceType = PriceTypeEnum -> Dividend
 
-type AdjustmentTerms:<"Describes the terms involved in the calculation formula used for adjusting the price of the underlier impacted by a Corporate Action i.e. adjustedPrice = lastFixingPrice x (priceAdjustmentFactor->factorMultiplier).">
+type AdjustmentTerms:<"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
 
-    lastFixingPrice_priorAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
-       [metadata location]
-    adjustedPrice_afterAdjustment Price (0..1) <"The new price of the Underlier affected by the CorporateAction, before before any adjustment with regards to the CorporateAction.">
-       [metadata location]
-    priceAdjustmentFactor PriceAdjustmentFactor (1..1) <"Describes the components required for the purpose of documenting the calculation of an adjustment factor to be applied to the price of the underlier impacted by a Corporate Action.">
+    adjustmentFactorValue number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
+    adjustmentFactorCalculation PriceAdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
 
-type PriceAdjustmentFactor :
-    adjustmentFactorValue number (1..1) <"The multipler value that is used to adjust any terms of the trade in order to neutralize or to compensate for the economic effect of the corporate action.">
-    adjustmentFactorCalculation PriceAdjustmentFactorCalculationTerms (0..1)
-
-type PriceAdjustmentFactorCalculationTerms :<"Describes the components required for the purpose of documenting the calculation of an adjustment factor to be applied to the price of the underlier impacted by a Corporate Action">
-    shareForShareRatio number (0..1)
+type PriceAdjustmentFactorCalculationTerms :<"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+    shareForShareRatio number (0..1) 
     shareForRightsRatio number (0..1)
     shareForBonusRatio number (0..1)
     subscriptionPrice Price (0..1)
@@ -599,30 +592,23 @@ type PriceAdjustmentFactorCalculationTerms :<"Describes the components required 
     mergerPrice Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
     accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
     lastFixingPrice_priorAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
-       [metadata address "pointsTo"=AdjustmentTerms->lastFixingPrice_priorAdjustment]
     dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
       [metadata address "pointsTo"=CorporateAction->dividendObservation]
 
    condition SpinOffOrMerger :
    optional choice spinOffPrice, mergerPrice, accrualFactor
 
-type AccrualFactor :<"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
-    accrualRate PriceSchedule (1..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
+type AccrualFactor :<"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to the last fixing then applying accruals per each remaining underlier price fixing date required i.e. for each fixing date, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
+    accrualRateValue PriceSchedule (1..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
        [metadata location]
-    accrualFactorCalculationTerms AccrualFactorCalculationTerms (0..1)
-    interpolationRate boolean (0..1)
+    accrualRateCalculationTerms AccrualFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the accrual factor.">
 
         condition AccrualPriceIsRate:
-        accrualRate -> priceType = PriceTypeEnum -> InterestRate
+        accrualRateValue -> priceType = PriceTypeEnum -> InterestRate
 
-     //   condition InterpolationTerms: 
-     //   if accrualFactorCalculationTerms -> shortStubInterpolationTerms exists 
-     //   or accrualFactorCalculationTerms -> longStubInterpolationTerms exists
-     //   then interpolationRate is boolean = true
-
-type AccrualFactorCalculationTerms:
-    tenorTillMaturity number (0..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
-    dayCountFraction DayCountFractionEnum (0..1) <"The enumerated values to specify the day count fraction.">
+type AccrualFactorCalculationTerms: <"Describes the input terms involved in the calculation of the accrual factor. Optionnally, long and short stub interpolation rates can be specified.">
+    tenorTillMaturity number (1..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
+    dayCountFraction DayCountFractionEnum (1..1) <"The enumerated values to specify the day count fraction.">
     shortStubInterpolationTerms FloatingRateSpecification (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
     longStubInterpolationTerms FloatingRateSpecification (0..1)  <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
 
