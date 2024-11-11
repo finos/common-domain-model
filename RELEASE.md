@@ -1,87 +1,17 @@
-# *CDM Model - RoundToPrecisionRemoveTrailingZeros Function*
+# _Mapping Update - InterestRateForwardDebtPriceMappingProcessor updated to handle 'Percentage' quoteUnits_
 
 _Background_
 
-This release contains a new function for `RoundToPrecisionRemoveTrailingZeros` function, as described in issue [#2915](https://github.com/finos/common-domain-model/issues/2915#issuecomment-2393577467).
+The price of bond forwards is captured as a monetary value whereas it should be a decimal/percentage. Even if the value in FpML was 'Percentage', the CDM representation value did not accurately represent this, causing misinterpretations.
 
 _What is being released?_
 
-This release creates the new function `cdm.base.math.RoundToPrecisionRemoveTrailingZeros` to not add any trailing 0's in the end if they do not already exist.
+- An update to the **InterestRateForwardDebtPriceMappingProcessor** code to fix the described issue. This change, would correct the interpretation by dividing the current monetary value by 100, when the *quoteUnits* corresponds to the XML value '*Percentage*'.
+- The **bond-fwd-generic-ex01.xml** and **bond-fwd-generic-ex02.xml** samples have been updated as the files were using the value 'Percent' but the correct value according to the enum should be 'Percentage'
 
-```
-ffunc RoundToPrecisionRemoveTrailingZeros: <"Round a number to the supplied precision, using the supplied rounding direction.">
-    inputs:
-        value number (1..1) <"The original (unrounded) number.">
-        precision int (1..1) <"The number of decimal digits of precision.">
-        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-    output:
-        roundedValue number (1..1) <"The value to the desired precision">
-
-    condition NonNegativePrecision: <"The number of decimal digits of precision should be greater than or equal to zero.">
-        precision >= 0
-```
-
-The following examples show the function behaviour:
-- `RoundToPrecisionRemoveTrailingZeros(1023.123456789, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12346
-- `RoundToPrecisionRemoveTrailingZeros(1023.12000, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023.12
-- `RoundToPrecisionRemoveTrailingZeros(1023, 5, RoundingDirectionEnum -> NEAREST, true)` = 1023
-- `RoundToPrecisionRemoveTrailingZeros(999999999, 4, RoundingDirectionEnum -> NEAREST, true)` = 999999999
-
-This would is new function, so there are no compatibility issues.
-
-_Review Directions_
-
-In Rosetta, select the Textual Browser and inspect the changes identified above.
-
-Changes can be reviewed in PR [#3181](https://github.com/finos/common-domain-model/pull/3181)
-
-# *CDM Model - RoundToSignificantFigures Function*
-
-_Background_
-
-This release contains a new function for `RoundToSignificantFigures` function, as described in issue [#3154](https://github.com/finos/common-domain-model/issues/3154).
-
-_What is being released?_
-
-This release creates the new function `cdm.base.math.RoundToSignificantFigures` to round to the significant number of decimal places.
-
-```
-func RoundToSignificantFigures: <"Round a number to the supplied significant figures, using the supplied rounding direction.">
-    inputs:
-        value number (1..1) <"The original (unrounded) number.">
-        significantFigures int (1..1) <"The number of significant figures.">
-        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-    output:
-        roundedValue number (1..1) <"The value to the desired number of significant figures.">
-        
-    condition NonZeroSignificantFigures: <"The number of significant figures should be greater than zero.">
-        significantFigures > 0
-```
-
-The following examples show the function behaviour:
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> NEAREST)` = 1023.1
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> UP)` = 1023.2
-- `RoundToSignificantFigures(1023.123456789, 5, RoundingDirectionEnum -> DOWN)` = 1023.1
-- `RoundToSignificantFigures(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
-- `RoundToSignificantFigures(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
-
-This is a new function, so there are no compatibility issues.
-
-_Review Directions_
-
-In Rosetta, select the Textual Browser and inspect the changes identified above.
-
-Changes can be reviewed in PR [#3180](https://github.com/finos/common-domain-model/pull/3180)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the DSL dependency.
-
-Version updates include:
-- DSL 9.19.0: support for `switch` operation on `choice` types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.19.0
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3153](https://github.com/finos/common-domain-model/pull/3153)
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+
+The changes can be reviewed in PR: [#3204](https://github.com/finos/common-domain-model/pull/3204)
