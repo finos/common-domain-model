@@ -11,8 +11,6 @@ This document provides the governance policy for specifications and other docume
 ## 1. Roles
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-## Roles
-
 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining and documenting evidence of consensus as well as coordinating appeals. In the event a clear consensus is not reached, Maintaners may call for a simple majority vote of Participants to determine outcomes.
 Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.
 Information about appointment of a CDM Maintainer can be found [here](appointment-of-maintainers.md)
