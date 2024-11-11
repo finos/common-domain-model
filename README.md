@@ -19,15 +19,9 @@ Read more about project contribution guidelines, principles, frequently asked qu
 ## Governance overview
 Please refer to the [Governance](docs/governance.md) page.
 
-### Roles
+### Roles and Working Groups
 
 The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): [Mantainers](docs/maintainers.md), Editors and Participants. 
-
-
-### Working Groups
-
-Changes to the CDM may be proposed by CDM Working Groups, individual corporate contributors, or individual contributors.
-The active Working Groups are covered by our [Working Groups](docs/working-groups.md) page.
 
 
 ![](.github/finos-cdm-governance-structure.png)
@@ -40,11 +34,9 @@ The active Working Groups are covered by our [Working Groups](docs/working-group
 
 Contributions to the CDM must comply with a set of [Design Principles](docs/design-principles.md) to be in line with the [CDM Development Guidelines](https://cdm.finos.org/docs/contribution).
 
-
 ## Getting involved 
 
 Interact with the CDM community
-
 
 ### 
 **GitHub**
@@ -53,12 +45,10 @@ CDM activity primarily happens in this [CDM GitHub repository](https://github.co
 
 ![](.github/use-of-github.png)
 
-
 ### 
 **Email**
 
 If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
-
 
 ### 
 **Meetings**
@@ -73,7 +63,6 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 ## Roadmap
 
 - The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](docs/roadmap.mdx)
-
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
 
