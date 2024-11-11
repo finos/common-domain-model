@@ -21,7 +21,7 @@ Please refer to the [Governance](docs/governance.md) page.
 
 ### Roles
 
-The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): [Mantainers](maintainers.md), Editors and Participants. 
+The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): [Mantainers](docs/maintainers.md), Editors and Participants. 
 
 
 ### Working Groups
@@ -63,7 +63,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, as mentioned above, another great way to interact with the community is to attend a [Working Group](docs/working-groups.md)
+Finally, as mentioned above, another great way to interact with the community is to attend a [Working Group](docs/working-groups.md).
 
 ### 
 **Need help?**
