@@ -91,14 +91,14 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getCounterparty().get(0).getPartyReference();
         ReferenceWithMetaParty receiverPartyReference = beforeTradeState.getTrade().getCounterparty().get(1).getPartyReference();
         TransferInstruction transferInstruction = TransferInstruction.builder()
-                .addTransferState(TransferState.builder()
+                .addGrossTransfer(TransferState.builder()
                         .setTransfer(Transfer.builder()
                                 .setTransferExpression(TransferExpression.builder()
                                         .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION))
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
-                                .setQuantity(NonNegativeQuantity.builder()
+                                .setDeliverableQuantity(NonNegativeQuantity.builder()
                                         .setValue(BigDecimal.valueOf(2000.00))
                                         .setUnit(UnitType.builder()
                                                 .setCurrency(FieldWithMetaString.builder()
@@ -172,7 +172,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
         assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
-        assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
+        assertEquals(new BigDecimal("2000.0"), transfer.getDeliverableQuantity().getValue());
     }
 
     private <T extends RosettaModelObject> T postProcess(T o) {
