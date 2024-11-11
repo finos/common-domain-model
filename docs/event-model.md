@@ -312,17 +312,23 @@ type TransferBase:
     identifier Identifier (0..*)
         [metadata scheme]
     deliverableQuantity NonNegativeQuantity (1..1)
+    notionalQuantity NonNegativeQuantity (0..1)
+    price Price (0..1)
     asset Asset (1..1)
     payerReceiver PartyReferencePayerReceiver (1..1)
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
 
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+    condition NotionalQuantityUnitIsMoney:
+    if notionalQuantity exists 
+        then notionalQuantity -> unit -> currency exists
+
+    condition DeliverableQuantityUnitExists:
+    if asset -> Cash exists
+        then deliverableQuantity -> unit -> currency exists
+    else if asset -> Commodity exists
+        then deliverableQuantity -> unit -> capacityUnit exists
+    else if asset -> Instrument exists
+        then deliverableQuantity -> unit -> financialUnit exists
 ```
 
 ## Primitive Events {#primitive-event}
@@ -620,7 +626,7 @@ type ResetInstruction:
 
 #### Transfer Primitive
 
-The transfer primitive function takes a `TransferState` object as
+The transfer primitive function takes a `grossTransfer` object as
 transfer instruction input and adds it to the `transferHistory`
 attribute of the `TradeState`.
 
@@ -636,7 +642,17 @@ transfer.
 
 ``` Haskell
 type TransferInstruction:
-  transferState TransferState (0..*)
+    grossTransfer TransferState (1..*)
+    netTransfer TransferState (0..1)
+
+  condition MultipleIndividualTransferExistInNetTransfer:
+      if netTransfer exists
+      then grossTransfer count > 1
+      and grossTransfer -> transferStatus all = TransferStatusEnum -> Netted
+
+  condition NetTransferIsNotNetted:
+      if netTransfer exists
+      then netTransfer -> transferStatus <> TransferStatusEnum -> Netted
 ```
 
 ## Business Event

@@ -577,9 +577,9 @@ func EquityCashSettlementAmount:
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> deliverableQuantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> deliverableQuantity -> unit -> currency:
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
