@@ -24,10 +24,8 @@ CDM's main code branch by the CDM Maintainers.
 
 This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
-![](.github/finos-cdm-governance-structure.png)
+![A diagram showing the organization of the CDM working groups, with the Steering WG as the main management group and other WGs under it.](../.github/finos-cdm-governance-structure.png "CDM Governance Structure")
 
-
-![](.github/Group-Roles-Scope.png)
 
 ### Roles
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
