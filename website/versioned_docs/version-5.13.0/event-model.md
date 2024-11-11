@@ -287,7 +287,7 @@ type Transfer extends TransferBase:
 type TransferBase:
   identifier Identifier (0..*)
     [metadata scheme]
-  quantity NonNegativeQuantity (1..1)
+  deliverableQuantity NonNegativeQuantity (1..1)
   observable Observable (0..1)
   payerReceiver PartyReferencePayerReceiver (1..1)
   settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
