@@ -21,7 +21,7 @@ Please refer to the [Governance](docs/governance.md) page.
 
 ### Roles
 
-The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): Mantainers, Editors and Participants. 
+The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): [Mantainers](maintainers.md), Editors and Participants. 
 
 
 ### Working Groups
