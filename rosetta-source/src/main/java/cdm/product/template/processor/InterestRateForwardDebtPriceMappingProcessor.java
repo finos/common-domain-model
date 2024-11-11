@@ -69,8 +69,13 @@ public class InterestRateForwardDebtPriceMappingProcessor extends MappingProcess
 
     private void addPrice(Path genenicProductPath, PriceQuantityBuilder priceQuantityBuilder, Path quotePath, List<Mapping> quoteMappings) {
         Mapping valueMapping = getNonNullMapping(quoteMappings, quotePath.addElement("value")).orElse(null);
+        Mapping quoteUnitsMapping = getNonNullMapping(quoteMappings, quotePath.addElement("quoteUnits")).orElse(null);
+
         if (isPriceNotation(quotePath, quoteMappings) && valueMapping != null) {
             BigDecimal rate = new BigDecimal(String.valueOf(valueMapping.getXmlValue()));
+            if (quoteUnitsMapping != null && String.valueOf(quoteUnitsMapping.getXmlValue()).equals("Percentage")){
+                rate = rate.divide(BigDecimal.valueOf(100));
+            }
             UnitType.UnitTypeBuilder unitType = toCurrencyUnitType(genenicProductPath);
             PriceTypeEnum priceType = PriceTypeEnum.ASSET_PRICE;
 
