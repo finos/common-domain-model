@@ -1,6 +1,6 @@
 ## Working Groups
 
-![](.github/finos-cdm-governance-structure.png)
+![](website/static/img/finos-cdm-governance-structure.png)
 
 
 ![](.github/Group-Roles-Scope.png)
