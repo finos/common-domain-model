@@ -1,5 +1,4 @@
 ## Working Groups
-
 ![A diagram showing the organization of the CDM working groups, with the Steering WG as the main management group and other WGs under it.](../.github/finos-cdm-governance-structure.png "CDM Governance Structure")
 
 ![](.github/Group-Roles-Scope.png)
@@ -9,7 +8,6 @@
 **Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
 The following Working Groups are currently activated or about to be set up for this project:
-
 
 * [CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md) - bi-weekly
 * [CDM Derivatives Product and Business Event Working Group](CDM-Derivatives-Product-and-Business-Event-WG.md) - bi-weekly
