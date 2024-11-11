@@ -199,7 +199,7 @@ class FunctionInputCreationTest {
 
         if (!transferState.isEmpty()) {
             primitiveInstructionBuilder
-                    .setTransfer(TransferInstruction.builder().setTransferState(transferState));
+                    .setTransfer(TransferInstruction.builder().setGrossTransfer(transferState));
         }
 
         return new CreateBusinessEventInput(
@@ -600,13 +600,13 @@ class FunctionInputCreationTest {
                 .findFirst()
                 .orElse(null);
         return TransferInstruction.builder()
-                .addTransferState(TransferState.builder()
+                .addGrossTransfer(TransferState.builder()
                         .setTransfer(Transfer.builder()
                                 .setTransferExpression(TransferExpression.builder().setPriceTransfer(feeType))
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(counterparties.get(0).getPartyReference())
                                         .setReceiverPartyReference(counterparties.get(1).getPartyReference()))
-                                .setQuantity(NonNegativeQuantity.builder()
+                                .setDeliverableQuantity(NonNegativeQuantity.builder()
                                         .setValue(BigDecimal.valueOf(2000.00))
                                         .setUnit(currencyUnitType))
                                 .setSettlementDate(AdjustableOrAdjustedOrRelativeDate.builder()
@@ -1218,14 +1218,14 @@ class FunctionInputCreationTest {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
 
         Transfer.TransferBuilder transferBuilder = transferInstructionBuilder
-                .getOrCreateTransferState(0)
+                .getOrCreateGrossTransfer(0)
                 .getOrCreateTransfer();
 
         transferBuilder.getOrCreatePayerReceiver()
                 .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1").build())
                 .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2").build());
 
-        transferBuilder.getOrCreateQuantity()
+        transferBuilder.getOrCreateDeliverableQuantity()
                 .setValue(BigDecimal.valueOf(2000))
                 .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
@@ -1321,14 +1321,14 @@ class FunctionInputCreationTest {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
 
         Transfer.TransferBuilder transferBuilder = transferInstructionBuilder
-                .getOrCreateTransferState(0)
+                .getOrCreateGrossTransfer(0)
                 .getOrCreateTransfer();
 
         transferBuilder.getOrCreatePayerReceiver()
                 .setPayerPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party1"))
                 .setReceiverPartyReference(ReferenceWithMetaParty.builder().setExternalReference("party2"));
 
-        transferBuilder.getOrCreateQuantity()
+        transferBuilder.getOrCreateDeliverableQuantity()
                 .setValue(BigDecimal.valueOf(2000))
                 .setUnit(UnitType.builder()
                         .setCurrency(FieldWithMetaString.builder()
