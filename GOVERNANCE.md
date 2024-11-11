@@ -2,13 +2,14 @@
 
 This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
-## 1. Roles
-Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
 ![](.github/finos-cdm-governance-structure.png)
 
 
 ![](.github/Group-Roles-Scope.png)
+
+## 1. Roles
+Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
 ## Roles
 
