@@ -1,7 +1,6 @@
 ## Working Groups
 
-![](website/static/img/finos-cdm-governance-structure.png)
-
+![A diagram showing the organization of the CDM working groups, with the Steering WG as the main management group and other WGs under it.](../.github/finos-cdm-governance-structure.png "CDM Governance Structure")
 
 ![](.github/Group-Roles-Scope.png)
 
