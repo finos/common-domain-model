@@ -17,6 +17,7 @@ For a more detailed overview of the existing Working Group and standard Particip
 Read more about project contribution guidelines, principles, frequently asked questions and the journey of [Common Domain Model into Open Source at FINOS](https://www.finos.org/hubfs/Accepted%20FINOS%20Edits_%20Common%20Domain%20Model%20into%20Open%20Source%20at%20FINOS.docx.pdf).
 
 ## Governance overview
+Please refer to the [Governance](docs/governance.md) page.
 
 ### Roles
 
