@@ -58,7 +58,7 @@ public class CreateEligibleCollateralSpecificationFromInstructionTest extends Ab
                 .addAsset(AssetCriteria.builder()
                         .addCollateralAssetType(AssetType.builder()
                                 .setAssetType(AssetTypeEnum.SECURITY)
-                                .setSecurityType(SecurityTypeEnum.DEBT)))
+                                .setSecurityType(InstrumentTypeEnum.DEBT)))
                 .addIssuer(IssuerCriteria.builder()
                         .addIssuerType(CollateralIssuerType.builder()
                                 .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))

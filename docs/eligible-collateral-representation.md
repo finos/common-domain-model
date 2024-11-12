@@ -220,13 +220,13 @@ type AssetCriteria:
   agencyRating AgencyRatingCriteria (0..*)
   maturityType MaturityTypeEnum (0..1)
   maturityRange PeriodRange (0..1)
-  assetIdentifier AssetIdentifier (0..*)
+  specificAssets Asset (0..*)
   collateralTaxonomy CollateralTaxonomy (0..*)
   domesticCurrencyIssued boolean (0..1)
   listing ListingType (0..1)
 
   condition AssetCriteriaChoice:
-    optional choice collateralAssetType, collateralTaxonomy, assetIdentifier
+    optional choice collateralAssetType, collateralTaxonomy, specificAssets
 ```
 
 -   `collateralAssetType` Represents a filter based on the asset product
@@ -244,8 +244,11 @@ type AssetCriteria:
     or original maturity.
 -   `maturityRange` Represents a filter based on the underlying asset
     maturity.
--   `productIdentifier` Represents a filter based on specific instrument
-    identifiers (e.g. specific ISINs, CUSIPs etc)
+-   `specificAssets` Represents a filter based on specific assets which 
+    are acceptable as collateral (e.g. specific securities, loans, equities,
+    commodities or other assets etc).  Assets may be defined using the
+    `Asset` data type, including by reference to an identifier such
+    as ISIN, CUSIP, etc.
 -   `collateralTaxonomy` Specifies the collateral taxonomy, which is
     composed of a taxonomy value and a taxonomy source.
 -   `domesticCurrencyIssued` Identifies that the Security must be
