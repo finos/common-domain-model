@@ -180,7 +180,6 @@ data is being validated at the point of creation, and this validation
 logic is distributed alongside the model itself.
 
 ## Modularisation
-
 **The set of files that define the CDM data structures and functions are
 organised into a hierarchy of namespaces**. The first level in the
 namespace hierarchy corresponds to the layer of the CDM that the
