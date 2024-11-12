@@ -2,7 +2,7 @@
 ![A diagram showing the organization of the CDM working groups, with the Steering WG as the main management group and other WGs under it.](../.github/finos-cdm-governance-structure.png "CDM Governance Structure")
 
 ![](.github/Group-Roles-Scope.png)
-![A diagram showing the organization of the CDM governance structure @ FINOS, with the ISDA cdm Mmgmt Committee in dark purple in the middle/](..github/fimos-cdm-governance-structure/png"CDM Governance Structure")
+
 
 **Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
