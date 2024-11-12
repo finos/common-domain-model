@@ -19,6 +19,7 @@ Proposals for an entity to be given maintainership status or to have maintainers
 
 ## Maintainers Approval Process 
 ![](/img/approval-process.png)
+![A diagram showing the maintainers approval process.](../.github/approval-process.png "image_tooltip")
 
 ## FINOS CDM Project Maintainers
 
