@@ -89,7 +89,7 @@ The two data definition components should be referred to as follows:
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model#primitive-event) represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model.md#primitive-event) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
