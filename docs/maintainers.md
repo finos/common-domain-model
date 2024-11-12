@@ -1,5 +1,7 @@
 ## Maintainers
 
+This page provides detailed information about the CDM maintainers. 
+
 **Appointment of CDM Maintainers:**
 
 Maintainers are designated as either Organisational Representatives (OrgRep) or Private individuals. Private individuals are maintainers in their own right, acting on their own volition and not representing another legal entity. OrgReps are appointed by their organisation, acting on behalf and for that organisation. Organisations are recommended to appoint at least two representatives for coverage purposes. Organizations may change their OrgReps at any time.
