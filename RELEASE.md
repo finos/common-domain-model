@@ -1,12 +1,14 @@
-# _Infrastructure - Dependency Update_
+# _CDM - CapacityUnit Enum_
+
+_Background_
+In has been seen that in the ExternalUnitOfMeasure1Code from the 2Q2024 ISO External CodeSets v1, the unity Joule is supported in the Enum. However, in CDM this is not the case, as it does not appear anywhere in the CapacityUnitEnum. Therefore, the Joule unit of measure will be added to the CapacityUnitEnum for completeness and to align with 2Q2024 ISO External CodeSets v1, for versions 5 and 6 of CDM.
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+- Updated `CapacityUnitEnum` in cdm.base.math
 
-Version updates include:
-- `DSL` 9.20.0: support for passing metadata to functions and highlighting fixes. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.20.0
+_Enumerations_
 
-_Review directions_
+- Updated `CapacityUnitEnum` by adding 'J' to support Joule unit
 
-The changes can be reviewed in PR: [#3191](https://github.com/finos/common-domain-model/pull/3191)
+The changes can be reviewed in PR: [#3198](https://github.com/finos/common-domain-model/pull/3198)
