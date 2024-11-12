@@ -132,11 +132,34 @@ we recommend labelling the pull request with the user story label, i.e.
 All contributions are submitted as candidate changes to be incorporated
 under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
 
+### Contribution via Rosetta
+
+The [Rosetta Design](https://rosetta-technology.io/design) application can be used to contribute to the CDM without setting up any development environment. Rosetta Design’s [source control integration](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration) means that a PR is automatically created to a fork of the FINOS CDM under the [Rosetta Models](https://github.com/rosetta-models) GitHub Organisation.
+
+Steps:
+  1. Create a Workspace for the CDM in Rosetta Design
+  1. Review and contribute change in Rosetta Design - which will create PR in the rosetta-models organisation
+  1. Create a PR to the Finos Github. See instructions [here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
+
+
 When using Rosetta to contribute model changes, the contribution
 interface allows to specify a title and description for the
 contribution. Those inputs are used to create a Pull Request on a
 one-off branch in the source-control repository. Please refer to the
 [Rosetta Workspace Contribution Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#contribute-workspace-changes) for more information.
+
+### Contributing via GitHub
+
+1. Fork it (https://github.com/finos/common-domain-model)
+1. Create your feature branch (`git checkout -b feature/my-new-feature`)
+1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
+1. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+1. Commit your changes (`git commit -am 'My New Feature'`)
+1. Push to the branch (`git push origin feature/my-new-feature`)
+1. Create a new Pull Request
+
+![](.github/Approval-Process.png)
+
 
 ---
 **Note:**
