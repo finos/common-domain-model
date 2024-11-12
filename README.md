@@ -23,42 +23,14 @@ Please refer to the [Governance](docs/governance.md) page.
 
 The CSL specifies [three different contribution roles](docs/governance.md#1roles) for each specific [Working Group](docs/working-groups.md): [Mantainers](docs/maintainers.md), Editors and Participants. 
 
-
-![](.github/finos-cdm-governance-structure.png)
-
-
-![](.github/Group-Roles-Scope.png)
-
-
 ## CDM Design Principles and Development Guidelines
 
 Contributions to the CDM must comply with a set of [Design Principles](docs/design-principles.md) to be in line with the [CDM Development Guidelines](https://cdm.finos.org/docs/contribution).
 
 ## Getting involved 
 
-Interact with the CDM community
-
+Details on how to interact with the CDM community are covered in our [Get Involved](docs/get-involved.md) page.
 ### 
-**GitHub**
-
-CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
-
-![](.github/use-of-github.png)
-
-### 
-**Email**
-
-If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
-
-### 
-**Meetings**
-
-Finally, as mentioned above, another great way to interact with the community is to attend a [Working Group](docs/working-groups.md).
-
-### 
-**Need help?**
-
-Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
 
 ## Roadmap
 
