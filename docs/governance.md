@@ -8,7 +8,7 @@ The Common Domain Model is an open standard project hosted under FINOS, the [Fin
 
 The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
 
-For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see the [Governance](governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
+For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see the [Governance](governance.md)page. For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
