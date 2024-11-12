@@ -12,8 +12,8 @@ For a more detailed overview of the existing Working Group and standard Particip
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
-CDM [design-principles](/docs/cdm-overview#design-principles) and
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted
+CDM [design-principles](design-principles.md) and
+[agile-development-approach](development-approach.md) and submitted
 to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
