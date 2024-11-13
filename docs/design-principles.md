@@ -181,7 +181,7 @@ logic is distributed alongside the model itself.
 
 ## Modularisation
 **The set of files that define the CDM data structures and functions are
-organised into a hierarchy of namespaces**. The first level in the
+organised into a hierarchy of [namespaces](namespaces.md)**. The first level in the
 namespace hierarchy corresponds to the layer of the CDM that the
 components belong to, and those CDM layers are organised from inner- to
 outer-most as follows:
