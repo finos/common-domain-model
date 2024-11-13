@@ -14,29 +14,26 @@ type FloatingRateCalculationParameters: <"Defines the structures needed to repre
     applicableBusinessDays BusinessCenters (0..1) <"the business days that are applicable for the calculation.">
     observationParameters ObservationParameters (0..1) <" any applicable observation parameters, such as daily caps or floors.">
 
-type ScreenRate:
-    screenRateStyle ScreenRateIndexStyleEnum (0..1) <"Second level ISDA FRO category : Screen Rate Style (which corresponds to ISDA Def 2021 .6.6.3).">
-    bespokeScreenRate string (0..1) <"To describe the nature of the ScreenRate when not referring to any other standard kind of style enumerated in the list.">
-
-    condition : one-of
-
 type CalculatedRate:
-    calculatedRateStyle CalculatedRateStyleEnum (0..1) <"Second level ISDA FRO category : Calculated Rate Style (which corresponds to ISDA Def 2021 .6.6.4)">
+    calculatedRateStyle CalculatedRateStyleEnum (1..1) <"Second level ISDA FRO category : Calculated Rate Style (which corresponds to ISDA Def 2021 .6.6.4)">
     calculationMethod FloatingRateCalculationMethodEnum (0..1) <"3rd level ISDA FRO category about calculation methods applied to Calculation Rate other than Compounded Index (which corresponds to ISDA Def 2021 7.3. and .7.4.)">
+    bespokeCalculation string (0..1)
     compoundedIndexCalculationMethod FloatingIndexCalculationMethodEnum (0..1) <"3rd level ISDA FRO category about calculation methods applied to Calculation Rate when ot style Compounded Index (which means an Index Method is specified, per ISDA Def 2021 .6.6.4.(iii), which Enum values corresponds to ISDA Def 2021 .7.7.)">
-    bespokeIndexMethod string (0..1) <"To describe the nature of the Index Method when not referring to any other standard kind of style enumerated in the list.">
     observationShiftCalculation ObservationShiftCalculation (0..1) <"any obervation shift parameters if applicable.">
     applicableBusinessDays BusinessCenters (0..1) <"the business days that are applicable for the calculation.">
     businessDaysOffset int (0..1) <"The number of business days offset to apply by reference to the applicable days of the Calculation Period in accordance with the Calculation Method (e.g. lookback or lockout or observation shift) which further specifies how to apply such offset in calculations.">
 
     condition AlternateIndexMethod: <"Ensure that alternateIndexMethod only exists for the purpose of describing the nature of the IndexMethod when not referring to any other standard kind of style enumerated in the list.">
-    if bespokeIndexMethod exists
-    then compoundedIndexCalculationMethod = FloatingIndexCalculationMethodEnum -> AlternateMethod
+    if bespokeCalculation exists
+    then calculatedRateStyle = CalculatedRateStyleEnum -> BespokeMethod
+    and calculationMethod is absent
 
-    condition IndexCalculationMethod: <"Ensure that specific parameters related to CompoundedIndex style are only set when such particular value exists.">
-    if calculatedRateStyle = CalculatedRateStyleEnum -> CompoundedIndex
-    then compoundedIndexCalculationMethod exists and calculationMethod is absent
-    else calculationMethod exists and compoundedIndexCalculationMethod is absent
+    condition CalculationMethod:
+    optional choice compoundedIndexCalculationMethod, calculationMethod
+
+    condition IndexcalculatedRateStyle:
+    if compoundedIndexCalculationMethod exists
+    then calculatedRateStyle = CalculatedRateStyleEnum -> CompoundedIndex
 
     condition ObservationShiftCalculation: <"Ensure that specific parameters related to ObservationShift method are only set when such method exists.">
     if observationShiftCalculation exists
@@ -50,32 +47,30 @@ type CalculatedRate:
     or compoundedIndexCalculationMethod = FloatingIndexCalculationMethodEnum -> CompoundedObservationShift
     then businessDaysOffset exists
 
-type RateDeterminationMethod:
-    screenRateStyle ScreenRate (0..1)
+type OvernightRateSpecification: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in §.6 and §.7 and complemented with the Floating Rate Matrix. This type has two main root attributes : screenRateStyle and calculatedRateStyle, which correspond to top level ISDA FRO category, as defined in §.6.6.1. i.e. when unsing the Floating Rate Matrix. Else when not using the Floating Rate Matrix was mentioned in §.6.6.5. or mor egenerally when intending to use it with features definition that may vary compared to original documentation, then root bespokeRateStyle shall be used.">
+    
+    screenRateStyle ScreenRateIndexStyleEnum (0..1) <"Second level ISDA FRO category : Screen Rate Style (which corresponds to ISDA Def 2021 .6.6.3).">
     calculatedRateStyle CalculatedRate (0..1)
     bespokeRateStyle string (0..1)
 
        condition : one-of
 
-type FloatingRateCalculationTerms: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in Section 7. This type is used to represent modular computed rates in interestRatePayouts.">
-    rateDeterminationMethod RateDeterminationMethod (1..1) < "Top level ISDA FRO category (which corresponds to ISDA Def 2021 §.6.6.1. when unsing the Floating Rate Matrix, else to §.6.6.5. when not using Floating Rate Matrix.) ">
-    dailyCapFloor ObservationParameters (0..1) <" any applicable observation parameters, such as daily caps or floors.">
-
 type FallbackRateParameters: <"Defines the structure needed to represent fallback rate parameters. This type is used to represent modular computed rates in interestRatePayouts.">
     floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index that is used as the basis of the fallback rate.">
-    overnightCalculationMethod FloatingRateCalculationTerms (0..1) <"Support for modular calculated rates.">
     spreadAdjustment number (0..1) <"The economic spread applied to the underlying fallback rate to replicate the original risky rate.">
     temporaryNonPublicationBespokeTerms string (0..1) <"Describe bespoke terms which relate to Temporary Non-Publication provisionsn e.g. trigger, administrator, fallbacks, etc.">
     permanentCessationBespokeTerms string (0..1) <"Describe bespoke terms which relate to Temporary Non-Publication provisionsn e.g. trigger, administrator, fallbacks, etc. ">
-    calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
-        [deprecated] // to be replaced by overnightCalculationMethod 
+    calculationParameters FloatingRateCalculationParameters (0..1) <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in .6 and .7 and complemented with the Floating Rate Matrix.">
+        [deprecated] // to be replaced by OvernightRateSpecification
+    overnightRateSpecification OvernightRateSpecification (0..1) <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in .6 and .7 and complemented with the Floating Rate Matrix.">
     effectiveDate date (0..1) <"The date the fallback rate takes effect.">
-
 
 type OffsetCalculation: <"Defines business day shifts for daily componded or averaged rates.  This type is used for lookback and lockout rates. This type is used to represent modular computed rates in interestRatePayouts.">
     offsetDays int (0..1) <"The number of business days offset.">
+          [deprecated] // to be replaced by OvernightRateSpecification
 
 type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate. This type is used to represent modular computed rates in interestRatePayouts.">
+        [deprecated] // to be replaced by OvernightRateSpecification
     offsetDays int (0..1) <"The number of days of observation shift.">
     calculationBase ObservationPeriodDatesEnum (0..1) <"Whether the rate is calculated in advance, in arrears, or relative to a reset date.">
     additionalBusinessDays BusinessCenters (0..1) <"Any additional business days that be applicable.">
@@ -83,6 +78,7 @@ type ObservationShiftCalculation: <"Parameters to describe the observation shift
 type ObservationParameters: <"Parameters on daily observed computed rates, specifically daily caps and floors. This type is used to represent modular computed rates in interestRatePayouts.">
     observationCapRate number (0..1) <"A daily observation cap rate.">
     observationFloorRate number (0..1) <"A daily observation floor rate.">
+              [deprecated] // no need to replace that is redundant compared to existing capRateSchedule / floorRateSchedule attribiutes in FloatingRateSpecification
 
 type CalculatedRateDetails: <"Type for reporting details of calculated rates, including the observations that went into the final reported rate.">
     observations CalculatedRateObservations (0..1) <"The observation dates and weights for each observation date.">

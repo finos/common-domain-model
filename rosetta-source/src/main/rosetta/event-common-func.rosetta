@@ -129,7 +129,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
         identifiers ObservationIdentifier (1..1)
 
     set identifiers -> observable -> Index -> FloatingRateIndex:
-        payout -> rateSpecification -> FloatingRateSpecification -> rateOption
+        payout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
 // ResolveInterestRateReset is similar to ResolveEquityReset as they both only support the basic use cases for reset. Once support is added for stub periods and thus rate interpolation, the formula to derive the reset value will start to look different between the functions.
@@ -162,14 +162,14 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
         payout -> InterestRatePayout
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     interestRatePayout -> priceQuantity -> quantitySchedule -> value,
                     date,
                     empty
                 )
-        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     resets only-element -> resetValue -> value,
@@ -760,8 +760,8 @@ func ResolveTransfer: <"Defines how to calculate the amount due to be transferre
                 )
         else if payout -> PerformancePayout exists
         then EquityCashSettlementAmount(instruction -> tradeState, instruction -> date)
-        else if payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification exists
-                or payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        else if payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification exists
+                or payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification exists
         then InterestCashSettlementAmount(
                     instruction -> tradeState,
                     payout,
@@ -1298,14 +1298,14 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         CalculationPeriodRange(recordStartDate, recordEndDate, empty)
 
     alias performance:
-        if interestRatePayout -> rateSpecification -> FixedRateSpecification exists
+        if interestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification exists
         then FixedAmount(
                     interestRatePayout,
                     billingQuantity,
                     recordEndDate,
                     calculationPeriodRange
                 )
-        else if interestRatePayout -> rateSpecification -> FloatingRateSpecification exists
+        else if interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification exists
         then FloatingAmount(
                     interestRatePayout,
                     reset -> resetValue -> value,

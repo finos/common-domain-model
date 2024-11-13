@@ -130,7 +130,7 @@ type GeneralTerms: <" A class specifying a set of non-monetary terms for the Cre
                 or basketReferenceInformation -> basketId exists
 
 type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated globalKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-    rateSpecification RateSpecification (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
+    rateSpecification RateSpecificationBase (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
     dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
         [metadata scheme]
     calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
@@ -154,7 +154,7 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         optional choice paymentDates, paymentDate
 
     condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
-        if rateSpecification -> fixedRate is absent
+        if rateSpecification ->RateSpecification ->  FixedRateSpecification is absent
         then priceQuantity -> futureValueNotional is absent
 
     condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
@@ -208,36 +208,27 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
 
     condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
         if compoundingMethod exists
-        then rateSpecification -> fixedRate is absent
+        then rateSpecification -> RateSpecification -> FixedRateSpecification is absent
 
     condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
         if compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None
         then calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-type RateSpecification: <" A data type to specify the fixed interest rate, floating interest rate or inflation rate.">
+choice RateSpecification: <"Specifies the reference rate i.e. fixed interest rate, floating interest rate or inflation rate.">
 
-    fixedRate FixedRateSpecification (0..1)  <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
-    floatingRate FloatingRateSpecification (0..1)  <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
-    inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
-    spreadRate SpreadRateSpecification (0..1) <"A composite rate calculation definition, made of at least two rates, broken down into longRate series and shortRate series.">
-    rateFeatures RateBarrierFeatures (0..1)
+   FixedRateSpecification <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
+   FloatingRateSpecification  <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
+   InflationRateSpecification <"An inflation rate calculation definition.">
 
-condition : 
-required choice fixedRate, floatingRate, inflationRate, spreadRate
+choice RateSpecificationBase:<"Specifies whether reference rate is a straight rate or a spread (composite rate).">
 
-type SpreadRateSpecification :   
- longRate RateSpecification (1..*)
-shortRate RateSpecification (1..*)
+    RateSpecification <"Specifies the reference rate i.e. fixed interest rate, floating interest rate or inflation rate.">
+    SpreadSpecification <"Specifies a composite rate, that is a rate differential made of at least two rate legs, broken down into longRate series and shortRate series.">
 
-condition NoSpreadRateRedundancy: <"The conditions prevents redundant structures made of SpreadRateSpecification nested within each other.">
-longRate -> spreadRate is absent
-and shortRate -> spreadRate is absent
-
-type RateBarrierFeatures:
-barrier Barrier (0..1) <"Specifies a barrier feature.">
-    knock Knock (0..1) <"Specifies a knock in or knock out feature.">
-    lever string (0..1) <"PLACE HOLDER for discussion.">
-
+type SpreadSpecification :   
+    longRate RateSpecification (1..*)
+    shortRate RateSpecification (1..*)
+    bespokeFeatures BespokeFeatures (0..1)
 
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
@@ -692,8 +683,8 @@ type FloatingRate extends FloatingRateBase:
     floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
     rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
     calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
-       [deprecated] // to be replaced by overnightCalculationMethod
-    overnightCalculationMethod FloatingRateCalculationTerms (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
+       [deprecated] // to be replaced by OvernightRateSpecification
+    overnightRateSpecification OvernightRateSpecification (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
     fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
     
 
