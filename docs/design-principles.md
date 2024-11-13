@@ -181,32 +181,13 @@ logic is distributed alongside the model itself.
 
 ## Modularisation
 **The set of files that define the CDM data structures and functions are
-organised into a hierarchy of [namespaces](namespaces.md)**. The first level in the
+organised into a hierarchy of namespaces**. The first level in the
 namespace hierarchy corresponds to the layer of the CDM that the
 components belong to, and those CDM layers are organised from inner- to
-outer-most as follows:
+outer-most. 
+
+Please refer to our [Namespaces](namespaces.md) page for more information. 
 
 ![](/img/namespaces.png)
 
-Namespaces have many benefits:
--   Accelerated understanding of the model by allowing users to easily
-    see a high-level view of the model and easily find, select, and
-    study specific areas of interest
--   Faster and easier to find data types and functions for
-    referencing/use in new components
--   Allowing for partial adoption of areas of interest in the model
--   Smaller upgrades representing new versions limited to the name
-    spaces that are impacted
 
-Each of these higher-level namespaces is further divided into
-lower-level namespaces. The independent components in each namespace are
-organised according to their core purpose but can be referenced from
-anywhere in the model to allow all the components to work together for a
-complete modelling solution. E.g. below is the *product* namespace:
-
-![](/img/product-namespace.png)
-
-**When developing new CDM components, the positioning of those
-components in the namespace hierarchy is critical** as part of the
-design (or potentially the re-organising of the hierarchy following the
-new development), to ensure the CDM remains well organised.
