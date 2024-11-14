@@ -9,12 +9,12 @@ The Steering Working Group serves as the driving force behind the strategic dire
 
 ### Responsibilities:
 
-- Define and monitor the overall roadmap, setting annual priorities.
+- Define and monitor the overall [roadmap](roadmap.md), setting annual priorities in line with the [development approach](development-approach.md)
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
 - Approve new FINOS [Working Groups](cdm-org-structure.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
 - Provide final release approval.
-- The first Steering Group of each calendar year will include a review of existing governance measures and wording on the agenda for re-ratification.
+- The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
 
 
 ## Meetings
