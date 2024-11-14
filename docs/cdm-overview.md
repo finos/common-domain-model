@@ -46,6 +46,13 @@ For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
 at <cdm@lists.finos.org>.
 
+## (xxxxxxx)
+- [Event model](event-model.md)
+- [Process model](process-model.md)
+- [Product model](product-model.md)
+- [Reference date model](reference-date-model.md)
+- [Use cases](use-cases.md)
+
 ## Design Principles
 
 To support these objectives, the CDM is built according to a set of
