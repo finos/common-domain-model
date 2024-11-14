@@ -6,7 +6,7 @@ This release updates the rune dependencies to version `11.24.2`. This update inc
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3254](https://github.com/finos/common-domain-model/pull/3254)
+The changes can be reviewed in PR: [#3255](https://github.com/finos/common-domain-model/pull/3255)
 
 # _Mapping Update - InterestRateForwardDebtPriceMappingProcessor updated to handle 'Percentage' quoteUnits_
 
