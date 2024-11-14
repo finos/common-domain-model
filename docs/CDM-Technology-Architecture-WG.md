@@ -4,7 +4,7 @@ title: CDM Technology Architecture Working Group
 
 ## Overview
 
-The CDM Technology Architecture Working Group focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies.
+The CDM Technology Architecture [Working Group](cdm-org-structure.md). focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies.
 
 ### Responsibilities
 
