@@ -18,3 +18,5 @@ To subscribe to the [DPBE mailing list](https://lists.finos.org/g/cdm-dpbe-wg) a
 ---
 
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.
