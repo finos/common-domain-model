@@ -50,7 +50,7 @@ at <cdm@lists.finos.org>.
 - [Event model](event-model.md)
 - [Process model](process-model.md)
 - [Product model](product-model.md)
-- [Reference date model](reference-date-model.md)
+- [Reference data model](reference-data-model.md)
 - [Use cases](use-cases.md)
 
 ## Design Principles
