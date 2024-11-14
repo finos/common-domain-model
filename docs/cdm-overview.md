@@ -46,7 +46,8 @@ For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
 at <cdm@lists.finos.org>.
 
-## (xxxxxxx)
+## Model Overview 
+The key models defined in the CDM are listed below. Click each one to learn more. 
 - [Event model](event-model.md)
 - [Process model](process-model.md)
 - [Product model](product-model.md)
