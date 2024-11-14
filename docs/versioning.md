@@ -71,7 +71,7 @@ various versions available would be as follows:
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
 
-Please note, all contributions must follow the [change control guidelines](change-control-guidelines).md)
+Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md)
 
 ---
 **Note:**
