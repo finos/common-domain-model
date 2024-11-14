@@ -6,13 +6,12 @@ title: CDM Steering Working Group
 
 The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups. 
 
-Click [here](cdm-org-structure.md) to review the organisational structure of the different CDM Working Groups.
 
 ### Responsibilities:
 
 - Define and monitor the overall roadmap, setting annual priorities.
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
-- Approve new FINOS Working Groups (WGs).
+- Approve new FINOS [Working Groups](cdm-org-structure.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
 - Provide final release approval.
 - The first Steering Group of each calendar year will include a review of existing governance measures and wording on the agenda for re-ratification.
