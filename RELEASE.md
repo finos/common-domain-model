@@ -4,6 +4,8 @@ _What is being released?_
 
 This release updates the rune dependencies to version `11.24.2`. This update includes support for visualising the `Choice Type` elements in the Rosetta User Interface.
 
+The changes can be reviewed in PR: [#3255](https://github.com/finos/common-domain-model/pull/3255)
+
 _Review directions_
 
 The changes can be reviewed in PR: [#3255](https://github.com/finos/common-domain-model/pull/3255)
@@ -40,3 +42,16 @@ _Enumerations_
 - Updated `CapacityUnitEnum` by adding 'J' to support Joule unit
 
 The changes can be reviewed in PR: [#3197](https://github.com/finos/common-domain-model/pull/3197)
+
+# _Infrastructure - Dependency Update_
+
+_What is being released?_
+
+This release updates the DSL dependency.
+
+Version updates include:
+- DSL 9.22.0: Handle null for `min` and `max` operations. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.22.0
+
+_Review directions_
+
+The changes can be reviewed in PR: [#3260](https://github.com/finos/common-domain-model/pull/3260)
