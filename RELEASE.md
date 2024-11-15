@@ -2,7 +2,19 @@
 
 _What is being released?_
 
-This release updates the rune dependencies to version `11.24.2`. This update includes support for visualising the `Choice Type` elements in the Rosetta User Interface.
+This release updates the rune dependencies:
+ - `11.24.2` - support for visualising the `Choice Type` elements in the Rosetta User Interface.
+ - `11.25.1` - support for latest FpML Coding Scheme (v2.20).
+
+_Review directions_
+
+In Rosetta, select the Textual Browser and inspect changes due to the FpML code scheme update:
+- `FloatingRateIndexEnum` has values added:
+  - `EUR_EuroSTR_ICE_Swap_Rate`
+  - `IDR_INDONIA`
+  - `IDR_INDONIA_OIS_Compound`
+  - `PHP_ORR`
+  - `USD_SOFR_ICE_Swap_Rate_Spreads`
 
 The changes can be reviewed in PR: [#3255](https://github.com/finos/common-domain-model/pull/3255)
 
