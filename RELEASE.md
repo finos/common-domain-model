@@ -15,8 +15,7 @@ _Review directions_
 
 In Rosetta, select the Textual Browser and inspect each of the changes identified above.
 
-The changes can be reviewed in PR: [#3265(https://github.com/finos/common-domain-model/pull/3265)
-
+The changes can be reviewed in PR: [#3265](https://github.com/finos/common-domain-model/pull/3265)
 
 # _Infrastructure - Dependency Update_
 
