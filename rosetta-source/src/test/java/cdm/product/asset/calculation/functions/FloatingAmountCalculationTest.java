@@ -3,7 +3,7 @@ package cdm.product.asset.calculation.functions;
 import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
@@ -73,7 +73,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 
-    private InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
+    private InterestRatePayout initInterestPayout(FloatingRateIndex fro, DayCountFractionEnum dcf) {
         ResetDates resetDates = initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
@@ -82,7 +82,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                 .setResetDates(resetDates)
                 .setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
                 .setRateSpecification(RateSpecification.builder()
-                        .setFloatingRate(initFloatingRate(fro)).build())
+                        .setFloatingRateSpecification(initFloatingRate(fro)).build())
                 .setDayCountFractionValue(DayCountFractionEnum.ACT_360)
                 .build();
     }

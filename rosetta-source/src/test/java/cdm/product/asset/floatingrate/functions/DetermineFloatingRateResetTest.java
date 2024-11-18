@@ -1,7 +1,7 @@
 package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
@@ -47,14 +47,14 @@ public class DetermineFloatingRateResetTest extends AbstractFunctionTest {
 		assertEquals(fixingDate, result.getObservationDate());
 	}
 
-	private InterestRatePayout initInterestPayout(FloatingRateOption fro) {
+	private InterestRatePayout initInterestPayout(FloatingRateIndex fro) {
 		ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
 		return InterestRatePayout.builder()
 				.setResetDates(resetDates)
 				.setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
 				.setRateSpecification(RateSpecification.builder()
-						.setFloatingRate(initFloatingRate(fro)).build())
+						.setFloatingRateSpecification(initFloatingRate(fro)).build())
 				.build();
 	}
 }

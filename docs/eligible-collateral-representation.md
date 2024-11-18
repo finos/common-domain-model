@@ -220,13 +220,13 @@ type AssetCriteria:
   agencyRating AgencyRatingCriteria (0..*)
   maturityType MaturityTypeEnum (0..1)
   maturityRange PeriodRange (0..1)
-  productIdentifier ProductIdentifier (0..*)
+  specificAssets Asset (0..*)
   collateralTaxonomy CollateralTaxonomy (0..*)
   domesticCurrencyIssued boolean (0..1)
   listing ListingType (0..1)
 
-   condition AssetCriteriaChoice:
-       optional choice collateralAssetType, collateralTaxonomy, productIdentifier
+  condition AssetCriteriaChoice:
+    optional choice collateralAssetType, collateralTaxonomy, specificAssets
 ```
 
 -   `collateralAssetType` Represents a filter based on the asset product
@@ -244,8 +244,11 @@ type AssetCriteria:
     or original maturity.
 -   `maturityRange` Represents a filter based on the underlying asset
     maturity.
--   `productIdentifier` Represents a filter based on specific instrument
-    identifiers (e.g. specific ISINs, CUSIPs etc)
+-   `specificAssets` Represents a filter based on specific assets which 
+    are acceptable as collateral (e.g. specific securities, loans, equities,
+    commodities or other assets etc).  Assets may be defined using the
+    `Asset` data type, including by reference to an identifier such
+    as ISIN, CUSIP, etc.
 -   `collateralTaxonomy` Specifies the collateral taxonomy, which is
     composed of a taxonomy value and a taxonomy source.
 -   `domesticCurrencyIssued` Identifies that the Security must be
@@ -318,6 +321,21 @@ collateral issued by the poster is eligible.
 Whereas other attributes will have more detailed options, such as
 `IssuerAgencyRating`; these will be covered in more detail and in further
 examples throughout this guide.
+
+### Eligible Collateral Criteria
+
+The data type `EligibleCollateralCriteria` is used to define a set of
+criteria, that is `IssuerCriteria` and `AssetCriteria`, together and apply
+a collateral treatment to them.
+
+There are three additional attributes - defined in `CollateralCriteriaBase` -
+which can be used to configure the formation of the set, using enumerators:
+
+- `appliesTo` defines that the criteria applies to only one, or both, of the parties
+- `restrictTo` defines that the criteria applies to only a specific type of
+margin, ie IM or VM
+- `ratingPriorityResolution` defines whether the Asset or Issuer Criteria has precedence
+  if Agency Ratings are defined for both.
 
 ### Treatment Functions
 
@@ -792,7 +810,7 @@ ranges, this would be a common feature of a collateral eligibility
 schedule especially if there is an uncleared margin rules regulatory
 requirement.
 
-### Product Identifier 
+### Asset Identifier 
 
 **Used within Asset Criteria**
 
@@ -800,12 +818,12 @@ The CDM model as described throughout this guide will allow the user to
 define collateral assets through the granular structure of the
 `AssetCriteria`, but we must understand that expression of asset details
 for eligibility purposes can take other forms across the universe of
-collateral, for some processes there is a requirement to use certain
-product identifiers. Data type `productIdentifier` can be used to
+collateral, for some processes there is a requirement to use specific identifiers
+for particular financial products. The data type `AssetIdentifier` can be used to
 express specific instrument identifiers such as ISINs, CUSIPs etc. There
 is a section within the CDM documentation that covers this area of the
 model, this can be found in the following link
-[products-with-identifiers-section](/docs/product-model#products-with-identifiers).
+[products-with-identifiers-section](/docs/product-model#identifiers).
 
 ### Listing 
 

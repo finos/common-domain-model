@@ -35,7 +35,6 @@ public class PartyMappingHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(PartyMappingHelper.class);
 
     static final String PARTY_MAPPING_HELPER_KEY = "PARTY_MAPPING_HELPER";
-    public static final RosettaPath PRODUCT_SUB_PATH = RosettaPath.valueOf("tradableProduct");
 
     private final Map<String, CounterpartyRoleEnum> partyExternalReferenceToCounterpartyRoleEnumMap;
     private final List<Mapping> mappings;
@@ -77,11 +76,7 @@ public class PartyMappingHelper {
                 (partyExternalReference) -> {
                     // Map externalRef to CounterpartyRoleEnum and update builder object
                     String partyReference = translatePartyExternalReference(partyExternalReference);
-                    if (!modelPath.containsPath(PRODUCT_SUB_PATH)) {
-                        LOGGER.info("Setting CounterpartyRoleEnum for party reference {} in the model outside the product {}", partyReference, modelPath.buildPath());
-                    }
-                    Optional<CounterpartyRoleEnum> counterpartyEnum =
-                            getOrCreateCounterpartyRoleEnum(partyReference);
+                    Optional<CounterpartyRoleEnum> counterpartyEnum = getOrCreateCounterpartyRoleEnum(partyReference);
                     counterpartyEnum.ifPresent(setter);
                     return counterpartyEnum.isPresent(); // return true to update synonym mapping stats to success
                 },
@@ -160,19 +155,16 @@ public class PartyMappingHelper {
      * Set role with given setter and add associated partyExternalReference to tradableProduct.ancillaryParty.
      */
     public void setAncillaryRoleEnum(RosettaPath modelPath, Path synonymPath, Consumer<AncillaryRoleEnum> setter, AncillaryRoleEnum role) {
-
-        if (modelPath.containsPath(PRODUCT_SUB_PATH)) {
-            setValueAndUpdateMappings(synonymPath.addElement("href"),
-                    partyExternalReference -> {
-                        String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
-                        LOGGER.info("Adding {} for {}", role, translatedPartyRef);
-                        setter.accept(role);
-                        // add to tradableProduct
-                        addAncillaryParty(translatedPartyRef, role);
-                    },
-                    mappings,
-                    modelPath);
-        }
+        setValueAndUpdateMappings(synonymPath.addElement("href"),
+                partyExternalReference -> {
+                    String translatedPartyRef = translatePartyExternalReference(partyExternalReference);
+                    LOGGER.info("Adding {} for {}", role, translatedPartyRef);
+                    setter.accept(role);
+                    // add to tradableProduct
+                    addAncillaryParty(translatedPartyRef, role);
+                },
+                mappings,
+                modelPath);
     }
 
     /**

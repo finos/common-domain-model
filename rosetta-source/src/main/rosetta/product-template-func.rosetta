@@ -8,6 +8,8 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
+import cdm.event.common.*
+
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
     inputs:
         tradeLots TradeLot (0..*) <"List of TradeLots to filter.">
@@ -27,7 +29,7 @@ func AddTradeLot: <"Add a TradeLot to an existing list of TradeLots.">
     set updatedTradableProduct: tradableProduct
     add updatedTradableProduct -> tradeLot: newTradeLot
 
-func MergeTradeLot: <"Replace TradeLot in with matching TradeLot->lotIdentifier.">
+func ReplaceTradeLot: <"Replace TradeLot in with matching TradeLot->lotIdentifier.">
     inputs:
         tradeLots TradeLot (0..*) <"Input list of TradeLots.">
         newTradeLot TradeLot (1..1) <"The TradeLot to replace a matching TradeLot in the list.">
@@ -110,7 +112,7 @@ func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
     inputs:
-        tradableProduct TradableProduct (1..1)
+        trade Trade (1..1)
         accounts Account (0..*)
     output:
         success boolean (1..1) <"Validation result">

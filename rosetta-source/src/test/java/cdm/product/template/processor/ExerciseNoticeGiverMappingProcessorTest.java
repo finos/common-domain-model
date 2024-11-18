@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExerciseNoticeGiverMappingProcessorTest {
 
 	private static final RosettaPath MODEL_PATH = RosettaPath.valueOf(
-			"Contract.tradableProduct.product.contractualProduct.economicTerms.payout.optionPayout(0).exerciseTerms.exerciseProcedure.manualExercise.exerciseNotice.exerciseNoticeGiver");
+			"Trade.product.economicTerms.payout.optionPayout(0).exerciseTerms.exerciseProcedure.manualExercise.exerciseNotice.exerciseNoticeGiver");
 	private static final Path SYNONYM_PATH = Path.parse("dataDocument.trade.bondOption.exerciseProcedure.manualExercise.exerciseNotice.partyReference");
 
 	@Test
@@ -89,7 +89,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 				// option buyer mapping
 				new Mapping(Path.parse("dataDocument.trade.bondOption.buyerPartyReference.href"),
 						"p1",
-						Path.parse("Contract.tradableProduct.product.contractualProduct.economicTerms.payout.optionPayout[0].buyerSeller.buyer"),
+						Path.parse("Trade.product.economicTerms.payout.optionPayout[0].buyerSeller.buyer"),
 						"p1",
 						null,
 						false,
@@ -98,7 +98,7 @@ class ExerciseNoticeGiverMappingProcessorTest {
 				// option seller mapping
 				new Mapping(Path.parse("dataDocument.trade.bondOption.sellerPartyReference.href"),
 						"p2",
-						Path.parse("Contract.tradableProduct.product.contractualProduct.economicTerms.payout.optionPayout[0].buyerSeller.seller"),
+						Path.parse("Trade.product.economicTerms.payout.optionPayout[0].buyerSeller.seller"),
 						"p2",
 						null,
 						false,

@@ -45,6 +45,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Rounding (not supported in DSL)
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
+		bind(RoundToSignificantFigures.class).to(bindRoundToSignificantFigures());
 
 		// Data providers (external data)
 		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
@@ -120,6 +121,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends RoundToPrecision> bindRoundToPrecision() {
 		return RoundToPrecisionImpl.class;
+	}
+
+	protected Class<? extends RoundToSignificantFigures> bindRoundToSignificantFigures() {
+		return RoundToSignificantFiguresImpl.class;
 	}
 
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {

@@ -4,6 +4,7 @@ title: Use Cases
 
 # Use Cases
 
+## Introduction
 The Common Data Model is a powerful framework that offers a multitude of use
 cases across various industries and sectors. The standardisation that it
 provides allows firms to integrate it into different systems and platforms,
@@ -36,4 +37,12 @@ either fixed or floating rates, on a principal or agency basis, to be
 represented. 
 
 Please see [Securities Lending](/docs/securities-lending) for more details.
+
+## Pre-trade Processing
+Pre-trade processing refers to the various steps and procedures that market 
+participants undertake before a trade is executed. The goal of this processing 
+is to ensure that trades are executed efficiently and in compliance with 
+regulatory requirements.
+
+Please see [Pre-trade Processing](/docs/pre-trade-processing) for more details.
 

@@ -9,7 +9,6 @@ import cdm.observable.event.*
 import cdm.observable.common.*
 
 import cdm.product.asset.*
-import cdm.product.common.settlement.*
 
 type CalculationPeriodData:
     startDate date (1..1)
@@ -175,18 +174,17 @@ type ObservationDate: <"Specifies a single date on which market observations tak
 
 type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multiple observations. ">
 
-    pricingTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
-    pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
+    observationTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
+    observationTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
-    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
     observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
     numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
 
-    condition PricingTime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
-        if pricingTimeType = TimeTypeEnum -> SpecificTime
-        then pricingTime exists
+    condition ObservationTime: <"Checks that an observation time is specified either explicitly (through the observation time) or implicitly (through a observation time type different to Specific Time). If Specific Time is defined as observation time type (i.e. no implicit time value), the condition checks that an explicit observation time is provided.">
+        if observationTimeType = TimeTypeEnum -> SpecificTime
+        then observationTime exists
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
     dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">

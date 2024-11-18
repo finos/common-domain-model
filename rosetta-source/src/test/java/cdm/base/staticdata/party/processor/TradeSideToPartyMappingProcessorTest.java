@@ -12,10 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class TradeSideToPartyMappingProcessorTest {
 
@@ -25,12 +23,8 @@ class TradeSideToPartyMappingProcessorTest {
     private static final String PARTY_B = "partyB";
     private static final String NOT_MAPPED_ERROR = "Not mapped";
 
-    // model path is outside tradableProduct.product
-    private RosettaPath OUTSIDE_PRODUCT_PATH = RosettaPath.valueOf("WorkflowStep.businessEvent.primitives(0).termsChange.after."
-            + "execution.collateral.independentAmount");
-    // model path is outside tradableProduct.product
-    private RosettaPath INSIDE_PRODUCT_PATH = RosettaPath.valueOf("WorkflowStep.businessEvent.primitives(0).termsChange.after."
-            + "execution.tradableProduct.product.contractualProduct.economicTerms.payout.interestRatePayout(0).payerReceiver");
+    // model path is outside product
+    private RosettaPath PRODUCT_PATH = RosettaPath.valueOf("WorkflowStep.businessEvent.after(0).collateral.independentAmount");
 
     private MappingContext mappingContext;
 
@@ -52,7 +46,7 @@ class TradeSideToPartyMappingProcessorTest {
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
         TradeSideToPartyMappingProcessor processor =
-                new TradeSideToPartyMappingProcessor(OUTSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
+                new TradeSideToPartyMappingProcessor(PRODUCT_PATH, Collections.emptyList(), mappingContext);
         processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_A, builder.getExternalReference());
@@ -64,24 +58,11 @@ class TradeSideToPartyMappingProcessorTest {
 
         Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].receiverPartyReference");
         TradeSideToPartyMappingProcessor processor =
-                new TradeSideToPartyMappingProcessor(OUTSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
+                new TradeSideToPartyMappingProcessor(PRODUCT_PATH, Collections.emptyList(), mappingContext);
         processor.map(synonymPath, builder, null);
 
         assertEquals(PARTY_B, builder.getExternalReference());
     }
-
-    @Test
-    void shouldNotMapTradeSideForPathOutsideProductPath() {
-        ReferenceWithMetaPartyBuilder builder =  ReferenceWithMetaParty.builder();
-
-        Path synonymPath = Path.parse("TrdCaptRpt.Instrmt.SecXML.FpML.trade.swap.swapStream[1].payerPartyReference");
-        TradeSideToPartyMappingProcessor processor =
-                new TradeSideToPartyMappingProcessor(INSIDE_PRODUCT_PATH, Collections.emptyList(), mappingContext);
-        processor.map(synonymPath, builder, null);
-
-        assertNull(builder.getExternalReference());
-    }
-
 
     private Mapping getErrorMapping(Path xmlPath, String xmlValue, Object rosettaValue, String error) {
         return new Mapping(xmlPath, xmlValue, null, rosettaValue, error, false, false, false);

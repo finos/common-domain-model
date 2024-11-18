@@ -68,7 +68,6 @@
 
     <modules>
         <module>rosetta-source</module>
-        <module>rosetta-project</module>
         <module>tests</module>
         <module>examples</module>
     </modules>
@@ -79,11 +78,11 @@
         <!-- release version is overridden in rosetta-source -->
         <maven.compiler.release>11</maven.compiler.release>
 
-        <repoServerHost>oss.sonatype.org</repoServerHost>
-
-        <rosetta.bundle.version>10.15.3</rosetta.bundle.version>
+        <repoServerHost>s01.oss.sonatype.org</repoServerHost>
+        <stagingTimeoutInMinutes>10</stagingTimeoutInMinutes>
+        <rosetta.bundle.version>11.24.2</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>9.7.0</rosetta.dsl.version>
+        <rosetta.dsl.version>9.20.0</rosetta.dsl.version>
 
         <xtext.version>2.27.0</xtext.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
@@ -92,7 +91,7 @@
         <jaxb.version>2.3.1</jaxb.version>
         <slf4j-api.version>2.0.7</slf4j-api.version>
         <guava.version>32.0.1-jre</guava.version>
-        <jackson.version>2.15.2</jackson.version>
+        <jackson.version>2.17.1</jackson.version>
 
         <!-- test -->
         <junit.version>5.9.1</junit.version>
@@ -102,7 +101,7 @@
         <logback.version>1.4.4</logback.version>
 
         <!-- plugins -->
-        <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
@@ -119,6 +118,7 @@
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
         <maven-javadoc-plugin.option></maven-javadoc-plugin.option>
@@ -274,7 +274,7 @@
                             <id>attach-sources</id>
                             <phase>package</phase>
                             <goals>
-                                <goal>jar</goal>
+                                <goal>jar-no-fork</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -296,6 +296,18 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>${nexus-staging-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <nexusUrl>https://${repoServerHost}</nexusUrl>
+                        <serverId>ossrh-distro</serverId>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        <stagingProgressTimeoutMinutes>${stagingTimeoutInMinutes}</stagingProgressTimeoutMinutes>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -323,6 +335,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -460,6 +476,11 @@
                 <artifactId>hamcrest</artifactId>
                 <version>${hamcrest.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>${hamcrest.version}</version>
+            </dependency>
             <!-- plugins START -->
             <dependency>
                 <groupId>com.regnosys.rosetta</groupId>
@@ -539,36 +560,4 @@
             <!-- plugins END -->
         </dependencies>
     </dependencyManagement>
-
-    <repositories>
-      <repository>
-          <id>regnosys-artifactory-snapshots</id>
-          <name>REGnosys Public Snapshots</name>
-          <url>https://regnosys.jfrog.io/regnosys/libs-snapshot</url>
-          <snapshots>
-              <enabled>true</enabled>
-          </snapshots>
-      </repository>
-        <repository>
-            <id>regnosys-artifactory-releases</id>
-            <name>REGnosys Public Releases</name>
-            <url>https://regnosys.jfrog.io/regnosys/libs-release</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-      <pluginRepository>
-          <id>regnosys-artifactory-snapshots</id>
-          <name>REGnosys Public Snapshots</name>
-          <url>https://regnosys.jfrog.io/regnosys/libs-snapshot</url>
-          <snapshots>
-              <enabled>true</enabled>
-          </snapshots>
-      </pluginRepository>
-        <pluginRepository>
-            <id>regnosys-artifactory-releases</id>
-            <name>REGnosys Public Releases</name>
-            <url>https://regnosys.jfrog.io/regnosys/libs-release</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

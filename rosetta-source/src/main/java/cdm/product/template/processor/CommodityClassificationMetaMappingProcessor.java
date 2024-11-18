@@ -1,6 +1,6 @@
 package cdm.product.template.processor;
 
-import cdm.product.template.ForwardPayout;
+import cdm.product.template.SettlementPayout;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -20,21 +20,27 @@ public class CommodityClassificationMetaMappingProcessor extends MappingProcesso
     }
 
     @Override
-    public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-        List<ForwardPayout.ForwardPayoutBuilder> forwardPayoutBuilders = (List<ForwardPayout.ForwardPayoutBuilder>) builders;
-        if (!forwardPayoutBuilders.isEmpty()) {
-            ForwardPayout.ForwardPayoutBuilder forwardPayoutBuilder = forwardPayoutBuilders.get(0);
-            // create reference
-            Reference.ReferenceBuilder referenceBuilder =
-                    forwardPayoutBuilder.getOrCreateUnderlier().getOrCreateCommodity().getOrCreateReference();
-            // create new mapping to make the reference work
-            Path commodityClassificationSynonymPath =
-                    synonymPath.addElement("commodityClassification", 0).addElement("code", 0);
-            getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, getModelPath(), referenceBuilder));
-        }
+    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+        SettlementPayout.SettlementPayoutBuilder settlementPayoutBuilder =
+                (SettlementPayout.SettlementPayoutBuilder) builder;
+        // create reference
+        Reference.ReferenceBuilder referenceBuilder =
+                settlementPayoutBuilder.getOrCreateUnderlier().getOrCreateObservable().getOrCreateReference();
+        // create new mapping to make the reference work
+        Path commodityClassificationSynonymPath =
+                synonymPath
+                        .addElement("commodityClassification", 0)
+                        .addElement("code", 0);
+        Path modelPath = PathUtils.toPath(getModelPath());
+        Path referenceModelPath = modelPath
+                .addElement("underlier")
+                .addElement("Observable")
+                .addElement("reference");
+        getMappings().add(createSuccessMapping(commodityClassificationSynonymPath, referenceModelPath, referenceBuilder));
+
     }
 
-    private Mapping createSuccessMapping(Path xmlPath, RosettaPath modelPath, Reference.ReferenceBuilder reference) {
-        return new Mapping(xmlPath, null, PathUtils.toPath(modelPath), reference, null, true, true, false);
+    private Mapping createSuccessMapping(Path xmlPath, Path modelPath, Reference.ReferenceBuilder reference) {
+        return new Mapping(xmlPath, null, modelPath, reference, null, true, true, false);
     }
 }

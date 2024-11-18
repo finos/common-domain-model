@@ -2,9 +2,9 @@
 title: Process Model
 ---
 
-# Purpose
+## Purpose
 
-## Why a Process Model
+### Why a Process Model
 
 **The CDM lays the foundation for the standardisation, automation and
 inter-operability of industry processes**. Industry processes represent
@@ -20,7 +20,7 @@ example, day count fraction formulae which are used when calculating
 interest rate payments) can be a source of dispute between parties in a
 transaction.
 
-## What Is the Process Model
+### What Is the Process Model
 
 **The CDM Process Model has been designed to translate the technical
 standards that support those industry processes** into a standardised
@@ -32,7 +32,7 @@ interoperability between technology solutions. It greatly minimises the
 cost of adoption and provides a blueprint on which industry utilities
 can be built.
 
-## How Does It Work
+### How Does It Work
 
 The data and process model definitions of the CDM are systematically
 translated into executable code using purpose-built code generation
@@ -40,12 +40,12 @@ technology. The CDM executable code is available in a number of modern,
 widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
-The code generation process is based on the Rosetta DSL and is further
+The code generation process is based on the Rune DSL and is further
 described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators), including an up-to-date
 list of [available languages](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Support for further languages can be
 added as required by market participants.
 
-# Scope
+## Scope
 
 The scope of the process model has two dimensions:
 
@@ -53,7 +53,7 @@ The scope of the process model has two dimensions:
 2.  **Granularity** - at which level of detail each process should be
     specified.
 
-## Coverage
+### Coverage
 
 **The CDM process model currently covers the post-trade lifecycle of
 securities, contractual products, and foreign exchange**. Generally, a
@@ -75,13 +75,13 @@ in scope:
 -   Regulatory reporting (although covered in a different documentation
     section)
 
-## Granularity
+### Granularity
 
 **It is important for implementors of the CDM to understand the scope of
 the model** with regard to specifications and executable code for the
 above list of post-trade lifecycle processes.
 
-The CDM process model leverages the *function* component of the Rosetta
+The CDM process model leverages the *function* component of the Rune
 DSL. A function receives a set of input values and applies logical
 instructions to return an output. The input and output are both CDM
 objects (including basic types). While a function specifies its inputs
@@ -137,9 +137,9 @@ enforcement of the intended logic.
 By contrast, in the CDM, validation components are an integral part of
 the process model specifications and are distributed as executable code
 in the Java representation of the CDM. The CDM validation components
-leverage the *validation* components of the Rosetta DSL.
+leverage the *validation* components of the Rune DSL.
 
-## Product Validation
+### Product Validation
 
 As an example, the *FpML ird validation rule #57*, states that if the
 calculation period frequency is expressed in units of month or year,
@@ -171,12 +171,12 @@ Fraction rules, and performance calculations for Equity Swaps. The CDM
 also specifies related utility functions.
 
 These calculation processes leverage the *calculation function*
-component of the Rosetta DSL which is associated to a `[calculation]`
+component of the Rune DSL which is associated to a `[calculation]`
 annotation.
 
 Explanations of these processes are provided in the following sections.
 
-## Base Libraries - Vector Math
+### Base Libraries - Vector Math
 
 The CDM includes a very basic library for performing vector math. This
 is intended to support more complex calculations such as daily
@@ -185,7 +185,7 @@ these functions in Java, and allows individual implementations to
 substitute their own more robust representations.
 
 A small library of functions for working with vectors (ordered
-collections of numbers) has been added to CDM to support Rosetta
+collections of numbers) has been added to CDM to support 
 functions needing to perform complex mathematical operations.
 Anticipated uses include averaging and compounding calculations for
 floating amounts, but the functions are designed to be general use.
@@ -229,7 +229,7 @@ rate processing:
     takes a precision rather than an amount, and uses a different
     rounding mode enumeration that supports more values.
 
-## Base Libraries - Date Math
+### Base Libraries - Date Math
 
 The CDM includes a very basic library for performing date math. This is
 intended to support more complex calculations such as daily compounded
@@ -238,7 +238,7 @@ functions in Java, and allows individual implementations to substitute
 their own more robust representations.
 
 A small library of functions for working with dates and lists of dates
-has been added to CDM to support Rosetta functions needing to perform
+has been added to CDM to support functions needing to perform
 date mathematics. Anticipated uses include date list generation for
 modular rate calculations for floating amounts, but the functions are
 designed to be general use.
@@ -272,7 +272,7 @@ Functions include:
 -   `AppendDateToList`: Add a date to a list of dates.
 -   `PopOffDateList`: Remove last element from a list of dates.
 
-The following are implemented in Rosetta based on the above primitives:
+The following are implemented in Rune based on the above primitives:
 
 -   `IsWeekend`: Returns whether the supplied date is a weekend. This
     implementation currently assumes a 5 day week with Saturday and
@@ -295,7 +295,7 @@ The following are implemented in Rosetta based on the above primitives:
     any days that are weekends or holidays according to the supplied
     business centers.
 
-## Base Libraries - Daycounting
+### Base Libraries - Daycounting
 
 The CDM includes a library for performing day counting calculations.
 
@@ -307,7 +307,7 @@ fraction. This perhaps should take into account leap years, though the
 ISDA compounding formulas do not cover ACT basis at the moment. *`DayCountBasis`: Return the day count basis
 (the denominator of the day count fraction) for the day count fraction.
 
-## Floating Rate Option/Index Features
+### Floating Rate Option/Index Features
 
 The CDM includes features for retrieving information about floating rate
 options and for calculating custom ("modular") floating rates.
@@ -359,7 +359,7 @@ Functions for calculating modular floating rates include:
     weight. This is used to support section 7.4 of the 2021 ISDA
     Definitions.
 
-## Fixed Amount and Floating Amount Definitions
+### Fixed Amount and Floating Amount Definitions
 
 The CDM includes preliminary features for calculating fixed and floating
 amounts for interest rate payouts.
@@ -445,7 +445,7 @@ Most of the above have a preliminary implementation for feedback. A few
 are only defined as "do-nothing" interfaces, and users needing these
 features would need to implement the functions.
 
-## Fixed Amount and Floating Amount Definitions
+### Fixed Amount and Floating Amount Definitions
 
 The CDM expressions of `FixedAmount` and `FloatingAmount` are similar in
 structure: a calculation formula that reflects the terms of the ISDA
@@ -471,7 +471,7 @@ func FloatingAmount:
   set floatingAmount : floatingCalc-> calculatedAmount
 ```
 
-## Year Fraction
+### Year Fraction
 
 The CDM process model incorporates calculations that represent the set
 of day count fraction rules specified as part of the ISDA 2006
@@ -509,7 +509,7 @@ func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360):
        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 ```
 
-## Utility Function
+### Utility Function
 
 CDM elements often need to be transformed by a function to construct the
 arguments for a formula in a calculation. A typical example is the
@@ -536,7 +536,7 @@ func CalculationPeriod:
   output: result CalculationPeriodData (1..1)
 ```
 
-## Equity Performance
+### Equity Performance
 
 The CDM process model includes calculations to support the equity
 performance concepts applied to reset and pay cashflows on Equity Swaps.
@@ -554,29 +554,43 @@ func EquityCashSettlementAmount:
     output:
         equityCashSettlementAmount Transfer (1..1)
 
+    alias payout:
+        tradeState -> trade -> product -> economicTerms -> payout 
+            filter PerformancePayout exists 
+            then only-element
     alias equityPerformancePayout:
-        tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> performancePayout only-element
+        payout -> PerformancePayout
     alias equityPerformance:
-        EquityPerformance(tradeState ->trade, tradeState -> resetHistory only-element -> resetValue, date)
+        EquityPerformance(
+                tradeState -> trade,
+                tradeState -> resetHistory only-element -> resetValue,
+                date
+            )
     alias payer:
-        ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> payer ) -> partyReference
+        ExtractCounterpartyByRole(
+                tradeState -> trade -> counterparty,
+                equityPerformancePayout -> payerReceiver -> payer
+            ) -> partyReference
     alias receiver:
-        ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
+        ExtractCounterpartyByRole(
+                tradeState -> trade -> counterparty,
+                equityPerformancePayout -> payerReceiver -> receiver
+            ) -> partyReference
 
     set equityCashSettlementAmount -> quantity -> value:
         Abs(equityPerformance)
     set equityCashSettlementAmount -> quantity -> unit -> currency:
         ResolveEquityInitialPrice(
-           tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
-        ) -> unit -> currency
+                tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
+            ) -> unit -> currency
     set equityCashSettlementAmount -> payerReceiver -> payerPartyReference:
         if equityPerformance >= 0 then payer else receiver
     set equityCashSettlementAmount -> payerReceiver -> receiverPartyReference:
         if equityPerformance >= 0 then receiver else payer
     set equityCashSettlementAmount -> settlementDate -> adjustedDate:
         ResolveCashSettlementDate(tradeState)
-    set equityCashSettlementAmount -> settlementOrigin -> performancePayout:
-        equityPerformancePayout as-key
+    set equityCashSettlementAmount -> settlementOrigin:
+        payout as-key
 ```
 
 ``` Haskell
@@ -596,7 +610,7 @@ func RateOfReturn:
            (finalPriceValue - initialPriceValue) / initialPriceValue
 ```
 
-## Billing
+### Billing
 
 The CDM process model includes calculations to support the billing event
 consisting of the individual amounts that need to be settled in relation
@@ -642,7 +656,7 @@ func Create_SecurityLendingInvoice:
      Create_BillingSummary( invoice -> billingRecord )
 ```
 
-# Lifecycle Event Process
+## Lifecycle Event Process
 
 While the lifecycle event model described in the
 [event-model-section](/docs/event-model) provides a
@@ -677,7 +691,7 @@ processes are described in the [calculation-process](#calculation-process) and [
 
 Illustration of the three components are given in the sections below.
 
-## Primitive Creation
+### Primitive Creation
 
 Primitive creation functions can be thought of as the fundamental
 mathematical operators that operate on a *trade state*. While a
@@ -722,8 +736,8 @@ func Create_Reset:
        else instruction -> resetDate
 
    alias observationIdentifiers:
-       if payout -> performancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> performancePayout only-element, instruction -> resetDate)
-       else if payout -> interestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> interestRatePayout only-element, observationDate)
+       if payout -> PerformancePayout count = 1 then ResolvePerformanceObservationIdentifiers(payout -> PerformancePayout only-element, instruction -> resetDate)
+       else if payout -> InterestRatePayout exists then ResolveInterestRateObservationIdentifiers(payout -> InterestRatePayout only-element, observationDate)
 
    alias observation:
        ResolveObservation([observationIdentifiers], empty)
@@ -732,8 +746,8 @@ func Create_Reset:
        tradeState
 
    add reset -> resetHistory:
-       if payout -> performancePayout count = 1 then ResolvePerformanceReset(payout -> performancePayout only-element, observation, instruction -> resetDate)
-       else if payout -> interestRatePayout exists then ResolveInterestRateReset(payout -> interestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
+       if payout -> PerformancePayout count = 1 then ResolvePerformanceReset(payout -> PerformancePayout only-element, observation, instruction -> resetDate)
+       else if payout -> InterestRatePayout exists then ResolveInterestRateReset(payout -> InterestRatePayout, observation, instruction -> resetDate, instruction -> rateRecordDate)
 ```
 
 First, `ResolvePerformanceObservationIdentifiers` defines the specific
@@ -755,28 +769,29 @@ func ResolvePerformanceObservationIdentifiers:
         identifiers ObservationIdentifier (1..1)
 
     alias adjustedFinalValuationDate:
-        ResolveAdjustableDate( payout -> valuationDates -> valuationDatesFinal -> valuationDate )
-
+        ResolveAdjustableDate(
+                payout -> valuationDates -> finalValuationDate -> valuationDate
+            )
     alias valuationDates:
-        if adjustedDate < adjustedFinalValuationDate then
-            payout -> valuationDates -> valuationDatesInterim
-        else
-            payout -> valuationDates -> valuationDatesFinal
+        if adjustedDate < adjustedFinalValuationDate
+        then payout -> valuationDates -> interimValuationDate
+        else payout -> valuationDates -> finalValuationDate
 
-    add identifiers -> observable -> productIdentifier:
-        payout -> underlier -> security -> productIdentifier
-
+    set identifiers -> observable:
+        payout -> underlier -> Observable 
     set identifiers -> observationDate:
-        AdjustedValuationDates( payout -> valuationDates )
+        AdjustedValuationDates(payout -> valuationDates)
             filter item <= adjustedDate
             then last
-
     set identifiers -> observationTime:
-        ResolvePerformanceValuationTime(valuationDates -> valuationTime,
-            valuationDates -> valuationTimeType,
-            identifiers -> observable -> productIdentifier only-element,
-            valuationDates -> determinationMethod )
-
+        ResolvePerformanceValuationTime(
+                valuationDates -> valuationTime,
+                valuationDates -> valuationTimeType,
+                identifiers -> observable -> Asset ->> identifier only-element,
+                valuationDates -> determinationMethod
+            )
+    set identifiers -> informationSource:
+        payout -> observationTerms -> informationSource -> primarySource        
     set identifiers -> determinationMethodology -> determinationMethod:
         valuationDates -> determinationMethod
 ```
@@ -817,7 +832,7 @@ func ResolvePerformanceReset:
         observation
 ```
 
-## Workflow Step Creation
+### Workflow Step Creation
 
 (*This feature is currently being developed and will be documented upon
 release in the CDM*)

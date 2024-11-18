@@ -2,7 +2,9 @@
 title: Securities Lending
 ---
 
-# Introduction
+# Securities Lending
+
+## Introduction
 
 The CDM is a data model that provides a standard format for financial 
 products and transactions in the capital markets industry. It is 
@@ -14,7 +16,7 @@ The International Securities Lending Association ([ISLA](https://www.islaemea.or
 with securities financing subject matter experts to model components in 
 the CDM for the Securities Lending market. 
 
-# Scope
+## Scope
 
 A securities lending transaction involves the loan of securities by one party 
 (the "*lender*") to another (the "*borrower*"), often facilitated by a 
@@ -31,20 +33,20 @@ either fixed or floating rates, on a principal or agency basis. Core lifecycle
 events including trade execution, settlement, returns, allocation and 
 reallocation are supported, with a basic billing function also provided. 
 
-# Core elements in Securities Lending
+## Core elements in Securities Lending
 
 There are several types, attributes and functions that should be used to 
 describe securities lending products and lifecycle events. The core elements  
 required are described in this section, with examples of their usage.
 
-## Cash Collateral
+### Cash Collateral
 
 In a cash loan, the lender lends the borrower the requested securities, 
 and the borrower provides cash as collateral against the securities that they 
 are borrowing. 
 
-Loans against cash collateral are formed as a `ContractualProduct` that 
-includes an `InterestRatePayout` for the cash collateral, held under 
+Loans against cash collateral are formed as a `SettlemenetPayout` that 
+includes an `TransferableProduct` using a `Cash` asset for the cash collateral, held under 
 `economicTerms->collateral`, and an `AssetPayout` for the security being lent,
 held under `economicTerms->payout`.
 
@@ -71,17 +73,17 @@ security being lent is provided below:
     },
 	"collateralPortfolio": [ {
 	    "collateralPosition": [ {
-		    "product": {
-	          "contractualProduct": {
 	            "economicTerms": {
                   "payout": {
-	                "interestRatePayout": [
-					  {
-					    ...
-					  }
-					]
-				  }
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"cash": {
+					}
 				}
+			    ...
+			  }
+			]
 			  }
 	        }
 		} ]
@@ -91,14 +93,14 @@ security being lent is provided below:
 }
 ```
 
-## Non-cash Collateral
+### Non-cash Collateral
 
 In a non-cash loan, the lender lends the borrower the requested securities, 
 and the borrower provides collateral in the form of other securities or 
 products. 
 
-Loans against non-cash collateral are formed as a `ContractualProduct` that 
-includes an `AssetPayout` for the non-cash collateral, held under 
+Loans against non-cash collateral are formed as a `NonTransferableProduct` that 
+includes a `SettlementPayout` containing with an `Asset` for the non-cash collateral, held under 
 `economicTerms->collateral`, and another `AssetPayout` for the security being 
 lent, held under `economicTerms->payout`.
 
@@ -125,17 +127,17 @@ the security being lent is provided below:
     },
 	"collateralPortfolio": [ {
 	    "collateralPosition": [ {
-		    "product": {
-	          "contractualProduct": {
 	            "economicTerms": {
                   "payout": {
-	                "assetPayout": [
-					  {
-					    ...
-					  }
-					]
-				  }
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"security": {
+					}
 				}
+			    ...
+			  }
+			]
 			  }
 	        }
 		} ]
@@ -145,13 +147,13 @@ the security being lent is provided below:
 }
 ```
 
-## Cash Pool
+### Cash Pool
 In a cash pool loan, the lender lends the borrower the requested securities, 
 and takes cash as collateral from a cash pool held by the lender on behalf of 
 the borrower. 
 
-Loans against cash collateral are formed as a `ContractualProduct` that 
-includes an `InterestRatePayout` for the cash collateral, held under 
+Loans against cash collateral are formed as a `NonTransferableProduct` that 
+includes an `SettlementPayout` for the cash collateral, held under 
 `economicTerms->collateral`, and an `AssetPayout` for the security being lent,
 held under `economicTerms->payout`.
 
@@ -162,16 +164,16 @@ under the `economicTerms->collateral` type.
 Please see the preceding example for a securities lending trade collateralised 
 using cash for an example of where the payouts can be found. 
 
-## Defining Collateral
+### Defining Collateral
 
 When non-cash collateral is used as collateral on a trade then it needs to 
 be defined in the `AssetPayout` of the product. This can be done using the 
 `security` type under `securityInformation`. 
 
 The details of the security should be entered in the attributes held within 
-the `security->productIdentifier` type, being the `identifier` and the `source`. 
+the `security->identifier` type, being the `identifier` and the `source`. 
 
-## Parties, Party Roles and Counterparties
+### Parties, Party Roles and Counterparties
 
 The parties on a trade are defined in `Party` objects. These can be the 
 lender and the borrower (i.e. the counterparties) or custodians or agency 
@@ -187,7 +189,7 @@ on the trade, allowing them to be set as either "*Party1*" or "*Party2*".  The
 counterparties must reference a `Party` object which can again be done using 
 metadata to avoid duplication.
 
-## Payer and Receiver
+### Payer and Receiver
 
 The `InterestRatePayout` and `AssetPayout` types must also define the payer 
 and receiver under the `payerReceiver` type.
@@ -201,11 +203,11 @@ In securities lending the borrower is considered the payer as they are
 providing the collateral (either cash or non-cash), and the lender is the 
 receiver of the collateral.
 
-## Interest Rate, Price, Quantity and Value
+### Interest Rate, Price, Quantity and Value
 
 The key factors that affect the earnings on a securities lending trade are the 
 interest rate, price, loan quantity and loan value. These are all held in the 
-`priceQuantity` type, which is represented as a list, allowing multiple items  
+`priceQuantity` type, which is represented as a list, allowing multiple items
 to be specified.
 
 *Note: where a trade has multiple lots associated to it, each `tradeLot` can* 
@@ -217,7 +219,7 @@ A securities lending trade will need to include a minimum of two items in the
 shares of that asset; and another to describe the interest rate and the value 
 to which the rate is to be applied.
 
-### Price and Quantity
+#### Price and Quantity
 
 The `priceQuantity` will need to include a `price` that holds the asset price 
 and a `quantity` that holds the number of shares on loan. It is also possible 
@@ -290,7 +292,7 @@ included in the `priceQuantity` too:
 *Note: the security on loan can also be defined under the `product -> security`*
 *details*
 
-### Interest Rate and Value
+#### Interest Rate and Value
 
 The `priceQuantity` will need to include a `price` that represents the interest 
 rate and a `quantity` that holds the value that the interest rate is to be
@@ -343,12 +345,12 @@ The `quantity` will need to define the value that the rate is applied to in the
 } ]
 ```		  
 
-## Dates
+### Dates
 
 There are several key dates through the lifecycle of a securities lending 
 trade. The main ones that need to be defined are described in this section.
 
-### Effective Date
+#### Effective Date
 
 The effective date in a securities lending trade refers to the date when the 
 agreement or transaction between the lender and the borrower becomes binding 
@@ -357,7 +359,7 @@ of the lending arrangement are legally enforceable.
 
 The `effectiveDate` can be found under the product's `economicTerms` type.
 
-### Trade Date
+#### Trade Date
 
 The trade date is the specific day when the order to lend securities is 
 executed or placed in the market. The trade date marks the initiation of the 
@@ -367,7 +369,7 @@ agreement becomes legally binding.
 Once the trade has been executed then the `tradeDate` under the `trade` type 
 should be set to the date the trade was executed.
 
-### Settlement Dates
+#### Settlement Dates
 
 The settlement date is when the securities legally change hands. In a 
 securities lending trade, there are potentially two dates related to 
@@ -392,25 +394,25 @@ security being lent should be populated. However, it is recommended that the
 `settlementDate` under both `assetPayout -> settlementTerms` types are set.
 
 For a trade against cash there would be an `assetPayout` for the securities 
-being lent and an `interestRatePayout` for the cash being used as collateral. 
+being lent and a `settlementPayout` for the cash being used as collateral. 
 The security settlement date should be placed in the `settlementDate` under 
 `settlementTerms` in the `assetPayout`, and the cash settlement date should 
 be placed in the `settlementDate` under `settlementTerms` in the 
-`interestRatePayout`.
+`settlementPayout`.
 
 *Note: For DVP trades the cash and security settlement dates will be the same.*
 *They should still be set under the `assetPayout->settlementTerms->settlementDate`*
-*and `interestRatePayout->settlementTerms->settlementDate` types as described*
+*and `settlementPayout->settlementTerms->settlementDate` types as described*
 *above.*
 
-### Termination Date
+#### Termination Date
 
 Where a trade has a termination date this can be set under the 
 `terminationDate` of the product's `economicTerms` type. Additional details 
 related to the termination of a trade can be placed within the 
 `terminationProvision` type also under `economicTerms`.
 
-## Legal Agreement
+### Legal Agreement
 
 The agreement governing a trade should be referenced in the `contractDetails` 
 type under `trade`. For securities lending trades the ISLA Global Master 
@@ -441,7 +443,7 @@ an example of which is provided below:
 *`masterAgreementSchedule` which is also provided underneath the `documentation`*
 *type.*
 
-## Haircut and Margin
+### Haircut and Margin
 
 In a securities lending trade, a haircut is a reduction applied to the value 
 of the collateral used for a loan and is generally expressed as a percentage.

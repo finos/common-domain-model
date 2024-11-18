@@ -19,9 +19,9 @@ steps:
     title: Setup build
     image: alpine/git
     commands:
-      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}"
+      - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
-      - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import"
+      - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
 
@@ -36,7 +36,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   SnapshotProperties:
     stage: 'setup'
@@ -49,7 +49,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}"
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   Build:
     stage: 'build'
@@ -114,19 +114,19 @@ steps:
         title: Python build
         fail_fast: false
         image: python:3.10-alpine
-        working_directory: ./rosetta-source
+        working_directory: ./
         shell: sh
         commands:
-          - python3 -m pip install "pydantic==1.*"
+          - export PYTHONDONTWRITEBYTECODE=1
+          - python3 -m pip install pydantic
           - python3 -m pip install jsonpickle
-          - python3 -m pip install ./target/classes/cdm/python/runtime/rosetta_runtime-1.0.0-py3-none-any.whl
+          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/runtime/rosetta_runtime-2.1.0-py3-none-any.whl
           - |-
-            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./target/classes/cdm/python ./target/classes/cdm/python
-          - python3 -m pip install ./target/classes/cdm/python/python_cdm-*-py3-none-any.whl
+            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./rosetta-source/target/classes/cdm/python ./rosetta-source/target/classes/cdm/python
+          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/python_cdm-*-py3-none-any.whl
           - python3 -m pip install pytest
-          - pytest ./src/test/python/
-          - rm -rf ./src/test/python/serialization/__pycache__ ./src/test/python/semantics/__pycache__
-
+#          - pytest -p no:cacheprovider ./cdm-python/test/
+          
   DeployDaml:
     stage: 'build'
     title: DAML deploy

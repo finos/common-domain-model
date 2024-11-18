@@ -1,6 +1,6 @@
 package cdm.observable.asset.fro.functions;
 
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
@@ -25,7 +25,7 @@ public class IndexValueObservationTest extends AbstractFunctionTest {
 
 	@Test
 	void shouldGetValue() {
-		FloatingRateOption fro = initFro();
+		FloatingRateIndex fro = initFro();
 
 		assertEquals(BigDecimal.valueOf(0.033), func.evaluate(Date.of(2021, 7, 31), fro));
 		assertEquals(BigDecimal.valueOf(0.0329), func.evaluate(Date.of(2021, 7, 30), fro));

@@ -9,7 +9,6 @@ import cdm.event.common.*
 import cdm.event.workflow.*
 import cdm.observable.asset.*
 import cdm.product.collateral.*
-import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 type ContractBase: <"Encapsulates data features common to trade and position.">
@@ -47,13 +46,16 @@ type PortfolioState: <"State-full representation of a Portfolio that describes a
         if lineage -> portfolioStateReference is absent
         then positions is absent and lineage -> eventReference is absent
 
+    condition NonTransferable: <"The Product in a PortfolioState should be a nonTransferableProduct.">
+        positions -> product -> NonTransferableProduct exists
+
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
     dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
     totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
     positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
     party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
         [metadata reference]
-    product Product (0..*) <"To aggregate based on a selection of products.">
+    product NonTransferableProduct (0..*) <"To aggregate based on a selection of products.">
     productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
     tradeReference Trade (0..*)
         [metadata reference]
@@ -70,6 +72,7 @@ type InventoryRecord: <"An individual piece of inventory. This represents a sing
     security Security (1..1) <"The security details.">
 
 type AvailableInventory: <"A data type that can be used to describe the inventory of securities that a party holds. The securities are held in the AvailableInventoryRecord, with each item in the array being an individual security and its associated criteria. Criteria can include the quantity available, the rate at which the security is available to borrow at, as well as other details that can affect the decision as to whether a party wants to utilise the securities listed.">
+    availableInventoryType AvailableInventoryTypeEnum (1..1) <"Defines the purpose of this inventory.">
     messageInformation MessageInformation (0..1) <"Allows details related to the availability messaging use case to be defined">
     party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
     partyRole PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the inventory.">
@@ -85,7 +88,7 @@ type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of 
     expirationDateTime zonedDateTime (0..1) <"There may be a set period/time restriction associated to the security.">
     collateral CollateralProvisions (0..*) <"The type of collateral can often be required when determining if the piece of availability being described is suitable for a party.">
     partyRole PartyRole (0..*) <"An individual security may be held by several agents. Including the party role at this level allows us to reference the party holding this specific item.">
-    availableQuantity Quantity (0..1) <"The quantity of the security that is available">
+    quantity Quantity (0..1) <"The quantity of the security">
     interestRate Price (0..1) <"An optional element which can be used to hold a rate associated to this piece of availability.">
 
     condition InterestRate: <"Where an Interest Rate has been specified then the Price Type must be set to interest rate">

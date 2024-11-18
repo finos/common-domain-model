@@ -19,19 +19,3 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list o
         direction QuantityChangeDirectionEnum (1..1)
     output:
         updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
-
-    condition DirectionNotIncrease:
-        direction <> QuantityChangeDirectionEnum -> Increase
-
-func RateOptionObservableCondition: <"Implementation for PriceQuantity.RateOptionObservable condition.">
-    inputs:
-        pq PriceQuantity (1..1)
-    output:
-        valid boolean (0..1)
-
-    set valid:
-        if pq -> observable -> rateOption exists and pq -> price exists
-        then pq -> price
-                extract [
-                    priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
-                ] all = True
