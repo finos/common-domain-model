@@ -1,14 +1,18 @@
-# _CDM Model - CapacityUnit Enum_
+# _CDM Model - TaxonomySourceEnum_
 
 _Background_
-In has been seen that in the ExternalUnitOfMeasure1Code from the 2Q2024 ISO External CodeSets v1, the unity Joule is supported in the Enum. However, in CDM this is not the case, as it does not appear anywhere in the CapacityUnitEnum. Therefore, the Joule unit of measure will be added to the CapacityUnitEnum for completeness and to align with 2Q2024 ISO External CodeSets v1, for versions 5 and 6 of CDM.
+A DRR issue has been identified where reporting the Underlying CO values was not supported for MAS. To address this, we proposed replicating the reporting logic used for BaseProduct and SubProduct in EMIR. In CDM, this involves adding "MAS" as a value to the TaxonomySourceEnum, since the TaxonomySource in CDM determines the jurisdiction based on the commodityClassificationScheme being used. So the "MAS" value will be added in the TaxonomySourceEnum.
 
 _What is being released?_
 
-- Updated `CapacityUnitEnum` in cdm.base.math
+- Updated `TaxonomySourceEnum` in cdm.base.staticdata.asset.common:enum
 
 _Enumerations_
 
-- Updated `CapacityUnitEnum` by adding 'J' to support Joule unit
+- Updated `TaxonomySourceEnum` by adding MAS to support Monetary Authority of Singapore (MAS) as a taxonomy source.
 
-The changes can be reviewed in PR: [#3198](https://github.com/finos/common-domain-model/pull/3198)
+_Review directions_
+
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+
+The changes can be reviewed in PR: [#3266](https://github.com/finos/common-domain-model/pull/3266)
