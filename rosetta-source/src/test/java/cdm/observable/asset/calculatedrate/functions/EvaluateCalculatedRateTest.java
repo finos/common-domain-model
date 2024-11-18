@@ -46,10 +46,10 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
         Date end = Date.of(2021, 12, 10);
         CalculationPeriodBase calculationPeriod = period(st, end);
         DayCountFractionEnum dcf = DayCountFractionEnum.ACT_360;
-        FloatingRateIndex.FloatingRateIndexBuilder fro = FloatingRateIndex.builder()
-                .setInterestRateIndex(InterestRateIndex.builder()
-                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15)
-                        .build());
+
+        InterestRateIndex fro = InterestRateIndex.builder().setFloatingRateIndex(FloatingRateIndex.builder()
+                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15))
+                .build();
 
         List<Date> calcDates = dateList(st, end);
         List<Date> obsDate = new ArrayList<>(calcDates);

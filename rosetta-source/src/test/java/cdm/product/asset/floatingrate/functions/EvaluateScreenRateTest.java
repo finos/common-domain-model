@@ -2,6 +2,7 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.fro.functions.IndexValueObservation;
 import cdm.product.asset.FloatingRate;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
@@ -31,7 +32,7 @@ public class EvaluateScreenRateTest extends AbstractFunctionTest {
 
     @Test
     void shouldEvaluateRate() {
-        FloatingRateIndex fro = initFro();
+        InterestRateIndex fro = initFro();
         FloatingRate rate = initFloatingRate(fro);
         ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, false);
 
