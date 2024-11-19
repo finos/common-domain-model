@@ -3,6 +3,8 @@ title: Get Involved
 ---
 
 ## Interact with the CDM community
+
+To review the CDM communuty's organisational structure, please click [here](cdm-org-structure.md)
  
 ## GitHub
 
