@@ -153,37 +153,6 @@ There is a balance between moving too quickly (and creating many changes, potent
   - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
 
-
-## 6.0 Pull Request Classification and Approval Guidelines
-
-This section discusses how pull requests will be classified, reviewed, and approved.
-
-## 6.1 PR Classification
-
-Pull requests shall be classified into one of the following complexity categories:
-* Model change - bug fix – change to existing logic (without major redesign) to cause it to implement the original intended behaviour and design; generally used to address an oversight in a previous contribution.   
-  * *Backward compatibility:*  For defect corrections to production versions, the defect correction shall generally be backward-compatible with the existing design unless the existing design is newly introduced and so severely compromised that it cannot function unless something is changed.
-* Model change - Enhancement – new functionality or change to existing functionality required to meet a new business requirement.  
-  * *Backward compatibility:*  If the change includes backward-incompatible changes, this shall be flagged as such and the change shall be targeted for a development version.
-* Technical change.  This is used to cover a variety of cases that don't affect the model itself, including updates to dependencies, mapping changes, test cases, etc.
-
-Pull requests shall be tagged in GitHub as described in discussion [#2789](https://github.com/finos/common-domain-model/discussions/2789) to implement the approval process.
-
-
-## 6.2 Summary of PR approval requirements
-
-* PRs shall be classified into Model defect corrections (bug fixes to correct existing functionality) vs. Model enhancements (new designs or capabilities) vs. technical.
-* There shall be an indication of whether a PR includes any backward-incompatible changes.
-* Approval has to be by a separate person from the submitter (This is enforced by GitHub; maintainers shall not attempt to circumvent this control.)
-
-
-| Type of PR          | Backward Compatible |  Backward Incompatible                        |
-| --------------------| --------------------|  ---------------------------------------------|
-| Model - Bug fix     |1 maintainer – separate from the submitter, preferably from a separate organization | 2 maintainers; must have been reviewed by the CRWG; if for a production version, SWG must approve; only used for recently introduced functionality  |
-| Model - Enhancement | 2 maintainers; must have been approved by a WG or the CRWG | 2 maintainers; must be on roadmap or approved by SWG; must have been approved by a WG or the CRWG; must go into a dev version; at least one maintainer must be from a separate organization   |
-| Technical - e.g. dependency update, change to mapping, reference data, documentation, changes to samples…. | At least one;  additional review up to the maintainer’s discretion – e.g. might need to consult the Technology Architecture Working Group (TAWG) | Must be approved by the TAWG; must go into a dev version |
-
-
 ## 7.0 Release Build Approval Guidelines
 
 This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
