@@ -18,7 +18,7 @@ A list of Maintainers along with their type will be kept visible within the gove
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
 
 ## Maintainers Approval Process 
-![](../.img/approval-process.png)
+![](../.github/approval-process.png)
 
 ## FINOS CDM Project Maintainers
 
