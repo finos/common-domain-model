@@ -73,6 +73,8 @@ various versions available would be as follows:
 
 Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md).
 
+Click [here](roadmap.mdx) to viww the current planned release timeline.
+
 ---
 **Note:**
 The above example is for illustration only and not indicative of
