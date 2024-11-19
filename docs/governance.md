@@ -154,7 +154,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 
 ## Pull Request Classification and Approval Guidelines
 
-Details on how pull requests will be classified can be found in our [Chabnge control guidelines](change-control-guidelines.md) page.
+Details on how pull requests will be classified can be found in our [Change control guidelines](change-control-guidelines.md) page.
 
 ## 6.0 Release Build Approval Guidelines
 
