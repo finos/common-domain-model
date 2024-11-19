@@ -2,7 +2,7 @@
 title: Get Involved
 ---
 ## How to Contrbuite 
-If you have not already, a detailed contributions guide can be found [here](contributions.md).
+A detailed contributions guide is available [here](contributions.md).
 
 ## Interact with the CDM community
 
