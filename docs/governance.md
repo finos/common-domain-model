@@ -152,22 +152,22 @@ There is a balance between moving too quickly (and creating many changes, potent
 * When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
   - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
-## Pull Request Classification and Approval Guidelines
+## 6.0 Pull Request Classification and Approval Guidelines
 
 Details on how pull requests will be classified can be found in our [Change control guidelines](change-control-guidelines.md) page.
 
-## 6.0 Release Build Approval Guidelines
+## 7.0 Release Build Approval Guidelines
 
 This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
 
-## 6.1 Development Release Scheduling and Approvals
+## 7.1 Development Release Scheduling and Approvals
 * Development releases may be scheduled by the maintainers to optimize development resources, based on the queue of approved PRs
   * There is no particular desired/expected release frequency; releases may be cut as soon as there is an approved PR, or several PRs may be consolidated into a single release at the convenience of the maintainers and dev staff
   * *Rationale:*  Development releases are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
   * Each development release shall require the approval of one maintainer once all the PRs are approved, and the test cases all pass successfully.
 * Development releases shall be reported in brief to the CRWG and the SWG
 
-## 6.2 Major Production Release Build & Release Approvals
+## 7.2 Major Production Release Build & Release Approvals
 
 * Major production releases will be scheduled by the SWG as described above
   * *(TODO:  insert a diagram of the promotion process)*
@@ -176,7 +176,7 @@ This section covers scheduling of minor, development, and patch releases, and ap
   * All approved PRs for the major production release are complete
   * The SWG reviews the final list of enhancements in the release and signs off on releasing the development version into production
 
-## 6.3 Minor Production Release Scheduling and Approvals
+## 7.3 Minor Production Release Scheduling and Approvals
 
 * Minor production releases may be scheduled by the maintainers based on the queue of approved PRs
 * Minor production releases to introduce enhancements should be combined  to minimize the number of production releases, targeting minor production releases to be issued around four weeks or so as long as there is a queue of approved PRs.  (This frequency can be increased in times of urgent need for new functionality).
@@ -185,13 +185,13 @@ This section covers scheduling of minor, development, and patch releases, and ap
 * Minor production releases shall be reported in brief to the CRWG and the SWG, 
 * A roadmap of anticipated minor production releases shall be reported by the maintainers to the CRWG based on PRs that are in process.
 
-## 6.4  Production Patch Release Scheduling and Approvals
+## 7.4  Production Patch Release Scheduling and Approvals
 
 * Production patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approved defect correction PRs, or other non-functional PRs (e.g. security remediations).
 * Production patch releases require the approval of one maintainer
 * Production patch releases shall be reported to the CRWG.
 
- ## 6.5 Summary of Release Approval Requirements
+ ## 7.5 Summary of Release Approval Requirements
 
 | Type of Release      | Approval Requirement |  Notes                                        |
 | ---------------------| -------------------- |  -------------------------------------------  |
