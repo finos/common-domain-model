@@ -1,10 +1,12 @@
 ---
 title: Get Involved
 ---
+## How to Contrbuite 
+If you have not already, a detailed contributions guide can be found [here](contributions.md).
 
 ## Interact with the CDM community
 
-To review the CDM community's organisational structure, please click [here](cdm-org-structure.md)
+Below are several different ways to interact with the [CDM community](cdm-org-structure.md)
  
 ## GitHub
 
