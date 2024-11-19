@@ -210,5 +210,5 @@ deployment and discuss a timeline for the release.
 ---
 ## Next Steps
 
-Please visit the [maintenance page](maintenance-and-release-md) to continue reading about model maintenance and release.
+Please visit the [maintenance page](maintenance-and-release.md) to continue reading about model maintenance and release.
 
