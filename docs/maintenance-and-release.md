@@ -1,5 +1,7 @@
 ## Reviewing model changes
 
+Contributions are reviewed by the [Contribution Review](CDM-Contribution-Review-WG.md) and once approved, the [maintainers](maintainers.md) will release them following the [maintainance and release](maintainance-and-release.md) guidelines. 
+
 ### Review checklist
 
 Before starting to review a contribution, the CDM Maintainer should go
