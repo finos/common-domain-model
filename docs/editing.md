@@ -99,7 +99,7 @@ Documentation Style Guide](documentation-style-guide.md).
 
 ### Contribution checklist
 
-Before you start contributing your model changes, please go through the
+Before you start [contributing](contributions.md) your model changes, please go through the
 following contribution checklist:
 
 -   Specify a meaningful title and description for the contribution
