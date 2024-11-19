@@ -1,6 +1,6 @@
 ## Maintainers
 
-This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](governance.md) within the CDM community 
+This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](governance.md) within the CDM community.
 
 **Appointment of CDM Maintainers:**
 
@@ -16,6 +16,8 @@ A list of Maintainers along with their type will be kept visible within the gove
  Maintaining entities or representatives can have their maintainer status revoked by unanimous vote of other maintainers. This measure is expected to be used only in extreme circumstances such as in the event of a maintainer being inactive for a significant period of time, or being found to no longer meet the requirements of being a maintainer set out above. This is not intended to be an exhaustive list of circumstances.
 
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
+
+The [maintenance and release](maintenance.-and-release.md) page provides further detail on maintainers' responsibilities. 
 
 ## Maintainers Approval Process 
 ![](../.github/approval-process.png)
