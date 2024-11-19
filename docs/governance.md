@@ -152,6 +152,9 @@ There is a balance between moving too quickly (and creating many changes, potent
 * When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
   - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
+## Pull Request Classification and Approval Guidelines
+
+Details on how pull requests will be classified can be found in our [Chabnge control guidelines](change-control-guidelines.md) page.
 
 ## 6.0 Release Build Approval Guidelines
 
