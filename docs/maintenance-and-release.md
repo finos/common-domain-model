@@ -38,7 +38,7 @@ Slack, email or in direct meetings.
 
 Depending on the size, complexity or impact of a contribution, the CDM
 Maintainer can recommend for the contribution to be presented with an
-appropriate level of details with the [CDM Architecture](CDM-Technology-Architecture-Wg.md) and [Review
+appropriate level of details with the [CDM Architecture](CDM-Technology-Architecture-WG.md) and [Review
 Committee](CDM-Steering-WG.md) for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
