@@ -9,7 +9,7 @@ The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on
 ### Responsibilities
 
 - Defining and working on technical aspects and architecture-related items, such as language distributions, packaging, libraries, serialization, reference data architecture, and integration with other data standards.
-- Collaborating closely with the [CDM Contribution Review Working Group](cdm-contribution-review-WG.md). 
+- Collaborating closely with the [CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md). 
 - Meeting monthly, with the flexibility to form sub-groups as necessary to address specific technical challenges or opportunities.
 
 ## Meetings
