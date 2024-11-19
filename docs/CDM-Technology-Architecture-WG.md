@@ -26,4 +26,4 @@ To subscribe to the [TAWG mailing list](https://lists.finos.org/g/cdm-technology
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Technology+Architecture+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
 
 Click [here](working-groups.md) to return back to the Working Groups home page.
-Click [here](cdm-org.structure.md) to review the CDM organisational structure. 
+Click [here](cdm-org-structure.md) to review the CDM organisational structure. 
