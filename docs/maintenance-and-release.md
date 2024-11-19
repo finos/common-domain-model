@@ -1,3 +1,49 @@
+## Reviewing model changes
+
+### Review checklist
+
+Before starting to review a contribution, the CDM Maintainer should go
+through the following review checklist:
+
+-   Review Pull Request to assert that:
+    -   Model changes fulfil the proposed design and use-case
+        requirements
+    -   Synonyms have been updated and output (JSON) looks correct
+    -   Contributed model version is not stale and does not conflict
+        with any recent changes
+    -   Changes are in accordance with the CDM governance guidelines
+
+---
+**Note:**
+It is not yet possible to verify that mapping, validation and
+qualification expectations have been maintained by looking at the output
+of the Pull Request and CDM build only. Please refer to the
+[downstream-dependencies](#downstream-dependencies) section for more
+details.
+
+---
+-   CDM build process completed with no errors or test failures
+-   Review additional samples provided (if use-case is not covered by
+    existing samples)
+-   All model components positioned in the correct namespace
+-   All model components have descriptions
+-   Additional documentation provided, if necessary.
+-   Release note provided
+
+Any review feedback should be sent to the Contributor as required via
+Slack, email or in direct meetings.
+
+---
+**Note:**
+
+Depending on the size, complexity or impact of a contribution, the CDM
+Maintainer can recommend for the contribution to be presented with an
+appropriate level of details with the CDM Architecture and Review
+Committee for further feedback. The CDM Maintainer will work with the
+Contributor to orchestrate that additional step. The additional feedback
+may recommend revisions to the proposed changes. When it is the case the
+review process will iterate on the revised proposal.
+
 ## Model maintenance and release
 
 After learning about [how to edit](editing.md) the model, please refer to this section to learn more about its maintenance. 
@@ -78,7 +124,7 @@ The following release checklist should be verified before deploying a
 new model:
 
 -   Update the CDM version number, using the [semantic
-    versioning](#semantic-versioning) format
+    versioning](versioning.md) format
 -   Build release candidate, and test
 -   Build documentation website release candidate, and test
 -   Deploy release candidate and notify channels if need be
@@ -86,11 +132,11 @@ new model:
     available in Rosetta
 
 ![](/img/CDM–Build-Release-Process.png)
-
 ---
 **Note:**
 When the release process is handled through Rosetta Deploy, the
 Maintainer should contact the Rosetta support team to request that
 deployment and discuss a timeline for the release.
+
 
 
