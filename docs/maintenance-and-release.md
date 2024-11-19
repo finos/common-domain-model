@@ -175,7 +175,7 @@ This section covers scheduling of minor, development, and patch releases, and ap
 * Production patch releases require the approval of one maintainer
 * Production patch releases shall be reported to the CRWG.
 
- ## 7.5 Summary of Release Approval Requirements
+ ## Summary of Release Approval Requirements
 
 | Type of Release      | Approval Requirement |  Notes                                        |
 | ---------------------| -------------------- |  -------------------------------------------  |
