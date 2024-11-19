@@ -1,6 +1,6 @@
 ## Working Groups
 
-Click [here](cdm-org-structure.md) to view the CDM organisational structure.
+Click [here](cdm-org-structure.md) to view the CDM organisational structure and the Working Groups' scope.
 
 **Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group. 
 
