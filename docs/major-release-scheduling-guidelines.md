@@ -1,6 +1,6 @@
-# 5. Major release scheduling guidelines
+# Major release scheduling guidelines
 
-The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 ## Objectives of defining major releases
 
