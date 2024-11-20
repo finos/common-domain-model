@@ -56,8 +56,8 @@ The key models defined in the CDM are listed below. Click each one to learn more
 
 ## Design Principles
 
-To support these objectives, the CDM is built according to a set of
-design principles that include the following concepts:
+To support the objectives described above, the CDM is built according to a set of
+[design principles](design-principles.md) that include the following concepts:
 
 -   **Normalisation** through abstraction of common components
 -   **Composability** where objects are composed and qualified from the
