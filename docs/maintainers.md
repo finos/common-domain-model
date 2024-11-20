@@ -20,7 +20,7 @@ Proposals for an entity to be given maintainership status or to have maintainers
 The [maintenance and release](maintenance-and-release.md) page provides further detail on maintainers' responsibilities. 
 
 ## Maintainers Approval Process 
-![](../.github/approval-process.png)
+![](../.github/Approval-Process.png)
 
 ## FINOS CDM Project Maintainers
 
