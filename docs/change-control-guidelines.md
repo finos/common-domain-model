@@ -37,6 +37,36 @@ This section discusses how changes to the CDM are controlled within and between 
 
 Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
 
+## Backward Compatibility
+
+Like other types of software, *backward compatibility* in the context of
+a domain model means that an implementor of that model would not have to
+make any change to update to such version.
+
+-   Prohibited changes:
+    -   Change to the structure (e.g. the attributes of a data type or
+        the inputs of a function) or removal of any model element
+    -   Change to the name of any model element (e.g. types, attributes,
+        enums, functions or reporting rules)
+    -   Change to any condition or cardinality constraint that makes
+        validation more restrictive
+    -   Change to the DSL that results in any existing expression
+        becoming invalid
+    -   Change to the DSL that results in change to any of the generated
+        code's public interfaces
+-   Allowed changes:
+    -   Change that relaxes any condition or cardinality constraint
+    -   Change to any synonym that improves, or at least does not
+        degrade, the mapping coverage
+    -   Addition of new examples or test packs
+    -   Change to the user documentation or model descriptions
+    -   Addition of new data types, optional attributes, enumerations,
+        rules or functions that do not impact current functionality
+
+Exceptions to backward compatibility may be granted for emergency bug
+fixes following decision from the relevant governance body.
+
+
 ## Change Control Evaluation and Enforcement
 
 * Designers and contributors to CDM are responsible for being aware of and following the change control guidelines.  This includes flagging pull requests when they involve breaking changes to controlled objects.
@@ -78,32 +108,4 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 | Model - Enhancement | 2 maintainers; must have been approved by a WG or the CRWG | 2 maintainers; must be on roadmap or approved by SWG; must have been approved by a WG or the CRWG; must go into a dev version; at least one maintainer must be from a separate organization   |
 | Technical - e.g. dependency update, change to mapping, reference data, documentation, changes to samples…. | At least one;  additional review up to the maintainer’s discretion – e.g. might need to consult the Technology Architecture Working Group (TAWG) | Must be approved by the TAWG; must go into a dev version |
  
-## Backward Compatibility
-
-Like other types of software, *backward compatibility* in the context of
-a domain model means that an implementor of that model would not have to
-make any change to update to such version.
-
--   Prohibited changes:
-    -   Change to the structure (e.g. the attributes of a data type or
-        the inputs of a function) or removal of any model element
-    -   Change to the name of any model element (e.g. types, attributes,
-        enums, functions or reporting rules)
-    -   Change to any condition or cardinality constraint that makes
-        validation more restrictive
-    -   Change to the DSL that results in any existing expression
-        becoming invalid
-    -   Change to the DSL that results in change to any of the generated
-        code's public interfaces
--   Allowed changes:
-    -   Change that relaxes any condition or cardinality constraint
-    -   Change to any synonym that improves, or at least does not
-        degrade, the mapping coverage
-    -   Addition of new examples or test packs
-    -   Change to the user documentation or model descriptions
-    -   Addition of new data types, optional attributes, enumerations,
-        rules or functions that do not impact current functionality
-
-Exceptions to backward compatibility may be granted for emergency bug
-fixes following decision from the relevant governance body.
 
