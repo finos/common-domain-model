@@ -48,8 +48,8 @@ at <cdm@lists.finos.org>.
 
 ## Model Overview 
 The key models defined in the CDM are listed below. Click each one to learn more. 
-- [Event model](event-model.md)
-- [Process model](process-model.md)
+- [Event model](event-model.md) - The CDM event model provides data structures to represent the lifecycle events of financial transactions.
+- [Process model](process-model.md) - The CDM lays the foundation for the standardisation, automation and inter-operability of industry processes.
 - [Product model](product-model.md)
 - [Reference data model](reference-data-model.md)
 - [Use cases](use-cases.md)
