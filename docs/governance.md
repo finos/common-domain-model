@@ -87,11 +87,11 @@ Information disclosed in connection with any Working Group activity, including b
 The Steering Working Group has the role of defining major releases of CDM and shaping their content.  The [major release scheduling guidelines](major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 
-## 6.0 Pull Request Classification and Approval Guidelines
+## 6. Pull Request Classification and Approval Guidelines
 
 Details on how pull requests will be classified can be found in our [Change control guidelines](change-control-guidelines.md) page.
 
-## 7.0 Release Build Approval Guidelines
+## 7. Release Build Approval Guidelines
 
 This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases. Please click [here](maintenance-and-release.md) to be redirected.
 
