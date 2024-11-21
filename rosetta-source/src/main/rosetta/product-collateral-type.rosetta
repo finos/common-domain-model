@@ -49,9 +49,8 @@ type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying
 
     paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
 
-type AgencyRatingCriteria: <"Represents a class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+type AgencyRatingCriteria: <"Represents a class to specify multiple credit notations.">
 
-    // qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
     creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
     mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
     referenceAgency CreditRatingAgencyEnum (0..1) <"identifies the dominant reference agency if there is a missmatch and several reference agencies exsist.">
@@ -106,8 +105,7 @@ type EligibleCollateralSpecification: <"Represents a set of criteria used to spe
 
 type CollateralCriteriaBase: <"Represents a set of criteria used to specify and describe collateral.">
 
-    issuer IssuerCriteria (0..*) <"Represents a filter based criteria related to the issuer.">
-    asset AssetCriteria (0..*) <"Represents a filter based on the criteria related to the asset.">
+    collateralCriteria CollateralCriteria (1..1)  <"The specific criteria that applies that can be created using AND, OR and NOT logic and both asset and issuer characteristics.">
     appliesTo CounterpartyRoleEnum (0..2) <"Specifies which of the two counterparties the criteria applies to (either one or both counterparties). This attribute is optional, in case the applicable party is already specified elsewhere within a party election.">
     restrictTo CollateralMarginTypeEnum (0..1) <"Restrict the criteria to only apply to a specific type of margin, ie IM or VM.">
     ratingPriorityResolution RatingPriorityResolutionEnum (0..1) <"Denotes which Criteria has priority if more than one agency rating applies.">
@@ -157,93 +155,34 @@ type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a 
     averageTradingVolume AverageTradingVolume (0..1) <"Specifies an average trading volume on an exchange in relation to Equity products.">
 
     condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
-        required choice concentrationLimitType, issuer, asset, averageTradingVolume
+        required choice concentrationLimitType, averageTradingVolume, collateralCriteria
 
 type AverageTradingVolume: <"Represents the average trading volume of an Equity product upon an exchange or set of exchanges.">
 
     period Period (1..1) <"Represents the period of the equities average trading volume on the exchange/s.">
     methodology AverageTradingVolumeMethodologyEnum (1..1) <"Indicates the type of equity average trading volume being stated (single) the highest amount on one exchange, or (consolidated) volumes across multiple exchanges.">
 
-type IssuerCriteriaTerms: <"Represents criteria used to specify eligible collateral issuers. Only one attribute should be specified at once and where the attribute has multiple cardinality, all the values must apply (ie 'and' logic).">
+type IssuerCountryOfOrigin:     
+    issuerCountryOfOrigin ISOCountryCodeEnum (1..1) <"Represents a filter on the issuing entity country of origin based on the ISO Standard 3166, which is the same as filtering by eligible Sovereigns.">
 
-    issuerType CollateralIssuerType (0..*) <"Represents a filter based on the type of entity issuing the asset.">
-    issuerCountryOfOrigin ISOCountryCodeEnum (0..*) <"Represents a filter on the issuing entity country of origin based on the ISO Standard 3166, which is the same as filtering by eligible Sovereigns.">
-    issuerName LegalEntity (0..*) <"Specifies the issuing entity name or LEI.">
-    issuerAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
-    sovereignAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk of the country of the issuer.">
-    counterpartyOwnIssuePermitted boolean (0..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+type AssetCountryOfOrigin:
+    assetCountryOfOrigin ISOCountryCodeEnum (1..1) <"Represents a filter on the asset country of origin based on the ISO Standard 3166.">
 
-    condition OnlyOne: 
-        one-of
+type IssuerName:
+    issuerName LegalEntity (1..1) <"Specifies the issuing entity name or LEI.">
 
-choice IssuerCriteria:
-    IssuerCriteriaTerms
-    AllIssuerCriteria
-    AnyIssuerCriteria
-    NegativeIssuerCriteria
+type IssuerAgencyRating:
+    issuerAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 
-type AllIssuerCriteria:
-    criteria IssuerCriteria (2..*)
+type SovereignAgencyRating:
+    sovereignAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk of the country of the issuer.">
 
-type AnyIssuerCriteria:
-    criteria IssuerCriteria (2..*)
+type AssetAgencyRating:
+    assetAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
 
-type NegativeIssuerCriteria:
-    criteria IssuerCriteria (1..*)
-
-type AssetCriteriaTerms: <"Represents criteria used to specify eligible collateral assets. Only one attribute should be specified at once and where the attribute has multiple cardinality, all the values must apply (ie 'and' logic).">
-
-    collateralAssetType AssetType (0..*) <"Represents a filter based on the asset product type.">
-    assetCountryOfOrigin ISOCountryCodeEnum (0..*) <"Represents a filter on the asset country of origin based on the ISO Standard 3166.">
-    denominatedCurrency CurrencyCodeEnum (0..*) <"Represents a filter on the underlying asset denominated currency based on ISO Standards.">
-    agencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
-    maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
-    maturityRange PeriodRange (0..1) <"Represents a filter based on the underlying asset maturity.">
-    specificAssets Asset (0..*) <"Represents a filter based on specifically identified assets (eg certain securities, loans, or commodities, etc), including using source identifiers such as CUSIP or ISIN.">
-    collateralTaxonomy CollateralTaxonomy (0..*) <"Specifies the collateral taxonomy,which is composed of a taxonomy value and a taxonomy source.">
-    domesticCurrencyIssued boolean (0..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
-    listing ListingType (0..1) <"Specifies the exchange, index or sector specific to listing of a security.">
-
-    condition OnlyOne: 
-        one-of
-
-type TestingTypeIssuer:  <"Using choice">
-    testingAttr IssuerCriteria (1..1)
-
-    condition Test:
-        testingAttr -> AnyIssuerCriteria -> criteria -> IssuerCriteriaTerms -> issuerCountryOfOrigin all = ISOCountryCodeEnum -> AF
-
-type TestingTypeAsset:  <"Using type / one-of">
-    testingAttr AssetCriteria (1..1)
-
-    condition Test:
-        testingAttr -> anyAssetCriteria -> assetCriteriaTerms -> assetCountryOfOrigin all = ISOCountryCodeEnum -> AF
-
-
-
-type AssetCriteria:
-    assetCriteriaTerms AssetCriteriaTerms (1..1)
-    allAssetCriteria AssetCriteria (2..*)
-    anyAssetCriteria AssetCriteria (2..*)
-    negativeAssetCriteria AssetCriteria (1..*)
-
-    condition OnlyOne: 
-        one-of
-
-// choice AssetCriteria:
-//     AssetCriteriaTerms
-//     AllAssetCriteria
-//     AnyAssetCriteria
-//     NegativeAssetCriteria
-
-// type AllAssetCriteria:
-//     criteria AssetCriteria (2..*)
-
-// type AnyAssetCriteria:
-//     criteria AssetCriteria (2..*)
-
-// type NegativeAssetCriteria:
-//     criteria AssetCriteria (1..*)
+type AssetMaturity:
+    maturityType MaturityTypeEnum (1..1) <"Specifies whether the maturity range is the remaining or original maturity.">
+    maturityRange PeriodRange (1..1) <"Represents a filter based on the underlying asset maturity.">
 
 type ListingType: <"Specifies a filter based on an underlying corporate financial official listing defined at a stock exchange.">
     exchange string (0..*) <"Represents a filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
@@ -251,6 +190,53 @@ type ListingType: <"Specifies a filter based on an underlying corporate financia
     sector string (0..*) <"Represents a filter based on an industry sector defined under a system for classifying industry types such as Global Industry Classification Standard (GICS) and North American Industry Classification System (NAICS)">
         [metadata scheme]
     index Index (0..*) <"Represents a filter based on an index that measures a stock market, or a subset of a stock market.">
+
+type DomesticCurrencyIssued:
+    domesticCurrencyIssued boolean (1..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
+
+type CounterpartyOwnIssuePermitted:
+    counterpartyOwnIssuePermitted boolean (1..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+
+choice CollateralCriteria:  <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
+    AllCriteria                     <"Enables two or more Collateral Criteria to be combined using AND logic.">
+    AnyCriteria                     <"Enables two or more Collateral Criteria to be combined using OR logic.">
+    NegativeCriteria                <"Enables a single Collateral Criteria to be excluded using NOT logic.">
+    CollateralIssuerType            <"Criteria is the type of entity issuing the asset.">
+    AssetType                       <"Criteria is the type of asset.">
+    IssuerCountryOfOrigin           <"Criteria is the issuing entity country of origin.">
+    AssetCountryOfOrigin            <"Criteria is the asset country of origin.">
+    CurrencyCodeEnum                <"Criteria is the denominated currency of the asset.">
+    IssuerName                      <"Criteria is a specific named issuer entity.">
+    IssuerAgencyRating              <"Criteria is the agency rating(s) of the issuer.">
+    SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
+    AssetAgencyRating               <"Criteria is the agency rating(s) of the asset.">
+    AssetMaturity                   <"Criteria is the maturity characteristics of an asset.">
+    Asset                           <"Criteria is a specifically identified asset.">
+    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an asset.">
+    ListingType                     <"Criteria is the exchange, index or sector of assets.">
+    CounterpartyOwnIssuePermitted   <"Criteria includes assets issued by the counterparty.">
+    DomesticCurrencyIssued          <"Criteria is that an asset must be denominated in the domestic currency of the issuer.">
+
+type AllCriteria:  <"Used to combine two or more Collateral Criteria using AND logic.">
+    allCriteria CollateralCriteria (2..*)
+
+type AnyCriteria:  <"Used to combine two or more Collateral Criteria using OR logic.">
+    anyCriteria CollateralCriteria (2..*)
+
+type NegativeCriteria:  <"Used to apply a NOT logic condition to a single Collateral Criteria.">
+    negativeCriteria CollateralCriteria (1..1)
+
+type TestingCollateralCriteria:  <"examples of logic and accessing the criteria">
+    testingAttr CollateralCriteria (1..1)
+
+    condition TestSingle:
+        testingAttr -> CurrencyCodeEnum = GBP
+    condition TestAll:
+        testingAttr -> AnyCriteria -> anyCriteria -> IssuerCountryOfOrigin -> issuerCountryOfOrigin all = ISOCountryCodeEnum -> AF
+    condition TestAny:
+        testingAttr -> AllCriteria -> allCriteria -> AssetCountryOfOrigin -> assetCountryOfOrigin any = ISOCountryCodeEnum -> AF
+    condition TestNot:
+        testingAttr -> NegativeCriteria -> negativeCriteria -> IssuerName -> issuerName -> name <> "Tesla"
 
 type EligibleCollateralSpecificationInstruction:
     [rootType]
