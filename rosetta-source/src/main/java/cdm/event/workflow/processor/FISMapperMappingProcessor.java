@@ -8,8 +8,8 @@ import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
 import cdm.base.staticdata.asset.common.AssetIdentifier;
+import cdm.base.staticdata.asset.common.InstrumentTypeEnum;
 import cdm.base.staticdata.asset.common.Security;
-import cdm.base.staticdata.asset.common.SecurityTypeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.event.common.ExecutionTypeEnum;
@@ -94,7 +94,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
         //sec lending payout
-        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
+        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setInstrumentType(InstrumentTypeEnum.EQUITY);
 
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
@@ -338,7 +338,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
             // key
             PathValue<PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
             Security security = Security.builder()
-                    .setSecurityType(SecurityTypeEnum.EQUITY)
+                    .setInstrumentType(InstrumentTypeEnum.EQUITY)
                     .addIdentifier(AssetIdentifier.builder()
                             .setIdentifierValue(value)
                             .setIdentifierType(AssetIdTypeEnum.SEDOL));
@@ -544,8 +544,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
     private PathValue<InterestRatePayoutBuilder> getIRP(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("payout").addElement("interestRatePayout", 0),
-                et.getValue().getOrCreatePayout().getOrCreateInterestRatePayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 1).addElement("InterestRatePayout"),
+                et.getValue().getOrCreatePayout(1).getOrCreateInterestRatePayout());
     }
 
     private PathValue<EconomicTermsBuilder> getEcTerms(PathValue<TradeStateBuilder> ts) {
@@ -556,8 +556,8 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
 
     private PathValue<AssetPayout.AssetPayoutBuilder> getSecPO(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("payout").addElement("assetPayout", 0),
-                et.getValue().getOrCreatePayout().getOrCreateAssetPayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 0).addElement("AssetPayout"),
+                et.getValue().getOrCreatePayout(0).getOrCreateAssetPayout());
     }
 
     private PathValue<CollateralProvisions.CollateralProvisionsBuilder> getColPro(PathValue<TradeStateBuilder> ts) {

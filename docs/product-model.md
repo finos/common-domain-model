@@ -291,7 +291,7 @@ type EconomicTerms:
   effectiveDate AdjustableOrRelativeDate (0..1)
   terminationDate AdjustableOrRelativeDate (0..1)
   dateAdjustments BusinessDayAdjustments (0..1)
-  payout Payout (1..1)
+  payout Payout (1..*)
   terminationProvision TerminationProvision (0..1)
   calculationAgent CalculationAgent (0..1)
   nonStandardisedTerms boolean (0..1)
@@ -319,17 +319,17 @@ a credit default payout to specify a credit default swap.
 :::
 
 ``` Haskell
-type Payout:
+choice Payout:
   [metadata key]
-  interestRatePayout InterestRatePayout (0..*)
-  creditDefaultPayout CreditDefaultPayout (0..1)
-  optionPayout OptionPayout (0..*)
-  commodityPayout CommodityPayout (0..*)
-  settlementPayout SettlementPayout (0..*)
-  fixedPricePayout FixedPricePayout (0..*)
-  cashflow Cashflow (0..*)
-  performancePayout PerformancePayout (0..*)
-  assetPayout AssetPayout (0..*)
+  AssetPayout
+  Cashflow
+  CommodityPayout
+  CreditDefaultPayout
+  FixedPricePayout
+  InterestRatePayout
+  OptionPayout
+  PerformancePayout
+  SettlementPayout
 ```
 
 A number of payout types extend a common data type called `PayoutBase`.
@@ -363,7 +363,6 @@ For example:
 
 ``` Haskell
 type InterestRatePayout extends PayoutBase:
-   [metadata key]
    rateSpecification RateSpecification (0..1)
    dayCountFraction DayCountFractionEnum (0..1)
       [metadata scheme]
@@ -1106,23 +1105,22 @@ ISDA definitions for reference benchmarks. Security has a
 set of additional attributes, as shown below:
 
 ``` Haskell
-type Security extends InstrumentBase:
-  securityType SecurityTypeEnum (1..1)
-  debtType DebtType (0..1)
-  equityType EquityTypeEnum (0..1)
-  fundType FundProductTypeEnum (0..1)
+type Security extends InstrumentBase: 
+    debtType DebtType (0..1)
+    equityType EquityTypeEnum (0..1) 
+    fundType FundProductTypeEnum (0..1)
 
-  condition DebtSubType:
-    if securityType <> SecurityTypeEnum -> Debt
-    then debtType is absent
+    condition DebtSubType:
+        if instrumentType <> InstrumentTypeEnum -> Debt
+        then debtType is absent
 
-  condition EquitySubType:
-    if securityType <> SecurityTypeEnum -> Equity
-    then equityType is absent
+    condition EquitySubType:
+        if instrumentType <> InstrumentTypeEnum -> Equity
+        then equityType is absent
 
-  condition FundSubType:
-    if securityType <> SecurityTypeEnum -> Fund
-    then fundType is absent
+    condition FundSubType:
+        if instrumentType <> InstrumentTypeEnum -> Fund
+        then fundType is absent
 ```
 
 The product identifier will uniquely identify the security. The
