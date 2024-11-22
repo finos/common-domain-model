@@ -37,6 +37,9 @@ This release contains changes that are not backward-compatible:
 - and the following mappings:
   - `cdm.mapping.fpml.confirmation.tradestate:synonym`
   - `cdm.mapping.ore:synonym`
+- The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset.func` namespace as they no longer act on a `fro` ie floating rate index:
+  - `IndexValueObservation`
+  - `IndexValueObservationMultiple`.
 
 _Review directions_
 
