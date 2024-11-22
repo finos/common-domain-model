@@ -2,6 +2,8 @@ namespace cdm.observable.asset : <"Observable concepts applicable to assets: pri
 version "${project.version}"
 
 import cdm.base.math.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.observable.asset.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
@@ -37,3 +39,28 @@ func InterestRateObservableCondition: <"Implementation for PriceQuantity.Interes
                 extract [
                     priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
                 ] all = True
+
+// =====================================================================
+//
+// Index value lookup (observation) functions
+//
+// these functions allow retrieval of the value of an index on a date or set of dates
+//
+// ======================================================================
+func IndexValueObservation: <"Retrieve the values of the supplied index on the specified observation date.">
+    // data provider - implementation provides observed value from data source
+    inputs:
+        observationDate date (1..1)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValue number (1..1)
+
+func IndexValueObservationMultiple: <"Retrieve the values of the supplied index on the specified observation dates.">
+    inputs:
+        observationDate date (0..*)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValues number (0..*)
+
+    add observedValues:
+        observationDate extract IndexValueObservation(item, interestRateIndex)
