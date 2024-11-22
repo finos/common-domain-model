@@ -1,21 +1,29 @@
-# _Infrastructure - Dependency Update_
+# _Product Model - Settlement Payout Price_
 
 _What is being released?_
 
-This release updates the rune dependencies.
+This release updates the FpML synonyms to map the price to the `SettlementPayout->priceQuantity->priceSchedule` attribute for FX samples.
 
-Version updates include:
-- DSL 9.22.0: handle null for `min` and `max` operations. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.22.0
-- FpML Coding Scheme `11.25.1`: support for latest version (v2.20).
+_Backwards incompatible changes_
+
+This release removes attributes `SettlementPayoutt->fixedPrice` and `OptionPayout->fixedPrice` as they are duplicates of the existing attributes `SettlementPayout->priceQuantity->priceSchedule` and `OptionPayout->priceQuantity->priceSchedule`.
 
 _Review directions_
 
-In Rosetta, select the Textual Browser and inspect changes due to the FpML code scheme update:
-- `FloatingRateIndexEnum` has values added:
-    - `EUR_EuroSTR_ICE_Swap_Rate`
-    - `IDR_INDONIA`
-    - `IDR_INDONIA_OIS_Compound`
-    - `PHP_ORR`
-    - `USD_SOFR_ICE_Swap_Rate_Spreads`
+In Rosetta, select the Textual Browser and inspect FpML mapping changes in namespace `cdm.mapping.fpml.confirmation.tradestate`.
 
-The changes can be reviewed in PR: [#3261](https://github.com/finos/common-domain-model/pull/3261)
+In Rosetta, select the Ingest tab and review the following FpML samples:
+
+- fx-ex01-fx-spot.xml
+- fx-ex02-spot-cross-w-side-rates.xml
+- fx-ex03-fx-fwd.xml
+- fx-ex05-fx-fwd-w-ssi.xml
+- fx-ex07-non-deliverable-forward.xml
+- fx-ex08-fx-swap.xml
+- fx-ex26-fxswap-multiple-USIs.xml
+- fx-ex28-non-deliverable-w-disruption.xml
+- fx-ex29-fx-swap-with-multiple-identifiers.xml
+
+In Rosetta, select the Visualisation tab and review the `Repo And Bond > Bond Execution` example:
+
+The changes can be reviewed in PR: [#3250](https://github.com/finos/common-domain-model/pull/3250)
