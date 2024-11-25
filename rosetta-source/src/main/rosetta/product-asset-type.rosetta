@@ -26,7 +26,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Underlier (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    underlier Underlier (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap. Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
@@ -37,12 +37,18 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
         required choice schedule, calculationPeriodDates
 
     condition CommodityUnderlier: <"The underlier should be a commodity.">    
+        // commodity underlier
         underlier -> Observable -> Asset -> Commodity exists 
         or underlier -> Observable -> Index ->> assetClass = Commodity
-        or underlier -> Observable -> Basket -> basketConstituent -> Asset -> Commodity only exists
+        or BasketIsCommodity (underlier -> Observable -> Basket)
+        // commodity option underlier
         or underlier -> Product -> TransferableProduct -> economicTerms -> payout -> OptionPayout -> underlier -> Observable -> Asset -> Commodity exists
         or underlier -> Product -> TransferableProduct -> economicTerms -> payout -> OptionPayout -> underlier -> Observable -> Index ->> assetClass all = Commodity
-        or underlier -> Product -> TransferableProduct -> economicTerms -> payout -> OptionPayout -> underlier -> Observable -> Basket -> basketConstituent -> Asset -> Commodity only exists
+        or BasketIsCommodity (underlier -> Product -> TransferableProduct -> economicTerms -> payout -> OptionPayout -> underlier -> Observable -> Basket)
+        // commodity future underlier
+        or underlier -> Product -> TransferableProduct -> economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Asset -> Commodity exists
+        or underlier -> Product -> TransferableProduct -> economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Index ->> assetClass all = Commodity
+        or BasketIsCommodity (underlier -> Product -> TransferableProduct -> economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Basket)
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
