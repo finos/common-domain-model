@@ -42,7 +42,21 @@ func BasketIsCommodity: <"Validates whether all of the constituents of a Basket 
     inputs:
         basket Basket (0..1)
     output:
-        valid boolean (0..1)
+        valid boolean (1..1)
 
     set valid:
         basket -> basketConstituent extract [ Asset -> Commodity exists ] all = True
+
+func ObservableIsCommodity: <"Validates whether all of the constituents of an Observable are Commodities.">
+    inputs:
+        observable Observable (0..1)
+    output:
+        valid boolean (1..1)
+
+    set valid:
+        if observable -> Asset -> Commodity exists
+        or observable -> Index ->> assetClass = Commodity
+        then True
+        else if observable -> Basket exists
+        then observable -> Basket -> basketConstituent extract [ Asset -> Commodity exists ] all = True
+        else False
