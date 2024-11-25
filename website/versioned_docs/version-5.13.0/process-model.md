@@ -563,9 +563,9 @@ func EquityCashSettlementAmount:
     alias receiver:
         ExtractCounterpartyByRole( tradeState -> trade -> tradableProduct -> counterparty, equityPerformancePayout -> payerReceiver -> receiver ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value:
+    set equityCashSettlementAmount -> deliverableQuantity -> value:
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency:
+    set equityCashSettlementAmount -> deliverableQuantity -> unit -> currency:
         ResolveEquityInitialPrice(
            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> price
         ) -> unit -> currency

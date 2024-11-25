@@ -129,7 +129,7 @@ public class SettlementFunctionHelper {
                         .setBeforeValue(before)
                         .setPrimitiveInstruction(PrimitiveInstruction.builder()
                                 .setTransfer(TransferInstruction.builder()
-                                        .setTransferState(transferStates))))
+                                        .setGrossTransfer(transferStates))))
                 .setEventDate(Date.of(transferDate));
     }
 

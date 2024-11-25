@@ -110,7 +110,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
 
     private Optional<TransferInstruction> getTransferInstruction(Path synonymPath) {
         TransferInstruction.TransferInstructionBuilder transferInstructionBuilder = TransferInstruction.builder();
-        TransferState.TransferStateBuilder tradeStateBuilder = transferInstructionBuilder.getOrCreateTransferState(0);
+        TransferState.TransferStateBuilder tradeStateBuilder = transferInstructionBuilder.getOrCreateGrossTransfer(0);
         Transfer.TransferBuilder transferBuilder = tradeStateBuilder.getOrCreateTransfer();
 
         Path paymentPath = synonymPath.addElement("payment");
@@ -125,7 +125,7 @@ public class NovationInstructionMappingProcessor extends MappingProcessor {
                 transferBuilder.getOrCreatePayerReceiver().getOrCreateReceiverPartyReference()::setExternalReference);
 
         // payment amount
-        setQuantity(transferBuilder.getOrCreateQuantity(), paymentPath.addElement("paymentAmount"));
+        setQuantity(transferBuilder.getDeliverableQuantity(), paymentPath.addElement("paymentAmount"));
 
         // payment amount
         setAsset(transferBuilder.getOrCreateAsset(), paymentPath.addElement("paymentAmount"));
