@@ -121,3 +121,12 @@ func ExtractFixedLeg: <"Extract interest rate payout containing fix rate specifi
         interestRatePayouts
             filter rateSpecification -> FixedRateSpecification exists
             then only-element
+
+func BasketIsCommodity: <"Validates whether all of the constituents of a Basket are Commodities.">
+    inputs:
+        basket Basket (0..1)
+    output:
+        valid boolean (0..1)
+
+    set valid:
+        basket extract [ basketConstituent -> Asset -> Commodity exists ] all = True
