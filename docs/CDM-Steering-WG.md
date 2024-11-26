@@ -13,7 +13,7 @@ The Steering Working Group serves as the driving force behind the strategic dire
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
 - Approve new FINOS [Working Groups](cdm-org-structure.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
-- Provide final release approval.
+- Provide final [release](maintenance-and-release.md) approval.
 - The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
 
 
