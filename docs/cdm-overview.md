@@ -99,7 +99,7 @@ CDM components diagram below:
 -   The Rune DSL (on the left, in *grey*)
 -   CDM Applications (on the right, in *blue*)
 
-![](/img/cdm-components-diagram.png)
+![](/website/static/img/cdm-components-diagram.png)
 
 ## FINOS CDM Distribution
 
