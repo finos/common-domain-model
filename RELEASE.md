@@ -1,29 +1,19 @@
-# _Product Model - Settlement Payout Price_
+# _CDM Model - TaxonomySourceEnum_
+
+_Background_
+A DRR issue has been identified where reporting the Underlying CO values was not supported for MAS. To address this, we proposed replicating the reporting logic used for BaseProduct and SubProduct in EMIR. In CDM, this involves adding "MAS" as a value to the TaxonomySourceEnum, since the TaxonomySource in CDM determines the jurisdiction based on the commodityClassificationScheme being used. So the "MAS" value will be added in the TaxonomySourceEnum.
 
 _What is being released?_
 
-This release updates the FpML synonyms to map the price to the `SettlementPayout->priceQuantity->priceSchedule` attribute for FX samples.
+- Updated `TaxonomySourceEnum` in cdm.base.staticdata.asset.common:enum
 
-_Backwards incompatible changes_
+_Enumerations_
 
-This release removes attributes `SettlementPayoutt->fixedPrice` and `OptionPayout->fixedPrice` as they are duplicates of the existing attributes `SettlementPayout->priceQuantity->priceSchedule` and `OptionPayout->priceQuantity->priceSchedule`.
+- Updated `TaxonomySourceEnum` by adding MAS to support Monetary Authority of Singapore (MAS) as a taxonomy source.
 
 _Review directions_
 
-In Rosetta, select the Textual Browser and inspect FpML mapping changes in namespace `cdm.mapping.fpml.confirmation.tradestate`.
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
 
-In Rosetta, select the Ingest tab and review the following FpML samples:
+The changes can be reviewed in PR: [#3266](https://github.com/finos/common-domain-model/pull/3266)
 
-- fx-ex01-fx-spot.xml
-- fx-ex02-spot-cross-w-side-rates.xml
-- fx-ex03-fx-fwd.xml
-- fx-ex05-fx-fwd-w-ssi.xml
-- fx-ex07-non-deliverable-forward.xml
-- fx-ex08-fx-swap.xml
-- fx-ex26-fxswap-multiple-USIs.xml
-- fx-ex28-non-deliverable-w-disruption.xml
-- fx-ex29-fx-swap-with-multiple-identifiers.xml
-
-In Rosetta, select the Visualisation tab and review the `Repo And Bond > Bond Execution` example:
-
-The changes can be reviewed in PR: [#3250](https://github.com/finos/common-domain-model/pull/3250)
