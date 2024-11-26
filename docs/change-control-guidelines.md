@@ -38,32 +38,23 @@ Please note that full, bidirectional interoperability between minor versions is 
 
 ## Backward Compatibility
 
-Like other types of software, *backward compatibility* in the context of
-a domain model means that an implementor of that model would not have to
-make any change to update to such version.
+Like other types of software, backward compatibility in the context of a domain model means that an implementor of that model would not have to make any change to update to such version.
 
 -   Prohibited changes:
-    -   Change to the structure (e.g. the attributes of a data type or
-        the inputs of a function) or removal of any model element
-    -   Change to the name of any model element (e.g. types, attributes,
-        enums, functions or reporting rules)
-    -   Change to any condition or cardinality constraint that makes
-        validation more restrictive
-    -   Change to the DSL that results in any existing expression
-        becoming invalid
-    -   Change to the DSL that results in change to any of the generated
-        code's public interfaces
--   Allowed changes:
-    -   Change that relaxes any condition or cardinality constraint
-    -   Change to any synonym that improves, or at least does not
-        degrade, the mapping coverage
-    -   Addition of new examples or test packs
-    -   Change to the user documentation or model descriptions
-    -   Addition of new data types, optional attributes, enumerations,
-        rules or functions that do not impact current functionality
+    - 	Change to the structure (e.g. the attributes of a data type or the inputs of a function) or removal of any model element
+    - 	Change to the name of any model element (e.g. types, attributes, enums, functions or reporting rules)
+    -  Change to any condition or cardinality constraint that makes validation more restrictive
+    - 	Change to the DSL that results in any existing expression becoming invalid
+    - 	Change to the DSL that results in change to any of the generated code's public interfaces
 
-Exceptions to backward compatibility may be granted for emergency bug
-fixes following decision from the relevant governance body.
+-   Allowed changes:
+    - 	Change that relaxes any condition or cardinality constraint
+    - 	Change to any synonym that improves, or at least does not degrade, the mapping coverage
+    - 	Addition of new examples or test packs
+    - 	Change to the user documentation or model descriptions
+    - 	Addition of new data types, optional attributes, enumerations, rules or functions that do not impact current functionality
+
+Exceptions to backward compatibility may be granted for emergency bug fixes following decision from the relevant governance body.
 
 
 ## Change Control Evaluation and Enforcement
