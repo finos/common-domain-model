@@ -89,7 +89,7 @@ The Steering Working Group has the role of defining major releases of CDM and sh
 
 ## 6. Pull Request Classification and Approval Guidelines
 
-Details on how pull requests will be classified can be found in our [Change control guidelines](change-control-guidelines.md) page.
+Details on how pull requests will be classified can be found in our [Change control guidelines](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) page.
 
 ## 7. Release Build Approval Guidelines
 
