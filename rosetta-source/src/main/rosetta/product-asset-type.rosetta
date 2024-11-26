@@ -36,13 +36,15 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
         required choice schedule, calculationPeriodDates
 
-    condition CommodityUnderlier: <"The underlier should be a commodity.">    
-        // commodity underlier
-        ObservableIsCommodity (underlier -> Observable)
-        // commodity option underlier
-        or ObservableIsCommodity (underlier -> Product -> TransferableProduct -> economicTerms -> payout -> OptionPayout -> underlier -> Observable only-element)
-        // commodity future underlier
-        or ObservableIsCommodity (underlier -> Product -> TransferableProduct -> economicTerms -> payout -> SettlementPayout -> underlier -> Observable only-element)
+    condition CommodityUnderlier:  <"The underlier for a CommodityPayout should be a commodity.">
+        underlier switch
+            Observable then ObservableIsCommodity (item) ,
+            Product    then (
+                TransferableProduct -> economicTerms -> payout only-element switch
+                    OptionPayout     then ObservableIsCommodity (underlier -> Observable) ,  // Commodity Option
+                    SettlementPayout then ObservableIsCommodity (underlier -> Observable) ,  // Commodity Future
+                    default False ) ,
+            default False
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
