@@ -2,6 +2,7 @@ package cdm.observable.asset.fro.functions;
 
 import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.InterestRateIndex;
+import cdm.observable.asset.functions.IndexValueObservation;
 import com.google.inject.Binder;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
