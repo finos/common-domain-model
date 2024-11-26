@@ -1,6 +1,6 @@
 ## Reviewing model changes
 
-Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the [maintenance and release](maintenance-and-release.md) guidelines. 
+Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the the  guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.
 
 ### Review checklist
 
@@ -13,7 +13,7 @@ through the following review checklist:
     -   Synonyms have been updated and output (JSON) looks correct
     -   Contributed model version is not stale and does not conflict
         with any recent changes
-    -   Changes are in accordance with the CDM governance guidelines
+    -   Changes are in accordance with the CDM governance guidelines, including the change control guidelines in the [change control guidelines page](change-control-guidelines.md)
 
 ---
 **Note:**
