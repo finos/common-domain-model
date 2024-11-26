@@ -60,7 +60,7 @@ define this as a cash collateralised loan. These types can be found under the
 `economicTerms->collateral` type.
 
 An example showing the location of the 
-security being lent and the payouts for the cash collateral and is provided below:
+security being lent and the payouts for the cash collateral is provided below:
 
 ``` Javascript
 "economicTerms": {
