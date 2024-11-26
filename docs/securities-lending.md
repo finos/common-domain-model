@@ -106,7 +106,7 @@ products.
 The security that is being lent is modelled the same way as the cash case with
 an `underlier` in the main `AssetPayout`.
 
-The non-cash collateral is also still modelled with a one or more `TransferableProduct` 
+The non-cash collateral is also still modelled with one or more `TransferableProduct` 
 in the `collateralPosition`.  Rather than the product containing `cash`, the actual
 asset being used as collateral is specified. The details of the security should be entered
 in the attributes held within the `Security->identifier` type, being the `identifier`,
