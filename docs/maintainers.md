@@ -22,6 +22,8 @@ The [maintenance and release](maintenance-and-release.md) page provides further 
 ## Maintainers Approval Process 
 ![](../.github/Approval-Process.png)
 
+Click [here](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) to view the pull request approva guidelines. 
+
 ## FINOS CDM Project Maintainers
 
 FINOS Common Domain Model is maintained by FINOS members and the wider open source in finance community. 
