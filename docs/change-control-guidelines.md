@@ -22,20 +22,19 @@ This section discusses how changes to the CDM are controlled within and between 
 ## Change Control Rules
 
 * Unless explicitly indicated otherwise, components of CDM (such as data types and functions) will be under change control once released into production.
-* Within multiple minor releases of a single major release, the following will not be changed:
+* Within multiple minor releases of a single major release, the following must be true:
   * Within business objects, any object that is valid in version M.N should be representable and valid in version M.N+1 .
     * For example, existing data fields may not be changed in type, reduced in cardinality, or removed, and new mandatory data fields may not be added.
-    * Change to the name of any model element (e.g. types, attributes, enums, functions or reporting rules) is prohibited
-    * Change to the DSL that results in any existing expression becoming invalid is prohibited
+    * Specific rules are described below in “Specific Backward Compatibility Rules”
     * All validations that pass in version M.N should also pass in version M.N+1
   * Function signatures may not be changed in such a way as to invalidate previous callers (e.g addition of new mandatory parameters, or removal/change of existing parameters.)
     * Change to the DSL that results in change to any of the generated code's public interfaces is prohibited
   * Test cases that passed in a prior version shall continue to work.
-  * We allow some minor exceptions to these rules for newly introduced functionality that may not be fully formed, as part of the PR process for defect corrections
-  * Functionality shall not be removed between major versions without advance notice
+  * We allow some minor exceptions to these rules for newly introduced functionality that may not be fully formed, as part of the PR process for defect corrections.
+  * Functionality shall not be removed between major versions without advance notice.  (This can be done as part of the advance planning of a major version with SWG approval.
 
 
-Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
+Please note that full, bidirectional interoperability between minor versions is not required. If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality. However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
 
 ## Backward Compatibility
 
