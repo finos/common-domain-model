@@ -23,4 +23,4 @@ This release contains changes that are not backward-compatible:
 
 _Review directions_
 
-The changes can be reviewed in PR: #3267 or in Rosetta.
+The changes can be reviewed in PR: #3270 or in Rosetta.
