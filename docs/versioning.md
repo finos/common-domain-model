@@ -71,7 +71,7 @@ various versions available would be as follows:
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
 
-Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Release Build Approval Guidelines](Release-Build-Approval-Guidelines.md)
+Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Maintenance and Release Guidelines](maintenance-and-release.md/#Release-Build-Approval-Guidelines)
 
 Click [here](roadmap.mdx) to view the current planned release timeline.
 
