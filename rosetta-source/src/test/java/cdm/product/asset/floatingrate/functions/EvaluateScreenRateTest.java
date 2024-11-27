@@ -2,7 +2,7 @@ package cdm.product.asset.floatingrate.functions;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.InterestRateIndex;
-import cdm.observable.asset.functions.IndexValueObservation;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.FloatingRate;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;

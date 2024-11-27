@@ -7,8 +7,6 @@ import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
-import cdm.observable.asset.functions.IndexValueObservation;
-import cdm.observable.asset.functions.IndexValueObservationMultiple;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Binder;

@@ -5,7 +5,7 @@ import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.InterestRateIndex;
-import cdm.observable.asset.functions.IndexValueObservation;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import com.rosetta.model.lib.records.Date;
 
 import java.math.BigDecimal;

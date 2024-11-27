@@ -1,7 +1,7 @@
 package cdm.observable.asset.fro.functions;
 
 import cdm.observable.asset.InterestRateIndex;
-import cdm.observable.asset.functions.IndexValueObservation;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import com.rosetta.model.lib.records.Date;
 
 import java.math.BigDecimal;
