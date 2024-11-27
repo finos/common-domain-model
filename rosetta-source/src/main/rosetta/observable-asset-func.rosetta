@@ -2,6 +2,7 @@ namespace cdm.observable.asset : <"Observable concepts applicable to assets: pri
 version "${project.version}"
 
 import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
@@ -45,8 +46,10 @@ func ObservableIsCommodity: <"Validates whether all of the constituents of an Ob
         valid boolean (1..1)
 
     set valid:
-        observable switch
-            Asset   then Commodity exists,
-            Basket  then basketConstituent extract [ Asset -> Commodity exists ] all = True,
-            Index   then item ->> assetClass = Commodity,
-            default False 
+        if observable -> Asset exists
+        then observable -> Asset -> Commodity exists
+        else if observable -> Basket exists
+        then observable -> Basket -> basketConstituent extract [ Asset -> Commodity exists ] all = True
+        else if observable -> Index exists
+        then observable -> Index ->> assetClass = Commodity
+        else False 
