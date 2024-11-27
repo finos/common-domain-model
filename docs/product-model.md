@@ -34,7 +34,6 @@ The Asset data type is represented as a `choice` of several underlying data type
 choice Asset:  
     Cash
     Commodity
-      [metadata location]
     DigitalAsset
     Instrument
 ```
