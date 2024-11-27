@@ -22,7 +22,7 @@ func DetermineFloatingRateReset: <"Get the value of a floating rate by either ob
         floatingRate FloatingRateSettingDetails (1..1) <"Details of the rate observation/calculation corresonding to the supplied rate definition and calculation period.">
 
     // figure out the characteristics of the rate
-    alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
+    alias rateDef: interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification
     alias processingType: GetFloatingRateProcessingType(rateDef) // get a processing category that will be used to dermine how to process the rate, based on the rate category, style, and calculation method
     // perform the relevant operation (look up a term rate or do the rate calculation for a calculated rate)
     set floatingRate:
@@ -82,13 +82,13 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
     [calculation]
     // set up convenience aliases
     alias resetDates: interestRatePayout -> resetDates
-    alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
+    alias rateDef: interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification
     set floatingRate: EvaluateScreenRate(rateDef, resetDates, calcPeriod) // Call the screen rate evaluation logic
 
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> Modular): <"Evaluate the rate for a modular calculated rate.  Call the calculated rate calculation logic to determine the value of the reset.">
     [calculation]
     // set up convenience aliases
-    alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
+    alias rateDef: interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
     alias dayCount: interestRatePayout -> dayCountFraction
     alias fro: rateDef -> rateOption
@@ -117,7 +117,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> OIS): <"Evaluate the rate for an OIS calculated rate. Call the calculated rate calculation logic to determine the value of the reset.  See the 2021 ISDA Definitions Section 6.6.3.">
     [calculation]
     // set up convenience aliases
-    alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
+    alias rateDef: interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
     alias dayCount: interestRatePayout -> dayCountFraction
     alias fro: rateDef -> rateOption
@@ -142,7 +142,7 @@ func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnu
 func ProcessFloatingRateReset(processingType: FloatingRateIndexProcessingTypeEnum -> OvernightAvg): <"Evaluate the rate for a daily average calculated FRO. Call the calculated rate calculation logic to determine the value of the reset. See the 2021 ISDA Definitions Section 6.6.3.">
     [calculation]
     // set up convenience aliases
-    alias rateDef: interestRatePayout -> rateSpecification -> FloatingRateSpecification
+    alias rateDef: interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification
     alias resetDates: interestRatePayout -> resetDates
     alias dayCount: interestRatePayout -> dayCountFraction
     alias rateOption: rateDef -> rateOption
@@ -256,14 +256,14 @@ func GetFloatingRateProcessingParameters: <"Determine the processing parameters 
     alias floor: FloorRateAmount(interestRatePayout, calculationPeriod)
 
     alias rounding:
-        interestRatePayout -> rateSpecification -> FloatingRateSpecification -> finalRateRounding
+        interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification -> finalRateRounding
     alias negativeTreatment:
-        interestRatePayout -> rateSpecification -> FloatingRateSpecification -> negativeInterestRateTreatment
+        interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification -> negativeInterestRateTreatment
     alias treatment:
-        interestRatePayout -> rateSpecification -> FloatingRateSpecification -> rateTreatment
+        interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification -> rateTreatment
 
     set processingParameters -> initialRate:
-        interestRatePayout -> rateSpecification -> FloatingRateSpecification -> initialRate
+        interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification -> initialRate
     set processingParameters -> spread: spreadRate
     set processingParameters -> multiplier: multiplier
     set processingParameters -> treatment: treatment
@@ -282,7 +282,7 @@ func SpreadAmount: <"Look up the spread amount for a calculation period.">
 
     set spread:
         GetRateScheduleAmount(
-                interestRatePayout -> rateSpecification -> FloatingRateSpecification -> spreadSchedule,
+                interestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification -> spreadSchedule,
                 calculationPeriod -> adjustedStartDate
             )
 
@@ -296,7 +296,7 @@ func MultiplierAmount: <"Look up the multiplier amount for a calculation period.
 
     set multiplier:
         GetRateScheduleAmount(
-                interestRatePayout -> rateSpecification -> FloatingRateSpecification -> floatingRateMultiplierSchedule,
+                interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> floatingRateMultiplierSchedule,
                 calculationPeriod -> adjustedStartDate
             )
 
@@ -310,7 +310,7 @@ func CapRateAmount: <"Look up the cap rate amount for a calculation period.">
 
     set capRate: <"Look up and return the rate for the period start date.">
         GetRateScheduleAmount(
-                interestRatePayout -> rateSpecification -> FloatingRateSpecification -> capRateSchedule,
+                interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> capRateSchedule,
                 calculationPeriod -> adjustedStartDate
             )
 
@@ -324,7 +324,7 @@ func FloorRateAmount: <"Look up the floor rate amount for a calculation period."
 
     set floorRate: <"Look up and return the rate for the period start date.">
         GetRateScheduleAmount(
-                interestRatePayout -> rateSpecification -> FloatingRateSpecification -> floorRateSchedule,
+                interestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> floorRateSchedule,
                 calculationPeriod -> adjustedStartDate
             )
 

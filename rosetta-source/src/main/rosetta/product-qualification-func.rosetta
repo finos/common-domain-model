@@ -943,7 +943,7 @@ func Qualify_BaseProduct_IRSwap: <"Qualifies a product as having the Base Produc
             and economicTerms -> payout -> InterestRatePayout count = 2
             and economicTerms -> payout -> InterestRatePayout -> paymentDates count = 2
             and Qualify_BaseProduct_CrossCurrency(economicTerms) = False
-            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification is absent
+            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> InflationRateSpecification is absent
 
 func Qualify_BaseProduct_CrossCurrency: <"Qualifies a product as having the Base Product classification Cross Currency.">
     inputs:
@@ -969,7 +969,7 @@ func Qualify_BaseProduct_Fra: <"Qualifies a product as having the Base Product c
         Qualify_AssetClass_InterestRate(economicTerms) = True
             and economicTerms -> payout -> InterestRatePayout count = 2
             and economicTerms -> payout -> InterestRatePayout -> paymentDate count = 2
-            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification is absent
+            and economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  InflationRateSpecification is absent
 
 func Qualify_BaseProduct_Inflation: <"Qualifies a product as having the Base Product classification Inflation Swap">
     inputs:
@@ -980,7 +980,7 @@ func Qualify_BaseProduct_Inflation: <"Qualifies a product as having the Base Pro
         Qualify_AssetClass_InterestRate(economicTerms) = True
             and economicTerms -> payout -> InterestRatePayout count = 2
             and economicTerms -> payout -> InterestRatePayout -> paymentDates count = 2
-            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification exists
+            and economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  InflationRateSpecification exists
 
 func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Product classification Fixed Float">
     inputs:
@@ -989,12 +989,12 @@ func Qualify_SubProduct_FixedFloat: <"Qualifies a product as having the Sub Prod
         is_product boolean (1..1)
 
     set is_product:
-        (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification count = 1
-                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 1)
-            or (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification count = 1
-                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification count = 1)
-            or ((economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 1
-                    or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification count = 1)
+        (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification count = 1
+                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification count = 1)
+            or (economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  FixedRateSpecification count = 1
+                and economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  InflationRateSpecification count = 1)
+            or ((economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  FloatingRateSpecification count = 1
+                    or economicTerms -> payout -> InterestRatePayout -> rateSpecification ->RateSpecification ->  InflationRateSpecification count = 1)
                 and (economicTerms -> payout -> InterestRatePayout
                     filter rateSpecification is absent and priceQuantity exists
                     then count = 1
@@ -1006,7 +1006,7 @@ func Qualify_SubProduct_FixedFixed: <"Qualifies a product as having the Sub Prod
     output:
         is_product boolean (1..1)
     set is_product:
-        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification count = 2
+        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification count = 2
 
 func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product classification Basis">
     inputs:
@@ -1014,10 +1014,10 @@ func Qualify_SubProduct_Basis: <"Qualifies a product as having the Sub Product c
     output:
         is_product boolean (1..1)
     set is_product:
-        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 2
-            or (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification count = 1
-                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 1)
-            or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> InflationRateSpecification count = 2
+        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification count = 2
+            or (economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> InflationRateSpecification count = 1
+                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification count = 1)
+            or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> InflationRateSpecification count = 2
 
 func Qualify_Transaction_ZeroCoupon: <"Qualifies a product as having the Transaction classification Zero Coupon">
     inputs:
@@ -1062,7 +1062,7 @@ func Qualify_Transaction_OIS: <"Qualifies a product as having the Transaction cl
         is_product boolean (1..1)
 
     alias floatingRateIndex:
-        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> rateOption -> InterestRateIndex -> floatingRateIndex
+        economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> rateOption -> InterestRateIndex -> floatingRateIndex
 
     set is_product:
         floatingRateIndex any = FloatingRateIndexEnum -> AUD_AONIA_OIS_COMPOUND
@@ -1353,8 +1353,8 @@ func Qualify_InterestRate_Fra: <"Qualifies the product as a Floating Rate Agreem
 
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
-            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FixedRateSpecification count = 1
-            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification count = 1
+            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FixedRateSpecification count = 1
+            and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification ->  FloatingRateSpecification count = 1
             and economicTerms -> payout -> InterestRatePayout -> paymentDate count = 2
 
 func Qualify_InterestRate_CapFloor: <"Qualifies a product as an interest rate cap, interest rate floor, or an interest rate collar based on the economic terms and the following criteria: 1) An interest rate product with one one leg that includes a cap and/or a floor.">
@@ -1370,8 +1370,8 @@ func Qualify_InterestRate_CapFloor: <"Qualifies a product as an interest rate ca
         Qualify_AssetClass_InterestRate(economicTerms) = True
                 and economicTerms -> payout -> InterestRatePayout count = 1
                     // qualifies the product as having a cap and/or floor in the interestRatePayout
-                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> capRateSchedule exists
-            or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> FloatingRateSpecification -> floorRateSchedule exists
+                and economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> capRateSchedule exists
+            or economicTerms -> payout -> InterestRatePayout -> rateSpecification -> RateSpecification -> FloatingRateSpecification -> floorRateSchedule exists
 
 func Qualify_InterestRate_Option_Swaption: <"Qualifies a product as a Swaption that can be exercised into an Interest Rate Swap, which could be any type of interest rate product with two legs based on the economic terms.">
     [qualification Product]
