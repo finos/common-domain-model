@@ -50,7 +50,7 @@ at <cdm@lists.finos.org>.
 The key models defined in the CDM are listed below. Click each one to learn more. 
 - [Event model](event-model.md) - provides data structures to represent the lifecycle events of financial transactions.
 - [Process model](process-model.md) - lays the foundation for the standardisation, automation and inter-operability of industry processes.
-- [Product model](product-model.md) - - describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
+- [Product model](product-model.md) -  describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
 - [Reference data model](reference-data-model.md) – describes underlying business entities such as parties, legal entities, floating rate indexes, and so on that needed to model the in-scope products, events, legal agreements and function components.
 - [Use cases](use-cases.md) – business process areas in the financial ecosystem that the CDM supports.
 
