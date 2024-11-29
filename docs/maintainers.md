@@ -22,7 +22,7 @@ The [maintenance and release](maintenance-and-release.md) page provides further 
 ## Maintainers Approval Process 
 ![](../.github/Approval-Process.png)
 
-Click [here](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) to view the pull request approva guidelines. 
+Click [here](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) to view the pull request approval guidelines. 
 
 ## FINOS CDM Project Maintainers
 
