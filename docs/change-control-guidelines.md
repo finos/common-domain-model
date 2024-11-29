@@ -61,7 +61,7 @@ Exceptions to backward compatibility may be granted for emergency bug fixes foll
 
 * Designers and contributors to CDM are responsible for being aware of and following the change control guidelines.  This includes flagging pull requests when they involve breaking changes to controlled objects.
   * Backward incompatible changes shall be documented and include a migration guide (remap from old structures and functions to the new)
-* Reviewers will be responsible for assessing (“double checking”) whether any changes may violate the change control guidelines, and flag questionable changes for further review.  
+* Reviewers will be responsible for assessing (“double checking”) whether any changes may violate the change control guidelines, and flag questionable changes for further review.  This process is described in more detail [here](maintenance-and-release.md)
   * Part of the role of the Contribution Review Working Group (CRWG) and of the maintainers is to enforce these guidelines for any change.
 * There will be a set of regression test cases developed for each supported major version.  Subsequent CDM minor and major versions will be tested against these test cases and a report prepared indicating which cases succeed and fail, and this will be compared against the guidelines.  For example:
   * CDM version 6.2 will be tested against the 6.1 test cases; all should succeed, unless included in the exception/noncontrolled list.
@@ -71,7 +71,7 @@ Exceptions to backward compatibility may be granted for emergency bug fixes foll
 
 ## Pull Request Classification and Approval Guidelines
 
-This section discusses how pull requests will be classified, reviewed, and approved.
+This section discusses how pull requests will be classified, reviewed, and approved. The approval process is described [here](maintenance-and-release.md).
 
 ## PR Classification
 
