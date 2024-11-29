@@ -93,5 +93,5 @@ Details on how pull requests will be classified can be found in our [Change cont
 
 ## 7. Release Build Approval Guidelines
 
-This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases. Please click [here](maintenance-and-release.md/##Development-Release-Scheduling-Approvals) to be redirected.
+This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases. Please click [here](maintenance-and-release.md/#Development-Release-Scheduling-Approvals) to be redirected.
 
