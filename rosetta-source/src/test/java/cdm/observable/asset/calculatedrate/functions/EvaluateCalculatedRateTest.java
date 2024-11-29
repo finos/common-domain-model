@@ -7,8 +7,6 @@ import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.CalculatedRateDetails;
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
-import cdm.observable.asset.fro.functions.IndexValueObservation;
-import cdm.observable.asset.fro.functions.IndexValueObservationMultiple;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Binder;
@@ -46,10 +44,10 @@ public class EvaluateCalculatedRateTest extends AbstractFunctionTest {
         Date end = Date.of(2021, 12, 10);
         CalculationPeriodBase calculationPeriod = period(st, end);
         DayCountFractionEnum dcf = DayCountFractionEnum.ACT_360;
-        FloatingRateIndex.FloatingRateIndexBuilder fro = FloatingRateIndex.builder()
-                .setInterestRateIndex(InterestRateIndex.builder()
-                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15)
-                        .build());
+
+        InterestRateIndex fro = InterestRateIndex.builder().setFloatingRateIndex(FloatingRateIndex.builder()
+                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_PRIME_H_15))
+                .build();
 
         List<Date> calcDates = dateList(st, end);
         List<Date> obsDate = new ArrayList<>(calcDates);

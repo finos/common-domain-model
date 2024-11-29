@@ -136,8 +136,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
-    fixedPrice PriceSchedule (0..*) <"Specifies the price of the settlement. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
@@ -401,8 +399,6 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-    fixedPrice PriceSchedule (0..*) <"Specifies the price of the settlement. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
 
     condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
         underlier -> Product -> NonTransferableProduct is absent
@@ -853,7 +849,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
-    repoType RepoTypeEnum (0..1) <"Repurchase transactions and buy/sell-backs are both types of repo; this enumerator helps differentiate the two.">
+    tradeType AssetPayoutTradeTypeEnum (0..1) <"The trade type, eg repurchase transaction or buy/sell-back.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists
