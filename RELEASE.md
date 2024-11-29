@@ -14,10 +14,16 @@ This release creates following modifications:
 
 - relaxation of cardinality rule for `expirationTime`. The attribute is now optional.
 - attribute `expirationTimeType` is now mandatory.
-- addition of validation condition to establish the correlation between `expirationTime` and `expirationTimeType` 
+- addition of validation condition to establish the correlation between `expirationTime` and `expirationTimeType`. The change is made backward incompatible and all affected samples are modified too. (See Example: [Euro Option](https://github.com/finos/common-domain-model/blob/37256934de2c54e5eafc7b6a9ab76ca1bc56de5b/rosetta-source/src/main/resources/result-json-files/fpml-5-10/products/fx/fx-ex09-euro-opt.json)))
 
 _Review Directions_
 
-In Rosetta, select the Textual Browser and inspect the changes identified above.
+Please inspect the changes identified above in the Rosetta file:
 
-The changes can be reviewed in PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
+[Product-Asset-Type](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-asset-type.rosetta)
+
+[Product-Qualification-Func](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-qualification-func.rosetta)
+
+[Product-Template-Type](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-template-type.rosetta)
+
+The changes can also be reviewed in PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
