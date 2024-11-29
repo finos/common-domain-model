@@ -71,7 +71,11 @@ Exceptions to backward compatibility may be granted for emergency bug fixes foll
 
 ## Pull Request Classification and Approval Guidelines
 
-This section discusses how pull requests will be classified, reviewed, and approved. The approval process is described [here](maintenance-and-release.md).
+This section discusses how pull requests will be classified, reviewed, and approved. 
+
+## PR Approval Process
+
+The release approval process is described in more detail [here](maintenance-and-release.md).
 
 ## PR Classification
 
