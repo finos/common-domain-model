@@ -3,7 +3,7 @@ This page will take you through how to contribute to the CDM, the necessary step
 
 ## CDM development guidelines 
 
-The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.docs.rosetta-technology.io/source/contribution.html).
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines for how contributions are reviewed can be found [here](/docs/maintenance-and-release.md).
 
 ## Version Management
 
