@@ -188,15 +188,9 @@ guidance on editing release notes.
 ### Review checklist
 
 Before starting to review a contribution, the CDM Maintainer should go
-through the following review checklist:
+through the [review checklist](maintenance-and-release.md).
 
--   Review Pull Request to assert that:
-    -   Model changes fulfil the proposed design and use-case
-        requirements
-    -   Synonyms have been updated and output (JSON) looks correct
-    -   Contributed model version is not stale and does not conflict
-        with any recent changes
-    -   Changes are in accordance with the CDM governance guidelines
+
 
 ---
 **Note:**
