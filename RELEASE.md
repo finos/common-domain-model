@@ -1,46 +1,35 @@
-# _Product Model_ - Asset Refactoring of FloatingRateIndex and InterestRateIndex
+# *CDM Model - Equity Products*
 
 _Background_
 
-The Asset Refactoring initiative (see [#2805](https://github.com/finos/common-domain-model/issue/2805)) is seeking to improve the Product Model to address some long-standing issues and to ensure the continued extensibility to additional financial products and markets. A proposal has been agreed - through a cross-industry Task Force - to implement this remodelling in the CDM.
-
-This release includes a minor adjustment following three planned major tranches of work in CDM 6 to implement the refactored model.
+This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes.
 
 _What is being released?_
 
-The names of the two terms `FloatingRateIndex` and `InterestRateIndex` have been flipped to make the latter, `InterestRateIndex` to be the higher level term such that an interest rate index can be either a floating rate index or an inflation rate index.
+This release creates the following modifications:
 
-Rationale:
-- Consistent with the name `InterestRatePayout`, which operates on both floating rates and inflation rates.
-- Consistent with the name `FloatingRateIndexEnum`.
-- Consistent with how "floating rate option" or "FRO" is understood in other places in the model.
+**Qualification functions**
+- Added a new qualification function for Equity Exotic Options: `Qualify_Equity_OtherOption`, that uses `nonStandardisedTerms` attribute to identify when an option is Exotic.
+- For existing Equity Option qualifications functions, `nonStandardisedTerms` is negatively tested to prevent redundant qualification.
 
-_Backward-incompatible changes_
+**Validation conditions**
+- `InterestRatePayout`:
+  - FpML conditions `FpML_ird_9` and `FpML_ird_29` are relaxed when `compoundingMethod` is `None` (instead of just when absent).
+- `ExerciseTerms`:
+  - Attribute `expirationTime` relaxed to be optional (previously mandatory).
+  - Attribute `expirationTimeType` tightened to be mandatory (previously optional).
+  - Addition of validation condition `ExpirationTimeChoice` to establish the correlation between `expirationTime` and `expirationTimeType`: `expirationTimeType` must be set to `SpecificTime` when `expirationTime` is specified (and conversely).
 
-This release contains changes that are not backward-compatible:
-- Rename the data type `FloatingRateIndex` to be called `InterestRateIndex`. 
-- Update `InterestRateIndex` to be a choice data type with two attributes: `FloatingRateIndex` and `InflationIndex`.
-- Update the attribute `rateOption` on the data type `FloatingRateBase` to be of type `InterestRateIndex` as the base class is used for both floating and inflation indices.
-- In addition, the name swap has been implemented in the following types:
-  - `PriceQuantity`
-  - `IndexTransitionInstruction`
-- and the following functions:
-  - `FindMatchingIndexTransitionInstruction`
-  - `Qualify_IndexTransition`
-  - `UpdateIndexTransitionPriceAndRateOption`
-  - `InterestRateObservableCondition`
-  - `EvaluateCalculatedRate`
-  - `IndexValueObservation`
-  - `IndexValueObservationMultiple`
-  - `GetFloatingRateProcessingType`
-  - `Qualify_Transaction_OIS`
-- and the following mappings:
-  - `cdm.mapping.fpml.confirmation.tradestate:synonym`
-  - `cdm.mapping.ore:synonym`
-- The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset.func` namespace as they no longer act on a `fro` ie floating rate index:
-  - `IndexValueObservation`
-  - `IndexValueObservationMultiple`.
+_Backward incompatible changes_
 
-_Review directions_
+The `ExerciseTerms` validation change is backward incompatible and all affected samples have been updated to ensure that `expirationTimeType` is populated as `SpecificTime` when the `expirationTime` attribute is populated.
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3267 or in Rosetta.
+See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/fpml-5-13/products/fx-derivatives/fx-ex09-euro-opt.xml)
+
+_Review Directions_
+
+Please inspect the changes identified above for the functions and types in the Textual Viewer Rosetta.
+
+Please inspect the changes to option samples using the Ingestion Panel in Rosetta.
+
+The changes can also be reviewed in PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
