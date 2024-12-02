@@ -2,28 +2,34 @@
 
 _Background_
 
-This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes
+This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes.
 
 _What is being released?_
 
-This release creates following modifications:
-- a new qualification function `Qualify_Equity_OtherOption` to add qualification for Exotic Options. The function uses `nonStandardisedTerms` attribute to differentiate between `Exotic Options` and Regular Options. For the existing option qualifications functions, `nonStandardisedTerms` is negatively tested to prevent multiple qualification
+This release creates the following modifications:
 
+**Qualification functions**
+- Added a new qualification function for Equity Exotic Options: `Qualify_Equity_OtherOption`, that uses `nonStandardisedTerms` attribute to identify when an option is Exotic.
+- For existing Equity Option qualifications functions, `nonStandardisedTerms` is negatively tested to prevent redundant qualification.
 
-- FpML conditions `FpML_ird_9` and `FpML_ird_29` are relaxed when `compoundingMethod` is not populated 
+**Validation conditions**
+- `InterestRatePayout`:
+  - FpML conditions `FpML_ird_9` and `FpML_ird_29` are relaxed when `compoundingMethod` is `None` (instead of just when absent).
+- `ExerciseTerms`:
+  - Attribute `expirationTime` relaxed to be optional (previously mandatory).
+  - Attribute `expirationTimeType` tightened to be mandatory (previously optional).
+  - Addition of validation condition `ExpirationTimeChoice` to establish the correlation between `expirationTime` and `expirationTimeType`: `expirationTimeType` must be set to `SpecificTime` when `expirationTime` is specified (and conversely).
 
-- relaxation of cardinality rule for `expirationTime`. The attribute is now optional.
-- attribute `expirationTimeType` is now mandatory.
-- addition of validation condition to establish the correlation between `expirationTime` and `expirationTimeType`. The change is made backward incompatible and all affected samples are modified too. (See Example: [Euro Option](https://github.com/finos/common-domain-model/blob/37256934de2c54e5eafc7b6a9ab76ca1bc56de5b/rosetta-source/src/main/resources/result-json-files/fpml-5-10/products/fx/fx-ex09-euro-opt.json)))
+_Backward incompatible changes_
+
+The `ExerciseTerms` validation change is backward incompatible and all affected samples have been updated to ensure that `expirationTimeType` is populated as `SpecificTime` when the `expirationTime` attribute is populated.
+
+See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/fpml-5-13/products/fx-derivatives/fx-ex09-euro-opt.xml)
 
 _Review Directions_
 
-Please inspect the changes identified above in the Rosetta file:
+Please inspect the changes identified above for the functions and types in the Textual Viewer Rosetta.
 
-[Product-Asset-Type](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-asset-type.rosetta)
-
-[Product-Qualification-Func](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-qualification-func.rosetta)
-
-[Product-Template-Type](https://github.com/finos/common-domain-model/blob/fffc7bf11574076e53bb62951a1d8b59bb53aebc/rosetta-source/src/main/rosetta/product-template-type.rosetta)
+Please inspect the changes to option samples using the Ingestion Panel in Rosetta.
 
 The changes can also be reviewed in PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
