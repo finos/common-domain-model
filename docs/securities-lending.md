@@ -36,7 +36,7 @@ reallocation are supported, with a basic billing function also provided.
 ## Core elements in Securities Lending
 
 There are several types, attributes and functions that should be used to 
-describe securities lending products and lifecycle events. The core elements 
+describe securities lending products and lifecycle events. The core elements  
 required are described in this section, with examples of their usage.
 
 ### Cash Collateral
@@ -45,54 +45,50 @@ In a cash loan, the lender lends the borrower the requested securities,
 and the borrower provides cash as collateral against the securities that they 
 are borrowing. 
 
-The security that is being lent is modelled in the main trade `economicTerms` 
-using a single `AssetPayout`, which includes an `underlier` which identifies
-the `Security` explicitly within the data type `Instrument`.
-
-Loans against cash collateral are held under `economicTerms->collateral`
-with a `collateralPosition` containing one or more `product` data types, each of
-which is `TransferableProduct` which defines the asset being used as collateral
-(ie `Cash`) with the addition of `economicTerms` which define the rates and
-other terms payable using an `InterestRatePayout`.
+Loans against cash collateral are formed as a `SettlemenetPayout` that 
+includes an `TransferableProduct` using a `Cash` asset for the cash collateral, held under 
+`economicTerms->collateral`, and an `AssetPayout` for the security being lent,
+held under `economicTerms->payout`.
 
 The `collateralType` under `collateralProvisions` should be set to "*Cash*" to 
 define this as a cash collateralised loan. These types can be found under the 
 `economicTerms->collateral` type.
 
-An example showing the location of the 
-security being lent and the payouts for the cash collateral is provided below:
+An example showing the location of the payouts for the cash collateral and the 
+security being lent is provided below:
 
 ``` Javascript
 "economicTerms": {
   "payout": {
-    "AssetPayout": [ {
-      "underlier": {
-        "Instrument": {
-          "Security": {
-            "identifier": {
-             ...
-	  } } } } } ]
+    "assetPayout": [ 
+	  {
+	    ...
+	  }
+    ]
   },
   ...
   "collateral": {
     "collateralProvisions": {
-      "collateralType": "Cash"
+	  "collateralType": "Cash"
     },
-    "collateralPortfolio": [ {
-      "collateralPosition": [ {
-         "Product": {
-           "TransferableProduct": {
-              "Cash": {
-                 ...
-               } ,
-             "economicTerms": {
-               "payout": {
-	         "InterestRatePayout": {
-                    "rateSpecification": { ... } ,
-                    "paymentDates: { ... } ,
-                    ...
-             } } }
-   } } } ] } ] } ,
+	"collateralPortfolio": [ {
+	    "collateralPosition": [ {
+	            "economicTerms": {
+                  "payout": {
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"cash": {
+					}
+				}
+			    ...
+			  }
+			]
+			  }
+	        }
+		} ]
+	} ]
+  },
   ...
 }
 ```
@@ -103,15 +99,10 @@ In a non-cash loan, the lender lends the borrower the requested securities,
 and the borrower provides collateral in the form of other securities or 
 products. 
 
-The security that is being lent is modelled the same way as the cash case with
-an `underlier` in the main `AssetPayout`.
-
-The non-cash collateral is also still modelled with one or more `TransferableProduct` 
-in the `collateralPosition`.  Rather than the product containing `cash`, the actual
-asset being used as collateral is specified. The details of the security should be entered
-in the attributes held within the `Security->identifier` type, being the `identifier`,
-`identifierType` and the `instrumentType`.  `economicTerms` can also be added
-if these are required to fully reflect the specifics of the collateral.
+Loans against non-cash collateral are formed as a `NonTransferableProduct` that 
+includes a `SettlementPayout` containing with an `Asset` for the non-cash collateral, held under 
+`economicTerms->collateral`, and another `AssetPayout` for the security being 
+lent, held under `economicTerms->payout`.
 
 The `collateralType` under `collateralProvisions` should be set to "*NonCash*" 
 to define this as a non-cash collateralised loan. These types can be found 
@@ -123,33 +114,35 @@ the security being lent is provided below:
 ``` Javascript
 "economicTerms": {
   "payout": {
-    "AssetPayout": [ {
-      "underlier": {
-        "Instrument": {
-          "Security": {
-            "identifier": {
-             ...
-	  } } } } } ]
+    "assetPayout": [ 
+	  {
+	    ...
+	  }
+    ]
   },
   ...
   "collateral": {
     "collateralProvisions": {
-      "collateralType": "Cash"
+	  "collateralType": "NonCash"
     },
-    "collateralPortfolio": [ {
-      "collateralPosition": [ {
-         "Product": {
-           "TransferableProduct": {
-             "Instrument": {
-               "Security": {
-                  "identifier": {
-                  ...
-             } } } },
-             "economicTerms": {
-               "payout": {
-	         ...
-             } } }
-   } } } ] } ,
+	"collateralPortfolio": [ {
+	    "collateralPosition": [ {
+	            "economicTerms": {
+                  "payout": {
+	                "settlementPayout": [
+			  {
+				"underlier": {
+					"security": {
+					}
+				}
+			    ...
+			  }
+			]
+			  }
+	        }
+		} ]
+	} ]
+  },
   ...
 }
 ```
@@ -159,9 +152,10 @@ In a cash pool loan, the lender lends the borrower the requested securities,
 and takes cash as collateral from a cash pool held by the lender on behalf of 
 the borrower. 
 
-As seen in the cash collateral example above, the `collateralPosition`
-can contain multiple products, so the cash pool can be modelled as a list
-of cash products, with currencies, amounts and other terms defined.
+Loans against cash collateral are formed as a `NonTransferableProduct` that 
+includes an `SettlementPayout` for the cash collateral, held under 
+`economicTerms->collateral`, and an `AssetPayout` for the security being lent,
+held under `economicTerms->payout`.
 
 The `collateralType` under `collateralProvisions` should be set to "*CashPool*" 
 to define this as a cash pool collateralised loan. These types can be found 
@@ -173,8 +167,11 @@ using cash for an example of where the payouts can be found.
 ### Defining Collateral
 
 When non-cash collateral is used as collateral on a trade then it needs to 
-be defined in the `AssetPayout`. This can be done using the 
+be defined in the `AssetPayout` of the product. This can be done using the 
 `security` type under `securityInformation`. 
+
+The details of the security should be entered in the attributes held within 
+the `security->identifier` type, being the `identifier` and the `source`. 
 
 ### Parties, Party Roles and Counterparties
 

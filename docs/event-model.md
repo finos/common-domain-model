@@ -300,29 +300,14 @@ type TransferState:
 ```
 
 ``` Haskell
-type Transfer extends TransferBase:
-  settlementOrigin Payout (0..1)
-    [metadata reference]
-  resetOrigin Reset (0..1)
-  transferExpression TransferExpression (1..1)
-```
-
-``` Haskell
-type TransferBase:
-    identifier Identifier (0..*)
+type Transfer extends CashflowBase:
+ identifier Identifier (0..*)
         [metadata scheme]
-    quantity NonNegativeQuantity (1..1)
-    asset Asset (1..1)
-    payerReceiver PartyReferencePayerReceiver (1..1)
-    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+    payerReceiver PartyReferencePayerReceiver (1..1) 
+    settlementOrigin Payout (0..1)
+        [metadata reference]
+    resetOrigin Reset (0..1)
+    transferExpression TransferExpression (1..1)
 ```
 
 ## Primitive Events {#primitive-event}
