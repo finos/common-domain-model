@@ -49,9 +49,9 @@ type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying
 
     paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
 
-type AgencyRatingCriteria: <"Represents a class to specify multiple credit notations.">
+type AgencyRatingCriteria: <"Represents a class to specify a credit notation.">
 
-    creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
+    creditNotation CreditNotation (1..1) <"Indicates the agency rating criteria specified for the asset or issuer.">
     mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
     referenceAgency CreditRatingAgencyEnum (0..1) <"identifies the dominant reference agency if there is a missmatch and several reference agencies exsist.">
     boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
@@ -114,20 +114,20 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 
     treatment CollateralTreatment (1..1) <"Identifies the treatment of specified collateral, e.g., haircuts,holding limits or exclusions.">
 
-    // condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
-    //     if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
-    //     then asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Debt
-    //             or treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Debt
+    condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
+        then CriteriaMatchesAssetType (collateralCriteria, Debt)
+            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Debt) = True 
 
-    // condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
-    //     if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-    //     then asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Equity
-    //             or treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Equity
+    condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
+        then CriteriaMatchesAssetType (collateralCriteria, Equity)
+            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Equity) = True 
 
-    // condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
-    //     if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
-    //     then asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Equity
-    //             or treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = InstrumentTypeEnum -> Equity
+    condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
+        then CriteriaMatchesAssetType (collateralCriteria, Equity)
+            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Equity) = True 
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
@@ -138,7 +138,7 @@ type CollateralTreatment: <"Specifies the treatment terms for the eligible colla
 
 type ConcentrationLimit: <"Represents a class to describe concentration limits that may be applicable to eligible collateral criteria.">
 
-    concentrationLimitCriteria ConcentrationLimitCriteria (0..*) <"Specifies a set of criteria to describe the assets that the concentration limits apply to.">
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..1) <"Specifies a set of criteria to describe the assets that the concentration limits apply to.">
     valueLimit MoneyRange (0..1) <"Specifies the value of collateral limit represented as a range.">
     percentageLimit NumberRange (0..1) <"Specifies the perecentage of collateral limit represented as a decimal number - example 25% is 0.25.">
 
@@ -146,7 +146,7 @@ type ConcentrationLimit: <"Represents a class to describe concentration limits t
         required choice valueLimit, percentageLimit
 
     condition PercentageConcentrationLimit: <"concentration limit must be described as a percentage.">
-        if concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
+        if concentrationLimitCriteria -> concentrationLimitType = ConcentrationLimitTypeEnum -> MarketCapitalisation
         then percentageLimit exists
 
 type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
@@ -184,12 +184,13 @@ type AssetMaturity:
     maturityType MaturityTypeEnum (1..1) <"Specifies whether the maturity range is the remaining or original maturity.">
     maturityRange PeriodRange (1..1) <"Represents a filter based on the underlying asset maturity.">
 
-type ListingType: <"Specifies a filter based on an underlying corporate financial official listing defined at a stock exchange.">
+type ListingExchange: <"Specifies a filter based on a stock exchange.">
     exchange string (0..*) <"Represents a filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
         [metadata scheme]
+
+type ListingSector: <"Specifies a filter based on an industry sector.">
     sector string (0..*) <"Represents a filter based on an industry sector defined under a system for classifying industry types such as Global Industry Classification Standard (GICS) and North American Industry Classification System (NAICS)">
         [metadata scheme]
-    index Index (0..*) <"Represents a filter based on an index that measures a stock market, or a subset of a stock market.">
 
 type DomesticCurrencyIssued:
     domesticCurrencyIssued boolean (1..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
@@ -202,20 +203,22 @@ choice CollateralCriteria:  <"The possible different terms that can be combined,
     AnyCriteria                     <"Enables two or more Collateral Criteria to be combined using OR logic.">
     NegativeCriteria                <"Enables a single Collateral Criteria to be excluded using NOT logic.">
     CollateralIssuerType            <"Criteria is the type of entity issuing the asset.">
-    AssetType                       <"Criteria is the type of asset.">
+    AssetType                       <"Criteria is the asset type of the collateral.">
     IssuerCountryOfOrigin           <"Criteria is the issuing entity country of origin.">
-    AssetCountryOfOrigin            <"Criteria is the asset country of origin.">
-    CurrencyCodeEnum                <"Criteria is the denominated currency of the asset.">
+    AssetCountryOfOrigin            <"Criteria is the collateral asset country of origin.">
+    CurrencyCodeEnum                <"Criteria is the denominated currency of the collateral.">
     IssuerName                      <"Criteria is a specific named issuer entity.">
     IssuerAgencyRating              <"Criteria is the agency rating(s) of the issuer.">
     SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
-    AssetAgencyRating               <"Criteria is the agency rating(s) of the asset.">
-    AssetMaturity                   <"Criteria is the maturity characteristics of an asset.">
+    AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
+    AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
     Asset                           <"Criteria is a specifically identified asset.">
-    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an asset.">
-    ListingType                     <"Criteria is the exchange, index or sector of assets.">
-    CounterpartyOwnIssuePermitted   <"Criteria includes assets issued by the counterparty.">
-    DomesticCurrencyIssued          <"Criteria is that an asset must be denominated in the domestic currency of the issuer.">
+    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
+    ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
+    ListingSector                   <"Criteria is the industry sector of the collateral asset.">
+    Index                           <"Criteria is that the collateral is a constituent of a specific index.">
+    CounterpartyOwnIssuePermitted   <"Criteria includes collateral issued by the counterparty.">
+    DomesticCurrencyIssued          <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 
 type AllCriteria:  <"Used to combine two or more Collateral Criteria using AND logic.">
     allCriteria CollateralCriteria (2..*)
@@ -225,18 +228,6 @@ type AnyCriteria:  <"Used to combine two or more Collateral Criteria using OR lo
 
 type NegativeCriteria:  <"Used to apply a NOT logic condition to a single Collateral Criteria.">
     negativeCriteria CollateralCriteria (1..1)
-
-type TestingCollateralCriteria:  <"examples of logic and accessing the criteria">
-    testingAttr CollateralCriteria (1..1)
-
-    condition TestSingle:
-        testingAttr -> CurrencyCodeEnum = GBP
-    condition TestAll:
-        testingAttr -> AnyCriteria -> anyCriteria -> IssuerCountryOfOrigin -> issuerCountryOfOrigin all = ISOCountryCodeEnum -> AF
-    condition TestAny:
-        testingAttr -> AllCriteria -> allCriteria -> AssetCountryOfOrigin -> assetCountryOfOrigin any = ISOCountryCodeEnum -> AF
-    condition TestNot:
-        testingAttr -> NegativeCriteria -> negativeCriteria -> IssuerName -> issuerName -> name <> "Tesla"
 
 type EligibleCollateralSpecificationInstruction:
     [rootType]
