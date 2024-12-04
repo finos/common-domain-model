@@ -128,7 +128,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
     output:
         identifiers ObservationIdentifier (1..1)
 
-    set identifiers -> observable -> Index -> FloatingRateIndex:
+    set identifiers -> observable -> Index -> InterestRateIndex:
         payout -> rateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
@@ -1177,10 +1177,10 @@ func UpdateIndexTransitionPriceAndRateOption:
         then priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else priceQuantity -> price only-element -> value
 
-    set updatedPriceQuantity -> observable -> Index -> FloatingRateIndex: <"If instruction exists, update the rate option.">
+    set updatedPriceQuantity -> observable -> Index -> InterestRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> Index -> FloatingRateIndex
-        else priceQuantity -> observable -> Index -> FloatingRateIndex
+        then instruction -> observable -> Index -> InterestRateIndex
+        else priceQuantity -> observable -> Index -> InterestRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1193,9 +1193,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> Index -> FloatingRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> period
+                observable -> Index -> InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier
+                    and observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)
