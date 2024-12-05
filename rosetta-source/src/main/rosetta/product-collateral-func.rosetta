@@ -5,22 +5,42 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 import cdm.product.template.*
 
-func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
-    inputs:
-        instruction EligibleCollateralSpecificationInstruction (1..1)
-    output:
-        specification EligibleCollateralSpecification (1..1)
+// Remove these functions which no longer work wiht the introduction of AND OR logic
+// func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
+//     inputs:
+//         instruction EligibleCollateralSpecificationInstruction (1..1)
+//     output:
+//         specification EligibleCollateralSpecification (1..1)
 
-    add specification -> criteria:
-        instruction -> variable
-            extract MergeEligibleCollateralCriteria(item, instruction -> common)
+//     add specification -> criteria:
+//         instruction -> variable
+//             extract MergeEligibleCollateralCriteria(item, instruction -> common)
 
-func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
-    inputs:
-        criteria1 EligibleCollateralCriteria (1..1)
-        criteria2 EligibleCollateralCriteria (1..1)
+// func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
+//     inputs:
+//         criteria1 EligibleCollateralCriteria (1..1)
+//         criteria2 EligibleCollateralCriteria (1..1)
+//     output:
+//         criteria EligibleCollateralCriteria (1..1)
+
+// New functions added to ease the creation of Collateral Criteria
+func CreateAndCriteria: <"Combines multiple CollateralCriteria together using AND logic.">
+    inputs: 
+        inputCriteria CollateralCriteria (2..*)
     output:
-        criteria EligibleCollateralCriteria (1..1)
+        outputCriteria CollateralCriteria (1..1)
+
+    set outputCriteria -> AllCriteria -> allCriteria:
+        inputCriteria
+
+func CreateOrCriteria: <"Combines multiple CollateralCriteria together using OR logic.">
+    inputs: 
+        inputCriteria CollateralCriteria (2..*)
+    output:
+        outputCriteria CollateralCriteria (1..1)
+
+    set outputCriteria -> AnyCriteria -> anyCriteria:
+        inputCriteria
 
 func CheckEligibilityForProduct:
     inputs:
@@ -89,12 +109,6 @@ func CheckCriteria:  <"This function takes a single criteria and evaluates it ag
             SovereignAgencyRating then CheckAgencyRating(item -> sovereignAgencyRating, query),
             AssetAgencyRating then CheckAgencyRating(item -> assetAgencyRating, query),
             AssetMaturity then CheckMaturity(item, query),
-            // Asset then CheckAsset(item, query),
-            // CollateralTaxonmy
-            
-
-            
-
             default False
 
 type CheckEligibilityResult: <"Result for the CheckEligibilityByDetails and CheckEligibilityForProduct functions">
