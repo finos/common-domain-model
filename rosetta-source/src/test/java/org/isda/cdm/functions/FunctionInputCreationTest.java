@@ -2089,14 +2089,15 @@ class FunctionInputCreationTest {
     void validateEligibleCollateralScheduleHelper() {
         // Common criteria - GILTS
         EligibleCollateralCriteria common = EligibleCollateralCriteria.builder()
-                .addAsset(AssetCriteria.builder()
-                        .addCollateralAssetType(AssetType.builder()
+                .setCollateralCriteria(CollateralCriteria.builder()
+                        .setAssetType(AssetType.builder()
                                 .setAssetType(AssetTypeEnum.SECURITY)
-                                .setSecurityType(InstrumentTypeEnum.DEBT)))
-                .addIssuer(IssuerCriteria.builder()
-                        .addIssuerType(CollateralIssuerType.builder()
-                                .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
-                        .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
+                                .setSecurityType(InstrumentTypeEnum.DEBT))
+                        .setCollateralIssuerType(CollateralIssuerType.builder()
+                                .setIssuerType(
+                                IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
+                        .setIssuerCountryOfOrigin(IssuerCountryOfOrigin.builder()
+                                .setIssuerCountryOfOrigin(ISOCountryCodeEnum.GB)))
                 .build();
         ;
 
@@ -2144,9 +2145,11 @@ class FunctionInputCreationTest {
                         .setIsIncluded(true)
                         .setValuationTreatment(CollateralValuationTreatment.builder()
                                 .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
-                .addAsset(AssetCriteria.builder()
-                        .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
-                        .setMaturityRange(maturityRange))
+                .setCollateralCriteria(CollateralCriteria.builder()
+                        .setAssetMaturity(AssetMaturity.builder()
+                                .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
+                                .setMaturityRange(maturityRange))
+                )
                 .build();
     }
 

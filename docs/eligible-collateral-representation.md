@@ -212,7 +212,7 @@ define collateral Asset and Issuer characteristics.
 The data type `AssetCriteria` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
 
-``` Haskell
+``` MD
 type AssetCriteria:
   collateralAssetType AssetType (0..*)
   assetCountryOfOrigin ISOCountryCodeEnum (0..*)
@@ -275,7 +275,7 @@ complex types, for example:
 The data type `IssuerCriteria` is used to specify the issuer of a
 collateral asset, this includes the following data attributes:
 
-``` Haskell
+``` MD
 type IssuerCriteria:
   issuerType CollateralIssuerType (0..*)
   issuerCountryOfOrigin ISOCountryCodeEnum (0..*)
@@ -403,7 +403,7 @@ terms as follows:
 
 ``` Haskell
 type ConcentrationLimit:
-  concentrationLimitCriteria ConcentrationLimitCriteria (0..*)
+  concentrationLimitCriteria ConcentrationLimitCriteria (0..1)
   valueLimit MoneyRange (0..1)
   percentageLimit NumberRange (0..1)
 ```
@@ -564,8 +564,7 @@ related information to eligible collateral:
 
 ``` Haskell
 type AgencyRatingCriteria:
-  qualifier QuantifierEnum (1..1)
-  creditNotation CreditNotation (1..*)
+  creditNotation CreditNotation (1..1)
   mismatchResolution CreditNotationMismatchResolutionEnum (0..1)
   referenceAgency CreditRatingAgencyEnum (0..1)
   boundary CreditNotationBoundaryEnum (0..1)
