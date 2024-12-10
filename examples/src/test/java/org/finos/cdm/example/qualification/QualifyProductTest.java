@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * A test suite to validate the qualification of financial products using the Common Domain Model (CDM).
  * Each test case verifies that a specific product type is correctly qualified based on its economic terms.
  */
-public class QualifyProductTest extends AbstractExampleTest {
+final class QualifyProductTest extends AbstractExampleTest {
 
     // Logger instance for debugging and reporting metrics
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifyProductTest.class);
@@ -81,7 +81,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex08-fra.json";
         String expectedLabel = "InterestRate_Fra";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex14-berm-swaption.json";
         String expectedLabel = "InterestRate_Option_Swaption";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex06-xccy-swap.json";
         String expectedLabel = "InterestRate_CrossCurrency_FixedFloat";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex22-cap.json";
         String expectedLabel = "InterestRate_CapFloor";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex23-floor.json";
         String expectedLabel = "InterestRate_CapFloor";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -126,7 +126,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex01-vanilla-swap.json";
         String expectedLabel = "InterestRate_IRSwap_FixedFloat";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cd-ex03-long-aussie-corp-fixreg.json";
         String expectedLabel = "CreditDefaultSwap_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cdindex-ex01-cdx.json";
         String expectedLabel = "CreditDefaultSwap_Index";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/credit-derivatives/cds-basket.json";
         String expectedLabel = "CreditDefaultSwap_Basket";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -162,7 +162,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/equity-swaps/eqs-ex01-single-underlyer-execution-long-form.json";
         String expectedLabel = "EquitySwap_TotalReturnBasicPerformance_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
@@ -171,7 +171,7 @@ public class QualifyProductTest extends AbstractExampleTest {
         String filePath = "result-json-files/fpml-5-13/products/variance-swaps/eqvs-ex02-variance-swap-single-stock.json";
         String expectedLabel = "EquitySwap_ParameterReturnVariance_SingleName";
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
-        LOGGER.info("Qualification Result: " + qualificationResult);
+        LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     // Additional tests for other products follow the same pattern...

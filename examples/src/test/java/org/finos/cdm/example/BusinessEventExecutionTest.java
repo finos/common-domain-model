@@ -103,10 +103,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * When a transaction is executed, a new trade is instantiated.
      * The creation of the new instruction is done by the buildExecutionPrimitiveInstruction function
      * Notice that no before trade is required as input.
-     * @throws IOException
      */
     @Test
-    public void mustCreateExecutionBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateExecutionBusinessEventAcceptedWorkflowStep() {
 
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
@@ -132,10 +131,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * the stepped-in contract has a different contract identifier than the novated contract,
      * the stepped-in contract has the novation event date and the novation event effective date,
      * and the contract counterparties have changed.
-     * @throws IOException
      */
     @Test
-    public void mustCreateNovationBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -160,7 +158,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @throws IOException
      */
     @Test
-    public void mustCreateIncreaseBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateIncreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Increase.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -190,10 +188,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Decrease
      * The intent is to Decrease the quantity or notional of the contract.
-     * @throws IOException
      */
     @Test
-    public void mustCreateDecreaseBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateDecreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in decrease.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -224,10 +221,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Termination
      * The termination of a contract before its expiration, either by mutual agreement or by some specific condition.
-     * @throws IOException
      */
     @Test
-    public void mustCreateTerminationBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateTerminationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Full Termination.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -275,7 +271,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * @throws IOException
      */
     @Test
-    public void mustCreateResetBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateResetBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Reset.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -305,10 +301,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Valuation
      * This event represents the periodic calculation of the market value of a derivative contract, essential for margin and risk management.
      * The qualification of a valuation update from the fact that the only component is a valuation.
-     * @throws IOException
      */
     @Test
-    public void mustCreateValuationBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateValuationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Valuation.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -335,10 +330,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * The intent is to Exercise a contract that is made of one or several option payout legs.
      * The qualification of an exercise event from the fact that the only primitive is the exercise,
      * and the remaining quantity = 0, and the closedState of the contract is Terminated.
-     * @throws IOException
      */
     @Test
-    public void mustCreateExerciseBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateExerciseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Option Exercise.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/cb-option-usi.json");
@@ -368,10 +362,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Transfer
      * The intent is to transfer the position to another clearing member
-     * @throws IOException
      */
     @Test
-    public void mustCreateTransferBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateTransferBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Transfer.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -391,10 +384,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * Amendment
      * The intent is to amend the terms of the contract through renegotiation.
      * It occurs when the terms of the original contract are modified, such as an extension of the maturity date, adjustment in the notional amount, or currency change.
-     * @throws IOException
      */
     @Test
-    public void mustCreateAmendmentBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateAmendmentBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Amendment.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -415,10 +407,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * A stock split is a corporate action in which a company increases the number of its outstanding shares by dividing its existing shares into multiple new shares.
      * The qualification of StockSplit business event based on an unchanged before/after currency amount,
      * the same adjustment ratio applied to the before/after cash price and number of units.
-     * @throws IOException
      */
     @Test
-    public void mustCreateStockSplitBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateStockSplitBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Stock Split.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqd-ex01-american-call-stock-long-form.json");
@@ -455,10 +446,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * the number of split executions and the number of contract formations are equal.
      * Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.
      * Also note that it is expected that an allocation can result in a single contract.
-     * @throws IOException
      */
     @Test
-    public void mustCreateAllocationBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateAllocationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Allocation.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -481,10 +471,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * A corporate action is any event initiated by a company that impacts its shareholders or bondholders.
      * The qualification of the ocurrence of a corporate action from the fact that a corporate action is present
      * in either the observation or the observation history structures.
-     * @throws IOException
      */
     @Test
-    public void mustCreateCorporateActionBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateCorporateActionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Corporate Action.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -513,10 +502,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * to meet its debt obligations. These events are often related to payment defaults, changes in debt terms or financial restructurings.
      * The qualification of the ocurrence of a credit event determination from the fact that a credit event
      * is present in either the observation or observation history structures.
-     * @throws IOException
      */
     @Test
-    public void mustCreateCreditEventBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateCreditEventBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Credit Event.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -543,10 +531,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
      * The intent is to compress multiple trades as part of a netting or compression event.
      * The qualification of a compression event from the fact that the quantityChange primitive exists,
      * and there are multiple contracts (or contract references) specified in the before state.
-     * @throws IOException
      */
     @Test
-    public void mustCreateCompressionBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateCompressionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in the Execution instruction
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -593,10 +580,9 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Clearing
      * Clearing is the process by which financial transactions between two parties are managed and verified, ensuring that payment and asset delivery obligations are met.
-     * @throws IOException
      */
     @Test
-    public void mustCreateClearingBusinessEventAcceptedWorkflowStep() throws IOException {
+    void mustCreateClearingBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Clearing.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
@@ -694,7 +680,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Log the details of the accepted WorkflowStep in a human-readable JSON format for debugging purposes.
         try {
             LOGGER.debug(
-                    String.format("*** ACCEPTED WorkflowStep - [Action = %s] [Rejected = %s] ***\n%s",
+                    String.format("*** ACCEPTED WorkflowStep - [Action = %s] [Rejected = %s] ***%n%s",
                             acceptedWorkflowStep.getAction(),
                             acceptedWorkflowStep.getRejected(),
                             RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(acceptedWorkflowStep)
@@ -738,7 +724,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         // Log the details of the accepted WorkflowStep in a human-readable JSON format for debugging purposes.
         try {
             LOGGER.debug(
-                    String.format("*** ACCEPTED WorkflowStep - [Action = %s] [Rejected = %s] ***\n%s",
+                    String.format("*** ACCEPTED WorkflowStep - [Action = %s] [Rejected = %s] ***%n%s",
                             acceptedWorkflowStep.getAction(),
                             acceptedWorkflowStep.getRejected(),
                             mapper.writerWithDefaultPrettyPrinter().writeValueAsString(acceptedWorkflowStep)

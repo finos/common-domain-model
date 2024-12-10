@@ -6,15 +6,12 @@ import java.util.Optional;
 
 /**
  * A utility class to track and measure performance metrics such as execution time,
- * CPU time, and memory allocation for a specific code block or operation.
+ * and memory allocation for a specific code block or operation.
  */
 public class PerformanceMetric {
 
     // Time taken to execute the measured operation, in nanoseconds.
     private final long executionTime;
-
-    // CPU time consumed by the thread during the measured operation, in nanoseconds.
-    private final long cpuTime;
 
     // Memory allocated during the execution of the measured operation, in bytes.
     private final long memoryAllocation;
@@ -25,12 +22,10 @@ public class PerformanceMetric {
      */
     private PerformanceMetric(
             long executionTime,
-            long cpuTime,
             long memoryAllocation
     ) {
         this.executionTime = executionTime;
-        this.cpuTime = cpuTime;
-        this.memoryAllocation = memoryAllocation;
+        this.memoryAllocation = memoryAllocation > 0 ? memoryAllocation : 0L;
     }
 
     // Getter for execution time.
@@ -38,14 +33,20 @@ public class PerformanceMetric {
         return executionTime;
     }
 
-    // Getter for CPU time.
-    public long getCpuTime() {
-        return cpuTime;
-    }
-
     // Getter for memory allocation.
     public long getMemoryAllocation() {
         return memoryAllocation;
+    }
+
+    public String toString() {
+        return toString(getExecutionTime(), getMemoryAllocation());
+    }
+
+    public static String toString(double avgExecutionTime, double avgMemoryAllocation) {
+        return String.format("| %-25s | %-25s",
+                String.format("%.2f", (avgExecutionTime/1000000.0)),
+                String.format("%.2f",  (avgMemoryAllocation/ 1_000_000.0))
+        );
     }
 
     /**
@@ -56,12 +57,11 @@ public class PerformanceMetric {
 
         // Variables to store start and end times for execution and CPU.
         private long startTime, endTime;
-        private long startCpuTime, endCpuTime;
 
         // Variables to track memory usage at the start and end of the operation.
         private long startMemory, endMemory;
 
-        // ThreadMXBean to fetch CPU time metrics for the current thread.
+        // ThreadMXBean to fetch CPU time metrics for specific threads.
         private final ThreadMXBean threadMXBean;
 
         /**
@@ -71,8 +71,6 @@ public class PerformanceMetric {
             this.threadMXBean = threadMXBean;
             startTime = 0L;
             endTime = 0L;
-            startCpuTime = 0L;
-            endCpuTime = 0L;
             startMemory = 0L;
             endMemory = 0L;
         }
@@ -98,7 +96,6 @@ public class PerformanceMetric {
          */
         public void start() {
             startTime = System.nanoTime(); // Capture start time in nanoseconds.
-            startCpuTime = threadMXBean.getCurrentThreadCpuTime(); // Get current thread's CPU time.
             startMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); // Calculate used memory.
         }
 
@@ -108,7 +105,6 @@ public class PerformanceMetric {
          */
         public void end() {
             endTime = System.nanoTime(); // Capture end time in nanoseconds.
-            endCpuTime = threadMXBean.getCurrentThreadCpuTime(); // Get current thread's CPU time.
             endMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory(); // Calculate used memory.
         }
 
@@ -122,7 +118,6 @@ public class PerformanceMetric {
             if (Optional.of(endTime).orElse(0L) != 0L)
                 return new PerformanceMetric(
                         endTime - startTime, // Calculate execution time.
-                        endCpuTime - startCpuTime, // Calculate CPU time difference.
                         endMemory - startMemory // Calculate memory allocation difference.
                 );
             else

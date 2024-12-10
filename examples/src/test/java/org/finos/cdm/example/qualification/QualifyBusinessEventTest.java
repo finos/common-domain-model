@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * A test suite for validating business event qualification using the Common Domain Model (CDM).
  * This class demonstrates how to extract and qualify events from workflow steps based on CDM samples.
  */
-public class QualifyBusinessEventTest extends AbstractExampleTest {
+final class QualifyBusinessEventTest extends AbstractExampleTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifyBusinessEventTest.class);
 
@@ -76,7 +76,7 @@ public class QualifyBusinessEventTest extends AbstractExampleTest {
         assertEquals(expectedQualifier, eventQualifier,
                 "Event qualifier mismatch: expected '" + expectedQualifier + "', but got '" + eventQualifier + "'");
 
-        LOGGER.info("Qualification Result: " + eventQualifier);
+        LOGGER.info("Qualification Result: {}", eventQualifier);
     }
 
     /**
