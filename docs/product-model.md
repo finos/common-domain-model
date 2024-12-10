@@ -19,7 +19,7 @@ of one or more assets in the future - for instance, but not exclusively, future 
 when that asset is cash. These future transfers may be contingent on the future value
 or performance of that asset or other, as in the case of options.
 
-### Asset  {#asset}
+### Asset  
 
 :::tip Definition: Asset
 
