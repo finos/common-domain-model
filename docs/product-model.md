@@ -2,7 +2,7 @@
 title: Product Model
 ---
 
-## Financial Products {#product}
+## Financial Products
 
 In the CDM, a financial product describes a thing that is used to transfer financial
 risk between two parties. 
