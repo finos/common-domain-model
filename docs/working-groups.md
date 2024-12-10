@@ -8,17 +8,17 @@ Click [here](cdm-org-structure.md) to view the CDM organisational structure and 
 
 The following Working Groups are currently activated or about to be set up for this project:
 
-** Senior FINOS WGs:**
+**Senior FINOS WGs:**
 * [CDM Steering Working Group](CDM-Steering-WG.md) - quarterly
 * [CDM Technology Architecture Working Group](CDM-Technology-Architecture-WG.md) - monthly
 * [CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md) - bi-weekly
 
-** FINOS Domain WGs:**
+**FINOS Domain WGs:**
 * [CDM Derivatives Product and Business Event Working Group](CDM-Derivatives-Product-and-Business-Event-WG.md) - bi-weekly
 * [CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
 * [CDM Structured Products Working Group](CDM-Structured-Products-WG.md) - monthly
 
-** Domain WGs run outside of FINOS:**
+**Domain WGs run outside of FINOS:**
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
