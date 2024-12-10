@@ -8,22 +8,22 @@ Click [here](cdm-org-structure.md) to view the CDM organisational structure and 
 
 The following Working Groups are currently activated or about to be set up for this project:
 
-** Senior FINOS WGs:
+** Senior FINOS WGs:**
 * [CDM Steering Working Group](CDM-Steering-WG.md) - quarterly
 * [CDM Technology Architecture Working Group](CDM-Technology-Architecture-WG.md) - monthly
 * [CDM Contribution Review Working Group](CDM-Contribution-Review-WG.md) - bi-weekly
 
-** FINOS Domain WGs: 
+** FINOS Domain WGs:**
 * [CDM Derivatives Product and Business Event Working Group](CDM-Derivatives-Product-and-Business-Event-WG.md) - bi-weekly
 * [CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
 * [CDM Structured Products Working Group](CDM-Structured-Products-WG.md) - monthly
 
-** Domain WGs run outside of FINOS:
+** Domain WGs run outside of FINOS:**
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
 * [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
-* [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM ISDA Foundations for the CSA and Master Agreements and is open to ISDA members only. 
+* [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM ISDA Foundations for the CSA and Master Agreements and is open to ISDA members only. - Bi-monthly 
 
 
 Email help@finos.org to be added to the meeting invites directly, or find the the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
