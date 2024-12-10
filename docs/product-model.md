@@ -444,7 +444,7 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
-## TradableProduct {#tradable-product}
+## TradableProduct
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
@@ -604,7 +604,7 @@ one for an upfront fee. By comparison, the purchase or sale of a
 security or listed derivative would typically have a single
 `PriceQuantity` instance in the trade lot.
 
-## PriceQuantity {#price-quantity}
+## PriceQuantity
 
 The price and quantity attributes of a trade, or of a leg of a trade in
 the case of composite products, are part of a data type called
