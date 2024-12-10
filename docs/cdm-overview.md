@@ -19,7 +19,7 @@ For an overview of the Common Domain Model, a comparative analysis with FpML, an
 
 ISDA’s Digital Regulatory Reporting (DRR) solution leverages the open-source Common Domain Model (CDM) to convert industry-agreed interpretations of new or amended regulatory reporting rules into clear, machine-executable code. This approach enhances implementation efficiency and reduces costs. Institutions contributing to the development of the ISDA DRR include (but are not limited to) those listed on [ISDA’s Digital Regulatory Reporting Page](https://www.isda.org/isda-digital-regulatory-reporting/).
 
-ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
+ISDA has also launched Get Started guides for the CDM for Collateral and Digital Regulatory Reporting.  You can access these [here](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
 
 If you’re interested in the Common Domain Model (CDM), please complete the [CDM Interest Form](https://www.finos.org/common-domain-model) to join our mailing list. By signing up, you’ll receive updates on CDM initiatives, meeting agendas, and other working group activities.
 
@@ -48,9 +48,9 @@ at <cdm@lists.finos.org>.
 
 ## Model Overview 
 The key models defined in the CDM are listed below. Click each one to learn more. 
+- [Product model](product-model.md) -  describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
 - [Event model](event-model.md) - provides data structures to represent the lifecycle events of financial transactions.
 - [Process model](process-model.md) - lays the foundation for the standardisation, automation and inter-operability of industry processes.
-- [Product model](product-model.md) -  describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
 - [Reference data model](reference-data-model.md) – describes underlying business entities such as parties, legal entities, floating rate indexes, and so on that needed to model the in-scope products, events, legal agreements and function components.
 - [Use cases](use-cases.md) – business process areas in the financial ecosystem that the CDM supports.
 
