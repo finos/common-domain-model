@@ -137,7 +137,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-[image](common-domain-model/website/static/img/collateral-asset-identifier-tree.png)
+[image](..common-domain-model/website/static/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
