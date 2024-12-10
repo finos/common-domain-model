@@ -19,7 +19,7 @@ For an overview of the Common Domain Model, a comparative analysis with FpML, an
 
 ISDA’s Digital Regulatory Reporting (DRR) solution leverages the open-source Common Domain Model (CDM) to convert industry-agreed interpretations of new or amended regulatory reporting rules into clear, machine-executable code. This approach enhances implementation efficiency and reduces costs. Institutions contributing to the development of the ISDA DRR include (but are not limited to) those listed on [ISDA’s Digital Regulatory Reporting Page](https://www.isda.org/isda-digital-regulatory-reporting/).
 
-ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
+ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/isda-solutions-infohub/cdm/).
 
 If you’re interested in the Common Domain Model (CDM), please complete the [CDM Interest Form](https://www.finos.org/common-domain-model) to join our mailing list. By signing up, you’ll receive updates on CDM initiatives, meeting agendas, and other working group activities.
 
