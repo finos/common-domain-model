@@ -137,8 +137,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-[image](..common-domain-model/website/static/img/collateral-asset-identifier-tree.png)
-![](.website/collateral-asset-identifier-tree.png)
+![](/website/static/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
@@ -165,7 +164,8 @@ An `EligibleCollateralSpecification` typically represents
 the schedule of eligible collateral agreed between two parties and is represented
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
-![image](/img/cdm-graphical-ecs.png)
+
+![](/website/static/img/cdm-graphical-ecs.png)
 
 `EligibleCollateralSpecification` consists of the following key attributes:
 
