@@ -242,7 +242,7 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
                 businessEvent -> after -> transferHistory -> transfer,
                 businessEvent -> eventDate
             )
-    alias instruction: businessEvent -> instruction
+    alias instruction: businessEvent -> instruction only-element
     set is_event:
         (businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> ContractTermsAmendment)
             and (instruction -> primitiveInstruction -> termsChange only exists or (instruction -> primitiveInstruction -> termsChange, instruction -> primitiveInstruction -> quantityChange) only exists)
@@ -529,6 +529,6 @@ func Qualify_ValuationUpdate: <"The qualification of a valuation update from the
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias instruction: businessEvent -> instruction
+    alias instruction: businessEvent -> instruction only-element
     set is_event:
         instruction -> primitiveInstruction -> valuation only exists
