@@ -43,7 +43,9 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
     alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
     alias afterTransfers: businessEvent -> after -> transferHistory
     set is_event:
-        (businessEvent -> instruction extract primitiveInstruction -> transfer only exists) all = True
+        (businessEvent -> instruction
+                extract primitiveInstruction -> transfer only exists
+                ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
             and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
 
@@ -62,6 +64,10 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
         transfersForDate -> quantity -> unit -> currency exists
             and transfersForDate -> quantity -> unit -> financialUnit exists
             and transfersForDate count = 2
+            and FilterCashTransfers(transfersForDate) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
+                    transfersForDate
+                )
+                only-element -> payerReceiver -> payerPartyReference
 
 func Qualify_ClearedTrade:
     [qualification BusinessEvent]
@@ -365,8 +371,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
         FilterQuantityByFinancialUnit(beforeQuantities, FinancialUnitEnum -> Share)
             only-element -> value
 
-    alias afterQuantities:
-        afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
+    alias afterQuantities: afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
 
     alias afterNoOfUnits:
         FilterQuantityByFinancialUnit(afterQuantities, FinancialUnitEnum -> Share)
@@ -530,5 +535,4 @@ func Qualify_ValuationUpdate: <"The qualification of a valuation update from the
     output:
         is_event boolean (1..1)
     alias instruction: businessEvent -> instruction only-element
-    set is_event:
-        instruction -> primitiveInstruction -> valuation only exists
+    set is_event: instruction -> primitiveInstruction -> valuation only exists
