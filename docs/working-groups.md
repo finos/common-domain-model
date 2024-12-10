@@ -23,7 +23,7 @@ The following Working Groups are currently activated or about to be set up for t
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
 * [ICMA CDM SteerCo for repo and bonds](https://www.icmagroup.org/market-practice-and-regulatory-policy/repo-and-collateral-markets/fintech/common-domain-model-cdm/)
-* [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM ISDA Foundations for the CSA and Master Agreements and is open to ISDA members only. - Bi-monthly 
+* [ISDA CDM Legal Agreement Working Group](https://www.isda.org/committees?ccode=CDMLA) - This working group will be used to extend the CDM ISDA Foundations for the CSA and Master Agreements and is open to ISDA members only. - bi-monthly 
 
 
 Email help@finos.org to be added to the meeting invites directly, or find the the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
