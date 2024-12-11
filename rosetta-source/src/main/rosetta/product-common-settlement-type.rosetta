@@ -20,7 +20,7 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
     currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
         [metadata scheme]
 
-type CashflowBase:
+type AssetFlowBase: <"Defines the basic parameters of an asset transfer, e.g. a cashflow: what (the asset), how much (the quantity) and when (the settlement date).">
     quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
     asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
@@ -33,7 +33,7 @@ type CashflowBase:
         else if asset -> Instrument exists
         then quantity -> unit -> financialUnit exists
 
-type Cashflow extends CashflowBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+type Cashflow extends AssetFlowBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     payerReceiver PayerReceiver (1..1) <"Specifies who pays / receives the cashflow, though a normalised Party1 / Party2 enumerator.">
     cashflowType CashflowType (1..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
     paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
