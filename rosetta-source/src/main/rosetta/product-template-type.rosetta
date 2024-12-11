@@ -136,8 +136,6 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     optionType OptionTypeEnum (0..1) <"The type of option transaction. From a usage standpoint, put/call is the default option type, while payer/receiver indicator is used for options on index credit default swaps, consistently with the industry practice. Straddle is used for the case of straddle strategy, that combine a call and a put with the same strike.">
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
-    fixedPrice PriceSchedule (0..*) <"Specifies the price of the settlement. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
@@ -401,8 +399,6 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-    fixedPrice PriceSchedule (0..*) <"Specifies the price of the settlement. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]
 
     condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
         underlier -> Product -> NonTransferableProduct is absent
@@ -717,8 +713,8 @@ type ExerciseTerms: <"A class defining the exercise period for an option togethe
     relevantUnderlyingDate AdjustableOrRelativeDates (0..1) <"The effective date on the underlying product if the option is exercised.  For example, for a swaption it is the swap effective date, for an option on an FX spot or forward it is the value date for settlement, and in an extendible/cancelable provision it is the swap termination date, which is the date on which the termination is effective.'">
     earliestExerciseTime BusinessCenterTime (0..1) <"The earliest time at which notice of exercise can be given by the buyer to the seller (or seller's agent) to, and including, the expiration date.">
     latestExerciseTime BusinessCenterTime (0..1) <"For a Bermuda or American style option, the latest time on an exercise business day (excluding the expiration date) within the exercise period that notice can be given by the buyer to the seller or seller's agent. Notice of exercise given after this time will be deemed to have been given on the next exercise business day.">
-    expirationTime BusinessCenterTime (1..1) <"The latest time for exercise on expirationDate. It is made mandatory given that for all option styles, this field is required.">
-    expirationTimeType ExpirationTimeTypeEnum (0..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
+    expirationTime BusinessCenterTime (0..1) <"The latest time for exercise on expirationDate. It is made mandatory given that for all option styles, this field is required.">
+    expirationTimeType ExpirationTimeTypeEnum (1..1) <"The time of day at which the equity option expires, for example the official closing time of the exchange.">
     multipleExercise MultipleExercise (0..1) <"As defined in the 2000 ISDA Definitions, Section 12.4. Multiple Exercise, the buyer of the option has the right to exercise all or less than all the unexercised notional amount of the underlying swap on one or more days in the exercise period, but on any such day may not exercise less than the minimum notional amount or more that the maximum notional amount, and if an integral multiple amount is specified, the notional amount exercised must be equal to, or be an integral multiple of, the integral multiple amount.">
     exerciseFeeSchedule ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
     exerciseProcedure ExerciseProcedure (0..1) <"The set of parameters defining the procedure associated with the exercise, e.g. manual exercise.">
@@ -752,9 +748,13 @@ type ExerciseTerms: <"A class defining the exercise period for an option togethe
                 and earliestExerciseTime exists
                 and partialExercise is absent
                 and exerciseFee is absent
+    
+    condition ExpirationTimeChoice: <"Condition to validate the correlation between expirationTime and expirationTimeType">
+        (if expirationTime exists then expirationTimeType = ExpirationTimeTypeEnum -> SpecificTime and 
+        if expirationTimeType = ExpirationTimeTypeEnum -> SpecificTime then expirationTime exists)
 
 type AutomaticExercise: <"A type to define automatic exercise of a swaption. With automatic exercise the option is deemed to have exercised if it is in the money by more than the threshold amount on the exercise date.">
-
+    
     thresholdRate number (0..1) <"A threshold rate. The threshold of 0.10% would be represented as 0.001">
     isApplicable boolean (0..1) <"Boolean that indicates if it has an automaticExercise">
 
@@ -853,7 +853,7 @@ type AssetPayout extends PayoutBase: <"Security finance payout specification in 
     // [metadata address "pointsTo"=PriceQuantity->observable->Asset->Instrument->Security]
     minimumFee Money (0..1) <"A contractual minimum amount which the borrower will pay, regardless of the duration of the loan. A mechanism for making sure that a trade generates enough income.">
     dividendTerms DividendTerms (0..1) <"Specifies the terms under which dividends received by the borrower are passed through to the lender.">
-    repoType RepoTypeEnum (0..1) <"Repurchase transactions and buy/sell-backs are both types of repo; this enumerator helps differentiate the two.">
+    tradeType AssetPayoutTradeTypeEnum (0..1) <"The trade type, eg repurchase transaction or buy/sell-back.">
 
     condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
         priceQuantity exists

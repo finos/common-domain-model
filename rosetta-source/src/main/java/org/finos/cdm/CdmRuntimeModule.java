@@ -2,7 +2,7 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.observable.asset.fro.functions.IndexValueObservation;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
