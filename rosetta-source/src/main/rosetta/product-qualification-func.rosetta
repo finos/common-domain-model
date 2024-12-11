@@ -1496,8 +1496,9 @@ func Qualify_ForeignExchange_Swap: <"Qualifies a product as Foreign Exchange Swa
         is_product boolean (1..1)
     set is_product:
         Qualify_AssetClass_ForeignExchange(economicTerms)
-            and (economicTerms -> payout -> forwardPayout extract underlier -> foreignExchange only exists
-            ) all = True
+            and (economicTerms -> payout -> forwardPayout
+                extract underlier -> foreignExchange only exists
+                ) all = True
             and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 2
             and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms is absent
 
@@ -1523,8 +1524,9 @@ func Qualify_ForeignExchange_NDS: <"Qualifies a product as Foreign Exchange NDS 
         is_product boolean (1..1)
     set is_product:
         Qualify_AssetClass_ForeignExchange(economicTerms) = True
-            and (economicTerms -> payout -> forwardPayout extract underlier -> foreignExchange exists
-            ) all = True
+            and (economicTerms -> payout -> forwardPayout
+                extract underlier -> foreignExchange exists
+                ) all = True
             and economicTerms -> payout -> forwardPayout -> underlier -> foreignExchange count = 2
             and economicTerms -> payout -> forwardPayout -> settlementTerms -> cashSettlementTerms exists
 
@@ -1586,8 +1588,9 @@ func Qualify_ForeignExchange_ParameterReturnCorrelation: <"Qualifies a product a
             and // qualifies that the underlier is a basket
             performancePayout -> underlier -> basket only exists
             and // qualifies that the product is FX (i.e.: the basket is constituted by foreign exchange constituents)
-            (performancePayout -> underlier -> basket -> basketConstituent extract foreignExchange only exists
-            ) all = True
+            (performancePayout -> underlier -> basket -> basketConstituent
+                extract foreignExchange only exists
+                ) all = True
 
 func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
     [qualification Product]
@@ -1601,12 +1604,12 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
     set is_product:
         Qualify_AssetClass_ForeignExchange(economicTerms)
             and economicTerms -> payout -> optionPayout exists
-            and economicTerms -> payout -> optionPayout
+            and (economicTerms -> payout -> optionPayout
                 extract
                     underlier -> foreignExchange only exists
                         and (exerciseTerms -> optionStyle -> americanExercise exists
                             or exerciseTerms -> optionStyle -> europeanExercise exists)
-                        and (feature is absent or feature -> averagingFeature only exists)
+                        and (feature is absent or feature -> averagingFeature only exists)) all = True
 
 func Qualify_SecuritiesFinance: <"Qualifies a product as generic Securities Finance; eg Securities Lending or Repurchase Agreement.">
     [qualification Product]
@@ -1617,7 +1620,8 @@ func Qualify_SecuritiesFinance: <"Qualifies a product as generic Securities Fina
     set is_product:
         economicTerms -> payout -> interestRatePayout only exists
             and economicTerms -> payout -> interestRatePayout count = 1
-            and economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout only exists
+            and (economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms extract payout -> assetPayout only exists
+            ) all = True
 
 func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedPricePayout, and 3) there are no other payout types.">
     [qualification Product]
