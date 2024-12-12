@@ -24,6 +24,8 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Eleonora Acuna, ISDA, Date of enrollment: 11th Mar 2024
 - Vernon Alden-Smith ISDA, Date of enrolement 13th Mar 2024
 - Brian Lynn, Global Electronic Markets, Date of enrolement: 17 May 2024
+- Vassil Verguilov, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
+- Dimo Rezashki, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
 
 
 ## How to enroll as a participant
