@@ -300,7 +300,7 @@ type TransferState:
 ```
 
 ``` Haskell
-type Transfer extends CashflowBase:
+type Transfer extends AssetFlowBase:
  identifier Identifier (0..*)
         [metadata scheme]
     payerReceiver PartyReferencePayerReceiver (1..1) 
