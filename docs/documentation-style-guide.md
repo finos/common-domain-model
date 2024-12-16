@@ -204,9 +204,9 @@ Another non-compliant example:
 
 | Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                          Section Example |
 |:--------------|:----------------------------------:|--------------------------------------:|---------------------------------------------------------:|
-| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](cdm-overview.md/Model-Overview) |
+| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](cdm-overview.md) |
 | 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](product-model.md),<br/>[legal-agreements-page](legal-agreements.md) |
-| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](product-model.md#tradable-product) |
+| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](product-model.md/#tradable-product) |
 | 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](product-model.md/#price-quantity) |
 :Heading Styles
 
