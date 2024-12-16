@@ -90,27 +90,21 @@ type EconomicTerms: <" This class represents the full set of price-forming featu
             and payout -> CommodityPayout -> priceQuantity -> reset is absent
             and payout -> FixedPricePayout -> priceQuantity -> reset is absent
             and payout -> SettlementPayout -> priceQuantity -> reset is absent
-            and payout -> OptionPayout -> priceQuantity -> reset is absent
-            and payout -> Cashflow -> priceQuantity -> reset is absent
-
+            and payout -> OptionPayout -> priceQuantity -> reset is absent            
+            
     condition NotionalResetInterestRatePayoutExists: <"As the performancePayout->payoutQuantity->reset attribute applies to return swaps, the interestRatePayout needs to be present alongside it.">
         if payout -> PerformancePayout -> priceQuantity -> reset contains True
         then payout -> InterestRatePayout exists
 
     condition FpML_cd_26_28: <"FpML validation rule cd-26 - If feeLeg/singlePayment/adjustablePaymentDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be after generalTerms/effectiveDate/unadjustedDate. FpML validation rule cd-28 - If feeLeg/periodicPayment/firstPaymentDate exists, then feeLeg/periodicPayment/firstPaymentDate must be after generalTerms/effectiveDate/unadjustedDate. This data rule tackles those two FpML validation rules at once, as the singlePayment and the firstPayment have been represented through the same Payout/cashflow attribute.">
-        if payout -> CreditDefaultPayout exists
-                and payout -> Cashflow exists
-                and effectiveDate exists
-                and payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate exists
-                and payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate is absent
-        then payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all > effectiveDate -> adjustableDate -> unadjustedDate or payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all > effectiveDate -> adjustableDate -> adjustedDate or payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all > effectiveDate -> relativeDate -> adjustedDate
+        // Cashflow is no longer part of the product so this condition cannot be tested at the economic terms level.
+        // Consider adding a generic validation at the trade state level that any cashflow must be between effective and termination dates.
+        True
 
     condition FpML_cd_27: <"FpML validation rule cd-27 - If feeLeg/singlePayment/adjustablePaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/singlePayment/adjustablePaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
-        if payout -> CreditDefaultPayout exists
-                and payout -> Cashflow exists
-                and terminationDate exists
-                and payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
-        then payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> unadjustedDate all < terminationDate -> adjustableDate -> unadjustedDate or payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate or payout -> Cashflow -> settlementTerms -> settlementDate -> adjustableOrRelativeDate -> relativeDate -> adjustedDate all < terminationDate -> adjustableDate -> adjustedDate
+        // Cashflow is no longer part of the product so this condition cannot be tested at the economic terms level.
+        // Consider adding a generic validation at the trade state level that any cashflow must be between effective and termination dates.
+        True
 
     condition FpML_cd_30: <"FpML validation rule cd-30 - If feeLeg/periodicPayment/lastRegularPaymentDate exists, and if generalTerms/scheduledTerminationDate exists, then feeLeg/periodicPayment/lastRegularPaymentDate must be before generalTerms/scheduledTerminationDate/unadjustedDate.">
         if payout -> InterestRatePayout -> paymentDates -> lastRegularPaymentDate exists
@@ -274,7 +268,6 @@ choice Payout: <"Represents the set of future cashflow methodologies in the form
     [metadata key]
 
     AssetPayout          <"Defines the assets and movements in a security financing transaction.">
-    Cashflow             <"A cashflow between the parties to the trade. For interest rate and equity products, this corresponds to the FpML additionalPayment element. For credit default swaps, this corresponds to the FpML initialPayment element and the singlePayment element of the fee leg. For option products, it represents the FpML premium element.">
     CommodityPayout      <"Defines the payout for the floating leg of a Commodity Swap.">
     CreditDefaultPayout  <"The credit default payout, which provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms.">
     FixedPricePayout     <"Defines a payout in which one or more payouts are defined as a fixed price.">
@@ -414,7 +407,7 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     condition SettlementTerms: <"Settlement Terms should be defined except for cash.">
         if underlier -> Observable -> Asset -> Cash exists
         then settlementTerms exists
-
+    
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
         then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
