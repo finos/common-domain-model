@@ -67,13 +67,13 @@ The two data definition components should be referred to as follows:
 ### Product
 
 1.  *Financial Product*. The user documentation defines
-    [financial-product](/docs/product-model.md#financial-product) as the highest
+    [financial-product](product-model.md/#financial-product) as the highest
     level of the hierarchy of the universe of products. The term
     *Financial Product* should be used consistently throughout the
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    [contractual-product](/docs/product-model.md#contractual-product) is defined as a
+    [contractual-product](product-model.md/#contractual-product) is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
@@ -83,13 +83,13 @@ The two data definition components should be referred to as follows:
 
 ### Event
 
-1.  *Business Event*. In the CDM, a [business-event](/docs/event-model.md#business-event) represents an event that may occur during the lifecycle
+1.  *Business Event*. In the CDM, a [business-event](event-model.md/#Business-Event) represents an event that may occur during the lifecycle
     of a trade, such as an amendment, a termination, a reset or a
     payment.
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model.md#primitive-event) represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](event-model.md/#Primitive-Events) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
