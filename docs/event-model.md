@@ -917,7 +917,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](event-model.md/#Event-Qualification)
+    qualification](event-model.md/#Event-Qualification)above. 
 
 ## Workflow
 
