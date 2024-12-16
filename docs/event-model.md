@@ -324,7 +324,7 @@ type TransferBase:
         then quantity -> unit -> financialUnit exists
 ```
 
-## Primitive Events {#primitive-event}
+## Primitive Events
 
 ### Primitive Operator
 
