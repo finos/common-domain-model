@@ -14,7 +14,7 @@ new version. The CDM release history is available in the [Release
 section](https://github.com/finos/common-domain-model/releases) of the CDM documentation. The most recent release can be found [here](../RELEASE.md).
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
-Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md)
+Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md).
 
 
 ## Agile Development Approach
