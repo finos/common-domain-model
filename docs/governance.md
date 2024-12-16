@@ -30,11 +30,11 @@ Click [here](cdm-org-structure.md) to view the diagram showing the Working Group
 
 a. [Maintainer](maintainers.md). “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining and documenting evidence of consensus as well as coordinating appeals. In the event a clear consensus is not reached, Maintaners may call for a simple majority vote of Participants to determine outcomes.
 Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.
-Information about appointment of a CDM Maintainer can be found [here](appointment-of-maintainers.md)
+Information about appointment of a CDM Maintainer can be found [here](maintainers.md).
 
 b. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approaved improvements. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the CDM maintainers via email. If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
 
-c. Participants. “Participants” are those that have made Contributions to the Working Group subject to the [Community Specification License](common-domain-model/LICENSE.md). Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
+c. Participants. “Participants” are those that have made Contributions to the Working Group subject to the [Community Specification License](license.md). Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
 
 d. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
 
