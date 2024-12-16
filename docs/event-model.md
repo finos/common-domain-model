@@ -68,7 +68,7 @@ four main components:
 The below diagram illustrates the relationship between these components.
 Each of them is described in the next four sections.
 
-![](/img/event-model-overview.png)
+![](/website/static/img/event-model-overview.png)
 
 ## Trade Events
 
@@ -152,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#TradableProduct) section of the
+[`tradable-product`](product-model.md#TradableProduct) section of the
 documentation.
 
 ---
@@ -421,7 +421,7 @@ allows to compose primitive operators. Primitive operators can be
 chained by applying a composite primitive instruction to a single trade
 state, as represented in the diagram below.
 
-![](/img/composing-primitive-operators.png)
+![](/website/static/img/composing-primitive-operators.png)
 
 ---
 **Note:**
@@ -917,7 +917,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](#event-qualification-section)
+    qualification](event-model.md/#Event-Qualification)
 
 ## Workflow
 
