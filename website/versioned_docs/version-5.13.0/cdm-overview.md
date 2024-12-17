@@ -153,7 +153,7 @@ share code generators into any other languages.
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component). The documentation also describes the
+the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component). The documentation also describes the
 mechanism to write and use code generators.
 
 ---
