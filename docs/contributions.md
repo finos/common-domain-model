@@ -11,7 +11,7 @@ The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
-section](https://github.com/finos/common-domain-model/releases) of the CDM documentation. The most recent release can be found [here](/RELEASE.md).
+section](https://github.com/finos/common-domain-model/releases) of the CDM documentation. The most recent release can be found [here](RELEASE.md).
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
 Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md).
