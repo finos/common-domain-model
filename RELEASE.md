@@ -13,7 +13,7 @@ In general, the solution is to follow one of two approaches:
 _What is being released?_
 
 This release includes fixes for all cardinality related errors detected by the DSL, which are listed below.
-It also includes a related fix to the `Qualify_CashAndSecurityTransfer`, which is described in more detail below the list.
+It also includes a related fix to the `Qualify_CashAndSecurityTransfer` function, which is described in more detail below the list.
 
 1. The function `SecurityFinanceCashSettlementAmount` contained a multiplication of which one operand - `securityQuantity` -
    was of multi cardinality. In practice, due to filtering, it should always be a single element, so this was fixed with `only-element`.
