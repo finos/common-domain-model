@@ -49,6 +49,9 @@ this digital representation are summarized below:
 -   Includes ability to identify attributes of collateral that
     contribute to the risk like the type of asset, interest structures,
     economics, embedded options and unique characteristics.
+-   Provides the capability for these attributes to be combined using AND,
+    OR, and NOT logic operators to enable complex representations of the
+    interactions between attributes to digitise the rules around eligibility.
 -   Uses data standards to specify eligibility related information such
     as haircuts (regulatory credit quality, FX related or additional
     haircuts), agency or composite credit ratings and asset maturity
@@ -61,7 +64,7 @@ this digital representation are summarized below:
 -   Includes attributes to identify regulatory rules by defined
     eligibility identification categories published by regulatory bodies
     such as EMIR, CFTC and US Prudential.
--   Provides a means of Identifying Schedules and constructing reusable
+-   Provides a means of identifying schedules and constructing reusable
     collateral profiles.
 -   Standardises digital data representation components to construct the
     details to identify collateral eligibility not just for regulatory
@@ -87,9 +90,9 @@ this digital representation are summarized below:
 The model's primary intention is to deliver standards for OTC
 Derivatives with a focus on uncleared margin rules. In addition, the
 approach is intended to also be used to express collateral eligibility
-for other industry workflows such as Securities Lending, Repo and
+for other industry workflows such as Securities Lending, Repo, and
 Exchange Traded Derivatives (ETD). The model foundations, broad range of
-attributes and functions have been constructed with this in mind and can
+attributes, and functions have been constructed with this in mind and can
 be extended further to operate to wider processes.
 
 The common data requirements have been established through industry
@@ -99,8 +102,7 @@ specifications, including representation of additional attributes for
 regulatory risk and credit factors. For the purpose of understanding the
 principle, these can be divided into the following categories:
 
--   Issuer Identification
--   Asset Identification
+-   Asset and Issuer Identification
 -   Collateral Haircuts
 -   Maturity Ranges
 -   Concentrations Limits
@@ -158,15 +160,17 @@ or CUSIP or a standard taxonomy source.
 
 ### High Level Design Principles
 
-The highest level and fondational data structure for the representation of
+The highest level and foundational data structure for the representation of
 eligibility is the `EligibleCollateralSpecification` which is a *root class*.
 An `EligibleCollateralSpecification` typically represents
 the schedule of eligible collateral agreed between two parties and is represented
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
-![image](/img/cdm-graphical-ecs.png)
+![image](/img/cdm-graphical-ecs6.png)
 
 `EligibleCollateralSpecification` consists of the following key attributes:
+
+- The `identifier` attribute is used to specify the identifier(s) that uniquely identify eligible collateral or a set of eligible collateral, such as a schedule or equivalant for an identity issuer.
 
 - The `criteria` attribute is used to specify the set of criteria used to define eligible collateral,
   made up of one or more `EligibleCollateralCriteria`.
@@ -176,6 +180,9 @@ digitally as one or more `EligibleCollateralCriteria` to define the details.
 - The `partyRole` attribute is used to specify the role(s) that each of the
   party(s) is playing in the context of the specification, eg Payor or Receiver
   of collateral.
+
+- The `counterparty` attribute defines the parties to the agreement in the form of references
+  to the terms "Party1" and "Party2.
 
 `EligibleCollateralCriteria` consists of the following attributes:
 
