@@ -18,7 +18,7 @@ There is no longer a separate data type for each of asset and issuer criteria; t
 - The attributes `issuer` and `asset` on `CollateralCriteriaBase` have now been replaced with the single one `collateralCriteria` which is the specific criteria that applies. It can be created using AND, OR and NOT logic, and both asset and issuer characteristics.
 - The conditions on `CollateralCriteriaBase` have been updated and now use the new `CriteriaMatchesAssetType` function.
 - The data type `ConcentrationLimit` has been refactored to reduce the cardinality of `concentrationLimitCriteria` to 1 and the condition is updated accordingly.
-- The condition on `ConcentrationLimitCriteria` has been updated to reflect the combinaed `CollateralCriteria`.
+- The condition on `ConcentrationLimitCriteria` has been updated to reflect the combined `CollateralCriteria`.
 - Three new logic data types have been introduced to support the AND, OR and NOT logic of terms and are used in `CollateralCriteria`:
   - `AllCriteria`
   - `AnyCriteria`
@@ -52,7 +52,7 @@ Previously, the function `Create_EligibleCollateralSpecificationFromInstruction`
 - `CreateAndCriteria`: Combines multiple `CollateralCriteria` together using AND logic.
 - `CreateOrCriteria`: Combines multiple `CollateralCriteria` together using OR logic.
 
-Some changes have been made to the Java supporting code behind this functionality; see the changes in the following files:#
+Some changes have been made to the Java supporting code behind this functionality; see the changes in the following files:
 - rosetta-source/src/test/java/org/isda/cdm/functions/FunctionInputCreationTest.java
 - rosetta-source/src/main/java/org/finos/cdm/CdmRuntimeModule.java
 - rosetta-source/src/main/java/cdm/product/collateral/functions/MergeEligibleCollateralCriteriaImpl.java.
