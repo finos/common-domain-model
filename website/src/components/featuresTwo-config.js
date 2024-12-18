@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const featuresTwo = [
-    {
+   {
         title: <>ENHANCE INTEROPERABILITY & STRAIGHT THROUGH PROCESSING</>,
         description: (
             <>Enables interoperability between systems/services, removing burden of setting up connections to different systems/entities, laying groundwork for STP</>
@@ -9,7 +9,7 @@ export const featuresTwo = [
         imageUrl: '/img/feature-images/share.svg',
     },
     {
-        title: <>DELIVERS BETTER REGULATORY OVERSIGHT<br/><br/></>,
+        title: <>DELIVERS BETTER REGULATORY OVERSIGHT</>,
         imageUrl: '/img/feature-images/book-open.svg',
         description: (
             <>Promotes transparency and alignment between regulators and market participants</>

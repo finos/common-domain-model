@@ -211,7 +211,10 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+        [metadata scheme]
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
         [metadata reference]
     resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
@@ -506,22 +509,6 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
     underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
-
-type TransferBase:
-    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]
-    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
-    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
-
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
