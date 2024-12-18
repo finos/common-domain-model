@@ -2,7 +2,7 @@
 
 _Background_
 
-Due to a recent DSL update (PR (#...)[...]) which adds additional logical checks related to cardinality, some errors were found in the model.
+Due to a recent DSL update (see [DSL release notes](https://github.com/finos/rune-dsl/releases/tag/9.25.0)) which adds additional logical checks related to cardinality, some errors were found in the model.
 These errors stem from an ambiguity of how to handle multiple inputs in certain situations.
 
 In general, the solution is to follow one of two approaches:
