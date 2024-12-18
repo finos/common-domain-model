@@ -3,11 +3,11 @@
 _Background_
 
 Due to a recent DSL update (see [DSL release notes](https://github.com/finos/rune-dsl/releases/tag/9.25.0)) which adds additional logical checks related to cardinality, some errors were found in the model.
-These errors stem from an ambiguity of how to handle multiple inputs in certain situations.
+These errors stem from an ambiguity of how to handle multiple elements in certain situations.
 
 In general, the solution is to follow one of two approaches:
 - Do we expect only a single item to be present? Then use the `only-element` operator.
-- Should we support multiple inputs? Then use the `extract` operation to handle all of them, and reduce them
+- Should we support multiple elements? Then use the `extract` operation to handle all of them, and reduce them
   to a single result according to the context, e.g., using the `all = True` operation.
 
 _What is being released?_
