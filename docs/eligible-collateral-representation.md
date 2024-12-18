@@ -186,13 +186,8 @@ digitally as one or more `EligibleCollateralCriteria` to define the details.
 
 `EligibleCollateralCriteria` consists of the following attributes:
 
-- The `asset` attribute is used to specify criteria related to the nature of the
-asset, such as its type (cash, debt, equity, or other), its country of
-origin or its denominated currency.
-
-- The `issuer` attribute is used to specify criteria related to the issuer of the
-asset, such the type of issuer (government, corporate, etc), specific
-issuer name, or agency rating
+- The `collateralCriteria` attribute is used to specify all of the criteria terms; this is discussed
+  in more detail in the next section.
 
 - The `treatment` attribute is used to specify the valuation percentage, any concentration
 limits and or specific inclusion or exclusion conditions, which
@@ -202,147 +197,100 @@ or not.
 - The `appliesTo` attribute is used to specify which of the two counterparties the
   criteria applies to (either one or both counterparties).
 
+- The `restrictTo` attribute can be used to restrict the criteria to only apply to a
+  specific type of margin, ie IM or VM.
+  
+- The `ratingPriorityResolution` attribute denotes which Criteria has priority if more
+  than one agency rating applies.
+
 The combination of these terms allows a wide variety of eligible
 collateral types to be represented and a structure can be used to
 identify individual collateral types or a group of collateral assets for
 inclusion in specifying eligible collateral schedule details.
 
-## Using the CDM to identify Eligible Collateral
+## Identifying Eligible Collateral
 
 A combination of data types can be used to describe the collateral
 asset, its origin and its issuer. Data type `EligibleCollateralCriteria`
 inherits attributes from `CollateralCriteriaBase` which contains data types to
 define collateral Asset and Issuer characteristics.
 
-### Asset Criteria
+### CollateralCriteria
 
-The data type `AssetCriteria` is used to specify the definition of the
-collateral asset, this includes the following data attributes:
+The data type `CollateralCriteria` is used to specify the definition of the
+collateral terms. This data type is implemented as `choice` which means that, in
+its simplest form, a `CollateralCriteria` can only
+consist of a single collateral term. But terms can also be combined, using 
+AND and OR logic, which is covered in the next section.
 
-``` MD
-type AssetCriteria:
-  collateralAssetType AssetType (0..*)
-  assetCountryOfOrigin ISOCountryCodeEnum (0..*)
-  denominatedCurrency CurrencyCodeEnum (0..*)
-  agencyRating AgencyRatingCriteria (0..*)
-  maturityType MaturityTypeEnum (0..1)
-  maturityRange PeriodRange (0..1)
-  specificAssets Asset (0..*)
-  collateralTaxonomy CollateralTaxonomy (0..*)
-  domesticCurrencyIssued boolean (0..1)
-  listing ListingType (0..1)
-
-  condition AssetCriteriaChoice:
-    optional choice collateralAssetType, collateralTaxonomy, specificAssets
-```
-
--   `collateralAssetType` Represents a filter based on the asset product
-    type.
--   `collateralAssetType` Represents a filter based on the asset product
-    type.
--   `assetCountryOfOrigin` Represents a filter based on the issuing
-    entity country of origin.
--   `denominatedCurrency` Represents a filter based on the underlying
-    asset denominated currency.
--   `agencyRating` Represents an agency rating based on default risk and
-    creditors claim in event of default associated with specific
-    instrument.
--   `maturityType` Specifies whether the maturity range is the remaining
-    or original maturity.
--   `maturityRange` Represents a filter based on the underlying asset
-    maturity.
--   `specificAssets` Represents a filter based on specific assets which 
-    are acceptable as collateral (e.g. specific securities, loans, equities,
-    commodities or other assets etc).  Assets may be defined using the
-    `Asset` data type, including by reference to an identifier such
-    as ISIN, CUSIP, etc.
--   `collateralTaxonomy` Specifies the collateral taxonomy, which is
-    composed of a taxonomy value and a taxonomy source.
--   `domesticCurrencyIssued` Identifies that the Security must be
-    denominated in the domestic currency of the issuer.
--   `listingType` Specifies the exchange, index or sector specific to
-    listing of a security.
-
-Each of the `AssetCriteria` data attributes in the model provides
-further granularity to describe the asset, either as basic types or
-complex types, for example:
-
--   `collateralAssetType` can be used to define further by `AssetType`
-    such as `securityType`, `debtType`, `equityType`, or `fundType`.
-    Each of these can be used to represent data in further granularity
-    if required providing more enumeration options. These are covered in
-    further examples throughout this guide.
--   `assetCountryOfOrigin` and `denominatedCurrency` are can be populated by
-   a value from the list of enumerations for countries and currencies.
--   `domesticCurrencyIssued` identifies whether the Security must be denominated
-    in the domestic currency of the issuer.
-
-### Issuer Criteria
-
-The data type `IssuerCriteria` is used to specify the issuer of a
-collateral asset, this includes the following data attributes:
+The terms are modelled as individual attributes on the `CollateralCriteria` 
+choice data type:
 
 ``` MD
-type IssuerCriteria:
-  issuerType CollateralIssuerType (0..*)
-  issuerCountryOfOrigin ISOCountryCodeEnum (0..*)
-  issuerName LegalEntity (0..*)
-  issuerAgencyRating AgencyRatingCriteria (0..*)
-  sovereignAgencyRating AgencyRatingCriteria (0..*)
-  counterpartyOwnIssuePermitted boolean (0..1)
+choice CollateralCriteria:  
+    CollateralIssuerType            <"Criteria is the type of entity issuing the asset.">
+    AssetType                       <"Criteria is the asset type of the collateral.">
+    IssuerCountryOfOrigin           <"Criteria is the issuing entity country of origin.">
+    AssetCountryOfOrigin            <"Criteria is the collateral asset country of origin.">
+    CurrencyCodeEnum                <"Criteria is the denominated currency of the collateral.">
+    IssuerName                      <"Criteria is a specific named issuer entity.">
+    IssuerAgencyRating              <"Criteria is the agency rating(s) of the issuer.">
+    SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
+    AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
+    AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
+    Asset                           <"Criteria is a specifically identified asset.">
+    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
+    ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
+    ListingSector                   <"Criteria is the industry sector of the collateral asset.">
+    Index                           <"Criteria is that the collateral is a constituent of a specific index.">
+    CounterpartyOwnIssuePermitted   <"Criteria includes collateral issued by the counterparty.">
+    DomesticCurrencyIssued          <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 ```
 
--   `issuerType` Represents a filter based on the type of entity issuing
-    the asset.
--   `issuerCountryOfOrigin` Represents a filter based on the issuing
-    entity country of origin, which is the same as filtering by eligible
-    Sovereigns.
--   `issuerName` Specifies the issuing entity name or LEI.
--   `issuerAgencyRating` Represents an agency rating based on default
-    risk and creditors claim in event of default associated with asset
-    issuer.
--   `sovereignAgencyRating` Represents an agency rating based on default
-    risk of country.
--   `counterpartyOwnIssuePermitted` Represents a filter based on whether
-    it is permitted for the underlying asset to be issued by the posting
-    entity or part of their corporate family.
+### Combining CollateralCriteria using AND and OR logic
 
-For each of the `IssuerCriteria` options, the model will provide further
-options of granularity; for example `issuerType` will allow you to
-define further express data for the detail to be more specific to the
-type of issuer for example: `SovereignCentralBank`, `QuasiGovernment`,
-`RegionalGovernment` and so on. If necessary, each will offer further
-levels of granularity relevant to each issuer type. These will be
-covered in more detail and in further examples throughout this guide.
+Te above code snippet only allows a single term to be specified within
+the `CollateralCriteria` - ie the choice of one attribute.
 
-Other attributes of `IssuerCriteria` can be used and added to your
-issuer description, if required, and will give various levels of
-granularity dependent on their nature and purpose in describing the
-issuer. For example `issuerCountryOfOrigin` enables an enumerator
-to be selected from a list of Country Codes.
+In reality, it is usually necessary to combine terms together to model
+the eligiblity schedule fully.  Furthermore, these combinations often 
+need to use complex AND and OR logic between the terms.
 
-`counterpartyOwnIssuePermitted` is a Boolean data option to specify whether
-collateral issued by the poster is eligible.
-`issuerName` is used to express a legal entity identifier using the 
-`LegalEntity` data type.
-Whereas other attributes will have more detailed options, such as
-`IssuerAgencyRating`; these will be covered in more detail and in further
-examples throughout this guide.
+For example, a schedule may specify that either of the following would
+qualify as eligible collateral:
+- Equity assets from US issuers
+- Bond instruments from UK issuers.
 
-### Eligible Collateral Criteria
+This can be described logically as:
 
-The data type `EligibleCollateralCriteria` is used to define a set of
-criteria, that is `IssuerCriteria` and `AssetCriteria`, together and apply
-a collateral treatment to them.
+( `AssetType` = 'Equity' AND `IssuerCountryOfOrigin` = 'USA')
+OR
+( `AssetType` = 'FixedIncome' AND `IssuerCountryOfOrigin` = 'UK').
 
-There are three additional attributes - defined in `CollateralCriteriaBase` -
-which can be used to configure the formation of the set, using enumerators:
+Within the CDM, the implementation of this AND and OR logic is achieved
+by the addition of further attributes to `CollateralCriteria`:
 
-- `appliesTo` defines that the criteria applies to only one, or both, of the parties
-- `restrictTo` defines that the criteria applies to only a specific type of
-margin, ie IM or VM
-- `ratingPriorityResolution` defines whether the Asset or Issuer Criteria has precedence
-  if Agency Ratings are defined for both.
+- `AllCriteria`: Enables two or more Collateral Criteria to be combined using AND logic.
+- `AnyCriteria`: Enables two or more Collateral Criteria to be combined using OR logic.
+- `NegativeCriteria`: Enables a single Collateral Criteria to be excluded using NOT logic.
+
+For completeness, these additional types are modelled like this:
+
+``` MD
+choice CollateralCriteria: 
+    AllCriteria                
+    AnyCriteria   
+    NegativeCriteria 
+
+type AllCriteria:  
+    allCriteria CollateralCriteria (2..*)
+
+type AnyCriteria: 
+    anyCriteria CollateralCriteria (2..*)
+
+type NegativeCriteria:  
+    negativeCriteria CollateralCriteria (1..1)
+```
 
 ### Treatment Functions
 
@@ -356,7 +304,7 @@ number of options which are listed below:
 -   `concentrationLimit` Specification of concentration limits
     applicable to the collateral criteria.
 -   `isIncluded` A boolean attribute to specify whether collateral
-    criteria are inclusion (True) or exclusion (False) criteria**.**
+    criteria are inclusion (True) or exclusion (False) criteria.
 
 The CDM model is flexible so that these treatment rules can be applied
 to the detail of data expression for eligible collateral on an
@@ -398,9 +346,8 @@ Primary Exchange, Sector, etc).
 *Specific method* : If you wish to apply a concentration limit to a
 specific asset or issuer of asset, you would use the
 `ConcentrationLimitCriteria`. This extends `CollateralCriteriaBase` and
-allows you be more specific using the granular structures of the
-`IssuerCriteria` and `AssetCriteria` to specify the details of the
-issuer or asset you want to apply the concentration limit.
+allows you be more specific using the granular structures of `CollateralCriteria` 
+to specify the details of the terms you want to apply the concentration limit.
 
 In addition, you would need to specify the form of the concentration
 limit being used as a value limit range to apply a cap (upper bound) or
@@ -428,38 +375,27 @@ constrain choices to:
 -   one concentration limit type (either a value limit or percentage
     limit concentration must be specified).
 
-#### Inclusion Rules
-
-The collateral treatment function `isIncluded` can be used as a
-treatment term for the eligible collateral criteria specified and
-indicate if the collateral is eligible or not. Therefore a Boolean data
-attribute is applied using one of the following:
-
--   (True) Collateral Inclusion
--   (False) Collateral Exclusion
-
 ## Additional Granular Construction
 
 The CDM data structure to express collateral eligibility has been
 explored in more detail and it has been demonstrated where the
 `EligibleCollateralCriteria` can be broken down into data related to
-`IssuerCriteria` and `AssetCriteria` and rules can be applied using data
+`CollateralCriteria` and rules can be applied using data
 for CollateralTreatment.
 
 The following section focuses on the more granular details of the
-various data attributes available through `IssuerCriteria` and
-`AssetCriteria`.
+various data attributes available through `CollateralCriteria`.
 
 ### Collateral Asset and Issuer Types
 
-Under data types for `IssuerCriteria` and `AssetCriteria`, respectively,
-the `issuerType` and `collateralAssetType` attributes provide additional
+Under data type `CollateralCriteria`, 
+the `CollateralIssuerType` and `AssetType` attributes provide additional
 data to detail collateral.
 
 #### Defining Collateral Issuers:
 
-`issuerType` allows for multiple expressions of data related to the
-issuer using `CollateralIssuerType` containing data attributes as
+`CollateralIssuerType` allows for multiple expressions of data related to the
+issuer containing data attributes as
 follows:
 
 - `issuerType` of type `IssuerTypeEnum` specifies the origin of entity issuing the
@@ -483,17 +419,13 @@ with enumerations to define:
 
 #### Defining Collateral Assets:
 
-`collateralAssetType` allows for multiple expressions of data related to
-the collateral asset using `AssetType` which has further data attributes
-as follows:
-
-- `assetType` - Represents the type of collateral asset with data attributes
+`AssetType` - Represents the type of collateral asset with data attributes
 as enumerations to define:
 
-  - Security
-  - Cash
-  - Commodity
-  - Other Collateral Products
+- Security
+- Cash
+- Commodity
+- Other Collateral Products
 
 - `securityType` - Represents the type of security with data attributes to
 define, as examples:
@@ -539,8 +471,6 @@ detail these and indicate the data structure available to define them.
 
 ### Agency Ratings Criteria 
 
-**Used within both Issuer and Asset Criteria**
-
 The use of specifying agency rating criteria for credit purposes can be
 useful for many means in legal documentation to drive operational
 outcomes such as collateral thresholds and event triggers. When defining
@@ -550,23 +480,11 @@ These are useful and common for determining eligible collateral between
 parties and those defined under regulatory rules for posting certain
 margin types.
 
-The model components are specified in the CDM using data type
-`AgencyRatingCriteria` : - Represents class to specify multiple credit
-notations alongside a conditional 'any' or 'all' qualifier.
+The model components are specified in the CDM using the data types
+`IssuerAgencyRating`, `SovereignAgencyRating` and `AssetAgencyRating`.
 
-For the purpose of use in defining eligible collateral this can be
-applied to the following data attributes:
-
--   `IssuerCriteria` \> `issuerAgencyRating` - Represents an agency
-    rating based on default risk and creditors claim in event of default
-    associated with asset issuer
--   `IssuerCriteria` \> `sovereignAgencyRating` - Represents an agency
-    rating based on default risk of the country of the issuer
--   `AssetCriteria` \> `agencyRating` - Represents an agency rating
-    based on default risk and creditors claim in event of default
-    associated with specific instrument
-
-Data type `AgencyRatingCriteria` allows specification of the following
+Each of these attributes on `CollateralCriteria` refer to the data type 
+`AgencyRatingCriteria` which allows specification of the following
 related information to eligible collateral:
 
 ``` Haskell
@@ -680,14 +598,12 @@ Moodys Aaa
 Fitch AAA
 
 Then one of these needed to be specified as the dominant rating as an
-example (Moodys), you would express `mismatchResolution` \>
-`CreditNotationMismatchResolutionEnum` \> **ReferenceAgency**
+example (Moodys), you would express `mismatchResolution` -\>
+`CreditNotationMismatchResolutionEnum` -\> **ReferenceAgency**
 
-`referenceAgency` \> `CreditRatingAgencyEnum` \> **Moodys**
+`referenceAgency` -\> `CreditRatingAgencyEnum` -\> **Moodys**
 
 ### Collateral Taxonomy 
-
-**Used within Asset Criteria**
 
 It is understood that data used to determine asset types used in
 specifying eligible collateral information can often refer to common
@@ -781,13 +697,11 @@ from the EMIR enumerations list if the taxonomy source is
 
 ### Maturity Profiles 
 
-**Used within Asset Criteria**
-
 The expression of collateral life span periods and specific maturity
 dates is a common eligibility characteristic and may be needed for
 determining other key collateral treatments such as haircut percentages.
 The CDM has various approaches for representing assets maturities, they
-are data attributes within the data type `AssetCriteria` as follows:
+are data attributes within the data type `AssetMaturity` as follows:
 
 -   `maturityType` - Allows specification of the type of maturity range
     and has the following enumerated values:
@@ -818,14 +732,12 @@ requirement.
 
 ### Asset Identifier 
 
-**Used within Asset Criteria**
-
 The CDM model as described throughout this guide will allow the user to
 define collateral assets through the granular structure of the
-`AssetCriteria`, but we must understand that expression of asset details
+`CollateralCriteria`, but we must understand that expression of asset details
 for eligibility purposes can take other forms across the universe of
 collateral, for some processes there is a requirement to use specific identifiers
-for particular financial products. The data type `AssetIdentifier` can be used to
+for particular financial products. The data type `Asset` can be used to
 express specific instrument identifiers such as ISINs, CUSIPs etc. There
 is a section within the CDM documentation that covers this area of the
 model, this can be found in the following link
@@ -833,28 +745,25 @@ model, this can be found in the following link
 
 ### Listing 
 
-**Used within Asset Criteria**
-
 Additional details may be required to describe asset characteristics
 related to a securities financial listing, exchange, sector or specified
 indices, if relevant these are used to express eligibility details in
-documentation and collateral profiles. The data type listing
-`ListingType` contained within `AssetCriteria` can be used to
-specification such listing criteria. This expands to three attributes
-that can be used individually or together :
+documentation and collateral profiles. The following attributes on 
+`CollateralCriteria` can be used to
+specification such listing criteria. 
 
--   exchange string (0..1) Represents a filter based on the primary
+-   `ListingExchange` Represents a filter based on the primary
     stock exchange facilitating the listing of companies, exchange of
     Stocks, Exchange traded Derivatives, Bonds, and other Securities.
--   sector string (0..1) Represents a filter based on an industry sector
+-   `ListingSector`  Represents a filter based on an industry sector
     defined under a system for classifying industry types such as
     'Global Industry Classification Standard (GICS)' and 'North American
     Industry Classification System (NAICS) or other related industry
     sector reference data.
--   index Index (0..1) -- Represents a filter based on an index that
+-   `Index` Represents a filter based on an index that
     measures a stock market, or a subset of a stock market. The
-    \`Index\` data type can be used in the CDM to define an index in
-    terms of a \`ProductIdentifier' and an enumeration identifying the
+    `Index` data type can be used in the CDM to define an index in
+    terms of an `Identifier' and an enumeration identifying the
     index constituent type.
 
 ## Combining Data in Eligible Collateral
@@ -862,8 +771,8 @@ that can be used individually or together :
 ### Combining Criteria & Treatments
 
 This user guide provides an overview of the data available to represent
-details for expressing eligibility inclusive of the asset criteria,
-issuer criteria and the collateral treatment inclusion rules, valuation
+details for expressing eligibility inclusive of the collateral criteria
+and the collateral treatment inclusion rules, valuation
 percentages and concentration limits. However, a combination of how the
 data is represented and structured will determine specific outcomes.
 
@@ -871,30 +780,19 @@ The data can be specified and organised as a list of attributes, such as
 descriptive details of the asset and the issuer, to identify the makeup
 of collateral.
 
-This list can be made up of multiple attributes from both the asset or
-issuer criteria and be grouped together. Items listed in this way using
-the same level in the CDM are defined as an 'and' relationship. However,
-opportunities exist in the CDM data structure to extended lists within a
-list and add another level to both asset and issuer criteria which will
-operate as an 'or' relationship. An example of this would be within data
-type `AssetCriteria` there is an option to define a
-`denominatedCurrency` (0..\*); this data attribute with an open
-cardinality allows for a definition of a list of currencies and
-describes where a 'or' relationship exists.
-
 Each list combination identified in this way can then have specific
 treatment rules applied to it.
 
 For example, a simple list can be constructed as follows:
 
-AssetCriteria\>
+CollateralCriteria
 
--   collateralAssetType\>assetType: **CASH**
+-   AssetType -\> assetType: **CASH**
 -   denominatedCurrency: **USD**
 
 And then the following treatment applied to the list
 
-Treatment\>
+Treatment
 
 -   isIncluded: **TRUE**
 -   haircutPercentage**: 0.005**
@@ -902,40 +800,13 @@ Treatment\>
 The outcome is- USD CASH IS ELIGIBLE AT 99.5% VALUE/ or WITH 0.5%
 HAIRCUT
 
-To extend this example further a digital JSON output extract of the same
-details is show here:
-
-``` Javascript
-{
-"criteria": [{
-   "asset": [{
-         "collateralAssetType": [{
-               "assetType": "CASH"
-           }],
-         "denominatedCurrency": [{
-               "value": "USD"
-}]
-         }],
-       "treatment": {
-           "haircutPercentage": {
-               "haircutPercentage": 0.005
-               },
-           "isIncluded": true
-           }
-```
-
 ### Automating Construction
 
 In typical industry practice, eligible collateral schedules are quite complex with a number of interacting terms.
 To digitize them in the CDM, they will need to be converted into an `EligibleCollateralSpecification` 
-with many `EligibleCollateralCriteria` with potentially repeating groups of `AssetCriteria` and `IssuerCriteria`.
-The construction of these terms can be quite laborious, so a function has been created in the CDM to provide
+with many `EligibleCollateralCriteria` with potentially recursive instances of `CollateralCriteria`.
+The construction of these terms can be quite laborious, so functions has been created in the CDM to provide
 a level of automation.
-
-The function is called `Create_EligibleCollateralSpecificationFromInstruction`, which, as it describes,
-creates an `EligibleCollateralSpecification` using an instruction (that is an `EligibleCollateralSpecificationInstruction`)
-as the input.  Conceptually, the function is given an existing `EligibleCollateralSpecification` with an 
-instruction to clone the contents.
 
 #### EligibleCollateralSpecificationInstruction
 
