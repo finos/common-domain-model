@@ -1,35 +1,31 @@
-# *CDM Model - Equity Products*
+# *CDM Examples - Extended test coverage*
 
 _Background_
 
-This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes.
+This release updates the `examples` project improving the test scenario coverage for several Common Domain Model Java features. All extended scenarios use publicly available CDM Test Pack samples.
 
 _What is being released?_
 
-This release creates the following modifications:
+This release adds the following examples scenarios:
 
-**Qualification functions**
-- Added a new qualification function for Equity Exotic Options: `Qualify_Equity_OtherOption`, that uses `nonStandardisedTerms` attribute to identify when an option is Exotic.
-- For existing Equity Option qualifications functions, `nonStandardisedTerms` is negatively tested to prevent redundant qualification.
+**Processor scenarios**
+- `org.finos.cdm.example.processors.QualificationProcessorTests` with different qualification report expectation scenarios
+- `org.finos.cdm.example.processors.ValidationProcessorTests` with different validation report expectation scenarios
 
-**Validation conditions**
-- `InterestRatePayout`:
-  - FpML conditions `FpML_ird_9` and `FpML_ird_29` are relaxed when `compoundingMethod` is `None` (instead of just when absent).
-- `ExerciseTerms`:
-  - Attribute `expirationTime` relaxed to be optional (previously mandatory).
-  - Attribute `expirationTimeType` tightened to be mandatory (previously optional).
-  - Addition of validation condition `ExpirationTimeChoice` to establish the correlation between `expirationTime` and `expirationTimeType`: `expirationTimeType` must be set to `SpecificTime` when `expirationTime` is specified (and conversely).
+**Qualification scenarios**
+- `org.finos.cdm.example.qualification.QualifyBusinessEventTest` with `PartialTermination`, `ContractFormation`, `PartialNovation`
+- `org.finos.cdm.example.qualification.QualifyProductTest` with `InterestRate_Fra`, `InterestRate_Option_Swaption`, `InterestRate_CrossCurrency_FixedFloat`, `InterestRate_CapFloor`, `InterestRate_IRSwap_FixedFloat`, `CreditDefaultSwap_SingleName`, `CreditDefaultSwap_Index`, `CreditDefaultSwap_Basket`, `EquitySwap_TotalReturnBasicPerformance_SingleName`, `EquitySwap_ParameterReturnVariance_SingleName`
 
-_Backward incompatible changes_
+**WorkflowStep transition scenarios**
+- `org.finos.cdm.example.BusinessEventExecutionTest` with business event execution tests and instruction creation mocks for `ContractFormation`, `Execution`, `Novation`, `Increase`, `Decrease`, `Termination`, `Reset`, `Valuation`, `OptionExercise`, `Transfer`, `TermsChange`, `StockSplit`, `Allocation`, `CorporateAction`, `CreditEvent`, `Compression`, `Clearing`, ``, ``, ``, ``, ``, ``, ``, ``, ``, ``, ``
 
-The `ExerciseTerms` validation change is backward incompatible and all affected samples have been updated to ensure that `expirationTimeType` is populated as `SpecificTime` when the `expirationTime` attribute is populated.
-
-See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/fpml-5-13/products/fx-derivatives/fx-ex09-euro-opt.xml)
+**Performance Metrics**
+- `org.finos.cdm.example.performance.ProcessorPerformanceTests` with deserialization, object validation, qualification, and state transition metrics at product and event level.
 
 _Review Directions_
 
-Please inspect the changes identified above for the functions and types in the Textual Viewer Rosetta.
+Please inspect the changes identified above for the test scenarios in the `examples` module.
 
-Please inspect the changes to option samples using the Ingestion Panel in Rosetta.
+The coverage for this release can also be reviewed in PR [#3299](https://github.com/finos/common-domain-model/pull/3299).
 
-The changes can also be reviewed in PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
+The full scope description of the proposal can be found at [#3298](https://github.com/finos/common-domain-model/issues/3298).

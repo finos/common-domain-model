@@ -42,7 +42,7 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
     private final String tradeStateTestPackSamples = "result-json-files/fpml-5-13/products";
 
     // Path to the test sample JSON files for WorkflowStep objects within the JAR resources
-    private final String workflowStepTestPackSamples = "result-json-files/fpml-5-13/processes/execution-advice";
+    private final String workflowStepTestPackSamples = "result-json-files/fpml-5-13/processes";
 
     /**
      * Evaluates the performance of serialization, validation, and qualification of TradeState objects.
