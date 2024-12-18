@@ -1,6 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+//import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import cdm.observable.asset.calculatedrate.*;
 import cdm.product.common.schedule.CalculationPeriodBase;
@@ -60,10 +60,10 @@ public class CalculatedRateTestHelper {
 	}
 
 	static FloatingRateCalculationParameters initCalcParameters(boolean isAvg,
-			BusinessCenterEnum applicableDays,
+			String applicableDays,
 			CalcMethod method,
 			int shift,
-			BusinessCenterEnum additionalDays,
+			String additionalDays,
 			boolean isCapped,
 			boolean setInAdvance,
 			boolean fallback) {

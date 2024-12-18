@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+//import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
@@ -23,7 +23,7 @@ public class AddBusinessDaysImplTest extends AbstractFunctionTest {
     @Test
     void shouldAddDays1() {
         Date first = Date.of(2021, 12, 27);
-        List<BusinessCenterEnum> targetBc = getBusinessCenters(TARGET_BC);
+        List<String> targetBc = getBusinessCenters(TARGET_BC);
         Date actual = addBusinessDaysFunc.evaluate(first, -1, targetBc);
         assertEquals(Date.of(2021, 12, 24), actual);
     }
@@ -31,7 +31,7 @@ public class AddBusinessDaysImplTest extends AbstractFunctionTest {
     @Test
     void shouldAddDays2() {
         Date first = Date.of(2021, 12, 20);
-        List<BusinessCenterEnum> targetBc = getBusinessCenters(TARGET_BC);
+        List<String> targetBc = getBusinessCenters(TARGET_BC);
         Date actual = addBusinessDaysFunc.evaluate(first, 5, targetBc);
         assertEquals(Date.of(2021, 12, 27), actual);
     }
@@ -39,7 +39,7 @@ public class AddBusinessDaysImplTest extends AbstractFunctionTest {
     @Test
     void shouldAddDays3() {
         Date first = Date.of(2021, 12, 20);
-        List<BusinessCenterEnum> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
+        List<String> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
         Date actual = addBusinessDaysFunc.evaluate(first, 5, londonTargetBc);
         assertEquals(Date.of(2021, 12, 29), actual);
     }
@@ -47,7 +47,7 @@ public class AddBusinessDaysImplTest extends AbstractFunctionTest {
     @Test
     void shouldAddDays4() {
         Date first = Date.of(2021, 12, 20);
-        List<BusinessCenterEnum> londonTargetUsBc = getBusinessCenters(LONDON_TARGET_US_BC);
+        List<String> londonTargetUsBc = getBusinessCenters(LONDON_TARGET_US_BC);
         Date actual = addBusinessDaysFunc.evaluate(first, 5, londonTargetUsBc);
         assertEquals(Date.of(2021, 12, 30), actual);
     }
@@ -55,12 +55,12 @@ public class AddBusinessDaysImplTest extends AbstractFunctionTest {
     @Test
     void shouldAddDays5() {
         Date first = Date.of(2021, 12, 20);
-        List<BusinessCenterEnum> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
+        List<String> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
         Date actual = addBusinessDaysFunc.evaluate(first, -5, londonTargetBc);
         assertEquals(Date.of(2021, 12, 13), actual);
     }
 
-    private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+    private List<String> getBusinessCenters(BusinessCenters businessCenters) {
         return businessCentersFunc.evaluate(businessCenters);
     }
 }

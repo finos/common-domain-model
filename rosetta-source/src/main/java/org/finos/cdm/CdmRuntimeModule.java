@@ -2,6 +2,8 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.base.staticdata.codelist.LoadCodeListImpl;
+import cdm.base.staticdata.codelist.functions.LoadCodeList;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.collateral.functions.MergeEligibleCollateralCriteria;
@@ -71,6 +73,13 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
+
+		// ref data loader
+		bind(LoadCodeList.class).to(bindLoadCodeList());
+	}
+
+	protected Class<? extends LoadCodeList> bindLoadCodeList() {
+		return LoadCodeListImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
