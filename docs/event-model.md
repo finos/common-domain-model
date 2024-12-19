@@ -68,7 +68,7 @@ four main components:
 The below diagram illustrates the relationship between these components.
 Each of them is described in the next four sections.
 
-![](/website/static/img/event-model-overview.png)
+![](img/event-model-overview.png)
 
 ## Trade Events
 
