@@ -806,7 +806,7 @@ func SecurityFinanceCashSettlementAmount:
         else FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            )
+            ) only-element
 
     alias securityPrice: <"Specifies the price per security.">
         FilterPrice(
@@ -1268,7 +1268,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            )
+            ) only-element
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
         tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
@@ -1406,7 +1406,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         businessEvent -> intent = EventIntentEnum -> Repurchase
             and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
             and (businessEvent -> instruction count = 1
-                and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
+                and businessEvent -> instruction only-element extract (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
                     businessEvent -> instruction -> before,
                     businessEvent -> after
@@ -1871,7 +1871,8 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
     output:
         is_event boolean (1..1)
 
-    alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias instruction: businessEvent -> instruction only-element
+    alias beforeTradeState: instruction -> before
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after) only-element
     alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
 
@@ -1885,7 +1886,7 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
         beforeTradeState exists
             and closedTradeState exists
             and openTradeStates count > 1
-            and businessEvent -> instruction -> primitiveInstruction -> split only exists
+            and instruction -> primitiveInstruction -> split only exists
                 // Open trade counterparties should match before trade counterparties
             and openTradeStates
                 extract [
@@ -1936,9 +1937,9 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
     alias afterTrade: ExtractAfterTrade(businessEvent)
 
     alias beforeTradeCollateralQuantity:
-        ExtractTradeCollateralQuantity(beforeTrade)
+        ExtractTradeCollateralQuantity(beforeTrade) only-element
 
-    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade)
+    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade) only-element
 
     set is_event:
         beforeEconomicterms exists
@@ -2303,7 +2304,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
             quantity: NonNegativeQuantity {
                 value: interestAmount -> value,
                 unit: interestAmount -> unit,
-                ...  
+                ...
             },
             asset: Asset {
                 Cash: Cash {
@@ -2326,7 +2327,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
             },
             ...
         }
-    
+
     condition InterestRatePayoutExists: <"Only a contractual product with a single interest rate payout can have an on-demand interest payment.">
         interestRatePayout exists
 
@@ -2355,18 +2356,19 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     output:
         is_event boolean (1..1)
 
+    alias instruction: businessEvent -> instruction only-element
     alias afterTradeStates:
         FilterOpenTradeStates(businessEvent -> after)
     alias transfer:
         businessEvent -> instruction -> primitiveInstruction -> transfer -> transferState -> transfer
-        
+
     set is_event:
-        businessEvent -> instruction -> before count = 1
+        businessEvent -> instruction count = 1
             and businessEvent -> after count = 1
             and afterTradeStates count = 1
-            and businessEvent -> instruction -> primitiveInstruction -> transfer only exists
+            and instruction -> primitiveInstruction -> transfer only exists
             and transfer -> transferExpression -> scheduledTransfer -> transferType all = NetInterest
-            
+
 
 
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">

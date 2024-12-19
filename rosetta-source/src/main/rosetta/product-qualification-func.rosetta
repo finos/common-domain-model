@@ -709,20 +709,21 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
         is_product boolean (1..1)
             [synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
             [synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_SingleName"]
-    alias optionUnderlier: economicTerms -> payout -> OptionPayout only-element -> underlier
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
+    alias optionUnderlier: optionPayout -> underlier
     set is_product:
-        Qualify_AssetClass_Equity(economicTerms) = True
+        Qualify_AssetClass_Equity(economicTerms)
                 // qualifies that only the option payout exist and all other payouts are absent
-            and economicTerms -> payout only-element -> OptionPayout exists
+            and optionPayout exists
                 // qualifies that the underlier is an asset
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Asset exists
+            and optionUnderlier -> Observable -> Asset exists
                 // qualifies that the underlier is a security (already verified as equity)
             and optionUnderlier -> Observable -> Asset -> Instrument -> Security exists 
                     // qualifies that no feature other than averaging exists
-            and (economicTerms -> payout -> OptionPayout -> feature is absent
-                or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> quanto exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> composite exists)
+            and (optionPayout -> feature is absent
+                or optionPayout -> feature -> averagingFeature only exists
+                or optionPayout -> feature -> fxFeature only-element -> quanto exists
+                or optionPayout -> feature -> fxFeature only-element -> composite exists)
             and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a product as an Equity Option with an index as underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is an index and 2) No special option feature exists other than option averaging.">
@@ -733,17 +734,18 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a produ
         is_product boolean (1..1)
             [synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_SingleIndex"]
             [synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_SingleIndex"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
     set is_product:
-        Qualify_AssetClass_Equity(economicTerms) = True
+        Qualify_AssetClass_Equity(economicTerms)
                 // qualifies that only the option payout exist and all other payouts are absent
-            and economicTerms -> payout only-element -> OptionPayout exists
+            and optionPayout exists
                 // qualifies that the underlier is an equity index
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Index -> EquityIndex exists
+            and optionPayout -> underlier -> Observable -> Index -> EquityIndex exists
                 // qualifies that no feature other than averaging exists
-            and (economicTerms -> payout -> OptionPayout -> feature is absent
-                or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> quanto exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> composite exists)
+            and (optionPayout -> feature is absent
+                or optionPayout -> feature -> averagingFeature only exists
+                or optionPayout -> feature -> fxFeature only-element -> quanto exists
+                or optionPayout -> feature -> fxFeature only-element -> composite exists)
             and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
 
 func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a product as an Equity Option with a basket underlier.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a basket and 2) No special option feature exists other than option averaging.">
@@ -754,17 +756,18 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a prod
         is_product boolean (1..1)
             [synonym ISDA_Taxonomy_v1 value "EquityOption_PriceReturnBasicPerformance_Basket"]
             [synonym ISDA_Taxonomy_v2 value "EquityOption_PriceReturnBasicPerformance_Basket"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
     set is_product:
         Qualify_AssetClass_Equity(economicTerms) = True
                 // qualifies that only the option payout exist and all other payouts are absent
-            and economicTerms -> payout only-element -> OptionPayout exists
+            and optionPayout exists
                 // qualifies that the underlier is an equity basket
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Basket exists
+            and optionPayout -> underlier -> Observable -> Basket exists
                 // qualifies that no feature other than averaging exists
-            and (economicTerms -> payout -> OptionPayout -> feature is absent
-                or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> quanto exists
-                or economicTerms -> payout -> OptionPayout -> feature -> fxFeature only-element -> composite exists)
+            and (optionPayout -> feature is absent
+                or optionPayout -> feature -> averagingFeature only exists
+                or optionPayout -> feature -> fxFeature only-element -> quanto exists
+                or optionPayout -> feature -> fxFeature only-element -> composite exists)
             and (if economicTerms -> nonStandardisedTerms exists then economicTerms -> nonStandardisedTerms = False else True)
 
 func Qualify_EquityOption_ParameterReturnVariance_SingleName: <"Qualifies a product as an Equity Variance Single Name Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) The product contains a single option payout and 2) the underlying product is a Single Name Equity Variance Swap">
@@ -1563,12 +1566,13 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
         is_product boolean (1..1)
             [synonym ISDA_Taxonomy_v1 value "ForeignExchange_VanillaOption"]
             [synonym ISDA_Taxonomy_v2 value "ForeignExchange_VanillaOption"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
     set is_product:
-        Qualify_AssetClass_ForeignExchange(economicTerms) = True
-            and economicTerms -> payout only-element -> OptionPayout exists
-            and (economicTerms -> payout -> OptionPayout -> exerciseTerms -> style any <> OptionExerciseStyleEnum -> Bermuda)
-            and (economicTerms -> payout -> OptionPayout -> feature is absent
-                or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists)
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and (optionPayout -> exerciseTerms -> style <> OptionExerciseStyleEnum -> Bermuda)
+            and (optionPayout -> feature is absent
+                or optionPayout -> feature -> averagingFeature only exists)
 
 func Qualify_RepurchaseAgreement: <"Qualifies a product as a Repurchase Agreement based on the repo trate of the trade (ie the interest charges) being defined in an InterestRatePayout and the asset that is bought and sold being defined in an AssetPayout in a CollateralPosition.">
     [qualification Product]
