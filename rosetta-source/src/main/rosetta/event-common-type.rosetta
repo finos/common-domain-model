@@ -511,10 +511,11 @@ type TransferBase: <"Describes transfer core components e.g. the amount of the a
 
     identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
         [metadata scheme]
+    
     deliverableQuantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
     notionalQuantity NonNegativeQuantity (0..*) <"Optionally represents the notional value or nominal amount of the asset to be transferred.">
     price Price (0..*) <"Optionally represents the price at which the asset is transferred.">
-    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    asset Asset (1..1) <"Represents the object that is subject to the transfer.">
     payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
 
@@ -522,13 +523,15 @@ type TransferBase: <"Describes transfer core components e.g. the amount of the a
     if notionalQuantity exists 
         then notionalQuantity -> unit -> currency exists
 
-    condition DeliverableQuantityUnitExists:
+    condition CashAsset: <"It is not permitted to deliver non-cash quantity if the asset subject to tranfer is Cash ; however it is possible to deliver cash quantity in relation to another asset type (e.g. for instance when representing the transfer of cashflow in relation to given share).">
     if asset -> Cash exists
         then deliverableQuantity -> unit -> currency exists
-    else if asset -> Commodity exists
-        then deliverableQuantity -> unit -> capacityUnit exists
-    else if asset -> Instrument exists
-        then deliverableQuantity -> unit -> financialUnit exists
+
+    condition DeliverableQuantityUnit: <"The unit of the deliverable quantity must be consistent with the kind of asset the transfer is relative to (which does not apply to cash transfer because cash quantity may be delivered in relation to other assets then cash).">
+    if deliverableQuantity -> unit -> capacityUnit exists
+        then asset -> Commodity exists
+    else if deliverableQuantity -> unit -> financialUnit exists
+        then asset -> Instrument exists
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
