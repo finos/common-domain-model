@@ -421,7 +421,7 @@ allows to compose primitive operators. Primitive operators can be
 chained by applying a composite primitive instruction to a single trade
 state, as represented in the diagram below.
 
-![](/website/static/img/composing-primitive-operators.png)
+![](img/composing-primitive-operators.png)
 
 ---
 **Note:**
