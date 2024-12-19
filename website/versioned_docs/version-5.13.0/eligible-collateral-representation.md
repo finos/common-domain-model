@@ -160,7 +160,7 @@ or CUSIP or a standard taxonomy source.
 The foundational data structure from the highest level allows firstly to
 represent eligibility through specification of *criteria*:
 
-![image](img/cdm-graphical-ecs.png)
+![image](/img/cdm-graphical-ecs.png)
 
 The Asset type is used to specify criteria related to the nature of the
 asset, such as its type (cash, debt, equity, or other), its country of
