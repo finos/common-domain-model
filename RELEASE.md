@@ -57,4 +57,4 @@ The following changes are backward incompatible:
 - All the function condition additions specified in the `Conditions` section of this release notes.
 - All the type modifications specified in the `Types` section of this release notes.
 
-The changes can also be reviewed in PR: [#3258](https://github.com/finos/common-domain-model/pull/3258).
+The changes can also be reviewed in PR: [#3305](https://github.com/finos/common-domain-model/pull/3305).
