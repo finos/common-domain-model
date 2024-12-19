@@ -28,7 +28,7 @@ It also includes a related fix to the `Qualify_CashAndSecurityTransfer` function
    at once. This was fixed by calling the existing function `SettlementPayoutOnlyExists` instead, which handles multiple
    payouts.
 8. The function `Qualify_CashTransfer` was performing an `only exists` operation on multiple `primitiveInstruction`s at
-   once. To resolve ambiguity, the check is now performed on all `primitiveInstruction`s separately using `extract`.
+   once. To resolve the ambiguity, the check is now performed on all `primitiveInstruction`s separately using `extract`.
 9. The function `Qualify_OpenOfferClearedTrade` was performing an `only exists` operation on two `primitiveInstruction`s at
    once. The check has been replaced with two equivalent `exists` operations, one for each of the two `primitiveInstruction`s.
 10. The function `Qualify_Renegotiation` had a similar problem as in (8).
@@ -45,7 +45,7 @@ It also includes a related fix to the `Qualify_CashAndSecurityTransfer` function
 17. The function `Qualify_EquityOption_PriceReturnBasicPerformance_Basket` had a similar problem as in (15).
 18. The function `Qualify_ForeignExchange_VanillaOption` had a similar problem as in (15).
 19. The condition `Basket` of the type `SettlementPayout` was performing an `only exists` operation on multiple `basketConstituent`s at
-    once. To resolve ambiguity, the check is now performed on all `basketConstituent`s separately using `extract`.
+    once. To resolve the ambiguity, the check is now performed on all `basketConstituent`s separately using `extract`.
 
 Due to the bug fix in the function `Qualify_SecuritySettlement`, another bug in the function `Qualify_CashAndSecurityTransfer`
 came to light. According to its specification, a business event should only be qualified as a `CashAndSecurityTransfer`
