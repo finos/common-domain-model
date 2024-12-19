@@ -81,4 +81,4 @@ _Review Directions_
 
 Please inspect the changes identified above for the functions and conditions in the Textual Viewer Rosetta.
 
-The changes can also be reviewed in PR: [#3294](https://github.com/finos/common-domain-model/pull/3294).
+The changes can also be reviewed in PR: [#3295](https://github.com/finos/common-domain-model/pull/3295).
