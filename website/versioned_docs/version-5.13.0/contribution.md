@@ -672,7 +672,7 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
@@ -716,7 +716,7 @@ adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace

@@ -2,7 +2,7 @@ package cdm.product.template.processor;
 
 import cdm.base.staticdata.asset.common.AssetClassEnum;
 import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
-import cdm.observable.asset.InterestRateIndex;
+import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -53,16 +53,16 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 	private void updateFloatingLeg(Path synonymPath, PriceQuantityBuilder floatingLegPriceQuantity) {
 		floatingLegPriceQuantity.getPrice().clear();
 		
-		InterestRateIndex.InterestRateIndexBuilder interestRateIndexBuilder = floatingLegPriceQuantity
+		FloatingRateIndex.FloatingRateIndexBuilder floatingRateIndexBuilder = floatingLegPriceQuantity
 				.getOrCreateObservable()
 				.getOrCreateValue()
 				.getOrCreateIndex()
-				.getOrCreateFloatingRateIndex()
+				.getOrCreateInterestRateIndex()
 				.getOrCreateValue()
-				.getOrCreateInterestRateIndex();
-		emptyIfNull(interestRateIndexBuilder.getIdentifier())
+				.getOrCreateFloatingRateIndex();
+		emptyIfNull(floatingRateIndexBuilder.getIdentifier())
 				.forEach(b -> b.setIdentifierType(AssetIdTypeEnum.OTHER));
-		interestRateIndexBuilder
+		floatingRateIndexBuilder
 				.setAssetClass(AssetClassEnum.INTEREST_RATE);
 
 		getNonReferenceMapping(synonymPath.addElement("notional").addElement("amount"))

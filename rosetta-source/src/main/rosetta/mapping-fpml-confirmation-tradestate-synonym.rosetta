@@ -1199,8 +1199,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "gasPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "oilPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
-        + Cashflow
-            [value "ignore"]
         + CommodityPayout
             [value "commoditySwap", "floatingLeg" path "commoditySwap"]
         + FixedPricePayout
@@ -1317,6 +1315,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + futureValueNotional
             [value "futureValueNotional"]
         + priceSchedule
+            [meta "rate"]
             [meta "initialValue"]
 
     FutureValueAmount:
@@ -1617,14 +1616,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + fallbackRate
             [value "fallbackRate"]
 
-    FloatingRateIndex:
-        + InterestRateIndex
+    InterestRateIndex:
+        + FloatingRateIndex
             [value "floatingRateCalculation"]
             [hint "floatingRateIndex", "indexTenor"]
         + InflationIndex
             [value "inflationRateCalculation"]
 
-    InterestRateIndex:
+    FloatingRateIndex:
         + floatingRateIndex
             [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + indexTenor
@@ -2067,22 +2066,20 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "expirationDate" path "equityExercise->equityEuropeanExercise"]
             [value "expirationDate" path "physicalExercise->europeanExercise"]
             [value "expirationDates" path "europeanExercise"]
-            // For FX Option
             [value "europeanExercise"]
             [value "americanExercise"]
-        // [hint "americanExercise->expiryDate"]
-        // [hint "expiryDate"]
         + expirationTime
-            [value "expirationTime" path "americanExercise"]
-            [value "expiryTime" path "americanExercise"]
-            [value "equityExpirationTime" path "equityAmericanExercise"]
-            [value "expirationTime" path "bermudaExercise"]
-            [value "equityExpirationTime" path "equityBermudaExercise"]
-            [value "expirationTime" path "europeanExercise"]
-            [value "expirationTime" path "physicalExercise->europeanExercise"]
+            [value "expirationTime" path "europeanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "americanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "bermudaExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "physicalExercise->europeanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "physicalExercise->americanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "europeanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "americanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "bermudaExercise" mapper "ExpirationTimeType"]
             [value "equityExpirationTime" path "equityEuropeanExercise"]
-            // For FX Options
-            [value "expiryTime" path "europeanExercise"]
+            [value "equityExpirationTime" path "equityAmericanExercise"]
+            [value "equityExpirationTime" path "equityBermudaExercise"]
         + expirationTimeType
             [value "equityExpirationTimeType" path "equityExercise->equityEuropeanExercise"]
             [value "equityExpirationTimeType" path "equityExercise->equityAmericanExercise"]
@@ -2270,6 +2267,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + priceQuantity
             [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
             [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
+            [value "exchangeRate"]
             [hint "notional"]
         + underlier
             [value "quoteBasis" path "exchangeRate->quotedCurrencyPair" mapper "AssetCashMeta"]
