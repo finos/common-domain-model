@@ -35,7 +35,7 @@ _Types_
   - Modification to the `StandardizedScheduleTradeInfo` type
     - The attributes `grossInitialMargin` and `markToMarketValue`, which were previously of type `Quantity`, are now of type `Money`. Additionally, the conditions `PositiveGrossInitialMargin` and `SameCurrency` have been included.
   - Modification to the `StandardizedScheduleInitialMargin` type
-    - The condition `NonNegativeNetInitialMargin` has also been added.
+    - The condition `NonNegativeNetInitialMargin` has been added.
 
 _Functions_
   - Modification to the `BuildStandardizedSchedule` function
@@ -54,7 +54,7 @@ _Backward Incompatible_
 
 The following changes are backward incompatible:
 
-- All the function condition additions specified in the `Conditions` section of this release notes.
-- All the type modifications specified in the `Types` section of this release notes.
+- All the function condition additions specified in the `Conditions` section of these release notes.
+- All the type modifications specified in the `Types` section of these release notes.
 
 The changes can also be reviewed in PR: [#3305](https://github.com/finos/common-domain-model/pull/3305).
