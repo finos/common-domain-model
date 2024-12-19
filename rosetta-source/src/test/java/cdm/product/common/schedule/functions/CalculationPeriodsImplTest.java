@@ -1,7 +1,6 @@
 package cdm.product.common.schedule.functions;
 
 import cdm.base.datetime.*;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;

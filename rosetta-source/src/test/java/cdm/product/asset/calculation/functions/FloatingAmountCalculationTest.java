@@ -2,7 +2,6 @@ package cdm.product.asset.calculation.functions;
 
 import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;

@@ -1,7 +1,6 @@
 package cdm.base.staticdata.codelist;
 
 import cdm.base.staticdata.codelist.functions.IsValidString;
-import cdm.base.staticdata.codelist.functions.LoadCodeList;
 import com.google.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
