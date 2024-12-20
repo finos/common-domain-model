@@ -166,7 +166,7 @@ An `EligibleCollateralSpecification` typically represents
 the schedule of eligible collateral agreed between two parties and is represented
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
-![image](/img/cdm-graphical-ecs6.png)
+![image](/img/cdm-graphical-ecs-6.png)
 
 `EligibleCollateralSpecification` consists of the following key attributes:
 
