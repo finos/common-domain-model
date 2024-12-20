@@ -20,7 +20,7 @@ applicable, data samples to help demonstrate the structure.
 
 The CDM is expressed in a language called the Rosetta DSL. All the
 language components used by the CDM including types, functions and
-annotations are described in the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
+annotations are described in the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component).
 
 The complete model definition, including descriptions and other details
 can be viewed in the [Textual Browser](https://portal.cdm.rosetta-technology.io/#/text-browser) in the [CDM Portal](https://portal.cdm.rosetta-technology.io).

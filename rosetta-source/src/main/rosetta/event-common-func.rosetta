@@ -128,7 +128,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
     output:
         identifiers ObservationIdentifier (1..1)
 
-    set identifiers -> observable -> Index -> FloatingRateIndex:
+    set identifiers -> observable -> Index -> InterestRateIndex:
         payout -> rateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
@@ -1177,10 +1177,10 @@ func UpdateIndexTransitionPriceAndRateOption:
         then priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else priceQuantity -> price only-element -> value
 
-    set updatedPriceQuantity -> observable -> Index -> FloatingRateIndex: <"If instruction exists, update the rate option.">
+    set updatedPriceQuantity -> observable -> Index -> InterestRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> Index -> FloatingRateIndex
-        else priceQuantity -> observable -> Index -> FloatingRateIndex
+        then instruction -> observable -> Index -> InterestRateIndex
+        else priceQuantity -> observable -> Index -> InterestRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1193,9 +1193,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> Index -> FloatingRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> period
+                observable -> Index -> InterestRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier
+                    and observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> InterestRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)
@@ -2280,38 +2280,73 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
         interestAmount Money (1..1)
         settlementDate SettlementDate (1..1)
     output:
-        instruction PrimitiveInstruction (1..1) <"Result is a Terms Change Instruction.">
+        instruction PrimitiveInstruction (1..1) <"Result is a Transfer Instruction.">
 
     alias interestRatePayout:
         tradeState -> trade -> product -> economicTerms -> payout -> InterestRatePayout only-element
 
-    alias cashflow: <"A fully structured CashFlow or the following need to be provided to create a cashflow.">
-        Create_Cashflow(
-                interestAmount -> value,
-                interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency,
-                settlementDate,
-                interestRatePayout -> payerReceiver,
-                CashflowType {
-                    cashflowType: ScheduledTransferEnum -> NetInterest,
-                    ... // TODO: set either cashPrice or priceExpression.
-                },
-                empty
-            )
+    alias payerReceiver:
+        PartyReferencePayerReceiver {
+            payerPartyReference: ExtractCounterpartyByRole (
+                tradeState -> trade -> counterparty,
+                interestRatePayout -> payerReceiver -> payer
+                ) -> partyReference,
+            receiverPartyReference: ExtractCounterpartyByRole (
+                tradeState -> trade -> counterparty,
+                interestRatePayout -> payerReceiver -> receiver
+                ) -> partyReference,
+            ...
+        }
 
+    alias transfer: <"A fully structured Transfer or the following need to be provided to create a cashflow.">
+        Transfer {
+            quantity: NonNegativeQuantity {
+                value: interestAmount -> value,
+                unit: interestAmount -> unit,
+                ...  
+            },
+            asset: Asset {
+                Cash: Cash {
+                    identifier: AssetIdentifier {
+                        identifier: interestAmount -> unit -> currency,
+                        identifierType: CurrencyCode
+                    },
+                    ...
+                },
+                ...
+            },
+            settlementDate: settlementDate -> adjustableOrRelativeDate,
+            payerReceiver: payerReceiver,
+            transferExpression: TransferExpression {
+                scheduledTransfer: ScheduledTransfer {
+                    transferType: NetInterest,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+    
     condition InterestRatePayoutExists: <"Only a contractual product with a single interest rate payout can have an on-demand interest payment.">
         interestRatePayout exists
 
     condition Currency: <"The currency of the interest amount must match the currency of the original interest rate payout.">
         interestAmount -> unit -> currency = interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
+    condition SettlementDate: <"The settlement date must be specified as an adjustable or relative date.">
+        settlementDate -> adjustableOrRelativeDate exists
+
     set instruction:
         PrimitiveInstruction {
-            termsChange: Create_CashflowTermsChangeInstruction(
-                        tradeState -> trade -> product,
-                        cashflow
-                    ),
+            transfer: TransferInstruction {
+                transferState: TransferState {
+                    transfer: transfer,
+                    ...
+                }
+            },
             ...
         }
+
 
 func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     [qualification BusinessEvent]
@@ -2320,60 +2355,19 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     output:
         is_event boolean (1..1)
 
-    alias afterTradeStates: FilterOpenTradeStates(businessEvent -> after)
-
-    alias beforeCashFlow:
-        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms -> payout -> Cashflow
-    alias afterCashFlow:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms -> payout -> Cashflow
-
+    alias afterTradeStates:
+        FilterOpenTradeStates(businessEvent -> after)
+    alias transfer:
+        businessEvent -> instruction -> primitiveInstruction -> transfer -> transferState -> transfer
+        
     set is_event:
         businessEvent -> instruction -> before count = 1
             and businessEvent -> after count = 1
             and afterTradeStates count = 1
-            and businessEvent -> instruction -> primitiveInstruction -> termsChange only exists
-            and afterCashFlow count > beforeCashFlow count // allows for adding multiple cashflows
-            and afterCashFlow -> cashflowType -> cashflowType all = ScheduledTransferEnum -> NetInterest
+            and businessEvent -> instruction -> primitiveInstruction -> transfer only exists
+            and transfer -> transferExpression -> scheduledTransfer -> transferType all = NetInterest
+            
 
-func Create_CashflowTermsChangeInstruction:
-    inputs:
-        product NonTransferableProduct (1..1)
-        cashFlow Cashflow (1..1)
-    output:
-        termsChangeInstruction TermsChangeInstruction (1..1)
-
-    set termsChangeInstruction -> product: product
-    set termsChangeInstruction -> product -> economicTerms -> payout -> Cashflow:
-        cashFlow
-
-func Create_Cashflow:
-    inputs:
-        amount number (1..1)
-        currency string (1..1)
-        settlementDate SettlementDate (1..1)
-        payerReceiver PayerReceiver (1..1)
-        cashflowType CashflowType (1..1)
-        paymentDiscounting PaymentDiscounting (0..1)
-    output:
-        cashflow Cashflow (1..1)
-
-    set cashflow -> settlementTerms -> settlementDate: settlementDate
-    set cashflow -> payerReceiver: payerReceiver
-    set cashflow -> cashflowType: cashflowType
-    set cashflow -> paymentDiscounting: paymentDiscounting
-
-    set cashflow -> priceQuantity:
-        ResolvablePriceQuantity {
-            quantitySchedule: NonNegativeQuantitySchedule {
-                    value: amount,
-                    unit: UnitType {
-                            currency: currency,
-                            ...
-                        },
-                    ...
-                },
-            ...
-        }
 
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
     inputs:

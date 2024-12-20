@@ -321,7 +321,6 @@ a credit default payout to specify a credit default swap.
 choice Payout:
   [metadata key]
   AssetPayout
-  Cashflow
   CommodityPayout
   CreditDefaultPayout
   FixedPricePayout
@@ -329,6 +328,7 @@ choice Payout:
   OptionPayout
   PerformancePayout
   SettlementPayout
+
 ```
 
 A number of payout types extend a common data type called `PayoutBase`.

@@ -5,6 +5,7 @@ import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;
 import cdm.observable.asset.InterestRateIndex;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import com.rosetta.model.lib.records.Date;
 
 import java.math.BigDecimal;
@@ -21,16 +22,17 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 	private final Map<FloatingRateIndexTenor, Map<Date, BigDecimal>> cache = new HashMap<>();
 
 	@Override
-	protected BigDecimal doEvaluate(Date observationDate, FloatingRateIndex floatingRateOption) {
-		Optional<FloatingRateIndex> floatingRateIndex = Optional.ofNullable(floatingRateOption);
+	protected BigDecimal doEvaluate(Date observationDate, InterestRateIndex interestRateIndex) {
+		Optional<FloatingRateIndex> floatingRateIndex = Optional.ofNullable(interestRateIndex)
+				.map(InterestRateIndex::getFloatingRateIndex);
+		
 		FloatingRateIndexEnum floatingRateIndexEnum = floatingRateIndex
-				.map(FloatingRateIndex::getInterestRateIndex)
-				.map(InterestRateIndex::getFloatingRateIndex)
+				.map(FloatingRateIndex::getFloatingRateIndex)
 				.map(FieldWithMetaFloatingRateIndexEnum::getValue)
 				.orElse(null);
+
 		Period indexTenor = floatingRateIndex
-				.map(FloatingRateIndex::getInterestRateIndex)
-				.map(InterestRateIndex::getIndexTenor)
+				.map(FloatingRateIndex::getIndexTenor)
 				.orElse(null);
 		return Optional.ofNullable(cache.get(new FloatingRateIndexTenor(floatingRateIndexEnum, indexTenor)))
 				.flatMap(dateObservedValueMap -> Optional.ofNullable(dateObservedValueMap.get(observationDate)))
@@ -43,7 +45,7 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 	}
 
 	// Used by unit tests
-	public void setValues(FloatingRateIndex fro, Date startingDate, int numDays, double observedValue, double increment) {
+	public void setValues(InterestRateIndex fro, Date startingDate, int numDays, double observedValue, double increment) {
 		LocalDate start = startingDate.toLocalDate();
 		for (int i = 0; i < numDays; i++) {
 			LocalDate dt = start.plusDays(i);
@@ -54,7 +56,7 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 	}
 
 	// Used by unit tests
-	public void setValue(FloatingRateIndex fro, Date observationDate, double observedValue) {
+	public void setValue(InterestRateIndex fro, Date observationDate, double observedValue) {
 		cache.computeIfAbsent(new FloatingRateIndexTenor(fro), k -> new HashMap<>())
 				.put(observationDate, BigDecimal.valueOf(observedValue));
 	}
@@ -63,9 +65,9 @@ public class IndexValueObservationTestDataProvider extends IndexValueObservation
 		private final FloatingRateIndexEnum floatingRateIndex;
 		private final Period indexTenor;
 
-		public FloatingRateIndexTenor(FloatingRateIndex fro) {
-			this.floatingRateIndex = fro.getInterestRateIndex().getFloatingRateIndex().getValue();
-			this.indexTenor = fro.getInterestRateIndex().getIndexTenor();
+		public FloatingRateIndexTenor(InterestRateIndex fro) {
+			this.floatingRateIndex = fro.getFloatingRateIndex().getFloatingRateIndex().getValue();
+			this.indexTenor = fro.getFloatingRateIndex().getIndexTenor();
 		}
 
 		public FloatingRateIndexTenor(FloatingRateIndexEnum floatingRateIndex, Period indexTenor) {
