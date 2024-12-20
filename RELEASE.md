@@ -1,4 +1,4 @@
-# _Product Model_ - Security Finance trade types
+# _Product Model_ - Commodity Payout Underlier
 
 _Background_
 
@@ -8,19 +8,16 @@ This release includes two minor adjustments following three planned major tranch
 
 _What is being released?_
 
-An optional attribute exists on the `AssetPayout` data type to uniquely identify the different types of securities financing trade types, such as a repurchase transaction or a buy/sell-back.  The name of this attribute has been updated to have a broader potential scope and not limit just to repos.  Specifically, the attribute `repoType` has been renamed to `tradeType` and its data type has been renamed from `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.  The values of the enumerator have not been changed.
+In the original Asset Refactoring scope, the `underlier` on `CommodityPayout` was changed from being type `Product` to type `Commodity`.
 
-The FINOS CDM documentation for the securities lending use case has been corrected; it was not correctly showing the remodelled use of AssetPayout that was implemented as a result of the Asset Refactor Taskforce.
+This has proven to be too restrictive in DRR, where Commodity Payout can operate on a basket or index. Therefore, the data type of the underlier has been updated to `Underlier` with the other benefit of making it consistent with the other payouts.
+
+To ensure that the underlier is indeed commodity-related, conditions have been added to force the `underlier` attribute to reference a commodity-related undlier.  The `CommodityUnderlier` condition uses a switch statement to evaluate whether the underlier is an `Observable` or `Product`, and to assess it accordingly.  A new function `ObservableIsCommodity` is used to standardise this and handles the different choice types of observables and the potential recursive nature of baskets.
 
 _Backward-incompatible changes_
 
-This release contains changes that are not backward-compatible:
-- Rename the `repoType` to `tradeType` on `AssetPayout`.
-- Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
-- The two product qualification functions have been updated to use the new names:
-  - `Qualify_RepurchaseAgreement`
-  - `Qualify_buySellBack`.
+The change to the data type of the `underlier` attribute is not backward-compatible.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3270](https://github.com/finos/common-domain-model/pull/3270) or in Rosetta.
+The changes can be reviewed in PR: [#3277](https://github.com/finos/common-domain-model/pull/3277) or in Rosetta.
