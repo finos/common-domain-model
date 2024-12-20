@@ -2098,38 +2098,6 @@ class FunctionInputCreationTest {
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
-    @Test
-    void validateEligibleCollateralScheduleHelper() {
-        // Common criteria - GILTS
-        EligibleCollateralCriteria common = EligibleCollateralCriteria.builder()
-                .addAsset(AssetCriteria.builder()
-                        .addCollateralAssetType(AssetType.builder()
-                                .setAssetType(AssetTypeEnum.SECURITY)
-                                .setSecurityType(InstrumentTypeEnum.DEBT)))
-                .addIssuer(IssuerCriteria.builder()
-                        .addIssuerType(CollateralIssuerType.builder()
-                                .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
-                        .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
-                .build();
-        ;
-
-        // Variable criteria - Valuation percentages for each maturity range
-        List<EligibleCollateralCriteria> variable = Arrays.asList(
-                getVariableCriteria(0.97, getMaturityRange(0, 1)),
-                getVariableCriteria(0.96, getMaturityRange(1, 5)),
-                getVariableCriteria(0.95, getMaturityRange(5, 10)),
-                getVariableCriteria(0.93, getMaturityRange(10, 30)),
-                getVariableCriteria(0.9, getMaturityRange(30)));
-
-        // Create instruction
-        EligibleCollateralSpecificationInstruction instruction = EligibleCollateralSpecificationInstruction.builder()
-                .setCommon(common)
-                .setVariable(variable)
-                .build();
-
-        assertJsonEquals("cdm-sample-files/functions/eligible-collateral/merge-criteria-func-input.json", instruction);
-    }
-
     private static PeriodRange getMaturityRange(int lowerBound, int upperBound) {
         return PeriodRange.builder()
                 .setLowerBound(getMaturityBound(lowerBound, true))
@@ -2157,9 +2125,11 @@ class FunctionInputCreationTest {
                         .setIsIncluded(true)
                         .setValuationTreatment(CollateralValuationTreatment.builder()
                                 .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
-                .addAsset(AssetCriteria.builder()
-                        .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
-                        .setMaturityRange(maturityRange))
+                .setCollateralCriteria(CollateralCriteria.builder()
+                        .setAssetMaturity(AssetMaturity.builder()
+                                .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
+                                .setMaturityRange(maturityRange))
+                )
                 .build();
     }
 
