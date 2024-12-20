@@ -1,4 +1,4 @@
-# *Implementation of the Standardized Schedule Method for Initial Margin Calculation*
+# *Initial Margin Model - Enhancement and Optimization of the Standardized Schedule Method*
 
 _Background_
 
