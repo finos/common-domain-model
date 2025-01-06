@@ -79,6 +79,6 @@ and three expectation files have been updated accordingly.
 
 _Review Directions_
 
-Please inspect the changes identified above for the functions and conditions in the Textual Viewer Rosetta.
+Please inspect the changes identified above for the functions and conditions in the Textual Viewer of the Rosetta platform.
 
 The changes can also be reviewed in PR: [#3295](https://github.com/finos/common-domain-model/pull/3295).
