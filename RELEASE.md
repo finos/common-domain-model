@@ -2,7 +2,7 @@
 
 _Background_
 
-Due to a recent DSL update (see [DSL release notes](https://github.com/finos/rune-dsl/releases/tag/9.25.0)) which adds additional logical checks related to cardinality, some errors were found in the model.
+Following a recent DSL update (see [DSL release notes](https://github.com/finos/rune-dsl/releases/tag/9.25.0)) which adds additional logical checks related to cardinality, some errors were found in the model.
 These errors stem from an ambiguity of how to handle multiple elements in certain situations.
 
 In general, the solution is to follow one of two approaches:
@@ -12,7 +12,7 @@ In general, the solution is to follow one of two approaches:
 
 _What is being released?_
 
-This release includes fixes for all cardinality related errors detected by the DSL, which are listed below.
+This release includes fixes for all cardinality-related errors detected by the DSL, which are listed below.
 It also includes a related fix to the `Qualify_CashAndSecurityTransfer` function, which is described in more detail below the list.
 
 1. The function `SecurityFinanceCashSettlementAmount` contained a multiplication of which one operand - `securityQuantity` -
