@@ -34,9 +34,11 @@ class FloatingAmountTest extends AbstractFunctionTest {
     private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
                     .setFloatingRateSpecification(FloatingRateSpecification.builder()
-                            .setRateOptionValue(FloatingRateIndex.builder()
-                                    .setInterestRateIndex(InterestRateIndex.builder()
-                                            .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)))
+                            .setRateOptionValue(
+                                    InterestRateIndex.builder()
+                                            .setFloatingRateIndex(
+                                                    FloatingRateIndex.builder()
+                                                            .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)))
                             .build())
                     .build())
             .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())

@@ -77,8 +77,8 @@ public class InterestRatePayoutCreation {
 
                 .setRateSpecification(RateSpecification.builder()
                         .setFloatingRateSpecification(FloatingRateSpecification.builder()
-                                .setRateOptionValue(FloatingRateIndex.builder()
-                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                .setRateOptionValue(InterestRateIndex.builder()
+                                        .setFloatingRateIndex(FloatingRateIndex.builder()
                                                 .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_LIBOR_BBA)
                                                 .setIndexTenor(Period.builder()
                                                         .setPeriod(PeriodEnum.M)

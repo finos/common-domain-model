@@ -34,7 +34,6 @@ The Asset data type is represented as a `choice` of several underlying data type
 choice Asset:  
     Cash
     Commodity
-      [metadata location]
     DigitalAsset
     Instrument
 ```
@@ -322,7 +321,6 @@ a credit default payout to specify a credit default swap.
 choice Payout:
   [metadata key]
   AssetPayout
-  Cashflow
   CommodityPayout
   CreditDefaultPayout
   FixedPricePayout
@@ -330,6 +328,7 @@ choice Payout:
   OptionPayout
   PerformancePayout
   SettlementPayout
+
 ```
 
 A number of payout types extend a common data type called `PayoutBase`.
@@ -1034,10 +1033,10 @@ The following table summarises the use of underliers for each of the main payout
 
 | **Payout**    | **Underlier Definition** | **Rationale** |
 | :-------- | :------- | :------- | 
-| `AssetPayout` | `securityInformation Security (1..1)` | The underlier must be a `security`
-| `CommodityPayout` | `underlier Observable (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
-| `OptionPayout` | `underlier OptionUnderlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
-| `PerformancePayout` | `underlier Observable (0..1)` | The underlier is a pricing mechanism, ie an Observable
+| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Purchased Asset, usually a Security
+| `CommodityPayout` | `underlier Underlier (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
+| `OptionPayout` | `underlier Underlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
+| `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
 | `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
 
 ### Identifiers

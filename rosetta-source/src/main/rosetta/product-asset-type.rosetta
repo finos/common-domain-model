@@ -11,13 +11,13 @@ import cdm.base.staticdata.asset.credit.*
 import cdm.base.staticdata.identifier.*
 
 import cdm.observable.asset.*
+import cdm.observable.asset.calculatedrate.*
 import cdm.observable.event.*
 import cdm.observable.common.*
 
-import cdm.product.template.*
-import cdm.product.common.settlement.*
 import cdm.product.common.schedule.*
-import cdm.observable.asset.calculatedrate.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
     averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
@@ -26,8 +26,7 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Commodity (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-        [metadata address "pointsTo"=PriceQuantity->observable->Asset->Commodity]
+    underlier Underlier (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap. Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
     fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
@@ -36,6 +35,15 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
 
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
         required choice schedule, calculationPeriodDates
+
+    condition CommodityUnderlier:  <"The underlier for a CommodityPayout should be a commodity.">
+        if underlier -> Observable exists
+        then ObservableIsCommodity(underlier -> Observable)
+        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout exists
+        then ObservableIsCommodity(underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable) // Commodity Option
+        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout exists
+        then ObservableIsCommodity(underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable) // Commodity Future
+        else False
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
         if delivery -> deliveryCapacity exists
@@ -204,10 +212,10 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         then compoundingMethod exists
 
     condition FpML_ird_9: <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
-        if compoundingMethod exists then resetDates exists
+        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None then resetDates exists
 
     condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
-        if compoundingMethod exists
+        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
         then rateSpecification -> FixedRateSpecification is absent
 
     condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
@@ -657,14 +665,14 @@ type InflationRateSpecification extends FloatingRateSpecification: <"A data to: 
     calculationStyle InflationCalculationStyleEnum (0..1) <"Indicates the style of how the inflation index calculates the payment (e.g. YearOnYear, ZeroCoupon).">
     finalPrincipalExchangeCalculation FinalPrincipalExchangeCalculationEnum (0..1) <"To be specified only for products that embed a redemption payment.">
 
-    condition FloatingRateIndex:
+    condition InflationIndex:
         rateOption -> InflationIndex exists
 
 type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
     [metadata key]
 
-    rateOption FloatingRateIndex (0..1)
-        [metadata address "pointsTo"=Observable->Index->FloatingRateIndex]
+    rateOption InterestRateIndex (0..1)
+        [metadata address "pointsTo"=Observable->Index->InterestRateIndex]
     spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
     capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
     floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
