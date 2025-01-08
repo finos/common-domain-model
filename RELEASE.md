@@ -1,4 +1,4 @@
-# *Cardinality warning fixes*
+# *Event & Product Model Qualification and Cardinality Fixes*
 
 _Background_
 
