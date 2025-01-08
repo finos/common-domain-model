@@ -18,15 +18,15 @@ func CloneEligibleCollateralWithChangedTreatment: <"Creates a new Eligible Colla
     condition NoLogicApplied:
         changedCriteria -> AllCriteria is absent
         and changedCriteria -> AnyCriteria is absent
-        and changedCriteria -> NegativeCriteria is absent     
+        and changedCriteria -> NegativeCriteria is absent
 
-    set outputSpecification: 
-        inputSpecification 
-    set outputSpecification -> criteria -> treatment: 
-        changedTreatment 
+    set outputSpecification:
+        inputSpecification
+    set outputSpecification -> criteria -> treatment:
+        changedTreatment
 
 func CreateAndCriteria: <"Combines multiple CollateralCriteria together using AND logic.">
-    inputs: 
+    inputs:
         inputCriteria CollateralCriteria (2..*)
     output:
         outputCriteria CollateralCriteria (1..1)
@@ -35,7 +35,7 @@ func CreateAndCriteria: <"Combines multiple CollateralCriteria together using AN
         inputCriteria
 
 func CreateOrCriteria: <"Combines multiple CollateralCriteria together using OR logic.">
-    inputs: 
+    inputs:
         inputCriteria CollateralCriteria (2..*)
     output:
         outputCriteria CollateralCriteria (1..1)
@@ -70,7 +70,7 @@ func CheckEligibilityByDetails: <"This function when presented with a set of Ass
 
     // remove the criteria which have not been explicitly included
     alias filteredCriteria:
-        specification -> criteria 
+        specification -> criteria
             filter treatment -> isIncluded
 
     // assess all the included criteria in the specification against the query
@@ -94,9 +94,9 @@ func CheckCriteria:  <"This function takes a single criteria and evaluates it ag
     set isEligible:
         False
 
-    set isEligible: 
-        inputCriteria switch 
-            // if AND/OR logic attribute used, recurse through criteria and evaluate all 
+    set isEligible:
+        inputCriteria switch
+            // if AND/OR logic attribute used, recurse through criteria and evaluate all
             AllCriteria then allCriteria extract CheckCriteria(item, query) then all = True,
             AnyCriteria then anyCriteria extract CheckCriteria(item, query) then any = True,
             // reverse the inclusion if NOT logic used
@@ -143,10 +143,10 @@ func CheckAgencyRating:
             or (agencyRatings
                 then filter
                     creditNotation -> notation contains query -> agencyRating -> creditNotation -> notation
-                // then filter qualifier contains query -> agencyRating -> qualifier
+                // then filter qualifier = query -> agencyRating -> qualifier
                 then filter
                     referenceAgency is absent
-                        or referenceAgency contains query -> agencyRating -> referenceAgency
+                        or referenceAgency = query -> agencyRating -> referenceAgency
                 then item exists
                 )
 
@@ -160,13 +160,13 @@ func CheckAssetType:
     set isEqual:
         collateralAssetTypes is absent
             or (collateralAssetTypes
-                then filter assetType contains query -> collateralAssetType -> assetType
+                then filter assetType = query -> collateralAssetType -> assetType
                 then filter
                     debtType is absent
-                        or debtType -> debtClass contains query -> collateralAssetType -> debtType -> debtClass
+                        or debtType -> debtClass = query -> collateralAssetType -> debtType -> debtClass
                 then filter
                     securityType is absent
-                        or securityType contains query -> collateralAssetType -> securityType
+                        or securityType = query -> collateralAssetType -> securityType
                 then item exists
                 )
 
@@ -186,7 +186,7 @@ func CheckMaturity:
         maturityRange AssetMaturity (0..1)
         query EligibilityQuery (1..1)
     output:
-        isEqual boolean (1..1)    
+        isEqual boolean (1..1)
 
     alias upperBoundCheck:
         if maturityRange -> maturityRange -> upperBound -> period is absent
@@ -226,13 +226,13 @@ func CriteriaMatchesAssetType:
     inputs:
         inputCriteria CollateralCriteria (0..1)
         assetType InstrumentTypeEnum (0..1)
-    output: 
+    output:
         matches boolean (1..1)
 
     set matches: False
-     
-    set matches: 
-        inputCriteria switch 
+
+    set matches:
+        inputCriteria switch
             AssetType then securityType = assetType,
             AllCriteria then allCriteria extract CriteriaMatchesAssetType(item, assetType) then all = True,
             AnyCriteria then anyCriteria extract CriteriaMatchesAssetType(item, assetType) then any = True,
