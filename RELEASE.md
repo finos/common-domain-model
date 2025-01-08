@@ -17,7 +17,7 @@ In Rosetta, select the Textual Browser and inspect each of the changes identifie
 
 The changes can be reviewed in PR: [#3265](https://github.com/finos/common-domain-model/pull/3265)
 
-# *Cardinality warning fixes*
+# *Event & Product Model Qualification and Cardinality Fixes*
 
 _Background_
 
