@@ -130,9 +130,9 @@ _What is being released?_
     - `ListedDerivative` a new data type to represent an asset that is a securitised derivative on another asset, such as a exchange traded future
 - A new `func` namespace created `cdm.base.staticdata.asset.common`, containing three new functions to aid the use of the new `Cash` asset:  `AssetIdentifierByType`, `GetCashCurrency`, `SetCashCurrency`.
 
-**Backward incompatible changes**
+# **Backward incompatible changes**
 
-# *CDM Model - Equity Products*
+# CDM Model - Equity Products
 
 _Background_
 
@@ -162,7 +162,7 @@ See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/commo
 
 PR: [#3278](https://github.com/finos/common-domain-model/pull/3278).
 
-# _Product Model_ - Asset Refactoring of FloatingRateIndex and InterestRateIndex
+# Product Model - Asset Refactoring of FloatingRateIndex and InterestRateIndex
 
 _Background_
 
@@ -207,7 +207,7 @@ This release contains changes that are not backward-compatible:
 
 PR: https://github.com/finos/common-domain-model/pull/3267
 
-# _Product Model_ - Security Finance trade types
+# Product Model - Security Finance trade types
 
 _Background_
 
@@ -232,7 +232,7 @@ This release contains changes that are not backward-compatible:
 
 PR: [#3270](https://github.com/finos/common-domain-model/pull/3270)
 
-# _Product Model - Settlement Payout Price_
+# Product Model - Settlement Payout Price
 
 _What is being released?_
 
@@ -263,7 +263,7 @@ In Rosetta, select the Visualisation tab and review the `Repo And Bond > Bond Ex
 PR: [#3250](https://github.com/finos/common-domain-model/pull/3250)
 
 
-# _Product Model - Asset Refactoring in AssetCriteria_
+# Product Model - Asset Refactoring in AssetCriteria
 
 _Background_
 
@@ -286,7 +286,7 @@ This release contains changes that are not backward-compatible:
 
 - PR: [#3228](https://github.com/finos/common-domain-model/pull/3228)
 
-# _Product Model - Asset Refactoring: Payout as a Choice_
+# Product Model - Asset Refactoring: Payout as a Choice
 
 _Background_
 
@@ -313,7 +313,8 @@ This release contains changes that are not backward-compatible:
 - Logic or mapping that expects certain cardinality may need to be reviewed; see the explanation above.
 
 PR: [#3178](https://github.com/finos/common-domain-model/pull/3178)
-# _Product Model - Asset Refactoring: Basket, Index, Observable, Foreign Exchange_
+
+# Product Model - Asset Refactoring: Basket, Index, Observable, Foreign Exchange
 
 _Background_
 
