@@ -21,12 +21,10 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
 
     condition ExchangeListed: <"If Exchange is specified, it must be an exchange-listed Instrument.">
-        if exchange exists
-        then isExchangeListed  
+        if exchange exists then isExchangeListed
 
     condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
-        if exchange is absent 
-        then relatedExchange is absent 
+        if exchange is absent then relatedExchange is absent
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -96,8 +94,10 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">
         AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) count = 1
-        and
-        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier first to-enum CurrencyCodeEnum exists  
+            and AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier
+                first
+                to-enum CurrencyCodeEnum
+                exists
 
     condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
         taxonomy is absent
