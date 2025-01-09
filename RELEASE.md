@@ -8,7 +8,6 @@ Below are some of the high-level contributions that CDM 6.0 includes, more detai
 - CDM Distribution - Python Code Generation
 - Infrastructure
   - Dependency updates
-
 - Event & Product Model
   - Qualification and Cardinality Fixes
 - Initial Margin Model
@@ -45,7 +44,7 @@ Below are some of the high-level contributions that CDM 6.0 includes, more detai
   - TaxonomySourceEnum
   - CapacityUnit Enum
   - Modification to product condition
-
+  - Date Time Functions
 - Mapping Update
   - Related party role mapper
   - InterestRateForwardDebtPriceMappingProcessor updated to handle 'Percentage' quoteUnits
@@ -61,20 +60,16 @@ Below are some of the high-level contributions that CDM 6.0 includes, more detai
 - Eligible Collateral Schedule Model - 
   - Determination of the Party Roles
   - CheckEligibilityResult cardinality fix
-
 - Addition of new enumeration to AvailableInventory
-# CDM Model - Date Time Functions
-
 - Event Model 
   - PartyRoleEnum including PTRRServiceProvider role
   - Trade Lot Identifier added to Execution Instruction
   - Valuation Update
-
 - FpML 5.13 Working Draft 3 Mapping Updates
   - Post Trade Risk Reduction Mapping Update
 - FpML Coding Schemes 2.16 Mapping Updates 
   - Floating Rate Index Mappings
-  - 
+  
 # CDM Model - RoundToPrecision Function
 This release updates the existing function `cdm.base.math.RoundToPrecision` to add a new boolean flag which specifies whether to remove trailing zeros.
 
@@ -123,7 +118,6 @@ The following examples show the function behaviour:
 - `RoundToSignificantFigures(1023.123456789, 1, RoundingDirectionEnum -> NEAREST)` = 1000
 - `RoundToSignificantFigures(1023.1, 7, RoundingDirectionEnum -> NEAREST)` = 1023.1
 
-
 # Product Model - New Data Types
 _What is being released?_
 
@@ -135,7 +129,6 @@ _What is being released?_
     - `DigitalAsset` a new data type to represent an asset that exist only in digital form, eg Bitcoin or Ethereum
     - `ListedDerivative` a new data type to represent an asset that is a securitised derivative on another asset, such as a exchange traded future
 - A new `func` namespace created `cdm.base.staticdata.asset.common`, containing three new functions to aid the use of the new `Cash` asset:  `AssetIdentifierByType`, `GetCashCurrency`, `SetCashCurrency`.
-
 
 **Backward incompatible changes**
 
