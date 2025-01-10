@@ -1,75 +1,98 @@
 
 # CDM Version 6.0
-CDM 6.0, a production release, is the culmination of Common Domain Model (CDM) development releases from the second and third quarter of 2024 since CDM was made an open-source project at FINOS. There are also several technical changes since version 5.0 related to bug fixes, dependencies and synonym mappings.
 
-**What is being released**
-Below are some of the high-level contributions that CDM 6.0 includes, more detail and additional contribution release notes can be found in the releases section of the CDM documentation:
+CDM 6.0, a production release, corresponds to developments made to the CDM throughout 2024 and previously released as CDM 6-dev. These developments include items that featured in the 2024 CDM roadmap:
 
-- CDM Distribution - Python Code Generation
-- Infrastructure
-  - Dependency updates
-- Event & Product Model
-  - Qualification and Cardinality Fixes
-- Initial Margin Model
-  - Enhancement and Optimization of the Standardized Schedule Method
-- Product Model
-  - Commodity Payout Underlier
-  - Cashflow Generation for Settlement Payout 
-  - Refactor ETD Product Qualification
-  - Underlier in Corporate Action
-  - Add Price to Payouts
-  - Asset Refactoring: Product, SettlementPayout, Underliers
-  - Quantity Change For Existing Trade Lot
+- Option Payout Refactoring
+- Asset Refactoring
+- Standardized IM Schedule
+
+as well as several additional model changes, bug fixes, dependencies updates and synonym mappings since version 5.0.
+
+## _What is being released_
+
+Below are some of the high-level changes included in CDM 6.0, with links to their corresponding development release tags containing more detailed release notes.
+
+- **Asset Refactoring**
+  - Asset and Identifier: [6.0.0-dev.58](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.58)
+  - Basket, Index, Observable, Foreign Exchange: [6.0.0-dev.60](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.60)
+  - Product, SettlementPayout, Underliers: [6.0.0-dev.72](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.72)
+  - Remove AssetPool and deprecated data types: ...
+  - Settlement Payout Price: ...
+  - Payout as Choice: ...
+  - Underlier in Corporate Action: ...
+  - ETD Product Qualification: ...
+  - FloatingRateIndex and InterestRateIndex
+  - Commodity Payout Underlier: ...
+  - Cashflow Generation for Settlement Payout : ...
+  - AssetCriteria: ...
+  - etc.
+  
+- **Option Payout Refactoring**
+  - Option Payout Refactoring: ...
+  - Modification of AmericanExercise Condition in ExerciseTerms: ...
+
+- **Standardized IM Schedule**
+  - Implementation of the Standardized Schedule Method for Initial Margin Calculation: ...
+  - Enhancement and Optimization of the Standardized Schedule Method: ...
+
+- **Misc. Product Model**
   - Trigger type refactoring
-  - Modification of AmericanExercise Condition in ExerciseTerms
-  - Qualification of 
+  - Portfolio Return Terms
+  - Commodity Physical Options
+  - Commodity Forwards
+  - Qualification functions:
     - Total Return Swaps (TRS) with a Debt Underlier
     - Foreign Exchange NDS
     - AssetClass
-  - Synonym mappings for BusinessCenterEnum
-  - Bond Option and Forward Qualification 
-  - FpML Mapping Update
-  - FpML Mapping
-    - Commodity Swaps
-    - Contractual Party
-    - Commodity Forwards
+    - Bond Option and Forward Qualification
+    - Enhanced support for ETDs
     - Bond Forwards
-  - Commodity Physical Options
-  - Qualifying functions: Enhanced support for ETDs
-  - Commodity Forwards
-  - ISO Country Code Enum Update
-  - Qualification - Bond Forwards
-- CDM Model
+  - Modification to product condition
+
+- **Misc. Event Model**
+  - PartyRoleEnum including PTRRServiceProvider role
+  - Trade Lot Identifier added to Execution Instruction
+  - Valuation Update
+  - Quantity Change For Existing Trade Lot
+  - Addition of new enumeration to AvailableInventory
+
+- **Misc. Eligible Collateral Model**
   - Collateral Criteria AND/OR Logic
+  - New Attributes
+  - CreditNotationMismatchResolutionEnum update
+  - Determination of the Party Roles
+  - CheckEligibilityResult cardinality fix
+
+- **Misc. Legal Documentation Model**
+  - New `ContractualDefinitionsEnum` value to support the 2022 ISDA Verified Carbon Credit Transactions Definitions
+  - Master Agreement Type enumeration - ISDAIIFM_TMA code
+
+- **Misc. Base Model**
   - TaxonomySourceEnum
   - CapacityUnit Enum
-  - Modification to product condition
   - Date Time Functions
-- Mapping Update
+  - ISO Country Code Enum Update
+  - Natural Person and NaturalPersonRole circular reference
+
+- **FpML Mappings**
+  - Commodity Swaps
+  - Contractual Party
+  - Commodity Forwards
+  - Bond Forwards
   - Related party role mapper
   - InterestRateForwardDebtPriceMappingProcessor updated to handle 'Percentage' quoteUnits
   - Settlement Type Mapping Fix
   - Commodity Classification Coverage
-- Legal Documentation Model - 
-  - New `ContractualDefinitionsEnum` value to support the 2022 ISDA Verified Carbon Credit Transactions Definitions
-- Implementation of the Standardized Schedule Method for Initial Margin Calculation in CDM
-- Legal Agreements - Master Agreement Type enumeration - ISDAIIFM_TMA code
-- Eligible Collateral Representation
-  - New Attributes
-  - CreditNotationMismatchResolutionEnum update
-- Eligible Collateral Schedule Model - 
-  - Determination of the Party Roles
-  - CheckEligibilityResult cardinality fix
-- Addition of new enumeration to AvailableInventory
-- Event Model 
-  - PartyRoleEnum including PTRRServiceProvider role
-  - Trade Lot Identifier added to Execution Instruction
-  - Valuation Update
-- FpML 5.13 Working Draft 3 Mapping Updates
   - Post Trade Risk Reduction Mapping Update
-- FpML Coding Schemes 2.16 Mapping Updates 
   - Floating Rate Index Mappings
-  
+  - Synonym mappings for BusinessCenterEnum
+
+- **Infrastructure**
+  - Misc. Dependency updates
+  - Bug fix: Qualification and Cardinality Fixes
+  - CDM Distribution - Python Code Generation
+    
 # CDM Model - RoundToPrecision Function
 This release updates the existing function `cdm.base.math.RoundToPrecision` to add a new boolean flag which specifies whether to remove trailing zeros.
 
