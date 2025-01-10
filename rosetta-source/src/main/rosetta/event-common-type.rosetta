@@ -572,11 +572,17 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     informationSource InformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
     dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
       [metadata location]
+    bespokeEventDescription string (0..1) <"Corporate action triggered by the occurrence of an event which description is separatly agreed between the parties in the terms of the referenced agreement.">
 
     condition DividendObservation: <"Price type is restricted to record observations of dividends.">
     if dividendObservation exists
     then dividendObservation -> priceType = PriceTypeEnum -> Dividend
 
+    condition CorporateActionTypeBespoke: <"When Enum value does not corresponds to standard terms, then bespoke description must be populated.">
+    if corporateActionType = CorporateActionTypeEnum -> BespokeEvent
+    then bespokeEventDescription exists
+
+ 
 type AdjustmentTerms:<"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
 
     adjustmentFactorValue number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
@@ -594,6 +600,7 @@ type PriceAdjustmentFactorCalculationTerms :<"Describes the input terms involved
     lastFixingPrice_priorAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
     dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
       [metadata address "pointsTo"=CorporateAction->dividendObservation]
+    bespokeCalculationFormula string (0..1) <"To describe the formula used to calculate the Adjustment Factor."> // temporary place holder -> plan is to re-use BespokePayoutFormula type designed by Structured Product WG
 
    condition SpinOffOrMerger :
    optional choice spinOffPrice, mergerPrice, accrualFactor
