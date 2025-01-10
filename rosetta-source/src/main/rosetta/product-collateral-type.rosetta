@@ -105,7 +105,7 @@ type EligibleCollateralSpecification: <"Represents a set of criteria used to spe
 
 type CollateralCriteriaBase: <"Represents a set of criteria used to specify and describe collateral.">
 
-    collateralCriteria CollateralCriteria (1..1)  <"The specific criteria that applies. It can be created using AND, OR and NOT logic, and both asset and issuer characteristics.">
+    collateralCriteria CollateralCriteria (1..1) <"The specific criteria that applies. It can be created using AND, OR and NOT logic, and both asset and issuer characteristics.">
     appliesTo CounterpartyRoleEnum (0..2) <"Specifies which of the two counterparties the criteria applies to (either one or both counterparties). This attribute is optional, in case the applicable party is already specified elsewhere within a party election.">
     restrictTo CollateralMarginTypeEnum (0..1) <"Restrict the criteria to only apply to a specific type of margin, ie IM or VM.">
     ratingPriorityResolution RatingPriorityResolutionEnum (0..1) <"Denotes which Criteria has priority if more than one agency rating applies.">
@@ -116,18 +116,33 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
 
     condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
-        then CriteriaMatchesAssetType (collateralCriteria, Debt)
-            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Debt) = True 
+        then CriteriaMatchesAssetType(collateralCriteria, Debt)
+                or treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Debt
+                            ) = True
 
     condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-        then CriteriaMatchesAssetType (collateralCriteria, Equity)
-            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Equity) = True 
+        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+                or treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Equity
+                            ) = True
 
     condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
-        then CriteriaMatchesAssetType (collateralCriteria, Equity)
-            or treatment -> concentrationLimit extract CriteriaMatchesAssetType (item -> concentrationLimitCriteria -> collateralCriteria, Equity) = True 
+        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+                or treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Equity
+                            ) = True
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
@@ -162,7 +177,7 @@ type AverageTradingVolume: <"Represents the average trading volume of an Equity 
     period Period (1..1) <"Represents the period of the equities average trading volume on the exchange/s.">
     methodology AverageTradingVolumeMethodologyEnum (1..1) <"Indicates the type of equity average trading volume being stated (single) the highest amount on one exchange, or (consolidated) volumes across multiple exchanges.">
 
-type IssuerCountryOfOrigin:     
+type IssuerCountryOfOrigin:
     issuerCountryOfOrigin ISOCountryCodeEnum (1..1) <"Represents a filter on the issuing entity country of origin based on the ISO Standard 3166, which is the same as filtering by eligible Sovereigns.">
 
 type AssetCountryOfOrigin:
@@ -198,36 +213,36 @@ type DomesticCurrencyIssued:
 type CounterpartyOwnIssuePermitted:
     counterpartyOwnIssuePermitted boolean (1..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
 
-choice CollateralCriteria:  <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
-    AllCriteria                     <"Enables two or more Collateral Criteria to be combined using AND logic.">
-    AnyCriteria                     <"Enables two or more Collateral Criteria to be combined using OR logic.">
-    NegativeCriteria                <"Enables a single Collateral Criteria to be excluded using NOT logic.">
-    CollateralIssuerType            <"Criteria is the type of entity issuing the asset.">
-    AssetType                       <"Criteria is the asset type of the collateral.">
-    IssuerCountryOfOrigin           <"Criteria is the issuing entity country of origin.">
-    AssetCountryOfOrigin            <"Criteria is the collateral asset country of origin.">
-    CurrencyCodeEnum                <"Criteria is the denominated currency of the collateral.">
-    IssuerName                      <"Criteria is a specific named issuer entity.">
-    IssuerAgencyRating              <"Criteria is the agency rating(s) of the issuer.">
-    SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
-    AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
-    AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
-    //commented out choice type fields until DSL fix for switch statement is released
-    //Asset                           <"Criteria is a specifically identified asset.">
-    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
-    ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
-    ListingSector                   <"Criteria is the industry sector of the collateral asset.">
-  //Index                           <"Criteria is that the collateral is a constituent of a specific index.">
-    CounterpartyOwnIssuePermitted   <"Criteria includes collateral issued by the counterparty.">
-    DomesticCurrencyIssued          <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
+choice CollateralCriteria: <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
+    AllCriteria <"Enables two or more Collateral Criteria to be combined using AND logic.">
+    AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
+    NegativeCriteria <"Enables a single Collateral Criteria to be excluded using NOT logic.">
+    CollateralIssuerType <"Criteria is the type of entity issuing the asset.">
+    AssetType <"Criteria is the asset type of the collateral.">
+    IssuerCountryOfOrigin <"Criteria is the issuing entity country of origin.">
+    AssetCountryOfOrigin <"Criteria is the collateral asset country of origin.">
+    CurrencyCodeEnum <"Criteria is the denominated currency of the collateral.">
+    IssuerName <"Criteria is a specific named issuer entity.">
+    IssuerAgencyRating <"Criteria is the agency rating(s) of the issuer.">
+    SovereignAgencyRating <"Criteria is the agency rating(s) of the country of the issuer.">
+    AssetAgencyRating <"Criteria is the agency rating(s) of the collateral asset.">
+    AssetMaturity <"Criteria is the maturity characteristics of the collateral asset.">
+    // commented out choice type fields until DSL fix for switch statement is released
+    // Asset                           <"Criteria is a specifically identified asset.">
+    CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
+    ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
+    ListingSector <"Criteria is the industry sector of the collateral asset.">
+    // Index                           <"Criteria is that the collateral is a constituent of a specific index.">
+    CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
+    DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
 
-type AllCriteria:  <"Used to combine two or more Collateral Criteria using AND logic.">
+type AllCriteria: <"Used to combine two or more Collateral Criteria using AND logic.">
     allCriteria CollateralCriteria (2..*)
 
-type AnyCriteria:  <"Used to combine two or more Collateral Criteria using OR logic.">
+type AnyCriteria: <"Used to combine two or more Collateral Criteria using OR logic.">
     anyCriteria CollateralCriteria (2..*)
 
-type NegativeCriteria:  <"Used to apply a NOT logic condition to a single Collateral Criteria.">
+type NegativeCriteria: <"Used to apply a NOT logic condition to a single Collateral Criteria.">
     negativeCriteria CollateralCriteria (1..1)
 
 type EligibleCollateralSpecificationInstruction:
