@@ -126,8 +126,8 @@ financial product.
 * **Index**:  The object to be observed is an Index, ie an observable whose value is computed on the prices, rates or valuations
 of a number of assets.
 
-The CDM allows both products and observables to be used as underlying building blocks to construct
-more complex products (see the *[Underlier](#underlier)* section).
+The CDM allows both assets and observables to be used as underlying building blocks to construct
+complex products (see the *[Underlier](#underlier)* section).
 
 ### Product
 
@@ -228,7 +228,7 @@ represented by a form of bilateral agreements. FX forwards and private
 loans can have an extended term, and are generally not fungible.
 
 By contrast, in the case of the execution of a security (e.g. a listed
-equity), the exchange of finanical risk is a one-time event that takes
+equity), the exchange of financial risk is a one-time event that takes
 place on the settlement date, which is usually within a few business
 days of the agreement. The other significant distinction is that
 securities are fungible instruments for which the terms and security
@@ -991,6 +991,15 @@ type CalculationPeriodDates:
 The concept of an underlier allows for financial products to be used
 to drive outcomes within the definition of a corresponding product, for example
 an option, forward, or equity swap.
+
+:::tip Definition: Underlier
+
+The underlying financial product that will be physically or cash settled, which 
+can be of any type, eg an asset such as cash or a security, a product, or the 
+cash settlement of an index rate.  Conditions are usually applied when used in 
+a data type, such as a payout, to ensure this aligns with the use case.
+
+:::
 
 This nesting of the product component is another example of a composable
 product model. One use case is an interest rate swaption for which the
