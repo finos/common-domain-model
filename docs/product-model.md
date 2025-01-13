@@ -1086,7 +1086,7 @@ type Loan extends InstrumentBase:
         [metadata scheme]
 
 type ListedDerivative extends InstrumentBase:
-    deiveryTerm string (1..1)
+    deiveryTerm string (0..1)
     optionType PutCallEnum (0..1)
     strike number (0..1)
 
@@ -1101,12 +1101,6 @@ for purposes of brevity.
 
 ---
 
----
-**Note:**
-This inheritance and remodelling will be refactored
-before CDM 6 is released to production.
-
----
 
 In the case of Commodity, the applicable product identifiers are the
 ISDA definitions for reference benchmarks. Security has a
@@ -1191,7 +1185,8 @@ the Option and the underlying Interest Rate Swap would be qualified.
 ---
 
 The CDM supports Product Qualification functions for Credit Derivatives,
-Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and
+Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, Security
+Lending, and
 Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix
