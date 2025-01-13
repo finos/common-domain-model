@@ -51,8 +51,8 @@ Below are some of the high-level changes included in CDM 6.0, with links to thei
     - Zero-coupon Swaps: [6.0.0-dev.2](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.2)
   - Modification to product condition: [6.0.0-dev.57](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.57)
   - Add Price to Payouts: [6.0.0-dev.77](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.77)
-  - Principal Amount Conditions: [6.0.0-dev.43](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.43
-  - Synonym mappings for BusinessCenterEnum: [6.0.0-dev.33](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.33
+  - Principal Amount Conditions: [6.0.0-dev.43](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.43)
+  - Synonym mappings for BusinessCenterEnum: [6.0.0-dev.33](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.33)
   - Commodity Forwards: [6.0.0-dev.20](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.20)
   - Security Finance trade types: **Backward incompatible changes** [6.0.0-dev.86](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.86)
   - OptionPayout Refactoring: **Backward incompatible changes** [6.0.0-dev.24](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.24)
