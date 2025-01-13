@@ -65,7 +65,6 @@ Below are some of the high-level changes included in CDM 6.0, with links to thei
 
 - **FpML Mappings**
   - Synonym mappings for BusinessCenterEnum: [6.0.0-dev.33](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.33)
-  - Post Trade Risk Reduction Mapping Update: [6.0.0-dev.69](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.69)
   - Related party role mapper: [6.0.0-dev.81](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.81)
 
 - **Infrastructure**
