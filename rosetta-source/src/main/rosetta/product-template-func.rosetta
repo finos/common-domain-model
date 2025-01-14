@@ -125,7 +125,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
         payout SettlementPayout (1..1) <"The settlement payout from which the cashflows are generated.">
     output:
         cashflows Cashflow (2..2) <"The two generated cashflows (asset leg and price leg) going in opposite directions.">
-    
+
     alias assetLeg: <"The asset leg consists in a cashflow which has the same attributes (asset, quantity, date and direction) as the settlement payout that generates it.">
         Cashflow {
             quantity: NonNegativeQuantity {
@@ -144,12 +144,11 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
         }
 
     alias priceLegAmount: <"The amount (in cash) of the price leg is computed as: quantity (asset) x price. When a monetary amount is specified in the trade's PriceQuantity attribute, e.g. in the case of an FX transaction, a validation rule already ensures than this monetary amount is consistent with quantity x price.">
-        payout -> priceQuantity -> quantitySchedule -> value
-        * payout -> priceQuantity -> priceSchedule only-element -> value
-    
+        payout -> priceQuantity -> quantitySchedule -> value * payout -> priceQuantity -> priceSchedule only-element -> value
+
     alias priceLegCurrency: <"The currency of the price leg is the currency in which the price is expressed.">
         payout -> priceQuantity -> priceSchedule only-element -> unit -> currency
-        
+
     alias priceLegPayerReceiver: <"The payer / receiver direction of the price leg must be flipped compared to the settlement payout.">
         PayerReceiver {
             payer: payout -> payerReceiver -> receiver,
@@ -184,7 +183,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             },
             ...
         }
-    
+
     condition Asset: <"Restricts the function's applicability to a single asset for the underlier.">
         payout -> underlier -> Observable -> Asset exists
 
@@ -193,6 +192,6 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     condition SinglePriceAndQuantity: <"Restricts the function's applicability to a single quantity and price.">
         payout -> priceQuantity -> quantitySchedule -> value exists
-        and payout -> priceQuantity -> priceSchedule only-element -> value exists
+            and payout -> priceQuantity -> priceSchedule only-element -> value exists
 
-    set cashflows: [ assetLeg, priceLeg ]
+    set cashflows: [assetLeg, priceLeg]
