@@ -273,7 +273,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         [deprecated]
 
     condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
-        if product -> economicTerms -> payout -> SettlementPayout only exists
+        if SettlementPayoutOnlyExists(product -> economicTerms -> payout)
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
                 and tradeLot -> priceQuantity -> price exists
@@ -447,13 +447,13 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
         if product -> economicTerms -> payout -> InterestRatePayout exists
-        then FpmlIrd8(item,account) = True
+        then FpmlIrd8(item, account) = True
 
     condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout or an equity option payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
-        then ( product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
-               or product -> economicTerms -> payout -> OptionPayout exists )
-            and Qualify_AssetClass_Equity(product -> economicTerms)
+        then (product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
+                    or product -> economicTerms -> payout -> OptionPayout exists)
+                and Qualify_AssetClass_Equity(product -> economicTerms)
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -683,4 +683,3 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
     marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
     marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
     agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
-    
