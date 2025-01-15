@@ -17,7 +17,7 @@ The changes can be reviewed in PR: [#3315](https://github.com/finos/common-domai
 
 _Background_
 
-`CollateralCriteria` was created as part of [Release 6.0.0](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90). It is a choice data type, combining all the criteria terms that previously appeared in `AssetCriteria` and `IssuerCriteria`.
+`CollateralCriteria` was created as part of [Release 6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90). It is a choice data type, combining all the criteria terms that previously appeared in `AssetCriteria` and `IssuerCriteria`.
 
 
 A DSL bug blocked the addition of `Asset` and `Index` choice data types to `CollateralCriteria`. The bug has since been resolved under DSL 9.27.0 with further details in the DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9
