@@ -249,7 +249,7 @@ choice CollateralCriteria:
 
 ### Combining CollateralCriteria using AND and OR logic
 
-Te above code snippet only allows a single term to be specified within
+The above code snippet only allows a single term to be specified within
 the `CollateralCriteria` - ie the choice of one attribute.
 
 In reality, it is usually necessary to combine terms together to model
@@ -617,7 +617,7 @@ taxonomy sources can be referenced in a consistent representation.
 The CDM allows the definition of, and reference to, certain taxonomy
 sources to be used to express details for eligibility. These can be used
 as an additional means of expressing asset types outside of the
-descriptions tree or alongside it. Under data type `AssetCriteria` there
+descriptions tree or alongside it. Under data type `CollateralCriteria` there
 are data attributes to reference collateral related taxonomy sources as
 follows:
 
@@ -746,11 +746,10 @@ model, this can be found in the following link
 ### Listing 
 
 Additional details may be required to describe asset characteristics
-related to a securities financial listing, exchange, sector or specified
-indices, if relevant these are used to express eligibility details in
+related to a security's financial listing, exchange, or sector. If relevant, these are used to express eligibility details in
 documentation and collateral profiles. The following attributes on 
 `CollateralCriteria` can be used to
-specification such listing criteria. 
+specify such listing criteria. 
 
 -   `ListingExchange` Represents a filter based on the primary
     stock exchange facilitating the listing of companies, exchange of
@@ -760,11 +759,6 @@ specification such listing criteria.
     'Global Industry Classification Standard (GICS)' and 'North American
     Industry Classification System (NAICS) or other related industry
     sector reference data.
--   `Index` Represents a filter based on an index that
-    measures a stock market, or a subset of a stock market. The
-    `Index` data type can be used in the CDM to define an index in
-    terms of an `Identifier' and an enumeration identifying the
-    index constituent type.
 
 ## Combining Data in Eligible Collateral
 
@@ -847,8 +841,7 @@ Across all these bonds, different haircut treatments
 must be applied, depending on the maturity of the bond.
 
 The `EligibleCollateralSpecification` required to model this case needs to be constructed
-using an `EligibleCollateralCriteria`, populated with potentially several `AssetCriteria`
-and several `IssuerCriteria` to correctly represent the conditions regarding the bond
+using potentially many `EligibleCollateralCriteria`, which are themselves constructed from `CollateralTreatment` and `CollateralCriteria` to correctly represent the conditions regarding the bond
 types, issuer types, and currencies.  For each of the maturity bands, this
 `EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms
 of the haircut.
