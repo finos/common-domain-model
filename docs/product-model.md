@@ -378,7 +378,7 @@ choice Payout:
 
 ```
 
-A number of payout types extend a common data type called `PayoutBase`.
+All payout types extend a common data type called `PayoutBase`.
 This data type provides a common structure for attributes such as
 quantity, price, settlement terms and the payer/receiver direction which
 are expected to be common across many payouts.
@@ -390,20 +390,6 @@ type PayoutBase:
   principalPayment PrincipalPayments (0..1)
   settlementTerms SettlementTerms (0..1)
 ```
-
-The list of payouts that extend _PayoutBase_ are:
-
--   `InterestRatePayout`
--   `CreditDefaultPayout`
--   `OptionPayout`
--   `CommodityPayout`
--   `SettlementPayout`
--   `FixedPricePayout`
--   `Cashflow`
--   `PerformancePayout`
--   `AssetPayout`
--   the `ProtectionTerms` data type encapsulated in
-    `CreditDefaultPayout`
 
 For example:
 
