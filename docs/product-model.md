@@ -2,13 +2,12 @@
 title: Product Model
 ---
 
-## Financial Products {#product}
+## Financial Product {#product}
 
 In the CDM, a financial product describes a thing that is used to transfer financial
 risk between two parties. 
 
-The model is based on several building blocks
-to define the characteristics of that risk transfer.
+The model is based on several building blocks to define the characteristics of that risk transfer.
 The most fundamental of these building blocks is an `Asset`, which represents 
 a basic, transferable financial product such as cash, a commodity or security.
 From those basic transferable assets, any other financial product can be built using
@@ -76,6 +75,10 @@ The `Asset` definitions are as follows:
   of other Assets.
 * **Instrument**: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
 
+In the case of `Commodity`, the applicable product identifiers are the ISDA definitions for reference benchmarks. 
+
+#### Instrument
+
 The `Instrument` data type is further broken down using the `choice` construct:
 
 ``` Haskell
@@ -93,9 +96,68 @@ with these attributes:
   the data type includes optional attributes to help uniquely identify the loan, including `borrower`, `lien`,
   `facilityType`, `creditAgreementDate` and `tranche`.
 * **Security**: An Asset that is issued by a party to be held by or transferred to others. As "security" covers a
-  broad gamut of assets, the `securityType` attribute (which is a list of enumerators including "Debt" and "Equity")
+  broad range of assets, the `securityType` attribute (which is a list of enumerators including `Debt` and `Equity`)
   must always be specified. Further categorisation, by `debtType`, `equityType` and `FundType`, can also be used
   and are governed by conditions on the data type definition.
+
+All the `Instrument` data types extend `InstrumentBase`, which itself extends `AssetBase`.
+Each type of instrument also has its own definitions with additional attributes which are required to uniquely
+identify the asset.
+
+``` Haskell
+type Loan extends InstrumentBase:
+    borrower LegalEntity (0..*)
+    lien string (0..1)
+        [metadata scheme]
+    facilityType string (0..1)
+        [metadata scheme]
+    creditAgreementDate date (0..1)
+    tranche string (0..1)
+        [metadata scheme]
+
+type ListedDerivative extends InstrumentBase:
+    deliveryTerm string (0..1)
+    optionType PutCallEnum (0..1)
+    strike number (0..1)
+
+    condition Options:
+      if optionType exists then strike exists else strike is absent
+```
+
+---
+**Note:**
+The conditions for this data type are excluded from the snippet above
+for purposes of brevity.
+
+---
+
+Security has a set of additional attributes, as shown below:
+
+``` Haskell
+type Security extends InstrumentBase: 
+    debtType DebtType (0..1)
+    equityType EquityTypeEnum (0..1) 
+    fundType FundProductTypeEnum (0..1)
+
+    condition DebtSubType:
+        if instrumentType <> InstrumentTypeEnum -> Debt
+        then debtType is absent
+
+    condition EquitySubType:
+        if instrumentType <> InstrumentTypeEnum -> Equity
+        then equityType is absent
+
+    condition FundSubType:
+        if instrumentType <> InstrumentTypeEnum -> Fund
+        then fundType is absent
+```
+
+The asset identifier will uniquely identify the security. The
+`securityType` is required for specific purposes in the model, for
+example for validation as a valid reference obligation for a Credit
+Default Swap. The additional security details are optional as these
+could be determined from a reference database using the asset
+identifier as a key.
 
 ### Observable
 
@@ -125,6 +187,9 @@ financial product.
 * **Basket**:  The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.
 * **Index**:  The object to be observed is an Index, ie an observable whose value is computed on the prices, rates or valuations
 of a number of assets.
+
+Like `Asset`, both the `Basket` and `Index` types also extend `AssetBase`. This ensures that all types of `Observable` share
+a common set of attributes, in particular an identifier.
 
 The CDM allows both assets and observables to be used as underlying building blocks to construct
 complex products (see the *[Underlier](#underlier)* section).
@@ -424,7 +489,70 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
-## TradableProduct {#tradable-product}
+### Underlier
+
+The concept of an underlier allows for financial products to be used
+to drive outcomes within the definition of a corresponding product, for example
+an option, forward, or equity swap.
+
+:::tip Definition: Underlier
+
+The underlying financial product that will be physically or cash settled, which 
+can be of any type, eg an asset such as cash or a security, a product, or the 
+cash settlement of an index rate.  Conditions are usually applied when used in 
+a data type, such as a payout, to ensure this aligns with the use case.
+
+:::
+
+This nesting of the product component is another example of a composable
+product model. One use case is an interest rate swaption for which the
+high-level product uses the `OptionPayout` type and the underlier is an
+Interest Rate Swap composed of two `InterestRatePayout` types.
+Similiarly, the product underlying an Equity Swap composed of an
+`InterestRatePayout` and a `PerformancePayout` would be a transferable
+product: an equity security.
+
+In the simplest case, the underlier in an `AssetPayout` can only ever be
+a security, so the definition within this data type is constrained as such.
+
+In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
+is to influence the values of the future returns, so the appropriate data
+type to use for the underlier is an Observable.
+
+In the case of a `SettlementPayout`, there are a variety of possible
+outcomes as the settlement can be an Asset, the cash value of an Index, or
+a TransferableProduct.  Therefore, the choice data type `Underlier` has
+been defined and is used as the underlier attribute in this payout.
+
+Option financial products allow for an even greater range of outcomes, so
+the choice data type `OptionUnderlier` provides for both Observables and Products
+(itself also a choice data type) to be used in an `OptionPayout`.
+
+``` Haskell
+choice Underlier:
+    Observable
+        [metadata address "pointsTo"=PriceQuantity->observable]
+    Product
+
+choice Product:
+    TransferableProduct
+    NonTransferableProduct
+```
+
+**Use of underliers in payouts**
+
+The following table summarises the use of underliers for each of the main payout data types.
+
+| **Payout**    | **Underlier Definition** | **Rationale** |
+| :-------- | :------- | :------- | 
+| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Purchased Asset, usually a Security
+| `CommodityPayout` | `underlier Underlier (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
+| `OptionPayout` | `underlier Underlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
+| `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
+| `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
+
+
+## Tradable Product {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
@@ -985,152 +1113,6 @@ type CalculationPeriodDates:
   stubPeriodType StubPeriodTypeEnum (0..1)
   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 ```
-
-### Underlier
-
-The concept of an underlier allows for financial products to be used
-to drive outcomes within the definition of a corresponding product, for example
-an option, forward, or equity swap.
-
-:::tip Definition: Underlier
-
-The underlying financial product that will be physically or cash settled, which 
-can be of any type, eg an asset such as cash or a security, a product, or the 
-cash settlement of an index rate.  Conditions are usually applied when used in 
-a data type, such as a payout, to ensure this aligns with the use case.
-
-:::
-
-This nesting of the product component is another example of a composable
-product model. One use case is an interest rate swaption for which the
-high-level product uses the `OptionPayout` type and the underlier is an
-Interest Rate Swap composed of two `InterestRatePayout` types.
-Similiarly, the product underlying an Equity Swap composed of an
-`InterestRatePayout` and a `PerformancePayout` would be a transferable
-product: an equity security.
-
-In the simplest case, the underlier in an `AssetPayout` can only ever be
-a security, so the definition within this data type is constrained as such.
-
-In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
-is to influence the values of the future returns, so the appropriate data
-type to use for the underlier is an Observable.
-
-In the case of a `SettlementPayout`, there are a variety of possible
-outcomes as the settlement can be an Asset, the cash value of an Index, or
-a TransferableProduct.  Therefore, the choice data type `Underlier` has
-been defined and is used as the underlier attribute in this payout.
-
-Option financial products allow for an even greater range of outcomes, so
-the choice data type `OptionUnderlier` provides for both Observables and Products
-(itself also a choice data type) to be used in an `OptionPayout`.
-
-``` Haskell
-choice Underlier:
-    Observable
-        [metadata address "pointsTo"=PriceQuantity->observable]
-    Product
-
-choice Product:
-    TransferableProduct
-    NonTransferableProduct
-```
-
-**Use of underliers in payouts**
-
-The following table summarises the use of underliers for each of the main payout data types.
-
-| **Payout**    | **Underlier Definition** | **Rationale** |
-| :-------- | :------- | :------- | 
-| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Purchased Asset, usually a Security
-| `CommodityPayout` | `underlier Underlier (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
-| `OptionPayout` | `underlier Underlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
-| `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
-| `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
-
-### Identifiers
-
-#### Asset Identifiers
-
-The abstract data type AssetBase serves as a base for all Assets,
-as illustrated below:
-
-``` Haskell
-type AssetBase:
-    identifier AssetIdentifier (1..*) 
-    taxonomy Taxonomy (0..*) 
-    isExchangeListed boolean (0..1)
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*)
-```
-
-The data types that extend from AssetBase are the Asset
-data types (Cash, Commodity, DigitalAsset and Loan) and
-the Observable data types (Basket and Index).
-
-Additionally, the Instrument data types extend from InstrumentBase,
-which itself extends from AssetBase.
-
-The instrument assets also have their own definitions with additional attributes
-which are required to uniquely identify the asset:
-
-``` sourcecode
-type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
-    lien string (0..1)
-        [metadata scheme]
-    facilityType string (0..1)
-        [metadata scheme]
-    creditAgreementDate date (0..1)
-    tranche string (0..1)
-        [metadata scheme]
-
-type ListedDerivative extends InstrumentBase:
-    deiveryTerm string (0..1)
-    optionType PutCallEnum (0..1)
-    strike number (0..1)
-
-condition Options:
-     if optionType exists then strike exists else strike is absent
-```
-
----
-**Note:**
-The conditions for this data type are excluded from the snippet above
-for purposes of brevity.
-
----
-
-
-In the case of Commodity, the applicable product identifiers are the
-ISDA definitions for reference benchmarks. Security has a
-set of additional attributes, as shown below:
-
-``` Haskell
-type Security extends InstrumentBase: 
-    debtType DebtType (0..1)
-    equityType EquityTypeEnum (0..1) 
-    fundType FundProductTypeEnum (0..1)
-
-    condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
-        then debtType is absent
-
-    condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
-        then equityType is absent
-
-    condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
-        then fundType is absent
-```
-
-The product identifier will uniquely identify the security. The
-`securityType` is required for specific purposes in the model, for
-example for validation as a valid reference obligation for a Credit
-Default Swap. The additional security details are optional as these
-could be determined from a reference database using the product
-identifier as a key
 
 ## Product Qualification
 
