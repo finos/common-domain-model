@@ -185,7 +185,7 @@ In the CDM, those products are represented by the `NonTransferableProduct` type:
 :::tip Definition: NonTransferableProduct
 
 A non-transferable product represents a financial product that is agreed bilaterally between two parties.
-The data type species the financial product's economic terms alongside its identifier and taxonomy.
+The data type specifies the financial product's economic terms alongside its identifier and taxonomy.
 A non-transferable product is instantiated by a trade between the two parties that defines the tradable product,
 and evolves through the CDM's lifecycle event model.
 
