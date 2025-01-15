@@ -433,6 +433,24 @@ purposes of brevity.
 
 ---
 
+There are a number of components that are reusable across several payout
+types. For example, the `CalculationPeriodDates` class describes the
+inputs for the underlying schedule of a stream of payments.
+
+``` Haskell
+type CalculationPeriodDates:
+  [metadata key]
+  effectiveDate AdjustableOrRelativeDate (0..1)
+  terminationDate AdjustableOrRelativeDate (0..1)
+  calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
+  firstPeriodStartDate AdjustableOrRelativeDate (0..1)
+  firstRegularPeriodStartDate date (0..1)
+  firstCompoundingPeriodEndDate date (0..1)
+  lastRegularPeriodEndDate date (0..1)
+  stubPeriodType StubPeriodTypeEnum (0..1)
+  calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+```
+
 The price and quantity attributes in the _PayoutBase_
 structure are positioned in the _ResolvablePriceQuantity_
 data type. This data type mirrors the _PriceQuantity_ data
@@ -1094,25 +1112,6 @@ For instance in an FX spot or forward transaction, the respective units
 of the quantity and price will determine who is paying or receiving each
 currency.
 
-## Reusable Components
-
-There are a number of components that are reusable across several payout
-types. For example, the `CalculationPeriodDates` class describes the
-inputs for the underlying schedule of a stream of payments.
-
-``` Haskell
-type CalculationPeriodDates:
-  [metadata key]
-  effectiveDate AdjustableOrRelativeDate (0..1)
-  terminationDate AdjustableOrRelativeDate (0..1)
-  calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
-  firstPeriodStartDate AdjustableOrRelativeDate (0..1)
-  firstRegularPeriodStartDate date (0..1)
-  firstCompoundingPeriodEndDate date (0..1)
-  lastRegularPeriodEndDate date (0..1)
-  stubPeriodType StubPeriodTypeEnum (0..1)
-  calculationPeriodFrequency CalculationPeriodFrequency (0..1)
-```
 
 ## Product Qualification
 
