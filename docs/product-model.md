@@ -222,24 +222,6 @@ contract terms must be specified and stored in an easily accessible
 transaction lifecycle model so that each party can evaluate their
 financial risks during the life of the agreement.
 
-Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
-Forwards) and private loans also represent an exchange of financial risk
-represented by a form of bilateral agreements. FX forwards and private
-loans can have an extended term, and are generally not fungible.
-
-By contrast, in the case of the execution of a security (e.g. a listed
-equity), the exchange of financial risk is a one-time event that takes
-place on the settlement date, which is usually within a few business
-days of the agreement. The other significant distinction is that
-securities are fungible instruments for which the terms and security
-identifiers are publically available. Therefore, the terms of the
-security do not have to be stored in a transaction lifecycle model, but
-can be referenced with public identifiers.
-
-An index-based product is an exception because it's not directly tradable,
-but is included here because it can be referenced as an underlier for a
-tradable product and can be identified by a public identifier.
-
 #### Product Scope
 
 The scope of (non-transferable) products in the model is summarized below:
@@ -446,9 +428,9 @@ type RateSchedule:
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
-quantity, and other details necessary to complete an execution of a
-security or a negotiated contract between two counterparties. Tradable
-products are represented by the `TradableProduct` data type.
+quantity, and other details necessary to complete the execution of a
+negotiated contract between two counterparties. Tradable products
+are represented by the `TradableProduct` data type.
 
 :::tip Definition: TradableProduct
 
@@ -479,12 +461,30 @@ for purposes of brevity.
 ---
 
 The primary set of attributes represented in the `TradableProduct` data
-type are ones that are shared by all trades and transactions. For
-example, every trade has a price, a quantity (treated jointly as a trade
-lot), and a pair of counterparties. In some cases, there are ancillary
+type are ones that are shared by all trades. Every trade is based on a
+financial product and has a price, a quantity (treated jointly as a
+trade lot), and a pair of counterparties. In some cases, there are ancillary
 parties, or an allowable adjustment to the notional quantity. All of the
-other attributes required to describe a product are defined in distinct
-product data types.
+other attributes required to describe the trade's economic terms are defined
+in the `NonTransferableProduct` data type.
+
+There are cases when the object of a trade is a _transferable_ product
+whose economic terms are already set: for instance when buying or selling
+a fungible instrument like a security or a loan. In those cases, the terms
+of that trade (in its simplest form: the settlement date, in addition
+to the price and quantity) need to be contractually agreed betwwen the parties.
+These terms would be defined in a `Payout` and embedded in a
+`NonTransferableProduct`. That contract is not transferable, even though
+the underlying product may be.
+
+A Foreign Exchange (FX) spot or forward trade (including a non-deliverable
+forward) is also represented by a contractual agreement and is not fungible.
+In that case the `Payout` is based on `Cash` as the underlying asset.
+
+A `NonTransferableProduct` also provides a mechanism to trade indices that
+otherwise cannot be directly transfered. The `Payout` would define how
+the index is meant to be observed and the resulting cashflows between
+the parties based on that observed value.
 
 ### Counterparty
 
