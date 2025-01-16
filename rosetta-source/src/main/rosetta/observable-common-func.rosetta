@@ -9,7 +9,7 @@ import cdm.observable.asset.*
 
 func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive the time and time-zone for a product identifier">
     inputs:
-        productIdentifier ProductIdentifier (1..1)
+        assetIdentifier AssetIdentifier (1..1)
         timeType TimeTypeEnum (1..1)
         determinationMethod DeterminationMethodEnum (1..1)
     output:
@@ -33,8 +33,13 @@ func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relations
             extract value
             then only-element
 
-    alias cashPrice: price -> value only-element
+    alias cashPrice:
+        price
+            filter priceType = PriceTypeEnum -> AssetPrice
+            then extract value
+            then only-element
 
     set success:
         if cashPrice exists and noOfUnits exists and notional exists
         then cashPrice * noOfUnits = notional
+        else True

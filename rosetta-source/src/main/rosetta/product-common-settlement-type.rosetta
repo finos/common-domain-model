@@ -5,6 +5,7 @@ import cdm.base.*
 import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.credit.*
 
 import cdm.observable.asset.*
@@ -19,14 +20,23 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
     currency string (0..1) <"The currency in which the computed amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
         [metadata scheme]
 
-type Cashflow extends PayoutBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-    [metadata key]
+type AssetFlowBase: <"Defines the basic parameters of an asset transfer, e.g. a cashflow: what (the asset), how much (the quantity) and when (the settlement date).">
+    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
+    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
+    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+
+    condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
+        if asset -> Cash exists
+        then quantity -> unit -> currency exists
+        else if asset -> Commodity exists
+        then quantity -> unit -> capacityUnit exists
+        else if asset -> Instrument exists
+        then quantity -> unit -> financialUnit exists
+
+type Cashflow extends AssetFlowBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+    payerReceiver PayerReceiver (1..1) <"Specifies who pays / receives the cashflow, though a normalised Party1 / Party2 enumerator.">
     cashflowType CashflowType (1..1) <"The qualification of the type of cashflow, e.g. brokerage fee, premium, upfront fee etc. Particularly relevant when it cannot be inferred directly through lineage.">
     paymentDiscounting PaymentDiscounting (0..1) <"FpML specifies the FpML PaymentDiscounting.model group for representing the discounting elements that can be associated with a payment.">
-
-    condition CashflowAmount: <"The cashflow amount should be a positive number, as the cashflow direction is indeed implied by the payer/receiver attribute.">
-        if priceQuantity exists
-        then priceQuantity -> quantitySchedule -> value >= 0.0
 
 type CashflowType: <"Characterises the type of cashflow, which can result from either a scheduled or a non-scheduled lifecycle event.">
     cashflowType ScheduledTransferEnum (0..1) <"Type of cashflow corresponding to a scheduled event.">
@@ -62,12 +72,19 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
         if quantityMultiplier exists
         then quantityReference -> reference exists
 
-type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
+type PayoutBase: <"A data type that contains the common attributes (e.g. payer and receiver parties) and validation conditions that apply across all payout types">
 
     payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">
     priceQuantity ResolvablePriceQuantity (0..1) <"Each payout leg must implement the quantity concept as a 'resolvable' type, which allows for different payout legs to be linked to each other (e.g. in the case of cross-curreny products).">
     principalPayment PrincipalPayments (0..1) <"The specification of the principal exchange. Optional as only applicable in the case of cross-currency or zero-coupon swaps with a final payment.">
     settlementTerms SettlementTerms (0..1) <"Each payout leg must specifies its settlement terms, including the delivery type (i.e. cash vs physical, and their respective terms), the transfer type (DvP etc.) and settlement date, if any.">
+
+    condition FinalPrincipalAmountExists: <"When a final principal payment is specified, and as long as the quantity is not resettable, the amount of that principal payment (or its present value) must be provided. This condition is implemented at the Payout level and not on PrincipalPayment, because it needs to check whether the quantity may be resettable.">
+        if principalPayment -> principalPaymentSchedule -> finalPrincipalPayment exists
+                and priceQuantity -> quantitySchedule exists
+                and priceQuantity -> reset is absent
+        then principalPayment -> principalPaymentSchedule -> finalPrincipalPayment -> principalAmount exists
+                or principalPayment -> principalPaymentSchedule -> finalPrincipalPayment -> presentValuePrincipalAmount exists
 
 type CommodityPriceReturnTerms: <"Defines parameters in which the commodity price is assessed.">
     rounding Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of a number.">
@@ -293,26 +310,6 @@ type SettlementTerms extends SettlementBase: <"Specifies the settlement terms, w
         if physicalSettlementTerms exists /* or fxSettlementTerms exists*/
         then settlementType <> SettlementTypeEnum -> Cash
 
-type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
-    [metadata key]
-    price PriceSchedule (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
-        [metadata location]
-    quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
-        [metadata location]
-    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference. The cardinality is optional as some quantity / price cases have no observable (e.g. a notional and a fixed rate in a given currency).">
-    buyerSeller BuyerSeller (0..1) <"Defines the direction of the exchange. The convention is that the buyer receives the quantity / pays the price, whereas the seller receives the price / pays the quantity. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
-    settlementTerms SettlementTerms (0..1) <"Whether the settlement is cash or physical and the corresponding terms. Attribute is optional in case the price/quantity settlement is defined as part of the product mechanics.">
-    effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
-
-    condition RateOptionObservable: <"When the observable is a rate option, the price type must be interest rate and the arithmetic operator must be specified.">
-        RateOptionObservableCondition
-
-    condition ObservableExists: <"When the arithmetic operator is specified, then an observable must be specified.">
-        if price -> arithmeticOperator exists then observable exists
-
-    condition ActualSettlement: <"Settlement terms must be present when the settlement direction is specified.">
-        if buyerSeller exists then settlementTerms exists
-
 type FixedPrice: <"A predefined price accorded by the counterparties.">
 
     price PriceSchedule (0..1) <"Fixed price step schedule, including an initial price specified as an absolute number.">
@@ -352,6 +349,11 @@ type PrincipalPaymentSchedule: <"Describe dates schedules for Principal Exchange
     intermediatePrincipalPayment AdjustableRelativeOrPeriodicDates (0..1) <"Principal Payment as part of the Trade lifecycle e.g. as part of notional reset adjustements in a Cross Currency Swap with a varying notional leg.">
     finalPrincipalPayment PrincipalPayment (0..1) <"Principal Payment at Trade maturity">
 
+    condition InitialPrincipalAmountExists: <"When an initial principal payment is specified, the amount of that principal payment (or its present value) must be provided. This condition is implemented at the PrincipalPaymentSchedule level and not on PrincipalPayment, because it only applies to the initial principal payment.">
+        if initialPrincipalPayment exists
+        then initialPrincipalPayment -> principalAmount exists
+                or initialPrincipalPayment -> presentValuePrincipalAmount exists
+
 type PrincipalPayment: <"Any kind of principal payments when the amount is known and thus fixed.">
     [metadata key]
     principalPaymentDate AdjustableDate (0..1) <"The date where the PrincipalPayment shall be settled.">
@@ -361,7 +363,7 @@ type PrincipalPayment: <"Any kind of principal payments when the amount is known
     presentValuePrincipalAmount Money (0..1) <"The amount representing the present value of the principal payment.">
 
     condition PrincipalAmount:
-        required choice principalAmount, presentValuePrincipalAmount
+        optional choice principalAmount, presentValuePrincipalAmount
 
     condition DiscountFactor:
         if presentValuePrincipalAmount exists

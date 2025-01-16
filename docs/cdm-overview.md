@@ -2,8 +2,11 @@
 title: Overview of the FINOS CDM
 ---
 
-**Continuous Integration:** [![Codefresh build
-status](https://g.codefresh.io/api/badges/pipeline/regnosysops/REGnosys%2Frosetta-cdm%2Frosetta-cdm?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWE1N2EyYTlmM2JiOTMwMDAxNDRiODMz.ZDeqVUhB-oMlbZGj4tfEiOg0cy6azXaBvoxoeidyL0g&type=cf-1)](https://g.codefresh.io/pipelines/rosetta-cdm/builds?repoOwner=REGnosys&repoName=rosetta-cdm&serviceName=REGnosys%2Frosetta-cdm&filter=trigger:build~Build;branch:master;pipeline:5a86c209eaf77d0001daacb6~rosetta-cdm)
+**Continuous Integration:** 
+
+[![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/incubating)
+
+[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
 # What is the FINOS CDM
 
@@ -11,6 +14,14 @@ The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
 and managed across the transaction lifecycle. It is represented as a
 [domain model](https://olegchursin.medium.com/a-brief-introduction-to-domain-modeling-862a30b38353) and distributed in open source.
+
+For an overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/CDM-Overview-Nov.pdf). 
+
+ISDA’s Digital Regulatory Reporting (DRR) solution leverages the open-source Common Domain Model (CDM) to convert industry-agreed interpretations of new or amended regulatory reporting rules into clear, machine-executable code. This approach enhances implementation efficiency and reduces costs. Institutions contributing to the development of the ISDA DRR include (but are not limited to) those listed on [ISDA’s Digital Regulatory Reporting Page](https://www.isda.org/isda-digital-regulatory-reporting/).
+
+ISDA has also launched the Get Started with the CDM for Collateral Guide! You can now access a wealth of resources and tutorials on CDM for collateral management on the [CDM-Collateral Initiatives page](https://www.isda.org/2023/02/16/isda-collateral-initiatives/).
+
+If you’re interested in the Common Domain Model (CDM), please complete the [CDM Interest Form](https://www.finos.org/common-domain-model) to join our mailing list. By signing up, you’ll receive updates on CDM initiatives, meeting agendas, and other working group activities.
 
 ## Purpose
 
@@ -60,14 +71,22 @@ the development of the CDM in open source.
 
 The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
+## CDM 2024 Roadmap
+Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
+![](/img/cdm-roadmap-2024-2.png)
+![](/img/cdm-roadmap-2024-1.png)
+
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
+- Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
+
 # CDM Components
 
 **The CDM is made of three sets of components**, as laid-out in the FINOS
 CDM components diagram below:
 
--   The FINOS CDM Distribution (in *blue*)
--   The Rosetta DSL (in *grey*)
--   CDM Applications (in *green*)
+-   The FINOS CDM Distribution (in the centre, in *purple*)
+-   The Rune DSL (on the left, in *grey*)
+-   CDM Applications (on the right, in *blue*)
 
 ![](/img/cdm-components-diagram.png)
 
@@ -80,7 +99,7 @@ distribution is fully downloadable.
 The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
-    the Rosetta DSL and contained into a set of *.rosetta* files
+    the Rune DSL and contained into a set of *.rosetta* files
     organised as *namespaces*. The primary dimensions of the model are
     listed below and further described in the
     [common-domain-model](/docs/common-domain-model) of the
@@ -92,7 +111,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Reference Data
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
-    model definitions expressed in the Rosetta DSL using [available code
+    model definitions expressed in the Rune DSL using [available code
     generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
@@ -119,22 +138,22 @@ functions' executable code.
 
 ---
 
-## Rosetta DSL
+## Rune DSL
 
 The CDM is written in a Domain-Specific Language (DSL) called the
-*Rosetta DSL*, that comprises a [language](https://github.com/REGnosys/rosetta-dsl) (i.e. syntax, semantics and
+*Rune DSL*, that comprises a [language](https://github.com/finos/rune-dsl) (i.e. syntax, semantics and
 rules) and [code generators](https://github.com/REGnosys/rosetta-code-generators).
 
 The language includes one default code generator into [java](https://www.oracle.com/java/). To
 facilitate adoption and implementation of the CDM by the community of
-industry participants, the Rosetta DSL is available in open source under
+industry participants, the Rune DSL is available in open source under
 an Apache 2.0 license. This allows industry participants to write and
 share code generators into any other languages.
 
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component). The documentation also describes the
+the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---
@@ -149,13 +168,13 @@ applications may be open source software or licensed under commercial
 terms. In particular:
 
 -   Rosetta is a Software Development Kit (SDK or *dev-kit*) for the
-    Rosetta DSL, that provides the cumminity with a free and easy way to
+    Rune DSL, that provides the community with a free and easy way to
     contribute code to the CDM. Please refer to the [Rosetta
     Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-products/) for more details.
 
 ---
 **Note:**
-The CDM Portal and Rosetta have been developed by technology firm
+Rosetta has been developed by technology firm
 [REGnosys](https://regnosys.com). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 
@@ -173,3 +192,4 @@ file in the CDM jar.
 
 For more details, please follow the
 [CDM Java Distribution Guidelines](/docs/cdm-guidelines).
+

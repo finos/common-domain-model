@@ -45,25 +45,38 @@ func Min: <"Returns the lesser number of two supplied numbers.">
         result number (1..1)
     set result: if a > b then b else a
 
-func RoundToNearest:
+func RoundToNearest: <"Round a number to the supplied nearest, using the supplied rounding mode.">
     inputs:
-        value number (1..1)
-        nearest number (1..1)
-        roundingMode RoundingModeEnum (1..1)
+        value number (1..1) <"The original (unrounded) number.">
+        nearest number (1..1) <"The nearest number to round to.">
+        roundingMode RoundingModeEnum (1..1) <"The method of rounding (up to nearest/down to nearest).">
     output:
         roundedValue number (1..1)
     condition PositiveNearest:
         nearest > 0
 
-func RoundToPrecision: <"Round a rate to the supplied precision, using the supplied rounding direction">
+func RoundToPrecision: <"Round a number to the supplied precision, using the supplied rounding direction.">
     inputs:
         value number (1..1) <"The original (unrounded) number.">
         precision int (1..1) <"The number of decimal digits of precision.">
         roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
+        removeTrailingZeros boolean (1..1) <"Flag to specify whether to strip trailing zeros.">
     output:
         roundedValue number (1..1) <"The value to the desired precision">
-    condition NonNegativePrecision:
+
+    condition NonNegativePrecision: <"The number of decimal digits of precision should be greater than or equal to zero.">
         precision >= 0
+
+func RoundToSignificantFigures: <"Round a number to the supplied significant figures, using the supplied rounding direction.">
+    inputs:
+        value number (1..1) <"The original (unrounded) number.">
+        significantFigures int (1..1) <"The number of significant figures.">
+        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
+    output:
+        roundedValue number (1..1) <"The value to the desired number of significant figures.">
+
+    condition NonZeroSignificantFigures: <"The number of significant figures should be greater than zero.">
+        significantFigures > 0
 
 func CompareQuantityByUnitOfAmount:
     inputs:

@@ -4,6 +4,8 @@ title: Legal Agreements
 
 # The Use of *Agreements* in Financial Markets
 
+## Introduction
+
 Financial transactions consist primarily of agreements between parties
 to make future payments or deliveries to each other. To ensure
 performance, those agreements typically take the form of legally
@@ -29,16 +31,17 @@ form, or create their own bespoke amendments.
 
 The ISDA Master Agreement is an internationally recognised document
 which is used to provide certain legal and credit protection for parties
-who enter into OTC derivatives. Parties that execute agreements for OTC
-derivatives are expected to have bi-lateral Master Agreements with each
+who enter into OTC derivatives. Similarly, the ISLA Global Master Securities 
+Lending Agreement (GMSLA) is the market standard documentation used for 
+parties entering into securities lending agreements. Parties that execute 
+agreements are expected to have bi-lateral Master Agreements with each
 other that cover an agreed range of transactions. Accordingly in the CDM
 each transaction can be associated with a single master agreement, and a
 single master agreement can be associated with multiple transactions.
 
-In addition to the Master Agreement are sets of credit support
-documentation which parties may enter into as part of Master Agreement
-to contain the terms on which they will exchange collateral for their
-OTC derivatives. Collateral provides protection to a party against the
+For OTC derivatives there are sets of credit support documentation which parties 
+may enter into as part of Master Agreement to contain the terms on which they 
+will exchange collateral. Collateral provides protection to a party against the
 risk that its counterparty defaults and fails to pay the amount that it
 owes on default. The risk of loss in this scenario is for the current
 cost of replacing the defaulted transactions (for which margin is called
@@ -69,11 +72,18 @@ below:
     governing law to the grant and enforcement of security over the
     custodian account (the SA).
 
+---
+**Note:**
+For users of the ISLA GMSLA the details of the collateral schedule are 
+included as an annex to the document itself.
+
+---
+
 In the CDM and in this user documentation, *legal agreement* refers to
 the written terms of a relationship-level agreement, and *contract*
 refers to the written terms defining an executed financial transaction.
 
-# Legal Agreements in the CDM
+## Legal Agreements in the CDM
 
 The CDM provides a digital representation of the legal agreements that
 govern transactions and workflows. The benefits of this digital
@@ -87,7 +97,7 @@ representation are summarized below:
     formally tying legal data to the business outcome and performance of
     legal clauses. (e.g. in collateral management where lifecycle
     processes require reference to parameters found in the associated
-    legal agreements, such as the Credit Support Annex).
+    legal agreements, such as a Credit Support Annex).
 -   **Supporting the direct implementation of functional processes** by
     providing a normalised representation of legal agreements as
     structured data, as opposed to the unstructured data contained of a
@@ -95,9 +105,10 @@ representation are summarized below:
     implementation (e.g. for a calculation of an amount specified in a
     legal definition).
 
-The scope of the CDM legal agreement model includes all of the types of
-ISDA credit support documents. The legal agreement model is explained
-below, including examples and references to these types of documents.
+The scope of the CDM legal agreement model includes a generic Master Agreement 
+Schedule representation, as well as all of the types of ISDA credit support 
+documents. The legal agreement model is explained below, including examples and 
+references to these types of documents.
 
 The topics covered in this section are listed below:
 
@@ -105,14 +116,14 @@ The topics covered in this section are listed below:
 -   Legal Agreement Data Structure
 -   Linking Legal Agreements to contracts
 
-# Modelling Approach
+## Modelling Approach
 
-## Scope
+### Scope
 
 The legal agreement model in the CDM comprises the following features:
 
--   **Composable and normalised model representation** of the ISDA
-    agreements. The terms of an ISDA agreement can be defined by
+-   **Composable and normalised model representation** of legal 
+    agreements. The terms of an agreement can be defined by
     identification of the published base document, and the elections or
     amendments made to that base in a specific legal agreement. There
     are distinct versions of the published agreements for jurisdiction
@@ -122,6 +133,12 @@ The legal agreement model in the CDM comprises the following features:
     for the representation of a specific legal agreement by combining
     terms where appropriate. The following legal agreements are
     supported in the CDM:
+	
+	**Master Agreement Schedule**
+
+    -   Master Agreement Schedule supporting the representation of industry 
+	    standard or bespoke documentation (e.g. ISDA Master 2002, ISLA GMSLA
+        2010)
 
     **Initial Margin Agreements**
 
@@ -152,11 +169,6 @@ The legal agreement model in the CDM comprises the following features:
     -   ISDA 2016 CSA for VM (Title Transfer -- Irish Law)
     -   ISDA 2016 CSA for VM (Title Transfer -- French Law)
 
-    **Master Agreement Schedule**
-
-    -   ISDA 2002 Master Agreement Schedule (Partial agreement
-        representation)
-
 -   **Composable and normalised model representation** of the eligible
     collateral schedule for initial and variation margin into a directly
     machine readable format.
@@ -175,9 +187,8 @@ The legal agreement model in the CDM comprises the following features:
         data associated with the supported agreements have been
         replicated in the CDM
     -   Ingestion of JSON sample files generated from ISDA Create for
-        samples of executed documents has been implemented in the CDM
-        Portal to demonstrate this capability between ISDA Create and
-        the CDM.
+        samples of executed documents has been implemented to demonstrate this 
+		capability between ISDA Create and the CDM.
     -   More details on Synonyms are provided in the Mapping (Synonym)
         section of this document.
 
@@ -189,7 +200,7 @@ document is tested with alternative external sample data.
 
 ---
 
-## Design Principles
+### Design Principles
 
 The key modelling principles that have been adopted to represent legal
 agreements are described below:
@@ -212,7 +223,7 @@ agreements are described below:
 -   **Normalisation of the data representation**
     -   Strong data type attributes such as numbers, Boolean, or
         enumerations are used where possible to create a series of
-        normalised elections within terms used in ISDA documentation and
+        normalised elections within terms used in legal documentation and
         create a data representation of the legal agreement that is
         machine readable and executable. This approach allows CDM users
         to define normalised elections into a corresponding legal
@@ -224,7 +235,7 @@ agreements are described below:
 The components of the legal agreement model specified in the CDM are
 detailed in the section below.
 
-# Legal Agreement Data Structure
+## Legal Agreement Data Structure
 
 The `LegalAgreement` data type represents the highest-level data type
 for defining a legal agreement in the CDM. This data type extends the
@@ -244,7 +255,7 @@ type LegalAgreement extends LegalAgreementBase:
 The `LegalAgreementBase`, `UmbrellaAgreement`, and `AgreementTerms` are
 defined in the following sections.
 
-## Agreement Identification
+### Agreement Identification
 
 The CDM provides support for implementors to uniquely identify a legal
 agreement solely through the specification of the agreement
@@ -270,7 +281,7 @@ legal agreement being specified in the `agreementIdentification`
 attribute). Provision is made for further information to be captured,
 for example an agreement identifier, which is an optional attribute.
 
-## Related Agreement
+### Related Agreement
 
 Related agreements attribute is used to specify any higher-level
 agreement(s) that may govern the agreement, either as a reference to
@@ -287,7 +298,7 @@ the CDM `LegalAgreement` data type.
 
 ---
 
-## Umbrella Agreement
+### Umbrella Agreement
 
 `UmbrellaAgreement` is a data type used to specify the applicability of
 Umbrella Agreement terms, relevant specific language, and underlying
@@ -302,7 +313,7 @@ type UmbrellaAgreement:
   parties UmbrellaAgreementEntity (0..*)
 ```
 
-## Agreement Content
+### Agreement Content
 
 `AgreementTerms` is used to specify the content of a legal agreement in
 the CDM. There are two components to agreement terms, as shown in the
@@ -317,7 +328,7 @@ type AgreementTerms:
 
 The following sections describe each of these components.
 
-## Agreement
+### Agreement
 
 `Agreement` is a data type used to specify the individual elections
 contained within the legal agreement. It contains a set of encapsulated
@@ -334,7 +345,7 @@ type Agreement:
   condition: one-of
 ```
 
-## Counterparty
+### Counterparty
 
 Each counterparty to the agreement is assigned an enumerated value of
 either `Party1` or `Party2` through the association of a
@@ -355,157 +366,126 @@ type Counterparty:
    [metadata reference]
 ```
 
-The modelling approach for elective provisions is explained in further
-detail in the corresponding section below.
+The modelling approach for elective provisions and the master agreement schedule
+are explained in further detail in the corresponding sections below.
 
-# Elective Provisions
+## Election Provisions
 
-This section describes the modelling approach and data structure for
-election provisions, which are the detailed terms of agreement in each
-legal document. The section concludes with relevant examples to
-illustrate the approach and structure.
+Election provisions are the detailed terms of agreement for specific legal
+documents. 
 
-## Modelling Approach
+In many cases the pre-printed clauses in legal agreement templates offer 
+pre-defined elections that the parties can select. In these cases, the clauses 
+are explicitly identified in the agreement templates, including the potential 
+values for each election (e.g. an election from a list of options or a specific 
+type of information such as an amount, date or city). 
 
-In many cases the pre-printed clauses in legal agreement templates for
-OTC Derivatives offer pre-defined elections that the parties can select.
-In these cases, the clauses are explicitly identified in the agreement
-templates, including the potential values for each election (e.g. an
-election from a list of options or a specific type of information such
-as an amount, date or city). The design of the elective provisions in
-the CDM to represent these instances is a direct reflection of the
-choices in the clause and uses boolean attributes or enumeration lists
-to achieve the necessary outcome.
+Due to the domain and document specific nature of election provisions, the
+clauses and applicable values are currently not included in the CDM. However, 
+there are extensions to the CDM available that can provide declarative types for
+specific documents.
 
-However, in some cases, the agreement template may identify a clause but
-not all the applicable values, e.g. when a single version of a clause
-term is provided with a space for parties to agree on a term that is not
-defined in the template. In order to support these instances, the CDM
-uses string attributes to capture the clause in a free text format.
+For example, the ISDA Foundations model - which is available to all ISDA members
+upon request - can be used to represent the ISDA Credit Support Annexes. To gain
+access to ISDA Foundations please send an email to: <cdminfo@isda.org>
 
-## Election Structure
+## Master Agreement Schedule
 
-For ease of reference, the structure of the elections contained within
-each agreement data type in the CDM are modelled to reflect the
-structure of the legal agreements that they represent. Each data type
-contains a set of elections or election families which can be used to
-represent the clauses contained within the corresponding legal
-agreement, regardless of vintage or governing law.
+Legal documentation is required to describe the contract between parties on 
+every transaction. The structures under the `MasterAgreementSchedule` have been
+created to be domain agnostic, and generic enough to describe any industry 
+standard or bespoke master agreement. 
 
-This approach allows the representation of elections in the CDM to focus
-on their intended business outcome in order to better support the
-standardisation of related business processes.
+The types and datapoints that have been defined are loosely based upon the use 
+of a Clause Library. A Clause Library extracts the business outcomes from a 
+legal document and allows them to be expressed without having to include the 
+actual legal text or terminology from the agreement within the CDM itself.  
 
-For example, `CreditSupportAgreementElections` , which is one of the
-four agreement types, contains all the elections that may be applicable
-to a credit support agreement and can be used to define any of the
-Initial Margin or Variation Margin Credit Support Agreements supported
-by the CDM:
+The CDM supports the representation of legal agreement clauses with their 
+associated election criteria. These additional criteria include clause variants 
+and any variables that are required to define the elections agreed upon for that
+clause.
 
--   ISDA 2016 Phase One Credit Support Annex ("CSA") for Initial Margin
-    ("IM") (Security Interest -- New York Law)
--   ISDA 2016 Phase One Credit Support Deed ("CSD") for IM (Security
-    Interest -- English Law)
--   ISDA 2016 Phase One CSA for IM (Loan -- Japanese Law)
--   ISDA 2018 CSA for IM (Security Interest -- New York Law)
--   ISDA 2018 CSD for IM (Security Interest -- English Law)
--   ISDA 2016 CSA for Variation Margin ("VM") (Security Interest - New
-    York Law)
--   ISDA 2016 CSA for VM (Title Transfer -- English Law)
--   ISDA 2016 CSA for VM (Loan -- Japanese Law)
--   ISDA 2016 CSA for VM (Title Transfer -- Irish Law)
--   ISDA 2016 CSA for VM (Title Transfer -- French Law)
+The model uses clause and variant identifiers to reference textual data that is 
+held outside of the model itself. The identifiers themselves can be defined by 
+the publisher of a legal document.
+
+### Clause
+
+The `MasterAgreementSchedule` is where the details of the master agreement are 
+defined. This is made up of a list of the clauses that make up that agreement. 
+Each clause must have at least one variant associated to it.
 
 ``` Haskell
-condition AgreementVerification:
-  if agreementTerms -> agreement -> securityAgreementElections exists
-  then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum->SecurityAgreement
+type MasterAgreementSchedule:
+	clause MasterAgreementClause (1..*)
 ```
 
-The validation in this case requires that if the
-`securityAgreementElections` attribute is populated, then the value in
-`LegalAgreementNameEnum` must be `SecurityAgreement` .
-
-Selected examples from two of the agreement data types are explained in
-the following sections to illustrate the overall approach.
-
-The development of a digital data standard for representation of
-eligible collateral schedules is a crucial component required to drive
-digital negotiation, straight through processing, and digitisation of
-collateral management. The standard representation provided within the
-CDM allows institutions involved in the collateral workflow cycle to
-exchange eligible collateral information accurately and efficiently in
-digital form. The `EligibleCollateral` data type is a root type with one
-attribute, as shown below:
+The `clause` allows a list of clauses to be represented, with each element in 
+the list representing a single clause in the agreement. Each clause has the 
+following data that can be defined for it.
 
 ``` Haskell
-type EligibleCollateralSpecification:
-   [rootType]
-   [metadata key]
-   identifier Identifier (0..*)
-   criteria EligibleCollateralCriteria (1..*)
+type MasterAgreementClause:
+	identifer MasterAgreementClauseIdentifierEnum (1..1)
+    name string (0..1)
+    counterparty CounterpartyRoleEnum (0..2) 
+    otherParty PartyRoleEnum (0..*) 
+    variant MasterAgreementClauseVariant (1..*)
 ```
 
-The `EligibleCollateralCriteria` data type contains the following key
-components to allow the digital representation of the detailed criteria
-reflected in the legal agreement:
+---
+**Note:**
+Currently the clause identifers are presented as an enumerated list. This is to
+give the publisher of a master agreement a level of control over the clause
+defintion in the model. A more flexible approach to how clauses can be identifed
+will be introduced in a future enhancement to this area.
 
-1.  **Collateral Issuer Criteria** specifies criteria that the issuer of
-    an asset (if any) must meet when defining collateral eligibility for
-    that asset.
-2.  **Collateral Product Criteria** specifies criteria that the product
-    must meet when defining collateral eligibility.
-3.  **Collateral Treatment** specifies criteria for the treatment of
-    collateral assets, including whether the asset is identified as
-    eligible or ineligible, and treatment when posted.
+---
 
-The following code snippets represent these three components of the
-eligible collateral model. These components are assembled under the
-`EligibleCollateralCriteria` data type, which is contained within the
-`postingObligationElection` component of the credit support agreement
-elections described above.
+### Variant
+
+The `variant` type is held under a `clause` and contains the elections defined 
+for the variant that has been selected for this clause. Note that it is also 
+possible that a clause can reference multiple variants.
 
 ``` Haskell
-type EligibleCollateralCriteria extends CollateralCriteriaBase:
-   treatment CollateralTreatment (1..1)
+type MasterAgreementClauseVariant: 
+    identifier MasterAgreementVariantIdentifierEnum (1..1) 
+    name string (0..1) 
+    counterparty CounterpartyRoleEnum (0..2) 
+    otherParty PartyRoleEnum (0..*) 
+    variableSet MasterAgreementVariableSet (0..*)
 ```
 
-``` Haskell
-type CollateralCriteriaBase:
-   issuer IssuerCriteria (0..*)
-   asset AssetCriteria (0..*)
-```
+---
+**Note:**
+Variant identifiers are presented using an enumerated list, in the same way that 
+clause identifers are defined. This allows the publisher of a document to 
+associate variants to a clause. This approach will also be revisited in a future
+enhancement.
+
+---
+
+### Variables
+
+Variables are additional data required to define the criteria of an election. 
+These can be defined in the `variableSet` element of a `variant`.
+
+Variables are presented as a `name`/`value` pair, where the name of the variable
+and its value can be set. Note that variable names should match the names as 
+defined in the agreement documentation or Clause Library that represents that 
+agreement.
 
 ``` Haskell
-type IssuerCriteria:
-  issuerType CollateralIssuerType (0..*)
-  issuerCountryOfOrigin string (0..*)
-    [metadata scheme]
-  issuerName LegalEntity (0..*)
-  issuerAgencyRating AgencyRatingCriteria (0..*)
-  sovereignAgencyRating AgencyRatingCriteria (0..*)
-  counterpartyOwnIssuePermitted boolean (0..1)
+type MasterAgreementVariableSet: 
+    variableSet MasterAgreementVariableSet (0..*) 
+    name string (0..1) 
+    value string (0..1) 
 ```
 
-``` Haskell
-type AssetCriteria:
-  collateralAssetType AssetType (0..*)
-  assetCountryOfOrigin string (0..*)
-    [metadata scheme]
-  denominatedCurrency string (0..*)
-    [metadata scheme]
-  agencyRating AgencyRatingCriteria (0..*)
-  maturityType MaturityTypeEnum (0..1)
-  maturityRange PeriodRange (0..1)
-  productIdentifier ProductIdentifier (0..*)
-  collateralTaxonomy CollateralTaxonomy (0..*)
-  domesticCurrencyIssued boolean (0..1)
-  listing ListingType (0..1)
-```
-
-``` Haskell
-type CollateralTreatment:
-  valuationTreatment CollateralValuationTreatment (0..1)
-  concentrationLimit ConcentrationLimit (0..*)
-  isIncluded boolean (1..1)
-```
+The `MasterAgreementVariableSet` also includes a reference to itself. This 
+allows tables of values rather than just single values to be entered for a 
+clause variant. To prevent anything deeper than a table of data to be 
+represented (i.e. columns and rows) a condition has been added to only allow two
+levels of nesting.

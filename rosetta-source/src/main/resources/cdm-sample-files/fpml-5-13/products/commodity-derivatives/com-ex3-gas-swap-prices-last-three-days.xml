@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-13-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+   == Copyright (c) 2022-2023 All rights reserved.
+   == Financial Products Markup Language is subject to the FpML public license.
+   == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<dataDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.fpml.org/FpML-5/confirmation" fpmlVersion="5-13" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation /schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd">
+    <trade>
+        <tradeHeader>
+            <partyTradeIdentifier>
+                <partyReference href="partyA"/>
+                <tradeId tradeIdScheme="http://www.PartyA.com/com-trade-id">1234</tradeId>
+            </partyTradeIdentifier>
+            <partyTradeIdentifier>
+                <partyReference href="partyB"/>
+                <tradeId tradeIdScheme="http://www.PartyB.com/com-trade-id">2345</tradeId>
+            </partyTradeIdentifier>
+            <tradeDate>2006-08-24</tradeDate>
+        </tradeHeader>
+        <commoditySwap>
+            <effectiveDate>
+                <adjustableDate>
+                    <unadjustedDate>2009-01-01</unadjustedDate>
+                    <dateAdjustments>
+                        <businessDayConvention>NotApplicable</businessDayConvention>
+                    </dateAdjustments>
+                </adjustableDate>
+            </effectiveDate>
+            <terminationDate>
+                <adjustableDate>
+                    <unadjustedDate>2009-12-31</unadjustedDate>
+                    <dateAdjustments>
+                        <businessDayConvention>NotApplicable</businessDayConvention>
+                    </dateAdjustments>
+                </adjustableDate>
+            </terminationDate>
+            <settlementCurrency>USD</settlementCurrency>
+            <fixedLeg>
+                <payerPartyReference href="partyA"/>
+                <receiverPartyReference href="partyB"/>
+                <calculationPeriodsScheduleReference href="floatingLegCalculationPeriods"/>
+                <fixedPrice>
+                    <price>9.64</price>
+                    <priceCurrency>USD</priceCurrency>
+                    <priceUnit>MMBTU</priceUnit>
+                </fixedPrice>
+                <notionalQuantity>
+                    <quantityUnit>USMMBTU</quantityUnit>
+                    <quantityFrequency>PerCalendarDay</quantityFrequency>
+                    <quantity>5000.0</quantity>
+                </notionalQuantity>
+                <totalNotionalQuantity>1825000.0</totalNotionalQuantity>
+                <relativePaymentDates>
+                    <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                    <calculationPeriodsScheduleReference href="floatingLegCalculationPeriods"/>
+                    <paymentDaysOffset>
+                        <periodMultiplier>5</periodMultiplier>
+                        <period>D</period>
+                        <dayType>Business</dayType>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </paymentDaysOffset>
+                    <businessCenters>
+                        <businessCenter>USNY</businessCenter>
+                    </businessCenters>
+                </relativePaymentDates>
+            </fixedLeg>
+            <floatingLeg>
+                <payerPartyReference href="partyB"/>
+                <receiverPartyReference href="partyA"/>
+                <calculationPeriodsSchedule id="floatingLegCalculationPeriods">
+                    <periodMultiplier>1</periodMultiplier>
+                    <period>M</period>
+                    <balanceOfFirstPeriod>false</balanceOfFirstPeriod>
+                </calculationPeriodsSchedule>
+                <commodity>
+                    <!-- Attention: Updated the Coding Scheme Location. Should the CFTC coding scheme value be here? -->
+                    <!-- PCS:  No.  I definitely do not think it should -->
+                    <instrumentId instrumentIdScheme="http://www.partyA.com/instrumentId/commodity-reference-price">NATURAL GAS-HENRY HUB-NYMEX</instrumentId>
+                    <specifiedPrice>Settlement</specifiedPrice>
+                    <deliveryDates>FirstNearby</deliveryDates>
+                    <!-- Attention: Should have a delivery roll date convention -->
+                    <!-- PCS:  I disagree.  The confirmation does not specify so believe the default is that it rolls the last day of the contract -->
+                </commodity>
+                <notionalQuantity>
+                    <quantityUnit>USMMBTU</quantityUnit>
+                    <quantityFrequency>PerCalendarDay</quantityFrequency>
+                    <quantity>5000.0</quantity>
+                </notionalQuantity>
+                <totalNotionalQuantity>182500.0</totalNotionalQuantity>
+                <calculation>
+                    <pricingDates>
+                        <calculationPeriodsScheduleReference href="floatingLegCalculationPeriods"/>
+                        <dayType>CommodityBusiness</dayType>
+                        <dayDistribution>Last</dayDistribution>
+                        <dayCount>3</dayCount>
+                        <businessCalendar>NYMEX-NATURAL-GAS</businessCalendar>
+                    </pricingDates>
+                    <averagingMethod>Unweighted</averagingMethod>
+                </calculation>
+                <relativePaymentDates>
+                    <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                    <calculationPeriodsScheduleReference href="floatingLegCalculationPeriods"/>
+                    <paymentDaysOffset>
+                        <periodMultiplier>5</periodMultiplier>
+                        <period>D</period>
+                        <dayType>Business</dayType>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </paymentDaysOffset>
+                    <businessCenters>
+                        <businessCenter>USNY</businessCenter>
+                    </businessCenters>
+                </relativePaymentDates>
+            </floatingLeg>
+            <marketDisruption>
+                <marketDisruptionEvents>AsSpecifiedInMasterAgreement</marketDisruptionEvents>
+                <disruptionFallbacks>AsSpecifiedInMasterAgreement</disruptionFallbacks>
+            </marketDisruption>
+        </commoditySwap>
+        <documentation>
+            <masterAgreement>
+                <masterAgreementType>ISDA</masterAgreementType>
+            </masterAgreement>
+            <contractualDefinitions>ISDA2005Commodity</contractualDefinitions>
+        </documentation>
+    </trade>
+    <party id="partyA">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300KFSLY4U7N3LL12</partyId>
+        <partyName>Bank</partyName>
+    </party>
+    <party id="partyB">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300AJRHKBLY9GM262</partyId>
+        <partyName>Energy Co.</partyName>
+    </party>
+</dataDocument>
+

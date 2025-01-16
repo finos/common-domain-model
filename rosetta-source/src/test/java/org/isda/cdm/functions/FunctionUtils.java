@@ -22,10 +22,10 @@ public class FunctionUtils {
 
     public static ExecutionInstruction createExecutionInstructionFromTradeState(TradeState tradeState) {
         return ExecutionInstruction.builder()
-                .setProduct(tradeState.getTrade().getTradableProduct().getProduct())
-                .setPriceQuantity(guard(tradeState.getTrade().getTradableProduct().getTradeLot()).stream().map(t -> guard(t.getPriceQuantity())).flatMap(Collection::stream).collect(Collectors.toList()))
-                .addCounterparty(guard(tradeState.getTrade().getTradableProduct().getCounterparty()))
-                .addAncillaryParty(guard(tradeState.getTrade().getTradableProduct().getAncillaryParty()))
+                .setProduct(tradeState.getTrade().getProduct())
+                .setPriceQuantity(guard(tradeState.getTrade().getTradeLot()).stream().map(t -> guard(t.getPriceQuantity())).flatMap(Collection::stream).collect(Collectors.toList()))
+                .addCounterparty(guard(tradeState.getTrade().getCounterparty()))
+                .addAncillaryParty(guard(tradeState.getTrade().getAncillaryParty()))
                 .addParties(guard(tradeState.getTrade().getParty()))
                 .addPartyRoles(guard(tradeState.getTrade().getPartyRole()))
                 .setTradeDateValue(Optional.ofNullable(tradeState.getTrade().getTradeDate()).map(FieldWithMetaDate::getValue).orElse(null))

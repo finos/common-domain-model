@@ -19,11 +19,26 @@ func ResolveAdjustableDates:
     output:
         adjustedDates date (0..*)
 
-func ToDateTime:
+func ToDateTime: <"Creates a ZonedDateTime from the provided Date, and defaults the time to 00:00:00 and timezone to UTC.">
     inputs:
-        date date (1..1)
+        date date (0..1)
     output:
-        datetime zonedDateTime (1..1)
+        zonedDateTime zonedDateTime (0..1)
+
+    set zonedDateTime:
+        zonedDateTime {
+            date: date,
+            time: ToTime(0, 0, 0),
+            timezone: "Z" // UTC
+        }
+
+func ToTime: <"Implemented by Java function.">
+    inputs:
+        hours int (1..1)
+        minutes int (1..1)
+        seconds int (1..1)
+    output:
+        time time (1..1)
 
 func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
     inputs:

@@ -5,11 +5,8 @@ import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.staticdata.party.*
 import cdm.base.staticdata.asset.rates.*
-
 import cdm.event.common.*
-
 import cdm.observable.asset.*
-
 import cdm.product.asset.*
 import cdm.product.template.*
 import cdm.product.common.schedule.*
@@ -27,7 +24,11 @@ synonym source ORE_1_0_39 extends ORE
         + tradeIdentifier
         + party
             [value "Envelope" path "Trade"]
-        + tradableProduct
+        + product
+            [value "SwapData" path "Trade"]
+        + tradeLot
+            [value "Trade"]
+        + counterparty
             [value "Trade" mapper "ORECounterparty"]
         + party
             [value "Envelope" path "Trade"]
@@ -40,7 +41,7 @@ synonym source ORE_1_0_39 extends ORE
         + partyReference
             [value "Envelope"]
         + role
-            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct -> counterparty]
+            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> counterparty]
 
     PriceSchedule:
         + value
@@ -74,14 +75,24 @@ synonym source ORE_1_0_39 extends ORE
         + datedValue
             [value "step"]
 
-    Product:
-        + contractualProduct
-            [value "SwapData"]
-
     Payout:
-        + interestRatePayout
+        + InterestRatePayout
             [value "LegData"]
             [value "LegData"]
+        + CreditDefaultPayout
+            [value "ignore"]
+        + OptionPayout
+            [value "ignore"]
+        + CommodityPayout
+            [value "ignore"]
+        + SettlementPayout
+            [value "ignore"]
+        + FixedPricePayout
+            [value "ignore"]
+        + PerformancePayout
+            [value "ignore"]
+        + AssetPayout
+            [value "ignore"]
 
     InterestRatePayout:
         + priceQuantity
@@ -114,16 +125,16 @@ synonym source ORE_1_0_39 extends ORE
         + unadjustedDate
             [value "StartDate"]
 
-    FloatingRateOption:
+    FloatingRateIndex:
         + floatingRateIndex
             [value "Index" maps 2]
 
     RateSpecification:
-        + fixedRate
+        + FixedRateSpecification
             [value "FixedLegData"]
-        + floatingRate
+        + FloatingRateSpecification
             [value "FloatingLegData"]
-        + inflationRate
+        + InflationRateSpecification
             [value "ignore"]
 
     FixedRateSpecification:
@@ -161,6 +172,10 @@ synonym source ORE_1_0_39 extends ORE
 
     SettlementTerms:
         + settlementProvision
+            [value "ignore"]
+
+    Basket:
+        + basketConstituent
             [value "ignore"]
 
     enums

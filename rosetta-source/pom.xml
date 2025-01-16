@@ -742,7 +742,7 @@
                                             <version>${rosetta.code-gen.version}</version>
                                             <type>jar</type>
                                             <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
-                                            <includes>runtime/rosetta_runtime-1.0.0-py3-none-any.whl</includes>
+                                            <includes>runtime/rosetta_runtime-2.1.0-py3-none-any.whl</includes>
                                         </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>false</overWriteReleases>
@@ -785,6 +785,44 @@
                                                 <outputConfiguration>
                                                     <name>SRC_GEN_EXCEL_OUTPUT</name>
                                                     <outputDirectory>src/generated/excel</outputDirectory>
+                                                </outputConfiguration>
+                                            </outputConfigurations>
+                                        </language>
+                                    </languages>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>json-schema</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>rosetta-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-json-schema-src</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceRoots>
+                                        <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
+                                    </sourceRoots>
+                                    <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <languages>
+                                        <language>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
+                                            <outputConfigurations>
+                                                <!-- json-schema output folder -->
+                                                <outputConfiguration>
+                                                    <name>SRC_GEN_JSONSCHEMA_OUTPUT</name>
+                                                    <outputDirectory>src/generated/jsonschema</outputDirectory>
                                                 </outputConfiguration>
                                             </outputConfigurations>
                                         </language>
@@ -1014,10 +1052,6 @@
         <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.regnosys.rosetta</groupId>
-            <artifactId>com.regnosys.rosetta.blueprint.lib</artifactId>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>

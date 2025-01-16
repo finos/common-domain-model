@@ -18,9 +18,17 @@ function Home() {
       description={`${siteConfig.tagline}`}>
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
-          <img className={styles.featureImage} src='img/cdm-logo/Horizontal/2022_CDM_Horizontal.svg' alt='Common Domain Model Logo' />
+          <img className={styles.featureImage} src='img/cdm-logo/Horizontal/2022_CDM_Horizontal_WHT.svg' alt='Common Domain Model Logo' />
           <div className={styles.buttons}>
             <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
+              to={'/docs/training'}>
+              Introduction Training
+           </Link>     
+           <Link
               className={classnames(
                 'button button--outline button--secondary button--lg',
                 styles.getStarted

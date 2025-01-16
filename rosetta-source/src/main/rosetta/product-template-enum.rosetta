@@ -1,17 +1,22 @@
 namespace cdm.product.template : <"Template feature concepts to define payouts.">
 version "${project.version}"
 
+import cdm.base.staticdata.asset.common.*
+
 enum AveragingInOutEnum: <"The enumerated values to specify the type of averaging used in an Asian option.">
     In <"The average price is used to derive the strike price. Also known as 'Asian strike' style option.">
     Out <"The average price is used to derive the expiration price. Also known as 'Asian price' style option.">
     Both <"The average price is used to derive both the strike and the expiration price.">
 
-enum OptionTypeEnum: <"The enumerated values to specify the type of the option. In FpML, OptionTypeEnum is a union with PutCallEnum, which specifies whether the option is a put or a call.">
-    Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
-    Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+enum OptionTypeEnum extends PutCallEnum: <"The enumerated values to specify the type or strategy of the option.">
     Payer <"A 'payer' option: If you buy a 'payer' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price payer and receive float.">
     Receiver <"A 'receiver' option: If you buy a 'receiver' option you have the right but not the obligation to enter into the underlying swap transaction as the 'fixed' rate/price receiver and pay float.">
     Straddle <"A straddle strategy, which involves the simultaneous buying of a put and a call of the same underlier, at the same strike and same expiration date">
+
+enum OptionExerciseStyleEnum: <"The enumerated values to specify the option exercise style. i.e., European, Bermuda or American.">
+    European <"Single Exercise">
+    Bermuda <"Multiple specified exercise dates">
+    American <"Continuous exercise over a range of dates">
 
 enum CallingPartyEnum: <"Identifies a party to the on-demand repo transaction that has a right to demand for termination of the Security Finance transaction.">
     InitialBuyer <"Initial buyer to the repo transaction.">
@@ -35,11 +40,9 @@ enum RepoDurationEnum: <"A duration code for a Repo (or Securities Lending) tran
     Overnight <"Indicates that a contract is classified as overnight, meaning that there is one business day difference between the start and end date of the contract. Business rule: When the repo is overnight, the number of business days between the spot and forward value dates must be one. Forward leg must be specified.">
     Term <"Indicates that a contract is a regular term contract, with a start date and an end date. Business rule: When the repo is 'Term', both spot and forward legs must be specified.">
 
-enum DurationTypeEnum: <"Specifies the duration type of the Security Lending transaction. e.g. Open or Term.">
-    // [deprecated]
-    Term <"Specifies a trade with a termination date.">
-    Open <"Specifies a trade with no termination date.">
-    Evergreen <"Specifies a trade where the term date is extended by a pre-determined period until a notice is serviced. Once the notice is served, the trade will not be reset again and goes to term.">
+enum AssetPayoutTradeTypeEnum: <"An enumerator to differentiate the different trade types used in securities finance and modelled on an AssetPayout.">
+    Repo <"In the case of a repurchase transaction, an immediate and equal income payment (often call a manufactured payment) is made by the buyer to the seller.">
+    BuySellBack displayName "Buy/Sell-Back" <"In the case of a buy/sell-back, there is no income payment between buyer and seller. Instead, the repurchase price to be paid on the repurchase date is reduced by the amount of the income payment on the collateral plus some extra interest to compensate the seller for the delay between the income payment date on the collateral and the repurchase date of the repo.">
 
 enum ExpirationTimeTypeEnum: <"The time of day at which the equity option expires, for example the official closing time of the exchange."> // OPTION GENERAL
     Close <"The official closing time of the exchange on the valuation date.">

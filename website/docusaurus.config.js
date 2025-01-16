@@ -33,11 +33,18 @@ module.exports = {
       },
       items: [
         {to: 'docs/home', label: 'Docs', position: 'right'},
+        {to: 'docs/cdm-materials', label: 'CDM Resources', position: 'right'},
+        {to: 'docs/get-involved', label: 'Get Involved', position: 'right'},
         {
           href: 'https://github.com/finos/common-domain-model',
           label: 'GitHub',
           position: 'right',
-        }
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'left',
+          dropdownActiveClassDisabled: true,
+        },
       ],
     },
     footer: {
@@ -53,19 +60,23 @@ module.exports = {
           items: [
             {
               label: 'Contribution Review Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Contribution-Review-WG',
             },
             {
               label: 'Collateral Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Collateral-WG',
+            },
+            {
+              label: 'Derivatives Product and Business Event Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Derivatives-Product-and-Business-Event-WG',
             },
             {
               label: 'Technology Architecture Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Technology-Architecture-WG',
             },
             {
               label: 'Structured Products Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Structured-Products-WG',
             }
           ]
         },
@@ -74,7 +85,7 @@ module.exports = {
           items: [
             {
               label: 'FINOS CDM Steering Working Group',
-              href: 'https://github.com/finos/common-domain-model#active-working-groups',
+              href: 'https://cdm.finos.org/docs/CDM-Steering-WG',
             },
             {
               label: 'ISLA CDM Working Group (Securities Lending)',
@@ -95,15 +106,21 @@ module.exports = {
           items: [
             {
               label: 'CDM GitHub Repo',
-              href: 'https://www.finos.org/common-domain-model',
+              href: 'https://github.com/finos/common-domain-model',
             },
             {
               label: 'Releases',
               href: 'https://github.com/finos/common-domain-model/releases',
             },
             {
-              label: 'FAQ',
-              href: 'https://github.com/finos/common-domain-model/issues/2058',
+              label: 'What Is The CDM?',
+              to: '/pdfs/Why-CDM.pdf',
+              target: '_blank'
+            },
+            {
+              label: 'Frequently Asked Questions',
+              to: '/pdfs/FAQ-CDM.pdf',
+              target: '_blank'
             },
             {
               label: 'CDM Java Distribution Guidelines',

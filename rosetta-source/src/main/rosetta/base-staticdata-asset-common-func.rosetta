@@ -1,0 +1,33 @@
+namespace cdm.base.staticdata.asset.common
+version "${project.version}"
+
+func AssetIdentifierByType: <"Returns all the Asset Identifiers of a certain Identifier Type.">
+    inputs:
+        identifiers AssetIdentifier (0..*)
+        idType AssetIdTypeEnum (1..1)
+    output:
+        filteredIdentifier AssetIdentifier (0..*)
+
+    add filteredIdentifier: identifiers filter item -> identifierType = idType
+
+func GetCashCurrency: <"Returns the enumerated Currency Code of a Cash asset.">
+    inputs:
+        cash Cash (1..1)
+    output:
+        currencyEnum CurrencyCodeEnum (1..1)
+
+    alias cashId: AssetIdentifierByType(cash -> identifier, AssetIdTypeEnum -> CurrencyCode)
+    set currencyEnum: cashId -> identifier first to-enum CurrencyCodeEnum
+
+func SetCashCurrency: <"Sets (or updates) the string identifier of a Cash asset using an enumerated Currency Code.">
+    inputs:
+        cash Cash (0..1)
+        currency CurrencyCodeEnum (1..1)
+    output:
+        cashOutput Cash (1..1)
+
+    set cashOutput -> identifier:
+        AssetIdentifier {
+            identifier: currency to-string,
+            identifierType: AssetIdTypeEnum -> CurrencyCode
+        }
