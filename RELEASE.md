@@ -82,3 +82,39 @@ _Review Directions_
 Please inspect the changes identified above for the functions and conditions in the Textual Viewer of the Rosetta platform.
 
 The changes can also be reviewed in PR: [#3295](https://github.com/finos/common-domain-model/pull/3295).
+
+
+# _CDM Model - TaxonomySourceEnum_
+
+_Background_
+A DRR issue has been identified where reporting the Underlying CO values was not supported for MAS. To address this, we proposed replicating the reporting logic used for BaseProduct and SubProduct in EMIR. In CDM, this involves adding "MAS" as a value to the TaxonomySourceEnum, since the TaxonomySource in CDM determines the jurisdiction based on the commodityClassificationScheme being used. So the "MAS" value will be added in the TaxonomySourceEnum.
+
+_What is being released?_
+
+- Updated `TaxonomySourceEnum` in cdm.base.staticdata.asset.common:enum
+
+_Enumerations_
+
+- Updated `TaxonomySourceEnum` by adding MAS to support Monetary Authority of Singapore (MAS) as a taxonomy source.
+
+_Review directions_
+
+In Rosetta, select the Textual Browser and inspect each of the changes identified above.
+
+The changes can be reviewed in PR: [#3265](https://github.com/finos/common-domain-model/pull/3265)
+
+# _Infrastructure - Dependency Update_
+
+_What is being released?_
+
+This release updates the DSL dependency.
+
+Version updates include:
+- DSL 9.24.0: add a feature to override attributes in extended types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.24.0
+- DSL 9.25.0: improve type errors and cardinality errors. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.25.0
+- DSL 9.27.0: addresses a bug where the `switch` operator could sometimes break the model. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.27.0
+- DSL 9.28.2: addresses a Fatal error when reporting rule is not given a name and addition of new transform annotations . For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.28.2
+
+_Review directions_
+
+The changes can be reviewed in PR: [#3316](https://github.com/finos/common-domain-model/pull/3316)
