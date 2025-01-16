@@ -486,13 +486,29 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
         if basketPercentage exists
         then basketPercentage >= 0.0 and basketPercentage <= 1.0
 
-type ForwardPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
-    [metadata key]
+type ForwardPayout extends PayoutBase: <"Represents a forward settling payout.">
+  [metadata key]
 
+    fixedPrice PriceSchedule (0..1) < "The forward price.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    initialValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    interimValuationPrice PriceSchedule (0..*) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+        [metadata address "pointsTo"=PriceQuantity->price]
+    finalValuationPrice PriceSchedule (0..*) <"Specifies the final valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+        [metadata address "pointsTo"=PriceQuantity->price]
     underlier Product (1..1) <"Underlying product that the forward is written on, which can be of any type: FX, a contractual product, a security, etc.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    observationTerms ObservationTerms (0..1)
+    valuationTerms ValuationDates (0..1)
+
+    condition FixedPrice: <"The fixed price is either represented at Payout level, else in PayoutBase, but cannot be represented in both place which might result in duplicated or inconsistent representation."> 
+        // Remark about drafting syntax as an indication the logical condition we want to express is actually equivalent to an optional choice, which should ideally be drafted "optional choice: fixedPrice, priceQuantity->priceSchedule" but such direct syntax is nto currently permitted by Rune processor, hence the way we drafted it
+        if fixedPrice exists then priceQuantity->priceSchedule is absent
+        else priceQuantity->priceSchedule exists
+
 
     condition SettlementTerms: <"For foreign exchange contracts, the settlement terms must exist.">
         if underlier -> foreignExchange exists
@@ -774,9 +790,11 @@ type TerminationProvision: <"A class for defining option provisions.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
     extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
+    autocallableProvision AutocallableProvision (0..1) <"Specifies that the existence of the Trade is contigent i.e. the Trade exists unless an embedded Knock-Out condition is activated, that resulting in the Trade being early terminated.">
+    callableProvision CallableProvision (0..1) <"Describes the conditions according to which a party has a right to call the whole Trade, meaning such party may optionally decide to early terminate the Trade.">
 
-    condition TerminationProvisionChoice:
-        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
+  condition TerminationProvisionChoice:
+    required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
 
 type OptionStrike: <"Defines the strike price of an option.">
 
@@ -1009,3 +1027,36 @@ type EvergreenProvision: <"Specifies a transaction which automatically extends f
     noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
     extensionFrequency AdjustableRelativeOrPeriodicDates (1..1) <"The frequency with which the evergreen contract will be extended if notice is not given.">
     finalPeriodFeeAdjustment Price (0..1) <"An optional adjustment to the rate for the last period of the evergreen i.e. the period from when notice is given to stop rolling the contract through to the termination date.">
+
+type CallableProvision: <"Describes the conditions according to which a party has a right to call the whole Trade, meaning such party may optionally decide to early terminate the Trade.">
+
+  earlyRedemptionTerminationDate SettlementDate (1..1) <"The dates on which the Trade and any further parties obligations shall be settled, upon the occurrence of an Early Redemption.">
+  earlyRedemptionPayoutAmount SettlementOrigin (0..*) <"Represents a reference to a Payout Amount that is payable when Early Redemption has occured.">
+  earlyRedemptionPrincipalAmount PrincipalPayment (0..1) <"Represents a Principal Payment that is payable when Early Redemption has occured.">
+  callExerciseObservationDate ObservationDates (1..1) <"The dates on which a party with the right to call may decide to exercise such right.">
+  whoHasRightToCall CounterpartyRoleEnum (1..2) <"The party who has the right to exercise the callable feature ; either one only or both counterparties may has such right">
+  callExerciseNoticeTime TimePeriod (0..1) <"Permits to define time period for the party with a right to call to notify to the counterparty the exercise of such right ; for clarity, the startDate and endDate defined in this provision respectively corresponds to the earliest time and latest time.">
+  callExerciseNoticePeriod RelativeDateOffset (0..1) <"Permits to define the date offset for the party with a right to call to notify to the counterparty the exercise of such right ; for clarity, the offset date defined in this provision corresponds to the latest date for sending notice.">
+  maximumCallableNotionalAmount QuantitySchedule (0..1) <"The maximum notional amount that can be exercised on a given exercise date.">
+    [metadata address]
+  minimumCallableNotionalAmount QuantitySchedule (0..1) <"The minimum notional amount that can be exercised on a given exercise date.">
+    [metadata address]
+  callExerciseFee ExerciseFeeSchedule (0..1) <"The fees associated with an exercise date. The fees are conditional on the exercise occurring. The fees can be specified as actual currency amounts or as percentages of the notional amount being exercised.">
+  bespokeName string (0..1) <"Any bespoke name or description that may be specified.">
+
+type AutocallableProvision extends Trigger:  // Trigger needs refactoring -> see KnockCondition object, more generic, designed by Struct Product Group
+<"Specifies that the existence of the Trade is contigent i.e. the Trade exists unless an embedded Knock-Out condition is activated, that resulting in the Trade being early terminated - which terminate the obligations describes in any terms of the trade on the early termination date, unless some particular guarenteed terms are specified for the puporse of having effects notwithstanding ealry termination event."> 
+
+  earlyRedemptionTerminationDate SettlementDate (1..1) <"The dates on which the Trade and any further parties obligations shall be settled, upon the occurrence of an Early Redemption.">
+  earlyRedemptionPayoutAmount SettlementOrigin (0..*) <"Indicate via reference which Payout, if any, is payable upon the occurrence of an Early Redemption. For clarity, if no earlyRedemptionPayoutAmount is defined, the, this means the Trade would early terminate and settled with no payment being made between the parties.">
+  earlyRedemptionPrincipalAmount PrincipalPayment (0..1) <"Represents a Principal Payment that is payable upon the occurrence of an Early Redemption.">
+  guaranteedTerms GuaranteedTerms (0..*) <"Represent a reference to any terms for which a restriction exists to the effect of early termination provision i.e. this component permits to list any terms which shall remain in effect notwithstanding occurrence of an early termination event.">
+
+  bespokeName string (0..1) <"Any bespoke name or description that may be specified.">
+
+type GuaranteedTerms:<"Represent a reference to any terms for which a restriction exists to the effect of early termination provision. The description of the restriction itself is given by context i.e. depends on the description of the component that is precisely being referenced. That is to say GuaranteedTerms is a generic type where to defined any specific type of restriction, which content will vay in accordance with the item being referenced."> 
+
+// as an indication, today only one business case was raised, but the type is defined in generic manner, so that the list of attributes can be extended as need be with no backward compatibility issues whenever other use cases would be raised. //
+
+  guaranteedCumulationPeriod ObservationPeriodSchedule (0..*)
+  [metadata reference]

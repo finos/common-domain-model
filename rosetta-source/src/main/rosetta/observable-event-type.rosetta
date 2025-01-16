@@ -10,8 +10,9 @@ import cdm.observable.common.*
 
 type Trigger: <"Trigger point at which feature is effective.">
 
-    level number (0..1) <"The trigger level.">
-    levelPercentage number (0..1) <"The trigger level percentage.">
+    level PriceSchedule (0..2) <"The trigger level.">
+    [metadata address]
+    compositeTrigger string (0..1) <"The observable to compare to the trigger is not straight value but consists in specific calculation e.g. worst of performance, a number of time an event has occurred, a sum of calculated amount (this last one is often designated in termsheet with the word 'target'), etc."> // this component is temporary workaround to capture composite value - final design is already finalized in Fragmos WS BespokePayoutFormula, which notably contains a refactoring of the Trigger type.
     creditEvents CreditEvents (0..1)
     creditEventsReference CreditEvents (0..1)
         [metadata reference]
@@ -19,7 +20,21 @@ type Trigger: <"Trigger point at which feature is effective.">
     triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
 
     condition Choice1: <" Choice rule to represent an FpML choice construct.">
-        required choice level, levelPercentage , creditEvents , creditEventsReference
+        required choice level, creditEvents , creditEventsReference
+
+type TriggerDev: <"Trigger point at which feature is effective.">
+
+    level number (0..1) <"The trigger level.">
+    levelPercentage number (0..1) <"The trigger level percentage.">
+    creditEvents CreditEvents (0..1)
+    creditEventsReference CreditEvents (0..1)
+        [metadata reference]
+    triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">
+    triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
+    compositeValue string (0..1) <"The trigger is not straight number but consists in specific calculation, for instance ">
+
+    condition Choice: <" Choice rule to represent an FpML choice construct.">
+        required choice level, levelPercentage , creditEvents , creditEventsReference, compositeValue
 
 type TriggerEvent: <"Observation point for trigger.">
 
