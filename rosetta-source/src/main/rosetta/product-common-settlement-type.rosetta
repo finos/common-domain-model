@@ -39,16 +39,17 @@ type CashflowType: <"Characterises the type of cashflow, which can result from e
 type QuantityMultiplier: <" Class to specify a mechanism for a quantity to be set as a multiplier to another (reference) quantity, based on a price observation. At the moment this class only supports FX or Equity-linked notional and re-uses existing building blocks for those 2 cases, until such time when component can be made more generic. This captures the case of resetting cross-currency swaps and resetting equity swaps.">
 
     fxLinkedNotionalSchedule FxLinkedNotionalSchedule (0..1) <"Multiplier specified as an FX-linked schedule, e.g. for a resetting cross-currency swap..">
+        [deprecated]  // that is in overlaps with settlementTerms.cashSettlementTerms[0].valuationDate.fxFixingDate that is more generic component which notably encompass information contained in FxLinkedNotionalSchedule... considering also that a list of dates schedule, per se, is not a multiplier value, hence removing this component... the real multiplier value is the fixing of the fx price, which should be updated and reprented with priceMultiplier with priceTypeEnum,EXCHANGE_RATE, via referencing for the purpose of updating via event model where price fiwing shall be captured
     multiplierValue number (0..1)
+    knockInCondition cdm.observable.event.Trigger (0..1) <"When populated, this attribute means that the multiplier value shall only apply when the trigger conditions are met."> // this component is temporary workaround to capture composite value - final design is already finalized in Fragmos WS BespokePayoutFormula, which notably contain a refactoring of a) Trigger type and b) Multiplier attribute which becomes a type per se.
 
-    condition:
-        one-of
+    condition: <"A cashflow is either specified as a type of scheduled cashflow, or as a price agreed between parties in case of a non-scheduled cashflow.">
+        required choice fxLinkedNotionalSchedule, multiplierValue
 
 type ResolvablePriceQuantity: <"Generic class to specify the quantity for different payout legs in a contractual product, when that quantity can vary across payout legs or across time. A resolvable quantity can always be resolved into a single quantity from the quantity notation which has a corresponding asset identifier. In addition to the base case, where quantity is directly specified as a number as part of the quantity notation, the other use cases are: (i) quantity based on some pre-defined schedule (eg amortising notional), (ii) quantity based on some pre-defined events (eg resetting cross-currency notional), or quantity set as reference to another quantity (eg equity notional as no. securities x price).">
     [metadata key]
 
-    // CumulationFeature is a temporary PLACE-HOLDER component, current description is draft in regards of full features at target //
-    quantityCumulation CumulationFeature (0..*) <"Describe provisions which define how the quantity is incremented over time.">
+    quantityCumulation CumulationFeature (0..1) <"Describe provisions which define how the quantity is incremented over time.">
     resolvedQuantity Quantity (0..1) <"A product's quantity as a single, non-negative amount.  When specified as part of a product definition, this quantity attribute would not be set.  Instead it is specified on the quantity notation along with an asset identifier matching this payout's asset identifier.  This allows the quantity to be resolved for a payout leg, which can then be specified here for convenience during data processing.  There needs to be at least one resolvable quantity across payout legs of a product to define an anchor that other payout quantities can refer to.  This attribute is ignored when mapping existing FpML messages.">
     quantitySchedule NonNegativeQuantitySchedule (0..1) <"A payout's quantity specified as a schedule, which may also contain a single value if that quantity is constant. There can only be a single quantity schedule applicable to a payout: e.g. the notional for an interest rate leg. The quantity must be specified outside of the payout in a PriceQuantity object and only referenced inside the payout using an address.">
         [metadata address "pointsTo"=PriceQuantity->quantity]
@@ -64,8 +65,20 @@ type ResolvablePriceQuantity: <"Generic class to specify the quantity for differ
         if quantityMultiplier exists
         then quantityReference -> reference exists
 
-type CumulationFeature: <"Describe provisions which define how the quantity is incremented over time. When cumulationDates only is defined, the cumulation for such particular period is 'guarenteed'. In case the cumulation would be 'contigent', Knock-In conditions may be defined. Besides, a 'lever' may also be defined i.e. multiplier value to apply on the quantity incremented. Main business case is to define 'Accumulator' or 'Decumulator' products, which final payoff calculation eventually consists in applying the payout formula to an aggregated quantity, that being a sum of multiple quantity increment periods - hence the multiple cardinality of this attribute. For intance, say A + B + C + ... + N-1 are distinct cumulation conditions in termsheet, then such payoff would be represented by defining N distinct CumulationFeature in array e.g. CumulationFeature[A], CumulationFeature[B], CumulationFeature[C], [...], CumulationFeature[N-1], each with any appropriate 'guaranteed' or 'contigent' and/or 'levered' features, as need be.">
-// CumulationFeature is a temporary PLACE-HOLDER component, current description is draft in regards of full features at target //
+type CumulationFeature : <"Specifies cumulation dates i.e. dates on which a given quantity is incremented over time. As an indication, products for which such feature is used are often referred to as Accumulator or Decumulator, or Target Forward, etc. (non-exhaustive list). Besides, these products may contain knock-out early termination features, as well as some periods for which future cumulation is guarenteed until the end of the period, notwithstanding early termination event.">
+    [metadata key]
+
+    cumulationDate DateRelativeToEnum (1..1) <"Specifies the cumulation dates i.e. the dates on which a given quantity is incremented over time, by indicating a type of anchor date, defined elswhere in the document (e.g. typically the valuation date or the observation date, etc.).">
+    
+    futureCumulationPerPeriod NonNegativeQuantitySchedule (0..*) <"Specifies the future quantity cumulation per schedule by populating datedValue. Unbound cardinality permits to represent schedules of distinct types of quantity, for instance one may be the cumulation of nominal amount (example : ESMA field 59), another one may be the cumulation in number of asset units (example : ESMA field 60), etc.">
+        [metadata address "pointsTo"=PriceQuantity->quantity]
+    
+    cumulationPerPeriod NonNegativeQuantitySchedule (0..*) <"Specifies the quantity actually cumulated per schedule, by populating datedValue. Unbound cardinality permits to represent schedules of distinct types of quantity, for instance one may be the cumulation of nominal amount, another one may be the cumulation in number of asset units, etc. As an indication, type is QuantitySchedule (and not NonNegativeQuantitySchedule as for future quantity cumulation), since trade execution may occurs with null dated value cumulated at inception, for instance when the effective date for starting cumulation is falling after the trade date.">
+        [metadata address "pointsTo"=PriceQuantity->quantity]
+    
+    guaranteedCumulationPeriodNotwithstandingEarlyTermination ObservationPeriodSchedule (0..*) <"The schedule periods for which the cumulation is guarenteed untill the end of the period, notwithstanding the occurrence of an any early termination (elsewhere defined in the trade documentation - hence metadata annotation, for referencing the early termination terms that the guaranteed period is relative to).">
+         [metadata reference]
+
 type PayoutBase: <" Base class that all payout types should extend. Use case is that some validation rules may need to apply across all payout types, for which the data rule can be written at the base class level">
 
     payerReceiver PayerReceiver (1..1) <"Canonical representation of the payer and receiver parties applicable to each payout leg.">

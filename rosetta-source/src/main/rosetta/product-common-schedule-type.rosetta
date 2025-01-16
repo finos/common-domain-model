@@ -154,14 +154,37 @@ type ObservationDates: <"Describes date details for a set of observation dates i
     observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
     periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
     parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
+    observationDate RelativeDateOffset (0..1) <"The enumerated values to specify the type of date to be used as an anchor.">
 
-type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
-    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation.">
-    dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+  condition ObservationIsRelativeTo:
+  if (periodicSchedule exists or parametricDates exists or observationSchedule exists) 
+   and observationDate exists
+    then observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationDate 
+     or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodStartDate 
+      or observationDate -> dateIsRelativeTo = DateRelativeToEnum -> ObservationPeriodEndDate
 
-    condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-        if observationDate -> adjustedDate is absent
-        then observationDate -> unadjustedDate exists and dateAdjustments exists
+
+type ObservationSchedule: <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable. When no weight is specified, then weight of each date is assumed to be 1.0">
+
+  observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation, optionaly with a weight associated to each date.">
+  observationPeriod ObservationPeriodSchedule (0..*) <"Specifies manufactured schedule, composed of period series (mostly used when period are irregular, thus unlikely calculable based on periodic parameters).">
+    [metadata reference]
+  dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+
+  condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
+    if observationDate -> adjustedDate is absent
+    then observationDate -> unadjustedDate exists and dateAdjustments exists
+
+  condition ScheduleIsDateOrPeriod: <"Specifies a choice between a schedule made of date series via observationDate, else a schedule made of period series via observationPeriod.">
+  required choice observationDate, observationPeriod
+
+type ObservationPeriodSchedule: <"Specifies manufactured period (mostly used when period are irregular, thus unlikely calculable as periodic fixed period in series based on frequency parameters).">
+    [metadata key]
+
+  startDate AdjustableOrRelativeDate (1..1) <"The start date of the schedule.">
+  endDate AdjustableOrRelativeDate (1..1) <"The end date of the schedule.">
+  numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
+
 
 type ObservationDate: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
     [metadata key]
@@ -183,6 +206,7 @@ type ObservationTerms: <"Class containing terms that are associated with observi
     observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
     observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
     numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
+    observationMethod DeterminationMethodEnum (0..1)
 
     condition PricingTime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
         if pricingTimeType = TimeTypeEnum -> SpecificTime
