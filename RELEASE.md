@@ -27,6 +27,7 @@ Version updates include:
 - DSL 9.24.0: add a feature to override attributes in extended types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.24.0
 - DSL 9.25.0: improve type errors and cardinality errors. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.25.0
 - DSL 9.27.0: addresses a bug where the `switch` operator could sometimes break the model. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.27.0
+- DSL 9.28.2: addresses a Fatal error when reporting rule is not given a name and addition of new transform annotations . For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.28.2
 
 _Review directions_
 
