@@ -131,7 +131,7 @@ asset types that are commonly seen in eligible collateral data.
 The approach in the CDM is to adopt a similar method to the 'Animal
 Kingdom' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species), that is there is one method for describing any of
-the core attributes of an "animal" (i.e., type of issuer/type of
+the core attributes of an "animal" (i.e. type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
 way. Each issuer type, asset type, economic type etc has a unique place
 in the universe of collateral but is logically grouped together with
@@ -198,7 +198,7 @@ or not.
   criteria applies to (either one or both counterparties).
 
 - The `restrictTo` attribute can be used to restrict the criteria to only apply to a
-  specific type of margin, ie IM or VM.
+  specific type of margin, i.e. IM or VM.
   
 - The `ratingPriorityResolution` attribute denotes which Criteria has priority if more
   than one agency rating applies.
@@ -250,7 +250,7 @@ choice CollateralCriteria:
 ### Combining CollateralCriteria using AND and OR logic
 
 The above code snippet only allows a single term to be specified within
-the `CollateralCriteria` - ie the choice of one attribute.
+the `CollateralCriteria` - i.e. the choice of one attribute.
 
 In reality, it is usually necessary to combine terms together to model
 the eligiblity schedule fully.  Furthermore, these combinations often 
@@ -516,9 +516,9 @@ type CreditNotation:
 
 -   `CreditRatingAgencyEnum` A list of enumerated values to specify the
     rating agency or agencies, (all major rating agencies are supported)
--   `notation` Specifies the credit rating notation. As itvaries among
+-   `notation` Specifies the credit rating notation. As it varies among
     credit rating agencies, the CDM does not currently specify each
-    specific rating listed by each agency. The data'string' allows the
+    specific rating listed by each agency. The data 'string' allows the
     free format field to be populated with a rating , such as 'AAA'
 -   `scale` Specifies the credit rating scale, with a typical
     distinction between short term, long term. The data 'string' allows
@@ -531,12 +531,12 @@ type CreditNotation:
     investments grade) The data type extends to offer two options
     -   `debtType` This attribute is free format 'string' and used
         when only one debt type is specified
-    -   `debtTypes` This allows you to specify for than one multiple
-        debt type characteristics and has a qualifying conditions to
+    -   `debtTypes` This allows you to specify multiple
+        debt type characteristics and has a qualifying condition to
         specify if you wish to include 'All' or 'Any' of the elements
         listed in scope
--   `outlook` This data attributes allows you to specify the a credit
-    rating outlook assessment that is commonly determine by rating
+-   `outlook` This data attribute allows you to specify a credit
+    rating outlook assessment that is commonly determined by rating
     agencies. It is an indication of the potential direction of a
     long-term credit rating over the intermediate term, which is
     generally up to two years for investment grade and generally up to
@@ -578,12 +578,12 @@ enum CreditNotationMismatchResolutionEnum:
     allows you to specify from the list of enumerated values for the
     rating agency. But in this case it is to identify the rating agency
     if you need to determine one from others if you used the data
-    attribute referenceAgency in the
+    attribute `referenceAgency` in the
     `CreditNotationMismatchResolutionEnum` as outlined above.
--   `boundary` Indicates the boundary of a credit agency rating i.e
+-   `boundary` Indicates the boundary of a credit agency rating i.e.
     minimum or maximum.
 
-A condition exists If the mismatch resolution choice is
+A condition exists, such that if the mismatch resolution choice is
 `ReferenceAgency`, you must ensure that the reference agency is
 specified through the `CreditRatingAgencyEnum`
 
@@ -671,12 +671,12 @@ under each set of regulatory rules. Some limited examples of these are
 shown below which are contained in the `EU_EMIR_EligibleCollateralEnum`
 list:
 
--   `EU_EMIRTypeA` -Denotes Cash in the form of money credited to an
+-   `EU_EMIRTypeA` - Denotes Cash in the form of money credited to an
     account in any currency, or similar claims for the repayment of
     money, such as money market deposits.
 -   `EU_EMIRTypeB` - Denotes gold in the form of allocated pure gold
     bullion of recognised good delivery.
--   `EU_EMIRTypeC` -Denotes debt securities issued by Member States'
+-   `EU_EMIRTypeC` - Denotes debt securities issued by Member States'
     central governments or central banks.
 
 The cardinality for these enumeration lists (0..\*) denotes that
@@ -799,7 +799,7 @@ HAIRCUT
 In typical industry practice, eligible collateral schedules are quite complex with a number of interacting terms.
 To digitize them in the CDM, they will need to be converted into an `EligibleCollateralSpecification` 
 with many `EligibleCollateralCriteria` with potentially recursive instances of `CollateralCriteria`.
-The construction of these terms can be quite laborious, so functions has been created in the CDM to provide
+The construction of these terms can be quite laborious, so functions have been created in the CDM to provide
 a level of automation.
 
 #### EligibleCollateralSpecificationInstruction
