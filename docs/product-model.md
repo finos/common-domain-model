@@ -104,6 +104,8 @@ All the `Instrument` data types extend `InstrumentBase`, which itself extends `A
 Each type of instrument also has its own definitions with additional attributes which are required to uniquely
 identify the asset.
 
+The additional attributes on `Loan` can be used when needed to uniquely identify the specific loan: 
+
 ``` Haskell
 type Loan extends InstrumentBase:
     borrower LegalEntity (0..*)
@@ -114,7 +116,11 @@ type Loan extends InstrumentBase:
     creditAgreementDate date (0..1)
     tranche string (0..1)
         [metadata scheme]
+```
 
+Likewise, additional `ListedDerivative` attributes are used to uniquely identify the contract:
+
+``` Haskell
 type ListedDerivative extends InstrumentBase:
     deliveryTerm string (0..1)
     optionType PutCallEnum (0..1)
