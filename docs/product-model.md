@@ -505,6 +505,43 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
+### SettlementPayout
+
+A `SettlementPayout` is a specialised choice of payout introduced to enable 
+the settlement of an asset.
+
+:::tip Definition: SettlementPayout
+
+A SettlementPayout is used to represent a cash or forward settling payout. The underlier 
+attribute captures the underlying payout, which is settled according to the 
+settlementTerms attribute (which is part of PayoutBase).  The underlier that is
+settled must be a TransferableProduct.
+
+:::
+
+Conditions on the definition of the SettlementPayout ensure the following are true
+for the underlier:
+- It must not be a NonTransferableProduct.
+- If it is a basket, then all of the constituents of the basket
+  must be assets
+- If it is an Index, then it must be cash settled.
+
+The SettlementPayout should be used for foreign exchange trades, either cash or 
+forward-dated, where the underlier specifies the asset (of choice type `cash`)
+that will be settled.  The price is defined in the `tradeLot` in a `PriceQuantity`
+of the purchase currency, with the exchange rate.
+
+This example shows the structure for a foreign exchange trade which is composed
+of:
+- a `Trade` and a `TradableProduct`
+- a `NonTransferableProduct` composed using a single `SettlementPayout`.  This in
+  turn has a `Cash` underlier which specifies the currency of the payout.
+- a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
+  expressed as a quantity of a second `Cash` observable in the second currency, and
+  an exchange rate.
+
+![](/img/ART-settlement.png)
+
 ### Underlier
 
 The concept of an underlier allows for financial products to be used
