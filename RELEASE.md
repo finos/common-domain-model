@@ -362,15 +362,157 @@ The second currency reflected in the `tradeLot`:
           }
 ```
 
-#### 3. Example of a Securities Lending trade
+#### 5. Securities Financing
 
+CDM 5 treated both repos and securities lending trades in a similar manner and was unable to differentiate between the two in product qualification.
 
-In CDM 6, Securities Lending trades are represented using
+The modelling typically:
+- qualified all securities financing products as "SecuritiesFinance"
+- consisted of a `ContractualProduct` with a single `InterestRatePayout` in the `EconomicTerms`
+- used a `Collateral` object with an `AssetPayout` for the security being either repurchased or lent.
+
+Sample (some terms omitted for clarity):
+
+``` json
+  "trade" : {
+
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "SecuritiesFinance"
+          } ],
+          "economicTerms" : {
+            "effectiveDate" : {
+
+            },
+            "terminationDate" : {
+            },
+            "payout" : {
+              "interestRatePayout" : [ {
+                "payerReceiver" : {
+                  "payer" : "Party1",
+                  "receiver" : "Party2"
+                },
+```
+
+with Collateral (some terms omitted for clarity):
+
+``` json
+            "collateral" : {
+              "collateralPortfolio" : [ {
+                "value" : {
+                  "collateralPosition" : [ {
+                    "product" : {
+                      "contractualProduct" : {
+                        "economicTerms" : {
+                          "payout" : {
+                            "assetPayout" : [ {
+                              "payerReceiver" : {
+                                "payer" : "Party1",
+                                "receiver" : "Party2"
+                              },
+                              "assetLeg" : [ {
+                                "settlementDate" : {
+
+                                    },
+                                "deliveryMethod" : "DeliveryVersusPayment"
+                              }, {
+                              "securityInformation" : {
+                                "security" : {
+                                  "productIdentifier" : [ {
+                                    "value" : {
+                                      "identifier" : {
+                                        "value" : "ST001"
+                                      },
+                                      "source" : "SEDOL",
+                                      "meta" : {
+                                        "globalKey" : "970a835f"
+                                      }
+                                    }
+                                  } ],
+                                  "securityType" : "Equity"
+```
+
+#### 4. Example of a Repurchase Agreement
+
+CDM 6 offers enhanced supported for repurchase agreements, replacing the implementation of securities financing in section 3 above.  A repurchase agreement:
+- qualifies as "RepurchaseAgreement"
+- is composed of a `Product` a single `InterestRatePayout` in the `EconomicTerms` to represent the principal payment
+- and a `Collateral` definition with a `TransferableProduct` for the asset being exchnaged
+
+Example of the product structure (some terms omitted for clarity):
+
+``` json
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "RepurchaseAgreement"
+      } ],
+      "economicTerms" : {
+        "effectiveDate" : {
+
+          }
+        },
+        "terminationDate" : {
+
+        },
+        "payout" : [ {
+          "InterestRatePayout" : {
+            "payerReceiver" : {
+              "payer" : "Party1",
+              "receiver" : "Party2"
+            },
+            "priceQuantity" : {
+
+            },
+            "principalPayment" : {
+              "initialPayment" : true,
+              "finalPayment" : true,
+              "intermediatePayment" : false,
+              "meta" : {
+                "globalKey" : "12a6f5"
+              }
+            },
+            "rateSpecification" : {
+              "FixedRateSpecification" : {
+                "rateSchedule" : {
+                  "price" : {
+
+                  }
+```
+
+and the collateral structure:
+
+``` json
+        "collateral" : {
+          "collateralPortfolio" : [ {
+            "value" : {
+              "collateralPosition" : [ {
+                "product" : {
+                  "TransferableProduct" : {
+                    "Instrument" : {
+                      "Security" : {
+                        "identifier" : [ {
+                          "identifier" : {
+                            "value" : "GB00B24FF097"
+                          },
+                          "identifierType" : "ISIN"
+                        } ]
+                      }
+                    },
+```
+
+#### 5. Example of a Securities Lending trade
+
+CDM 6 offers enhanced supported for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented using:
 - a product that qualifies as "SecurityLending"
 - composed of Economic Terms with a single `AssetPayout` with a `Security` underlier for the asset being lent
 - with the the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
 
-This can be seen in this sample:
+This can be seen in this sample (some items omitted for clarity):
 
 ``` json
         "product" : {
@@ -443,6 +585,9 @@ This can be seen in this sample:
       
                                 },
 ```
+
+
+
       
 ### _Option Payout refactoring_
    
@@ -466,7 +611,7 @@ There are many samples impacted by this change, namely all the samples utilizing
 - `eqd ex04 european call index long form`: the `OptionStyle` has been removed in favor of the the `style` = "European", and the relevant fields previously under `europeanExercise` (`expirationDate` and `expirationTimeType`). Additionally, the `strike` is moved from inside `exerciseTerms` to outside.
 
 From:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -506,7 +651,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -544,7 +689,7 @@ To this:
 - `eqd ex01 american call stock long form`: the `OptionStyle` has been removed in favor of the the `style` = "American", and the relevant fields previously under `americanExercise` (`commencementDate`, `expirationDate`, `latestExerciseTime`, `expirationTimeType`, and `multipleExercise`). Additionally, the `strike` is moved from inside `exerciseTerms` to outside.
 
 From:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -599,7 +744,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -654,7 +799,7 @@ To this:
 - `ird ex14 berm swaption`: the `OptionStyle` has been removed in favor of the the `style` = "Bermuda", and the relevant fields previously under `bermudaExercise` (`bermudaExerciseDates`, `relevantUnderlyingDate`, `earliestExerciseTime`, and `expirationTime`).
 
 From:
-```
+``` json
 "optionPayout": [
     {        
         ...    
@@ -727,7 +872,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
