@@ -773,7 +773,7 @@ func SecurityFinanceCashSettlementAmount:
         else FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            )
+            ) only-element
 
     alias securityPrice: <"Specifies the price per security.">
         FilterPrice(
@@ -1244,7 +1244,7 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            )
+            ) only-element
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
@@ -1384,7 +1384,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         businessEvent -> intent = EventIntentEnum -> Repurchase
             and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
-                and (businessEvent -> instruction -> primitiveInstruction -> quantityChange, businessEvent -> instruction -> primitiveInstruction -> transfer) only exists)
+                and businessEvent -> instruction only-element extract (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
                     businessEvent -> instruction -> before,
                     businessEvent -> after
@@ -1851,7 +1851,8 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
     output:
         is_event boolean (1..1)
 
-    alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias instruction: businessEvent -> instruction only-element
+    alias beforeTradeState: instruction -> before
     alias closedTradeState: FilterClosedTradeStates(businessEvent -> after) only-element
     alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
 
@@ -1865,7 +1866,7 @@ func Qualify_Shaping: <"The qualification of a shaping event from the fact that 
         beforeTradeState exists
             and closedTradeState exists
             and openTradeStates count > 1
-            and businessEvent -> instruction -> primitiveInstruction -> split only exists
+            and instruction -> primitiveInstruction -> split only exists
                 // Open trade counterparties should match before trade counterparties
             and openTradeStates
                 extract [
@@ -1919,9 +1920,9 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
     alias afterTradableProduct: ExtractAfterTradableProduct(businessEvent)
 
     alias beforeTradeCollateralQuantity:
-        ExtractTradeCollateralQuantity(beforeTradableProduct)
+        ExtractTradeCollateralQuantity(beforeTradableProduct) only-element
 
-    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTradableProduct)
+    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTradableProduct) only-element
 
     set is_event:
         beforeEconomicterms exists
@@ -2306,6 +2307,7 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
     output:
         is_event boolean (1..1)
 
+    alias instruction: businessEvent -> instruction only-element
     alias afterTradeStates: FilterOpenTradeStates(businessEvent -> after)
 
     alias beforeCashFlow:
@@ -2317,7 +2319,7 @@ func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
         businessEvent -> instruction -> before count = 1
             and businessEvent -> after count = 1
             and afterTradeStates count = 1
-            and businessEvent -> instruction -> primitiveInstruction -> termsChange only exists
+            and instruction -> primitiveInstruction -> termsChange only exists
             and afterCashFlow count > beforeCashFlow count // allows for adding multiple cashflows
             and afterCashFlow -> cashflowType -> cashflowType all = ScheduledTransferEnum -> NetInterest
 
