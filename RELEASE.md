@@ -13,7 +13,7 @@ as well as several additional model changes, bug fixes, dependencies updates and
 The release includes changes to the CDM model itself (manifested in changes to .rosetta source files) but also enhancements to:
 - The [CDM Documentation](https://cdm.finos.org/docs/cdm-overview/), which should be consulted as a good resource to understand the enhanced design of products and
   business events in CDM 6.
-- The [CDM Sample Files](https://github.com/rosetta-models/common-domain-model/tree/Release-Notes-for-6prod/rosetta-source/src/main/resources/cdm-sample-files), which have been updated to reflect the new modelling designs.
+- The [CDM Sample Files](https://github.com/rosetta-models/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files), which have been updated to reflect the new modelling designs.
 - The [CDM Object Builder](https://cdm-object-builder.finos.org/), which can be used to construct CDM objects and generate JSON serialised data.
 
 Below are some of the high-level modelling changes included in CDM 6.0, with links to their corresponding development release tags containing more detailed release notes.
@@ -35,10 +35,11 @@ extend the model into additional asset classes and to address some long-standing
 - AssetCriteria: **Backward incompatible changes** [6.0.0-dev.81](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.81)
 - Settlement Payout Price: **Backward incompatible changes** [6.0.0-dev.84](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.84).
   - Note: this change is only backward-incompatible because it reverts the Add Price to Payouts change in [6.0.0-dev.77](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.77). The two changes are backward-compatible in aggregate.
+- Security Finance trade types: **Backward incompatible changes** [6.0.0-dev.86](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.86)
 - FloatingRateIndex and InterestRateIndex: **Backward incompatible changes** [6.0.0-dev.87](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.87)
 - Cashflow Generation for Settlement Payout : [6.0.0-dev.89](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.89)
 - Commodity Payout Underlier: [6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90)
-
+  
 ### _Option Payout refactoring_
   
 - Option Payout Refactoring: **Backward incompatible changes** [6.0.0-dev.24](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.24)
@@ -56,7 +57,6 @@ extend the model into additional asset classes and to address some long-standing
   - Trigger type refactoring: [6.0.0-dev.42](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.42)
   - Principal Amount Conditions: [6.0.0-dev.43](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.43)
   - Portfolio Return Terms: **Backward incompatible changes** [6.0.0-dev.55](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.55)
-  - Security Finance trade types: **Backward incompatible changes** [6.0.0-dev.86](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.86)
   - Exotic Equity Products and Exercise Terms validation conditions: **Backward incompatible changes** [6.0.0-dev.88](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.88)
   - Qualification functions:
     - Zero Coupon Swaps: [6.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.13)
@@ -138,8 +138,8 @@ _Data type and attribute changes_
   - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
   - The data type `ListingType` has been removed.
 - Security finance:
-  - Rename the `repoType` to `tradeType` on `AssetPayout`.
   - Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
+  - Rename the `repoType` attribute to `tradeType` on `AssetPayout`.
   - The two product qualification functions have been updated to use the new names:
     - `Qualify_RepurchaseAgreement`
     - `Qualify_buySellBack`.
@@ -541,9 +541,6 @@ To this:
   - Updated `Basket` type:
     - Renamed `portfolioBasketConstituent` of type `BasketConstituent` as simply `basketConstituent`.
     - Removed `[deprecated]` `basketConstituent` attribute, previously of type `Product`.
-- Security Finance trade types
-  - Renamed `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
-  - Renamed `repoType` to `tradeType` in `AssetPayout`.
 - Natural person
     - Removed the `personRole` attribute of type `NaturalPersonRole` from `NaturalPerson`.
     - Replaced by existing `personRole` attribute in `Party`.
