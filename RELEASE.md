@@ -24,6 +24,12 @@ A major feature of CDM 6 is the refactored product model with the introduction o
 extend the model into additional asset classes and to address some long-standing challenges.  The objectives and design artefacts of the task force were documented in 
 [GitHub Issue 2805](https://github.com/finos/common-domain-model/issues/2805).
 
+This diagram shows the new product model at a high level; please read the [FINOS CDM documentation](https://cdm.finos.org/docs/product-model) for a full explanation:
+
+![](/img/ART-complete.png)
+
+Individual releases related to asset refactoring:
+
 - New Data Types: [6.0.0-dev.46](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.46)
 - Remove AssetPool and deprecated data types: **Backward incompatible changes** [6.0.0-dev.47](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.47)
 - Asset, Index, Identifier: **Backward incompatible changes** [6.0.0-dev.58](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.58)
@@ -133,6 +139,8 @@ _Data type and attribute changes_
 - Refactored payouts:
   - The `Payout` data type has been refactored as a `Choice`. Choice data types work slightly different from the regular one-of condition because they force each of the members of the choice to have a single cardinality. Therefore, the use of Payout, for example on `EconomicTerms` and `ResetInstruction`, now have multiple cardinality.
   - All references to a payout need to be updated as references to a payout are now treated as capitalised Data Types rather than lower case Attributes. For example, a previous reference might have read: `payout -> interestRatePayout -> floatingAmount` must now be written as: `payout -> InterestRatePayout -> floatingAmount`.
+  - The `ForwardPayout` has been renamed to `SettlementPayout` and its usage broadened to cover the settlement of an underlier, whether on a current date or forward basis, for either physical or cash settlement.
+  - `Cashflow` is no longer an attribute on `Payout` and its use in the `ForeignExchange` data type has been deprecated.
 - Refactored eligible collateral
   - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
   - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
@@ -169,7 +177,253 @@ _Data type and attribute changes_
    
 _Sample Impact_
 
-OUTSTANDING
+The changes listed above have significant impact to serialised data when the CDM is represented in JSON.  All of the impacted sample files in the FINOS CDM distribution have been updated accordingly.
+
+The following examples are shown here to illustrate these changes:
+
+#### 1. Impact of the refactoring of the `Trade` - `TradableProduct` - `EconomicTerms` hierarchy
+
+This example is of a vanilla interest rate swap.  In CDM 5, the structure appeared as follows:
+
+``` json
+{
+  "trade" : {
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "InterestRate_IRSwap_FixedFloat"
+          } ],
+          "economicTerms" : {
+            "payout" : {
+              "interestRatePayout" : [ {
+                "payerReceiver" : {
+```
+
+In CDM 6, 
+- tradableProduct and contractualProduct no longer appear as they have been collapsed into `product`
+- productTaxonomy is now just `Taxonomy`
+- `InterestRatePayout` is capitalised as it is now a choice data type
+
+These differences can be seen in this sample:
+
+``` json
+{
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "InterestRate_IRSwap_FixedFloat"
+      } ],
+      "economicTerms" : {
+        "payout" : [ {
+          "InterestRatePayout" : {
+            "payerReceiver" : {
+```
+
+#### 2. Example of a foreign exchange contract using a `SettlementPayout`
+
+In CDM 5, foreign exchange was represented using a Forward Payout containing a Foreign Exchange underlier (some terms omitted for clarity):
+
+``` json
+{
+  "trade" : {
+
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "ForeignExchange_Spot_Forward"
+          } ],
+          "economicTerms" : {
+            "payout" : {
+              "forwardPayout" : [ {
+                "settlementTerms" : {
+                  "settlementDate" : {
+                    "valueDate" : "2001-10-25",
+                },
+                "underlier" : {
+                  "foreignExchange" : {
+                    "exchangedCurrency1" : {
+
+                      },
+                      "priceQuantity" : {
+
+                        }
+                    },
+                    "exchangedCurrency2" : {
+
+                      },
+                      "priceQuantity" : {
+
+                        }
+                    },
+```
+
+In CDM 6, these trades are represented using a `SettlementPayout` where the underlier is a cash asset: 
+
+``` json
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "ForeignExchange_Spot_Forward"
+      } ],
+      "economicTerms" : {
+        "payout" : [ {
+          "SettlementPayout" : {
+             
+            "settlementTerms" : {
+              "settlementDate" : {
+                "valueDate" : "2001-10-25"
+              }
+            },
+            "underlier" : {
+              "Observable" : {
+                "address" : {
+                  "scope" : "DOCUMENT",
+                  "value" : "observable-1"
+                }
+```
+
+The second currency reflected in the `tradeLot`:
+
+``` json
+    "tradeLot" : [ {
+      "priceQuantity" : [ {
+        "price" : [ {
+          "value" : {
+            "value" : 1.48,
+            "unit" : {
+              "currency" : {
+                "value" : "USD"
+              }
+            },
+            "perUnitOf" : {
+              "currency" : {
+                "value" : "GBP"
+              }
+            },
+            "priceType" : "ExchangeRate"
+          }
+        } ],
+        "quantity" : [ {
+          "value" : {
+            "value" : 10000000,
+            "unit" : {
+              "currency" : {
+                "value" : "GBP"
+              }
+            }
+          }
+        }, {
+          "value" : {
+            "value" : 14800000,
+            "unit" : {
+              "currency" : {
+                "value" : "USD"
+              }
+            }
+          }
+        } ],
+        "observable" : {
+          "value" : {
+            "Asset" : {
+              "Cash" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "GBP"
+                  },
+                  "identifierType" : "CurrencyCode"
+                } ]
+              }
+            }
+          }
+```
+
+#### 3. Example of a Securities Lending trade
+
+
+In CDM 6, Securities Lending trades are represented using
+- a product that qualifies as "SecurityLending"
+- composed of Economic Terms with a single `AssetPayout` with a `Security` underlier for the asset being lent
+- with the the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
+
+This can be seen in this sample:
+
+``` json
+        "product" : {
+          "taxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "SecurityLending"
+          } ],
+          "economicTerms" : {
+            "effectiveDate" : {
+
+            },
+            "terminationDate" : {
+
+              }
+            },
+            "payout" : [ {
+              "AssetPayout" : {
+                "payerReceiver" : {
+
+                },
+                "priceQuantity" : {
+
+                },
+                "assetLeg" : [ {
+                  "settlementDate" : {
+                    "adjustableDate" : {
+
+                      },
+                      "adjustedDate" : {
+                        "value" : "2020-09-22"
+                  },
+                  "deliveryMethod" : "DeliveryVersusPayment"
+                }, 
+                "underlier" : {
+                  "Instrument" : {
+                    "Security" : {
+                      "identifier" : [ {
+                        "identifier" : {
+                          "value" : "ST001"
+                        },
+                        "identifierType" : "SEDOL"
+                      } ],
+                      "instrumentType" : "Equity"
+                    }
+                  }
+                }
+
+            } ],
+            "collateral" : {
+              "collateralPortfolio" : [ {
+                "value" : {
+                  "collateralPosition" : [ {
+                    "product" : {
+                      "TransferableProduct" : {
+                        "Cash" : {
+                          "identifier" : [ {
+                            "identifier" : {
+                              "value" : "USD"
+                            },
+                            "identifierType" : "CurrencyCode"
+                          } ]
+                        },
+                        "economicTerms" : {
+                          "payout" : [ {
+                            "InterestRatePayout" : {
+
+                              },
+                              "priceQuantity" : {
+                                "quantitySchedule" : {
+      
+                                },
+```
       
 ### _Option Payout refactoring_
    
