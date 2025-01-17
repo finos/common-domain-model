@@ -82,22 +82,23 @@ extend the model into additional asset classes and to address some long-standing
 
 ### _Asset refactoring_
 
-_New Choice data type_
+_Use of choice data type_
 
-A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively in for the asset refactoring in CDM 6.
+A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively for the asset refactoring in CDM 6.
 
 Example of new items defined as `choice` types include:
 - `Asset`
 - `Instrument`
 
 In addition, some fundamental data types previously defined using a `one-of` condition have been updated to `choice` types. Compared to the regular `one-of` condition, choice types force each of the choice options to have single cardinality.
-- `Payout`: defined as a choice between all the different payout types. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example on `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
-  - `SecurityPayout` (deleted type)
-  - `Cashflow`
-- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct`. Some data types previously included in `Product` are now defined as `Asset` choices instead:
+- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (previously known as `ContractualProduct`). Data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
   - `Commodity`: now extends `AssetBase` not `ProductBase`.
     - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
   - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
+  - `Basket`: now extends `AssetBase` not `ProductBase`.
+    - `BasketConstituent` now extends `Observable`, not `Product`.
+    - Moved from the `product` namespace to the `observable` namespace.
+  - `Index`: now extends `IndexBase` not `ProductBase`
   - `ForeignExchange` has been marked as deprecated.
     - The deprecated `ExchangeRate` and `CrossRate` data types have both been deleted.
   - `AssetPool`: removed (it was previously introduced from FpML but has been found to be incorrect and unusable).
@@ -111,6 +112,9 @@ In addition, some fundamental data types previously defined using a `one-of` con
   - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
     - `IndexValueObservation`
     - `IndexValueObservationMultiple`
+- `Payout`: defined as a choice between all the different payout types. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example on `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
+  - `SecurityPayout` (deleted type)
+  - `Cashflow`
   
 All references to choice types need to be updated because they are now treated as Capitalised Data Types rather than lower case attributes. For example, a previous reference might have read:
 ```
@@ -124,9 +128,9 @@ This capitalisation also applies to the CDM's serialisation format (JSON).
 
 _Other data type and attribute changes_
 
-- Refactored baskets:
-  - `BasketConstituent` now extends `Observable`, not `Product`.
-  - Moved from the `product` namespace to the `observable` namespace.
+- Tradable product:
+  -  `Trade` extends `TradableProduct` instead of containing it as an attribute.
+  -  The `product` attribute in `TradableProduct` can only be a `NonTransferableProduct` (previously it could be any `Product`).
 - Removed the following deprecated data types used in the Product Model:
   - `Bond`
   - `ConvertibleBond`
