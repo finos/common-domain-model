@@ -166,7 +166,8 @@ _Other data type and attribute changes_
   - This also results in changes to the `Qualify_SecurityTransfer` function.
   - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
   - Now extends `AssetFlowBase`, which is also used by the `Cashflow` type.
-  - `TransferBase` has been deleted from the model.- Changes to `Commodity` data type:
+  - `TransferBase` has been deleted from the model.
+- Changes to `Commodity` data type:
   - Now extends from `AssetBase` not `ProductBase`.
   - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
 - Changes to `Security` data type:
