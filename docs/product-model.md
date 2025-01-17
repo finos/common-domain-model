@@ -27,6 +27,8 @@ commodity, a loan or a security.
 
 :::
 
+![](/img/ART-asset.png)
+
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
 ``` Haskell
@@ -179,6 +181,8 @@ or something which can be observed but not transferred, such as an index.
 
 :::
 
+![](/img/ART-observable.png)
+
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
 ``` Haskell
@@ -235,6 +239,8 @@ A TransferableProduct is a type of Product which allows to specify the EconomicT
 It can be used as the underlier of a basic Payout that describes the buying and selling of that Asset.
 
 :::
+
+![](/img/ART-product.png)
 
 ``` Haskell
 type TransferableProduct extends Asset:
@@ -514,6 +520,8 @@ a data type, such as a payout, to ensure this aligns with the use case.
 
 :::
 
+![](/img/ART-complete.png)
+
 This nesting of the product component is another example of a composable
 product model. One use case is an interest rate swaption for which the
 high-level product uses the `OptionPayout` type and the underlier is an
@@ -581,6 +589,8 @@ but allows for multiple trade lots, quantities and prices, between the
 same two counterparties.
 
 :::
+
+![](/img/ART-trade.png)
 
 ``` Haskell
 type TradableProduct:
