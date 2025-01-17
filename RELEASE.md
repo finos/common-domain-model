@@ -84,55 +84,77 @@ extend the model into additional asset classes and to address some long-standing
 
 _New Choice data type_
 
-A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively in the newly refactored CDM 6 model.  Where a data type was previously defined using a `one-of` condition, they have been refactored to use `choice`.
+A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively in for the asset refactoring in CDM 6.
 
-_Data type and attribute changes_
+Example of new items defined as `choice` types include:
+- `Asset`
+- `Instrument`
 
-- Removed the `AssetPool` data type which was previously introduced from FpML but has been found to be incorrect and unusable.
+In addition, some fundamental data types previously defined using a `one-of` condition have been updated to `choice` types. Compared to the regular `one-of` condition, choice types force each of the choice options to have single cardinality.
+- `Payout`: defined as a choice between all the different payout types. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example on `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
+  - `SecurityPayout` (deleted type)
+  - `Cashflow`
+- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct`. Some data types previously included in `Product` are now defined as `Asset` choices instead:
+  - `Commodity`: now extends `AssetBase` not `ProductBase`.
+    - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
+  - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
+  - `ForeignExchange` has been marked as deprecated.
+    - The deprecated `ExchangeRate` and `CrossRate` data types have both been deleted.
+  - `AssetPool`: removed (it was previously introduced from FpML but has been found to be incorrect and unusable).
+    - Removed the reference to `AssetPool` from `Product`.
+- `Observable`: defined as a choice between `Asset`, `Index` and `Basket`. In addition, the following attributes have been removed from `Observable`:
+  - `Commodity`: now available directly as an `Asset`.
+  - `QuotedCurrencyPair`: replaced by the the FX observable data type inside `Index`.
+  - The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
+- `FloatingRateOption`: renamed as `InterestRateIndex`, and updated to be a choice between `FloatingRateIndex` and `InflationIndex`.
+  - Update the `rateOption` attribute on `FloatingRateBase` to be of type `InterestRateIndex`, since it is used for both floating and inflation indices.
+  - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
+    - `IndexValueObservation`
+    - `IndexValueObservationMultiple`
+  
+All references to choice types need to be updated because they are now treated as Capitalised Data Types rather than lower case attributes. For example, a previous reference might have read:
+```
+payout -> interestRatePayout -> floatingAmount
+```
+and must now be written as:
+```
+payout -> InterestRatePayout -> floatingAmount
+```
+This capitalisation also applies to the CDM's serialisation format (JSON).
+
+_Other data type and attribute changes_
+
+- Refactored baskets:
+  - `BasketConstituent` now extends `Observable`, not `Product`.
+  - Moved from the `product` namespace to the `observable` namespace.
 - Removed the following deprecated data types used in the Product Model:
   - `Bond`
   - `ConvertibleBond`
   - `Equity`
   - `IdentifiedProduct`
   - `ObservationSource`
-  - `SecurityPayout`.
-- Removed the following deprecated data types that are related to the deprecated `SecurityPayout`:
-  - `SecurityLeg`
-  - `InitialMargin`
-  - `InitialMarginCalculation`
-  - `SecurityValuation`
-  - `SecurityValuationModel`
-  - `BondValudationModel`
-  - `BondPriceAndYieldModel`
-  - `CleanOrDirtyPrice`
-  - `CleanPrice`
-  - `RelativePrice`
-  - `BondEquityModel`
-  - `BondChoiceModel`
-  - `UnitContractValuationModel`.
-- Removed the reference to `SecurityPayout` from `Payout`.
-- Removed the reference to `AssetPool` from `Product`.
-- Removed functions which act upon `SecurityPayout`.
-- Changes to `Transfer`:
-  - As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
-  - This also results in changes to the `Qualify_SecurityTransfer` function.
-- Changes to `Commodity` data type:
-  - Now extends from `AssetBase` not `ProductBase`.
-  - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
-- Changes to `Security` data type:
-  - Now extends from `InstrumentBase` not `ProductBase`.
-- The `ForeignExchange` data type has been deprecated and the deprecated `ExchangeRate` and `CrossRate` datas type have both been deleted.  
-- Refactoring of `Observable`:
-  - The following data types have been removed from `Observable`:  `Commodity` (now available as an `Asset`); `QuotedCurrencyPair` (replaced by the the FX observable data type inside `Index`).
-  - The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
-  - `Observable` is now a `choice` data type.
+  - `SecurityPayout`
+    - Also removed the functions which act upon `SecurityPayout`.
+  - Removed the following deprecated data types related to the deprecated `SecurityPayout`:
+    - `SecurityLeg`
+    - `InitialMargin`
+    - `InitialMarginCalculation`
+    - `SecurityValuation`
+    - `SecurityValuationModel`
+    - `BondValudationModel`
+    - `BondPriceAndYieldModel`
+    - `CleanOrDirtyPrice`
+    - `CleanPrice`
+    - `RelativePrice`
+    - `BondEquityModel`
+    - `BondChoiceModel`
+    - `UnitContractValuationModel`.
+- Refactoring of `ObservationTerms`:
   - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
-- Refactored baskets:
-  - `BasketConstituent` now extends from `Observable`, not `Product`.
-  - Moved from the product namespace to the observable namespace.
-- Refactored payouts:
-  - The `Payout` data type has been refactored as a `Choice`. Choice data types work slightly different from the regular one-of condition because they force each of the members of the choice to have a single cardinality. Therefore, the use of Payout, for example on `EconomicTerms` and `ResetInstruction`, now have multiple cardinality.
-  - All references to a payout need to be updated as references to a payout are now treated as capitalised Data Types rather than lower case Attributes. For example, a previous reference might have read: `payout -> interestRatePayout -> floatingAmount` must now be written as: `payout -> InterestRatePayout -> floatingAmount`.
+- Changes to `Transfer`:
+  - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
+  - Now extends `AssetFlowBase`, which is also used by the `Cashflow` type.
+  - `TransferBase` has been deleted from the model.
 - Refactored eligible collateral
   - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
   - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
@@ -140,32 +162,6 @@ _Data type and attribute changes_
 - Security finance:
   - Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
   - Rename the `repoType` attribute to `tradeType` on `AssetPayout`.
-  - The two product qualification functions have been updated to use the new names:
-    - `Qualify_RepurchaseAgreement`
-    - `Qualify_buySellBack`.
-- Refactored Floating Rate Options:
-  - Rename the data type `FloatingRateIndex` to be called `InterestRateIndex`. 
-  - Update `InterestRateIndex` to be a choice data type with two attributes: `FloatingRateIndex` and `InflationIndex`.
-  - Update the attribute `rateOption` on the data type `FloatingRateBase` to be of type `InterestRateIndex` as the base class is used for both floating and inflation indices.
-  - In addition, the name swap has been implemented in the following types:
-    - `PriceQuantity`
-    - `IndexTransitionInstruction`
-  - and the following functions:
-    - `FindMatchingIndexTransitionInstruction`
-    - `Qualify_IndexTransition`
-    - `UpdateIndexTransitionPriceAndRateOption`
-    - `InterestRateObservableCondition`
-    - `EvaluateCalculatedRate`
-    - `IndexValueObservation`
-    - `IndexValueObservationMultiple`
-    - `GetFloatingRateProcessingType`
-    - `Qualify_Transaction_OIS`
-  - and the following mappings:
-    - `cdm.mapping.fpml.confirmation.tradestate:synonym`
-    - `cdm.mapping.ore:synonym`
-  - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset.func` namespace as they no longer act on a `fro` ie floating rate index:
-    - `IndexValueObservation`
-    - `IndexValueObservationMultiple`.
    
 _Sample Impact_
 
