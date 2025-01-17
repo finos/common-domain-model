@@ -43,7 +43,9 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
     alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
     alias afterTransfers: businessEvent -> after -> transferHistory
     set is_event:
-        (businessEvent -> instruction extract primitiveInstruction -> transfer only exists) all = True
+        (businessEvent -> instruction
+                extract primitiveInstruction -> transfer only exists
+                ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
             and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
 
@@ -248,9 +250,9 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
             )
     set is_event:
         (businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> ContractTermsAmendment)
-            and
-                (businessEvent -> instruction extract (primitiveInstruction -> termsChange only exists or (primitiveInstruction -> termsChange, primitiveInstruction -> quantityChange) only exists))
-                    all = True
+            and (businessEvent -> instruction
+                extract
+                    (primitiveInstruction -> termsChange only exists or (primitiveInstruction -> termsChange, primitiveInstruction -> quantityChange) only exists)) all = True
             and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = False)
             and businessEvent -> after -> state -> closedState is absent
 
@@ -535,5 +537,4 @@ func Qualify_ValuationUpdate: <"The qualification of a valuation update from the
     output:
         is_event boolean (1..1)
     alias instruction: businessEvent -> instruction only-element
-    set is_event:
-        instruction -> primitiveInstruction -> valuation only exists
+    set is_event: instruction -> primitiveInstruction -> valuation only exists

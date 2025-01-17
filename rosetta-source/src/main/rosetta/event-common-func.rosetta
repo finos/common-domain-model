@@ -389,9 +389,9 @@ func Create_StockSplit: <"Function specification to create the fully-formed busi
         NonNegativeQuantitySchedule {
             value: preSplitNumberOfShares * stockSplitInstruction -> adjustmentRatio,
             unit: UnitType {
-                    financialUnit: FinancialUnitEnum -> Share,
-                    ...
-                },
+                financialUnit: FinancialUnitEnum -> Share,
+                ...
+            },
             ...
         }
     alias preSplitPrice:
@@ -773,7 +773,8 @@ func SecurityFinanceCashSettlementAmount:
         else FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            ) only-element
+            )
+            only-element
 
     alias securityPrice: <"Specifies the price per security.">
         FilterPrice(
@@ -1244,7 +1245,8 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
         FilterQuantityByFinancialUnit(
                 tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity -> quantity,
                 FinancialUnitEnum -> Share
-            ) only-element
+            )
+            only-element
 
     alias interestRatePayout: <"The interest payout that represents the lending fee.">
         tradeState -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout only-element
@@ -1384,7 +1386,10 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
         businessEvent -> intent = EventIntentEnum -> Repurchase
             and businessEvent -> after -> trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms -> payout -> assetPayout exists
             and (businessEvent -> instruction count = 1
-                and businessEvent -> instruction only-element extract (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+                and businessEvent -> instruction
+                    only-element
+                    extract
+                        (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
                     businessEvent -> instruction -> before,
                     businessEvent -> after
@@ -1444,15 +1449,15 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
         [
             PrimitiveInstruction {
                 quantityChange: QuantityChangeInstruction {
-                        change: priceQuantity,
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
+                    change: priceQuantity,
+                    direction: QuantityChangeDirectionEnum -> Replace,
+                    lotIdentifier: empty
+                },
                 termsChange: Create_RollTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRollDate,
-                            terminationDate
-                        ),
+                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                        effectiveRollDate,
+                        terminationDate
+                    ),
                 ...
             }
         ]
@@ -1537,13 +1542,13 @@ func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive i
         [
             PrimitiveInstruction {
                 quantityChange: Create_OnDemandRateChangePriceChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                            agreedRate
-                        ),
+                        tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                        agreedRate
+                    ),
                 termsChange: Create_OnDemandRateChangeTermsChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveDate
-                        ),
+                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                        effectiveDate
+                    ),
                 ...
             }
         ]
@@ -1637,7 +1642,7 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
             extract
                 PriceQuantity {
                     price: price
-                            filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
+                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
                     quantity: quantity,
                     observable: observable,
                     ...
@@ -1648,7 +1653,7 @@ func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change
             extract
                 PriceQuantity {
                     price: price
-                            filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
+                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
                     quantity: quantity,
                     observable: observable,
                     ...
@@ -1685,14 +1690,14 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
         [
             PrimitiveInstruction {
                 quantityChange: QuantityChangeInstruction {
-                        change: tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
+                    change: tradeState -> trade -> tradableProduct -> tradeLot -> priceQuantity,
+                    direction: QuantityChangeDirectionEnum -> Replace,
+                    lotIdentifier: empty
+                },
                 termsChange: Create_CancellationTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            cancellationDate
-                        ),
+                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                        cancellationDate
+                    ),
                 ...
             }
         ]
@@ -1747,29 +1752,28 @@ func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a se
                 Instruction {
                     before: item,
                     primitiveInstruction: PrimitiveInstruction {
-                            contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
-                                then Create_ContractFormationInstruction(
-                                            item -> trade -> contractDetails -> documentation
-                                        ),
-                            execution: ExecutionInstruction {
-                                    product: item -> trade -> tradableProduct -> product,
-                                    priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                                    counterparty: item -> trade -> tradableProduct -> counterparty,
-                                    ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
-                                    parties: item -> trade -> party,
-                                    partyRoles: item -> trade -> partyRole,
-                                    executionDetails: Create_PackageExecutionDetails(
-                                                item -> trade -> executionDetails,
-                                                pairReference,
-                                                componentId
-                                            ),
-                                    tradeDate: item -> trade -> tradeDate,
-                                    tradeIdentifier: item -> trade -> tradeIdentifier,
-                                    ...
-                                },
+                        contractFormation: if item -> state -> positionState = PositionStatusEnum -> Formed
+                            then Create_ContractFormationInstruction(
+                                    item -> trade -> contractDetails -> documentation
+                                ),
+                        execution: ExecutionInstruction {
+                            product: item -> trade -> tradableProduct -> product,
+                            priceQuantity: item -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                            counterparty: item -> trade -> tradableProduct -> counterparty,
+                            ancillaryParty: item -> trade -> tradableProduct -> ancillaryParty,
+                            parties: item -> trade -> party,
+                            partyRoles: item -> trade -> partyRole,
+                            executionDetails: Create_PackageExecutionDetails(
+                                    item -> trade -> executionDetails,
+                                    pairReference,
+                                    componentId
+                                ),
+                            tradeDate: item -> trade -> tradeDate,
+                            tradeIdentifier: item -> trade -> tradeIdentifier,
                             ...
-                        }
-                }
+                        },
+                        ...
+        }}
 
 func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of the existing trades are maintained, except for their execution details which are updated to include a package component. This package component must be unique across all trades.">
     [qualification BusinessEvent]
@@ -1818,29 +1822,29 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
                 PrimitiveInstruction {
                     contractFormation: if tradeState -> state -> positionState = PositionStatusEnum -> Formed
                         then Create_ContractFormationInstruction(
-                                    tradeState -> trade -> contractDetails -> documentation
-                                ),
+                                tradeState -> trade -> contractDetails -> documentation
+                            ),
                     execution: ExecutionInstruction {
-                            product: tradeState -> trade -> tradableProduct -> product,
-                            priceQuantity: tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
-                            counterparty: tradeState -> trade -> tradableProduct -> counterparty,
-                            ancillaryParty: tradeState -> trade -> tradableProduct -> ancillaryParty,
-                            parties: tradeState -> trade -> party,
-                            partyRoles: tradeState -> trade -> partyRole,
-                            executionDetails: Create_PackageExecutionDetails(
-                                        tradeState -> trade -> executionDetails,
-                                        shapeIdentifier,
-                                        componentId
-                                    ),
-                            tradeDate: tradeState -> trade -> tradeDate,
-                            tradeIdentifier: tradeState -> trade -> tradeIdentifier,
-                            ...
-                        },
+                        product: tradeState -> trade -> tradableProduct -> product,
+                        priceQuantity: tradeState -> trade -> tradableProduct -> tradeLot only-element -> priceQuantity,
+                        counterparty: tradeState -> trade -> tradableProduct -> counterparty,
+                        ancillaryParty: tradeState -> trade -> tradableProduct -> ancillaryParty,
+                        parties: tradeState -> trade -> party,
+                        partyRoles: tradeState -> trade -> partyRole,
+                        executionDetails: Create_PackageExecutionDetails(
+                                tradeState -> trade -> executionDetails,
+                                shapeIdentifier,
+                                componentId
+                            ),
+                        tradeDate: tradeState -> trade -> tradeDate,
+                        tradeIdentifier: tradeState -> trade -> tradeIdentifier,
+                        ...
+                    },
                     quantityChange: QuantityChangeInstruction {
-                            change: item,
-                            direction: QuantityChangeDirectionEnum -> Replace,
-                            lotIdentifier: empty
-                        },
+                        change: item,
+                        direction: QuantityChangeDirectionEnum -> Replace,
+                        lotIdentifier: empty
+                    },
                     ...
                 }
 
@@ -1893,10 +1897,10 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
         [
             PrimitiveInstruction {
                 quantityChange: QuantityChangeInstruction {
-                        change: deliveredPriceQuantity,
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: tradeState -> trade -> tradableProduct -> tradeLot -> lotIdentifier
-                    },
+                    change: deliveredPriceQuantity,
+                    direction: QuantityChangeDirectionEnum -> Replace,
+                    lotIdentifier: tradeState -> trade -> tradableProduct -> tradeLot -> lotIdentifier
+                },
                 ...
             }
         ]
@@ -1922,7 +1926,8 @@ func Qualify_PartialDelivery: <"Qualification of a partial delivery which consti
     alias beforeTradeCollateralQuantity:
         ExtractTradeCollateralQuantity(beforeTradableProduct) only-element
 
-    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTradableProduct) only-element
+    alias afterTradeCollateralQuantity:
+        ExtractTradeCollateralQuantity(afterTradableProduct) only-element
 
     set is_event:
         beforeEconomicterms exists
@@ -1990,15 +1995,15 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
         [
             PrimitiveInstruction {
                 quantityChange: QuantityChangeInstruction {
-                        change: [newPriceQuantity],
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
+                    change: [newPriceQuantity],
+                    direction: QuantityChangeDirectionEnum -> Replace,
+                    lotIdentifier: empty
+                },
                 termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRepriceDate,
-                            empty
-                        ),
+                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                        effectiveRepriceDate,
+                        empty
+                    ),
                 ...
             }
         ]
@@ -2064,15 +2069,15 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
         [
             PrimitiveInstruction {
                 quantityChange: QuantityChangeInstruction {
-                        change: [newPriceQuantity],
-                        direction: QuantityChangeDirectionEnum -> Replace,
-                        lotIdentifier: empty
-                    },
+                    change: [newPriceQuantity],
+                    direction: QuantityChangeDirectionEnum -> Replace,
+                    lotIdentifier: empty
+                },
                 termsChange: Create_EffectiveOrTerminationDateTermChangeInstruction(
-                            tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                            effectiveRepriceDate,
-                            empty
-                        ),
+                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                        effectiveRepriceDate,
+                        empty
+                    ),
                 ...
             }
         ]
@@ -2177,15 +2182,15 @@ func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructio
     set instruction: <"Sets the second part of the split to be a new contract with a new asset payout.">
         PrimitiveInstruction {
             quantityChange: QuantityChangeInstruction {
-                    change: priceQuantity,
-                    direction: QuantityChangeDirectionEnum -> Replace,
-                    lotIdentifier: empty
-                },
+                change: priceQuantity,
+                direction: QuantityChangeDirectionEnum -> Replace,
+                lotIdentifier: empty
+            },
             termsChange: Create_SubstitutionInstruction(
-                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                        effectiveDate,
-                        newCollateralPortfolio
-                    ),
+                    tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                    effectiveDate,
+                    newCollateralPortfolio
+                ),
             ...
         }
 
@@ -2294,9 +2299,9 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
     set instruction:
         PrimitiveInstruction {
             termsChange: Create_CashflowTermsChangeInstruction(
-                        tradeState -> trade -> tradableProduct -> product -> contractualProduct,
-                        cashflow
-                    ),
+                    tradeState -> trade -> tradableProduct -> product -> contractualProduct,
+                    cashflow
+                ),
             ...
         }
 
@@ -2354,13 +2359,13 @@ func Create_Cashflow:
     set cashflow -> priceQuantity:
         ResolvablePriceQuantity {
             quantitySchedule: NonNegativeQuantitySchedule {
-                    value: amount,
-                    unit: UnitType {
-                            currency: currency,
-                            ...
-                        },
+                value: amount,
+                unit: UnitType {
+                    currency: currency,
                     ...
                 },
+                ...
+            },
             ...
         }
 
