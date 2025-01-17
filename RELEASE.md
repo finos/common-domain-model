@@ -88,7 +88,7 @@ Individual releases related to asset refactoring:
 
 ### _Asset refactoring_
 
-_Use of choice data type_
+_Main changes using the choice data type_
 
 A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively for the asset refactoring in CDM 6.
 
@@ -97,12 +97,12 @@ Example of new items defined as `choice` types include:
 - `Instrument`
 
 In addition, some fundamental data types previously defined using a `one-of` condition have been updated to `choice` types. Compared to the regular `one-of` condition, choice types force each of the choice options to have single cardinality.
-- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (previously known as `ContractualProduct`). Data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
+- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (renamed from `ContractualProduct`, previously included in `Product`). Other data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
   - `Commodity`: now extends `AssetBase` not `ProductBase`.
     - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
   - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
   - `Basket`: now extends `AssetBase` not `ProductBase`.
-    - `BasketConstituent` now extends `Observable`, not `Product`.
+    - `BasketConstituent` now extends `Observable` not `Product`.
     - Moved from the `product` namespace to the `observable` namespace.
   - `Index`: now extends `IndexBase` not `ProductBase`
   - `ForeignExchange` has been marked as deprecated.
@@ -118,9 +118,10 @@ In addition, some fundamental data types previously defined using a `one-of` con
   - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
     - `IndexValueObservation`
     - `IndexValueObservationMultiple`
-- `Payout`: defined as a choice between all the different payout types. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example on `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
-  - `SecurityPayout` (deleted type)
-  - `Cashflow`
+- `Payout`: defined as a choice between different types of payout. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example in `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
+  - `SecurityPayout`: deleted type.
+  - `Cashflow`: use in the `ForeignExchange` data type also deprecated.
+  - `ForwardPayout`: renamed to `SettlementPayout` and usage broadened to cover the settlement of any underlier, whether on a current date or forward basis, for either physical or cash settlement.
   
 All references to choice types need to be updated because they are now treated as Capitalised Data Types rather than lower case attributes. For example, a previous reference might have read:
 ```
@@ -162,30 +163,8 @@ _Other data type and attribute changes_
 - Refactoring of `ObservationTerms`:
   - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
 - Changes to `Transfer`:
-  - As `Asset` is defined as something that can be transferred, the modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable` with a change to `TransferBase`.
-  - This also results in changes to the `Qualify_SecurityTransfer` function.
   - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
-  - Now extends `AssetFlowBase`, which is also used by the `Cashflow` type.
-  - `TransferBase` has been deleted from the model.
-- Changes to `Commodity` data type:
-  - Now extends from `AssetBase` not `ProductBase`.
-  - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
-- Changes to `Security` data type:
-  - Now extends from `InstrumentBase` not `ProductBase`.
-- The `ForeignExchange` data type has been deprecated and the deprecated `ExchangeRate` and `CrossRate` datas type have both been deleted.  
-- Refactoring of `Observable`:
-  - The following data types have been removed from `Observable`:  `Commodity` (now available as an `Asset`); `QuotedCurrencyPair` (replaced by the the FX observable data type inside `Index`).
-  - The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
-  - `Observable` is now a `choice` data type.
-  - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
-- Refactored baskets:
-  - `BasketConstituent` now extends from `Observable`, not `Product`.
-  - Moved from the product namespace to the observable namespace.
-- Refactored payouts:
-  - The `Payout` data type has been refactored as a `Choice`. Choice data types work slightly different from the regular one-of condition because they force each of the members of the choice to have a single cardinality. Therefore, the use of Payout, for example on `EconomicTerms` and `ResetInstruction`, now have multiple cardinality.
-  - All references to a payout need to be updated as references to a payout are now treated as capitalised Data Types rather than lower case Attributes. For example, a previous reference might have read: `payout -> interestRatePayout -> floatingAmount` must now be written as: `payout -> InterestRatePayout -> floatingAmount`.
-  - The `ForwardPayout` has been renamed to `SettlementPayout` and its usage broadened to cover the settlement of an underlier, whether on a current date or forward basis, for either physical or cash settlement.
-  - `Cashflow` is no longer an attribute on `Payout` and its use in the `ForeignExchange` data type has been deprecated.
+  - `TransferBase` has been deleted from the model and replaced by `AssetFlowBase`, which is also extended by the `Cashflow` type.
 - Refactored eligible collateral
   - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
   - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
