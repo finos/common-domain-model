@@ -24,6 +24,12 @@ A major feature of CDM 6 is the refactored product model with the introduction o
 extend the model into additional asset classes and to address some long-standing challenges.  The objectives and design artefacts of the task force were documented in 
 [GitHub Issue 2805](https://github.com/finos/common-domain-model/issues/2805).
 
+This diagram shows the new product model at a high level; please read the [FINOS CDM documentation](https://cdm.finos.org/docs/product-model) for a full explanation:
+
+![](/img/ART-complete.png)
+
+Individual releases related to asset refactoring:
+
 - New Data Types: [6.0.0-dev.46](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.46)
 - Remove AssetPool and deprecated data types: **Backward incompatible changes** [6.0.0-dev.47](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.47)
 - Asset, Index, Identifier: **Backward incompatible changes** [6.0.0-dev.58](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.58)
@@ -82,7 +88,7 @@ extend the model into additional asset classes and to address some long-standing
 
 ### _Asset refactoring_
 
-_Use of choice data type_
+_Main changes using the choice data type_
 
 A new feature in the Rune DSL - the [choice data type](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/) - has been used extensively for the asset refactoring in CDM 6.
 
@@ -91,12 +97,12 @@ Example of new items defined as `choice` types include:
 - `Instrument`
 
 In addition, some fundamental data types previously defined using a `one-of` condition have been updated to `choice` types. Compared to the regular `one-of` condition, choice types force each of the choice options to have single cardinality.
-- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (previously known as `ContractualProduct`). Data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
+- `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (renamed from `ContractualProduct`, previously included in `Product`). Other data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
   - `Commodity`: now extends `AssetBase` not `ProductBase`.
     - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
   - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
   - `Basket`: now extends `AssetBase` not `ProductBase`.
-    - `BasketConstituent` now extends `Observable`, not `Product`.
+    - `BasketConstituent` now extends `Observable` not `Product`.
     - Moved from the `product` namespace to the `observable` namespace.
   - `Index`: now extends `IndexBase` not `ProductBase`
   - `ForeignExchange` has been marked as deprecated.
@@ -112,9 +118,10 @@ In addition, some fundamental data types previously defined using a `one-of` con
   - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
     - `IndexValueObservation`
     - `IndexValueObservationMultiple`
-- `Payout`: defined as a choice between all the different payout types. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example on `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
-  - `SecurityPayout` (deleted type)
-  - `Cashflow`
+- `Payout`: defined as a choice between different types of payout. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example in `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
+  - `SecurityPayout`: deleted type.
+  - `Cashflow`: use in the `ForeignExchange` data type also deprecated.
+  - `ForwardPayout`: renamed to `SettlementPayout` and usage broadened to cover the settlement of any underlier, whether on a current date or forward basis, for either physical or cash settlement.
   
 All references to choice types need to be updated because they are now treated as Capitalised Data Types rather than lower case attributes. For example, a previous reference might have read:
 ```
@@ -157,8 +164,7 @@ _Other data type and attribute changes_
   - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
 - Changes to `Transfer`:
   - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
-  - Now extends `AssetFlowBase`, which is also used by the `Cashflow` type.
-  - `TransferBase` has been deleted from the model.
+  - `TransferBase` has been deleted from the model and replaced by `AssetFlowBase`, which is also extended by the `Cashflow` type.
 - Refactored eligible collateral
   - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
   - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
@@ -169,7 +175,398 @@ _Other data type and attribute changes_
    
 _Sample Impact_
 
-OUTSTANDING
+The changes listed above have significant impact to serialised data when the CDM is represented in JSON.  All of the impacted sample files in the FINOS CDM distribution have been updated accordingly.
+
+The following examples are shown here to illustrate these changes:
+
+#### 1. Impact of the refactoring of the `Trade` - `TradableProduct` - `EconomicTerms` hierarchy
+
+This example is of a vanilla interest rate swap.  In CDM 5, the structure appeared as follows:
+
+``` json
+{
+  "trade" : {
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "InterestRate_IRSwap_FixedFloat"
+          } ],
+          "economicTerms" : {
+            "payout" : {
+              "interestRatePayout" : [ {
+                "payerReceiver" : {
+```
+
+In CDM 6, 
+- tradableProduct and contractualProduct no longer appear as they have been collapsed into `product`
+- productTaxonomy is now just `Taxonomy`
+- `InterestRatePayout` is capitalised as it is now a choice data type
+
+These differences can be seen in this sample:
+
+``` json
+{
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "InterestRate_IRSwap_FixedFloat"
+      } ],
+      "economicTerms" : {
+        "payout" : [ {
+          "InterestRatePayout" : {
+            "payerReceiver" : {
+```
+
+#### 2. Example of a foreign exchange contract using a `SettlementPayout`
+
+In CDM 5, foreign exchange was represented using a Forward Payout containing a Foreign Exchange underlier (some terms omitted for clarity):
+
+``` json
+{
+  "trade" : {
+
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "ForeignExchange_Spot_Forward"
+          } ],
+          "economicTerms" : {
+            "payout" : {
+              "forwardPayout" : [ {
+                "settlementTerms" : {
+                  "settlementDate" : {
+                    "valueDate" : "2001-10-25",
+                },
+                "underlier" : {
+                  "foreignExchange" : {
+                    "exchangedCurrency1" : {
+
+                      },
+                      "priceQuantity" : {
+
+                        }
+                    },
+                    "exchangedCurrency2" : {
+
+                      },
+                      "priceQuantity" : {
+
+                        }
+                    },
+```
+
+In CDM 6, these trades are represented using a `SettlementPayout` where the underlier is a cash asset: 
+
+``` json
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "ForeignExchange_Spot_Forward"
+      } ],
+      "economicTerms" : {
+        "payout" : [ {
+          "SettlementPayout" : {
+             
+            "settlementTerms" : {
+              "settlementDate" : {
+                "valueDate" : "2001-10-25"
+              }
+            },
+            "underlier" : {
+              "Observable" : {
+                "address" : {
+                  "scope" : "DOCUMENT",
+                  "value" : "observable-1"
+                }
+```
+
+The second currency reflected in the `tradeLot`:
+
+``` json
+    "tradeLot" : [ {
+      "priceQuantity" : [ {
+        "price" : [ {
+          "value" : {
+            "value" : 1.48,
+            "unit" : {
+              "currency" : {
+                "value" : "USD"
+              }
+            },
+            "perUnitOf" : {
+              "currency" : {
+                "value" : "GBP"
+              }
+            },
+            "priceType" : "ExchangeRate"
+          }
+        } ],
+        "quantity" : [ {
+          "value" : {
+            "value" : 10000000,
+            "unit" : {
+              "currency" : {
+                "value" : "GBP"
+              }
+            }
+          }
+        }, {
+          "value" : {
+            "value" : 14800000,
+            "unit" : {
+              "currency" : {
+                "value" : "USD"
+              }
+            }
+          }
+        } ],
+        "observable" : {
+          "value" : {
+            "Asset" : {
+              "Cash" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "GBP"
+                  },
+                  "identifierType" : "CurrencyCode"
+                } ]
+              }
+            }
+          }
+```
+
+#### 5. Securities Financing
+
+CDM 5 treated both repos and securities lending trades in a similar manner and was unable to differentiate between the two in product qualification.
+
+The modelling typically:
+- qualified all securities financing products as "SecuritiesFinance"
+- consisted of a `ContractualProduct` with a single `InterestRatePayout` in the `EconomicTerms`
+- used a `Collateral` object with an `AssetPayout` for the security being either repurchased or lent.
+
+Sample (some terms omitted for clarity):
+
+``` json
+  "trade" : {
+
+    "tradableProduct" : {
+      "product" : {
+        "contractualProduct" : {
+          "productTaxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "SecuritiesFinance"
+          } ],
+          "economicTerms" : {
+            "effectiveDate" : {
+
+            },
+            "terminationDate" : {
+            },
+            "payout" : {
+              "interestRatePayout" : [ {
+                "payerReceiver" : {
+                  "payer" : "Party1",
+                  "receiver" : "Party2"
+                },
+```
+
+with Collateral (some terms omitted for clarity):
+
+``` json
+            "collateral" : {
+              "collateralPortfolio" : [ {
+                "value" : {
+                  "collateralPosition" : [ {
+                    "product" : {
+                      "contractualProduct" : {
+                        "economicTerms" : {
+                          "payout" : {
+                            "assetPayout" : [ {
+                              "payerReceiver" : {
+                                "payer" : "Party1",
+                                "receiver" : "Party2"
+                              },
+                              "assetLeg" : [ {
+                                "settlementDate" : {
+
+                                    },
+                                "deliveryMethod" : "DeliveryVersusPayment"
+                              }, {
+                              "securityInformation" : {
+                                "security" : {
+                                  "productIdentifier" : [ {
+                                    "value" : {
+                                      "identifier" : {
+                                        "value" : "ST001"
+                                      },
+                                      "source" : "SEDOL",
+                                      "meta" : {
+                                        "globalKey" : "970a835f"
+                                      }
+                                    }
+                                  } ],
+                                  "securityType" : "Equity"
+```
+
+#### 4. Example of a Repurchase Agreement
+
+CDM 6 offers enhanced supported for repurchase agreements, replacing the implementation of securities financing in section 3 above.  A repurchase agreement:
+- qualifies as "RepurchaseAgreement"
+- is composed of a `Product` a single `InterestRatePayout` in the `EconomicTerms` to represent the principal payment
+- and a `Collateral` definition with a `TransferableProduct` for the asset being exchnaged
+
+Example of the product structure (some terms omitted for clarity):
+
+``` json
+  "trade" : {
+    "product" : {
+      "taxonomy" : [ {
+        "source" : "ISDA",
+        "productQualifier" : "RepurchaseAgreement"
+      } ],
+      "economicTerms" : {
+        "effectiveDate" : {
+
+          }
+        },
+        "terminationDate" : {
+
+        },
+        "payout" : [ {
+          "InterestRatePayout" : {
+            "payerReceiver" : {
+              "payer" : "Party1",
+              "receiver" : "Party2"
+            },
+            "priceQuantity" : {
+
+            },
+            "principalPayment" : {
+              "initialPayment" : true,
+              "finalPayment" : true,
+              "intermediatePayment" : false,
+              "meta" : {
+                "globalKey" : "12a6f5"
+              }
+            },
+            "rateSpecification" : {
+              "FixedRateSpecification" : {
+                "rateSchedule" : {
+                  "price" : {
+
+                  }
+```
+
+and the collateral structure:
+
+``` json
+        "collateral" : {
+          "collateralPortfolio" : [ {
+            "value" : {
+              "collateralPosition" : [ {
+                "product" : {
+                  "TransferableProduct" : {
+                    "Instrument" : {
+                      "Security" : {
+                        "identifier" : [ {
+                          "identifier" : {
+                            "value" : "GB00B24FF097"
+                          },
+                          "identifierType" : "ISIN"
+                        } ]
+                      }
+                    },
+```
+
+#### 5. Example of a Securities Lending trade
+
+CDM 6 offers enhanced supported for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented using:
+- a product that qualifies as "SecurityLending"
+- composed of Economic Terms with a single `AssetPayout` with a `Security` underlier for the asset being lent
+- with the the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
+
+This can be seen in this sample (some items omitted for clarity):
+
+``` json
+        "product" : {
+          "taxonomy" : [ {
+            "source" : "ISDA",
+            "productQualifier" : "SecurityLending"
+          } ],
+          "economicTerms" : {
+            "effectiveDate" : {
+
+            },
+            "terminationDate" : {
+
+              }
+            },
+            "payout" : [ {
+              "AssetPayout" : {
+                "payerReceiver" : {
+
+                },
+                "priceQuantity" : {
+
+                },
+                "assetLeg" : [ {
+                  "settlementDate" : {
+                    "adjustableDate" : {
+
+                      },
+                      "adjustedDate" : {
+                        "value" : "2020-09-22"
+                  },
+                  "deliveryMethod" : "DeliveryVersusPayment"
+                }, 
+                "underlier" : {
+                  "Instrument" : {
+                    "Security" : {
+                      "identifier" : [ {
+                        "identifier" : {
+                          "value" : "ST001"
+                        },
+                        "identifierType" : "SEDOL"
+                      } ],
+                      "instrumentType" : "Equity"
+                    }
+                  }
+                }
+
+            } ],
+            "collateral" : {
+              "collateralPortfolio" : [ {
+                "value" : {
+                  "collateralPosition" : [ {
+                    "product" : {
+                      "TransferableProduct" : {
+                        "Cash" : {
+                          "identifier" : [ {
+                            "identifier" : {
+                              "value" : "USD"
+                            },
+                            "identifierType" : "CurrencyCode"
+                          } ]
+                        },
+                        "economicTerms" : {
+                          "payout" : [ {
+                            "InterestRatePayout" : {
+
+                              },
+                              "priceQuantity" : {
+                                "quantitySchedule" : {
+      
+                                },
+```
+
+
+
       
 ### _Option Payout refactoring_
    
@@ -193,7 +590,7 @@ There are many samples impacted by this change, namely all the samples utilizing
 - `eqd ex04 european call index long form`: the `OptionStyle` has been removed in favor of the the `style` = "European", and the relevant fields previously under `europeanExercise` (`expirationDate` and `expirationTimeType`). Additionally, the `strike` is moved from inside `exerciseTerms` to outside.
 
 From:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -233,7 +630,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -271,7 +668,7 @@ To this:
 - `eqd ex01 american call stock long form`: the `OptionStyle` has been removed in favor of the the `style` = "American", and the relevant fields previously under `americanExercise` (`commencementDate`, `expirationDate`, `latestExerciseTime`, `expirationTimeType`, and `multipleExercise`). Additionally, the `strike` is moved from inside `exerciseTerms` to outside.
 
 From:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -326,7 +723,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
@@ -381,7 +778,7 @@ To this:
 - `ird ex14 berm swaption`: the `OptionStyle` has been removed in favor of the the `style` = "Bermuda", and the relevant fields previously under `bermudaExercise` (`bermudaExerciseDates`, `relevantUnderlyingDate`, `earliestExerciseTime`, and `expirationTime`).
 
 From:
-```
+``` json
 "optionPayout": [
     {        
         ...    
@@ -454,7 +851,7 @@ From:
 ```
 
 To this:
-```
+``` json
 "optionPayout": [
     {
         ...
