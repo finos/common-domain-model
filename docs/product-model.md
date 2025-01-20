@@ -27,7 +27,7 @@ commodity, a loan or a security.
 
 :::
 
-![](/img/ART-asset.png)
+![/img/ART-asset.png](/img/ARTasset.png)
 
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
@@ -181,7 +181,7 @@ or something which can be observed but not transferred, such as an index.
 
 :::
 
-![](/img/ART-observable.png)
+![/img/ART-observable.png](/img/ARTobservable.png)
 
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
@@ -232,7 +232,7 @@ choice Product:
 
 :::
 
-![](/img/ART-product.png)
+![/img/ART-transferable.png](/img/ARTtransferable.png)
 
 #### TransferableProduct
 
@@ -526,7 +526,7 @@ a payout to ensure that the underlier aligns with the payout's use case.
 
 :::
 
-![](/img/ART-complete.png)
+![(/img/ART-complete.png](/img/ARTcomplete.png)
 
 This fact that a product can be nested as an underlier in the definition of
 another product is what makes the product model composable. One use case
@@ -621,7 +621,7 @@ same two counterparties.
 
 :::
 
-![](/img/ART-trade.png)
+![ART-trade.png](/img/ARTtrade.png)
 
 ``` Haskell
 type TradableProduct:
@@ -672,7 +672,7 @@ of:
 - a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
   expressed as a quantity in the second currency, and an exchange rate.
 
-![](/img/ART-settlement.png)
+![/img/ART-settlement.png](/img/ARTsettlement.png)
 
 ### Counterparty
 
