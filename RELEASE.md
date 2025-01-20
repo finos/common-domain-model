@@ -196,6 +196,9 @@ This example is of a vanilla interest rate swap.  In CDM 5, the structure appear
             "payout" : {
               "interestRatePayout" : [ {
                 "payerReceiver" : {
+					...
+		  } } ] } }
+} } } } }  
 ```
 
 In CDM 6, 
