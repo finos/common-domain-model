@@ -224,6 +224,10 @@ There are two types of products:
 * A **transferable product** associates an asset, itself transferable, with the economic terms describing that asset.
 * A **non-transferable product** describes a commitment between two parties to one or more transfers of assets in the future.
 
+:::
+
+![](/img/ART-product.png)
+
 #### TransferableProduct
 
 Because an asset is a basic type of financial product, the `Asset` data type only needs to provide limited information
@@ -237,10 +241,6 @@ This is supported by the `TransferableProduct` data type.
 
 A TransferableProduct is a type of Product which allows to specify the EconomicTerms of an Asset.
 It can be used as the underlier of a basic Payout that describes the buying and selling of that Asset.
-
-:::
-
-![](/img/ART-product.png)
 
 ``` Haskell
 type TransferableProduct extends Asset:
@@ -361,18 +361,17 @@ type EconomicTerms:
 The `Payout` type defines the composable payout types, each of which
 describes a set of terms and conditions for the financial
 obligation between the contractual parties. Payout types can be
-combined to compose a product. For example, an Equity Swap can be
-composed by combining an `InterestRatePayout` and an
-`PerformancePayout`.
+combined to compose a product.
 
 :::tip Definition: Payout
 
 Represents the set of future cashflow methodologies in the form of 
-specific payout data type(s) which result from the financial product.  
-Examples: a trade in a cash asset will use only a settlement payout; 
+specific payout data type(s) which combine to form the financial product.  
+Examples: a "cash" trade (buying and selling an asset) will use a settlement payout; 
 for derivatives, two interest rate payouts can be combined to specify 
 an interest rate swap; one interest rate payout can be combined with 
-a credit default payout to specify a credit default swap.
+a credit default payout to specify a credit default swap; an equity swap
+combines an interest rate payout and a performance payout; etc.
 
 :::
 
@@ -449,12 +448,12 @@ type CalculationPeriodDates:
   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 ```
 
-The price and quantity attributes in the _PayoutBase_
-structure are positioned in the _ResolvablePriceQuantity_
-data type. This data type mirrors the _PriceQuantity_ data
+The price and quantity attributes in the `PayoutBase`
+structure are positioned in the `ResolvablePriceQuantity`
+data type. This data type mirrors the `PriceQuantity` data
 type and contains both the price and quantity schedules.
 
-In addition that data type supports the definition of additional
+That data type supports the definition of additional
 information such as a quantity reference, a quantity multiplier or the
 indication that the quantity is resettable. Those are used to describe
 the quantity of a payout leg that may need to be calculated based on
@@ -505,67 +504,32 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
-### SettlementPayout
-
-A `SettlementPayout` is a specialised choice of payout introduced to enable 
-the settlement of an asset.
-
-:::tip Definition: SettlementPayout
-
-A SettlementPayout is used to represent a cash or forward settling payout. The underlier 
-attribute captures the underlying payout, which is settled according to the 
-settlementTerms attribute (which is part of PayoutBase).  The underlier that is
-settled must be a TransferableProduct.
-
-:::
-
-Conditions on the definition of the SettlementPayout ensure the following are true
-for the underlier:
-- It must not be a NonTransferableProduct.
-- If it is a basket, then all of the constituents of the basket
-  must be assets
-- If it is an Index, then it must be cash settled.
-
-The SettlementPayout should be used for foreign exchange trades, either cash or 
-forward-dated, where the underlier specifies the asset (of choice type `cash`)
-that will be settled.  The price is defined in the `tradeLot` in a `PriceQuantity`
-of the purchase currency, with the exchange rate.
-
-This example shows the structure for a foreign exchange trade which is composed
-of:
-- a `Trade` and a `TradableProduct`
-- a `NonTransferableProduct` composed using a single `SettlementPayout`.  This in
-  turn has a `Cash` underlier which specifies the currency of the payout.
-- a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
-  expressed as a quantity of a second `Cash` observable in the second currency, and
-  an exchange rate.
-
-![](/img/ART-settlement.png)
-
-### Underlier
+#### Underlier
 
 The concept of an underlier allows for financial products to be used
-to drive outcomes within the definition of a corresponding product, for example
-an option, forward, or equity swap.
+within the definition of another product to drive outcomes, for example
+a forward or option (contingent on an underlying asset), or an equity swap
+(contingent on an underlying stock price or index).
 
 :::tip Definition: Underlier
 
-The underlying financial product that will be physically or cash settled, which 
-can be of any type, eg an asset such as cash or a security, a product, or the 
-cash settlement of an index rate.  Conditions are usually applied when used in 
-a data type, such as a payout, to ensure this aligns with the use case.
+The underlying financial product can be of any type: e.g. an asset such as
+cash or a security, an index, or a product, and may be physically or cash settled
+as specified in the payout definition.  Conditions are usually applied when used in 
+a payout to ensure that the underlier aligns with the payout's use case.
 
 :::
 
 ![](/img/ART-complete.png)
 
-This nesting of the product component is another example of a composable
-product model. One use case is an interest rate swaption for which the
+This fact that a product can be nested as an underlier in the definition of
+another product is what makes the product model composable. One use case
+is an interest rate swaption for which the
 high-level product uses the `OptionPayout` type and the underlier is an
-Interest Rate Swap composed of two `InterestRatePayout` types.
+interest rate swap composed of two `InterestRatePayout` types.
 Similiarly, the product underlying an Equity Swap composed of an
-`InterestRatePayout` and a `PerformancePayout` would be a transferable
-product: an equity security.
+`InterestRatePayout` and a `PerformancePayout` could be an equity security
+defined as a transferable product.
 
 In the simplest case, the underlier in an `AssetPayout` can only ever be
 a security, so the definition within this data type is constrained as such.
@@ -579,7 +543,7 @@ outcomes as the settlement can be an Asset, the cash value of an Index, or
 a TransferableProduct.  Therefore, the choice data type `Underlier` has
 been defined and is used as the underlier attribute in this payout.
 
-Option financial products allow for an even greater range of outcomes, so
+Financial option products allow for an even greater range of outcomes, so
 the choice data type `OptionUnderlier` provides for both Observables and Products
 (itself also a choice data type) to be used in an `OptionPayout`.
 
@@ -606,6 +570,30 @@ The following table summarises the use of underliers for each of the main payout
 | `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
 | `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
 
+#### SettlementPayout
+
+A `SettlementPayout` is a specialised choice of payout introduced to represent the
+buying or selling of an underlying asset or product, which then needs to be settled.
+
+:::tip Definition: SettlementPayout
+
+A SettlementPayout can represent a spot or forward settling payout. The `underlier` 
+attribute captures the underlying product or asset, which is settled according to the 
+`settlementTerms` attribute (which is part of `PayoutBase`).
+
+:::
+
+Conditions on the definition of `SettlementPayout` ensure the following are true
+for the underlier:
+- If it is a `Product`, it must not be a `NonTransferableProduct`.
+- If it is a `Basket`, then all of the constituents of the basket must be assets.
+- If it is an `Index`, then it must be cash settled.
+
+`SettlementPayout` can be used for foreign exchange trades, either spot- (cash) or 
+forward-dated. In this case, the underlier specifying the asset to be settled must
+be of `Cash` type. The price defined in the `PriceQuantity` represents the exchange
+rate in the purchase currency. Non-deliverable forwards can be represented using the
+cash-settlement option.
 
 ## Tradable Product {#tradable-product}
 
@@ -656,20 +644,29 @@ in the `NonTransferableProduct` data type.
 There are cases when the object of a trade is a _transferable_ product
 whose economic terms are already set: for instance when buying or selling
 a fungible instrument like a security or a loan. In those cases, the terms
-of that trade (in its simplest form: the settlement date, in addition
-to the price and quantity) need to be contractually agreed betwwen the parties.
-These terms would be defined in a `Payout` and embedded in a
-`NonTransferableProduct`. That contract is not transferable, even though
+of that trade still need to be contractually agreed betwwen the parties.
+This contract's terms would be defined in a `Payout` and embedded in a
+`NonTransferableProduct` which is not transferable, even though
 the underlying product may be.
 
-A Foreign Exchange (FX) spot or forward trade (including a non-deliverable
-forward) is also represented by a contractual agreement and is not fungible.
-In that case the `Payout` is based on `Cash` as the underlying asset.
+In its simplest form, that trade's terms will specify the settlement date
+in addition to the price and quantity and can be represented using the
+[`SettlementPayout`](#SettlementPayout).
 
-A `NonTransferableProduct` also provides a mechanism to trade indices that
+A `TradableProduct` also provides a mechanism to trade indices that
 otherwise cannot be directly transfered. The `Payout` would define how
 the index is meant to be observed and the resulting cashflows between
 the parties based on that observed value.
+
+This example shows the structure for a foreign exchange trade which is composed
+of:
+- a `Trade` and a `TradableProduct`
+- a `NonTransferableProduct` composed using a single `SettlementPayout`.  This in
+  turn has a `Cash` underlier which specifies the currency of the payout.
+- a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
+  expressed as a quantity in the second currency, and an exchange rate.
+
+![](/img/ART-settlement.png)
 
 ### Counterparty
 
