@@ -27,7 +27,7 @@ commodity, a loan or a security.
 
 :::
 
-![/img/ART-asset.png](/img/ARTasset.png)
+[![](/img/ARTasset.png)](img/ART-asset.png)
 
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
@@ -79,7 +79,7 @@ The `Asset` definitions are as follows:
 
 In the case of `Commodity`, the applicable product identifiers are the ISDA definitions for reference benchmarks. 
 
-#### Instrument
+#### Instrument  {#instrument}
 
 The `Instrument` data type is further broken down using the `choice` construct:
 
@@ -167,7 +167,27 @@ Default Swap. The additional security details are optional as these
 could be determined from a reference database using the asset
 identifier as a key.
 
-### Observable
+### Index   {#index}
+
+dssd
+
+:::tip Definition: Index
+
+An `Index` is data type to record information about prices, rates or 
+valuations of a number of assets that are tracked in a standardized way.  
+Examples include equity market indices as well as indices on interest rates, 
+foreign exchange rates, inflation and credit instruments.
+
+:::
+
+The index data types extend the `IndexBase` data type which in turn
+extends the `AssetBase` type.  Within `IndexBase`, an index name can
+be assigned, the index provider can be identified, and the asset
+class specified.
+
+[![](/img/ARTindex.png)](img/ART-index.png)
+
+### Observable  {#observable}
 
 In addition to assets, there are variables which can be observed in the markets and which can directly
 influence the outcomes of financial products. In the CDM, the observed value represents the price of
@@ -181,7 +201,7 @@ or something which can be observed but not transferred, such as an index.
 
 :::
 
-![/img/ART-observable.png](/img/ARTobservable.png)
+[![](/img/ARTobservable.png)](img/ART-observable.png)
 
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
@@ -232,7 +252,7 @@ choice Product:
 
 :::
 
-![/img/ART-transferable.png](/img/ARTtransferable.png)
+[![](/img/ARTtransferable.png)](img/ART-transferable.png)
 
 #### TransferableProduct
 
@@ -362,6 +382,8 @@ type EconomicTerms:
   collateral Collateral (0..1)
 ```
 
+[![](/img/ARTproduct.png)](img/ART-product.png)
+
 ### Payout
 
 The `Payout` type defines the composable payout types, each of which
@@ -435,6 +457,8 @@ The code snippets above excludes the conditions in this data type for
 purposes of brevity.
 
 ---
+
+[![](/img/ARTpayout.png)](img/ART-payout.png)
 
 There are a number of components that are reusable across several payout
 types. For example, the `CalculationPeriodDates` class describes the
@@ -526,7 +550,7 @@ a payout to ensure that the underlier aligns with the payout's use case.
 
 :::
 
-![(/img/ART-complete.png](/img/ARTcomplete.png)
+[![](/img/ARTcomplete.png)](img/ART-complete.png)
 
 This fact that a product can be nested as an underlier in the definition of
 another product is what makes the product model composable. One use case
@@ -621,7 +645,7 @@ same two counterparties.
 
 :::
 
-![ART-trade.png](/img/ARTtrade.png)
+[![](/img/ARTtrade.png)](img/ART-trade.png)
 
 ``` Haskell
 type TradableProduct:
@@ -672,7 +696,7 @@ of:
 - a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
   expressed as a quantity in the second currency, and an exchange rate.
 
-![/img/ART-settlement.png](/img/ARTsettlement.png)
+[![](/img/ARTsettlement.png)](img/ART-settlement.png)
 
 ### Counterparty
 
