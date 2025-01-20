@@ -196,8 +196,8 @@ This example is of a vanilla interest rate swap.  In CDM 5, the structure appear
             "payout" : {
               "interestRatePayout" : [ {
                 "payerReceiver" : {
-					...
-		  } } ] } }
+                 ...
+          } } ] } }
 } } } } }  
 ```
 
@@ -220,6 +220,8 @@ These differences can be seen in this sample:
         "payout" : [ {
           "InterestRatePayout" : {
             "payerReceiver" : {
+			}
+} } ] } } } }
 ```
 
 #### 2. Example of a foreign exchange contract using a `SettlementPayout`
