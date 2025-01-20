@@ -224,6 +224,12 @@ There are two types of products:
 * A **transferable product** associates an asset, itself transferable, with the economic terms describing that asset.
 * A **non-transferable product** describes a commitment between two parties to one or more transfers of assets in the future.
 
+``` Haskell
+choice Product:
+    TransferableProduct
+    NonTransferableProduct
+```
+
 :::
 
 ![](/img/ART-product.png)
