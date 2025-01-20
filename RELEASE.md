@@ -196,8 +196,8 @@ This example is of a vanilla interest rate swap.  In CDM 5, the structure appear
             "payout" : {
               "interestRatePayout" : [ {
                 "payerReceiver" : {
-                 ...
-          } } ] } }
+                } 
+          } ] } }
 } } } } }  
 ```
 
@@ -220,7 +220,7 @@ These differences can be seen in this sample:
         "payout" : [ {
           "InterestRatePayout" : {
             "payerReceiver" : {
-			}
+	    }
 } } ] } } } }
 ```
 
@@ -261,12 +261,14 @@ In CDM 5, foreign exchange was represented using a Forward Payout containing a F
                       "priceQuantity" : {
 
                         }
-                    },
+                    }
+} } ] } } } } } } }
 ```
 
 In CDM 6, these trades are represented using a `SettlementPayout` where the underlier is a cash asset: 
 
 ``` json
+{
   "trade" : {
     "product" : {
       "taxonomy" : [ {
@@ -288,12 +290,14 @@ In CDM 6, these trades are represented using a `SettlementPayout` where the unde
                   "scope" : "DOCUMENT",
                   "value" : "observable-1"
                 }
+} } } } ] } } } }
 ```
 
 The second currency reflected in the `tradeLot`:
 
 ``` json
-    "tradeLot" : [ {
+{
+	"tradeLot" : [ {
       "priceQuantity" : [ {
         "price" : [ {
           "value" : {
@@ -343,6 +347,7 @@ The second currency reflected in the `tradeLot`:
               }
             }
           }
+} } ] } ] }
 ```
 
 #### 3. Securities Financing
@@ -357,6 +362,7 @@ The modelling typically:
 Sample (some terms omitted for clarity):
 
 ``` json
+{
   "trade" : {
 
     "tradableProduct" : {
@@ -377,45 +383,50 @@ Sample (some terms omitted for clarity):
                 "payerReceiver" : {
                   "payer" : "Party1",
                   "receiver" : "Party2"
-                },
+                }
+				
+} ] } } } } } } }
 ```
 
 with Collateral (some terms omitted for clarity):
 
 ``` json
-            "collateral" : {
-              "collateralPortfolio" : [ {
-                "value" : {
-                  "collateralPosition" : [ {
-                    "product" : {
-                      "contractualProduct" : {
-                        "economicTerms" : {
-                          "payout" : {
-                            "assetPayout" : [ {
-                              "payerReceiver" : {
-                                "payer" : "Party1",
-                                "receiver" : "Party2"
-                              },
-                              "assetLeg" : [ {
-                                "settlementDate" : {
-
-                                    },
-                                "deliveryMethod" : "DeliveryVersusPayment"
-                              }, {
-                              "securityInformation" : {
-                                "security" : {
-                                  "productIdentifier" : [ {
-                                    "value" : {
-                                      "identifier" : {
-                                        "value" : "ST001"
-                                      },
-                                      "source" : "SEDOL",
-                                      "meta" : {
-                                        "globalKey" : "970a835f"
-                                      }
-                                    }
-                                  } ],
-                                  "securityType" : "Equity"
+{ 
+  "collateral" : {
+    "collateralPortfolio" : [ {
+      "value" : {
+        "collateralPosition" : [ {
+          "product" : {
+            "contractualProduct" : {
+              "economicTerms" : {
+                "payout" : {
+                  "assetPayout" : [ {
+                    "payerReceiver" : {
+                      "payer" : "Party1",
+                      "receiver" : "Party2"
+                    },
+                    "assetLeg" : [ {
+                      "settlementDate" : {
+  
+                          },
+                      "deliveryMethod" : "DeliveryVersusPayment"
+                    }, {
+                    "securityInformation" : {
+                      "security" : {
+                        "productIdentifier" : [ {
+                          "value" : {
+                            "identifier" : {
+                              "value" : "ST001"
+                            },
+                            "source" : "SEDOL",
+                            "meta" : {
+                              "globalKey" : "970a835f"
+                            }
+                          }
+                        } ],
+                        "securityType" : "Equity"
+                       }
+} } ] } ] } } } } } ] } } ] } }	
 ```
 
 #### 4. Example of a Repurchase Agreement
@@ -428,7 +439,8 @@ CDM 6 offers enhanced supported for repurchase agreements, replacing the impleme
 Example of the product structure (some terms omitted for clarity):
 
 ``` json
-  "trade" : {
+{
+	"trade" : {
     "product" : {
       "taxonomy" : [ {
         "source" : "ISDA",
@@ -465,27 +477,30 @@ Example of the product structure (some terms omitted for clarity):
                   "price" : {
 
                   }
+} } } } } ] } } }
 ```
 
 and the collateral structure:
 
 ``` json
-        "collateral" : {
-          "collateralPortfolio" : [ {
-            "value" : {
-              "collateralPosition" : [ {
-                "product" : {
-                  "TransferableProduct" : {
-                    "Instrument" : {
-                      "Security" : {
-                        "identifier" : [ {
-                          "identifier" : {
-                            "value" : "GB00B24FF097"
-                          },
-                          "identifierType" : "ISIN"
-                        } ]
-                      }
+{
+  "collateral" : {
+    "collateralPortfolio" : [ {
+      "value" : {
+        "collateralPosition" : [ {
+          "product" : {
+            "TransferableProduct" : {
+              "Instrument" : {
+                "Security" : {
+                  "identifier" : [ {
+                    "identifier" : {
+                      "value" : "GB00B24FF097"
                     },
+                    "identifierType" : "ISIN"
+                  } ]
+                }
+              }
+} } } ] } } ] } }
 ```
 
 #### 5. Example of a Securities Lending trade
@@ -498,75 +513,77 @@ CDM 6 offers enhanced supported for securities lending, replacing the implementa
 This can be seen in this sample (some items omitted for clarity):
 
 ``` json
-        "product" : {
-          "taxonomy" : [ {
-            "source" : "ISDA",
-            "productQualifier" : "SecurityLending"
-          } ],
-          "economicTerms" : {
-            "effectiveDate" : {
+{
+	"product" : {
+    "taxonomy" : [ {
+      "source" : "ISDA",
+      "productQualifier" : "SecurityLending"
+    } ],
+    "economicTerms" : {
+      "effectiveDate" : {
 
-            },
-            "terminationDate" : {
+      },
+      "terminationDate" : {
 
-              }
-            },
-            "payout" : [ {
-              "AssetPayout" : {
-                "payerReceiver" : {
+        }
+      },
+      "payout" : [ {
+        "AssetPayout" : {
+          "payerReceiver" : {
+
+          },
+          "priceQuantity" : {
+
+          },
+          "assetLeg" : [ {
+            "settlementDate" : {
+              "adjustableDate" : {
 
                 },
-                "priceQuantity" : {
-
-                },
-                "assetLeg" : [ {
-                  "settlementDate" : {
-                    "adjustableDate" : {
-
-                      },
-                      "adjustedDate" : {
-                        "value" : "2020-09-22"
+                "adjustedDate" : {
+                  "value" : "2020-09-22"
+            },
+            "deliveryMethod" : "DeliveryVersusPayment"
+          }, 
+          "underlier" : {
+            "Instrument" : {
+              "Security" : {
+                "identifier" : [ {
+                  "identifier" : {
+                    "value" : "ST001"
                   },
-                  "deliveryMethod" : "DeliveryVersusPayment"
-                }, 
-                "underlier" : {
-                  "Instrument" : {
-                    "Security" : {
-                      "identifier" : [ {
-                        "identifier" : {
-                          "value" : "ST001"
-                        },
-                        "identifierType" : "SEDOL"
-                      } ],
-                      "instrumentType" : "Equity"
-                    }
-                  }
-                }
+                  "identifierType" : "SEDOL"
+                } ],
+                "instrumentType" : "Equity"
+              }
+            }
+          }
 
-            } ],
-            "collateral" : {
-              "collateralPortfolio" : [ {
-                "value" : {
-                  "collateralPosition" : [ {
-                    "product" : {
-                      "TransferableProduct" : {
-                        "Cash" : {
-                          "identifier" : [ {
-                            "identifier" : {
-                              "value" : "USD"
-                            },
-                            "identifierType" : "CurrencyCode"
-                          } ]
-                        },
-                        "economicTerms" : {
-                          "payout" : [ {
-                            "InterestRatePayout" : {
+      } ],
+      "collateral" : {
+        "collateralPortfolio" : [ {
+          "value" : {
+            "collateralPosition" : [ {
+              "product" : {
+                "TransferableProduct" : {
+                  "Cash" : {
+                    "identifier" : [ {
+                      "identifier" : {
+                        "value" : "USD"
+                      },
+                      "identifierType" : "CurrencyCode"
+                    } ]
+                  },
+                  "economicTerms" : {
+                    "payout" : [ {
+                      "InterestRatePayout" : {
 
-                              },
-                              "priceQuantity" : {
-                                "quantitySchedule" : {
-      
-                                },
+                        },
+                        "priceQuantity" : {
+                          "quantitySchedule" : {
+
+                          }
+} } ] } } } } ] } } ] } } } ] } }
 ```
 
 
