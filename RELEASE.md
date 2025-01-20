@@ -6,7 +6,7 @@ CDM 6.0, a production release, corresponds to developments made to the CDM throu
 - Asset Refactoring
 - Standardized IM Schedule
 
-as well as several additional model changes, bug fixes, dependencies updates and synonym mappings since the latest version 5.
+as well as several additional model changes, bug fixes and synonym mappings since the latest production release (CDM 5.20).
 
 ## _What is being released_
 
@@ -78,8 +78,7 @@ Individual releases related to asset refactoring:
 - Base model
   - Natural Person and NaturalPersonRole circular reference: **Backward incompatible changes** [6.0.0-dev.3](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.3)
   - RoundToPrecision Function: [6.0.0-dev.40](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.40) & [6.0.0-dev.74](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.74)
-  - TaxonomySourceEnum: [6.0.0-dev.85](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.85)
-
+  
 ### _FpML mappings_
   
 - Synonym mappings for BusinessCenterEnum: [6.0.0-dev.33](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.33)
