@@ -494,7 +494,7 @@ multiplied by the period to get the total quantity.
 Both the `quantitySchedule` and `priceSchedule` attributes have a
 metadata address that point respectively to the `quantity` and `price`
 attributes in the `PriceQuantity` data type. This special
-cross-referencing annotation in the Rosetta DSL allows to parameterise
+cross-referencing annotation in the Rune DSL allows to parameterise
 an attribute whose value may be variable by associating it to an
 address. The attribute value does not need to be populated in the
 persisted object and can be provided by another object, using the
@@ -725,7 +725,7 @@ The `partyReference` attribute in `Counterparty` is annotated with a
 can be passed in instead of a copy. In that case, the attribute's type
 must itself be annotated with a `[metadata key]`, so that it is
 referenceable via a key. The use of the key / reference mechanism is
-further detailed in the Rosetta DSL documentation.
+further detailed in the Rune DSL documentation.
 
 ---
 
