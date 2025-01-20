@@ -340,7 +340,7 @@ The second currency reflected in the `tradeLot`:
           }
 ```
 
-#### 5. Securities Financing
+#### 3. Securities Financing
 
 CDM 5 treated both repos and securities lending trades in a similar manner and was unable to differentiate between the two in product qualification.
 
