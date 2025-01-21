@@ -26,8 +26,8 @@ An Asset is defined as something that can be held by one party and is transferab
 commodity, a loan or a security.
 
 :::
-`[![](img/ART-asset.png)](img/ARTasset.png)`
-[![](img/ART-asset.png)](img/ARTasset.png)
+`[![](/img/ART-asset.png)](/img/ARTasset.png)`
+[![](/img/ART-asset.png)](/img/ARTasset.png)
 
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
