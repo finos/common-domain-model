@@ -26,7 +26,7 @@ An Asset is defined as something that can be held by one party and is transferab
 commodity, a loan or a security.
 
 :::
-![ARTasset](img/ART-asset.png)
+![](/img/ART-asset.png)
 
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
@@ -184,7 +184,7 @@ extends the `AssetBase` type.  Within `IndexBase`, an index name can
 be assigned, the index provider can be identified, and the asset
 class specified.
 
-[![](/img/ARTindex.png)](img/ART-index.png)
+![](/img/ART-index.png)
 
 ### Observable  {#observable}
 
@@ -200,7 +200,7 @@ or something which can be observed but not transferred, such as an index.
 
 :::
 
-[![](/img/ARTobservable.png)](img/ART-observable.png)
+![](/img/ART-observable.png)
 
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
@@ -251,7 +251,7 @@ choice Product:
 
 :::
 
-[![](/img/ARTtransferable.png)](img/ART-transferable.png)
+![](/img/ART-transferable.png)
 
 #### TransferableProduct
 
@@ -381,7 +381,7 @@ type EconomicTerms:
   collateral Collateral (0..1)
 ```
 
-[![](/img/ARTproduct.png)](img/ART-product.png)
+![](/img/ART-product.png)
 
 ### Payout
 
@@ -457,7 +457,7 @@ purposes of brevity.
 
 ---
 
-[![](/img/ARTpayout.png)](img/ART-payout.png)
+![](/img/ART-payout.png)
 
 There are a number of components that are reusable across several payout
 types. For example, the `CalculationPeriodDates` class describes the
@@ -549,7 +549,7 @@ a payout to ensure that the underlier aligns with the payout's use case.
 
 :::
 
-[![](/img/ARTcomplete.png)](img/ART-complete.png)
+![](/img/ART-complete.png)
 
 This fact that a product can be nested as an underlier in the definition of
 another product is what makes the product model composable. One use case
@@ -644,7 +644,7 @@ same two counterparties.
 
 :::
 
-[![](/img/ARTtrade.png)](img/ART-trade.png)
+![](/img/ART-trade.png)
 
 ``` Haskell
 type TradableProduct:
@@ -695,7 +695,7 @@ of:
 - a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
   expressed as a quantity in the second currency, and an exchange rate.
 
-[![](/img/ARTsettlement.png)](img/ART-settlement.png)
+![](/img/ART-settlement.png)
 
 ### Counterparty
 
