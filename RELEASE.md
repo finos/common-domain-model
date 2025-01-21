@@ -7,13 +7,13 @@ _Background_
 
 A DSL bug blocked the addition of choice data types to `CollateralCriteria`. The bug has since been resolved under DSL 9.27.0 with further details in the DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9
 
-Following the bug fix, `Asset` and `Index` choice data types were added to `CollateralCriteria`. 
+Following the bug fix, `SpecificAsset` and `Index` choice data types were added to `CollateralCriteria`. 
 
 _What is being released?_
 
-This release added the fields `Asset` and `Index` to the `CollateralCriteria` data type following the DSL bug fix.
+This release added the fields `SpecificAsset` and `Index` to the `CollateralCriteria` data type following the DSL bug fix.
 
-`Asset` was later replaced by a new data type `SpecificAsset` to differentiate it from the already existing `AssetType` attribute.
+`Asset` was originally added to `CollateralCriteria`, but was later replaced by a new data type `SpecificAsset` to differentiate it from the already existing `AssetType` attribute.
 
 _Backward-incompatible changes_
 
