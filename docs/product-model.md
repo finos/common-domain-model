@@ -169,8 +169,6 @@ identifier as a key.
 
 ### Index   {#index}
 
-dssd
-
 :::tip Definition: Index
 
 An `Index` is data type to record information about prices, rates or 
