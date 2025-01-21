@@ -22,4 +22,5 @@ None.
 _Review Directions_
 
 The addition of the new attributes `Asset` and `Index` to `CollateralCriteria` can be reviewed in PR: [#3321](https://github.com/finos/common-domain-model/pull/3321).
+
 The adition of the attribute `SpecificAsset` to replace `Asset` can be reviewed in PR: [#3335]([url](https://github.com/finos/common-domain-model/pull/3335))
