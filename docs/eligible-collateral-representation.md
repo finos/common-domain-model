@@ -238,7 +238,7 @@ choice CollateralCriteria:
     SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
     AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
     AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
-    Asset                           <"Criteria is a specifically identified asset.">
+    SpecificAsset                   <"Criteria is that the collateral is a specifically identified asset">
     CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
     ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
     ListingSector                   <"Criteria is the industry sector of the collateral asset.">
