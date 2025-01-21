@@ -183,7 +183,7 @@ extends the `AssetBase` type.  Within `IndexBase`, an index name can
 be assigned, the index provider can be identified, and the asset
 class specified.
 
-[![](/img/ART-index.png)](img/ARTindex.png)
+[![](/img/ART-index.png)](/img/ARTindex.png)
 
 ### Observable  {#observable}
 
@@ -199,7 +199,7 @@ or something which can be observed but not transferred, such as an index.
 
 :::
 
-[![](/img/ART-observable.png)](img/ARTobservable.png)
+[![](/img/ART-observable.png)](/img/ARTobservable.png)
 
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
@@ -250,7 +250,7 @@ choice Product:
 
 :::
 
-[![](/img/ART-transferable.png)](img/ARTtransferable.png)
+[![](/img/ART-transferable.png)](/img/ARTtransferable.png)
 
 #### TransferableProduct
 
@@ -380,7 +380,7 @@ type EconomicTerms:
   collateral Collateral (0..1)
 ```
 
-[![](/img/ART-product.png)](img/ARTproduct.png)
+[![](/img/ART-product.png)](/img/ARTproduct.png)
 
 ### Payout
 
@@ -456,7 +456,7 @@ purposes of brevity.
 
 ---
 
-[![](/img/ART-payout.png)](img/ARTpayout.png)
+[![](/img/ART-payout.png)](/img/ARTpayout.png)
 
 There are a number of components that are reusable across several payout
 types. For example, the `CalculationPeriodDates` class describes the
@@ -548,7 +548,7 @@ a payout to ensure that the underlier aligns with the payout's use case.
 
 :::
 
-[![](/img/ART-complete.png)](img/ARTcomplete.png)
+[![](/img/ART-complete.png)](/img/ARTcomplete.png)
 
 This fact that a product can be nested as an underlier in the definition of
 another product is what makes the product model composable. One use case
@@ -643,7 +643,7 @@ same two counterparties.
 
 :::
 
-[![](/img/ART-trade.png)](img/ARTtrade.png)
+[![](/img/ART-trade.png)](/img/ARTtrade.png)
 
 ``` Haskell
 type TradableProduct:
@@ -694,7 +694,7 @@ of:
 - a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
   expressed as a quantity in the second currency, and an exchange rate.
 
-[![](/img/ART-settlement.png)](img/ARTsettlement.png)
+[![](/img/ART-settlement.png)](/img/ARTsettlement.png)
 
 ### Counterparty
 
