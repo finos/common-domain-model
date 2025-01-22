@@ -246,8 +246,6 @@ choice Product:
     NonTransferableProduct
 ```
 
-:::
-
 [![](/img/ART-transferable.png)](/img/ARTtransferable.png)
 
 #### TransferableProduct
