@@ -560,8 +560,8 @@ choice Underlier:
     Product
 ```
 
-In the simplest case, the underlier in an `AssetPayout` can only ever be
-a security, so the definition within this data type is constrained as such.
+In the simplest case, the underlier in an `AssetPayout` can not be
+cash, so the definition within this data type is constrained as such.
 
 In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
 is to influence the values of the future returns, so its type is restricted
@@ -576,7 +576,7 @@ The following table summarises the use of underliers for each of the main payout
 
 | **Payout**    | **Underlier Definition** | **Rationale** |
 | :-------- | :------- | :------- | 
-| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Purchased Asset, usually a Security
+| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Asset subject to the financing agreement, usually a Security
 | `CommodityPayout` | `underlier Underlier (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
 | `OptionPayout` | `underlier Underlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
 | `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
