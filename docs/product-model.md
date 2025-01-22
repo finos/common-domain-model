@@ -534,56 +534,41 @@ type RateSchedule:
 #### Underlier
 
 The concept of an underlier allows for financial products to be used
-within the definition of another product to drive outcomes, for example
-a forward or option (contingent on an underlying asset), or an equity swap
-(contingent on an underlying stock price or index).
+within the definition of another product to drive its outcomes, for example
+a forward or option (contingent on an underlying asset), an equity swap
+(contingent on an underlying stock price or index), or an option to enter into
+another financial contract (as in an interest rate or credit default swaption).
+
+The fact that a product can be nested as an underlier in the definition of
+another product makes the product model composable.
 
 :::tip Definition: Underlier
 
 The underlying financial product can be of any type: e.g. an asset such as
 cash or a security, an index, or a product, and may be physically or cash settled
 as specified in the payout definition.  Conditions are usually applied when used in 
-a payout to ensure that the underlier aligns with the payout's use case.
+a payout to ensure that the type of underlier aligns with the payout's use case.
 
 :::
 
 [![](/img/ART-complete.png)](/img/ARTcomplete.png)
-
-This fact that a product can be nested as an underlier in the definition of
-another product is what makes the product model composable. One use case
-is an interest rate swaption for which the
-high-level product uses the `OptionPayout` type and the underlier is an
-interest rate swap composed of two `InterestRatePayout` types.
-Similiarly, the product underlying an Equity Swap composed of an
-`InterestRatePayout` and a `PerformancePayout` could be an equity security
-defined as a transferable product.
-
-In the simplest case, the underlier in an `AssetPayout` can only ever be
-a security, so the definition within this data type is constrained as such.
-
-In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
-is to influence the values of the future returns, so the appropriate data
-type to use for the underlier is an Observable.
-
-In the case of a `SettlementPayout`, there are a variety of possible
-outcomes as the settlement can be an Asset, the cash value of an Index, or
-a TransferableProduct.  Therefore, the choice data type `Underlier` has
-been defined and is used as the underlier attribute in this payout.
-
-Financial option products allow for an even greater range of outcomes, so
-the choice data type `OptionUnderlier` provides for both Observables and Products
-(itself also a choice data type) to be used in an `OptionPayout`.
 
 ``` Haskell
 choice Underlier:
     Observable
         [metadata address "pointsTo"=PriceQuantity->observable]
     Product
-
-choice Product:
-    TransferableProduct
-    NonTransferableProduct
 ```
+
+In the simplest case, the underlier in an `AssetPayout` can only ever be
+a security, so the definition within this data type is constrained as such.
+
+In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
+is to influence the values of the future returns, so its type is restricted
+to be an observable.
+
+Option products do provide for the greatest range of outcomes and even allow the underlier
+to be a `NonTransferableProduct`, as in the swaption case.
 
 **Use of underliers in payouts**
 
@@ -604,23 +589,23 @@ buying or selling of an underlying asset or product, which then needs to be sett
 
 :::tip Definition: SettlementPayout
 
-A SettlementPayout can represent a spot or forward settling payout. The `underlier` 
+A settlement payout can represent a spot or forward settling payout. The `underlier` 
 attribute captures the underlying product or asset, which is settled according to the 
-`settlementTerms` attribute (which is part of `PayoutBase`).
+`settlementTerms` attribute (part of `PayoutBase`).
 
 :::
 
 Conditions on the definition of `SettlementPayout` ensure the following are true
 for the underlier:
-- If it is a `Product`, it must not be a `NonTransferableProduct`.
+- If it is a `Product`, it must not be a `NonTransferableProduct` - since by definition
+such product cannot be settled.
 - If it is a `Basket`, then all of the constituents of the basket must be assets.
 - If it is an `Index`, then it must be cash settled.
 
-`SettlementPayout` can be used for foreign exchange trades, either spot- (cash) or 
+`SettlementPayout` is used for foreign exchange trades, either spot- (cash) or 
 forward-dated. In this case, the underlier specifying the asset to be settled must
-be of `Cash` type. The price defined in the `PriceQuantity` represents the exchange
-rate in the purchase currency. Non-deliverable forwards can be represented using the
-cash-settlement option.
+be of `Cash` type, and the price represents the exchange rate in the purchase currency.
+Non-deliverable forwards can be represented using the cash-settlement option.
 
 ## Tradable Product {#tradable-product}
 
