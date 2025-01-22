@@ -1,19 +1,14 @@
-# *CDM Model - CollateralCriteria SpecificAsset and Index fields*
+# *CDM Model - Addition of SpecificAsset to CollateralCriteria*
 
 _Background_
 
 `CollateralCriteria` was created as part of [Release 6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90). It is a choice data type, combining all the criteria terms that previously appeared in `AssetCriteria` and `IssuerCriteria`.
 
-
-A DSL bug blocked the addition of choice data types to `CollateralCriteria`. The bug has since been resolved under DSL 9.27.0 with further details in the DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9
-
-Following the bug fix, `SpecificAsset` and `Index` choice data types were added to `CollateralCriteria`. 
+The `Asset` choice data type was originally added to `CollateralCriteria` but was deemed difficult to differentiate from the `AssetType` attribute. This release is an enhancement from `Asset` to the new data type `SpecificAsset` to improve the usability of the model. 
 
 _What is being released?_
 
-This release added the fields `SpecificAsset` and `Index` to the `CollateralCriteria` data type following the DSL bug fix.
-
-`Asset` was originally added to `CollateralCriteria`, but was later replaced by a new data type `SpecificAsset` to differentiate it from the already existing `AssetType` attribute.
+This release added `SpecificAsset` to the `CollateralCriteria` attributes, to replace the original `Asset`.
 
 _Backward-incompatible changes_
 
@@ -21,6 +16,6 @@ None.
 
 _Review Directions_
 
-The addition of the new attributes `Asset` and `Index` to `CollateralCriteria` can be reviewed in PR: [#3321](https://github.com/finos/common-domain-model/pull/3321).
+The addition of the new attributes `Asset` to `CollateralCriteria` can be reviewed in PR: [#3321](https://github.com/finos/common-domain-model/pull/3321)
 
-The adition of the attribute `SpecificAsset` to replace `Asset` can be reviewed in PR: [#3335]([url](https://github.com/finos/common-domain-model/pull/3335))
+The adition of the attribute `SpecificAsset` to replace `Asset` can be reviewed in PR: [#3335](https://github.com/finos/common-domain-model/pull/3335)
