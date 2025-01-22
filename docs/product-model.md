@@ -77,8 +77,6 @@ The `Asset` definitions are as follows:
   of other Assets.
 * **Instrument**: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
 
-In the case of `Commodity`, the applicable product identifiers are the ISDA definitions for reference benchmarks. 
-
 #### Instrument  {#instrument}
 
 The `Instrument` data type is further broken down using the `choice` construct:
