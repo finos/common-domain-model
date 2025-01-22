@@ -61,7 +61,7 @@ this digital representation are summarized below:
 -   Includes attributes to identify regulatory rules by defined
     eligibility identification categories published by regulatory bodies
     such as EMIR, CFTC and US Prudential.
--   Provides a means of Identifying Schedules and constructing reusable
+-   Provides a means of identifying schedules and constructing reusable
     collateral profiles.
 -   Standardises digital data representation components to construct the
     details to identify collateral eligibility not just for regulatory
@@ -87,7 +87,7 @@ this digital representation are summarized below:
 The model's primary intention is to deliver standards for OTC
 Derivatives with a focus on uncleared margin rules. In addition, the
 approach is intended to also be used to express collateral eligibility
-for other industry workflows such as Securities Lending, Repo and
+for other industry workflows such as Securities Lending, Repo, and
 Exchange Traded Derivatives (ETD). The model foundations, broad range of
 attributes and functions have been constructed with this in mind and can
 be extended further to operate to wider processes.
@@ -95,12 +95,13 @@ be extended further to operate to wider processes.
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
 collateral for the purpose of constructing eligible collateral
-specifications, including representation of additional attributes for
+specifications, including representation of additional attributes, for
 regulatory risk and credit factors. For the purpose of understanding the
 principle, these can be divided into the following categories:
 
 -   Issuer Identification
 -   Asset Identification
+-   Asset and Issuer Identification
 -   Collateral Haircuts
 -   Maturity Ranges
 -   Concentrations Limits
@@ -129,7 +130,7 @@ asset types that are commonly seen in eligible collateral data.
 The approach in the CDM is to adopt a similar method to the 'Animal
 Kingdom' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species), that is there is one method for describing any of
-the core attributes of an "animal" (i.e., type of issuer/type of
+the core attributes of an "animal" (i.e. type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
 way. Each issuer type, asset type, economic type etc has a unique place
 in the universe of collateral but is logically grouped together with
@@ -158,14 +159,14 @@ or CUSIP or a standard taxonomy source.
 
 ### High Level Design Principles
 
-The highest level and fondational data structure for the representation of
+The highest level and foundational data structure for the representation of
 eligibility is the `EligibleCollateralSpecification` which is a *root class*.
 An `EligibleCollateralSpecification` typically represents
 the schedule of eligible collateral agreed between two parties and is represented
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
 
-![](img/cdm-graphical-ecs.png)
+![image](/img/cdm-graphical-ecs-6.png)
 
 `EligibleCollateralSpecification` consists of the following key attributes:
 
@@ -201,14 +202,14 @@ collateral types to be represented and a structure can be used to
 identify individual collateral types or a group of collateral assets for
 inclusion in specifying eligible collateral schedule details.
 
-## Using the CDM to identify Eligible Collateral
+## Identifying Eligible Collateral
 
 A combination of data types can be used to describe the collateral
 asset, its origin and its issuer. Data type `EligibleCollateralCriteria`
 inherits attributes from `CollateralCriteriaBase` which contains data types to
 define collateral Asset and Issuer characteristics.
 
-### Asset Criteria
+### CollateralCriteria
 
 The data type `AssetCriteria` is used to specify the definition of the
 collateral asset, this includes the following data attributes:
