@@ -1,4 +1,4 @@
-# *CDM Model - Addition of SpecificAsset to CollateralCriteria*
+# *Product Model - Addition of SpecificAsset to CollateralCriteria*
 
 _Background_
 
