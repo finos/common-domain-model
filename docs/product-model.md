@@ -246,8 +246,6 @@ choice Product:
     NonTransferableProduct
 ```
 
-[![](/img/ART-transferable.png)](/img/ARTtransferable.png)
-
 #### TransferableProduct
 
 Because an asset is a basic type of financial product, the `Asset` data type only needs to provide limited information
@@ -263,6 +261,9 @@ A TransferableProduct is a type of Product which allows to specify the EconomicT
 It can be used as the underlier of a basic Payout that describes the buying and selling of that Asset.
 
 :::
+
+[![](/img/ART-transferable.png)](/img/ARTtransferable.png)
+
 
 ``` Haskell
 type TransferableProduct extends Asset:
