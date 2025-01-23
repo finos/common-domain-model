@@ -21,7 +21,7 @@ Below are some of the high-level modelling changes included in CDM 6.0, with lin
 ### _Asset refactoring_
 
 A major feature of CDM 6 is the refactored product model with the introduction of the concept of Asset.  This is the result of a CDM task force which came together to
-extend the model into additional asset classes and to address some long-standing challenges.  The objectives and design artefacts of the task force were documented in 
+extend the model into additional asset classes and to address some long-standing challenges.  The objectives and design artefacts of the task force were documented in
 [GitHub Issue 2805](https://github.com/finos/common-domain-model/issues/2805).
 
 This diagram shows the new product model at a high level; please read the [FINOS CDM documentation](https://cdm.finos.org/docs/product-model) for a full explanation:
@@ -40,14 +40,14 @@ Individual releases related to asset refactoring:
 - ETD Product Qualification: [6.0.0-dev.79](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.79)
 - AssetCriteria: **Backward incompatible changes** [6.0.0-dev.81](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.81)
 - Settlement Payout Price: **Backward incompatible changes** [6.0.0-dev.84](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.84).
-  - Note: this change is only backward-incompatible because it reverts the Add Price to Payouts change in [6.0.0-dev.77](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.77). The two changes are backward-compatible in aggregate.
+    - Note: this change is only backward-incompatible because it reverts the Add Price to Payouts change in [6.0.0-dev.77](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.77). The two changes are backward-compatible in aggregate.
 - Security Finance trade types: **Backward incompatible changes** [6.0.0-dev.86](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.86)
 - FloatingRateIndex and InterestRateIndex: **Backward incompatible changes** [6.0.0-dev.87](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.87)
 - Cashflow Generation for Settlement Payout : [6.0.0-dev.89](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.89)
 - Commodity Payout Underlier: [6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90)
-  
+
 ### _Option Payout refactoring_
-  
+
 - Option Payout Refactoring: **Backward incompatible changes** [6.0.0-dev.24](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.24)
 - Modification of AmericanExercise Condition in ExerciseTerms: [6.0.0-dev.41](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.41)
 
@@ -59,30 +59,30 @@ Individual releases related to asset refactoring:
 ### _Misc. model changes_
 
 - Product model
-  - Day Count Fraction: RBA_Bond_Basis: **Backward incompatible changes** [6.0.0-dev.22](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.22)
-  - Trigger type refactoring: [6.0.0-dev.42](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.42)
-  - Principal Amount Conditions: [6.0.0-dev.43](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.43)
-  - Portfolio Return Terms: **Backward incompatible changes** [6.0.0-dev.55](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.55)
-  - Exotic Equity Products and Exercise Terms validation conditions: **Backward incompatible changes** [6.0.0-dev.88](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.88)
-  - Qualification functions:
-    - Zero Coupon Swaps: [6.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.13)
-    - Bond Option and Forwards: [6.0.0-dev.32](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.32)
+    - Day Count Fraction: RBA_Bond_Basis: **Backward incompatible changes** [6.0.0-dev.22](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.22)
+    - Trigger type refactoring: [6.0.0-dev.42](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.42)
+    - Principal Amount Conditions: [6.0.0-dev.43](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.43)
+    - Portfolio Return Terms: **Backward incompatible changes** [6.0.0-dev.55](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.55)
+    - Exotic Equity Products and Exercise Terms validation conditions: **Backward incompatible changes** [6.0.0-dev.88](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.88)
+    - Qualification functions:
+        - Zero Coupon Swaps: [6.0.0-dev.13](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.13)
+        - Bond Option and Forwards: [6.0.0-dev.32](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.32)
 - Event model
-  - Addition of new enumeration to AvailableInventory: [6.0.0-dev.36](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.36)
+    - Addition of new enumeration to AvailableInventory: [6.0.0-dev.36](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.36)
 - Eligible Collateral model
-  - Determination of the Party Roles: [6.0.0-dev.4](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.4)
-  - CheckEligibilityResult cardinality fix: [6.0.0-dev.10](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.10)
-  - CreditNotationMismatchResolutionEnum update: [6.0.0-dev.26](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.26)
-  - New Attributes: [6.0.0-dev.48](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.48)
-  - Collateral Criteria AND/OR Logic: [6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90)
-  - Eligible Collateral condition logic: [6.0.0-dev.95](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.95)
-  - Addition of SpecificAsset to CollateralCriteria: [6.0.0-dev.96](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.96)
+    - Determination of the Party Roles: [6.0.0-dev.4](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.4)
+    - CheckEligibilityResult cardinality fix: [6.0.0-dev.10](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.10)
+    - CreditNotationMismatchResolutionEnum update: [6.0.0-dev.26](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.26)
+    - New Attributes: [6.0.0-dev.48](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.48)
+    - Collateral Criteria AND/OR Logic: [6.0.0-dev.90](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.90)
+    - Eligible Collateral condition logic: [6.0.0-dev.95](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.95)
+    - Addition of SpecificAsset to CollateralCriteria: [6.0.0-dev.96](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.96)
 - Base model
-  - Natural Person and NaturalPersonRole circular reference: **Backward incompatible changes** [6.0.0-dev.3](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.3)
-  - RoundToPrecision Function: [6.0.0-dev.40](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.40) & [6.0.0-dev.74](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.74)
-  
+    - Natural Person and NaturalPersonRole circular reference: **Backward incompatible changes** [6.0.0-dev.3](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.3)
+    - RoundToPrecision Function: [6.0.0-dev.40](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.40) & [6.0.0-dev.74](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.74)
+
 ### _FpML mappings_
-  
+
 - Synonym mappings for BusinessCenterEnum: [6.0.0-dev.33](https://github.com/finos/common-domain-model/releases/tag/6.0.0-dev.33)
 
 ## _Backward-incompatible changes_
@@ -99,31 +99,31 @@ Example of new items defined as `choice` types include:
 
 In addition, some fundamental data types previously defined using a `one-of` condition have been updated to `choice` types. Compared to the regular `one-of` condition, choice types force each of the choice options to have single cardinality.
 - `Product`: defined as a choice between `TransferableProduct` (which extends `Asset`) and `NonTransferableProduct` (renamed from `ContractualProduct`, previously included in `Product`). Other data types previously included in `Product` are now defined as `Asset` or `Observable` choices instead:
-  - `Commodity`: now extends `AssetBase` not `ProductBase`.
-    - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
-  - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
-  - `Basket`: now extends `AssetBase` not `ProductBase`.
-    - `BasketConstituent` now extends `Observable` not `Product`.
-    - Moved from the `product` namespace to the `observable` namespace.
-  - `Index`: now extends `IndexBase` not `ProductBase`
-  - `ForeignExchange` has been marked as deprecated.
-    - The deprecated `ExchangeRate` and `CrossRate` data types have both been deleted.
-  - `AssetPool`: removed (it was previously introduced from FpML but has been found to be incorrect and unusable).
-    - Removed the reference to `AssetPool` from `Product`.
+    - `Commodity`: now extends `AssetBase` not `ProductBase`.
+        - Accordingly, `productTaxonomy` has been replaced by `taxonomy` and the conditions updated.
+    - `Security` and `Loan`: now extend `InstrumentBase` not `ProductBase`.
+    - `Basket`: now extends `AssetBase` not `ProductBase`.
+        - `BasketConstituent` now extends `Observable` not `Product`.
+        - Moved from the `product` namespace to the `observable` namespace.
+    - `Index`: now extends `IndexBase` not `ProductBase`
+    - `ForeignExchange` has been marked as deprecated.
+        - The deprecated `ExchangeRate` and `CrossRate` data types have both been deleted.
+    - `AssetPool`: removed (it was previously introduced from FpML but has been found to be incorrect and unusable).
+        - Removed the reference to `AssetPool` from `Product`.
 - `Observable`: defined as a choice between `Asset`, `Index` and `Basket`. In addition, the following attributes have been removed from `Observable`:
-  - `Commodity`: now available directly as an `Asset`.
-  - `QuotedCurrencyPair`: replaced by the the FX observable data type inside `Index`.
-  - The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
+    - `Commodity`: now available directly as an `Asset`.
+    - `QuotedCurrencyPair`: replaced by the the FX observable data type inside `Index`.
+    - The unused attribute `optionReferenceType` and its corresponding enumerator `OptionReferenceTypeEnum` have been removed from the model.
 - `FloatingRateOption`: renamed as `InterestRateIndex`, and updated to be a choice between `FloatingRateIndex` and `InflationIndex`.
-  - Update the `rateOption` attribute on `FloatingRateBase` to be of type `InterestRateIndex`, since it is used for both floating and inflation indices.
-  - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
-    - `IndexValueObservation`
-    - `IndexValueObservationMultiple`
+    - Update the `rateOption` attribute on `FloatingRateBase` to be of type `InterestRateIndex`, since it is used for both floating and inflation indices.
+    - The following two functions have been moved from the `cdm.observable.asset.fro` namespace to the `cdm.observable.asset` namespace, as they act on an interest rate index and not just a floating rate index:
+        - `IndexValueObservation`
+        - `IndexValueObservationMultiple`
 - `Payout`: defined as a choice between different types of payout. Because some payout types were previously defined with multiple cardinality, attributes using the `Payout` type (for example in `EconomicTerms` or `ResetInstruction`) now have multiple cardinality. Also removed from `Payout`:
-  - `SecurityPayout`: deleted type.
-  - `Cashflow`: use in the `ForeignExchange` data type also deprecated.
-  - `ForwardPayout`: renamed to `SettlementPayout` and usage broadened to cover the settlement of any underlier, whether on a current date or forward basis, for either physical or cash settlement.
-  
+    - `SecurityPayout`: deleted type.
+    - `Cashflow`: use in the `ForeignExchange` data type also deprecated.
+    - `ForwardPayout`: renamed to `SettlementPayout` and usage broadened to cover the settlement of any underlier, whether on a current date or forward basis, for either physical or cash settlement.
+
 All references to choice types need to be updated because they are now treated as Capitalised Data Types rather than lower case attributes. For example, a previous reference might have read:
 ```
 payout -> interestRatePayout -> floatingAmount
@@ -137,43 +137,43 @@ This capitalisation also applies to the CDM's serialisation format (JSON).
 _Other data type and attribute changes_
 
 - Tradable product:
-  -  `Trade` extends `TradableProduct` instead of containing it as an attribute.
-  -  The `product` attribute in `TradableProduct` can only be a `NonTransferableProduct` (previously it could be any `Product`).
+    -  `Trade` extends `TradableProduct` instead of containing it as an attribute.
+    -  The `product` attribute in `TradableProduct` can only be a `NonTransferableProduct` (previously it could be any `Product`).
 - Removed the following deprecated data types used in the Product Model:
-  - `Bond`
-  - `ConvertibleBond`
-  - `Equity`
-  - `IdentifiedProduct`
-  - `ObservationSource`
-  - `SecurityPayout`
-    - Also removed the functions which act upon `SecurityPayout`.
-  - Removed the following deprecated data types related to the deprecated `SecurityPayout`:
-    - `SecurityLeg`
-    - `InitialMargin`
-    - `InitialMarginCalculation`
-    - `SecurityValuation`
-    - `SecurityValuationModel`
-    - `BondValudationModel`
-    - `BondPriceAndYieldModel`
-    - `CleanOrDirtyPrice`
-    - `CleanPrice`
-    - `RelativePrice`
-    - `BondEquityModel`
-    - `BondChoiceModel`
-    - `UnitContractValuationModel`.
+    - `Bond`
+    - `ConvertibleBond`
+    - `Equity`
+    - `IdentifiedProduct`
+    - `ObservationSource`
+    - `SecurityPayout`
+        - Also removed the functions which act upon `SecurityPayout`.
+    - Removed the following deprecated data types related to the deprecated `SecurityPayout`:
+        - `SecurityLeg`
+        - `InitialMargin`
+        - `InitialMarginCalculation`
+        - `SecurityValuation`
+        - `SecurityValuationModel`
+        - `BondValudationModel`
+        - `BondPriceAndYieldModel`
+        - `CleanOrDirtyPrice`
+        - `CleanPrice`
+        - `RelativePrice`
+        - `BondEquityModel`
+        - `BondChoiceModel`
+        - `UnitContractValuationModel`.
 - Refactoring of `ObservationTerms`:
-  - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
+    - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
 - Changes to `Transfer`:
-  - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
-  - `TransferBase` has been deleted from the model and replaced by `AssetFlowBase`, which is also extended by the `Cashflow` type.
+    - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
+    - `TransferBase` has been deleted from the model and replaced by `AssetFlowBase`, which is also extended by the `Cashflow` type.
 - Refactored eligible collateral
-  - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
-  - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
-  - The data type `ListingType` has been removed.
+    - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
+    - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
+    - The data type `ListingType` has been removed.
 - Security finance:
-  - Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
-  - Rename the `repoType` attribute to `tradeType` on `AssetPayout`.
-   
+    - Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
+    - Rename the `repoType` attribute to `tradeType` on `AssetPayout`.
+
 _Sample Impact_
 
 The changes listed above have significant impact to serialised data when the CDM is represented in JSON.  All of the impacted sample files in the FINOS CDM distribution have been updated accordingly.
@@ -203,7 +203,7 @@ This example is of a vanilla interest rate swap.  In CDM 5, the structure appear
 } } } } }  
 ```
 
-In CDM 6, 
+In CDM 6,
 - tradableProduct and contractualProduct no longer appear as they have been collapsed into `product`
 - productTaxonomy is now just `Taxonomy`
 - `InterestRatePayout` is capitalised as it is now a choice data type
@@ -267,7 +267,7 @@ In CDM 5, foreign exchange was represented using a Forward Payout containing a F
 } } ] } } } } } } }
 ```
 
-In CDM 6, these trades are represented using a `SettlementPayout` where the underlier is a cash asset: 
+In CDM 6, these trades are represented using a `SettlementPayout` where the underlier is a cash asset:
 
 ``` json
 {
@@ -590,18 +590,18 @@ This can be seen in this sample (some items omitted for clarity):
 
 
 
-      
+
 ### _Option Payout refactoring_
-   
+
 _Data types and enumeration changes_
 
 - Removed `OptionStyle` type and the three option exercise types contained inside it: `AmericanExercise`, `EuropeanExercise`, `BermudaExercise`.
 - Replaced by new `OptionExerciseStyleEnum` enumeration with values `American`, `European` and `Bermuda`.
 - Removed `OptionExercise` type.
 - Replaced by new `ExerciseTerms` type, containing:
-  - all of the distinct attributes present before in `AmericanExercise`, `EuropeanExercise`, and `BermudaExercise` types,
-  - a `style` attribute of type `OptionExerciseStyleEnum`,
-  - and the `exerciseProcedure` attribute of type `ExerciseProcedure` that was previously contained in `OptionExercise`.
+    - all of the distinct attributes present before in `AmericanExercise`, `EuropeanExercise`, and `BermudaExercise` types,
+    - a `style` attribute of type `OptionExerciseStyleEnum`,
+    - and the `exerciseProcedure` attribute of type `ExerciseProcedure` that was previously contained in `OptionExercise`.
 - Switched `exerciseTerms` attribute in `OptionPayout` type to use the new `ExerciseTerms` type instead of the removed `OptionExercise` type.
 - Moved the `strike` attribute previously contained in `OptionExercise` type to `OptionPayout` type.
 - Removed `americanExercise`, `europeanExercise`, and `bermudaExercise` attributes from `CancelableProvision`, `ExtendibleProvision`, and `OptionalEarlyTermination` types.
@@ -945,30 +945,30 @@ To this:
 ### _Misc. renaming or deletion_
 
 - RBA Bond Basis
-  - Replaced the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` with the code `RBA_BOND_BASIS` in `DayCountFractionEnum`.
-  - Mapping added to populate the new code from the FpML code `RBA`.
+    - Replaced the codes `RBA_BOND_BASIS_QUARTER`, `RBA_BOND_BASIS_SEMI_ANNUAL` and `RBA_BOND_BASIS_ANNUAL` with the code `RBA_BOND_BASIS` in `DayCountFractionEnum`.
+    - Mapping added to populate the new code from the FpML code `RBA`.
 - Portfolio Return Terms
-  - Removed `[deprecated]` attributes below from type `PriceReturnTerms`:
-    - `valuationPriceInitial`
-    - `valuationPriceFinal`
-  - Replaced by existing attributes in `PerformancePayout`:
-    - `initialValuationPrice`
-    - `finalValuationPrice`
-  - Renamed attributes in `ValuationDates`:
-    - `initialValuationDate` instead of `valuationDatesInitial`
-    - `interimValuationDate` instead of `valuationDatesInterim`
-    - `finalValuationDate` instead of `valuationDatesFinal`
-  - Updated `Basket` type:
-    - Renamed `portfolioBasketConstituent` of type `BasketConstituent` as simply `basketConstituent`.
-    - Removed `[deprecated]` `basketConstituent` attribute, previously of type `Product`.
+    - Removed `[deprecated]` attributes below from type `PriceReturnTerms`:
+        - `valuationPriceInitial`
+        - `valuationPriceFinal`
+    - Replaced by existing attributes in `PerformancePayout`:
+        - `initialValuationPrice`
+        - `finalValuationPrice`
+    - Renamed attributes in `ValuationDates`:
+        - `initialValuationDate` instead of `valuationDatesInitial`
+        - `interimValuationDate` instead of `valuationDatesInterim`
+        - `finalValuationDate` instead of `valuationDatesFinal`
+    - Updated `Basket` type:
+        - Renamed `portfolioBasketConstituent` of type `BasketConstituent` as simply `basketConstituent`.
+        - Removed `[deprecated]` `basketConstituent` attribute, previously of type `Product`.
 - Natural person
     - Removed the `personRole` attribute of type `NaturalPersonRole` from `NaturalPerson`.
     - Replaced by existing `personRole` attribute in `Party`.
-  
+
 ### _Misc. data validation changes_
-  
+
 - Exotic Equity Products and Exercise Terms validation conditions
-  - Attribute `expirationTime` relaxed to be optional (previously mandatory).
-  - Attribute `expirationTimeType` tightened to be mandatory (previously optional).
-  - Addition of validation condition `ExpirationTimeChoice` to establish the correlation between `expirationTime` and `expirationTimeType`.
-  - Affected samples have been updated to ensure that `expirationTimeType` is populated as `SpecificTime` when the `expirationTime` attribute is populated. See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/fpml-5-13/products/fx-derivatives/fx-ex09-euro-opt.xml).
+    - Attribute `expirationTime` relaxed to be optional (previously mandatory).
+    - Attribute `expirationTimeType` tightened to be mandatory (previously optional).
+    - Addition of validation condition `ExpirationTimeChoice` to establish the correlation between `expirationTime` and `expirationTimeType`.
+    - Affected samples have been updated to ensure that `expirationTimeType` is populated as `SpecificTime` when the `expirationTime` attribute is populated. See for example: [`fpml-5-13 > fx-ex09-euro-opt`](https://github.com/finos/common-domain-model/blob/master/rosetta-source/src/main/resources/cdm-sample-files/fpml-5-13/products/fx-derivatives/fx-ex09-euro-opt.xml).

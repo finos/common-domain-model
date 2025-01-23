@@ -117,32 +117,35 @@ type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a s
     condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
         then CriteriaMatchesAssetType(collateralCriteria, Debt)
-                or treatment -> concentrationLimit
+                or ( treatment -> concentrationLimit
                     extract
                         CriteriaMatchesAssetType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Debt
-                            ) = True
+                            ) 
+                ) all = True 
 
     condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-        then CriteriaMatchesAssetType(collateralCriteria, Equity)
-                or treatment -> concentrationLimit
+        then CriteriaMatchesAssetType(collateralCriteria, Equity) 
+                or ( treatment -> concentrationLimit  
                     extract
                         CriteriaMatchesAssetType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
-                            ) = True
+                            ) 
+                ) all = True 
 
     condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
         if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
         then CriteriaMatchesAssetType(collateralCriteria, Equity)
-                or treatment -> concentrationLimit
+                or ( treatment -> concentrationLimit
                     extract
                         CriteriaMatchesAssetType(
                                 item -> concentrationLimitCriteria -> collateralCriteria,
                                 Equity
-                            ) = True
+                            ) 
+                ) all = True
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
