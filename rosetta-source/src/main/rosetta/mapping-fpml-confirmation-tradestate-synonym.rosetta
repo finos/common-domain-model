@@ -80,7 +80,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "party"]
         + partyRole
             [value "determiningParty" , "barrierDeterminationAgent" , "hedgingParty" , "brokerPartyReference" mapper "PartyRole"]
-            [value "partyTradeIdentifier" path "tradeHeader" , "partyTradeInformation" path "tradeHeader"]
+            [value "partyReference" path "tradeHeader->partyTradeInformation" mapper "RelatedPartyRole"]
         + clearedDate
             [value "clearedDate" path "tradeHeader"]
         + collateral
@@ -180,10 +180,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "capFloor"]
             // For FRA:
             [hint "fra"]
+            [value "fra" mapper "FraPayoutSplitter"]
             // For Bond Options:
             [hint "bondOption"]
             // For CDS:
-            [value "creditDefaultSwap"]
+            [value "creditDefaultSwap" mapper "CdsFeeLegPayout"]
             [hint "creditDefaultSwap"]
             // For CDS Option
             [hint "creditDefaultSwapOption"]
@@ -278,7 +279,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + identifier
             [value "productId" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "commoditySwaption" maps 2 mapper "ProductIdentifierSource"]
-            [value "productId" path "fra" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "creditDefaultSwapOption" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "bondOption" maps 2 mapper "ProductIdentifierSource"]
             [value "productId" path "genericProduct" maps 2 mapper "ProductIdentifierSource"]
@@ -314,7 +314,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     TaxonomyValue:
         + name
             [value "productType"]
-            [value "productType" path "fra"]
+            [value "productType" path "fra" maps 2]
             [value "productType" path "creditDefaultSwapOption"]
             [value "productType" path "bondOption"]
             [value "productType" path "commoditySwaption"]
@@ -788,7 +788,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "relativeDate" path "interestLegCalculationPeriodDates->interestLegResetDates->fixingDates"]
             [value "fixingDateOffset"]
         + finalFixingDate
-            [value "finalFixingDate" path "feeLeg->periodicPayment->floatingAmountCalculation"]
+            [value "finalFixingDate" path "periodicPayment->floatingAmountCalculation"]
         + rateCutOffDaysOffset
             [value "resetCutOffDaysOffset" path "resetDates"]
         + resetFrequency
@@ -800,7 +800,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + relativeDateOffset
             [value "initialFixingDate" path "resetDates"]
         + initialFixingDate
-            [value "initialFixingDate" path "feeLeg->periodicPayment->floatingAmountCalculation"]
+            [value "initialFixingDate" path "periodicPayment->floatingAmountCalculation"]
 
     StubCalculationPeriodAmount:
         + calculationPeriodDatesReference
@@ -1162,21 +1162,20 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     // For CDS feeLeg see InterestRatePayout
     // For Equities see PerformancePayout
     Payout:
-        + interestRatePayout
+        + InterestRatePayout
             // For Rates
             [value "swapStream" , "additionalTerms" /*set when rosettaPath "interestRatePayout->rateSpecification->fixedRate" exists*/ ]
             [value "capFloorStream"]
-            [value "fra" mapper "FraPayoutSplitter"]
+            [value "fra"]
             // For Credit:
-            [value "creditDefaultSwap" set when "creditDefaultSwap->feeLeg->periodicPayment" exists]
+            [value "feeLeg" , "protectionTerms" , "generalTerms"]
             // For Equity
             [value "interestLeg"]
             // For Repo:
             [value "repo"]
-        + creditDefaultPayout
+        + CreditDefaultPayout
             [value "creditDefaultSwap"]
-            [value "generalTerms" path "creditDefaultSwap"]
-        + optionPayout
+        + OptionPayout
             [value "swaption"]
             [value "creditDefaultSwapOption"]
             [value "bondOption"]
@@ -1190,7 +1189,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "varianceOptionTransactionSupplement"]
             [value "dividendSwapOptionTransactionSupplement"]
             [value "genericProduct" set when "genericProduct->optionType" exists]
-        + settlementPayout
+        + SettlementPayout
             [value "fxSingleLeg"]
             [value "nearLeg"]
             [value "farLeg"]
@@ -1200,16 +1199,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "gasPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "oilPhysicalLeg" path "commoditySwap" mapper "CommodityClassificationMeta"]
             [value "genericProduct" set when condition-func MapGenericProductToForwardPayout condition-path "genericProduct->productType"]
-        + cashflow
-            [value "ignore"]
-        + commodityPayout
-            [value "commoditySwap", "floatingLeg" path "commoditySwap"]
-        + fixedPricePayout
+        + CommodityPayout
+            [value "commoditySwap" , "floatingLeg" path "commoditySwap"]
+        + FixedPricePayout
             [value "fixedLeg" path "commoditySwap"]
             [value "fixedPayment" path "fixedLeg" , "dividendPeriod" path "dividendLeg" mapper "DividendFixedLeg"]
-        + assetPayout
+        + AssetPayout
             [value "ignore"]
-        + performancePayout
+        + PerformancePayout
             [value "varianceLeg"]
             [value "volatilityLeg"]
             [value "correlationLeg"]
@@ -1224,7 +1221,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "receiverPartyReference"]
             [hint "buyerPartyReference"]
             [hint "sellerPartyReference"]
-            [value "generalTerms"]
         + priceQuantity
             // For Swap Stream and FRA: moved to InterestRatePayout
             [value "knownAmountSchedule" path "calculationPeriodAmount"]
@@ -1297,8 +1293,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // Div Swaps
             [value "singleUnderlyer" meta "openUnits"]
             // Credit
-            [value "calculationAmount" meta "amount"]
-            [value "calculationAmount" path "protectionTerms" meta "amount"]
+            [value "calculationAmount" meta "amount" mapper "CdsFeeLegMeta"]
             // Repo
             [value "settlementAmount" meta "amount"]
             // FX
@@ -1320,6 +1315,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + futureValueNotional
             [value "futureValueNotional"]
         + priceSchedule
+            [meta "rate"]
             [meta "initialValue"]
 
     FutureValueAmount:
@@ -1335,18 +1331,17 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     InterestRatePayout:
         + dayCountFraction
             [value "dayCountFraction" path "calculationPeriodAmount->calculation" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" path "feeLeg->periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
-            [value "dayCountFraction" path "feeLeg->periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
+            [value "dayCountFraction" path "periodicPayment->fixedAmountCalculation" meta "dayCountFractionScheme"]
+            [value "dayCountFraction" path "periodicPayment->floatingAmountCalculation" meta "dayCountFractionScheme"]
             [value "dayCountFraction" meta "dayCountFractionScheme"]
             [value "dayCountFraction" path "interestCalculation" meta "dayCountFractionScheme"]
         + paymentDates
             [value "paymentDates"]
-            [value "periodicPayment" path "feeLeg"]
+            [value "periodicPayment"]
             [value "interestLegPaymentDates" path "interestLegCalculationPeriodDates"]
             [hint "indexTenor"]
         + paymentDate
             [value "paymentDate"]
-            [value "feeLeg"]
         + paymentDelay
             [value "paymentDelay"]
         + discountingMethod
@@ -1360,7 +1355,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "compoundingMethod" path "calculationPeriodAmount->calculation"]
         + cashflowRepresentation
             [value "cashflows"]
-            [value "periodicPayment" path "feeLeg"]
+            [value "periodicPayment"]
         + stubPeriod
             [value "stubCalculationPeriodAmount"]
             [value "stubCalculationPeriod"]
@@ -1371,7 +1366,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For FRAs:
             [hint "fixedRate" , "floatingRateIndex" , "indexTenor"]
             // For CDS:
-            [value "periodicPayment" path "feeLeg"]
+            [value "periodicPayment"]
             // For Equity:
             [value "interestCalculation"]
             // For Repo:
@@ -1388,9 +1383,9 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             // For the interest leg of Equity Swap:
             [value "notional"]
             // For the fee leg of CDS
-            [value "fixedAmountCalculation" path "feeLeg->periodicPayment"]
-            [value "floatingAmountCalculation" path "feeLeg->periodicPayment"]
-            [value "protectionTerms" mapper "FeeLeg"] // filtered out if feeLeg exists
+            [value "fixedAmountCalculation" path "periodicPayment"]
+            [value "floatingAmountCalculation" path "periodicPayment"]
+            [hint "calculationAmount"]
 
     CalculationPeriodBase:
         [meta "id"]
@@ -1443,7 +1438,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "calculationPeriodDatesAdjustments" path "calculationPeriodDates"]
         + firstPeriodStartDate
             [value "firstPeriodStartDate" path "calculationPeriodDates"]
-            [value "periodicPayment" path "feeLeg"]
+            [value "periodicPayment"]
         + firstRegularPeriodStartDate
             [value "firstRegularPeriodStartDate" path "calculationPeriodDates"]
         + firstCompoundingPeriodEndDate
@@ -1456,7 +1451,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "calculationPeriodFrequency" path "calculationPeriodDates"]
             // for Commodity Floating Leg (Payout)
             [value "calculationPeriodsSchedule"]
-            [value "periodicPayment" path "feeLeg"]
+            [value "periodicPayment"]
 
     PaymentDates:
         [value "PaymentDates" meta "id"]
@@ -1621,14 +1616,14 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + fallbackRate
             [value "fallbackRate"]
 
-    FloatingRateIndex:
-        + InterestRateIndex
+    InterestRateIndex:
+        + FloatingRateIndex
             [value "floatingRateCalculation"]
-            [hint "floatingRateIndex", "indexTenor"]
+            [hint "floatingRateIndex" , "indexTenor"]
         + InflationIndex
             [value "inflationRateCalculation"]
 
-    InterestRateIndex:
+    FloatingRateIndex:
         + floatingRateIndex
             [value "floatingRateIndex" maps 2 meta "floatingRateIndexScheme"]
         + indexTenor
@@ -1646,13 +1641,16 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
 
     CreditDefaultPayout:
         [meta "id"]
+        - payerReceiver
+        + payerReceiver
+            [value "generalTerms"]
+        - priceQuantity
+        + priceQuantity
+            [value "protectionTerms"]
         + generalTerms
             [value "generalTerms"]
             [hint "underlyer"]
         + protectionTerms
-            [value "protectionTerms"]
-        - priceQuantity
-        + priceQuantity
             [value "protectionTerms"]
 
     GeneralTerms:
@@ -1765,10 +1763,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "strikePricePerUnitSchedule"]
             [hint "spotRate"]
         + underlier
-            [value "singleUnderlyer" path "underlyer"] 
+            [value "singleUnderlyer" path "underlyer"]
             [value "basketConstituent" path "underlyer->basket"]
             [value "strike"]
-            [hint "bond", "convertibleBond", "equity", "index", "mortgage"]
+            [hint "bond" , "convertibleBond" , "equity" , "index" , "mortgage"]
             [hint "swap"]
             [hint "varianceSwapTransactionSupplement"]
             [hint "dividendSwapTransactionSupplement"]
@@ -2021,7 +2019,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "swap"]
             [value "varianceSwapTransactionSupplement"]
             [value "dividendSwapTransactionSupplement"]
-            [value "creditDefaultSwap"]
+            [value "creditDefaultSwap" mapper "CdsFeeLegPayout"]
             [hint "creditDefaultSwap"]
             [value "commoditySwap"]
             [hint "commoditySwap"]
@@ -2067,22 +2065,20 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "expirationDate" path "equityExercise->equityEuropeanExercise"]
             [value "expirationDate" path "physicalExercise->europeanExercise"]
             [value "expirationDates" path "europeanExercise"]
-            // For FX Option
             [value "europeanExercise"]
             [value "americanExercise"]
-        // [hint "americanExercise->expiryDate"]
-        // [hint "expiryDate"]
         + expirationTime
-            [value "expirationTime" path "americanExercise"]
-            [value "expiryTime" path "americanExercise"]
-            [value "equityExpirationTime" path "equityAmericanExercise"]
-            [value "expirationTime" path "bermudaExercise"]
-            [value "equityExpirationTime" path "equityBermudaExercise"]
-            [value "expirationTime" path "europeanExercise"]
-            [value "expirationTime" path "physicalExercise->europeanExercise"]
+            [value "expirationTime" path "europeanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "americanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "bermudaExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "physicalExercise->europeanExercise" mapper "ExpirationTimeType"]
+            [value "expirationTime" path "physicalExercise->americanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "europeanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "americanExercise" mapper "ExpirationTimeType"]
+            [value "expiryTime" path "bermudaExercise" mapper "ExpirationTimeType"]
             [value "equityExpirationTime" path "equityEuropeanExercise"]
-            // For FX Options
-            [value "expiryTime" path "europeanExercise"]
+            [value "equityExpirationTime" path "equityAmericanExercise"]
+            [value "equityExpirationTime" path "equityBermudaExercise"]
         + expirationTimeType
             [value "equityExpirationTimeType" path "equityExercise->equityEuropeanExercise"]
             [value "equityExpirationTimeType" path "equityExercise->equityAmericanExercise"]
@@ -2204,8 +2200,6 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + paymentDates
             [value "paymentDates"]
             [value "relativePaymentDates"]
-        + underlier
-            [value "commodity" meta "instrumentId"]
         + fxFeature
             [value "fxFeature"]
         + calculationPeriodDates
@@ -2270,6 +2264,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + priceQuantity
             [value "exchangedCurrency1" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency2PerCurrency1"]
             [value "exchangedCurrency2" maps 2 set when "exchangeRate->quotedCurrencyPair->quoteBasis" = "Currency1PerCurrency2"]
+            [value "exchangeRate"]
             [hint "notional"]
         + underlier
             [value "quoteBasis" path "exchangeRate->quotedCurrencyPair" mapper "AssetCashMeta"]
@@ -2387,7 +2382,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
     DividendReturnTerms:
         + dividendPayoutRatio
             // Equity swaps
-            [value "singleUnderlyer", "basketConstituent" path "basket", "dividendConditions" mapper "DividendPayoutBasketConstituent"]
+            [value "singleUnderlyer" , "basketConstituent" path "basket" , "dividendConditions" mapper "DividendPayoutBasketConstituent"]
             // Dividend swaps
             [hint "declaredCashDividendPercentage" , "declaredCashEquivalentDividendPercentage"]
         + dividendReinvestment
@@ -2663,7 +2658,7 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "floatingRateIndex" maps 2 mapper "AssetIdentifierType"]
             // premium
             [value "currency" path "paymentAmount" maps 2 meta "currencyScheme"]
-       + identifierType
+        + identifierType
             [set to AssetIdTypeEnum -> CurrencyCode when "paymentAmount->currency" exists]
 
     Instrument:
@@ -2676,6 +2671,10 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "bond"]
             [hint "convertibleBond"]
 
+    ListedDerivative:
+        + instrumentType
+            [set to InstrumentTypeEnum -> ListedDerivative when "exchangeTradedContractNearest" exists]
+
     Loan:
         + borrower
             [value "borrower" path "loan"]
@@ -2687,6 +2686,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "creditAgreementDate" path "loan"]
         + tranche
             [value "tranche" path "loan" meta "loanTrancheScheme"]
+        + instrumentType
+            [set to InstrumentTypeEnum -> Debt when "loan" exists]
 
     Security:
         + identifier
@@ -2696,11 +2697,11 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [hint "convertibleBond"]
             [hint "mortgage"]
             [hint "equity"]
-        + securityType
-            [set to SecurityTypeEnum -> Debt when "bond" exists]
-            [set to SecurityTypeEnum -> Debt when "convertibleBond" exists]
-            [set to SecurityTypeEnum -> Debt when "mortgage" exists]
-            [set to SecurityTypeEnum -> Equity when "equity" exists]
+        + instrumentType
+            [set to InstrumentTypeEnum -> Debt when "bond" exists]
+            [set to InstrumentTypeEnum -> Debt when "convertibleBond" exists]
+            [set to InstrumentTypeEnum -> Debt when "mortgage" exists]
+            [set to InstrumentTypeEnum -> Equity when "equity" exists]
 
     IndexBase:
         + name
@@ -3444,7 +3445,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
             [value "relatedExchangeId" path "equity" maps 2 meta "exchangeIdScheme"]
             [value "relatedExchangeId" path "index" maps 2 meta "exchangeIdScheme"]
             [value "relatedExchangeId" path "commodity" maps 2 meta "exchangeIdScheme"]
-            [value "relatedExchangeId" path "exchangeTradedContractNearest" maps 2 meta "exchangeIdScheme"]        + name
+            [value "relatedExchangeId" path "exchangeTradedContractNearest" maps 2 meta "exchangeIdScheme"]
+        + name
             [value "identifier"]
 
     NaturalPerson:
@@ -3766,9 +3768,8 @@ synonym source FpML_5_Confirmation_To_TradeState extends FpML
         + financialUnit
             [value "quantityUnit" maps 2]
             [value "openUnits" mapper "OpenUnits"]
-            [set to FinancialUnitEnum -> ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
             [set to FinancialUnitEnum -> Weight when path = "basketPercentage"]
-            [set to FinancialUnitEnum -> Weight when path = "constituentWeight->openUnits"]
+            [set to FinancialUnitEnum -> ContractualProduct when path = "bulletPayment->payment->paymentAmount->amount"]
         + currency
             [value "currency" maps 2 meta "currencyScheme"]
             [value "varyingNotionalCurrency" maps 2 meta "currencyScheme"]

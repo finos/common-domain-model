@@ -43,7 +43,9 @@ func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact 
     alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
     alias afterTransfers: businessEvent -> after -> transferHistory
     set is_event:
-        businessEvent -> instruction -> primitiveInstruction -> transfer only exists
+        (businessEvent -> instruction
+                extract primitiveInstruction -> transfer only exists
+                ) all = True
             and beforeTransfers count + transferInstructions count = afterTransfers count
             and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
 
@@ -62,6 +64,10 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
         transfersForDate -> quantity -> unit -> currency exists
             and transfersForDate -> quantity -> unit -> financialUnit exists
             and transfersForDate count = 2
+            and FilterCashTransfers(transfersForDate) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
+                    transfersForDate
+                )
+                only-element -> payerReceiver -> payerPartyReference
 
 func Qualify_ClearedTrade:
     [qualification BusinessEvent]
@@ -97,8 +103,9 @@ func Qualify_OpenOfferClearedTrade:
     set is_event:
         businessEvent -> intent = EventIntentEnum -> Clearing
             and businessEvent -> instruction count = 2
+            and businessEvent -> instruction -> primitiveInstruction -> execution exists
+            and businessEvent -> instruction -> primitiveInstruction -> contractFormation exists
             and openTradeStates count = 2
-            and (businessEvent -> instruction -> primitiveInstruction -> execution, businessEvent -> instruction -> primitiveInstruction -> contractFormation) only exists
             and openTradeStates
                 extract [
                     item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
@@ -243,7 +250,9 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
             )
     set is_event:
         (businessEvent -> intent is absent or businessEvent -> intent = EventIntentEnum -> ContractTermsAmendment)
-            and (businessEvent -> instruction -> primitiveInstruction -> termsChange only exists or (businessEvent -> instruction -> primitiveInstruction -> termsChange, businessEvent -> instruction -> primitiveInstruction -> quantityChange) only exists)
+            and (businessEvent -> instruction
+                extract
+                    (primitiveInstruction -> termsChange only exists or (primitiveInstruction -> termsChange, primitiveInstruction -> quantityChange) only exists)) all = True
             and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = False)
             and businessEvent -> after -> state -> closedState is absent
 
@@ -290,7 +299,7 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
             )
     set is_event:
         transfers -> asset -> Instrument -> Security exists
-            and transfers -> quantity -> unit -> currency only exists
+            and transfers -> quantity -> unit -> currency exists
             and FilterCashTransfers(transfers) only-element -> payerReceiver -> payerPartyReference = FilterSecurityTransfers(
                     transfers
                 )
@@ -363,8 +372,7 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
         FilterQuantityByFinancialUnit(beforeQuantities, FinancialUnitEnum -> Share)
             only-element -> value
 
-    alias afterQuantities:
-        afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
+    alias afterQuantities: afterTradeState -> trade -> tradeLot -> priceQuantity -> quantity
 
     alias afterNoOfUnits:
         FilterQuantityByFinancialUnit(afterQuantities, FinancialUnitEnum -> Share)
@@ -430,8 +438,8 @@ func Qualify_IndexTransition: <"The qualification of an index transition event b
     alias before: businessEvent -> instruction -> before -> trade
 
     alias floatingRateIndexChanged:
-        before -> tradeLot -> priceQuantity -> observable -> Index -> FloatingRateIndex exists
-            and before -> tradeLot -> priceQuantity -> observable -> Index -> FloatingRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> Index -> FloatingRateIndex
+        before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex exists
+            and before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex
 
     alias spread:
         FilterPrice(
@@ -463,7 +471,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
             only-element
     set is_event:
         (businessEvent -> intent is absent)
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> assetPayout exists
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
             and (businessEvent -> instruction count = 1
                     and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
                 or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
@@ -527,6 +535,5 @@ func Qualify_ValuationUpdate: <"The qualification of a valuation update from the
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-
-    set is_event:
-        businessEvent -> instruction -> primitiveInstruction -> valuation only exists
+    alias instruction: businessEvent -> instruction only-element
+    set is_event: instruction -> primitiveInstruction -> valuation only exists

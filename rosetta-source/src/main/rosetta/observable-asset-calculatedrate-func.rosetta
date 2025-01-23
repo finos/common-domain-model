@@ -22,7 +22,7 @@ import cdm.observable.asset.fro.*
 // ======================================================================
 func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the 2021 ISDA Definitions.">
     inputs:
-        floatingRateOption FloatingRateIndex (1..1) <"The base floating rate index.">
+        interestRateIndex InterestRateIndex (1..1) <"The base floating rate index.">
         calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
         resetDates ResetDates (0..1) <"Reset structure (needed only for fallback rates, otherwise will be empty).">
         calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
@@ -31,8 +31,7 @@ func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the 20
     output:
         results FloatingRateSettingDetails (1..1) <"detailed results of the floating rate calculation.">
 
-    // get the FRO
-    alias fro: floatingRateOption
+    alias rate: interestRateIndex
 
     // work out the observation dates needed and the weight for each
     alias datesAndWeights:
@@ -45,7 +44,7 @@ func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the 20
 
     // get the observations
     alias observationDates: datesAndWeights -> observationDates
-    alias observations: IndexValueObservationMultiple(observationDates, fro)
+    alias observations: IndexValueObservationMultiple(observationDates, rate)
 
     // apply observation parameters (caps/floors)
     alias processedObservations: ProcessObservations(calculationParameters, observations)
@@ -401,3 +400,28 @@ func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formu
     set results -> aggregateWeight: totalWeight
     set results -> calculatedRate: calculatedRate
     add results -> weightedRates: weightedObservations
+
+// =====================================================================
+//
+// Index value lookup (observation) functions
+//
+// these functions allow retrieval of the value of an index on a date or set of dates
+//
+// ======================================================================
+func IndexValueObservation: <"Retrieve the values of the supplied index on the specified observation date.">
+    // data provider - implementation provides observed value from data source
+    inputs:
+        observationDate date (1..1)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValue number (1..1)
+
+func IndexValueObservationMultiple: <"Retrieve the values of the supplied index on the specified observation dates.">
+    inputs:
+        observationDate date (0..*)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValues number (0..*)
+
+    add observedValues:
+        observationDate extract IndexValueObservation(item, interestRateIndex)

@@ -2,10 +2,8 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.observable.asset.fro.functions.IndexValueObservation;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
-import cdm.product.collateral.functions.MergeEligibleCollateralCriteria;
-import cdm.product.collateral.functions.MergeEligibleCollateralCriteriaImpl;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
@@ -45,6 +43,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Rounding (not supported in DSL)
 		bind(RoundToNearest.class).to(bindRoundToNearest());
 		bind(RoundToPrecision.class).to(bindRoundToPrecision());
+		bind(RoundToSignificantFigures.class).to(bindRoundToSignificantFigures());
 
 		// Data providers (external data)
 		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
@@ -53,9 +52,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
-
-		// Requires object merging (not supported in the DSL)
-		bind(MergeEligibleCollateralCriteria.class).to(bindMergeEligibleCollateralCriteria());
 
 		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
@@ -122,6 +118,10 @@ public class CdmRuntimeModule extends AbstractModule {
 		return RoundToPrecisionImpl.class;
 	}
 
+	protected Class<? extends RoundToSignificantFigures> bindRoundToSignificantFigures() {
+		return RoundToSignificantFiguresImpl.class;
+	}
+
 	protected Class<? extends FpmlIrd8> bindFpmlIrd8() {
 		return FpmlIrd8Impl.class;
 	}
@@ -174,7 +174,4 @@ public class CdmRuntimeModule extends AbstractModule {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
 	}
 
-	protected Class<? extends MergeEligibleCollateralCriteria> bindMergeEligibleCollateralCriteria() {
-		return MergeEligibleCollateralCriteriaImpl.class;
-	}
 }

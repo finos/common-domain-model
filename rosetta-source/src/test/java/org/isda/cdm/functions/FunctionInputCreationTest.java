@@ -23,7 +23,7 @@ import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaFloatingRateIndex;
+import cdm.observable.asset.metafields.FieldWithMetaInterestRateIndex;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
@@ -32,9 +32,9 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
 import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.Payout;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
-import cdm.product.template.Underlier;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -436,10 +436,10 @@ class FunctionInputCreationTest {
                 .addChange(PriceQuantity.builder()
                         .setObservableValue(Observable.builder()
                                 .setIndex(Index.builder()
-                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
+                                        .setInterestRateIndex(FieldWithMetaInterestRateIndex.builder()
                                                 .setMeta(createKey("rateOption-1"))
-                                                .setValue(FloatingRateIndex.builder()
-                                                        .setInterestRateIndex(InterestRateIndex.builder()
+                                                .setValue(InterestRateIndex.builder()
+                                                        .setFloatingRateIndex(FloatingRateIndex.builder()
                                                                 .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
                                                                 .setIndexTenor(Period.builder()
                                                                         .setPeriod(PeriodEnum.M)
@@ -510,7 +510,7 @@ class FunctionInputCreationTest {
                                 .setAsset(Asset.builder()
                                         .setInstrument(Instrument.builder()
                                                 .setSecurity(Security.builder()
-                                                        .setSecurityType(SecurityTypeEnum.EQUITY)
+                                                        .setInstrumentType(InstrumentTypeEnum.EQUITY)
                                                         .addIdentifier(AssetIdentifier.builder()
                                                                 .setIdentifierType(AssetIdTypeEnum.OTHER)
                                                                 .setIdentifier(FieldWithMetaString.builder()
@@ -532,14 +532,21 @@ class FunctionInputCreationTest {
                 .addChange(PriceQuantity.builder()
                         .setObservableValue(Observable.builder()
                                 .setIndex(Index.builder()
-                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
-                                                .setMeta(createKey("rateOption-1"))
-                                                .setValue(FloatingRateIndex.builder()
-                                                        .setInterestRateIndex(InterestRateIndex.builder()
-                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                                                                .setIndexTenor(Period.builder()
-                                                                        .setPeriod(PeriodEnum.M)
-                                                                        .setPeriodMultiplier(1)))))))
+                                        .setInterestRateIndex(
+                                                FieldWithMetaInterestRateIndex.builder()
+                                                        .setMeta(createKey("rateOption-1"))
+                                                        .setValue(InterestRateIndex.builder()
+                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                        .setIndexTenor(Period.builder()
+                                                                                .setPeriod(PeriodEnum.M)
+                                                                                .setPeriodMultiplier(1))
+                                                                )
+
+                                                        )
+                                        )
+                                )
+                        )
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -665,9 +672,8 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
 
         Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder;
 
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradableProductBuilder.getTradeLot().get(0);
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeBuilder.getTradeLot().get(0);
         tradeLotBuilder
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0)
@@ -677,11 +683,15 @@ class FunctionInputCreationTest {
                 .getQuantity().get(0)
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
 
-        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradableProductBuilder
-                .getProduct()
-                .getEconomicTerms()
-                .getPayout()
-                .getInterestRatePayout();
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders =
+                tradeBuilder
+                        .getProduct()
+                        .getEconomicTerms()
+                        .getPayout()
+                        .stream()
+                        .map(Payout.PayoutBuilder::getInterestRatePayout)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
         Date effectiveDate = Date.of(2018, 4, 3);
         Date terminationDate = Date.of(2026, 2, 8);
@@ -1102,9 +1112,9 @@ class FunctionInputCreationTest {
     private ObservationEvent getCorporateActionObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
-                        .setExDate(Date.of(2009, 2, 1))
-                        .setPayDate(Date.of(2009, 2, 1))
+                                .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
+                                .setExDate(Date.of(2009, 2, 1))
+                                .setPayDate(Date.of(2009, 2, 1))
 //                        .setUnderlier(Underlier.builder()
 //                                .setObservableValue(Observable.builder()
 //                                        .setIndex(Index.builder()
@@ -1146,9 +1156,9 @@ class FunctionInputCreationTest {
 
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
-                        .setExDate(Date.of(2009, 2, 13))
-                        .setPayDate(Date.of(2009, 2, 13))
+                                .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
+                                .setExDate(Date.of(2009, 2, 13))
+                                .setPayDate(Date.of(2009, 2, 13))
 //                        .setUnderlier(Underlier.builder()
 //                                .setObservableValue(Observable.builder()
 //                                        .setIndex(Index.builder()
@@ -1399,7 +1409,10 @@ class FunctionInputCreationTest {
                 .getProduct()
                 .getEconomicTerms()
                 .getPayout()
-                .getInterestRatePayout();
+                .stream()
+                .map(Payout.PayoutBuilder::getInterestRatePayout)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         interestRatePayouts.stream()
                 .filter(payout -> payout.getRateSpecification().getFloatingRateSpecification() != null)
                 .findFirst()
@@ -1456,13 +1469,14 @@ class FunctionInputCreationTest {
                                 .addPriceQuantity(PriceQuantity.builder()
                                         .setObservableValue(Observable.builder()
                                                 .setIndex(Index.builder()
-                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
-                                                                .setValue(FloatingRateIndex.builder()
-                                                                        .setInterestRateIndex(InterestRateIndex.builder()
-                                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                                                .setIndexTenor(Period.builder()
-                                                                                        .setPeriod(PeriodEnum.M)
-                                                                                        .setPeriodMultiplier(6)))))))
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(6)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.003))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
@@ -1493,15 +1507,18 @@ class FunctionInputCreationTest {
                                 .addPriceQuantity(PriceQuantity.builder()
                                         .setObservableValue(Observable.builder()
                                                 .setIndex(Index.builder()
-                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
-                                                                .setValue(FloatingRateIndex.builder()
-                                                                        .setInterestRateIndex(InterestRateIndex.builder()
-                                                                                .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                                        .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
-                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                                                .setIndexTenor(Period.builder()
-                                                                                        .setPeriod(PeriodEnum.M)
-                                                                                        .setPeriodMultiplier(3)))))))
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndex(
+                                                                                                FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                                        .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+                                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(6)))))))
+
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.002))
                                                 .setUnit(UnitType.builder().setCurrencyValue("USD"))
@@ -1511,15 +1528,17 @@ class FunctionInputCreationTest {
                                 .addPriceQuantity(PriceQuantity.builder()
                                         .setObservableValue(Observable.builder()
                                                 .setIndex(Index.builder()
-                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndex.builder()
-                                                                .setValue(FloatingRateIndex.builder()
-                                                                        .setInterestRateIndex(InterestRateIndex.builder()
-                                                                                .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                                                .setIndexTenor(Period.builder()
-                                                                                        .setPeriod(PeriodEnum.M)
-                                                                                        .setPeriodMultiplier(3)))))))
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndex(
+                                                                                                FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(3)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.001))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
@@ -2079,38 +2098,6 @@ class FunctionInputCreationTest {
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
-    @Test
-    void validateEligibleCollateralScheduleHelper() {
-        // Common criteria - GILTS
-        EligibleCollateralCriteria common = EligibleCollateralCriteria.builder()
-                .addAsset(AssetCriteria.builder()
-                        .addCollateralAssetType(AssetType.builder()
-                                .setAssetType(AssetTypeEnum.SECURITY)
-                                .setSecurityType(SecurityTypeEnum.DEBT)))
-                .addIssuer(IssuerCriteria.builder()
-                        .addIssuerType(CollateralIssuerType.builder()
-                                .setIssuerType(IssuerTypeEnum.SOVEREIGN_CENTRAL_BANK))
-                        .addIssuerCountryOfOrigin(ISOCountryCodeEnum.GB))
-                .build();
-        ;
-
-        // Variable criteria - Valuation percentages for each maturity range
-        List<EligibleCollateralCriteria> variable = Arrays.asList(
-                getVariableCriteria(0.97, getMaturityRange(0, 1)),
-                getVariableCriteria(0.96, getMaturityRange(1, 5)),
-                getVariableCriteria(0.95, getMaturityRange(5, 10)),
-                getVariableCriteria(0.93, getMaturityRange(10, 30)),
-                getVariableCriteria(0.9, getMaturityRange(30)));
-
-        // Create instruction
-        EligibleCollateralSpecificationInstruction instruction = EligibleCollateralSpecificationInstruction.builder()
-                .setCommon(common)
-                .setVariable(variable)
-                .build();
-
-        assertJsonEquals("cdm-sample-files/functions/eligible-collateral/merge-criteria-func-input.json", instruction);
-    }
-
     private static PeriodRange getMaturityRange(int lowerBound, int upperBound) {
         return PeriodRange.builder()
                 .setLowerBound(getMaturityBound(lowerBound, true))
@@ -2138,9 +2125,11 @@ class FunctionInputCreationTest {
                         .setIsIncluded(true)
                         .setValuationTreatment(CollateralValuationTreatment.builder()
                                 .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
-                .addAsset(AssetCriteria.builder()
-                        .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
-                        .setMaturityRange(maturityRange))
+                .setCollateralCriteria(CollateralCriteria.builder()
+                        .setAssetMaturity(AssetMaturity.builder()
+                                .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
+                                .setMaturityRange(maturityRange))
+                )
                 .build();
     }
 

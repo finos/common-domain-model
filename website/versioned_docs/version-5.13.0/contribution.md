@@ -10,11 +10,6 @@ The standard is developed through the [Community Specification](https://communit
 
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
-Committee members or any user of CDM within the community can propose
-amendments in accordance with the following process:
-
-![](/img/CDM-Development-Process.png)
-
 A proposal can be defined at a conceptual level or a logical level (i.e.
 in code). In each case, the proposal must be developed in line with the
 CDM [design-principles](/docs/cdm-overview#design-principles) and
@@ -36,7 +31,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 # Working Groups
 
-**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new [new CDM Working Group](https://github.com/finos/common-domain-model) template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
+**2.1.0 Any Participant may propose a Working Group.** Proposals for the formation of a new Working Group are made by completion of a new CDM Working Group template, clearly stating the objectives, deliverables and committed maintainers/editors for the proposed Working Group.
 
 **2.1.1 Approval of Specification Changes by Working Groups.** Participants of each Working Group approve the “proposed” changes from that working group; the “approved changes” within a given Working Group will be brought to the Steering Working Group as a proposed “Pre-Draft” contribution.
 
@@ -44,6 +39,8 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 * Maintainers of the CDM Steering Working Group will approve merging of the proposed “Pre-Draft” changes (coming from other Working Groups or otherwise from community) into the repo.
   
 **2.2.0 CDM Steering Working Group.** The CDM Steering Working Group will review and approve completed Working Group formation proposals per 2.1.0.
+
+![](/img/operating-model-1.png)
 
 **2.2.1 CDM Steering Working Group Purpose:** The Steering Working Group is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups.
 
@@ -79,6 +76,8 @@ source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
 new version. The CDM release history is available in the [Release
 Section](#) of the CDM documentation.
+
+![](/img/CDM–Semantic-Versioning-Refresher.png)
 
 ## Semantic Versioning
 
@@ -673,7 +672,7 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
@@ -717,7 +716,7 @@ adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -776,6 +775,10 @@ Given the alignment:
 
 we recommend labelling the pull request with the user story label, i.e.
 "STORY-XYZ: ..." to facilitate its tracking.
+
+![](/img/operating-model-2.png)
+
+![](/img/operating-model-3.png)
 
 ---
 **Note:**
@@ -915,7 +918,7 @@ test and, if necessary, update those before the changes can be released.
     and qualification results. Due to the contributed model changes, it
     is likely that there will be expectation mismatches that cause this
     build to fail.
--   **CDM Portal**: compile and test.
+-   **CDM Homepage**: compile and test.
 -   **CDM Java Examples**: compile and test.
 
 ---
@@ -950,6 +953,8 @@ new model:
 -   Deploy release candidate and notify channels if need be
 -   (Currently done at a later stage) Update the latest CDM version
     available in Rosetta
+
+![](/img/CDM–Build-Release-Process.png)
 
 ---
 **Note:**
