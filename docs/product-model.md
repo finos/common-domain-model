@@ -2,13 +2,12 @@
 title: Product Model
 ---
 
-## Financial Products {#product}
+## Financial Product {#product}
 
 In the CDM, a financial product describes a thing that is used to transfer financial
 risk between two parties. 
 
-The model is based on several building blocks
-to define the characteristics of that risk transfer.
+The model is based on several building blocks to define the characteristics of that risk transfer.
 The most fundamental of these building blocks is an `Asset`, which represents 
 a basic, transferable financial product such as cash, a commodity or security.
 From those basic transferable assets, any other financial product can be built using
@@ -28,13 +27,14 @@ commodity, a loan or a security.
 
 :::
 
+[![](/img/ART-asset.png)](/img/ARTasset.png)
+
 The Asset data type is represented as a `choice` of several underlying data types, which means one and only one of those data types must be used.
 
 ``` Haskell
 choice Asset:  
     Cash
     Commodity
-      [metadata location]
     DigitalAsset
     Instrument
 ```
@@ -77,6 +77,8 @@ The `Asset` definitions are as follows:
   of other Assets.
 * **Instrument**: An asset that is issued by one party to one or more others; Instrument is also a choice data type.
 
+#### Instrument  {#instrument}
+
 The `Instrument` data type is further broken down using the `choice` construct:
 
 ``` Haskell
@@ -94,11 +96,94 @@ with these attributes:
   the data type includes optional attributes to help uniquely identify the loan, including `borrower`, `lien`,
   `facilityType`, `creditAgreementDate` and `tranche`.
 * **Security**: An Asset that is issued by a party to be held by or transferred to others. As "security" covers a
-  broad gamut of assets, the `securityType` attribute (which is a list of enumerators including "Debt" and "Equity")
+  broad range of assets, the `securityType` attribute (which is a list of enumerators including `Debt` and `Equity`)
   must always be specified. Further categorisation, by `debtType`, `equityType` and `FundType`, can also be used
   and are governed by conditions on the data type definition.
 
-### Observable
+All the `Instrument` data types extend `InstrumentBase`, which itself extends `AssetBase`.
+Each type of instrument also has its own definitions with additional attributes which are required to uniquely
+identify the asset.
+
+The additional attributes on `Loan` can be used when needed to uniquely identify the specific loan: 
+
+``` Haskell
+type Loan extends InstrumentBase:
+    borrower LegalEntity (0..*)
+    lien string (0..1)
+        [metadata scheme]
+    facilityType string (0..1)
+        [metadata scheme]
+    creditAgreementDate date (0..1)
+    tranche string (0..1)
+        [metadata scheme]
+```
+
+Likewise, additional `ListedDerivative` attributes are used to uniquely identify the contract:
+
+``` Haskell
+type ListedDerivative extends InstrumentBase:
+    deliveryTerm string (0..1)
+    optionType PutCallEnum (0..1)
+    strike number (0..1)
+
+    condition Options:
+      if optionType exists then strike exists else strike is absent
+```
+
+---
+**Note:**
+The conditions for this data type are excluded from the snippet above
+for purposes of brevity.
+
+---
+
+Security has a set of additional attributes, as shown below:
+
+``` Haskell
+type Security extends InstrumentBase: 
+    debtType DebtType (0..1)
+    equityType EquityTypeEnum (0..1) 
+    fundType FundProductTypeEnum (0..1)
+
+    condition DebtSubType:
+        if instrumentType <> InstrumentTypeEnum -> Debt
+        then debtType is absent
+
+    condition EquitySubType:
+        if instrumentType <> InstrumentTypeEnum -> Equity
+        then equityType is absent
+
+    condition FundSubType:
+        if instrumentType <> InstrumentTypeEnum -> Fund
+        then fundType is absent
+```
+
+The asset identifier will uniquely identify the security. The
+`securityType` is required for specific purposes in the model, for
+example for validation as a valid reference obligation for a Credit
+Default Swap. The additional security details are optional as these
+could be determined from a reference database using the asset
+identifier as a key.
+
+### Index   {#index}
+
+:::tip Definition: Index
+
+An `Index` is data type to record information about prices, rates or 
+valuations of a number of assets that are tracked in a standardized way.  
+Examples include equity market indices as well as indices on interest rates, 
+foreign exchange rates, inflation and credit instruments.
+
+:::
+
+The index data types extend the `IndexBase` data type which in turn
+extends the `AssetBase` type.  Within `IndexBase`, an index name can
+be assigned, the index provider can be identified, and the asset
+class specified.
+
+[![](/img/ART-index.png)](/img/ARTindex.png)
+
+### Observable  {#observable}
 
 In addition to assets, there are variables which can be observed in the markets and which can directly
 influence the outcomes of financial products. In the CDM, the observed value represents the price of
@@ -111,6 +196,8 @@ It could be an underlying asset, if it can be held or transferred,
 or something which can be observed but not transferred, such as an index.
 
 :::
+
+[![](/img/ART-observable.png)](/img/ARTobservable.png)
 
 In addition to `Asset`, the `Observable` is a choice betwen the following data types:
 
@@ -127,8 +214,11 @@ financial product.
 * **Index**:  The object to be observed is an Index, ie an observable whose value is computed on the prices, rates or valuations
 of a number of assets.
 
-The CDM allows both products and observables to be used as underlying building blocks to construct
-more complex products (see the *[Underlier](#underlier)* section).
+Like `Asset`, both the `Basket` and `Index` types also extend `AssetBase`. This ensures that all types of `Observable` share
+a common set of attributes, in particular an identifier.
+
+The CDM allows both assets and observables to be used as underlying building blocks to construct
+complex products (see the *[Underlier](#underlier)* section).
 
 ### Product
 
@@ -149,6 +239,15 @@ There are two types of products:
 
 * A **transferable product** associates an asset, itself transferable, with the economic terms describing that asset.
 * A **non-transferable product** describes a commitment between two parties to one or more transfers of assets in the future.
+
+``` Haskell
+choice Product:
+    TransferableProduct
+    NonTransferableProduct
+```
+
+[![](/img/ART-transferable.png)](/img/ARTtransferable.png)
+
 
 #### TransferableProduct
 
@@ -186,7 +285,7 @@ In the CDM, those products are represented by the `NonTransferableProduct` type:
 :::tip Definition: NonTransferableProduct
 
 A non-transferable product represents a financial product that is agreed bilaterally between two parties.
-The data type species the financial product's economic terms alongside its identifier and taxonomy.
+The data type specifies the financial product's economic terms alongside its identifier and taxonomy.
 A non-transferable product is instantiated by a trade between the two parties that defines the tradable product,
 and evolves through the CDM's lifecycle event model.
 
@@ -222,24 +321,6 @@ Given that each contractual product transaction is unique, all of the
 contract terms must be specified and stored in an easily accessible
 transaction lifecycle model so that each party can evaluate their
 financial risks during the life of the agreement.
-
-Foreign Exchange (FX) spot and forward trades (including Non-Deliverable
-Forwards) and private loans also represent an exchange of financial risk
-represented by a form of bilateral agreements. FX forwards and private
-loans can have an extended term, and are generally not fungible.
-
-By contrast, in the case of the execution of a security (e.g. a listed
-equity), the exchange of finanical risk is a one-time event that takes
-place on the settlement date, which is usually within a few business
-days of the agreement. The other significant distinction is that
-securities are fungible instruments for which the terms and security
-identifiers are publically available. Therefore, the terms of the
-security do not have to be stored in a transaction lifecycle model, but
-can be referenced with public identifiers.
-
-An index-based product is an exception because it's not directly tradable,
-but is included here because it can be referenced as an underlier for a
-tradable product and can be identified by a public identifier.
 
 #### Product Scope
 
@@ -298,23 +379,24 @@ type EconomicTerms:
   collateral Collateral (0..1)
 ```
 
+[![](/img/ART-product.png)](/img/ARTproduct.png)
+
 ### Payout
 
 The `Payout` type defines the composable payout types, each of which
 describes a set of terms and conditions for the financial
 obligation between the contractual parties. Payout types can be
-combined to compose a product. For example, an Equity Swap can be
-composed by combining an `InterestRatePayout` and an
-`PerformancePayout`.
+combined to compose a product.
 
 :::tip Definition: Payout
 
 Represents the set of future cashflow methodologies in the form of 
-specific payout data type(s) which result from the financial product.  
-Examples: a trade in a cash asset will use only a settlement payout; 
+specific payout data type(s) which combine to form the financial product.  
+Examples: a "cash" trade (buying and selling an asset) will use a settlement payout; 
 for derivatives, two interest rate payouts can be combined to specify 
 an interest rate swap; one interest rate payout can be combined with 
-a credit default payout to specify a credit default swap.
+a credit default payout to specify a credit default swap; an equity swap
+combines an interest rate payout and a performance payout; etc.
 
 :::
 
@@ -322,7 +404,6 @@ a credit default payout to specify a credit default swap.
 choice Payout:
   [metadata key]
   AssetPayout
-  Cashflow
   CommodityPayout
   CreditDefaultPayout
   FixedPricePayout
@@ -330,9 +411,10 @@ choice Payout:
   OptionPayout
   PerformancePayout
   SettlementPayout
+
 ```
 
-A number of payout types extend a common data type called `PayoutBase`.
+All payout types extend a common data type called `PayoutBase`.
 This data type provides a common structure for attributes such as
 quantity, price, settlement terms and the payer/receiver direction which
 are expected to be common across many payouts.
@@ -344,20 +426,6 @@ type PayoutBase:
   principalPayment PrincipalPayments (0..1)
   settlementTerms SettlementTerms (0..1)
 ```
-
-The list of payouts that extend _PayoutBase_ are:
-
--   `InterestRatePayout`
--   `CreditDefaultPayout`
--   `OptionPayout`
--   `CommodityPayout`
--   `SettlementPayout`
--   `FixedPricePayout`
--   `Cashflow`
--   `PerformancePayout`
--   `AssetPayout`
--   the `ProtectionTerms` data type encapsulated in
-    `CreditDefaultPayout`
 
 For example:
 
@@ -387,12 +455,32 @@ purposes of brevity.
 
 ---
 
-The price and quantity attributes in the _PayoutBase_
-structure are positioned in the _ResolvablePriceQuantity_
-data type. This data type mirrors the _PriceQuantity_ data
+[![](/img/ART-payout.png)](/img/ARTpayout.png)
+
+There are a number of components that are reusable across several payout
+types. For example, the `CalculationPeriodDates` class describes the
+inputs for the underlying schedule of a stream of payments.
+
+``` Haskell
+type CalculationPeriodDates:
+  [metadata key]
+  effectiveDate AdjustableOrRelativeDate (0..1)
+  terminationDate AdjustableOrRelativeDate (0..1)
+  calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
+  firstPeriodStartDate AdjustableOrRelativeDate (0..1)
+  firstRegularPeriodStartDate date (0..1)
+  firstCompoundingPeriodEndDate date (0..1)
+  lastRegularPeriodEndDate date (0..1)
+  stubPeriodType StubPeriodTypeEnum (0..1)
+  calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+```
+
+The price and quantity attributes in the `PayoutBase`
+structure are positioned in the `ResolvablePriceQuantity`
+data type. This data type mirrors the `PriceQuantity` data
 type and contains both the price and quantity schedules.
 
-In addition that data type supports the definition of additional
+That data type supports the definition of additional
 information such as a quantity reference, a quantity multiplier or the
 indication that the quantity is resettable. Those are used to describe
 the quantity of a payout leg that may need to be calculated based on
@@ -427,7 +515,7 @@ multiplied by the period to get the total quantity.
 Both the `quantitySchedule` and `priceSchedule` attributes have a
 metadata address that point respectively to the `quantity` and `price`
 attributes in the `PriceQuantity` data type. This special
-cross-referencing annotation in the Rosetta DSL allows to parameterise
+cross-referencing annotation in the Rune DSL allows to parameterise
 an attribute whose value may be variable by associating it to an
 address. The attribute value does not need to be populated in the
 persisted object and can be provided by another object, using the
@@ -443,13 +531,89 @@ type RateSchedule:
     [metadata address "pointsTo"=PriceQuantity->price]
 ```
 
-## TradableProduct {#tradable-product}
+#### Underlier
+
+The concept of an underlier allows for financial products to be used
+within the definition of another product to drive its outcomes, for example
+a forward or option (contingent on an underlying asset), an equity swap
+(contingent on an underlying stock price or index), or an option to enter into
+another financial contract (as in an interest rate or credit default swaption).
+
+The fact that a product can be nested as an underlier in the definition of
+another product makes the product model composable.
+
+:::tip Definition: Underlier
+
+The underlying financial product can be of any type: e.g. an asset such as
+cash or a security, an index, or a product, and may be physically or cash settled
+as specified in the payout definition.  Conditions are usually applied when used in 
+a payout to ensure that the type of underlier aligns with the payout's use case.
+
+:::
+
+[![](/img/ART-complete.png)](/img/ARTcomplete.png)
+
+``` Haskell
+choice Underlier:
+    Observable
+        [metadata address "pointsTo"=PriceQuantity->observable]
+    Product
+```
+
+In the simplest case, the underlier in an `AssetPayout` can not be
+cash, so the definition within this data type is constrained as such.
+
+In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
+is to influence the values of the future returns, so its type is restricted
+to be an observable.
+
+Option products do provide for the greatest range of outcomes and even allow the underlier
+to be a `NonTransferableProduct`, as in the swaption case.
+
+**Use of underliers in payouts**
+
+The following table summarises the use of underliers for each of the main payout data types.
+
+| **Payout**    | **Underlier Definition** | **Rationale** |
+| :-------- | :------- | :------- | 
+| `AssetPayout` | `underlier Asset (1..1)` | Specifies the Asset subject to the financing agreement, usually a Security
+| `CommodityPayout` | `underlier Underlier (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
+| `OptionPayout` | `underlier Underlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
+| `PerformancePayout` | `underlier Underlier (0..1)` | The underlier is a pricing mechanism, ie an Observable
+| `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
+
+#### SettlementPayout
+
+A `SettlementPayout` is a specialised choice of payout introduced to represent the
+buying or selling of an underlying asset or product, which then needs to be settled.
+
+:::tip Definition: SettlementPayout
+
+A settlement payout can represent a spot or forward settling payout. The `underlier` 
+attribute captures the underlying product or asset, which is settled according to the 
+`settlementTerms` attribute (part of `PayoutBase`).
+
+:::
+
+Conditions on the definition of `SettlementPayout` ensure the following are true
+for the underlier:
+- If it is a `Product`, it must not be a `NonTransferableProduct` - since by definition
+such product cannot be settled.
+- If it is a `Basket`, then all of the constituents of the basket must be assets.
+- If it is an `Index`, then it must be cash settled.
+
+`SettlementPayout` is used for foreign exchange trades, either spot- (cash) or 
+forward-dated. In this case, the underlier specifying the asset to be settled must
+be of `Cash` type, and the price represents the exchange rate in the purchase currency.
+Non-deliverable forwards can be represented using the cash-settlement option.
+
+## Tradable Product {#tradable-product}
 
 A tradable product represents a financial product that is ready to be
 traded, meaning that there is an agreed financial product, price,
-quantity, and other details necessary to complete an execution of a
-security or a negotiated contract between two counterparties. Tradable
-products are represented by the `TradableProduct` data type.
+quantity, and other details necessary to complete the execution of a
+negotiated contract between two counterparties. Tradable products
+are represented by the `TradableProduct` data type.
 
 :::tip Definition: TradableProduct
 
@@ -462,6 +626,8 @@ but allows for multiple trade lots, quantities and prices, between the
 same two counterparties.
 
 :::
+
+[![](/img/ART-trade.png)](/img/ARTtrade.png)
 
 ``` Haskell
 type TradableProduct:
@@ -480,12 +646,39 @@ for purposes of brevity.
 ---
 
 The primary set of attributes represented in the `TradableProduct` data
-type are ones that are shared by all trades and transactions. For
-example, every trade has a price, a quantity (treated jointly as a trade
-lot), and a pair of counterparties. In some cases, there are ancillary
+type are ones that are shared by all trades. Every trade is based on a
+financial product and has a price, a quantity (treated jointly as a
+trade lot), and a pair of counterparties. In some cases, there are ancillary
 parties, or an allowable adjustment to the notional quantity. All of the
-other attributes required to describe a product are defined in distinct
-product data types.
+other attributes required to describe the trade's economic terms are defined
+in the `NonTransferableProduct` data type.
+
+There are cases when the object of a trade is a _transferable_ product
+whose economic terms are already set: for instance when buying or selling
+a fungible instrument like a security or a loan. In those cases, the terms
+of that trade still need to be contractually agreed betwwen the parties.
+This contract's terms would be defined in a `Payout` and embedded in a
+`NonTransferableProduct` which is not transferable, even though
+the underlying product may be.
+
+In its simplest form, that trade's terms will specify the settlement date
+in addition to the price and quantity and can be represented using the
+[`SettlementPayout`](#SettlementPayout).
+
+A `TradableProduct` also provides a mechanism to trade indices that
+otherwise cannot be directly transfered. The `Payout` would define how
+the index is meant to be observed and the resulting cashflows between
+the parties based on that observed value.
+
+This example shows the structure for a foreign exchange trade which is composed
+of:
+- a `Trade` and a `TradableProduct`
+- a `NonTransferableProduct` composed using a single `SettlementPayout`.  This in
+  turn has a `Cash` underlier which specifies the currency of the payout.
+- a `TradeLot` containing a `PriceQuantity`, which defines the price of the underlier,
+  expressed as a quantity in the second currency, and an exchange rate.
+
+[![](/img/ART-settlement.png)](/img/ARTsettlement.png)
 
 ### Counterparty
 
@@ -538,7 +731,7 @@ The `partyReference` attribute in `Counterparty` is annotated with a
 can be passed in instead of a copy. In that case, the attribute's type
 must itself be annotated with a `[metadata key]`, so that it is
 referenceable via a key. The use of the key / reference mechanism is
-further detailed in the Rosetta DSL documentation.
+further detailed in the Rune DSL documentation.
 
 ---
 
@@ -967,168 +1160,6 @@ For instance in an FX spot or forward transaction, the respective units
 of the quantity and price will determine who is paying or receiving each
 currency.
 
-## Reusable Components
-
-There are a number of components that are reusable across several payout
-types. For example, the `CalculationPeriodDates` class describes the
-inputs for the underlying schedule of a stream of payments.
-
-``` Haskell
-type CalculationPeriodDates:
-  [metadata key]
-  effectiveDate AdjustableOrRelativeDate (0..1)
-  terminationDate AdjustableOrRelativeDate (0..1)
-  calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1)
-  firstPeriodStartDate AdjustableOrRelativeDate (0..1)
-  firstRegularPeriodStartDate date (0..1)
-  firstCompoundingPeriodEndDate date (0..1)
-  lastRegularPeriodEndDate date (0..1)
-  stubPeriodType StubPeriodTypeEnum (0..1)
-  calculationPeriodFrequency CalculationPeriodFrequency (0..1)
-```
-
-### Underlier
-
-The concept of an underlier allows for financial products to be used
-to drive outcomes within the definition of a corresponding product, for example
-an option, forward, or equity swap.
-
-This nesting of the product component is another example of a composable
-product model. One use case is an interest rate swaption for which the
-high-level product uses the `OptionPayout` type and the underlier is an
-Interest Rate Swap composed of two `InterestRatePayout` types.
-Similiarly, the product underlying an Equity Swap composed of an
-`InterestRatePayout` and a `PerformancePayout` would be a transferable
-product: an equity security.
-
-In the simplest case, the underlier in an `AssetPayout` can only ever be
-a security, so the definition within this data type is constrained as such.
-
-In a `CommodityPayout` or a `PerformancePayout`, the purpose of the underlier
-is to influence the values of the future returns, so the appropriate data
-type to use for the underlier is an Observable.
-
-In the case of a `SettlementPayout`, there are a variety of possible
-outcomes as the settlement can be an Asset, the cash value of an Index, or
-a TransferableProduct.  Therefore, the choice data type `Underlier` has
-been defined and is used as the underlier attribute in this payout.
-
-Option financial products allow for an even greater range of outcomes, so
-the choice data type `OptionUnderlier` provides for both Observables and Products
-(itself also a choice data type) to be used in an `OptionPayout`.
-
-``` Haskell
-choice Underlier:
-    Observable
-        [metadata address "pointsTo"=PriceQuantity->observable]
-    Product
-
-choice Product:
-    TransferableProduct
-    NonTransferableProduct
-```
-
-**Use of underliers in payouts**
-
-The following table summarises the use of underliers for each of the main payout data types.
-
-| **Payout**    | **Underlier Definition** | **Rationale** |
-| :-------- | :------- | :------- | 
-| `AssetPayout` | `securityInformation Security (1..1)` | The underlier must be a `security`
-| `CommodityPayout` | `underlier Observable (1..1)` | Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.
-| `OptionPayout` | `underlier OptionUnderlier (1..1)` | The underlier defines the exercise, which can be cash or physical, therefore it can be any of an Asset, Basket, Index or NonTransferableProduct
-| `PerformancePayout` | `underlier Observable (0..1)` | The underlier is a pricing mechanism, ie an Observable
-| `SettlementPayout` | `underlier Underlier (1..1)` | The underlier that is settled and can be an Asset, Index or TransferableProduct
-
-### Identifiers
-
-#### Asset Identifiers
-
-The abstract data type AssetBase serves as a base for all Assets,
-as illustrated below:
-
-``` Haskell
-type AssetBase:
-    identifier AssetIdentifier (1..*) 
-    taxonomy Taxonomy (0..*) 
-    isExchangeListed boolean (0..1)
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*)
-```
-
-The data types that extend from AssetBase are the Asset
-data types (Cash, Commodity, DigitalAsset and Loan) and
-the Observable data types (Basket and Index).
-
-Additionally, the Instrument data types extend from InstrumentBase,
-which itself extends from AssetBase.
-
-The instrument assets also have their own definitions with additional attributes
-which are required to uniquely identify the asset:
-
-``` sourcecode
-type Loan extends InstrumentBase:
-    borrower LegalEntity (0..*)
-    lien string (0..1)
-        [metadata scheme]
-    facilityType string (0..1)
-        [metadata scheme]
-    creditAgreementDate date (0..1)
-    tranche string (0..1)
-        [metadata scheme]
-
-type ListedDerivative extends InstrumentBase:
-    deiveryTerm string (1..1)
-    optionType PutCallEnum (0..1)
-    strike number (0..1)
-
-condition Options:
-     if optionType exists then strike exists else strike is absent
-```
-
----
-**Note:**
-The conditions for this data type are excluded from the snippet above
-for purposes of brevity.
-
----
-
----
-**Note:**
-This inheritance and remodelling will be refactored
-before CDM 6 is released to production.
-
----
-
-In the case of Commodity, the applicable product identifiers are the
-ISDA definitions for reference benchmarks. Security has a
-set of additional attributes, as shown below:
-
-``` Haskell
-type Security extends InstrumentBase: 
-    debtType DebtType (0..1)
-    equityType EquityTypeEnum (0..1) 
-    fundType FundProductTypeEnum (0..1)
-
-    condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
-        then debtType is absent
-
-    condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
-        then equityType is absent
-
-    condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
-        then fundType is absent
-```
-
-The product identifier will uniquely identify the security. The
-`securityType` is required for specific purposes in the model, for
-example for validation as a valid reference obligation for a Credit
-Default Swap. The additional security details are optional as these
-could be determined from a reference database using the product
-identifier as a key
 
 ## Product Qualification
 
@@ -1183,7 +1214,8 @@ the Option and the underlying Interest Rate Swap would be qualified.
 ---
 
 The CDM supports Product Qualification functions for Credit Derivatives,
-Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, and
+Interest Rate Derivatives, Equity Derivatives, Foreign Exchange, Security
+Lending, and
 Repurchase Agreements. The full scope for Interest Rate Products has
 been represented down to the full level of detail in the taxonomy. This
 is shown in the example above, where the `ZeroCoupon` qualifying suffix

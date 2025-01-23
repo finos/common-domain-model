@@ -104,10 +104,8 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
     condition NonCurrencyQuantities: <"There should be at most one quantity which is not a currency, except for commodities where there may be two.">
-        ( quantity count - quantity -> unit -> currency count ) <= 1
-        or ( observable -> Asset -> Commodity exists 
-            and quantity -> unit -> capacityUnit exists
-            and ( quantity count - quantity -> unit -> currency count ) <= 2 )
+        (quantity count - quantity -> unit -> currency count) <= 1 or (observable -> Asset -> Commodity exists
+            and quantity -> unit -> capacityUnit exists and (quantity count - quantity -> unit -> currency count) <= 2)
 
     condition ArithmeticOperator: <"When observable is InterestRateIndex, and price exists, then price should have an arithmetic operator.">
         if observable -> Index -> InterestRateIndex exists and price exists
@@ -224,7 +222,7 @@ type BasketConstituent extends Observable: <"Identifies the constituents of the 
     finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
         [metadata address "pointsTo"=PriceQuantity->price]
 
-    condition BasketsOfBaskets:  <"To prevent endless looping, baskets of baskets are not supported.">
+    condition BasketsOfBaskets: <"To prevent endless looping, baskets of baskets are not supported.">
         Basket is absent
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">

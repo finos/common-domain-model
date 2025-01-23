@@ -25,6 +25,14 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted
               )}
+              to={'/docs/training'}>
+              Introduction Training
+           </Link>     
+           <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
               to={'docs/home'}>
               DOCS
             </Link>
