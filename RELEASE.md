@@ -433,10 +433,10 @@ with Collateral (some terms omitted for clarity):
 
 #### 3.1 Example of a Repurchase Agreement
 
-CDM 6 offers enhanced supported for repurchase agreements, replacing the implementation of securities financing in section 3 above.  A repurchase agreement:
+CDM 6 offers enhanced support for repurchase agreements, replacing the implementation of securities financing in section 3 above.  A repurchase agreement:
 - qualifies as "RepurchaseAgreement"
 - is composed of a `Product` a single `InterestRatePayout` in the `EconomicTerms` to represent the principal payment
-- and a `Collateral` definition with a `TransferableProduct` for the asset being exchnaged
+- and a `Collateral` definition with a `TransferableProduct` for the asset being exchanged
 
 Example of the product structure (some terms omitted for clarity):
 
