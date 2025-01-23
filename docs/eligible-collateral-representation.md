@@ -166,7 +166,8 @@ the schedule of eligible collateral agreed between two parties and is represente
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
 
-![image](/img/cdm-graphical-ecs-6.png)
+![](img/cdm-graphical-ecs.png)
+
 
 `EligibleCollateralSpecification` consists of the following key attributes:
 
