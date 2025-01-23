@@ -299,7 +299,7 @@ The second currency reflected in the `tradeLot`:
 
 ``` json
 {
-	"tradeLot" : [ {
+   "tradeLot" : [ {
       "priceQuantity" : [ {
         "price" : [ {
           "value" : {
@@ -431,7 +431,7 @@ with Collateral (some terms omitted for clarity):
 } } ] } ] } } } } } ] } } ] } }	
 ```
 
-#### 4. Example of a Repurchase Agreement
+#### 3.1 Example of a Repurchase Agreement
 
 CDM 6 offers enhanced supported for repurchase agreements, replacing the implementation of securities financing in section 3 above.  A repurchase agreement:
 - qualifies as "RepurchaseAgreement"
@@ -442,7 +442,7 @@ Example of the product structure (some terms omitted for clarity):
 
 ``` json
 {
-	"trade" : {
+  "trade" : {
     "product" : {
       "taxonomy" : [ {
         "source" : "ISDA",
@@ -505,18 +505,19 @@ and the collateral structure:
 } } } ] } } ] } }
 ```
 
-#### 5. Example of a Securities Lending trade
+#### 3.2 Example of a Securities Lending trade
 
-CDM 6 offers enhanced supported for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented using:
+CDM 6 offers enhanced support for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented using:
 - a product that qualifies as "SecurityLending"
 - composed of Economic Terms with a single `AssetPayout` with a `Security` underlier for the asset being lent
-- with the the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
+- with the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
+A non-cash collateral trade would have a `Collateral` definition with a `TransferableProduct` for the asset(s) being used as collateral.
 
 This can be seen in this sample (some items omitted for clarity):
 
 ``` json
 {
-	"product" : {
+  "product" : {
     "taxonomy" : [ {
       "source" : "ISDA",
       "productQualifier" : "SecurityLending"
