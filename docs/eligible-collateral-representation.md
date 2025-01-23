@@ -101,7 +101,6 @@ principle, these can be divided into the following categories:
 
 -   Issuer Identification
 -   Asset Identification
--   Asset and Issuer Identification
 -   Collateral Haircuts
 -   Maturity Ranges
 -   Concentrations Limits
