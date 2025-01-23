@@ -1,6 +1,6 @@
 # CDM Version 6.0
 
-CDM 6.0, a production release, corresponds to developments made to the CDM throughout 2024 and previously released as CDM 6-dev. These developments include items that featured in the 2024 CDM roadmap:
+CDM 6.0, a production release, corresponds to developments made to the Common Domain Model throughout 2024 and previously released as CDM 6-dev. These developments include items that featured in the 2024 CDM roadmap:
 
 - Option Payout Refactoring
 - Asset Refactoring
@@ -162,13 +162,13 @@ _Other data type and attribute changes_
         - `BondChoiceModel`
         - `UnitContractValuationModel`.
 - Refactoring of `ObservationTerms`:
-    - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType` respectively.
+    - The two attributes `pricingTime` and `pricingTimeType` on `ObservationTerms` have been renamed `observationTime` and `observationTimeType`, respectively.
 - Changes to `Transfer`:
     - The modelling of `Transfer` has been refactored to act upon `Asset` rather than `Observable`, in line with the definition of `Asset` as something that can be transferred.
     - `TransferBase` has been deleted from the model and replaced by `AssetFlowBase`, which is also extended by the `Cashflow` type.
 - Refactored eligible collateral
     - `AssetCriteria` and `IssuerCriteria` have been replaced by a refactored and combined `CollateralCriteria`.
-    - The `qualifier` attribute has been removed from `AgencyRatingCriteria` as it is now redundant.
+    - The `qualifier` attribute has been removed from `AgencyRatingCriteria`, as it is now redundant.
     - The data type `ListingType` has been removed.
 - Security finance:
     - Rename `RepoTypeEnum` to `AssetPayoutTradeTypeEnum`.
@@ -507,8 +507,8 @@ and the collateral structure:
 
 #### 3.2 Example of a Securities Lending trade
 
-CDM 6 offers enhanced support for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented using:
-- a product that qualifies as "SecurityLending"
+CDM 6 offers enhanced support for securities lending, replacing the implementation of securities financing in section 3 above. Securities Lending trades are represented:
+- using a product that qualifies as "SecurityLending"
 - composed of Economic Terms with a single `AssetPayout` with a `Security` underlier for the asset being lent
 - with the cash payment modelled within a `Collateral` object with a transferable product composed of a `Cash` asset with an `InterestRatePayout`.
 A non-cash collateral trade would have a `Collateral` definition with a `TransferableProduct` for the asset(s) being used as collateral.
@@ -597,9 +597,9 @@ This can be seen in this sample (some items omitted for clarity):
 _Data types and enumeration changes_
 
 - Removed `OptionStyle` type and the three option exercise types contained inside it: `AmericanExercise`, `EuropeanExercise`, `BermudaExercise`.
-- Replaced by new `OptionExerciseStyleEnum` enumeration with values `American`, `European` and `Bermuda`.
+- Replaced these with new `OptionExerciseStyleEnum` enumeration with values `American`, `European` and `Bermuda`.
 - Removed `OptionExercise` type.
-- Replaced by new `ExerciseTerms` type, containing:
+- Replaced these with new `ExerciseTerms` type, containing:
     - all of the distinct attributes present before in `AmericanExercise`, `EuropeanExercise`, and `BermudaExercise` types,
     - a `style` attribute of type `OptionExerciseStyleEnum`,
     - and the `exerciseProcedure` attribute of type `ExerciseProcedure` that was previously contained in `OptionExercise`.
