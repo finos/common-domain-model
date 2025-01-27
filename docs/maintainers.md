@@ -36,13 +36,13 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
 | Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| David Shone          | ISDA           | OrgRep                                      | dshoneisda           |
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
-| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 

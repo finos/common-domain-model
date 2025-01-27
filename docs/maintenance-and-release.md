@@ -1,6 +1,6 @@
 ## Reviewing model changes
 
-Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the the  guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.
+Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.
 
 ### Review checklist
 
@@ -39,8 +39,8 @@ Slack, email or in direct meetings.
 **Note:**
 
 Depending on the size, complexity or impact of a contribution, the CDM
-Maintainer can recommend for the contribution to be presented with an
-appropriate level of details with the [CDM Architecture](CDM-Technology-Architecture-WG.md) and [Review
+Maintainer can recommend for the contribution to be presented to an
+appropriate level of detail with the [CDM Architecture](CDM-Technology-Architecture-WG.md) and [Review
 Committee](CDM-Contribution-Review-WG.md) for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the

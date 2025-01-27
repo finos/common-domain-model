@@ -1,5 +1,5 @@
 # Contributions 
-This page will take you through how to contribute to the CDM, the necessary steps to take beforehand, editing and testing. 
+This page will take you through how to contribute to the CDM, the necessary steps to take before you contribute, as well as how to edit and test your changes.
 
 ## CDM development guidelines 
 
