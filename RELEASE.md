@@ -13,11 +13,11 @@ This release adds the following examples scenarios:
 - `org.finos.cdm.example.processors.ValidationProcessorTests` with different validation report expectation scenarios
 
 **Qualification scenarios**
-- `org.finos.cdm.example.qualification.QualifyBusinessEventTest` with `PartialTermination`, `ContractFormation`, `PartialNovation`
+- `org.finos.cdm.example.qualification.QualifyBusinessEventTest` with `PartialTermination`, `ContractFormation`, `PartialNovation`, `Allocation`, `Clearing`, `Compression`, `CorporateAction`, `CreditEvent`, `Execution`, `Exercise`, `Novation`, `IndexTransition`, `Termination`, `StockSplit`, `Increase`
 - `org.finos.cdm.example.qualification.QualifyProductTest` with `InterestRate_Fra`, `InterestRate_Option_Swaption`, `InterestRate_CrossCurrency_FixedFloat`, `InterestRate_CapFloor`, `InterestRate_IRSwap_FixedFloat`, `CreditDefaultSwap_SingleName`, `CreditDefaultSwap_Index`, `CreditDefaultSwap_Basket`, `EquitySwap_TotalReturnBasicPerformance_SingleName`, `EquitySwap_ParameterReturnVariance_SingleName`
 
 **WorkflowStep transition scenarios**
-- `org.finos.cdm.example.BusinessEventExecutionTest` with business event execution tests and instruction creation mocks for `ContractFormation`, `Execution`, `Novation`, `Increase`, `Decrease`, `Termination`, `Reset`, `Valuation`, `OptionExercise`, `Transfer`, `TermsChange`, `StockSplit`, `Allocation`, `CorporateAction`, `CreditEvent`, `Compression`, `Clearing`, ``, ``, ``, ``, ``, ``, ``, ``, ``, ``, ``
+- `org.finos.cdm.example.BusinessEventExecutionTest` with business event execution tests and instruction creation mocks for `ContractFormation`, `Execution`, `Novation`, `Increase`, `Decrease`, `Termination`, `Reset`, `Valuation`, `OptionExercise`, `Transfer`, `TermsChange`, `StockSplit`, `Allocation`, `CorporateAction`, `CreditEvent`, `Compression`, `Clearing`
 
 **Performance Metrics**
 - `org.finos.cdm.example.performance.ProcessorPerformanceTests` with deserialization, object validation, qualification, and state transition metrics at product and event level.
