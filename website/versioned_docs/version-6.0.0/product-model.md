@@ -18,7 +18,7 @@ of one or more assets in the future - for instance, but not exclusively, future 
 when that asset is cash. These future transfers may be contingent on the future value
 or performance of that asset or other, as in the case of options.
 
-### Asset  
+### Asset  {#asset}
 
 :::tip Definition: Asset
 
@@ -796,7 +796,7 @@ one for an upfront fee. By comparison, the purchase or sale of a
 security or listed derivative would typically have a single
 `PriceQuantity` instance in the trade lot.
 
-## PriceQuantity
+## PriceQuantity {#price-quantity}
 
 The price and quantity attributes of a trade, or of a leg of a trade in
 the case of composite products, are part of a data type called

@@ -98,12 +98,11 @@ be extended further to operate to wider processes.
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
 collateral for the purpose of constructing eligible collateral
-specifications, including representation of additional attributes, for
+specifications, including representation of additional attributes for
 regulatory risk and credit factors. For the purpose of understanding the
 principle, these can be divided into the following categories:
 
--   Issuer Identification
--   Asset Identification
+-   Asset and Issuer Identification
 -   Collateral Haircuts
 -   Maturity Ranges
 -   Concentrations Limits
@@ -140,7 +139,7 @@ similar types.
 
 An illustrative example for understanding the principle is shown here:
 
-![](img/collateral-asset-identifier-tree.png)
+![image](/img/collateral-asset-identifier-tree.png)
 
 The CDM method for representing eligible collateral will be capable of
 reference to, and inclusion in, common master and respective collateral
@@ -168,7 +167,6 @@ the schedule of eligible collateral agreed between two parties and is represente
 digitally as one or more `EligibleCollateralCriteria` to define the details.
 
 ![image](/img/cdm-graphical-ecs-6.png)
-
 
 `EligibleCollateralSpecification` consists of the following key attributes:
 
