@@ -1,25 +1,18 @@
 package org.finos.cdm.example.qualification;
 
 import cdm.event.common.BusinessEvent;
-import cdm.event.common.meta.BusinessEventMeta;
 import cdm.event.workflow.WorkflowStep;
-import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import com.google.inject.Inject;
-import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
-import com.rosetta.model.lib.RosettaModelObject;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
-import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
+import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.rosetta.model.lib.qualify.QualifyResult;
-import com.rosetta.model.lib.qualify.QualifyResultsExtractor;
-import org.finos.cdm.example.AbstractExampleTest;
+import org.finos.cdm.example.processors.AbstractProcessorTest;
 import org.finos.cdm.example.util.ResourcesUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,123 +21,190 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * A test suite for validating business event qualification using the Common Domain Model (CDM).
  * This class demonstrates how to extract and qualify events from workflow steps based on CDM samples.
  */
-final class QualifyBusinessEventTest extends AbstractExampleTest {
+final class QualifyBusinessEventTest extends AbstractProcessorTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifyBusinessEventTest.class);
 
-    // Function to create a WorkflowStep from an instruction, injecting BusinessEvent into the step.
-    @Inject
-    Create_AcceptedWorkflowStepFromInstruction createWorkflowStep;
-
-    // Post-processor for refining and qualifying WorkflowStep objects.
-    @Inject
-    WorkflowPostProcessor postProcessor;
-
-    // Factory to retrieve qualification functions for BusinessEvent objects.
-    @Inject
-    QualifyFunctionFactory.Default qualifyFunctionFactory;
-
     /**
-     * Validates the qualification of a BusinessEvent derived from a WorkflowStep.
+     * Validates the qualification of a BusinessEvent derived from a WorkflowStep in a JSON file.
+     * Loads a WorkflowStep from JSON, converts it to a BusinessEvent, qualifies and validates it.
      *
      * @param workflowStepPath Path to the JSON file representing the WorkflowStep.
      * @param expectedQualifier The expected qualification result for the BusinessEvent.
      * @throws IOException If there is an error reading the JSON file or resolving references.
      */
-    private void runQualifyEvent(String workflowStepPath, String expectedQualifier) throws IOException {
+    private void runQualifyEventFromWorkflowStep(String workflowStepPath, String expectedQualifier) throws IOException {
         // Load the proposed WorkflowStep from the specified JSON file.
         WorkflowStep proposedWorkflowStep = ResourcesUtils.getObjectAndResolveReferences(WorkflowStep.class, workflowStepPath);
 
         // Transform the proposed WorkflowStep into one containing a BusinessEvent.
-        WorkflowStep businessEventWorkflowStep = runFunctionAndPostProcess(proposedWorkflowStep);
+        WorkflowStep businessEventWorkflowStep = createAcceptedWorkflowStepFromInstructionFunc.evaluate(proposedWorkflowStep);
 
         // Extract the BusinessEvent from the processed WorkflowStep.
         BusinessEvent businessEvent = businessEventWorkflowStep.getBusinessEvent();
         assertNotNull(businessEvent, "BusinessEvent must not be null");
 
+        // Run the qualification functions for BusinessEvent objects.
+        qualifyBusinessEvent(businessEvent, expectedQualifier);
+    }
+
+    /**
+     * Validates the qualification of a BusinessEvent derived from a BusinessEvent in a JSON file.
+     *
+     * @param businessEventPath Path to the JSON file representing the BusinessEvent.
+     * @param expectedQualifier The expected qualification result for the BusinessEvent.
+     * @throws IOException If there is an error reading the JSON file or resolving references.
+     */
+    private void runQualifyEventFromBusinessEvent(String businessEventPath, String expectedQualifier) throws IOException {
+        // Load the proposed BusinessEvent from the specified JSON file.
+        BusinessEvent businessEvent = ResourcesUtils.getObjectAndResolveReferences(BusinessEvent.class, businessEventPath);
+        assertNotNull(businessEvent, "BusinessEvent must not be null");
+
+        qualifyBusinessEvent(businessEvent, expectedQualifier);
+    }
+
+    /**
+     * Validates the qualification of an already instantiated (deserialized) BusinessEvent.
+     *
+     * @param businessEvent Path to the JSON file representing the BusinessEvent.
+     * @param expectedQualifier The expected qualification result for the BusinessEvent.
+     * @throws IOException If qualification fails.
+     */
+    private void qualifyBusinessEvent(BusinessEvent businessEvent, String expectedQualifier) throws IOException{
         // Retrieve the qualification functions for BusinessEvent objects.
-        List<Function<? super BusinessEvent, QualifyResult>> qualifyFunctions =
-                new BusinessEventMeta().getQualifyFunctions(qualifyFunctionFactory);
+        QualificationReport qualificationReport = qualify(businessEvent.toBuilder());
 
         // Extract the successful qualification result, if any.
-        String eventQualifier = new QualifyResultsExtractor<>(qualifyFunctions, businessEvent)
-                .getOnlySuccessResult() // Retrieve only one successful result; fail if multiple results exist.
-                .map(QualifyResult::getName) // Extract the name of the qualification result.
-                .orElse("Failed to qualify"); // Default if no qualification succeeded.
+        //The expected number of uniquely qualified objects for a WorkflowStep(businessEvent) is 3
+        LOGGER.info("Qualified/Uniquely qualified objects count: {}/{}",
+                qualificationReport.getQualifiableObjectsCount(),
+                qualificationReport.getUniquelyQualifiedObjectsCount()
+        );
+
+        //Store only event qualifier results -> type = BusinessEvent
+        List<String> eventQualifiers = new ArrayList<>();
+
+        //Walk through multiple qualified objects
+        qualificationReport.getResults().forEach(it -> {
+
+            final String eventQualifier = it.getUniqueSuccessQualifyResult().map(QualifyResult::getName).orElse("Failed to qualify");
+            final String qualifierType = it.getQualifiedRosettaObjectType().getSimpleName();
+            LOGGER.info("** Qualification Result **");
+            LOGGER.info("Success={}; Type={}; Qualification={}",
+                    it.isSuccess(),
+                    qualifierType,
+                    eventQualifier
+            );
+
+            if (qualifierType.equalsIgnoreCase(BusinessEvent.class.getSimpleName()))
+                eventQualifiers.add(eventQualifier);
+        });
+
+        //Assert only 1 eventQualifier is found : e.g eventQualifiers.size() == 1
 
         // Assert that the derived qualifier matches the expected qualifier.
-        assertEquals(expectedQualifier, eventQualifier,
-                "Event qualifier mismatch: expected '" + expectedQualifier + "', but got '" + eventQualifier + "'");
+        assertEquals(expectedQualifier, eventQualifiers.stream().findFirst().orElse("Failed to qualify"),
+                "Event qualifier mismatch: expected '" + expectedQualifier + "', but got '" + eventQualifiers.stream().findFirst().orElse("Failed to qualify") + "'");
 
-        LOGGER.info("Qualification Result: {}", eventQualifier);
+        LOGGER.info("Qualification Result: {}", eventQualifiers.stream().findFirst().orElse("Failed to qualify"));
     }
 
-    /**
-     * Transforms a WorkflowStep instruction into one containing a BusinessEvent.
-     * Optionally post-processes the result for qualification and other refinements.
-     *
-     * @param workflowStepInstruction Input WorkflowStep instruction.
-     * @return A WorkflowStep containing a BusinessEvent.
-     */
-    private WorkflowStep runFunctionAndPostProcess(WorkflowStep workflowStepInstruction) {
-        // Create a new WorkflowStep containing a BusinessEvent.
-        WorkflowStep eventWorkflowStep = createWorkflowStep.evaluate(workflowStepInstruction);
-
-        // Post-process the WorkflowStep for validation, re-resolving references, etc.
-        return postProcess(eventWorkflowStep);
-    }
-
-    /**
-     * Post-processes a CDM object (e.g., WorkflowStep) to refine and validate it.
-     *
-     * @param o A RosettaModelObject to be post-processed.
-     * @param <T> The type of the RosettaModelObject.
-     * @return The post-processed object.
-     */
-    private <T extends RosettaModelObject> T postProcess(T o) {
-        RosettaModelObjectBuilder builder = o.toBuilder();
-        postProcessor.postProcess(builder.getType(), builder); // Apply post-processing logic.
-        return (T) builder; // Return the post-processed object.
-    }
-
-    // Test cases for qualifying specific events from CDM samples.
-
+    // Test cases for qualifying specific events from CDM samples resulting from the ingestion.
     @Test
     void testPartialTermination() throws IOException {
         // Test for qualifying a "PartialTermination" event.
-        runQualifyEvent("result-json-files/fpml-5-10/processes/msg-partial-termination.json", "PartialTermination");
+        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-partial-termination.json", "PartialTermination");
     }
 
     @Test
     void testContractFormation() throws IOException {
         // Test for qualifying a "ContractFormation" event.
-        runQualifyEvent("result-json-files/fpml-5-10/processes/msg-ex58-execution-advice-trade-initiation-F01-00.json", "ContractFormation");
+        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-ex58-execution-advice-trade-initiation-F01-00.json", "ContractFormation");
     }
 
     @Test
     void testPartialNovation() throws IOException {
         // Test for qualifying a "PartialNovation" event.
-        runQualifyEvent("result-json-files/fpml-5-10/processes/msg-ex52-execution-advice-trade-partial-novation-C02-00.json", "PartialNovation");
+        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-ex52-execution-advice-trade-partial-novation-C02-00.json", "PartialNovation");
+    }
+
+    // Test cases for qualifying specific events from CDM-native samples.
+    @Test
+    void testAllocation() throws IOException {
+        // Test for qualifying a "Allocation" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/allocation/allocation-func-output.json", "Allocation");
+    }
+
+    @Test
+    void testClearing() throws IOException {
+        // Test for qualifying a "ClearedTrade" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/clearing/clearing-func-output.json", "ClearedTrade");
+    }
+
+    @Test
+    void testCompression() throws IOException {
+        // Test for qualifying a "Compression" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/compression/compression-func-output.json", "Compression");
+    }
+
+    @Test
+    void testCorporateAction() throws IOException {
+        // Test for qualifying a "CorporateActionDetermined" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-output.json", "CorporateActionDetermined");
+    }
+
+    @Test
+    void testCreditEvent() throws IOException {
+        // Test for qualifying a "CreditEventDetermined" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/credit-event/credit-event-func-output.json", "CreditEventDetermined");
+    }
+
+    @Test
+    void testExecution() throws IOException {
+        // Test for qualifying a "Execution" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/execution/execution-basis-swap-func-output.json", "Execution");
+    }
+
+    @Test
+    void testExercise() throws IOException {
+        // Test for qualifying a "Exercise" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-output.json", "Exercise");
+    }
+
+    @Test
+    void testNovation() throws IOException {
+        // Test for qualifying a "Novation" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/novation/full-novation-func-output.json", "Novation");
+    }
+
+    @Test
+    void testIndexTransition() throws IOException {
+        // Test for qualifying a "IndexTransition" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-output.json", "IndexTransition");
+    }
+
+    @Test
+    void testTermination() throws IOException {
+        // Test for qualifying a "Termination" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/quantity-change/full-termination-equity-swap-func-output.json", "Termination");
+    }
+
+    @Test
+    void testIncrease() throws IOException {
+        // Test for qualifying a "Increase" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-output.json", "Increase");
+    }
+
+    @Test
+    void testStockSplit() throws IOException {
+        // Test for qualifying a "StockSplit" event.
+        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-output.json", "StockSplit");
     }
 
     /*
      * Placeholder tests for other events.
      * Add corresponding test data to enable validation for these scenarios:
-     * - Execution
-     * - Allocation
-     * - Clearing
-     * - Novation
-     * - Amendment
-     * - Compression
      * - Reset
      * - Transfer
-     * - Increase
-     * - Full Termination
-     * - Option Exercise
-     * - Stock Split
-     * - Corporate Action
-     * - Credit Event
      */
-
-
 }

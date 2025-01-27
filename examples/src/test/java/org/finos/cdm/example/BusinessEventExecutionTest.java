@@ -2,28 +2,33 @@ package org.finos.cdm.example;
 
 import cdm.base.datetime.AdjustableOrAdjustedDate;
 import cdm.base.datetime.BusinessCenterTime;
-import cdm.base.datetime.Frequency;
-import cdm.base.math.*;
-import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
+import cdm.base.math.FinancialUnitEnum;
+import cdm.base.math.NonNegativeQuantitySchedule;
+import cdm.base.math.QuantityChangeDirectionEnum;
+import cdm.base.math.UnitType;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
 import cdm.base.staticdata.identifier.Identifier;
 import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
+import cdm.base.staticdata.party.Party;
+import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
 import cdm.event.common.*;
 import cdm.event.workflow.EventInstruction;
 import cdm.event.workflow.EventTimestamp;
 import cdm.event.workflow.EventTimestampQualificationEnum;
 import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
-import cdm.legaldocumentation.common.*;
+import cdm.legaldocumentation.common.AgreementName;
+import cdm.legaldocumentation.common.LegalAgreement;
+import cdm.legaldocumentation.common.LegalAgreementIdentification;
+import cdm.legaldocumentation.common.LegalAgreementTypeEnum;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.legaldocumentation.master.metafields.FieldWithMetaMasterAgreementTypeEnum;
 import cdm.observable.asset.PriceQuantity;
-import cdm.observable.asset.PriceSchedule;
-import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.common.NotionalAdjustmentEnum;
+import cdm.product.template.NonTransferableProduct;
 import cdm.product.template.OptionPayout;
 import cdm.product.template.Payout;
 import cdm.product.template.TradeLot;
@@ -34,6 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaDate;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.example.util.ResourcesUtils;
 import org.junit.jupiter.api.Test;
@@ -71,7 +77,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     private static final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 
-    private static final Date event_date = Date.parse("2023-02-28");
+    private static final Date event_date = Date.parse("2025-01-10");
     private static final LocalTime event_time = LocalTime.of(9, 0);
 
     @Inject
@@ -100,54 +106,140 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     /**
      * Execution
-     * When a transaction is executed, a new trade is instantiated.
-     * The creation of the new instruction is done by the buildExecutionPrimitiveInstruction function
+     * This test verifies that a new `WorkflowStep` for an execution event is correctly created
+     * when a transaction is executed. The test ensures that the resulting `WorkflowStep` contains
+     * the appropriate `ExecutionInstruction` and checks the validity of its components.
      * Notice that no before trade is required as input.
      */
     @Test
     void mustCreateExecutionBusinessEventAcceptedWorkflowStep() {
 
+        // Load a sample TradeState from a JSON file and resolve its references.
+        // We will use this deserialized tradeState to extract the information of a trade in order to create the execution instruction more easily.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
-        // Creation of the execution instruction. Using parsed trade as input to generate the executed tradeState.
-        ExecutionInstruction executionInstruction = buildExecutionPrimitiveInstruction(beforeTradeState);
+        // Extract the product from the loaded TradeState. This represents the financial product being traded.
+        NonTransferableProduct product = beforeTradeState.getTrade().getProduct();
 
-        // Adding the execution instruction to the primitive instruction that will be included in the resulting workflow step
-        PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setExecution(executionInstruction).build();
+        // Extract the list of trade lots from the loaded TradeState.
+        List<? extends TradeLot> tradeLot = beforeTradeState.getTrade().getTradeLot();
 
-        // Creation of the workflow step of an execution event. Execution does not have a before tradeState.
+        // Initialize an empty list for PriceQuantity (used later if trade lots are present).
+        List<PriceQuantity> pricequantity = List.of();
+
+        // If trade lots exist, extract and flatten their associated PriceQuantity lists.
+        if (beforeTradeState.getTrade().getTradeLot() != null) {
+            pricequantity = beforeTradeState.getTrade()
+                    .getTradeLot() // Get the list of TradeLots.
+                    .stream() // Create a stream to process the list.
+                    .map(TradeLot::getPriceQuantity) // Extract PriceQuantity from each TradeLot.
+                    .flatMap(List::stream) // Flatten the nested lists of PriceQuantity into a single stream.
+                    .collect(Collectors.toList()); // Collect into a single list.
+        }
+
+        // Extract the list of counterparties from the loaded TradeState.
+        List<? extends Counterparty> counterparty = beforeTradeState.getTrade().getCounterparty();
+
+        // Extract the list of parties involved in the trade.
+        List<? extends Party> party = beforeTradeState.getTrade().getParty();
+
+        // Extract the trade date from the TradeState.
+        FieldWithMetaDate date = beforeTradeState.getTrade().getTradeDate();
+
+        // Extract trade identifiers from the TradeState (e.g., unique identifiers for the trade).
+        List<? extends TradeIdentifier> tradeIdentifier = beforeTradeState.getTrade().getTradeIdentifier();
+
+        // Create an ExecutionInstruction object using the extracted components of the TradeState.
+        ExecutionInstruction executionInstruction = buildExecutionPrimitiveInstruction(product, tradeLot, pricequantity, counterparty, party, date, tradeIdentifier);
+
+        // Wrap the ExecutionInstruction in a PrimitiveInstruction, which will later be used to build the WorkflowStep.
+        PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder()
+                .setExecution(executionInstruction)
+                .build();
+
+        // Create a WorkflowStep for the execution event. Since this is an execution, there is no "before" trade state.
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, null, null);
 
-        assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getExecution(), "The resulting workflow step must contain the Execution instruction in the business event");
+        assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getExecution(), "The resulting workflow step must contain the Execution instruction in the business event"
+        );
     }
+
 
     /**
      * Novation
-     * The qualification of a novation event from the fact that the intent is Novation when specified,
-     * the primitives quantityChange and a contract formation exist,
-     * the remaining quantity = 0,
-     * the closedState of the contract is Novated,
-     * the stepped-in contract has a different contract identifier than the novated contract,
-     * the stepped-in contract has the novation event date and the novation event effective date,
-     * and the contract counterparties have changed.
+     * A full novation occurs when an entire trade or contract is transferred from one counterparty to another.
+     * The original counterparty is fully replaced, and the new counterparty assumes all rights and obligations
+     * of the trade.
      */
     @Test
-    void mustCreateNovationBusinessEventAcceptedWorkflowStep() {
+    void mustCreateFullNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
-        beforeTradeState = beforeTradeState.toBuilder().setState(State.builder().setClosedState(ClosedState.builder().build()));
+        //beforeTradeState = beforeTradeState.toBuilder().setState(State.builder().setClosedState(ClosedState.builder().build()));
+
+        //New party to replace in the first after trade for the party1
+        Party party3 = beforeTradeState.getTrade().getParty().get(2);
+
+        // Creation of the partyChange instruction that will be applied to the first after trade
+        PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
+
+        // Creation of the quantityChange instruction that will be applied to the second after trade
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().setQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.ZERO).build())).build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the novation instruction through a split instruction
-        SplitInstruction splitInstruction = buildSplitPrimitiveInstruction();
+        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction( PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build());
 
         // Adding the novation instruction to the primitive instruction that will be included in the resulting workflow step
         PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setSplit(splitInstruction).build();
 
         // Creation of the workflow step of a novation event
         WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOVATION);
+
+        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0),"The counterparty with role party1 should be different than the one on the before tradeState.");
+        assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
+        assertEquals(BigDecimal.ZERO, ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), "The quantity of the trade with the same counterparties as the original must be 0.");
+
+        //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
+    }
+
+    /**
+     * Partial Novation
+     * A partial novation happens when only part of the trade's notional or obligations is transferred to a new
+     * counterparty. The original counterparty remains in the trade but shares it with the new counterparty.
+     */
+    @Test
+    void mustCreatePartialNovationBusinessEventAcceptedWorkflowStep() {
+
+        // Trade to be included in Novation.
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
+        assertNotNull(beforeTradeState, "before TradeState must not be null");
+
+        //New party to replace in the first after trade for the party1
+        Party party3 = beforeTradeState.getTrade().getParty().get(2);
+
+        // Creation of the partyChange instruction that will be applied to the first after trade
+        PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setPartyReference(ReferenceWithMetaParty.builder().setValue(party3).build()).setRole(CounterpartyRoleEnum.PARTY_1).build());
+
+        // Creation of the quantityChange instruction that will be applied to the first after trade
+        QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(4000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+        // Creation of the quantityChange instruction that will be applied to the second after trade
+        QuantityChangeInstruction quantityChangeInstruction2 = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().addQuantityValue(List.of(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(1).getQuantity().get(0).getValue().getValue().subtract(BigDecimal.valueOf(6000000))).build())).build(), QuantityChangeDirectionEnum.INCREASE);
+
+        // Creation of the novation instruction through a split instruction
+        SplitInstruction splitInstruction = buildNovationPrimitiveInstruction( PrimitiveInstruction.builder().setPartyChange(partyChangeInstruction).setQuantityChange(quantityChangeInstruction).build(), PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction2).build());
+
+        // Adding the novation instruction to the primitive instruction that will be included in the resulting workflow step
+        PrimitiveInstruction primitiveInstruction = PrimitiveInstruction.builder().setSplit(splitInstruction).build();
+
+        // Creation of the workflow step of a novation event
+        WorkflowStep ws = mustCreateAcceptedWorkflowStepAsExpected(primitiveInstruction, beforeTradeState, EventIntentEnum.NOVATION);
+
+        assertNotEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(0), beforeTradeState.getTrade().getCounterparty().get(0),"The counterparty with role party1 should be different than the one on the before tradeState.");
+        assertEquals(ws.getBusinessEvent().getAfter().get(0).getTrade().getCounterparty().get(1), beforeTradeState.getTrade().getCounterparty().get(1), "The counterparty with role party2 should be the same as the one on the before tradeState.");
+        assertEquals(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue(), ws.getBusinessEvent().getAfter().get(1).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()), "The priceQuantity of the original trade must be equivalent to the sum of the quantities of the new trades.");
 
         //TODO: ClosedState not modeled. Expected ClosedStateEnum.NOVATED
     }
@@ -165,7 +257,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState,"before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = new PriceQuantity.PriceQuantityBuilderImpl();
+        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().add(BigDecimal.valueOf(1000000))).build()).build();
 
         // Direction must be set to "INCREASE" in order to increase the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.INCREASE;
@@ -182,7 +274,8 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNull(ws.getBusinessEvent().getIntent(),"Workflow step intent must be null");
         assertEquals(1, ws.getBusinessEvent().getInstruction().size(), "The workflow step instruction contains only one instruction");
         assertNotNull(ws.getBusinessEvent().getInstruction().get(0).getPrimitiveInstruction().getQuantityChange(), "The workflow step instruction contains a quantity change");
-        assertTrue(beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade lot is less than the after trade lot");
+        assertTrue( beforeTradeState.getTrade().getTradeLot().size() < ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().size(), "The before trade has less tradeLot than the after trade");
+        assertTrue( beforeTradeState.getTrade().getTradeLot().get(0).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue().compareTo(ws.getBusinessEvent().getAfter().get(0).getTrade().getTradeLot().get(1).getPriceQuantity().get(0).getQuantity().get(0).getValue().getValue()) <  0, "The quantity of the before tradeState must be less than the quantity of the after tradeState.");
     }
 
     /**
@@ -197,7 +290,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = new PriceQuantity.PriceQuantityBuilderImpl();
+        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(4000000L)).build()).build();
 
         // Direction must be set to "DECREASE" in order to decrease the quantity
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.DECREASE;
@@ -230,21 +323,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
-        PriceQuantity change = PriceQuantity.builder()
-                .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
-                        .setMeta(MetaFields.builder())
-                        .setValue(NonNegativeQuantitySchedule.builder()
-                                .setUnit(UnitType.builder().build())
-                                .setFrequency(Frequency.builder().build())
-                                .setMultiplier(Measure.builder().build())
-                                //.setDatedValue()
-                                .setValue(BigDecimal.valueOf(0))).build())
-                .addPrice(FieldWithMetaPriceSchedule.builder()
-                        .setValue(PriceSchedule.builder()
-                                .setValue(BigDecimal.valueOf(0))).build())
-                .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                        .setValue(BigDecimal.valueOf(0)).build())
-                .build();
+        PriceQuantity change = PriceQuantity.builder().addQuantityValue(NonNegativeQuantitySchedule.builder().setUnit(UnitType.builder().setCurrencyValue("EUR").build()).setValue(BigDecimal.valueOf(0)).build()).build();
 
         // Direction must be set to "REPLACE" in order to replace the quantity with the new one
         QuantityChangeDirectionEnum direction = QuantityChangeDirectionEnum.REPLACE;
@@ -267,7 +346,8 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
     /**
      * Reset
-     * Descripción: En derivados que implican tasas flotantes, el reset es el ajuste periódico de la tasa de referencia (como LIBOR o SOFR) a una nueva tasa vigente.
+     * Refers to the periodic adjustment of a floating reference rate (such as LIBOR or SOFR) to reflect the current prevailing rate.
+     * It is commonly used in derivatives involving floating interest rates.
      * @throws IOException
      */
     @Test
@@ -338,8 +418,8 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/cb-option-usi.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         assertNotNull(beforeTradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
-                .filter(payout -> payout.getOptionPayout() != null)
-                .findFirst().orElse(null),
+                        .filter(payout -> payout.getOptionPayout() != null)
+                        .findFirst().orElse(null),
                 "OptionPayout must not be null"
         );
 
@@ -540,7 +620,30 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the execution instruction and adding it to the primitive instruction that will be included in the resulting workflow step
-        ExecutionInstruction executionInstruction = buildExecutionPrimitiveInstruction(beforeTradeState);
+        NonTransferableProduct product = beforeTradeState.getTrade().getProduct();
+
+        List <? extends TradeLot> tradeLot = beforeTradeState.getTrade().getTradeLot();
+
+        List<PriceQuantity> pricequantity = List.of();
+
+        if (beforeTradeState.getTrade().getTradeLot() != null) {
+            pricequantity = beforeTradeState.getTrade()
+                    .getTradeLot() // Get the list of TradeLots.
+                    .stream() // Stream through the list.
+                    .map(TradeLot::getPriceQuantity) // Extract PriceQuantity from each TradeLot.
+                    .flatMap(List::stream) // Flatten the nested lists of PriceQuantity.
+                    .collect(Collectors.toList()); // Collect into a single list.
+        }
+
+        List<? extends Counterparty> counterparty = beforeTradeState.getTrade().getCounterparty();
+
+        List<? extends Party> party = beforeTradeState.getTrade().getParty();
+
+        FieldWithMetaDate date = beforeTradeState.getTrade().getTradeDate();
+
+        List<? extends TradeIdentifier> tradeIdentifier = beforeTradeState.getTrade().getTradeIdentifier();
+
+        ExecutionInstruction executionInstruction = buildExecutionPrimitiveInstruction(product, tradeLot, pricequantity, counterparty, party, date, tradeIdentifier);
         PrimitiveInstruction p1 = PrimitiveInstruction.builder().setExecution(executionInstruction).build();
 
         // Trade to be included in the first quantity change instruction
@@ -589,7 +692,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setRole(CounterpartyRoleEnum.PARTY_1).build());
-        PartyChangeInstruction partyChangeInstruction2 = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setRole(CounterpartyRoleEnum.PARTY_2).build());
+        PartyChangeInstruction partyChangeInstruction2 = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setRole(CounterpartyRoleEnum.PARTY_2).build()); //.setPartyReferenceValue(Party.builder().)
         QuantityChangeInstruction quantityChangeInstruction = buildQuantityChangePrimitiveInstruction(beforeTradeState, PriceQuantity.builder().build(), QuantityChangeDirectionEnum.INCREASE);
 
         // Creation of the clearing instruction through the split instruction
@@ -844,36 +947,28 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     /**
      * Builds an ExecutionInstruction based on the provided TradeState.
      *
-     * @param tradeState The current state of the trade, containing information such as product, trade lot details, counterparties, and identifiers.
      * @return           An ExecutionInstruction object populated with data extracted from the given TradeState.
      */
-    public static ExecutionInstruction buildExecutionPrimitiveInstruction(TradeState tradeState) {
+    public static ExecutionInstruction buildExecutionPrimitiveInstruction( NonTransferableProduct product, List<? extends TradeLot> tradeLot, List<PriceQuantity> priceQuantity, List<? extends Counterparty> counterparty, List<? extends Party> party, FieldWithMetaDate date, List<? extends TradeIdentifier> tradeIdentifier) {
 
         // Initialize the ExecutionInstruction builder.
         ExecutionInstruction.ExecutionInstructionBuilder executionInstructionBuilder = ExecutionInstruction.builder();
 
         // Set the product information from the trade's product details.
-        executionInstructionBuilder.setProduct(tradeState.getTrade().getProduct());
+        executionInstructionBuilder.setProduct(product);
 
-        // Extract and set price and quantity details if the trade has associated trade lots.
-        if (tradeState.getTrade().getTradeLot() != null) {
-            executionInstructionBuilder.setPriceQuantity(
-                    tradeState.getTrade()
-                            .getTradeLot() // Get the list of TradeLots.
-                            .stream() // Stream through the list.
-                            .map(TradeLot::getPriceQuantity) // Extract PriceQuantity from each TradeLot.
-                            .flatMap(List::stream) // Flatten the nested lists of PriceQuantity.
-                            .collect(Collectors.toList()) // Collect into a single list.
-            );
+        // Set price and quantity details if the trade has associated trade lots.
+        if (tradeLot != null) {
+            executionInstructionBuilder.setPriceQuantity(priceQuantity);
         }
 
         // Set the counterparties and parties involved in the trade.
-        executionInstructionBuilder.setCounterparty(tradeState.getTrade().getCounterparty())
-                .setParties(tradeState.getTrade().getParty());
+        executionInstructionBuilder.setCounterparty(counterparty)
+                .setParties(party);
 
         // Set the trade date and trade identifiers.
-        executionInstructionBuilder.setTradeDate(tradeState.getTrade().getTradeDate());
-        executionInstructionBuilder.setTradeIdentifier(tradeState.getTrade().getTradeIdentifier());
+        executionInstructionBuilder.setTradeDate(date);
+        executionInstructionBuilder.setTradeIdentifier(tradeIdentifier);
 
         // Build and return the ExecutionInstruction.
         return executionInstructionBuilder.build();
@@ -1028,6 +1123,20 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         return SplitInstruction.builder()
                 //.addBreakdown(PrimitiveInstruction.builder().build()) // Adds a breakdown of the primitive instruction (empty in this case).
                 .addBreakdown(PrimitiveInstruction.builder().build()) // Adds a breakdown of the primitive instruction (empty in this case).
+                .build();                                             // Builds and returns the finalized SplitInstruction.
+    }
+
+    /**
+     * Builds a Novation SplitInstruction for a trade, specifying a breakdown of the primitive instruction.
+     *
+     * @return           A SplitInstruction object containing a breakdown of the primitive instruction.
+     */
+    public static SplitInstruction buildNovationPrimitiveInstruction(PrimitiveInstruction partyChange, PrimitiveInstruction quantityChange) {
+
+        // Initialize and build the SplitInstruction.
+        return SplitInstruction.builder()
+                .addBreakdown(partyChange) // Adds a breakdown of the primitive instruction (party change).
+                .addBreakdown(quantityChange) // Adds a breakdown of the primitive instruction (quantity change).
                 .build();                                             // Builds and returns the finalized SplitInstruction.
     }
 
