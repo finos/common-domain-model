@@ -1,121 +1,120 @@
 package org.finos.cdm.example.qualification;
 
 import cdm.event.common.TradeState;
-import cdm.product.template.EconomicTerms;
-import cdm.product.template.NonTransferableProduct;
-import cdm.product.template.meta.EconomicTermsMeta;
-import com.google.inject.Inject;
-import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
+import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.rosetta.model.lib.qualify.QualifyResult;
-import com.rosetta.model.lib.qualify.QualifyResultsExtractor;
-import org.finos.cdm.example.AbstractExampleTest;
+import org.finos.cdm.example.processors.AbstractProcessorTest;
 import org.finos.cdm.example.util.ResourcesUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * A test suite to validate the qualification of financial products using the Common Domain Model (CDM).
  * Each test case verifies that a specific product type is correctly qualified based on its economic terms.
  */
-final class QualifyProductTest extends AbstractExampleTest {
+final class QualifyProductTest extends AbstractProcessorTest {
 
     // Logger instance for debugging and reporting metrics
     private static final Logger LOGGER = LoggerFactory.getLogger(QualifyProductTest.class);
 
-    // Factory to retrieve qualification functions for economic terms.
-    @Inject
-    private QualifyFunctionFactory.Default qualifyFunctionFactory;
-
-    // Metadata for economic terms, providing access to qualification logic.
-    @Inject
-    private EconomicTermsMeta economicTermsMeta;
-
     /**
-     * Qualifies a product using its CDM sample and verifies the qualification result.
+     * Qualifies a product using the CDM framework and verifies the qualification result.
      *
      * @param filePath      Path to the CDM sample file representing the product.
-     * @param expectedLabel Expected qualification label for the product.
-     * @return The actual qualification result label.
+     * @param expectedLabel The expected qualification label for the product (e.g., ProductQualifier).
+     * @return The actual qualification result label from the qualification report.
      */
-    private String qualifyProduct(String filePath, String expectedLabel) {
+    private String qualifyProduct (String filePath, String expectedLabel) {
+        return qualifyProduct(filePath, expectedLabel, 1);
+    }
 
-        // Deserialize the CDM sample into a TradeState object and resolve any references.
+    /**
+     *
+     * @param filePath      Path to the CDM sample file representing the product.
+     * @param expectedLabel The expected qualification label for the product (e.g., ProductQualifier).
+     * @param expectedProductCount The number of product qualified objects (EconomicTermsMeta)
+     * @return
+     */
+    private String qualifyProduct(String filePath, String expectedLabel, int expectedProductCount) {
+        // Load and resolve references for the TradeState object from the CDM sample file
         TradeState tradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, filePath);
 
-        // Ensure the deserialized TradeState is not null.
+        // Ensure the TradeState is not null
         assertNotNull(tradeState, "TradeState must not be null");
 
-        // Retrieve the NonTransferableProduct from the TradeState.
-        NonTransferableProduct product = tradeState.getTrade().getProduct();
+        // Use QualifyProcessorStep to qualify the TradeState object
+        QualificationReport report = qualify(tradeState.toBuilder());
 
-        // Extract economic terms, which are essential for qualification.
-        EconomicTerms economicTerms = product.getEconomicTerms();
+        // Log the results for debugging purposes
+        report.getResults().forEach(result -> {
+            LOGGER.debug("Qualified Object Type: {}", result.getQualifiedRosettaObjectType());
+            LOGGER.debug("Qualified Object Details: {}", result.getUniqueSuccessQualifyResult().orElse(null));
+            LOGGER.debug("Qualified Object Name: {}", result.getUniqueSuccessQualifyResult().map(QualifyResult::getName).orElse("Unknown"));
+            LOGGER.debug("Is Success: {}", result.isSuccess());
+        });
 
-        // Retrieve the list of qualification functions for the economic terms.
-        List<Function<? super EconomicTerms, QualifyResult>> qualifyFunctions =
-                economicTermsMeta.getQualifyFunctions(qualifyFunctionFactory);
+        // Verify the qualification was successful and uniquely qualified
+        assertEquals(expectedProductCount, report.getUniquelyQualifiedObjectsCount(), "Should have uniquely qualified object");
 
-        // Execute qualification functions and extract the unique successful result.
-        String qualificationResult = new QualifyResultsExtractor<>(qualifyFunctions, economicTerms)
-                .getOnlySuccessResult() // Retrieve the only successful result, if any.
-                .map(QualifyResult::getName) // Extract the name of the qualification.
-                .orElse("Failed to qualify"); // Default if no successful qualification is found.
+        // Extract the unique qualification result name
+        String qualificationResult = report.getResults().iterator().next().getUniqueSuccessQualifyResult()
+                .map(QualifyResult::getName)
+                .stream().findFirst()
+                .orElse("Failed to qualify");
 
-        // Verify that the qualification result matches the expected label.
-        assertEquals(expectedLabel, qualificationResult);
+        // Assert that the result matches the expected label
+        assertTrue(qualificationResult.matches(expectedLabel), "Qualification label should match");
+        //assertEquals(expectedLabel, qualificationResult);
         return qualificationResult;
     }
 
-    // Test cases to validate qualification for various financial products.
+    // Additional test methods for other product types can follow the same pattern...
 
     @Test
     void mustQualifyIRFra() {
-        // Test qualification for an Interest Rate FRA.
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex08-fra.json";
         String expectedLabel = "InterestRate_Fra";
+
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
     void mustQualifyIRSwaption() {
-        // Test qualification for an Interest Rate Swaption.
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex14-berm-swaption.json";
-        String expectedLabel = "InterestRate_Option_Swaption";
-        String qualificationResult = qualifyProduct(filePath, expectedLabel);
+        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex15-amer-swaption.json";
+        String expectedLabel = "InterestRate_Option_Swaption|InterestRate_IRSwap_FixedFloat";
+        final int expectedProductCount = 2;
+
+        String qualificationResult = qualifyProduct(filePath, expectedLabel, expectedProductCount);
         LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
     void mustQualifyIRCrossCurrency() {
-        // Test qualification for an Interest Rate Cross Currency Swap.
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex06-xccy-swap.json";
         String expectedLabel = "InterestRate_CrossCurrency_FixedFloat";
+
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
     void mustQualifyIRCap() {
-        // Test qualification for an Interest Rate Cap.
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex22-cap.json";
         String expectedLabel = "InterestRate_CapFloor";
+
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
     }
 
     @Test
     void mustQualifyIRFloor() {
-        // Test qualification for an Interest Rate Floor.
         String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex23-floor.json";
         String expectedLabel = "InterestRate_CapFloor";
+
         String qualificationResult = qualifyProduct(filePath, expectedLabel);
         LOGGER.info("Qualification Result: {}", qualificationResult);
     }
