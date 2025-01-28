@@ -802,34 +802,35 @@ with many `EligibleCollateralCriteria` with potentially recursive instances of `
 The construction of these terms can be quite laborious, so functions have been created in the CDM to provide
 a level of automation.
 
-#### EligibleCollateralSpecificationInstruction
+#### CloneEligibleCollateralWithChangedTreatment
 
-The instruction is formed using a special type:
+This function creates a new Eligible Collateral Specification based on an input specification, but with one changed criteria and with one changed treatment.
 
 ``` Haskell
-type EligibleCollateralSpecificationInstruction:
-    [rootType]
-    common EligibleCollateralCriteria (1..1)
-    variable EligibleCollateralCriteria (1..*)
+func CloneEligibleCollateralWithChangedTreatment:
+    inputs:
+        inputSpecification EligibleCollateralSpecification (1..1)
+        changedCriteria CollateralCriteria (1..1)
+        changedTreatment CollateralTreatment (1..1)
+    output:
+        outputSpecification EligibleCollateralSpecification (1..1)
+
+    condition NoLogicApplied:
+        changedCriteria -> AllCriteria is absent
+            and changedCriteria -> AnyCriteria is absent
+            and changedCriteria -> NegativeCriteria is absent
+
+    set outputSpecification: inputSpecification
+    set outputSpecification -> criteria -> treatment: changedTreatment
+    set outputSpecification -> criteria -> collateralCriteria: changedCriteria
 ```
 
-This data type is used as the input to the `Create_EligibleCollateralSpecificationFromInstruction` function
-and should be populated as follows: 
+The inputs are populated as follows: 
 
-* `common`: a single `EligibleCollateralCriteria` containing the fully-formed data to be cloned.
-* `variable`: one or more `EligibleCollateralCriteria` containing the number of instances, with
-new terms, that should be created.
+* `inputSpecification`: an `EligibleCollateralSpecification` containing the fully-formed data to be cloned.
+* `changedCriteria`: a single `CollateralCriteria` attribute containing the specific attribute and value to be changed.
+* `changedTreatment`: a single `CollateralTreatment` attribute containing the specific treatment and value to be changed.
 
-This can be represented symbolically as follows:
-
-* `common` is set to the criteria:
-  * A1, B1, C1
-* `variable` is set to the criteria:
-  * C2, C3
-* then the created output would be the original criteria plus two clones:
-  * A1, B1, C1
-  * A1, B1, C2
-  * A1, B1, C3
 
 #### Example
 
@@ -846,15 +847,14 @@ types, issuer types, and currencies.  For each of the maturity bands, this
 `EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms
 of the haircut.
 
-To use the `Create_EligibleCollateralSpecificationFromInstruction` function to automate
+To use the `CloneEligibleCollateralWithChangedTreatment` function to automate
 this, one starts by creating the first `EligibleCollateralCriteria` with the all the
 required constituent parts, including the first haircut `Treatment`.
 
 The function is then invoked, using this first `EligibleCollateralCriteria` as the
-`common` input and then providing the set of haircut `Treatments`, one for each
-maturity band, as the `variable` input.  The function will provide a fully formed
+`inputSpecification`, and then providing the criteria and treatment changes using the `changedCriteria` and `changedTreatment` inputs.  The function will provide a fully formed
 output consisting of an  `EligibleCollateralSpecification` containing
-all the required `EligibleCollateralCriteria` with their attached `Treatment`s.
+all the required `EligibleCollateralCriteria` with their updated changes and treatments.
 
 #### MergeEligibleCollateralCriteria
 
