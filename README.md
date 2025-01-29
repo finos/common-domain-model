@@ -37,7 +37,7 @@ The following Working Groups are currently activated or about to be set up for t
 * [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
 * [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
 * [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
-* [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG)
+* [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
@@ -119,7 +119,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 
 ### 
