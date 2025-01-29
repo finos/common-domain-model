@@ -1,5 +1,5 @@
 ---
-title: CDM Derivatives Product and Business Event Working Group
+title: CDM Derivatives Working Group
 ---
 
 ## Overview
@@ -16,7 +16,7 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 ## Subscribe
 
-To subscribe to the [DPBE mailing list](https://lists.finos.org/g/cdm-dpbe-wg) and stay updated on meetings and agenda, please send an email to [cdm-dpbe-wg+subscribe@lists.finos.org](mailto:cdm-dpbe-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+To subscribe to the [DPBE mailing list](https://lists.finos.org/g/cdm-derivatives-wg) and stay updated on meetings and agenda, please send an email to [cdm-derivatives-wg+subscribe@lists.finos.org](mailto:cdm-derivatives-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
 
 ---
 
