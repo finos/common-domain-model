@@ -96,12 +96,22 @@ type IndexReferenceInformation: <"A class defining information related to Index"
         indexName exists or indexId exists
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
+    exchange Party (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    relatedExchange Party (0..*) <"Provides the related Exchanges, if applicable.">
 
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
+        
 type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
+    exchange Party (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    relatedExchange Party (0..*) <"Provides the related Exchanges, if applicable.">
+
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
 
     condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
         if productTaxonomy -> value -> classification count > 1
@@ -150,6 +160,11 @@ type Loan extends ProductBase: <"Identifies a loan by referencing a product iden
     creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
     tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
         [metadata scheme]
+    exchange Party (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    relatedExchange Party (0..*) <"Provides the related Exchanges, if applicable.">
+
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
@@ -191,6 +206,11 @@ type Security extends ProductBase: <"Identifies a security by referencing a prod
     equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
     economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    exchange Party (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    relatedExchange Party (0..*) <"Provides the related Exchanges, if applicable.">
+
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
 
     condition DebtSubType:
         if securityType <> SecurityTypeEnum -> Debt
