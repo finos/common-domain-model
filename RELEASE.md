@@ -10,7 +10,7 @@ Preparation must be first be done in the CDM to synchronise it with the ISDA Fou
 
 _What is being released?_
 
-This release is part of the preparation for the migration of any ISDA Foundations components to the CDM. This includes adding some (already sanitised) ISDA Foundations components into CDM, and moving other components around.
+As part of the preparation for the migration of any ISDA Foundations components to the CDM, this release creates an extended Agreement model in the CDM. This includes adding some (already sanitised) ISDA Foundations components into CDM, and moving other components around.
 
 1. Added `BrokerConfirmationTypeEnum` in `legaldocumentation.contract.enum` 
 2. Added `BrokerConfirmation` and `IssuerTradeId` to `legaldocumentation.contract.type`
