@@ -2,8 +2,19 @@ namespace cdm.observable.asset.fro : <"Support for floating rate option definiti
 version "${project.version}"
 
 import cdm.base.staticdata.asset.rates.*
-
+import cdm.legaldocumentation.common.*
 import cdm.observable.asset.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.legaldocumentation.common.*
+import isda.observable.asset.fro.extension.*
+import cdm.event.common.*
+import cdm.mapping.config.*
+import cdm.observable.asset.fro.*
+
+import cdm.base.staticdata.asset.rates.*
+
+
+import cdm.base.*
 
 // =====================================================================
 //
@@ -18,3 +29,33 @@ func FloatingRateIndexMetadata: <"Retrieve all available metadata for the floati
         floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
     output:
         floatingRateIndexDescription FloatingRateIndexDefinition (0..1) <"The detailed description of the index if available, null otherwise.">
+
+func ValidateFloatingRateIndexName: <"Return whether the supplied floating rate index name is valid for the supplied contractual definitions.">
+    inputs:
+        floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
+        contractualDefs ContractualDefinitionsEnum (0..1) <"The contractual definitions to validate against.">
+    output:
+        isValid boolean (1..1) <"True if this is a floating rate index name that is valid.">
+
+    alias defs: FloatingRateIndexMetadata(floatingRateIndexName)
+    alias isPresent: defs exists
+    alias defsOk:
+        defs -> supportedDefinition -> contractualDefinitionIdentifier -> contractualDefinitionType contains contractualDefs
+    alias okDefs:
+        if contractualDefs exists then defsOk else defs exists
+
+    set isValid: okDefs
+
+func ValidateFloatingRateIndexTradeDate: <"Return whether the floating rate index of a trade are valid based on their metadata and the trade date.">
+    inputs:
+        tradeState TradeState (1..1) <"The input is a trade to validate its floating rate index based on the trade date">
+    output:
+        invalidFloatingRateIndex FloatingRateIndexEnum (0..*) <"The invalid floating rate index of a trade based on their metadata and the trade date.">
+
+    alias floatingRateIndexName:
+        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex -> FloatingRateIndex -> floatingRateIndex
+    add invalidFloatingRateIndex:
+        FloatingRateIndexMetadata(floatingRateIndexName)
+            filter
+                item -> history -> startDate > tradeState -> trade -> tradeDate or item -> history -> endDate < tradeState -> trade -> tradeDate
+            then extract item -> fro -> floatingRateIndex
