@@ -3,18 +3,12 @@ version "${project.version}"
 
 import cdm.base.staticdata.asset.rates.*
 import cdm.legaldocumentation.common.*
-import cdm.observable.asset.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.legaldocumentation.common.*
-import isda.observable.asset.fro.extension.*
 import cdm.event.common.*
-import cdm.mapping.config.*
 import cdm.observable.asset.fro.*
-
+import cdm.event.common.*
 import cdm.base.staticdata.asset.rates.*
-
-
-import cdm.base.*
 
 // =====================================================================
 //
@@ -54,8 +48,9 @@ func ValidateFloatingRateIndexTradeDate: <"Return whether the floating rate inde
 
     alias floatingRateIndexName:
         tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex -> FloatingRateIndex -> floatingRateIndex
-    add invalidFloatingRateIndex:
-        FloatingRateIndexMetadata(floatingRateIndexName)
-            filter
-                item -> history -> startDate > tradeState -> trade -> tradeDate or item -> history -> endDate < tradeState -> trade -> tradeDate
+    
+    set invalidFloatingRateIndex:
+        floatingRateIndexName
+        extract FloatingRateIndexMetadata.floatingRateIndexDescription
+        then filter history -> startDate > tradeState -> trade -> tradeDate or history -> endDate < tradeState -> trade -> tradeDate
             then extract item -> fro -> floatingRateIndex
