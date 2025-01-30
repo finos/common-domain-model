@@ -15,7 +15,7 @@ As part of the preparation for the migration of any ISDA Foundations components 
 1. Added extra attributes from `FloatingRateIndexDefinitionExtension` (and their required types) directly into `FloatingRateIndexDefinition`
 2. Added extra attributes from `FloatingRateIndexCalculationDefaultsExtension` (and their required types) directly into `FloatingRateIndexCalculationDefaults`
 3. Moved `ValidateFloatingRateIndexName` and `ValidateFloatingRateIndexTradeDate` to `observable.asset.fro`
-
+4. Updated `ValidateFloatingRateIndexTradeDate`to return a single result
 
 _Backward-incompatible changes_
 
