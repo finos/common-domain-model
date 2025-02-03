@@ -46,11 +46,8 @@ func ValidateFloatingRateIndexTradeDate: <"Return whether the floating rate inde
     output:
         invalidFloatingRateIndex FloatingRateIndexEnum (0..*) <"The invalid floating rate index of a trade based on their metadata and the trade date.">
 
-    alias floatingRateIndexName:
-        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex -> FloatingRateIndex -> floatingRateIndex
-    
     set invalidFloatingRateIndex:
-        floatingRateIndexName
-        extract FloatingRateIndexMetadata.floatingRateIndexDescription
+        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex -> FloatingRateIndex -> floatingRateIndex
+        extract FloatingRateIndexMetadata
         then filter history -> startDate > tradeState -> trade -> tradeDate or history -> endDate < tradeState -> trade -> tradeDate
             then extract item -> fro -> floatingRateIndex
