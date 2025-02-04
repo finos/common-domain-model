@@ -12,13 +12,19 @@ import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
+import com.regnosys.rosetta.config.RosettaConfiguration;
+import com.regnosys.rosetta.config.file.FileBasedRosettaConfigurationProvider;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
 import org.isda.cdm.processor.CdmReferenceConfig;
 import org.isda.cdm.qualify.CdmQualificationHandlerProvider;
+
+import javax.inject.Provider;
+import javax.inject.Singleton;
 
 @ModuleConfig(model="COMMON-DOMAIN-MODEL", type="Rosetta")
 public class CdmRuntimeModule extends AbstractModule {
@@ -66,6 +72,13 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
+	}
+
+
+	@Provides
+	@Singleton
+	protected RosettaConfiguration provideRosettaConfiguration(FileBasedRosettaConfigurationProvider provider) {
+		return provider.get();
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
