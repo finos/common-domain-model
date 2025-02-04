@@ -29,12 +29,12 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 | Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
 | David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
-| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            |
 

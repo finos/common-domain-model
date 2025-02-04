@@ -12,11 +12,11 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 ## 2024 Roadmap
 
-![DPBE Roadmap](/img/dpbe-roadmap.png)
+![CDM Derivatives Roadmap](/img/dpbe-roadmap.png)
 
 ## Subscribe
 
-To subscribe to the [CDM Derivativies mailing list](https://lists.finos.org/g/cdm-derivatives-wg) and stay updated on meetings and agenda, please send an email to [cdm-derivatives-wg+subscribe@lists.finos.org](mailto:cdm-derivatives-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
+To subscribe to the [CDM Derivatives mailing list](https://lists.finos.org/g/cdm-derivatives-wg) and stay updated on meetings and agenda, please send an email to [cdm-derivatives-wg+subscribe@lists.finos.org](mailto:cdm-derivatives-wg+subscribe@lists.finos.org). After sending the email, you will receive a confirmation message. Reply to confirm your subscription.
 
 ---
 
