@@ -193,7 +193,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -216,7 +216,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
@@ -281,7 +281,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then 0.0 // No spot price available
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
             then (
-                        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForProduct(
+                        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForOptionOrForwardProduct(
                                 product
                             ) -> Product ->> economicTerms
                     )) // CO Contract for Difference (CFD) not supported
@@ -316,7 +316,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -339,7 +339,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             then (economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
@@ -392,7 +392,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             else if productClass = StandardizedScheduleProductClassEnum -> BasisSwap
             then "AAA" // No spot price available
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency) // CO Contract for Difference (CFD) not supported
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency) // CO Contract for Difference (CFD) not supported
             )
 
     post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
@@ -445,7 +445,7 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
         durationInYears number (0..1)
     alias product: trade -> product
     alias economicTerms: product -> economicTerms
-    alias underlier: UnderlierForProduct(product)
+    alias underlier: UnderlierForOptionOrForwardProduct(product)
     alias transactionEffectiveDate:
         AdjustableOrAdjustedOrRelativeDateResolution(
                 ConvertToAdjustableOrAdjustedOrRelativeDate(economicTerms -> effectiveDate)
