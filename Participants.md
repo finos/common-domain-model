@@ -35,7 +35,7 @@ _:question:Please email help@finos.org if you encounter issues or have questions
 
 **Step 1. Go to  the [participants](#participants) file** and make sure you are signed into your {GitHub} account
 
-**Step 2. Click on the :pen: icon at the top right of the the [participants](#participants) file**
+**Step 2. Click on the :pen: icon at the top right of the [participants](#participants) file**
     
 [<img src="https://user-images.githubusercontent.com/51138318/151390328-00e6ac68-6069-493e-b536-d329fa9cc51e.png" width="500">](https://user-images.githubusercontent.com/51138318/151390328-00e6ac68-6069-493e-b536-d329fa9cc51e.png)
     
