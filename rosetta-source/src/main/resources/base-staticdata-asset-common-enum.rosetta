@@ -1,0 +1,752 @@
+namespace cdm.base.staticdata.asset.common : <"Basic static asset concepts that apply across asset classes: taxonomy etc.">
+version "${project.version}"
+
+import cdm.base.*
+
+enum AssetClassEnum: <"The enumerated values to specify the FpML asset class categorization.">
+    Commodity <"Commodity.">
+    Credit <"Credit.">
+    Equity <"Equity.">
+    ForeignExchange <"ForeignExchange.">
+    InterestRate <"InterestRate.">
+    MoneyMarket <"Money Market Assets like CP and CD.">
+
+enum AssetIdTypeEnum extends ProductIdTypeEnum: <"Extends product identifiers with additional identifier sources for Assets.">
+    CurrencyCode <"Used to identify the currency of a Cash Asset.">
+    ExchangeCode <"The identifier follows the symbology set by the exchange which lists the asset.">
+    ClearingCode <"The identifier follows the symbology set by the clearing house which clears the asset.">
+
+enum ProductIdTypeEnum: <"Provides the enumerated values to specify the product identifier source.">
+    BBGID <"Published by Bloomberg, the BBGID is a 12-digit alphanumeric randomly generated ID covering active and non-active securities.">
+    BBGTICKER <"Published by Bloomberg as a short code to identify publicly trades shares of a particular stock on a specific exchange.">
+    CUSIP <"Derived from the Committee on Uniform Security Identification Procedures, CUSIPs are 9-character identifiers that capture an issue’s important differentiating characteristics for issuers and their financial instruments in the U.S. and Canada.">
+    FIGI <"Issued under the guidelines of the Object Management Group, the Financial Instrument Global Identifier (FIGI) is a 12 character, alphanumeric, randomly generated ID covering hundreds of millions of active and inactive instruments. The identifier acts as a Uniform Resource Identifier (URI) to link to a set of metadata that uniquely and clearly describes the instrument.">
+    ISDACRP <"Issued by the International Swaps Dealers Association as a string representing a Commodity Reference Price used for purposes of determining a relevant price for an underlying commodity in an OTC derivatives contract.">
+    ISIN <"Issued by The International Securities Identification Number (ISIN) Organization, the ISIN is a 12-character alpha-numerical code used to uniformly identify a security for trading and settlement purposes. Securities with which ISINs can be used include debt securities, such as notes or bonds as well shares, such as common stock or shares of a fund, options, derivatives, and futures. The ISIN structure is defined in ISO 6166.">
+    Name <"The name of the product.">
+    RIC <"Issued by Refinitiv (formerly Reuters), the Reuters Instrument Codes(RIC) uniquely identifies financial instruments, including where they are traded.">
+    Other <"Used when the source is not otherwise in this enumerated list because it is internal or other reasons.  The source can be identified in the scheme which is part of the identifier attribute.">
+    Sicovam <"Issued by the French Société Interprofessionnelle pour la Compensation des Valeurs Mobilières (SICOVAM) to identify French securities listed on French stock exchanges.">
+    SEDOL <"Assigned by the London Stock Exchange, the Stock Exchange Daily Official List (SEDOL) is a list of security identifiers used in the United Kingdom and Ireland for clearing purposes.  SEDOLs serve as the National Securities Identifying Number for all securities issued in the United Kingdom and are therefore part of the security's ISIN as well.">
+    UPI <"Assigned by the Derivatives Service Bureau Ltd (DSB), the Unique Product Identifier (UPI) is a unique code to describe an over-the-counter (OTC) derivatives product.  The UPI is used for identifying the product in transaction reporting data.">
+    Wertpapier <"Issued by the Institute for the Issuance and Administration of Securities in Germany (Securities Information), the Wertpapierkennnummer (WKN, WPKN, WPK or simply Wert) consists of six digits or capital letters (excluding I and O), and no check digit. It is used to identify German securities.">
+
+enum TaxonomySourceEnum: <"Represents the enumerated values to specify taxonomy sources.">
+    CFI <"Represents the ISO 10962 Classification of Financial Instruments code.">
+    ISDA <"Represents the ISDA product taxonomy.">
+    ICAD <"Represents the ISDA Collateral Asset Definition Identifier code.">
+    EMIR <"Represents the EMIR Article 9 Asset Definition Identifier code.">
+    EU_EMIR_EligibleCollateralAssetClass <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules.">
+    UK_EMIR_EligibleCollateralAssetClass <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities.Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+    US_CFTC_PR_EligibleCollateralAssetClass <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators margin rules, the precise definitions or application of those rules could differ between the two rules.">
+    MAS <"Represents the Monetary Authority of Singapore (MAS) as a taxonomy source.">
+    Other <"Denotes a user-specific scheme or taxonomy or other external sources not listed here.">
+
+enum ISOCurrencyCodeEnum: <"The enumerated values to specify standard currency codes according to the International Standards Organization (ISO).  The set of codes in this enumerated list is sourced from ISO Standard 4217 (https://www.currency-iso.org/en/home/tables/table-a1.html), as of 29-Aug-18.">
+    [docReference ISO ISO_4217_Currency_Scheme schemeLocation "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml"]
+
+	AED <"UAE Dirham">
+	AFN <"Afghani">
+	ALL <"Lek">
+	AMD <"Armenian Dram">
+	ANG <"Netherlands Antillean Guilder">
+	AOA <"Kwanza">
+	ARS <"Argentine Peso">
+	AUD <"Australian Dollar">
+	AWG <"Aruban Florin">
+	AZN <"Azerbaijan Manat">
+	BAM <"Convertible Mark">
+	BBD <"Barbados Dollar">
+	BDT <"Taka">
+	BGN <"Bulgarian Lev">
+	BHD <"Bahraini Dinar">
+	BIF <"Burundi Franc">
+	BMD <"Bermudian Dollar">
+	BND <"Brunei Dollar">
+	BOB <"Boliviano">
+	BOV <"Mvdol">
+	BRL <"Brazilian Real">
+	BSD <"Bahamian Dollar">
+	BTN <"Ngultrum">
+	BWP <"Pula">
+	BYN <"Belarusian Ruble">
+	BZD <"Belize Dollar">
+	CAD <"Canadian Dollar">
+	CDF <"Congolese Franc">
+	CHE <"WIR Euro">
+	CHF <"Swiss Franc">
+	CHW <"WIR Franc">
+	CLF <"Unidad de Fomento">
+	CLP <"Chilean Peso">
+	CNY <"Yuan Renminbi">
+	COP <"Colombian Peso">
+	COU <"Unidad de Valor Real">
+	CRC <"Costa Rican Colon">
+	CUP <"Cuban Peso">
+	CVE <"Cabo Verde Escudo">
+	CZK <"Czech Koruna">
+	DJF <"Djibouti Franc">
+	DKK <"Danish Krone">
+	DOP <"Dominican Peso">
+	DZD <"Algerian Dinar">
+	EGP <"Egyptian Pound">
+	ERN <"Nakfa">
+	ETB <"Ethiopian Birr">
+	EUR <"Euro">
+	FJD <"Fiji Dollar">
+	FKP <"Falkland Islands Pound">
+	GBP <"Pound Sterling">
+	GEL <"Lari">
+	GHS <"Ghana Cedi">
+	GIP <"Gibraltar Pound">
+	GMD <"Dalasi">
+	GNF <"Guinean Franc">
+	GTQ <"Quetzal">
+	GYD <"Guyana Dollar">
+	HKD <"Hong Kong Dollar">
+	HNL <"Lempira">
+	HTG <"Gourde">
+	HUF <"Forint">
+	IDR <"Rupiah">
+	ILS <"New Israeli Sheqel">
+	INR <"Indian Rupee">
+	IQD <"Iraqi Dinar">
+	IRR <"Iranian Rial">
+	ISK <"Iceland Krona">
+	JMD <"Jamaican Dollar">
+	JOD <"Jordanian Dinar">
+	JPY <"Yen">
+	KES <"Kenyan Shilling">
+	KGS <"Som">
+	KHR <"Riel">
+	KMF <"Comorian Franc ">
+	KPW <"North Korean Won">
+	KRW <"Won">
+	KWD <"Kuwaiti Dinar">
+	KYD <"Cayman Islands Dollar">
+	KZT <"Tenge">
+	LAK <"Lao Kip">
+	LBP <"Lebanese Pound">
+	LKR <"Sri Lanka Rupee">
+	LRD <"Liberian Dollar">
+	LSL <"Loti">
+	LYD <"Libyan Dinar">
+	MAD <"Moroccan Dirham">
+	MDL <"Moldovan Leu">
+	MGA <"Malagasy Ariary">
+	MKD <"Denar">
+	MMK <"Kyat">
+	MNT <"Tugrik">
+	MOP <"Pataca">
+	MRU <"Ouguiya">
+	MUR <"Mauritius Rupee">
+	MVR <"Rufiyaa">
+	MWK <"Malawi Kwacha">
+	MXN <"Mexican Peso">
+	MXV <"Mexican Unidad de Inversion (UDI)">
+	MYR <"Malaysian Ringgit">
+	MZN <"Mozambique Metical">
+	NAD <"Namibia Dollar">
+	NGN <"Naira">
+	NIO <"Cordoba Oro">
+	NOK <"Norwegian Krone">
+	NPR <"Nepalese Rupee">
+	NZD <"New Zealand Dollar">
+	OMR <"Rial Omani">
+	PAB <"Balboa">
+	PEN <"Sol">
+	PGK <"Kina">
+	PHP <"Philippine Peso">
+	PKR <"Pakistan Rupee">
+	PLN <"Zloty">
+	PYG <"Guarani">
+	QAR <"Qatari Rial">
+	RON <"Romanian Leu">
+	RSD <"Serbian Dinar">
+	RUB <"Russian Ruble">
+	RWF <"Rwanda Franc">
+	SAR <"Saudi Riyal">
+	SBD <"Solomon Islands Dollar">
+	SCR <"Seychelles Rupee">
+	SDG <"Sudanese Pound">
+	SEK <"Swedish Krona">
+	SGD <"Singapore Dollar">
+	SHP <"Saint Helena Pound">
+	SLE <"Leone">
+	SOS <"Somali Shilling">
+	SRD <"Surinam Dollar">
+	SSP <"South Sudanese Pound">
+	STN <"Dobra">
+	SVC <"El Salvador Colon">
+	SYP <"Syrian Pound">
+	SZL <"Lilangeni">
+	THB <"Baht">
+	TJS <"Somoni">
+	TMT <"Turkmenistan New Manat">
+	TND <"Tunisian Dinar">
+	TOP <"Pa’anga">
+	TRY <"Turkish Lira">
+	TTD <"Trinidad and Tobago Dollar">
+	TWD <"New Taiwan Dollar">
+	TZS <"Tanzanian Shilling">
+	UAH <"Hryvnia">
+	UGX <"Uganda Shilling">
+	USD <"US Dollar">
+	USN <"US Dollar (Next day)">
+	UYI <"Uruguay Peso en Unidades Indexadas (UI)">
+	UYU <"Peso Uruguayo">
+	UYW <"Unidad Previsional">
+	UZS <"Uzbekistan Sum">
+	VED <"Bolívar Soberano">
+	VES <"Bolívar Soberano">
+	VND <"Dong">
+	VUV <"Vatu">
+	WST <"Tala">
+	XAF <"CFA Franc BEAC">
+	XAG <"Silver">
+	XAU <"Gold">
+	XBA <"Bond Markets Unit European Composite Unit (EURCO)">
+	XBB <"Bond Markets Unit European Monetary Unit (E.M.U.-6)">
+	XBC <"Bond Markets Unit European Unit of Account 9 (E.U.A.-9)">
+	XBD <"Bond Markets Unit European Unit of Account 17 (E.U.A.-17)">
+	XCD <"East Caribbean Dollar">
+	XDR <"SDR (Special Drawing Right)">
+	XOF <"CFA Franc BCEAO">
+	XPD <"Palladium">
+	XPF <"CFP Franc">
+	XPT <"Platinum">
+	XSU <"Sucre">
+	XTS <"Codes specifically reserved for testing purposes">
+	XUA <"ADB Unit of Account">
+	XXX <"The codes assigned for transactions where no currency is involved">
+	YER <"Yemeni Rial">
+	ZAR <"Rand">
+	ZMW <"Zambian Kwacha">
+	ZWG <"Zimbabwe Gold">
+	CUC <"Peso Convertible">
+
+enum CurrencyCodeEnum extends ISOCurrencyCodeEnum: <"Union of the enumerated values defined by the International Standards Organization (ISO) and the FpML nonISOCurrencyScheme which consists of offshore and historical currencies (https://www.fpml.org/coding-scheme/non-iso-currency), as of 28-Oct-2016.">
+    CNH <"Offshore Chinese Yuan traded in Hong Kong.">
+    CNT <"Offshore Chinese Yuan traded in Taiwan.">
+    GGP <"Guernsey Pound.">
+    IMP <"Isle of Man Pound.">
+    JEP <"Jersey Pound.">
+    KID <"Tuvaluan Dollar.">
+    MCF <"Monegasque Franc.">
+    SML <"Sammarinese Lira.">
+    VAL <"Vatican Lira.">
+
+enum IssuerTypeEnum: <"Represents an enumeration list to identify the type of entity issuing the asset.">
+    SupraNational <"Specifies debt issued by international organisations and multilateral banks, entities constituted by treaties or with multiple sovereign members includes Multilateral development Banks.">
+    SovereignCentralBank <"Specifies Sovereign, Government Debt Securities including Central Banks.">
+    QuasiGovernment <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
+    RegionalGovernment <"Specifies Regional Government Issued Debt including states within countries, local authorities and municipalities.">
+    Corporate <"Specifies debt issued Securities by corporate bodies including Banks.">
+    Fund <"Specifies a vehicle (with or without separate legal personality) designed for the purposes of collective investment towards a defined investment goal.">
+    SpecialPurposeVehicle <"Specifies a vehicle setup for the purpose of acquisition and financing of specific assets on a limited recourse basis. E.g. asset backed securities, including securitisations.">
+
+enum SupraNationalIssuerTypeEnum: <"Represents an enumeration list to identify the type of supranational entity issuing the asset.">
+    InternationalOrganisation <"Specifies International Financial Institution.">
+    MultilateralBank <"Specifies Multilateral Bank or Multilateral Development Bank.">
+
+enum CreditRiskEnum: <"Represents an enumeration list to identify tranched or untranched credit risk.">
+    TranchedCreditRisk <"Indicates tranched credit risk, including securitizations.">
+    UntranchedCreditRisk <"Indicates tranched credit risk, including repackagings.">
+
+enum InstrumentTypeEnum: <"Represents an enumeration list to indentify the type of an instrument.">
+    Debt <"Identifies an instrument as a fixed income instrument of debt issued and securitized as a tradable asset.">
+    Equity <"Identifies an instrument as an Equity value of holding of shares in listed company.">
+    Fund <"Identifies an instrument as representing holding in an investment fund.">
+    Warrant <"Identifies an instrument as a Warrant that give the right, but not the obligation, to buy or sell a security — most commonly an equity — at a certain price before expiration, or to receive the cash equivalent.">
+    Certificate <"Identifies an instrument as one that that offers a derivative-based economic return which is not structured as a bond, an equity or a warrant. Note that this security type is not a Certificate of Deposit (aka CD).">
+    LetterOfCredit <"Identifies an instrument as a letter of credit or documentary credit/ bankers commercial credit.  A payment mechanism used in international trade to provide economic guarantee of payment by a creditworthy issuer for payment of exported goods.">
+    ListedDerivative <"Identifies an instrument as a listed derivative on an exchange.">
+
+enum PutCallEnum: <"The enumerated values to specify the types of listed derivative options.">
+    Put <"A put option gives the holder the right to sell the underlying asset by a certain date for a certain price.">
+    Call <"A call option gives the holder the right to buy the underlying asset by a certain date for a certain price.">
+
+enum EquityTypeEnum: <"Represents an enumeration list to identify the type of Equity.">
+    Ordinary <"Identifies an Equity of Common stocks and shares.">
+    NonConvertiblePreference <"Identifies an Equity of Non-Convertible Preference, Shares which hold priority to receive capital return in event of issuer liquidation.">
+
+enum FundProductTypeEnum: <"Represents an enumeration list to identify the fund product type.">
+    MoneyMarketFund <"Denotes a fund that invests only in highly liquid near-term instruments such as cash, cash equivalent securities, and high credit rating debt instruments with a short-term maturity.">
+    ExchangeTradedFund <"Denotes an investment fund consisting of stocks, bonds, and/or other assets that is passively managed and traded on a stock exchange.">
+    MutualFund <"Denotes an investment fund consisting of stocks, bonds, and/or other assets that is actively managed and can only be purchased or sold through the investment manager.">
+    OtherFund <"Denotes a fund that is not an Exchange Traded Fund, Money Market Fund or Mutual Fund.">
+
+enum MaturityTypeEnum: <"Represents an enumeration list to identify the Maturity.">
+    RemainingMaturity <"Denotes a period from now until maturity date.">
+    OriginalMaturity <"Denotes a period from issuance until maturity date.">
+    FromIssuance <"Denotes a period from issuance date until now.">
+
+enum DebtClassEnum: <"Represents an enumeration list that identifies the type of debt.">
+
+    AssetBacked <"Identifies a debt instrument that has periodic income payments and value derived from or backed by a specified pool of underlying assets which could be mortgages or other obligations.">
+    Convertible <"Identifies a debt instrument that can be converted into common shares.">
+    RegCap <"Identifies a debt instrument as one issued by financial institutions to count towards regulatory capital, including term and perpetual subordinated debt, contingently convertible and others.  Excludes preferred share capital.">
+    Structured <"Identifies a debt instrument athat has non-standard interest or principal features, with full recourse to the issuer.">
+    Vanilla <"Identifies a debt instrument that has a periodic coupon, a defined maturity, and is not backed by any specific asset. The seniority and the structure of the income and principal payments can optionally be defined in DebtType.DebtEconomics.">
+    HolderConvertible <"Identifies a debt instrument that can be converted primarily at the election of the holder into common shares of the Issuer.">
+    HolderExchangeable <"Identifies a debt instrument that can be converted primarily at the election of the holder into common shares of a party other than the Issuer.">
+    IssuerConvertible <"Identifies a debt instrument that can be converted at the election of the Issuer into common shares of the Issuer.  Also known as reverse convertible.">
+    IssuerExchangeable <"Identifies a debt instrument that can be converted at the election of the Issuer into common shares of a party other than the Issuer.  Also known as reverse exchangeable.">
+
+enum DebtSeniorityEnum: <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
+    Secured <"Denotes debt which is secured over assets of the issuer or a related party (eg guarantor).">
+    Senior <"Denotes debt  which ranks pari passu with all other unsecured creditors of the issuer.">
+    Subordinated <"Denotes debt  owed to an unsecured creditor that in the event of a liquidation can only be paid after the claims of secured and senior creditors have been met.">
+
+enum DebtInterestEnum: <"Represents an enumeration list that specifies the general rule for periodic interest rate payment.">
+    Fixed <"Denotes payment calculated with reference to a fixed interest rate.">
+    Floating <"Denotes payment calculated with reference to a floating interest rate.">
+    InflationLinked <"Denotes payment calculated with reference to one or more specified inflation rates.">
+    IndexLinked <"Denotes payment calculated with reference to one or more price or other indices (other than inflation rates).">
+    InterestOnly <"Denotes a stripped bond representing only the interest component.">
+    OtherStructured <"Denotes payment calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a non-linear relationship to floating interest rates, inflation rates or indices.">
+    InverseFloating <"Denotes payment calculated with reference to the inverse of a floating interest rate.">
+    ZeroCoupon <"Denotes a zero coupon bond that does not pay intetrest.">
+
+enum DebtPrincipalEnum: <"Represents an enumeration list that specifies the general rule for repayment of principal.">
+    Bullet <"Denotes that the principal is paid all at once on maturity of the debt insrument. Bullet debt instruments cannot be redeemed early by an issuer, which means they are non-callable.">
+    Callable <"Denotes that the principal on the debt can be repaid early, in whole or in part, at the option of the issuer.">
+    Puttable <"Denotes that the principal on the debt can be repaid early, in whole or in part, at the option of the holder.">
+    Amortising <"Denotes that the principal on the debt is paid down regularly, along with its interest expense over the life of the debt instrument.  Includes amortising instruments with a bullet balance repayment at maturity.">
+    InflationLinked <"Denotes that the principal on the debt is calculated with reference to one or more specified inflation rates.">
+    IndexLinked <"Denotes that the  principal on the debt is calculated with reference to one or more price or other indices (other than inflation rates).">
+    OtherStructured <"Denotes that the  principal on the debt is calculated with reference to other underlyings (not being floating interest rates, inflation rates or indices) or with a non-linear relationship to floating interest rates, inflation rates or indices.">
+    PrincipalOnly <"Denotes a stripped bond representing only the principal component.">
+
+enum AssetTypeEnum: <"Represents an enumeration list to identify the asset type.">
+    Security <"Indentifies negotiable financial instrument of monetary value with an issue ownership position.">
+    Cash <"Indentifies cash in a currency form.">
+    Commodity <"Indentifies basic good used in commerce that is interchangeable with other goods of the same type.">
+    Other <"Indentifies other asset types.">
+
+enum MoneyMarketTypeEnum:
+    CommercialPaper
+    CertificateOfDeposit
+
+enum DeliveryNearbyTypeEnum:
+    CalculationPeriod <"Describes the reference contract as the one that pertains to the month-year of the calculation period. If used, the nearby count is expected to be 0.">
+    NearbyMonth <"Specifies that the reference delivery date of the underlying Commodity shall be the expiration date of the futures contract in the nth nearby month.">
+    NearbyWeek <"Specifies that the reference delivery date of the underlying Commodity shall be the expiration date of the futures contract in the nth nearby week.">
+
+enum CommodityInformationPublisherEnum: <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg.">
+    Argus
+    ArgusMcCloskeys
+    ArgusAmericasCrudeReport
+    ArgusBiofuelReport
+    ArgusCrudeReport
+    ArgusEuropeanProductsReport
+    ArgusFMB
+    ArgusInternationalLPGReport
+    ArgusLPG
+    ArgusNatGas
+    AssocBanksSingapore
+    BandD
+    BalticExchange
+    BankOfCanada
+    BankOfEngland
+    BankOfJapan
+    Bloomberg
+    BLUENEXT
+    CAISO
+    CanadianGasPriceReporter
+    CanadianGasReporter
+    ChemicalMarketsAssociation
+    CMAIAromaticsMarketReport
+    CMAIWeeklyMethanolMarketReport
+    CRUSteelLongProductMonitor
+    CRUSteelSheetProductsMonitor
+    DowJonesEnergyService
+    DowJonesEnergyServiceScreen
+    DowJonesNatGas
+    EEX
+    ERCOT
+    EuroCentralBank
+    EURONEXMATIF
+    FederalReserve
+    FERTECON
+    FertilizerWeek
+    FHLBSF
+    GasDaily
+    GasDailyPriceGuide
+    GlobalCoale
+    GME
+    HerenReport
+    ICE
+    ICE10XDailyNaturalGas
+    ICE10XDailyPower
+    ICE10XMonthly
+    ICEDayAheadIndex
+    ICEECX
+    ICIS
+    InsideFERC
+    IPE
+    ISDA
+    ISONewEngland
+    JAPANMOFTSRR
+    LEBA
+    LondonBullionMarketAssociation
+    LONDONPLATINUMPALLADIUMMARKET
+    MegawattDaily
+    MetalBulletin
+    MISO
+    NaturalGasWeek
+    NGIBidweekSurvey
+    NYISO
+    OBM
+    OMEL
+    OPIS
+    PaperTrader
+    PIX
+    PJM
+    PlattsAsiaPacific
+    PlattsAsiaPacificArabMarketscan
+    PlattsCleanTankerwire
+    PlattsCoalTrader
+    PlattsCrudeOilMarketwire
+    PlattsDirtyTakerwire
+    PlattsENGR
+    PlattsEuropean
+    PlattsEuropeanMarketscan
+    PlattsGasDaily
+    PlattsGasDailyPriceGuide
+    PlattsInsideFERC
+    PlattsLPG
+    PlattsMarketwire
+    PlattsMegawattDaily
+    PlattsMetalsAlert
+    PlattsOilgram
+    PlattsOilgramBunkerwire
+    PlattsPolymerscan
+    PlattsTSIIronOre
+    TSIScrap
+    TSISteel
+    PlattsUS
+    PlattsUSMarketscan
+    PPM
+    PPMEurope
+    PPW
+    ReserveBankAustralia
+    ReserveBankNewZealand
+    Reuters
+    ReutersScreen
+    RIMIntelligenceProducts
+    SeaPac
+    Telerate
+    TelerateScreen
+    UXWEEKLY
+    WorldCrudeReport
+    WorldPulpMonthly
+
+enum EU_EMIR_EligibleCollateralEnum: <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+    EU_EMIRTypeA <"Denotes Cash in the form of money credited to an account in any currency, or similar claims for the repayment of money, such as money market deposits.">
+    EU_EMIRTypeB <" Denotes gold in the form of allocated pure gold bullion of recognised good delivery.">
+    EU_EMIRTypeC <" Denotes debt securities issued by Member States' central governments or central banks.">
+    EU_EMIRTypeD <" Denotes debt securities issued by Member States' regional governments or local authorities whose exposures are treated as exposures to the central government of that Member State in accordance with Article 115(2) of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeE <" Denotes debt securities issued by Member States' public sector entities whose exposures are treated as exposures to the central government, regional government or local authority of that Member State in accordance with Article 116(4) of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeF <" Denotes debt securities issued by Member States' regional governments or local authorities other than those referred to in (TypeD.)">
+    EU_EMIRTypeG <" Denotes debt securities issued by Member States' public sector entities other than those referred to in (TypeE).">
+    EU_EMIRTypeH <" Denotes debt securities issued by multilateral development banks listed in Article 117(2) of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeI <" Denotes debt securities issued by the international organisations listed in Article 118 of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeJ <" Denotes debt securities issued by third countries' governments or central banks.">
+    EU_EMIRTypeK <" Denotes debt securities issued by third countries' regional governments or local authorities that meet the requirements of (TypeD) and (TypeE).">
+    EU_EMIRTypeL <" Denotes debt securities issued by third countries' regional governments or local authorities other than those referred to in (TypeD) and (TypeE).">
+    EU_EMIRTypeM <" Denotes debt securities issued by credit institutions or investment firms including bonds referred to in Article 52(4) of Directive 2009/65/EC of the European Parliament and of the Council.">
+    EU_EMIRTypeN <" Denotes corporate bonds.">
+    EU_EMIRTypeO <" Denotes the most senior tranche of a securitisation, as defined in Article 4(61) of Regulation (EU) No 575/2013, that is not a re-securitisation as defined in Article 4(63) of that Regulation.">
+    EU_EMIRTypeP <" Denotes convertible bonds provided that they can be converted only into equities which are included in an index specified pursuant to point (a) of Article 197 (8) of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeQ <" Denotes equities included in an index specified pursuant to point (a) of Article 197(8) of Regulation (EU) No 575/2013.">
+    EU_EMIRTypeR <" Denotes shares or units in undertakings for collective investments in transferable securities (UCITS), provided that the conditions set out in Article 5 of EU Regulation 2016/2251 are met.">
+
+enum UK_EMIR_EligibleCollateralEnum: <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+
+    UK_EMIRTypeA <"Denotes cash in the form of money credited to an account in any currency, or similar claims for the repayment of money, such as money market deposits.">
+    UK_EMIRTypeB <"Denotes gold in the form of allocated pure gold bullion of recognised good delivery.">
+    UK_EMIRTypeC <"Denotes debt securities issued by the central government of the United Kingdom or the Bank of England.">
+    UK_EMIRTypeD <"Denotes debt securities issued by United Kingdom regional governments or local authorities whose exposures are treated as exposures to the central government of the United Kingdom in accordance with Article 115(2) of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeE <"Denotes debt securities issued by United Kingdom public sector entities whose exposures are treated as exposures to the central government, regional government or local authority of the United Kingdom in accordance with Article 116(4) of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeF <"Denotes debt securities issued by United Kingdom regional governments or local authorities other than those referred to in (TypeD).">
+    UK_EMIRTypeG <"Denotes debt securities issued by United Kingdom public sector entities other than those referred to in (TypeE).">
+    UK_EMIRTypeH <"Denotes debt securities issued by multilateral development banks listed in Article 117(2) of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeI <"Denotes debt securities issued by the international organisations listed in Article 118 of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeJ <"Denotes debt securities issued by third countries' governments or central banks.">
+    UK_EMIRTypeK <"Denotes debt securities issued by third countries' regional governments or local authorities that meet the requirements of (TypeD) and (TypeE).">
+    UK_EMIRTypeL <"Denotes debt securities issued by third countries' regional governments or local authorities other than those referred to in (TypeD) and (TypeE).">
+    UK_EMIRTypeM <"Denotes debt securities issued by credit institutions or investment firms including bonds admitted to the register of regulated covered bonds maintained under Regulation 7(1)(b) of the Regulated Covered Bonds Regulations 2008 (SI 2008/346).">
+    UK_EMIRTypeN <"Denotes corporate bonds.">
+    UK_EMIRTypeO <"Denotes the most senior tranche of a securitisation, as defined in Article 4(61) of Regulation (EU) No 575/2013, that is not a re-securitisation as defined in Article 4(63) of that Regulation.">
+    UK_EMIRTypeP <"Denotes convertible bonds provided that they can be converted only into equities which are included in an index specified pursuant to point (a) of Article 197 (8) of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeQ <"Denotes equities included in an index specified pursuant to point (a) of Article 197(8) of Regulation (EU) No 575/2013.">
+    UK_EMIRTypeR <"Denotes shares or units in undertakings for UK UCITS, provided that the conditions set out in Article 5 of EU Regulation 2016/2251 (as modified by the Technical Standards (European Market Infrastructure) (EU Exit) (No. 3) Instrument 2019) are met.">
+
+enum US_CFTC_PR_EligibleCollateralEnum: <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators margin rules, the precise definitions or application of those rules could differ between the two rules.">
+
+    US_CFTC_PRType1 <"Denotes immediately available cash funds denominated in USD, a major currency, a currency of settlement for the uncleared swap.">
+    US_CFTC_PRType2 <"Denotes a security that is issued by, or unconditionally guaranteed as to the timely payment of principal and interest by, the U.S. Department of the Treasury.">
+    US_CFTC_PRType3 <"Denotes a security that is issued by, or unconditionally guaranteed as to the timely payment of principal and interest by, a U.S. government agency (other than the U.S. Department of Treasury) whose obligations are fully guaranteed by the full faith and credit of the United States government.">
+    US_CFTC_PRType4 <"Denotes a security that is issued by, or fully guaranteed as to the payment of principal and interest by, the European Central Bank or a sovereign entity that is assigned no higher than a 20 percent risk weight under the capital rules applicable to swap dealers subject to regulation by a prudential regulator.">
+    US_CFTC_PRType5A <"Denotes a publicly traded debt security issued by, or an asset-backed security fully guaranteed as to the timely payment of principal and interest by, a U.S. Government-sponsored enterprise that is operating with capital support or another form of direct financial assistance received from the U.S. government that enables the repayments of the U.S. Government-sponsored enterprise's eligible securities.">
+    US_CFTC_PRType5B <"Denotes a publicly traded debt security, but not an asset backed security, that is investment grade and issued by a U.S. Government-sponsored enterprise that is not operating with capital support or another form of direct financial assistance received from the U.S. government.">
+    US_CFTC_PRType6 <"Denotes a security that is issued by, or fully guaranteed as to the payment of principal and interest by, the Bank for International Settlements, the International Monetary Fund, or a multilateral development bank.">
+    US_CFTC_PRType7 <"Denotes publicly-traded debt, but not an asset backed security, that is investment grade and is not a debt security issued by a  U.S. Government-sponsored enterprise. This category excludes a security issued by a non-bank financial institution supervised by the board of governors of the Federal Reserve System under Title I of the Dodd-Frank Wall Street Reform and Consumer Protection Act. This category also excludes a security issued by any of the following entities, by a company that would be any of the following entities if it were the organized under the laws of the United States or any State, or in either case by an affiliate of such an entity: the party posting the collateral, a bank holding company, a savings and loan holding company, a U.S. intermediate holding company, a foreign bank, a depositary institution, a securities holding company, a broker, a dealer, a futures commission merchant, a swap dealer, or a security-based swap dealer.">
+    US_CFTC_PRType8A <"Denotes a publicly traded common equity security that is included in the Standard & Poor's Composite 500 Index or related indexes. This category excludes a security issued by a non-bank financial institution supervised by the board of governors of the Federal Reserve System under Title I of the Dodd-Frank Wall Street Reform and Consumer Protection Act. This category also excludes a security issued by any of the following entities, by a company that would be any of the following entities if it were the organized under the laws of the United States or any State, or in either case by an affiliate of such an entity: the party posting the collateral, a bank holding company, a savings and loan holding company, a U.S. intermediate holding company, a foreign bank, a depositary institution, a securities holding company, a broker, a dealer, a futures commission merchant, a swap dealer, or a security-based swap dealer.">
+    US_CFTC_PRType8B <" Denotes a publicly traded common equity security that is included in the Standard & Poor's Composite 1500 Index or related indexes. This category excludes a security issued by a non-bank financial institution supervised by the board of governors of the Federal Reserve System under Title I of the Dodd-Frank Wall Street Reform and Consumer Protection Act. This category also excludes a security issued by any of the following entities, by a company that would be any of the following entities if it were the organized under the laws of the United States or any State, or in either case by an affiliate of such an entity: the party posting the collateral, a bank holding company, a savings and loan holding company, a U.S. intermediate holding company, a foreign bank, a depositary institution, a securities holding company, a broker, a dealer, a futures commission merchant, a swap dealer, or a security-based swap dealer.">
+    US_CFTC_PRType8C <"Denotes a publicly traded common equity security that is included in an index that a regulated swap entity's supervisor in a foreign jurisdiction recognizes for purposes of including publicly traded common equity as initial margin under applicable regulatory policy, if held in that foreign jurisdiction. This category excludes a security issued by a non-bank financial institution supervised by the board of governors of the Federal Reserve System under Title I of the Dodd-Frank Wall Street Reform and Consumer Protection Act. This category also excludes a security issued by any of the following entities, by a company that would be any of the following entities if it were the organized under the laws of the United States or any State, or in either case by an affiliate of such an entity: the party posting the collateral, a bank holding company, a savings and loan holding company, a U.S. intermediate holding company, a foreign bank, a depositary institution, a securities holding company, a broker, a dealer, a futures commission merchant, a swap dealer, or a security-based swap dealer.">
+    US_CFTC_PRType9 <"Denotes securities in the form of redeemable securities in a pooled investment fund representing the security-holder's proportional interest in the fund's net assets and that are issued and redeemed only on the basis of the market value of the fund's net assets prepared each business day after the security-holder makes its investment commitment or redemption request to the fund, if the fund's investments are limited to the following: (A) securities that are issued by, or unconditionally guaranteed as to the timely payment of principal and interest by, the U.S. Department of the Treasury, and immediately-available cash funds denominated in U.S. dollars; or (B) securities denominated in a common currency and issued by, or fully guaranteed as to the payment of principal and interest by, the European Central Bank or a sovereign entity that is assigned no higher than a 20 percent risk weight under the capital rules applicable to swap dealers subject to regulation by a prudential regulator, and immediately-available cash funds denominated in the same currency; and (C) assets of the fund may not be transferred through securities lending, securities borrowing, repurchase agreements, reverse repurchase agreements, or other means that involve the fund having rights to acquire the same or similar assets from the transferee.">
+    US_CTFC_PRType10 <"Denotes Gold.">
+
+enum ISOCountryCodeEnum: <"The enumerated values to specify standard currency codes according to the International Standards Organization (ISO). The set of codes in this enumerated list is sourced from ISO Standard 3166 (ISO-3166-1alpha-2)(https://www.iso.org/iso-3166-country-codes.html) as at 14-Aug-23.">
+
+    AF <"Afghanistan">
+    AL <"Albania">
+    DZ <"Algeria">
+    AS <"American Samoa">
+    AD <"Andorra">
+    AO <"Angola">
+    AI <"Anguilla">
+    AQ <"Antarctica">
+    AG <"Antigua and Barbuda">
+    AR <"Argentina">
+    AM <"Armenia">
+    AW <"Aruba">
+    AU <"Australia">
+    AT <"Austria">
+    AZ <"Azerbaijan">
+    BS <"Bahamas (the)">
+    BH <"Bahrain">
+    BD <"Bangladesh">
+    BB <"Barbados">
+    BY <"Belarus">
+    BE <"Belgium">
+    BZ <"Belize">
+    BJ <"Benin">
+    BM <"Bermuda">
+    AX <"Aland Islands">
+    BT <"Bhutan">
+    BO <"Bolivia (Plurinational State of)">
+    BQ <"Bonaire, Sint Eustatius and Saba">
+    BA <"Bosnia and Herzegovina">
+    BW <"Botswana">
+    BV <"Bouvet Island">
+    BR <"Brazil">
+    IO <"British Indian Ocean Territory (the)">
+    BN <"Brunei Darussalam">
+    BG <"Bulgaria">
+    BF <"Burkina Faso">
+    BI <"Burundi">
+    CV <"Cabo Verde">
+    KH <"Cambodia">
+    CM <"Cameroon">
+    CA <"Canada">
+    KY <"Cayman Islands (the)">
+    CF <"Central African Republic (the)">
+    TD <"Chad">
+    CL <"Chile">
+    CN <"China">
+    CX <"Christmas Island">
+    CC <"Cocos (Keeling) Islands (the)">
+    CO <"Colombia">
+    KM <"Comoros (the)">
+    CD <"Congo (the Democratic Republic of the)">
+    CG <"Congo (the)">
+    CK <"Cook Islands (the)">
+    CR <"Costa Rica">
+    HR <"Croatia">
+    CU <"Cuba">
+    CW <"Curaao">
+    CY <"Cyprus">
+    CZ <"Czechia">
+    CI <"Cte d'Ivoire">
+    DK <"Denmark">
+    DJ <"Djibouti">
+    DM <"Dominica">
+    DO <"Dominican Republic (the)">
+    EC <"Ecuador">
+    EG <"Egypt">
+    SV <"El Salvador">
+    GQ <"Equatorial Guinea">
+    ER <"Eritrea">
+    EE <"Estonia">
+    SZ <"Eswatini">
+    ET <"Ethiopia">
+    FK <"Falkland Islands (the) [Malvinas]">
+    FO <"Faroe Islands (the)">
+    FJ <"Fiji">
+    FI <"Finland">
+    FR <"France">
+    GF <"French Guiana">
+    PF <"French Polynesia">
+    TF <"French Southern Territories (the)">
+    GA <"Gabon">
+    GM <"Gambia (the)">
+    GE <"Georgia">
+    DE <"Germany">
+    GH <"Ghana">
+    GI <"Gibraltar">
+    GR <"Greece">
+    GL <"Greenland">
+    GD <"Grenada">
+    GP <"Guadeloupe">
+    GU <"Guam">
+    GT <"Guatemala">
+    GG <"Guernsey">
+    GN <"Guinea">
+    GW <"Guinea-Bissau">
+    GY <"Guyana">
+    HT <"Haiti">
+    HM <"Heard Island and McDonald Islands">
+    VA <"Holy See (the)">
+    HN <"Honduras">
+    HK <"Hong Kong">
+    HU <"Hungary">
+    IS <"Iceland">
+    IN <"India">
+    ID <"Indonesia">
+    IR <"Iran (Islamic Republic of)">
+    IQ <"Iraq">
+    IE <"Ireland">
+    IM <"Isle of Man">
+    IL <"Israel">
+    IT <"Italy">
+    JM <"Jamaica">
+    JP <"Japan">
+    JE <"Jersey">
+    JO <"Jordan">
+    KZ <"Kazakhstan">
+    KE <"Kenya">
+    KI <"Kiribati">
+    KP <"Korea (the Democratic People's Republic of)">
+    KR <"Korea (the Republic of)">
+    KW <"Kuwait">
+    KG <"Kyrgyzstan">
+    LA <"Lao People's Democratic Republic (the)">
+    LV <"Latvia">
+    LB <"Lebanon">
+    LS <"Lesotho">
+    LR <"Liberia">
+    LY <"Libya">
+    LI <"Liechtenstein">
+    LT <"Lithuania">
+    LU <"Luxembourg">
+    MO <"Macao">
+    MG <"Madagascar">
+    MW <"Malawi">
+    MY <"Malaysia">
+    MV <"Maldives">
+    ML <"Mali">
+    MT <"Malta">
+    MH <"Marshall Islands (the)">
+    MQ <"Martinique">
+    MR <"Mauritania">
+    MU <"Mauritius">
+    YT <"Mayotte">
+    MX <"Mexico">
+    FM <"Micronesia (Federated States of)">
+    MD <"Moldova (the Republic of)">
+    MC <"Monaco">
+    MN <"Mongolia">
+    ME <"Montenegro">
+    MS <"Montserrat">
+    MA <"Morocco">
+    MZ <"Mozambique">
+    MM <"Myanmar">
+    NA <"Namibia">
+    NR <"Nauru">
+    NP <"Nepal">
+    NL <"Netherlands (Kingdom of the)">
+    NC <"New Caledonia">
+    NZ <"New Zealand">
+    NI <"Nicaragua">
+    NE <"Niger (the)">
+    NG <"Nigeria">
+    NU <"Niue">
+    NF <"Norfolk Island">
+    MK <"North Macedonia">
+    MP <"Northern Mariana Islands (the)">
+    NO <"Norway">
+    OM <"Oman">
+    PK <"Pakistan">
+    PW <"Palau">
+    PS <"Palestine, State of">
+    PA <"Panama">
+    PG <"Papua New Guinea">
+    PY <"Paraguay">
+    PE <"Peru">
+    PH <"Philippines (the)">
+    PN <"Pitcairn">
+    PL <"Poland">
+    PT <"Portugal">
+    PR <"Puerto Rico">
+    QA <"Qatar">
+    RO <"Romania">
+    RU <"Russian Federation (the)">
+    RW <"Rwanda">
+    RE <"Runion">
+    BL <"Saint Barthlemy">
+    SH <"Saint Helena, Ascension and Tristan da Cunha">
+    KN <"Saint Kitts and Nevis">
+    LC <"Saint Lucia">
+    MF <"Saint Martin (French part)">
+    PM <"Saint Pierre and Miquelon">
+    VC <"Saint Vincent and the Grenadines">
+    WS <"Samoa">
+    SM <"San Marino">
+    ST <"Sao Tome and Principe">
+    SA <"Saudi Arabia">
+    SN <"Senegal">
+    RS <"Serbia">
+    SC <"Seychelles">
+    SL <"Sierra Leone">
+    SG <"Singapore">
+    SX <"Sint Maarten (Dutch part)">
+    SK <"Slovakia">
+    SI <"Slovenia">
+    SB <"Solomon Islands">
+    SO <"Somalia">
+    ZA <"South Africa">
+    GS <"South Georgia and the South Sandwich Islands">
+    SS <"South Sudan">
+    ES <"Spain">
+    LK <"Sri Lanka">
+    SD <"Sudan (the)">
+    SR <"Suriname">
+    SJ <"Svalbard and Jan Mayen">
+    SE <"Sweden">
+    CH <"Switzerland">
+    SY <"Syrian Arab Republic (the)">
+    TW <"Taiwan (Province of China)">
+    TJ <"Tajikistan">
+    TZ <"Tanzania, the United Republic of">
+    TH <"Thailand">
+    TL <"Timor-Leste">
+    TG <"Togo">
+    TK <"Tokelau">
+    TO <"Tonga">
+    TT <"Trinidad and Tobago">
+    TN <"Tunisia">
+    TM <"Turkmenistan">
+    TC <"Turks and Caicos Islands (the)">
+    TV <"Tuvalu">
+    TR <"Trkiye">
+    UG <"Uganda">
+    UA <"Ukraine">
+    AE <"United Arab Emirates (the)">
+    GB <"United Kingdom of Great Britain and Northern Ireland (the)">
+    UM <"United States Minor Outlying Islands (the)">
+    US <"United States of America (the)">
+    UY <"Uruguay">
+    UZ <"Uzbekistan">
+    VU <"Vanuatu">
+    VE <"Venezuela (Bolivarian Republic of)">
+    VN <"Viet Nam">
+    VG <"Virgin Islands (British)">
+    VI <"Virgin Islands (U.S.)">
+    WF <"Wallis and Futuna">
+    EH <"Western Sahara*">
+    YE <"Yemen">
+    ZM <"Zambia">
+    ZW <"Zimbabwe">
