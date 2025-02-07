@@ -2,6 +2,8 @@
 
 _What is being released?_
 
+This release updates the Rune dependencies.
+
 Version updates include:
 - DSL 9.34.1: Bug fix related to import organisation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.1
 - DSL 9.34.0: Rune syntax to allow setting reference key/id meta data. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.0
@@ -11,7 +13,7 @@ Version updates include:
 - DSL 9.30.0: Label annotation support. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.30.0
 - DSL 9.29.0: Bug fix for switch statements. Add support for import organisation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.29.0
 
-This release also updates the FpML / ISO code scheme syncing feature from exact matching to additive matching to ensure no backward incompatible changes, as per the production version guidelines.
+This release also updates the FpML / ISO code scheme syncing configuration from exact matching to additive matching to ensure no backward incompatible changes, as per the [production version](https://cdm.finos.org/docs/contribution#version-availability) guidelines.
 
 _Review Directions_
 
