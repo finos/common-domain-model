@@ -806,25 +806,6 @@ a level of automation.
 
 This function creates a new Eligible Collateral Specification based on an input specification, but with one changed criteria and with one changed treatment.
 
-``` Haskell
-func CloneEligibleCollateralWithChangedTreatment:
-    inputs:
-        inputSpecification EligibleCollateralSpecification (1..1)
-        changedCriteria CollateralCriteria (1..1)
-        changedTreatment CollateralTreatment (1..1)
-    output:
-        outputSpecification EligibleCollateralSpecification (1..1)
-
-    condition NoLogicApplied:
-        changedCriteria -> AllCriteria is absent
-            and changedCriteria -> AnyCriteria is absent
-            and changedCriteria -> NegativeCriteria is absent
-
-    set outputSpecification: inputSpecification
-    set outputSpecification -> criteria -> treatment: changedTreatment
-    set outputSpecification -> criteria -> collateralCriteria: changedCriteria
-```
-
 The inputs are populated as follows: 
 
 * `inputSpecification`: an `EligibleCollateralSpecification` containing the fully-formed data to be cloned.
