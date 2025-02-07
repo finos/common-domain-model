@@ -815,27 +815,17 @@ The inputs are populated as follows:
 
 #### Example
 
-A collateral eligibility schedule agreed between two parties specifies the acceptable 
-collateral as being a list of certain types of fixed income bonds, from certain types of issuer, 
-in certain countries, and 
-denominated in a list of acceptable currencies. 
-Across all these bonds, different haircut treatments
-must be applied, depending on the maturity of the bond.
+A collateral eligibility schedule agreed between two parties specifies the acceptable collateral as being a list of certain types of fixed income bonds, from certain types of issuer, in certain countries, and denominated in a list of acceptable currencies. Across all these bonds, different haircut treatments must be applied, depending on the maturity of the bond.
 
-The `EligibleCollateralSpecification` required to model this case needs to be constructed
-using potentially many `EligibleCollateralCriteria`, which are themselves constructed from `CollateralTreatment` and `CollateralCriteria` to correctly represent the conditions regarding the bond
-types, issuer types, and currencies.  For each of the maturity bands, this
-`EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms
-of the haircut.
+If the user provides a collateral schedule containing US Government bonds with a haircut of 5% applied, they can use the `CloneEligibleCollateralWithChangedTreatment` to produce a collateral schedule of HM Treasury gilts with a haircut of 10%.
 
-To use the `CloneEligibleCollateralWithChangedTreatment` function to automate
-this, one starts by creating the first `EligibleCollateralCriteria` with the all the
-required constituent parts, including the first haircut `Treatment`.
+The `EligibleCollateralSpecification` required to model this case needs to be constructed using potentially many `EligibleCollateralCriteria`, which are themselves constructed from `CollateralTreatment` and `CollateralCriteria` to correctly represent the conditions regarding the bond types, issuer types, and currencies. For each of the maturity bands, this `EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms of the haircut.
 
-The function is then invoked, using this first `EligibleCollateralCriteria` as the
-`inputSpecification`, and then providing the criteria and treatment changes using the `changedCriteria` and `changedTreatment` inputs.  The function will provide a fully formed
-output consisting of an  `EligibleCollateralSpecification` containing
-all the required `EligibleCollateralCriteria` with their updated changes and treatments.
+To use the `CloneEligibleCollateralWithChangedTreatment` function to automate this, one starts by first creating the `EligibleCollateralCriteria` for US Government bonds, with all the required constituent parts, and a haircut `Treatment` of 5%.
+
+The function is then invoked, using this `EligibleCollateralCriteria` as the `inputSpecification`, along with the criteria and treatment changes using the `changedCriteria` and `changedTreatment` inputs. This means changing the `AssetCountryOfOrigin` to the UK, and changing the haircut `valuationTreatment` to 10%.
+
+The function will provide a fully formed output consisting of an `EligibleCollateralSpecification` containing all the required `EligibleCollateralCriteria` with their updated changes and treatments.
 
 #### MergeEligibleCollateralCriteria
 
