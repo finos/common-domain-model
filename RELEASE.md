@@ -22,7 +22,7 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3378](https://github.com/finos/common-domain-model/pull/3378).
+The change can be reviewed in PR: [#3386](https://github.com/finos/common-domain-model/pull/3386).
 
 # *CDM - Addition of changedCriteria to outputSpecification when using the CloneEligibleCollateralWithChangedTreatment function*
 
