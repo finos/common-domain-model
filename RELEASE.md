@@ -23,7 +23,7 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3359](https://github.com/finos/common-domain-model/pull/3359).
+The change can be reviewed in PR: [#3373](https://github.com/finos/common-domain-model/pull/3373 and [#3392](https://github.com/finos/common-domain-model/pull/3392).
 
 # *CDM - A CDM user can access a contract's closed status component*
 
