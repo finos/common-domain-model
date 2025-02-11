@@ -1,8 +1,13 @@
 namespace cdm.observable.asset.fro : <"Support for floating rate option definitions.">
 version "${project.version}"
 
-import cdm.base.staticdata.asset.rates.*
+import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.identifier.*
+import cdm.legaldocumentation.common.*
+import cdm.observable.asset.fro.*
 
 // =====================================================================
 //
@@ -14,6 +19,16 @@ import cdm.base.staticdata.asset.common.*
 type FloatingRateIndexDefinition:
     fro FloatingRateIndexIdentification (1..1) <"The underlying FRO name and designated maturity.">
     calculationDefaults FloatingRateIndexCalculationDefaults (0..1) <"Any calculation default values.">
+    supportedDefinition ContractualDefinition (0..*) <"The definition version or versions supported by the FRO.">
+    definitionalSource string (0..1) <"The source of an FRO, particularly if not a Contractual Definition (e.g. the broker rates matrix).">
+    designatedMaturityApplicable boolean (0..1)
+    mappings FloatingRateIndexMappings (0..1) <"Any mappings to other FRos.">
+    externalMappings FloatingRateIndexExternalMappings (0..1) <"Any mappings to other codes for this index.">
+    inLoan boolean (0..1) <"YES / NO to flag FROs identified by the FpML Syndicated Loan WG as having underlying benchmark that may also be referenced in syndicated loans.">
+    history FroHistory (0..1) <"FRO History">
+    administrator Administrator (0..1) <"The administrator for that rate or benchmark or, if there is no administrator, the provider of that rate or benchmark.">
+    deprecationReason string (0..1) <"Deprecation and Code Descriptions">
+    fpmlDescription string (0..1) <"FpML Description">
 
 type FloatingRateIndexIdentification:
     floatingRateIndex FloatingRateIndexEnum (0..1) <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
@@ -25,3 +40,66 @@ type FloatingRateIndexCalculationDefaults: <"This holds the rate calculation def
     category FloatingRateIndexCategoryEnum (0..1) <"The ISDA FRO category (e.g. screen rate or calculated rate).">
     indexStyle FloatingRateIndexStyleEnum (0..1) <"The ISDA FRO style (e.g. term rate, swap rate, etc).">
     method FloatingRateIndexCalculationMethodEnum (0..1) <"The ISDA FRO calculation method (e.g. OIS Compounding).">
+    fixing FloatingRateIndexFixingDetails (0..*) <"The default fixing details.">
+    dayCountFraction DayCountFractionEnum (0..1) <"The default day count fraction.">
+    applicableBusinessDays BusinessCenters (0..1) <"The default applicable business days.">
+    publicationCalendar BusinessCenterEnum (0..1) <"Publication Calendar (e.g. EUR-ICESWAP)">
+
+type ContractualDefinition:
+    identifier Identifier (0..1) <"Corresponds to the unique identifier of the Contractual Definition in which the code is published">
+    contractualDefinitionIdentifier ContractualDefinitionIdentifier (0..1) <"Contractual Definition Identifier in which the code is published. Includes Document Type and Document Version">
+    publicationDate date (0..1) <"2021-06-11">
+
+    condition Choice: <"Choice between document uuid or document type and version">
+        optional choice identifier, contractualDefinitionIdentifier
+
+type ContractualDefinitionIdentifier:
+    contractualDefinitionType ContractualDefinitionsEnum (1..1) <"e.g. ISDA2021Definitions">
+    contractualDefinitionVersion string (0..1) <"e.g. V1">
+
+type FloatingRateIndexMap: <"A map for a single FRO to or from an equivalent or similar FRO in a different contractual definitions version.">
+    index FloatingRateIndexEnum (0..*) <" The FRO name that is being mapped to/from.">
+    contractualDefinitionIdentifier ContractualDefinitionIdentifier (0..1) <"Contractual Definition to which the map applies. Includes Document Type and Document Version">
+    identifier Identifier (0..1) <"Corresponds to the unique identifier of the Contractual Definition to which the map applies">
+
+    condition Choice: <"Choice between document uuid or document type and version">
+        optional choice identifier, contractualDefinitionIdentifier
+
+type FloatingRateIndexMappings: <"This type defines mappings between FROs in different definitional versions.">
+    mapsTo FloatingRateIndexMap (0..1) <"The successor FRO that this index maps to.">
+    mapsFrom FloatingRateIndexMap (0..*) <"The predecessor FRO(s) that this index maps to.">
+
+type FloatingRateIndexExternalMap: <"A map for a single FRO to or from an equivalent or similar codes in a different standard such as ISO.">
+    externalId string (1..1) <" The FRO name that is being mapped to/from.">
+    externalStandard string (0..1) <"The standard/version to which the map applies.">
+
+type FloatingRateIndexExternalMappings: <"Represents the mappings of FRO codes to other.">
+    isoCode FloatingRateIndexExternalMap (0..1)
+
+type FroHistory: <"FRO History">
+    startDate date (0..1) <"The date the Floating Rate Option was added to the 2006 Definitions or 2021 Floating Rate Matrix. (e.g. 2017/04/06)">
+    firstDefinedIn ContractualDefinition (0..1) <"The supplement or version the FRO was first added to the 2006 Definitions or 2021 Floating Rate Matrix. (e.g. S52)">
+    updateDate date (0..1) <"The date the Floating Rate Option was last updated in the 2006 Definitions or 2021 Floating Rate Matrix. (e.g. 2021/06/11)">
+    lastUpdatedIn ContractualDefinition (0..1) <"The supplement or version the FRO was last updated in the 2006 Definitions or 2021 Floating Rate Matrix. (e.g. FRO-M-V1)">
+    endDate date (0..1) <"The date the Floating Rate Option was removed from the 2006 Definitions or 2021 Floating Rate Matrix. (e.g. 2014/01/01)">
+
+type Administrator: <"The administrator for that rate or benchmark or, if there is no administrator, the provider of that rate or benchmark.">
+    name string (0..1) <"e.g. Reserve Bank of Australia">
+    website string (0..1) <"e.g. https://www.bloomberg.com/">
+
+type FloatingRateIndexFixingDetails: <"This type holds parameters defining the fixingt time and offset for a floating rate index.">
+    fixingTime FloatingRateIndexFixingTime (0..1) <"Parameters defining the normal fixing time (can vary by index tenor / designated maturity).">
+    fixingOffset BusinessDayOffset (0..1) <"Parameters defining the normal fixing offset (can vary by index tenor / designated maturity).">
+
+type FloatingRateIndexFixingTime extends BusinessCenterTime: <"This type holds parameters defining the normal fixing time for a floating rate index.">
+    designatedMaturity string (0..1) <"Allows a designed maturity to be specified for the fixing time.">
+    fixingTimeDefinition string (0..1) <"Legal text that underlies the Fixing Time. ISDA Fixing Time Definition. (e.g. 09:30, Sydney time).">
+    fixingReason string (0..1) <"Fixing Reason">
+
+type FloatingRateIndexFixingOffset extends BusinessDayOffset: <"This type holds parameters defining the normal fixing offset for a floating rate index.">
+    designatedMaturity string (0..1) <"Allows a reason to be specified for using the alternative fixing offset.">
+
+type BusinessDayOffset extends Period: <"This allows an offset to be specified as, for instance, N business days, with a business centers specified as included.">
+    businessCenters BusinessCenters (0..1) <"The business centers for the offset.">
+    fixingOffsetDefinition string (0..1) <"Legal text that underlies the Fixing Offset. ISDA Fixing Offset Definition. (e.g. One day that is either a Sydney Business Day or a Melbourne Business Day following the Reset Date)">
+    fixingOffsetReason string (0..1) <"Fixing Offset Reason">
