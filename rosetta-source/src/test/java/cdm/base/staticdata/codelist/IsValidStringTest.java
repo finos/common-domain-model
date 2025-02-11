@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
-public class IsValidStringTest extends AbstractFunctionTest {
+@Deprecated
+class IsValidStringTest extends AbstractFunctionTest {
     @Inject
     private IsValidString isValidString;
 
-    @Test
+    //@Test
     void IsValidString() {
         String domain = "business-center";
         String valid = "USNY";

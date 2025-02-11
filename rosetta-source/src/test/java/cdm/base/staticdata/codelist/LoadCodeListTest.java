@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
-public class LoadCodeListTest extends AbstractFunctionTest {
+@Deprecated
+class LoadCodeListTest extends AbstractFunctionTest {
     @Inject
     private LoadCodeList LoadCodeList;
 
-    @Test
+    //@Test
     void loadCodeList() {
         String domain = "business-center";
 

@@ -12,6 +12,7 @@ type CodeListIdentification: <"A type to identify the version of a codelist">
     shortName string (0..1) <"A short name for the code list, e.g. businessCenterScheme">
     version string (1..1) <"The the most recent version of the codelist, eg. 9-1">
     codeShortId string (1..1) <"The name of the code list, e.g. business-center">
+    //TH Review: Challeging the incorporation of canonical and versioned uris to be used as domain identifiers
 
 type CodeValue:  <"A type to hold the value of the code in a codelist">
     value string (1..1) <"The value of the code, e.g. USNY">
@@ -21,15 +22,20 @@ type CodeValue:  <"A type to hold the value of the code in a codelist">
     deprecatedDate date(0..1) <"When the code ceased to be valid for new uses">
 
 
-//typeAlias FpMLCodingScheme(domain string)  :
-//    string
-//   condition ValidateCodeAgainstList (item, domain)
+//TH Review: Proposal for new name: DomainString, ExternalDomainString, DomainAlias, ExternalCode, CodingScheme
+typeAlias FpMLCodingScheme(domain string):
+	string
+	
+	condition IsValidCodingScheme: 
+		ValidateFpMLCodingSchemeDomain (item, domain)
 
-//typeAlias BusinessCenter:  FpMLCodingScheme ('business-center')
+typeAlias BusinessCenter: FpMLCodingScheme(domain: "business-center")
+typeAlias FloatingRateIndex : FpMLCodingScheme(domain: "floating-rate-index")
+typeAlias Currency : FpMLCodingScheme(domain: "currency-code")
 
-typeAlias BusinessCenter : string //  (validationRule: "CodeListValidation", domain: "business-center")
+//typeAlias BusinessCenter : string  (validationRule: "CodeListValidation", domain: "business-center")
 typeAlias CommodityBusinessCalendar : string //  (validationRule: "CodeListValidation", domain: "commodity-business-calendar")
-typeAlias FloatingRateIndex : string //  (validationRule: "CodeListValidation", domain: "floating-rate-index")
+//typeAlias FloatingRateIndex : string   (validationRule: "CodeListValidation", domain: "floating-rate-index")
 typeAlias InflationRateIndex : string //  (validationRule: "CodeListValidation", domain: "inflation-index-description")
 typeAlias CreditEventType : string //  (validationRule: "CodeListValidation", domain: "credit-event-type")
 typeAlias MasterAgreementType : string //  (validationRule: "CodeListValidation", domain: "master-agreement-type")

@@ -60,6 +60,17 @@
                                     <mainClass>org.isda.cdm.documentation.DocumentationCodeValidator</mainClass>
                                 </configuration>
                             </execution>
+                            <!-- Run Transformer before copying CodeList JSON files -->
+                            <execution>
+                                <id>transform-codelist-xml-to-json</id>
+                                <phase>process-resources</phase> <!-- Ensures JSON files are generated before copying -->
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>org.isda.codelist.CodeListTransformer</mainClass>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -927,6 +938,26 @@
                             </resources>
                         </configuration>
                     </execution>
+                    <!-- Ensure only CodeList JSON files are copied to target/classes/ -->
+                    <execution>
+                        <id>copy-json-codelist-resources</id>
+                        <phase>process-resources</phase> <!-- Ensures JSON exists before JAR packaging -->
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources/org/isda/codelist/json</directory>
+                                    <includes>
+                                        <include>*.json</include> <!-- Copies only JSON files -->
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/org/isda/codelist/json</outputDirectory> <!-- JSON files go into target/classes -->
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -1021,7 +1052,7 @@
                     <release>${maven.compiler.release}</release>
                     <excludes>
                         <exclude>**/*.rosetta</exclude>
-                    </excludes>
+                    </excludes><source>8</source><target>8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -1084,6 +1115,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- org.isda.CodeListTransformer dependency -->
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>10.6</version> <!-- Adjust as needed -->
         </dependency>
     </dependencies>
 </project>
