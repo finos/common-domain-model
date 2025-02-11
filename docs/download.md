@@ -2,7 +2,7 @@
 title: Download Source Code
 ---
 
-The CDM source code is open source and can be downloaded from [\_CDM
+The CDM source code is open source and can be downloaded from [CDM
 GitHub](https://github.com/finos/common-domain-model). All released versions are tagged and can be downloaded from
 [CDM GitHub Releases](https://github.com/finos/common-domain-model/releases).
 
