@@ -383,16 +383,16 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> Commodity
         then (if productClass = StandardizedScheduleProductClassEnum -> Forward
-            then (economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency // Floating price forwards not supported
+            then (economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> unit -> currency // Floating price forwards not supported
                 )
             else if productClass = StandardizedScheduleProductClassEnum -> Option
             then (economicTerms -> payout -> OptionPayout only-element -> strike -> strikePrice -> unit -> currency)
             else if productClass = StandardizedScheduleProductClassEnum -> FixedFloatSwap
-            then (economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency)
+            then (economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> unit -> currency)
             else if productClass = StandardizedScheduleProductClassEnum -> BasisSwap
             then "AAA" // No spot price available
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency) // CO Contract for Difference (CFD) not supported
+            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> unit -> currency) // CO Contract for Difference (CFD) not supported
             )
 
     post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
@@ -781,7 +781,7 @@ func StandardizedScheduleCommodityForwardNotionalAmount: <"Extracts the notional
     output:
         amount number (0..1)
     alias forwardPrice:
-        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> value
+        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> value
     alias notionalQuantity:
         economicTerms -> payout -> SettlementPayout only-element -> priceQuantity -> quantitySchedule
             then (if multiplier exists
@@ -795,7 +795,7 @@ func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the n
     output:
         amount number (0..1)
     alias fixedPrice:
-        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> value
+        economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> value
     alias notionalQuantity:
         economicTerms -> payout -> CommodityPayout only-element -> priceQuantity -> quantitySchedule
             then (if multiplier exists
