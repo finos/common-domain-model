@@ -1,3 +1,35 @@
+# *CDM Examples - Extended test coverage*
+
+_Background_
+
+This release updates the `examples` project improving the test scenario coverage for several Common Domain Model Java features. All extended scenarios use publicly available CDM Test Pack samples.
+
+_What is being released?_
+
+This release adds the following examples scenarios:
+
+**Processor scenarios**
+- `org.finos.cdm.example.processors.QualificationProcessorTests` with different qualification report expectation scenarios
+- `org.finos.cdm.example.processors.ValidationProcessorTests` with different validation report expectation scenarios
+
+**Qualification scenarios**
+- `org.finos.cdm.example.qualification.QualifyBusinessEventTest` with `PartialTermination`, `ContractFormation`, `PartialNovation`, `Allocation`, `Clearing`, `Compression`, `CorporateAction`, `CreditEvent`, `Execution`, `Exercise`, `Novation`, `IndexTransition`, `Termination`, `StockSplit`, `Increase`
+- `org.finos.cdm.example.qualification.QualifyProductTest` with `InterestRate_Fra`, `InterestRate_Option_Swaption`, `InterestRate_CrossCurrency_FixedFloat`, `InterestRate_CapFloor`, `InterestRate_IRSwap_FixedFloat`, `CreditDefaultSwap_SingleName`, `CreditDefaultSwap_Index`, `CreditDefaultSwap_Basket`, `EquitySwap_TotalReturnBasicPerformance_SingleName`, `EquitySwap_ParameterReturnVariance_SingleName`
+
+**WorkflowStep transition scenarios**
+- `org.finos.cdm.example.BusinessEventExecutionTest` with business event execution tests and instruction creation mocks for `ContractFormation`, `Execution`, `Novation`, `Increase`, `Decrease`, `Termination`, `Reset`, `Valuation`, `OptionExercise`, `Transfer`, `TermsChange`, `StockSplit`, `Allocation`, `CorporateAction`, `CreditEvent`, `Compression`, `Clearing`
+
+**Performance Metrics**
+- `org.finos.cdm.example.performance.ProcessorPerformanceTests` with deserialization, object validation, qualification, and state transition metrics at product and event level.
+
+_Review Directions_
+
+Please inspect the changes identified above for the test scenarios in the `examples` module.
+
+The coverage for this release can also be reviewed in PR [#3299](https://github.com/finos/common-domain-model/pull/3299).
+
+The full scope description of the proposal can be found at [#3298](https://github.com/finos/common-domain-model/issues/3298).
+
 # *CDM - A CDM user can access an extended FRO model*
 
 _Background_
@@ -16,6 +48,7 @@ As part of the preparation for the migration of any ISDA Foundations components 
 2. Added extra attributes from `FloatingRateIndexCalculationDefaultsExtension` (and their required types) directly into `FloatingRateIndexCalculationDefaults`
 3. Moved `ValidateFloatingRateIndexName` and `ValidateFloatingRateIndexTradeDate` to `observable.asset.fro`
 4. Updated `ValidateFloatingRateIndexTradeDate` to call the existing `FloatingRateIndexMetadata` function iteratively.
+5. Renamed function `ValidateFloatingRateIndexTradeDate` to `FilterInvalidFloatingRateIndexTradeDate`, and updated the description, to specify it returns an invalid index or indices only.
 
 _Backward-incompatible changes_
 
@@ -23,7 +56,38 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3359](https://github.com/finos/common-domain-model/pull/3359).
+The change can be reviewed in PRs: 
+- [#3373](https://github.com/finos/common-domain-model/pull/3373)
+- [#3392](https://github.com/finos/common-domain-model/pull/3392)
+- [#3410](https://github.com/finos/common-domain-model/pull/3410)
+
+# *CDM - A CDM user can access an extended Agreement model*
+
+_Background_
+
+The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
+
+The issue [#3348](https://github.com/finos/common-domain-model/issues/3348) proposes to migrate the ISDA Foundations project to the CDM, without the ISDA legal documentation IP
+
+Preparation must be first be done in the CDM to synchronise it with the ISDA Foundations project and simplify the migration of any ISDA Foundations components.
+
+_What is being released?_
+
+As part of the preparation for the migration of any ISDA Foundations components to the CDM, this release creates an extended Agreement model in the CDM. This includes adding some (already sanitised) ISDA Foundations components into CDM, and moving other components around.
+
+1. Added `BrokerConfirmationTypeEnum` in `legaldocumentation.contract.enum`
+2. Added `BrokerConfirmation` and `IssuerTradeId` to `legaldocumentation.contract.type`
+3. Added `brokerConfirmationType` attribute to `AgreementName`
+4. Moved all empty types related to “additional terms” (used in `TransactionAdditionalTerms`) to a sub-namespace: `legaldocumentation.master.additionalterms`
+
+
+_Backward-incompatible changes_
+
+None.
+
+_Review Directions_
+
+The change can be reviewed in PR: [#3352](https://github.com/finos/common-domain-model/issues/3352).
 
 # *CDM - A CDM user can access a contract's closed status component*
 
