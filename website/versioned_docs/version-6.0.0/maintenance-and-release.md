@@ -4,7 +4,7 @@ title: Maintenance and Release
 
 ## Reviewing model changes
 
-Contributions are reviewed by the Contribution Review Working Group and once approved, the [CDM Maintainers](maintainers.md) will release them following the guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.
+Contributions are reviewed by the Contribution Review Working Group and once approved, the [CDM Maintainers](/docs/maintainers) will release them following the guidelines in this document.  The [CDM Maintainers](docs/maintainers) document includes a description of the overall change approval process.
 
 ### Review checklist
 
@@ -47,10 +47,6 @@ Committee for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
-
-## Model maintenance and release
-
-After learning about [how to edit](editing.md) the model, please refer to this section to learn more about its maintenance. 
 
 ## Introduction
 
@@ -127,8 +123,8 @@ and the Contributor on a deployment timeline.
 The following release checklist should be verified before deploying a
 new model:
 
--   Update the CDM version number, using the [semantic
-    versioning](versioning.md) format
+-   Update the CDM version number, using the semantic
+    versioning format
 -   Build release candidate, and test
 -   Build documentation website release candidate, and test
 -   Deploy release candidate and notify channels if need be
@@ -155,7 +151,6 @@ This section covers scheduling of minor, development, and patch releases, and ap
 ## Major Production Release Build & Release Approvals
 
 * Major production releases will be scheduled by the SWG as described above
-  * *(TODO:  insert a diagram of the promotion process)*
 * Each major production release shall require the approval of two maintainers after the following are complete:
   * The scope of the major production release is finalized and ratified by the SWG
   * All approved PRs for the major production release are complete
