@@ -16,7 +16,8 @@ As part of the preparation for the migration of any ISDA Foundations components 
 2. Added extra attributes from `FloatingRateIndexCalculationDefaultsExtension` (and their required types) directly into `FloatingRateIndexCalculationDefaults`
 3. Moved `ValidateFloatingRateIndexName` and `ValidateFloatingRateIndexTradeDate` to `observable.asset.fro`
 4. Updated `ValidateFloatingRateIndexTradeDate` to call the existing `FloatingRateIndexMetadata` function iteratively.
-5. Renamed function `ValidateFloatingRateIndexTradeDate` to `InvalidFloatingRateIndexTradeDate` to specify it returns invalid indexes only.
+5. Renamed function `ValidateFloatingRateIndexTradeDate` to `FilterInvalidFloatingRateIndexTradeDate`, and updated the description, to specify it returns an invalid index or indices only.
+6. Made type `Administrator` an extension of `LegalEntity` and removed `name` attribute. 
 
 _Backward-incompatible changes_
 
