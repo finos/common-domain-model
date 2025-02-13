@@ -48,6 +48,8 @@ As part of the preparation for the migration of any ISDA Foundations components 
 2. Added extra attributes from `FloatingRateIndexCalculationDefaultsExtension` (and their required types) directly into `FloatingRateIndexCalculationDefaults`
 3. Moved `ValidateFloatingRateIndexName` and `ValidateFloatingRateIndexTradeDate` to `observable.asset.fro`
 4. Updated `ValidateFloatingRateIndexTradeDate` to call the existing `FloatingRateIndexMetadata` function iteratively.
+5. Renamed function `ValidateFloatingRateIndexTradeDate` to `FilterInvalidFloatingRateIndexTradeDate`, and updated the description, to specify it returns an invalid index or indices only.
+6. Made type `Administrator` an extension of `LegalEntity` and removed `name` attribute. 
 
 _Backward-incompatible changes_
 
@@ -55,7 +57,7 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3359](https://github.com/finos/common-domain-model/pull/3359).
+The change can be reviewed in PR: [#3373](https://github.com/finos/common-domain-model/pull/3373) and [#3392](https://github.com/finos/common-domain-model/pull/3392).
 
 # *CDM - A CDM user can access an extended Agreement model*
 
