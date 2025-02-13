@@ -56,7 +56,10 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3373](https://github.com/finos/common-domain-model/pull/3373) and [#3392](https://github.com/finos/common-domain-model/pull/3392).
+The change can be reviewed in PRs: 
+- [#3373](https://github.com/finos/common-domain-model/pull/3373)
+- [#3392](https://github.com/finos/common-domain-model/pull/3392)
+- [#3410](https://github.com/finos/common-domain-model/pull/3410)
 
 # *CDM - A CDM user can access an extended Agreement model*
 
