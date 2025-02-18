@@ -4,6 +4,7 @@ about: I have a suggested enhancement to the CDM
 labels:
 assignees:
 title: Proposed change to the CDM
+type: Feature
 ---
 
 > [!NOTE]
