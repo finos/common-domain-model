@@ -3,6 +3,8 @@ title: Get Involved
 ---
 
 ## Interact with the CDM community
+
+Below are several different ways to interact with the [CDM community](cdm-org-structure.md).
  
 ## GitHub
 
@@ -21,6 +23,7 @@ Finally, another great way to interact with the community is to attend the bi-we
 Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
 
 ## Contacting CDM Maintainers
+Please click [here](maintainers.md#finos-cdm-project-maintainers) to view the CDM maintainers and their contact details. 
 
 |FINOS CDM Maintainer  |Representing    |Capacity                                     |GithubID              |    
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           

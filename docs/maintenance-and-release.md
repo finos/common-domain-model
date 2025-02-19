@@ -17,7 +17,7 @@ through the following review checklist:
     -   Synonyms have been updated and output (JSON) looks correct
     -   Contributed model version is not stale and does not conflict
         with any recent changes
-    -   Changes are in accordance with the CDM governance guidelines, including the change control guidelines in the change control guidelines
+    -   Changes are in accordance with the CDM governance guidelines, including the change control guidelines in the [change control guidelines page](change-control-guidelines.md)
 
 ---
 **Note:**
@@ -48,6 +48,10 @@ Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
 
+## Model maintenance and release
+
+After learning about [how to edit](editing.md) the model, please refer to this section to learn more about its maintenance. 
+
 ## Introduction
 
 Before the Pull Request can be merged into the CDM's main branch, some
@@ -72,7 +76,7 @@ once it is approved:
     Contributor or work on adjusting the test expectations.
 -   **Additional documentation**: If the contributor provided additional
     documentation, the Maintainer should update the CDM documentation by
-    editing the *documentation.rst* file in GitHub. 
+    editing the *documentation.rst* file in GitHub. Please click here to visit the [documentation style guide](documentation-style-guide.md) page.
 -   **Documentation code snippets**: To avoid stale documentation, the
     CDM build process verifies that any code snippets in the
     documentation exists and is in line with the model itself. The
@@ -123,8 +127,8 @@ and the Contributor on a deployment timeline.
 The following release checklist should be verified before deploying a
 new model:
 
--   Update the CDM version number, using the semantic
-    versioning format
+-   Update the CDM version number, using the [semantic
+    versioning](versioning.md) format
 -   Build release candidate, and test
 -   Build documentation website release candidate, and test
 -   Deploy release candidate and notify channels if need be
