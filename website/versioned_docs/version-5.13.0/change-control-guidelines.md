@@ -1,3 +1,7 @@
+---
+title: Change Control Guidelines
+---
+
 ## Change Control Guidelines
 
 This section discusses how changes to the CDM are controlled within and between releases, in particular:
