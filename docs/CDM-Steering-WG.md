@@ -10,9 +10,11 @@ This working group serves as the driving force behind the strategic direction an
 
 - Define and monitor the overall roadmap, setting annual priorities.
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
-- Approve new FINOS Working Groups (WGs).
+- Approve new FINOS [Working Groups](cdm-org-structure.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
-- Provide final release approval.
+- Provide final [release](maintenance-and-release.md) approval.
+- The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
+
 
 ## Meetings
 
@@ -29,4 +31,6 @@ To subscribe to the [Steering Working Group mailing list](https://lists.finos.or
 ---
 
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.
 
