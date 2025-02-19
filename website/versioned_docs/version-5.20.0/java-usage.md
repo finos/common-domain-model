@@ -1,5 +1,5 @@
 ---
-title: CDM Java Distribution Guidelines
+title: Java Usage
 ---
 
 This section provides directions for downloading and using the Java
@@ -23,7 +23,7 @@ version of CDM. Topics covered are listed below:
 # Setup
 
 In order to use the CDM in a Maven project, the following dependency
-needs to be added to the project pom.xml:
+needs to be addeed to the project pom.xml:
 
 ``` xml
 <dependency>
@@ -42,38 +42,6 @@ needs to be added to the project pom.xml:
 
 -   The CDM uses [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) for each of the pojos. The
     distribution ships with the json to java object serialisers.
-
-> _NOTE:_ All current CDM dependencies are available in Maven Central.
-> CDM releases prior to version 4.0.0 can be found in the ISDA repository: <https://europe-west1-maven.pkg.dev/production-208613/isda-maven>.
-> The dependencies of CDM releases prior to version 4.0.0 can be found in the REGnosys repository: <https://europe-west1-maven.pkg.dev/production-208613/public-maven>.
-> Add the following snippet to the `<repositories>` section of your project `pom.xml`:
->
-> ``` xml
->    <repositories>
->        <!-- remove references to REGnosys Jfrog -->
->        <repository>
->            <id>isda-maven</id>
->            <url>https://europe-west1-maven.pkg.dev/production-208613/isda-maven</url>
->            <releases>
->                <enabled>true</enabled>
->            </releases>
->            <snapshots>
->                <enabled>false</enabled>
->            </snapshots>
->        </repository>
->        <repository>
->            <id>public-maven</id>
->            <url>https://europe-west1-maven.pkg.dev/production-208613/public-maven</url>
->            <releases>
->                <enabled>true</enabled>
->            </releases>
->            <snapshots>
->                <enabled>false</enabled>
->            </snapshots>
->        </repository>
->        <!-- existing contents -->
->    </repositories>
->```
 
 # Setting Up Google's Guice Injector
 

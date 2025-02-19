@@ -1,5 +1,5 @@
 ---
-title: CDM Java Distribution Guidelines
+title: Java Usage
 ---
 
 This section provides directions for downloading and using the Java
