@@ -211,6 +211,17 @@ type DomesticCurrencyIssued:
 type CounterpartyOwnIssuePermitted:
     counterpartyOwnIssuePermitted boolean (1..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
 
+type AssetLocation: <"Used to specify where an asset is physically located. For example this could be at a specific custodian, or on a specific domestic market.">
+    party Party (0..1) <"Party who is holding the asset.">
+    partyRole PartyRoleEnum (0..1) <"Optional role of the party who is holding the asset.">
+    domesticMarket ISOCountryCodeEnum (0..1) <"Used to specify the country where an asset is located. This is used where a schedule needs to use the fact that a particular type of asset (or individual asset) is held on a particular market in order to define its eligibility status. Note that schedules use countries and not a MIC (Market Identifier Code) as identifiers.">
+
+    condition PartyRoleExists: <"A partyRole can only be defined if we have a party.">
+        if partyRole exists then party exists
+    
+    condition AssetLocationChoice: <"A location can either be a party or a market, not both.">
+        optional choice party, domesticMarket
+
 choice CollateralCriteria: <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
     AllCriteria <"Enables two or more Collateral Criteria to be combined using AND logic.">
     AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
@@ -232,6 +243,7 @@ choice CollateralCriteria: <"The possible different terms that can be combined, 
     Index <"Criteria is that the collateral is a constituent of a specific index.">
     CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
     DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
+    AssetLocation <"Criteria to specify where an asset is located">
 
 type AllCriteria: <"Used to combine two or more Collateral Criteria using AND logic.">
     allCriteria CollateralCriteria (2..*)
