@@ -60,7 +60,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 
 ##  Detailed Guidelines – Changes vs.  Major Versions
 
-* Breaking changes can only be implemented in a major version
+* Breaking changes (as defined in the [change control guidelines](change-control-guidelines.md/#backward-compatibility)) can only be implemented in a major version
   - *Rationale:* this is required to ensure that within a single major version there is stability across minor versions.
     
 * Changes (PRs) will be categorized into those that can only be done in major releases (because they contain breaking changes) and others.  PRs requiring a major release shall only be approved for major releases.
