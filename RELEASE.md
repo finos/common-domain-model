@@ -9,7 +9,13 @@ The issue [#3348](https://github.com/finos/common-domain-model/issues/3348) prop
 A new namespace was originally created called `legaldocumentation.master.additionalterms` in PR [#3352](https://github.com/finos/common-domain-model/issues/3352). It was since agreed that transaction-related components should have their own namespace in alignment with other legal documentation concepts. This is covered in the issue [#3408](https://github.com/finos/common-domain-model/issues/3408)
 
 _What is being released?_
-This releases moves transaction-related components to a dedicated `legaldocumentation.transaction` namespace for transaction concepts, and all empty types to `legaldocumentation.transaction.additionalterms` namespace, in preparation for the ISDA Foundations migration.
+
+This release moves transaction-related components to a dedicated `legaldocumentation.transaction` namespace for transaction concepts, and all empty types to `legaldocumentation.transaction.additionalterms` namespace, in preparation for the ISDA Foundations migration.
+
+- Created new namespaces `legaldocumentation.transaction` and `legaldocumentation.transaction.additionalterms`
+- Moved type `TransactionAdditionalTerms` and the "additional terms" components that roll up to it to the new namespace provided they are not empty
+- Moved all empty types related to “additional terms” (used in TransactionAdditionalTerms) to sub-namespace legaldocumentation.transaction.additionalterms
+- Deleted unused namespace `legaldocumentation.master.additionalterms`
 
 
 _Backward-incompatible changes_
@@ -18,4 +24,6 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: 
+The change can be reviewed in PR: [#3444](https://github.com/finos/common-domain-model/pull/3444)
+
+
