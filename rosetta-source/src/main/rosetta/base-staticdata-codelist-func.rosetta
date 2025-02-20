@@ -1,45 +1,11 @@
 namespace cdm.base.staticdata.codelist
 version "${project.version}"
 
-func IsValidString: <"Validation function for being called from Rune">
-    inputs:
-        validationRule string(1..1) <"The type of validation rule to invoke, e.g. CodeListValidation">
-        domain string(0..1) <"The domain for validating set-based validations, e.g. floating-rate-index">
-        value string(1..1)  <"The value to be validated, e.g. xyz">
-    output:
-        validationResult string (0..1)  <"Return empty if ok, or a value if value not found or codelist not found.">
-
-
-    set validationResult :
-        if validationRule = "CodeListValidation" then ValidateCodeAgainstList(value, domain)
-			else "Unsupported validation rule "+validationRule
-
-
 func LoadCodeList:  <"Load a code list file into memory in the form of Rune objects ">
     inputs:
         domain string(1..1) <"The name of the code list to retrieve">
     output:
         codelist CodeList(0..1) <"The loaded code list (or null if not found) ">
-
-//TODO: add handling for special characters like quotes that are removed from JSON
-func ValidateCodeAgainstList: <"Validate a code value, given a code list.  Return true if code is in the code list, false if not, and null if no code list provided.">
-    inputs:
-        code string(1..1) <"The code to be validated">
-        domain string(1..1) <"The codelist to be validated against">
-    output:
-        validationResult string(0..1) <"returns empty string if valid, else an error mess">
-
-    alias
-        myCode: codelist->codes filter  value = code
-
-    alias
-        codelist : LoadCodeList(domain)
-
-    set validationResult:
-        if codelist exists then
-            if (myCode exists) then "" else "Code " + code + " not found in " + domain
-	else
-		"Codelist "+domain +" not found"
 
 func ValidateFpMLCodingSchemeDomain: // Name change to "ValidateDomainCode"
 	inputs:

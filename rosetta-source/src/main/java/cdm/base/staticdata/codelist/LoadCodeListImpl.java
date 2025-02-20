@@ -4,6 +4,7 @@ import cdm.base.staticdata.codelist.functions.LoadCodeList;
 
 import java.io.IOException;
 
+@Deprecated
 public class LoadCodeListImpl extends LoadCodeList {
     @Override
     protected CodeList.CodeListBuilder doEvaluate(String domain) {

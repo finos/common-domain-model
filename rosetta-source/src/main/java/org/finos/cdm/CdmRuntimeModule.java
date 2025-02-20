@@ -76,9 +76,9 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ValidateFpMLCodingSchemeDomain.class).to(bindValidateFpMLCodingSchemeDomain());
 	}
 
-	protected Class<? extends LoadCodeList> bindLoadCodeList() {
-		return LoadCodeListImpl.class;
-	}
+//	protected Class<? extends LoadCodeList> bindLoadCodeList() {
+//		return LoadCodeListImpl.class;
+//	}
 
 	protected Class<? extends ValidateFpMLCodingSchemeDomain> bindValidateFpMLCodingSchemeDomain() {
 		return ValidateFpMLCodingSchemeImpl.class;

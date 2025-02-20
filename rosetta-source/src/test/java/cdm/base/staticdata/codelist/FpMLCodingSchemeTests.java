@@ -46,7 +46,6 @@ final class FpMLCodingSchemeTests {
 
     @Test
     void test1() {
-        //TODO: FieldWithMetaBusinessCenter is not being generated
         BusinessCenterTime bct = BusinessCenterTime.builder()
                 .setBusinessCenter(FieldWithMetaString.builder()
                         .setValue("TEST")
