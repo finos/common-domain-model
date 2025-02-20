@@ -1,0 +1,35 @@
+name: Close Stale PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs once a week (Sunday at midnight)
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:  # Allows manual triggering from the GitHub UI
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+
+      # Step to comment on the PR before closing it
+      - name: Comment on PR before closing
+        if: github.event.pull_request.draft == false && github.event.pull_request.state == 'open'
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **This pull request is about to be closed due to inactivity.**
+            If you believe this PR is still relevant, please feel free to comment or reopen it.
+
+      # Step to mark the PR as stale and close it if still inactive
+      - name: Close Stale PRs
+        uses: actions/stale@v3
+        with:
+          stale-pr-label: 'stale'  # Adjust label if necessary
+          days-before-stale: 1     # Number of days of inactivity before it's considered stale
+          days-before-close: 1      # Number of days after being stale before closing
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
