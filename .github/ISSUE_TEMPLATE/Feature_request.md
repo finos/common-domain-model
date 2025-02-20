@@ -2,6 +2,7 @@
 name: Feature Request
 about: I have a suggested enhancement to the CDM
 labels:
+type: "Feature"
 assignees:
 title: Proposed change to the CDM
 ---
