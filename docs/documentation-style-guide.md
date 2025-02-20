@@ -1,3 +1,6 @@
+---
+title: Documentation Style Guide
+---
 
 ## Documentation Style Guide 
 

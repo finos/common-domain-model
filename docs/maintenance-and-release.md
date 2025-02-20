@@ -1,3 +1,7 @@
+---
+title: Maintenance and Release
+---
+
 ## Reviewing model changes
 
 Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.

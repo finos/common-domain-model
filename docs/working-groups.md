@@ -1,3 +1,7 @@
+---
+title: Working Groups
+---
+
 ## Working Groups
 
 Click [here](cdm-org-structure.md) to view the CDM organisational structure and the Working Groups' scope.

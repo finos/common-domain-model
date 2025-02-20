@@ -1,3 +1,7 @@
+---
+title: Editing the Model
+---
+
 ## Editing the model
 
 When editing the CDM, please go through the following modelling

@@ -1,3 +1,7 @@
+---
+title: Versioning
+---
+
 ## Semantic Versioning
 
 The CDM is released using the semantic versioning 2.0 system - See

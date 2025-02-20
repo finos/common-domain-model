@@ -1,3 +1,7 @@
+---
+title: Development Approach
+---
+
 ## Agile Development Approach
 
 The on-going development of the CDM adheres to a methodology inspired by
