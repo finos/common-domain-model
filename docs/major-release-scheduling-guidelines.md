@@ -6,7 +6,7 @@ title: Major Release Scheduling Guidelines
 
 The [Steering Working Group](CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
-## Objectives of defining major releases
+## Objectives of Defining Major Releases
 
 * To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
   - Changes to existing functionality that may create challenges for upgrading [testing]
