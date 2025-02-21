@@ -192,4 +192,3 @@ file in the CDM jar.
 
 For more details, please follow the
 [CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-
