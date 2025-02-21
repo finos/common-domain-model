@@ -1619,6 +1619,24 @@ func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Va
             and (optionPayout -> exerciseTerms -> style <> OptionExerciseStyleEnum -> Bermuda)
             and (optionPayout -> feature is absent
                 or optionPayout -> feature -> averagingFeature only exists)
+            and optionPayout -> settlementTerms -> cashSettlementTerms is absent
+
+func Qualify_ForeignExchange_NDO: <"Qualifies a product as FX Non Deliverable Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "ForeignExchange_NDO"]
+            [synonym ISDA_Taxonomy_v2 value "ForeignExchange_NDO"]
+    alias optionPayout: economicTerms -> payout only-element -> OptionPayout
+    set is_product:
+        Qualify_AssetClass_ForeignExchange(economicTerms)
+            and optionPayout exists
+            and (optionPayout -> exerciseTerms -> style <> OptionExerciseStyleEnum -> Bermuda)
+            and (optionPayout -> feature is absent
+                or optionPayout -> feature -> averagingFeature only exists)
+            and optionPayout -> settlementTerms -> cashSettlementTerms exists
 
 func Qualify_RepurchaseAgreement: <"Qualifies a product as a Repurchase Agreement based on the repo trate of the trade (ie the interest charges) being defined in an InterestRatePayout and the asset that is bought and sold being defined in an AssetPayout in a CollateralPosition.">
     [qualification Product]
