@@ -490,52 +490,57 @@ type ReturnTermsBase: <"Contains all common elements in variance, volatility and
 
 type VarianceReturnTerms extends ReturnTermsBase:
 
-    varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-    volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-    varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
-    volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
-    vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
-    // vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
-    exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
-        [metadata address "pointsTo"=PriceQuantity->observable]
+  varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
+  volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
+  vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+  // vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.  In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
+  exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+    [metadata address "pointsTo"=PriceQuantity->observable]
 
-    condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-        if vegaNotionalAmount -> value exists
-        then vegaNotionalAmount -> value > 0
+  condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
+    if vegaNotionalAmount -> value exists
+    then vegaNotionalAmount -> value > 0
 
-    condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
-        if exchangeTradedContractNearest exists
-        then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
+  condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
+    if exchangeTradedContractNearest exists
+    then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
 
-    condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
-        if valuationTerms -> futuresPriceValuation = True
-        then exchangeTradedContractNearest exists
+  condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
+    if valuationTerms -> futuresPriceValuation = True
+    then exchangeTradedContractNearest exists
 
-    condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
-        required choice volatilityStrikePrice, varianceStrikePrice
+  condition StrikePriceMustExist: <"The strike price must be present, whether expressed in variance terms only, or volatility terms only, or both">
+    volatilityStrikePrice exists 
+    or varianceStrikePrice exists
 
-    condition NonNegativeStrikePrice: <"The strike price must have a positive value">
-        if volatilityStrikePrice -> value exists
-        then volatilityStrikePrice -> value >= 0 and if varianceStrikePrice -> value exists
-                then varianceStrikePrice -> value >= 0
+  condition NonNegativeStrikePrice: <"The strike price must have a positive value">
+    if volatilityStrikePrice -> value exists
+    then volatilityStrikePrice -> value >= 0 and if varianceStrikePrice -> value exists
+        then varianceStrikePrice -> value >= 0
 
 type VolatilityReturnTerms extends ReturnTermsBase:
 
-    volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-    volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
-    exchangeTradedContractNearest ListedDerivative (0..1) <"Specification of the exchange traded contract nearest.">
+  volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
+  exchangeTradedContractNearest ListedDerivative (0..1) <"Specification of the exchange traded contract nearest.">
 
 type CorrelationReturnTerms extends ReturnTermsBase:
 
-    correlationStrikePrice Price (1..1) <"Correlation Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-    boundedCorrelation NumberRange (0..1) <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
-    numberOfDataSeries int (0..1) <"Number of data series, normal market practice is that correlation data sets are drawn from geographic market areas, such as America, Europe and Asia Pacific, each of these geographic areas will have its own data series to avoid contagion.">
+  correlationStrikePrice Price (1..1) <"Correlation Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  boundedCorrelation NumberRange (0..1) <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
+  numberOfDataSeries int (0..1) <"Number of data series, normal market practice is that correlation data sets are drawn from geographic market areas, such as America, Europe and Asia Pacific, each of these geographic areas will have its own data series to avoid contagion.">
 
-    condition PositiveNumberOfDataSeries: <"The number of data series must be positive">
-        if numberOfDataSeries exists then numberOfDataSeries > 0
+  condition PositiveNumberOfDataSeries: <"The number of data series must be positive">
+    if numberOfDataSeries exists then numberOfDataSeries > 0
 
-    condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
-        correlationStrikePrice -> value > -1 and correlationStrikePrice -> value < 1
+  condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
+    correlationStrikePrice -> value > -1 and correlationStrikePrice -> value < 1
 
 type ValuationTerms:
     futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
@@ -688,10 +693,15 @@ type FloatingRate extends FloatingRateBase:
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 
-    initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-    finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
-    averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
-    negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+  initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
+  averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
+  negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+
+    condition InitialRate: <"Initial Rate is a price of type rate.">
+    if initialRate exists 
+    then initialRate -> priceType = PriceTypeEnum -> InterestRate
 
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
     [metadata key]
