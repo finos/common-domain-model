@@ -19,7 +19,8 @@ The following Working Groups are currently active for this project:
 
 **FINOS Domain WGs:**
 * [CDM Derivatives Working Group](CDM-Derivatives-WG.md) - bi-weekly
-* [CDM Collateral Working Group](CDM-Collateral-WG.md) - -monthly
+* [CDM Collateral Working Group](CDM-Collateral-WG.md) - monthly
+* [CDM Tokenized Assets Working Group](CDM-Tokenized-WG.md) - bi-weekly
 
 **Domain WGs run outside of FINOS:**
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
