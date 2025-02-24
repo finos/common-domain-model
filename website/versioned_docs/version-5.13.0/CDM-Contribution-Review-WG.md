@@ -4,7 +4,7 @@ title: CDM Contribution Review Working Group
 
 ## Overview
 
-The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM ecosystem. We review, approve, and implement contribution proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the design principles and guidelines that govern the CDM.
+The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM ecosystem. We [review](maintenance-and-release.md), approve, and implement contribution proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the [design principles](design-principles.md), [change control guidelines](change-control-guidelines.md) and the [documentation style guidelines](documentation-style-guide.md) that govern the CDM.
 
 ### Responsibilities
 
@@ -29,3 +29,5 @@ To subscribe to the CRWG mailing list and stay updated on meetings and agenda, p
 ---
 
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Contribution+Review+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.
