@@ -131,7 +131,7 @@ asset types that are commonly seen in eligible collateral data.
 The approach in the CDM is to adopt a similar method to the 'Animal
 Kingdom' tree and taxonomy (kingdom → phylum → class → order→ family →
 genus → species), that is there is one method for describing any of
-the core attributes of an "animal" (i.e., type of issuer/type of
+the core attributes of an "animal" (i.e. type of issuer/type of
 asset/type of economic terms) that need to be referenced, but only one
 way. Each issuer type, asset type, economic type etc has a unique place
 in the universe of collateral but is logically grouped together with
@@ -198,7 +198,7 @@ or not.
   criteria applies to (either one or both counterparties).
 
 - The `restrictTo` attribute can be used to restrict the criteria to only apply to a
-  specific type of margin, ie IM or VM.
+  specific type of margin, i.e. IM or VM.
   
 - The `ratingPriorityResolution` attribute denotes which Criteria has priority if more
   than one agency rating applies.
@@ -238,7 +238,7 @@ choice CollateralCriteria:
     SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
     AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
     AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
-    Asset                           <"Criteria is a specifically identified asset.">
+    SpecificAsset                   <"Criteria is a specifically identified asset">
     CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
     ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
     ListingSector                   <"Criteria is the industry sector of the collateral asset.">
@@ -249,8 +249,8 @@ choice CollateralCriteria:
 
 ### Combining CollateralCriteria using AND and OR logic
 
-Te above code snippet only allows a single term to be specified within
-the `CollateralCriteria` - ie the choice of one attribute.
+The above code snippet only allows a single term to be specified within
+the `CollateralCriteria` - i.e. the choice of one attribute.
 
 In reality, it is usually necessary to combine terms together to model
 the eligiblity schedule fully.  Furthermore, these combinations often 
@@ -516,9 +516,9 @@ type CreditNotation:
 
 -   `CreditRatingAgencyEnum` A list of enumerated values to specify the
     rating agency or agencies, (all major rating agencies are supported)
--   `notation` Specifies the credit rating notation. As itvaries among
+-   `notation` Specifies the credit rating notation. As it varies among
     credit rating agencies, the CDM does not currently specify each
-    specific rating listed by each agency. The data'string' allows the
+    specific rating listed by each agency. The data 'string' allows the
     free format field to be populated with a rating , such as 'AAA'
 -   `scale` Specifies the credit rating scale, with a typical
     distinction between short term, long term. The data 'string' allows
@@ -531,12 +531,12 @@ type CreditNotation:
     investments grade) The data type extends to offer two options
     -   `debtType` This attribute is free format 'string' and used
         when only one debt type is specified
-    -   `debtTypes` This allows you to specify for than one multiple
-        debt type characteristics and has a qualifying conditions to
+    -   `debtTypes` This allows you to specify multiple
+        debt type characteristics and has a qualifying condition to
         specify if you wish to include 'All' or 'Any' of the elements
         listed in scope
--   `outlook` This data attributes allows you to specify the a credit
-    rating outlook assessment that is commonly determine by rating
+-   `outlook` This data attribute allows you to specify a credit
+    rating outlook assessment that is commonly determined by rating
     agencies. It is an indication of the potential direction of a
     long-term credit rating over the intermediate term, which is
     generally up to two years for investment grade and generally up to
@@ -578,12 +578,12 @@ enum CreditNotationMismatchResolutionEnum:
     allows you to specify from the list of enumerated values for the
     rating agency. But in this case it is to identify the rating agency
     if you need to determine one from others if you used the data
-    attribute referenceAgency in the
+    attribute `referenceAgency` in the
     `CreditNotationMismatchResolutionEnum` as outlined above.
--   `boundary` Indicates the boundary of a credit agency rating i.e
+-   `boundary` Indicates the boundary of a credit agency rating i.e.
     minimum or maximum.
 
-A condition exists If the mismatch resolution choice is
+A condition exists, such that if the mismatch resolution choice is
 `ReferenceAgency`, you must ensure that the reference agency is
 specified through the `CreditRatingAgencyEnum`
 
@@ -617,7 +617,7 @@ taxonomy sources can be referenced in a consistent representation.
 The CDM allows the definition of, and reference to, certain taxonomy
 sources to be used to express details for eligibility. These can be used
 as an additional means of expressing asset types outside of the
-descriptions tree or alongside it. Under data type `AssetCriteria` there
+descriptions tree or alongside it. Under data type `CollateralCriteria` there
 are data attributes to reference collateral related taxonomy sources as
 follows:
 
@@ -671,12 +671,12 @@ under each set of regulatory rules. Some limited examples of these are
 shown below which are contained in the `EU_EMIR_EligibleCollateralEnum`
 list:
 
--   `EU_EMIRTypeA` -Denotes Cash in the form of money credited to an
+-   `EU_EMIRTypeA` - Denotes Cash in the form of money credited to an
     account in any currency, or similar claims for the repayment of
     money, such as money market deposits.
 -   `EU_EMIRTypeB` - Denotes gold in the form of allocated pure gold
     bullion of recognised good delivery.
--   `EU_EMIRTypeC` -Denotes debt securities issued by Member States'
+-   `EU_EMIRTypeC` - Denotes debt securities issued by Member States'
     central governments or central banks.
 
 The cardinality for these enumeration lists (0..\*) denotes that
@@ -746,11 +746,10 @@ model, this can be found in the following link
 ### Listing 
 
 Additional details may be required to describe asset characteristics
-related to a securities financial listing, exchange, sector or specified
-indices, if relevant these are used to express eligibility details in
+related to a security's financial listing, exchange, or sector. If relevant, these are used to express eligibility details in
 documentation and collateral profiles. The following attributes on 
 `CollateralCriteria` can be used to
-specification such listing criteria. 
+specify such listing criteria. 
 
 -   `ListingExchange` Represents a filter based on the primary
     stock exchange facilitating the listing of companies, exchange of
@@ -760,11 +759,6 @@ specification such listing criteria.
     'Global Industry Classification Standard (GICS)' and 'North American
     Industry Classification System (NAICS) or other related industry
     sector reference data.
--   `Index` Represents a filter based on an index that
-    measures a stock market, or a subset of a stock market. The
-    `Index` data type can be used in the CDM to define an index in
-    terms of an `Identifier' and an enumeration identifying the
-    index constituent type.
 
 ## Combining Data in Eligible Collateral
 
@@ -805,63 +799,33 @@ HAIRCUT
 In typical industry practice, eligible collateral schedules are quite complex with a number of interacting terms.
 To digitize them in the CDM, they will need to be converted into an `EligibleCollateralSpecification` 
 with many `EligibleCollateralCriteria` with potentially recursive instances of `CollateralCriteria`.
-The construction of these terms can be quite laborious, so functions has been created in the CDM to provide
+The construction of these terms can be quite laborious, so functions have been created in the CDM to provide
 a level of automation.
 
-#### EligibleCollateralSpecificationInstruction
+#### CloneEligibleCollateralWithChangedTreatment
 
-The instruction is formed using a special type:
+This function creates a new Eligible Collateral Specification based on an input specification, but with one changed criteria and with one changed treatment.
 
-``` Haskell
-type EligibleCollateralSpecificationInstruction:
-    [rootType]
-    common EligibleCollateralCriteria (1..1)
-    variable EligibleCollateralCriteria (1..*)
-```
+The inputs are populated as follows: 
 
-This data type is used as the input to the `Create_EligibleCollateralSpecificationFromInstruction` function
-and should be populated as follows: 
+* `inputSpecification`: an `EligibleCollateralSpecification` containing the fully-formed data to be cloned.
+* `changedCriteria`: a single `CollateralCriteria` attribute containing the specific attribute and value to be changed.
+* `changedTreatment`: a single `CollateralTreatment` attribute containing the specific treatment and value to be changed.
 
-* `common`: a single `EligibleCollateralCriteria` containing the fully-formed data to be cloned.
-* `variable`: one or more `EligibleCollateralCriteria` containing the number of instances, with
-new terms, that should be created.
-
-This can be represented symbolically as follows:
-
-* `common` is set to the criteria:
-  * A1, B1, C1
-* `variable` is set to the criteria:
-  * C2, C3
-* then the created output would be the original criteria plus two clones:
-  * A1, B1, C1
-  * A1, B1, C2
-  * A1, B1, C3
 
 #### Example
 
-A collateral eligibility schedule agreed between two parties specifies the acceptable 
-collateral as being a list of certain types of fixed income bonds, from certain types of issuer, 
-in certain countries, and 
-denominated in a list of acceptable currencies. 
-Across all these bonds, different haircut treatments
-must be applied, depending on the maturity of the bond.
+A collateral eligibility schedule agreed between two parties specifies the acceptable collateral as being a list of certain types of fixed income bonds, from certain types of issuer, in certain countries, and denominated in a list of acceptable currencies. Across all these bonds, different haircut treatments must be applied, depending on the maturity of the bond.
 
-The `EligibleCollateralSpecification` required to model this case needs to be constructed
-using an `EligibleCollateralCriteria`, populated with potentially several `AssetCriteria`
-and several `IssuerCriteria` to correctly represent the conditions regarding the bond
-types, issuer types, and currencies.  For each of the maturity bands, this
-`EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms
-of the haircut.
+If the user provides a collateral schedule containing US Government bonds with a haircut of 5% applied, they can use the `CloneEligibleCollateralWithChangedTreatment` to produce a collateral schedule of HM Treasury gilts with a haircut of 10%.
 
-To use the `Create_EligibleCollateralSpecificationFromInstruction` function to automate
-this, one starts by creating the first `EligibleCollateralCriteria` with the all the
-required constituent parts, including the first haircut `Treatment`.
+The `EligibleCollateralSpecification` required to model this case needs to be constructed using potentially many `EligibleCollateralCriteria`, which are themselves constructed from `CollateralTreatment` and `CollateralCriteria` to correctly represent the conditions regarding the bond types, issuer types, and currencies. For each of the maturity bands, this `EligibleCollateralCriteria` must have a specific `Treatment` specifying the terms of the haircut.
 
-The function is then invoked, using this first `EligibleCollateralCriteria` as the
-`common` input and then providing the set of haircut `Treatments`, one for each
-maturity band, as the `variable` input.  The function will provide a fully formed
-output consisting of an  `EligibleCollateralSpecification` containing
-all the required `EligibleCollateralCriteria` with their attached `Treatment`s.
+To use the `CloneEligibleCollateralWithChangedTreatment` function to automate this, one starts by first creating the `EligibleCollateralCriteria` for US Government bonds, with all the required constituent parts, and a haircut `Treatment` of 5%.
+
+The function is then invoked, using this `EligibleCollateralCriteria` as the `inputSpecification`, along with the criteria and treatment changes using the `changedCriteria` and `changedTreatment` inputs. This means changing the `AssetCountryOfOrigin` to the UK, and changing the haircut `valuationTreatment` to 10%.
+
+The function will provide a fully formed output consisting of an `EligibleCollateralSpecification` containing all the required `EligibleCollateralCriteria` with their updated changes and treatments.
 
 #### MergeEligibleCollateralCriteria
 

@@ -48,8 +48,8 @@ at <cdm@lists.finos.org>.
 
 ## Design Principles
 
-To support these objectives, the CDM is built according to a set of
-design principles that include the following concepts:
+To support the objectives described above, the CDM is built according to a set of
+[design principles](design-principles.md) that include the following concepts:
 
 -   **Normalisation** through abstraction of common components
 -   **Composability** where objects are composed and qualified from the
@@ -99,7 +99,7 @@ distribution is fully downloadable.
 The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
-    the Rosetta DSL and contained into a set of *.rosetta* files
+    the Rune DSL and contained into a set of *.rosetta* files
     organised as *namespaces*. The primary dimensions of the model are
     listed below and further described in the
     [common-domain-model](/docs/common-domain-model) of the
@@ -111,7 +111,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Reference Data
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
-    model definitions expressed in the Rosetta DSL using [available code
+    model definitions expressed in the Rune DSL using [available code
     generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be

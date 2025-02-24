@@ -1,20 +1,18 @@
 namespace cdm.product.asset : <"Product concepts applicable to specific asset classes.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
-import cdm.base.staticdata.party.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.credit.*
+import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
-
+import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.observable.asset.calculatedrate.*
-import cdm.observable.event.*
 import cdm.observable.common.*
-
+import cdm.observable.event.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
@@ -36,13 +34,17 @@ type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
         required choice schedule, calculationPeriodDates
 
-    condition CommodityUnderlier:  <"The underlier for a CommodityPayout should be a commodity.">
+    condition CommodityUnderlier: <"The underlier for a CommodityPayout should be a commodity.">
         if underlier -> Observable exists
         then ObservableIsCommodity(underlier -> Observable)
         else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout exists
-        then ObservableIsCommodity(underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable) // Commodity Option
+        then ObservableIsCommodity(
+                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable
+                ) // Commodity Option
         else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout exists
-        then ObservableIsCommodity(underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable) // Commodity Future
+        then ObservableIsCommodity(
+                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable
+                ) // Commodity Future
         else False
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
@@ -212,7 +214,8 @@ type InterestRatePayout extends PayoutBase: <" A class to specify all of the ter
         then compoundingMethod exists
 
     condition FpML_ird_9: <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
-        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None then resetDates exists
+        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
+        then resetDates exists
 
     condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
         if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
