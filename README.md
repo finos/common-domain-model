@@ -35,7 +35,6 @@ The following Working Groups are currently activated or about to be set up for t
 * [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
 * [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
 * [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
-* [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
 * [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
 * [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG) - previously known as Derivative Products and Business Events Working Group
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
