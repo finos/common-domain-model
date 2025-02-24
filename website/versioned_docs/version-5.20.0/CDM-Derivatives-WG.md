@@ -12,7 +12,7 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 ## 2024 Roadmap
 
-![CDM Derivatives Roadmap](/img/dpbe-roadmap.png)
+![CDM Derivatives Roadmap](/img/derivatives-roadmap.png)
 
 ## Subscribe
 
