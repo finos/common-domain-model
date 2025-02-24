@@ -20,6 +20,6 @@ To subscribe to the [CDM Derivatives mailing list](https://lists.finos.org/g/cdm
 
 ---
 
-To view meeting notes and agendas, view our [current]([https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22](https://github.com/finos/common-domain-model/issues?q=is%3Aissue%20state%3Aopen%20%22Derivatives%20Working%20Group%22)) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue%20%22CDM%20Derivatives%20Working%20Group%22%20state%3Aopen%20) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
 
 Click [here](working-groups.md) to return back to the Working Groups home page.
