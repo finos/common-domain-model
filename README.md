@@ -4,7 +4,7 @@
 
 # Common Domain Model (CDM)
 
-<img src=".github/bulb.svg" width="30"> [<kbd> <br> View CDM Homepage <br> </kbd>](https://cdm.finos.org/)
+<img src=".github/bulb.svg" width="30"> [<kbd> <br> View CDM Homepage <br> </kbd>](https://cdm.finos.org/)                     <img src=".github/book-open.svg" width="30"> [<kbd> <br> Introduction Training <br> </kbd>](https://cdm.finos.org/docs/training) 
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.   \
  \
