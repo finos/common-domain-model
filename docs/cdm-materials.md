@@ -2,7 +2,7 @@
 title: Common Domain Model Materials
 ---
 
-Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D)
+Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D) and [FINOS Youtube page](https://www.youtube.com/watch?v=wDzOMl8ZsgM&list=PLmPXh6nBuhJsqoqAAIryD6P7N1cacdgJM).
 
 ## CDM RESOURCES
 
