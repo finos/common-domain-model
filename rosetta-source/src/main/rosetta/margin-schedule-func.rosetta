@@ -710,7 +710,7 @@ func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the n
                 else value)
     set amount: fixedPrice * notionalQuantity
 
-func Qualify_Credit_NthToDefault: <"Identifies a product as a CR basket Nth to default.">
+func Qualify_Credit_NthToDefault: <"Qualifies a product as a CR basket Nth to default by checking that 1) it is a credit product with a basket underlier and 2) nth to default information is populated.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -718,7 +718,7 @@ func Qualify_Credit_NthToDefault: <"Identifies a product as a CR basket Nth to d
     set is_Product:
         economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> nthToDefault exists
 
-func Qualify_InterestRate_Swaption_Straddle: <"Identifies a product as an IR swaption straddle.">
+func Qualify_InterestRate_Swaption_Straddle: <"Qualifies a product as an IR swaption straddle by checking that it is indeed an IR swaption with the option type populated as Straddle.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -727,7 +727,7 @@ func Qualify_InterestRate_Swaption_Straddle: <"Identifies a product as an IR swa
         Qualify_InterestRate_Option_Swaption(economicTerms)
             and economicTerms -> payout -> OptionPayout only-element -> optionType = OptionTypeEnum -> Straddle
 
-func Qualify_InterestRate_SwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.">
+func Qualify_InterestRate_SwapWithCallableBermudanRightToEnterExitSwaps: <"Qualifies a product as an IR swap with bermudan/callable right to enter/exit swaps, by checking it is an IR swap that has an optional early termination with Bermudan style.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
