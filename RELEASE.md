@@ -1,4 +1,4 @@
-# *CDM - Transaction-related components in the legaldocumentation namespaces are moved to a dedicated namespace*
+# *CDM - Legal Agreement Model - Move transaction-related component to dedicated sub-namespace*
 
 _Background_
 
