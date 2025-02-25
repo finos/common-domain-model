@@ -66,7 +66,7 @@ Each of these higher-level namespaces is further divided into
 lower-level namespaces. The independent components in each namespace are
 organised according to their core purpose but can be referenced from
 anywhere in the model to allow all the components to work together for a
-complete modelling solution. E.g. below is the *product* namespace:
+complete modelling solution.
 
 **When developing new CDM components, the positioning of those
 components in the namespace hierarchy is critical** as part of the
