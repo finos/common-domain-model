@@ -98,11 +98,12 @@ be extended further to operate to wider processes.
 The common data requirements have been established through industry
 working groups reviewing a wide range of examples in order to identify
 collateral for the purpose of constructing eligible collateral
-specifications, including representation of additional attributes for
+specifications, including representation of additional attributes, for
 regulatory risk and credit factors. For the purpose of understanding the
 principle, these can be divided into the following categories:
 
--   Asset and Issuer Identification
+-   Issuer Identification
+-   Asset Identification
 -   Collateral Haircuts
 -   Maturity Ranges
 -   Concentrations Limits
