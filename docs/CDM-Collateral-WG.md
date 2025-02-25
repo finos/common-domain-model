@@ -14,9 +14,6 @@ The Collateral Working Group plays a pivotal role in the CDM ecosystem by provid
 
 **Join us on the last Tuesday every month 10AM EST (3PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-## 2024 Roadmap
-
-![Collateral WG Roadmap](/img/crwg-roadmap.png)
 
 ## Subscribe
 
