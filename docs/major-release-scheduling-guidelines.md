@@ -15,7 +15,7 @@ The [Steering Working Group](CDM-Steering-WG.md) has the role of defining major 
 * To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
 * To promote planned and new CDM capabilities to encourage adoption
   
-##  Objectives of defining guidelines for scheduling and approving major releases
+##  Objectives of Defining Guidelines for Scheduling and Approving Major Releases
 
 * To ensure that major releases are planned, scheduled, and approved in a predictable, consistent, and transparent way
   - Ensure smoother development

@@ -25,3 +25,5 @@ To subscribe to the [collateral working group mailing list](https://lists.finos.
 ---
 
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Collateral+Working+Group%22+is%3Aopen) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Collateral+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.

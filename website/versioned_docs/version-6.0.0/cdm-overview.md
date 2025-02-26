@@ -59,7 +59,7 @@ design principles that include the following concepts:
 -   **Modularisation** into logical layers
 
 These design principles are further detailed in the
-[design-principles](#design-principles) section of the CDM
+[design principles](design-principles.md) section of the CDM
 documentation.
 
 ## Governance
@@ -69,7 +69,9 @@ the development of the CDM in open source.
 
 ## Scope
 
-The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
+The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
+
+There are no patents involved in the CDM.
 
 ## CDM 2024 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
@@ -192,4 +194,3 @@ file in the CDM jar.
 
 For more details, please follow the
 [CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-

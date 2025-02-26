@@ -143,6 +143,3 @@ acceptable scenario which does not contravene the prescribed development
 approach, as long as development has not yet started. In that case the
 story should be requalified and several stories be spun-out as a result,
 before development can start.
-
-
-

@@ -169,7 +169,6 @@ digitally as one or more `EligibleCollateralCriteria` to define the details.
 
 ![image](/img/cdm-graphical-ecs-6.png)
 
-
 `EligibleCollateralSpecification` consists of the following key attributes:
 
 - The `identifier` attribute is used to specify the identifier(s) that uniquely identify eligible collateral or a set of eligible collateral, such as a schedule or equivalant for an identity issuer.
