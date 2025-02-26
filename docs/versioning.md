@@ -11,7 +11,7 @@ where:
 
 -   A MAJOR (`1`) version may introduce backward-incompatible changes
     and will be used as high level release name (e.g. "CDM Version
-    1"). 
+    1"). See our [major release scheduling guidelines](major-release-scheduling-guidelines.md) for guidelines on how major releases are scheduled.
 -   A MINOR (`23`) version may introduce new features but in a
     backward-compatible way, for example supporting a new type of event
     or function.
@@ -74,6 +74,8 @@ various versions available would be as follows:
     6.0.0-DEV.x versions is also not assured. Once fully developed,
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
+
+Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Maintenance and Release Guidelines](maintenance-and-release.md/#Release-Build-Approval-Guidelines)
 
 ---
 **Note:**
