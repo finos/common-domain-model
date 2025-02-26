@@ -72,7 +72,7 @@ documentation.
 
 ## Governance
 
-The CDM [governance framework](contribution#governance) regulates
+The CDM [governance framework](contributing#governance) regulates
 the development of the CDM in open source.
 
 ## Scope
@@ -201,4 +201,4 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
+[CDM Java Distribution Guidelines](/docs/cdm-java-distribution).
