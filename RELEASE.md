@@ -18,6 +18,6 @@ Version updates include:
 
 _Review directions_
 
-
+Json expectations diffs are expected due to the added support for meta data in functions in DSL versions 9.36.6.
 
 The changes can be reviewed in PR: [#3474](https://github.com/finos/common-domain-model/pull/3474) 
