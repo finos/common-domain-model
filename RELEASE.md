@@ -1,4 +1,4 @@
-# *CDM - Legal Agreement Model - Move transaction-related component to dedicated sub-namespace*
+# *Legal Agreement Model - Move transaction-related component to dedicated sub-namespace*
 
 _Background_
 
@@ -24,6 +24,4 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3444](https://github.com/finos/common-domain-model/pull/3444)
-
-
+The change can be reviewed in PR: [#3445](https://github.com/finos/common-domain-model/pull/3445)
