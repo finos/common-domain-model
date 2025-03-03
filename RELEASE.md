@@ -24,4 +24,4 @@ None.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3445](https://github.com/finos/common-domain-model/pull/3445)
+The change can be reviewed in PR: [#3445](https://github.com/finos/common-domain-model/pull/3478)
