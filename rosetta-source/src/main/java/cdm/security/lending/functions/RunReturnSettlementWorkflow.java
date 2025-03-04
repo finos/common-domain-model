@@ -6,7 +6,7 @@ import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 

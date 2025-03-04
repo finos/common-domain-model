@@ -8,7 +8,7 @@ import cdm.event.workflow.WorkflowStep;
 import com.regnosys.rosetta.common.testing.ExecutableFunction;
 import com.rosetta.model.lib.records.Date;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.time.LocalDate;
 
 import static cdm.security.lending.functions.WorkflowFunctionHelper.dateTime;

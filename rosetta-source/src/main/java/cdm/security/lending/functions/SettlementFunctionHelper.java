@@ -19,7 +19,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaDate;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;

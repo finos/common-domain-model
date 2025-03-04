@@ -3,7 +3,7 @@ package cdm.base.datetime.functions;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import java.time.LocalTime;
 
