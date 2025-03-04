@@ -10,7 +10,7 @@ Version updates include:
 
 Java projects that depend on the generated Java code of the Common Domain Model - the `cdm-java` artifact -
 are advised to replace all references to the `javax.inject` package with `jakarta.inject`.
-Support for the `javax.inject` package will be dropped in the future.
+Support for the `javax.inject` package will be dropped in a future major version.
 See the Google Guice docs for more information about this package migration: https://github.com/google/guice/wiki/Guice700#jee-jakarta-transition
 
 _Review directions_
