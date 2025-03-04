@@ -124,7 +124,7 @@ module.exports = {
             },
             {
               label: 'CDM Java Distribution Guidelines',
-              to: 'docs/cdm-guidelines',
+              to: 'docs/cdm-java-distribution',
             },
             {
               label: 'Download Source Code',
