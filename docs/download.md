@@ -40,7 +40,6 @@ the following dependency needs to be added to the project pom.xml:
 >
 > ``` xml
 >    <repositories>
->        <!-- remove references to REGnosys Jfrog -->
 >        <repository>
 >            <id>isda-maven</id>
 >            <url>https://europe-west1-maven.pkg.dev/production-208613/isda-maven</url>
