@@ -2,35 +2,23 @@
 title: Common Domain Model Materials
 ---
 
-Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D)
-
-## COMMON DOMAIN MODEL IN THE NEWS 
-
-### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://derivsource.com/2024/08/28/common-domain-model-providing-a-standardised-data-representation-of-trade-events-isda-cdm/?utm_campaign=DerivSource%20SOCIALS&utm_content=305908647&utm_medium=social&utm_source=linkedin&hss_channel=lcp-1903852)
-
-The article examines the CDMs expanded role in enhancing post-trade efficiency through standardized data models for reporting, collateral management, and securities lending, fostering transparency, regulatory alignment, and automation across financial markets.
-
-### [CDM: Release Guidelines Task Force](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm/?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTE3MDQ%3D)
-
-Watch this video to learn more about the CDM Release Guidelines Task Force. 
-### [CDM: data standardisation across the trade lifecycle](https://www.securitiesfinancetimes.com/sltimes/SFT_issue_324.pdf)
-
-SFT examines what comes next on the Common Domain Model project agenda. Read more about the benefits of CDM adoption include reduced reconciliation burdens and lower risk of settlement failures. The CDM available in FINOS as open source, broadening the base of CDM contributors. Future work includes applying CDM to collateral management and further automating processes like collateral calculation and interest processing.
-
-### [Six major banks trial Fragmos Chain in OTC derivatives market](https://www.finextra.com/pressarticle/100503/six-major-banks-trial-fragmos-chain-in-otc-derivatives-market)
-
-Fragmos Chain successfully trialed its innovative post-trade processing platform for OTC derivatives with six major banks, achieving trade confirmations within an average of 6 minutes. The platform's use of R3 Corda's Distributed Ledger Technology and the Common Domain Model ensured seamless interoperability and efficiency, receiving high praise for handling complex trades. 
-
-### [Fintech Open-Source Foundation (FINOS) Chosen to Support Community Around Common Domain Model from ISLA, ISDA, ICMA](https://www.crowdfundinsider.com/2022/09/195862-fintech-open-source-foundation-finos-chosen-to-support-community-around-common-domain-model-from-isla-isda-icma/)
-
-In this article, Crowdfund Insider discussed the appointment of FINOS as the host of CDM. Viewed as a milestone in promoting open and common standards in financial markets and praised FINOS for its potential to accelerate the adoption of CDM and bring greater consistency across the industry.
-
-### [FINOS Launches Common Domain Model](https://www.accesswire.com/viewarticle.aspx?id=739516)
-
-In February 2023, FINOS announced the launch of the Common Domain Model, which aims to to become the industry standard for digital regulatory reporting. The CDM streamlines and automates various lifecycle events and processes related to open repos, evergreens, and floating rate repos - ultimately reducing costs and improving sustainability in regulatory compliance by mutualizing regulatory reporting. The journey towards implementing the CDM is a significant step towards real-world industry implementation of digital regulatory reporting and compliance. See the press coverage here securitiesfinancetimes and FINADIUM.
-
+Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D) and [FINOS Youtube page](https://www.youtube.com/watch?v=wDzOMl8ZsgM&list=PLmPXh6nBuhJsqoqAAIryD6P7N1cacdgJM).
 
 ## CDM RESOURCES
+
+### [Explore Tokenovate's in-depth blog series on operationalizing the Common Domain Model](https://www.tokenovate.com/blog/)
+
+- [Operationalising CDM – Part I](https://www.tokenovate.com/operationalising-cdm-part-one/)
+- [Operationalising CDM – Part II](https://www.tokenovate.com/operationalising-cdm-part-ii/)
+- [Operationalising CDM – Part III](https://www.tokenovate.com/operationalising-cdm-part-iii/)
+- [Operationalising CDM – Part IV](https://www.tokenovate.com/operationalising-cdm-part-iv/)
+
+This series provides valuable insights into implementing and scaling CDM in financial markets.
+
+### [CDM Masterclass: Key Takeaways & On-Demand Recordings](https://www.finos.org/blog/cdm-masterclass-key-takeaways-on-demand-recordings)
+
+Review the CDM Masterclass recordings, where we explored the latest advancements in the Common Domain Model (CDM). This session brought together industry experts to learn about recent developments, practical applications, and emerging tools designed to make CDM adoption more efficient. Throughout the masterclass, speakers covered topics such as collateral management with the CDM Object Builder, regulatory reporting, and AI-powered automation. We also demonstrated real-world implementations and discussed how AI and automation can enhance CDM-driven financial processes. Watch the presentations to catch up on key insights and innovations.
+
 ### [A discussion of "The Future of the Securities Lending Market: An Agenda for Change"](https://www.finos.org/blog/the-future-of-securities-lending-market)
 
 ISLA published a paper entitled ‘The Future of the Securities Lending Market | An Agenda for Change’ in September 2019, looking at the conjunction of market complexity, technical architecture and regulatory impacts. The conclusion reached was that a transformation was overdue and the solution would be underpinned by common standards.
@@ -70,3 +58,29 @@ On January 11th, 2023, FINADIUM sat down with Gabriele Columbro, the Executive D
 ### [ISDA Digital Reporting](https://resources.finos.org/content/isda-digital-reporting/?projects-sigs=common-domain-model-cdm) 
 
 ISDA's Digital Regulatory Reporting provides a comprehensive solution for translating amended rules into machine-executable open-source code. This allows financial firms to access a standardized interpretation of the requirements and integrate them directly into their systems, streamlining their regulatory reporting processes and reducing the risk of compliance errors. With ISDA's Digital Regulatory Reporting, financial institutions can stay ahead of the regulatory curve and easily implement the latest industry standards and requirements.
+
+## COMMON DOMAIN MODEL IN THE NEWS 
+
+### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://derivsource.com/2024/08/28/common-domain-model-providing-a-standardised-data-representation-of-trade-events-isda-cdm/?utm_campaign=DerivSource%20SOCIALS&utm_content=305908647&utm_medium=social&utm_source=linkedin&hss_channel=lcp-1903852)
+
+The article examines the CDMs expanded role in enhancing post-trade efficiency through standardized data models for reporting, collateral management, and securities lending, fostering transparency, regulatory alignment, and automation across financial markets.
+
+### [CDM: Release Guidelines Task Force](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm/?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTE3MDQ%3D)
+
+Watch this video to learn more about the CDM Release Guidelines Task Force. 
+
+### [CDM: data standardisation across the trade lifecycle](https://www.securitiesfinancetimes.com/sltimes/SFT_issue_324.pdf)
+
+SFT examines what comes next on the Common Domain Model project agenda. Read more about the benefits of CDM adoption include reduced reconciliation burdens and lower risk of settlement failures. The CDM available in FINOS as open source, broadening the base of CDM contributors. Future work includes applying CDM to collateral management and further automating processes like collateral calculation and interest processing.
+
+### [Six major banks trial Fragmos Chain in OTC derivatives market](https://www.finextra.com/pressarticle/100503/six-major-banks-trial-fragmos-chain-in-otc-derivatives-market)
+
+Fragmos Chain successfully trialed its innovative post-trade processing platform for OTC derivatives with six major banks, achieving trade confirmations within an average of 6 minutes. The platform's use of R3 Corda's Distributed Ledger Technology and the Common Domain Model ensured seamless interoperability and efficiency, receiving high praise for handling complex trades. 
+
+### [Fintech Open-Source Foundation (FINOS) Chosen to Support Community Around Common Domain Model from ISLA, ISDA, ICMA](https://www.crowdfundinsider.com/2022/09/195862-fintech-open-source-foundation-finos-chosen-to-support-community-around-common-domain-model-from-isla-isda-icma/)
+
+In this article, Crowdfund Insider discussed the appointment of FINOS as the host of CDM. Viewed as a milestone in promoting open and common standards in financial markets and praised FINOS for its potential to accelerate the adoption of CDM and bring greater consistency across the industry.
+
+### [FINOS Launches Common Domain Model](https://www.accesswire.com/viewarticle.aspx?id=739516)
+
+In February 2023, FINOS announced the launch of the Common Domain Model, which aims to to become the industry standard for digital regulatory reporting. The CDM streamlines and automates various lifecycle events and processes related to open repos, evergreens, and floating rate repos - ultimately reducing costs and improving sustainability in regulatory compliance by mutualizing regulatory reporting. The journey towards implementing the CDM is a significant step towards real-world industry implementation of digital regulatory reporting and compliance. See the press coverage here securitiesfinancetimes and FINADIUM.
