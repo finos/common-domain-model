@@ -4,7 +4,7 @@ title: Maintenance and Release
 
 ## Reviewing model changes
 
-Contributions are reviewed by the Contribution Review Working Group and once approved, the [CDM Maintainers](/docs/maintainers) will release them following the guidelines in this document.  The [CDM Maintainers](docs/maintainers) document includes a description of the overall change approval process.
+Contributions are reviewed by the [Contribution Review Working Group](CDM-Contribution-Review-WG.md) and once approved, the [CDM Maintainers](maintainers.md) will release them following the guidelines in this document.  The [CDM Maintainers](maintainers.md) document includes a description of the overall change approval process.
 
 ### Review checklist
 
@@ -23,7 +23,9 @@ through the following review checklist:
 **Note:**
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
-of the Pull Request and CDM build only. 
+of the Pull Request and CDM build only. Please refer to the
+[downstream-dependencies](#downstream-dependencies) section for more
+details.
 
 ---
 -   CDM build process completed with no errors or test failures
@@ -42,8 +44,8 @@ Slack, email or in direct meetings.
 
 Depending on the size, complexity or impact of a contribution, the CDM
 Maintainer can recommend for the contribution to be presented with an
-appropriate level of detail to the CDM Architecture and Review
-Committee for further feedback. The CDM Maintainer will work with the
+appropriate level of detail to the [CDM Architecture](CDM-Technology-Architecture-WG.md) and [Review
+Committee](CDM-Contribution-Review-WG.md) for further feedback. The CDM Maintainer will work with the
 Contributor to orchestrate that additional step. The additional feedback
 may recommend revisions to the proposed changes. When it is the case the
 review process will iterate on the revised proposal.
