@@ -161,13 +161,21 @@ type RelativeDates extends RelativeDateOffset: <"A class describing a set of dat
 
 type RelativeDateOffset extends Offset: <"A class defining a date (referred to as the derived date) as a relative offset from another date (referred to as the anchor date). If the anchor date is itself an adjustable date then the offset is assumed to be calculated from the adjusted anchor date. A number of different scenarios can be supported, namely; 1) the derived date may simply be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date; 2) the unadjusted derived date may be a number of calendar periods (days, weeks, months or years) preceding or following the anchor date with the resulting unadjusted derived date subject to adjustment in accordance with a specified business day convention, i.e. the derived date must fall on a good business day; 3) the derived date may be a number of business days preceding or following the anchor date. Note that the businessDayConvention specifies any required adjustment to the unadjusted derived date. A negative or positive value in the periodMultiplier indicates whether the unadjusted derived precedes or follows the anchor date. The businessDayConvention should contain a value NONE if the day type element contains a value of Business (since specifying a negative or positive business days offset would already guarantee that the derived date would fall on a good business day in the specified business centers).">
 
-    businessDayConvention BusinessDayConventionEnum (1..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
-    businessCenters BusinessCenters (0..1)
-    businessCentersReference BusinessCenters (0..1) <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
-        [metadata reference]
-    dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
-        [metadata reference]
-    adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+  businessDayConvention BusinessDayConventionEnum (0..1) <"The convention for adjusting a date if it would otherwise fall on a day that is not a business day, as specified by an ISDA convention (e.g. Following, Precedent).">
+  businessCenters BusinessCenters (0..1)
+  businessCentersReference BusinessCenters (0..1) <"A pointer style reference to a set of financial business centers defined elsewhere in the document. This set of business centers is used to determine whether a particular day is a business day or not.">
+    [metadata reference]
+  dateRelativeTo date (0..1) <"Specifies the anchor as an href attribute. The href attribute value is a pointer style reference to the element or component elsewhere in the document where the anchor date is defined.">
+    [metadata reference]
+  adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+  dateTypeRelativeTo NewDateRelativeToEnum (0..1) <"Specifies the anchor as a type of date that is defined elsewhere in the document.">
+
+  condition DateRelativeTo:
+  optional choice dateRelativeTo, dateTypeRelativeTo
+
+type NewTimePeriod: <"An interval of time inside which a value is observed">
+ startTime BusinessCenterTime (0..1) <"The observation start time of the Time Period.">
+ endTime BusinessCenterTime (0..1) <"The observation end time of the Time Period.">
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
     time time (1..1) <"The observation time.">

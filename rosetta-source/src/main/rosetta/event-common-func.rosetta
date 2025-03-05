@@ -128,7 +128,7 @@ func ResolveInterestRateObservationIdentifiers: <"Defines which attributes on th
     output:
         identifiers ObservationIdentifier (1..1)
 
-    set identifiers -> observable -> Index -> FloatingRateIndex:
+    set identifiers -> observable -> index -> FloatingRateIndex:
         payout -> rateSpecification -> FloatingRateSpecification -> rateOption
     set identifiers -> observationDate: date
 
@@ -237,7 +237,7 @@ func ResolvePerformanceObservationIdentifiers: <"Defines which attributes on the
         ResolvePerformanceValuationTime(
                 valuationDates -> valuationTime,
                 valuationDates -> valuationTimeType,
-                identifiers -> observable -> Asset ->> identifier only-element,
+                identifiers -> observable -> asset ->> identifier only-element,
                 valuationDates -> determinationMethod
             )
     set identifiers -> informationSource:
@@ -828,7 +828,7 @@ func SecurityFinanceCashSettlementAmount:
         then quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
     condition IdentifiersMatch:
-        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Asset ->> identifier = assetPayout -> underlier ->> identifier
+        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> asset ->> identifier = assetPayout -> underlier ->> identifier
 
     set cashSettlementAmount -> quantity -> value:
         securityPrice -> value * securityQuantity -> value * marginRatio
@@ -1177,10 +1177,10 @@ func UpdateIndexTransitionPriceAndRateOption:
         then priceQuantity -> price only-element -> value + instruction -> price only-element -> value
         else priceQuantity -> price only-element -> value
 
-    set updatedPriceQuantity -> observable -> Index -> FloatingRateIndex: <"If instruction exists, update the rate option.">
+    set updatedPriceQuantity -> observable -> index -> FloatingRateIndex: <"If instruction exists, update the rate option.">
         if instruction exists
-        then instruction -> observable -> Index -> FloatingRateIndex
-        else priceQuantity -> observable -> Index -> FloatingRateIndex
+        then instruction -> observable -> index -> FloatingRateIndex
+        else priceQuantity -> observable -> index -> FloatingRateIndex
 
 func FindMatchingIndexTransitionInstruction:
     inputs:
@@ -1193,9 +1193,9 @@ func FindMatchingIndexTransitionInstruction:
         instructions
             filter
                 // indexTenor period matches
-                observable -> Index -> FloatingRateIndex ->> indexTenor -> period = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> period
+                observable -> index -> FloatingRateIndex ->> indexTenor -> period = priceQuantity -> observable -> index -> FloatingRateIndex ->> indexTenor -> period
                         // indexTenor periodMultiplier matches
-                    and observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> Index -> FloatingRateIndex ->> indexTenor -> periodMultiplier
+                    and observable -> index -> FloatingRateIndex ->> indexTenor -> periodMultiplier = priceQuantity -> observable -> index -> FloatingRateIndex ->> indexTenor -> periodMultiplier
                         // quantity currency or price currency matches
                     and (quantity -> unit -> currency = priceQuantity -> quantity -> unit -> currency
                         or price -> unit -> currency = priceQuantity -> price -> unit -> currency)

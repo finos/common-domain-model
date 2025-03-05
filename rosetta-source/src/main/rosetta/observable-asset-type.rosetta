@@ -103,12 +103,12 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
 
     condition NonCurrencyQuantities: <"There should be at most one quantity which is not a currency, except for commodities where there may be two.">
         ( quantity count - quantity -> unit -> currency count ) <= 1
-        or ( observable -> Asset -> Commodity exists 
+        or ( observable -> asset -> Commodity exists 
             and quantity -> unit -> capacityUnit exists
             and ( quantity count - quantity -> unit -> currency count ) <= 2 )
 
     condition ArithmeticOperator: <"When observable is FloatingRateIndex, and price exists, then price should have an arithmetic operator.">
-        if observable -> Index -> FloatingRateIndex exists and price exists
+        if observable -> index -> FloatingRateIndex exists and price exists
         then price -> arithmeticOperator exists
 
     condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
@@ -203,13 +203,18 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
     condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
         value exists and datedValue is absent
 
-choice Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-    Asset <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
-    Basket <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
-    Index <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
+type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+    asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
+    basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
+    index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
+
+    condition:
+    required choice asset, basket, index
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+        [metadata location]
+    aggregationFeature cdm.product.template.NewValueAggregation (0..1) <"The aggregation operation to be applied for resolving multiple constituents of the basket">
         [metadata location]
 
 type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
@@ -223,7 +228,7 @@ type BasketConstituent extends Observable: <"Identifies the constituents of the 
         [metadata address "pointsTo"=PriceQuantity->price]
 
     condition BasketsOfBaskets:  <"To prevent endless looping, baskets of baskets are not supported.">
-        Basket is absent
+        basket is absent
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -445,7 +450,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
-        [metadata address "pointsTo"=Observable->Index->ForeignExchangeRateIndex->quotedCurrencyPair]
+        [metadata address "pointsTo"=Observable->index->ForeignExchangeRateIndex->quotedCurrencyPair]
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
@@ -489,3 +494,18 @@ type DividendApplicability: <"The parameters which define whether dividends are 
     optionsExchangeDividends boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
     additionalDividends boolean (0..1) <"If present and true, then additional dividends are applicable.">
     allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
+
+type NewObservationCount: <"Specifies the terms relative to a value that is an integer number of observations.">
+  observationValueType NewObservationCountEnum (1..1) <"The type of value which observation shall be counted.">
+  observationCountOffset number (0..1) <"An offset value to adjust the Observation Count.">
+  bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
+  calculatedValue DatedValue (0..1) <"The numerical value or dated value which corresponds to the resolved value of the parent object for which this attribute is populated.">
+
+type NewBespokeName :<"Any bespoke name or description that may be specified.">
+  name string (0..1) <"Bespoke name">
+  description string (0..1) <"Bespoke additional description">
+  algebraicDescription string (0..1) <"Bespoke additional description of formula algebraic terms.">
+  subComponents NewBespokeName (0..*) <"For the purpose of breaking down bespoke description into sub-components, which typically emulates the nesting of sub-paragraph in paragraph in standard papersheet drafting style.">
+
+
+

@@ -112,3 +112,30 @@ type MoneyBound: <"The money bound is defined as a money amount and whether the 
 type AveragingCalculationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
     isWeighted boolean (1..1) <"Identifies whether the average values will be weighted or unweighted.">
     calculationMethod AveragingCalculationMethodEnum (1..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
+
+type NewRankingMethod : <"Defines that one or several values shall be selected in regards of their rank in the value series e.g. the '2nd' and/or the '3rd' and/or the 'nth' when sorting either from lowest to the highest value in the series, or vice-versa.">
+    [metadata key]
+    
+  nthRankInValueSeries int (0..1) <"The indexing of ranks for sorting value series in array i.e. for ranking multiple values multiple values of an object with unbound cardinality into a single value, anchored per each given observation date.">
+  nthRankInDatedValueSeries int (0..1) <"The indexing of ranks for sorting value per per time series i.e. for ranking multiple dated values, anchored per each given observable.">
+  rankingDirection NewRankingMethodEnum (1..1) <"Defines the direction for sorting values in series i.e. either decreasing or increasing order.">
+  bespokeName NewBespokeName (0..1) <"Any bespoke name or description that may be specified.">
+//  calculatedValue cdm.product.template.NewCorePayoutValue (0..1) <"The reference to the corePayoutValue effectively selected i.e. resolved as per the ranking method.">
+  
+ condition RankingPerValueOrDatedValue: 
+ required choice nthRankInValueSeries, nthRankInDatedValueSeries
+
+type NewAggregationMethod :<"Defines the method in which multiple values can be aggregated into a single value. It is a set of commutative functions e.g. Sum, Multiply, Min, Max, Average. Importantly, two dimensions may be considered when aggregating : value series resulting from an object with unbound cardinality, else multiple value resulting from dateValue series - hence an optional choice below between the attributes which represent each of these two dimentions : valueSeriesAggregation or datedValueSeriesAggregation.">
+
+  valueSeriesAggregation NewAggregationMethodEnum (0..1) <"The aggregation method per value series in array i.e. for aggregating multiple values of an object with unbound cardinality into a single value, anchored per each given observation date.">
+  datedValueSeriesAggregation NewAggregationMethodEnum (0..1) <"The aggregation method per time series i.e. for aggregating multiple dated values into one single value, anchored per each given observable.">
+  averagingMethod AveragingCalculationMethodEnum (0..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
+  isWeighted boolean (0..1) <"Identifies whether the aggregated values will be weighted or unweighted.">
+  
+  condition Average: 
+  if datedValueSeriesAggregation = NewAggregationMethodEnum -> Average 
+  or valueSeriesAggregation = NewAggregationMethodEnum -> Average
+  then averagingMethod exists
+
+  condition AggregationDimension : 
+  optional choice datedValueSeriesAggregation, valueSeriesAggregation

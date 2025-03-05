@@ -6,6 +6,7 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
+import cdm.base.staticdata.identifier.*
 
 choice Asset: <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used.">
     Cash <"An Asset that consists solely of a monetary holding in a currency.">
@@ -106,11 +107,38 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
     condition NoExchange: <"Cash cannot be a listed Asset.">
         exchange is absent and isExchangeListed is absent
 
+type AssetDeliveryInformation: <"Contains the information relative to the delivery of the asset.">
+    periods AssetDeliveryPeriods (0..1) <"Defines the periods of delivery, including the delivery profile.">
+    location LocationIdentifier (0..*) <"Defines the location of the delivery of the commodity.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+
+type AssetDeliveryPeriods: <"Defines the periods of delivery, including the delivery profile.">
+    profile AssetDeliveryProfile (0..*) <"Defines the delivery profile of the asset, including the load type and the delivery intervals.">
+    startDate date (0..1) <"Delivery start date">
+    endDate date (0..1) <"Delivery end date">
+
+type CalculationScheduleDeliveryPeriods extends AssetDeliveryPeriods: <"Period and time profile over which the delivery takes place.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
+
+type AssetDeliveryProfile: <"Defines the delivery profile of the asset, including the load type and the delivery intervals.">
+    loadType LoadTypeEnum (0..1) <"Identification of the delivery profile.">
+    block AssetDeliveryProfileBlock (0..*) <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
+    bankHolidaysTreatment BankHolidayTreatmentEnum (0..1) <"Specifies whether the dates defined include holidays or not.">
+
+type AssetDeliveryProfileBlock: <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
+    startTime time (0..1) <"The start time of the delivery interval for each block or shape.">
+    endTime time (0..1) <"The end time of the delivery interval for each block or shape.">
+    dayOfWeek DayOfWeekEnum (0..7) <"The days of the week of the delivery.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
+
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
+    delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
     condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
         if taxonomy -> value -> classification count > 1

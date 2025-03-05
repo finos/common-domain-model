@@ -33,11 +33,11 @@ func ObservableQualification: <"Identifies whether the observable(s) have either
         qualifies boolean (1..1)
 
     set qualifies:
-        observable -> Asset -> Instrument -> Security -> instrumentType = securityType
-        or observable -> Index ->> assetClass = assetClass
+        observable -> asset -> Instrument -> Security -> instrumentType = securityType
+        or observable -> index ->> assetClass = assetClass
         or 
-            if observable -> Basket exists
-            then observable -> Basket -> basketConstituent extract [ ObservableQualification(item, securityType, assetClass) ] all = True
+            if observable -> basket exists
+            then observable -> basket -> basketConstituent extract [ ObservableQualification(item, securityType, assetClass) ] all = True
             else False
 
 /*
@@ -112,7 +112,7 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                     and economicTerms -> payout -> CreditDefaultPayout exists 
                     and economicTerms -> payout -> PerformancePayout exists)
                 and if performanceUnderlier exists
-                    then (performanceUnderlier -> Observable -> Asset -> Instrument ->> instrumentType = InstrumentTypeEnum -> Debt))
+                    then (performanceUnderlier -> Observable -> asset -> Instrument ->> instrumentType = InstrumentTypeEnum -> Debt))
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
     inputs:
@@ -125,12 +125,12 @@ func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Ass
 
     set is_product:
         (SettlementPayoutOnlyExists(economicTerms -> payout)
-            and (settlementUnderliers extract [ Observable -> Asset -> Cash exists ] all = True
+            and (settlementUnderliers extract [ Observable -> asset -> Cash exists ] all = True
                 or settlementUnderliers extract [ UnderlierQualification(item, empty, AssetClassEnum -> ForeignExchange) ] all = True)
             )
-            or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+            or economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> index -> ForeignExchangeRateIndex exists
             or (economicTerms -> payout only-element -> OptionPayout exists
-                and (optionUnderlier -> Observable -> Asset -> Cash exists
+                and (optionUnderlier -> Observable -> asset -> Cash exists
                     or if optionUnderlier -> Product exists
                     then Qualify_AssetClass_ForeignExchange(optionUnderlier -> Product ->> economicTerms) = True
                     else False
@@ -187,7 +187,7 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
             and CommodityPayoutOnlyExists(economicTerms -> payout))
         // Commodity Option
         or (economicTerms -> payout only-element -> OptionPayout exists
-            and (optionUnderlier -> Observable -> Asset -> Commodity exists
+            and (optionUnderlier -> Observable -> asset -> Commodity exists
                 or optionUnderlier -> Product -> TransferableProduct -> Commodity exists
                 or if optionUnderlier -> Product exists
                 then Qualify_AssetClass_Commodity(optionUnderlier -> Product ->> economicTerms) = True
@@ -200,7 +200,7 @@ func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Cla
             or (economicTerms -> payout count = 2 
                     and economicTerms -> payout -> SettlementPayout exists 
                     and economicTerms -> payout -> CommodityPayout exists))
-            and (economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> Asset -> Commodity exists
+            and (economicTerms -> payout -> SettlementPayout -> underlier -> Observable -> asset -> Commodity exists
                 or settlementUnderlier -> Product -> TransferableProduct -> Commodity exists
                 or if settlementUnderlier -> Product ->> economicTerms exists
                     then Qualify_AssetClass_Commodity(
@@ -289,11 +289,11 @@ func Qualify_UnderlierObservable_Equity: <"Qualifies an Observable as having the
         is_product boolean (1..1)
 
     set is_product:
-        Qualify_InstrumentTypeEquity(observable -> Asset -> Instrument)
-            or observable -> Index ->> assetClass = AssetClassEnum -> Equity
+        Qualify_InstrumentTypeEquity(observable -> asset -> Instrument)
+            or observable -> index ->> assetClass = AssetClassEnum -> Equity
                 // Qualifies that the underlier is a basket composed of equity products only
-            or (observable -> Basket exists
-                and observable -> Basket -> basketConstituent extract [ Qualify_UnderlierObservable_Equity ] any = True)
+            or (observable -> basket exists
+                and observable -> basket -> basketConstituent extract [ Qualify_UnderlierObservable_Equity ] any = True)
 
 func Qualify_InstrumentTypeEquity: <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
@@ -347,7 +347,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName: <"Qualifies a pr
             and // qualifies that the performance leg has priceReturnTerms
             performancePayout -> returnTerms -> priceReturnTerms only exists
             and // qualifies that underlier is a security (single name)
-            performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            performancePayout -> underlier -> Observable -> asset -> Instrument -> Security exists
 
 func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an equity security, a fund, an exchange traded fund, mutual fund, or warrant, and 4) there are no option features">
     [qualification Product]
@@ -360,7 +360,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName: <"Qualifies a pr
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that underlier is a security (single name)
-            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> asset -> Instrument -> Security exists
             and ( // Intended final payout structure
             // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
                 (economicTerms -> payout count = 3 
@@ -395,7 +395,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
             and // qualifies that the performance leg has priceReturnTerms
             performancePayout -> returnTerms -> priceReturnTerms only exists
             and // qualifies that underlier is an index
-            performancePayout -> underlier -> Observable -> Index exists
+            performancePayout -> underlier -> Observable -> index exists
 
 func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
     [qualification Product]
@@ -408,7 +408,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that underlier is an index
-            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Index exists
+            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> index exists
             and ( // Intended final payout structure
             // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
                 (economicTerms -> payout count = 3 
@@ -441,7 +441,7 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Basket: <"Qualifies a produc
                 and economicTerms -> payout -> InterestRatePayout exists 
                 and economicTerms -> payout -> PerformancePayout exists
             and // qualifies that underlier is a basket
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
             and // qualifies that the performance leg has priceReturnTerms
             performancePayout -> returnTerms -> priceReturnTerms only exists
 
@@ -455,7 +455,7 @@ func Qualify_EquitySwap_TotalReturnBasicPerformance_Basket: <"Qualifies a produc
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that underlier is a basket
-            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> Basket exists
+            economicTerms -> payout -> PerformancePayout -> underlier -> Observable -> basket exists
             and ( // Intended final payout structure
             // qualifies that there is exactly two performance legs, one interest rate leg and no legs of other types
                 (PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
@@ -488,7 +488,7 @@ func Qualify_EquitySwap_ParameterReturnVariance_SingleName: <"Qualifies a produc
             and // qualifies that the only leg has varianceReturnTerms
             performancePayout -> returnTerms -> varianceReturnTerms only exists
             and // qualifies that underlier is a security (single name)
-            performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            performancePayout -> underlier -> Observable -> asset -> Instrument -> Security exists
 
 func Qualify_EquitySwap_ParameterReturnVariance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the variance changes on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has variance return terms, 5) the underlier is an index, and 6) there are no option features.">
     [qualification Product]
@@ -508,7 +508,7 @@ func Qualify_EquitySwap_ParameterReturnVariance_Index: <"Qualifies a product as 
             and // qualifies that the only leg has varianceReturnTerms
             performancePayout -> returnTerms -> varianceReturnTerms only exists
             and // qualifies that underlier is an index
-            performancePayout -> underlier -> Observable -> Index exists
+            performancePayout -> underlier -> Observable -> index exists
 
 func Qualify_EquitySwap_ParameterReturnVariance_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the variance changes on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has variance return terms, 5) the underlier is a basket, and 6) there are no option features.">
     [qualification Product]
@@ -528,7 +528,7 @@ func Qualify_EquitySwap_ParameterReturnVariance_Basket: <"Qualifies a product as
             and // qualifies that the only leg has varianceReturnTerms
             performancePayout -> returnTerms -> varianceReturnTerms only exists
             and // qualifies that underlier is a basket
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
 
 func Qualify_EquitySwap_ParameterReturnDispersion: <"Qualifies a product as an Equity Swap for which the performance is based on the variance changes in several legs.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) more than one performance leg, 4) all of which have variance return terms, and 5) there are no option features.">
     [qualification Product]
@@ -568,7 +568,7 @@ func Qualify_EquitySwap_ParameterReturnVolatility_SingleName: <"Qualifies a prod
             and // qualifies that the only leg has volatilityReturnTerms
             performancePayout -> returnTerms -> volatilityReturnTerms only exists
             and // qualifies that underlier is a security (single name)
-            performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            performancePayout -> underlier -> Observable -> asset -> Instrument -> Security exists
 
 func Qualify_EquitySwap_ParameterReturnVolatility_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the volatility changes on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has volatility return terms, 5) the underlier is an index, and 6) there are no option features.">
     [qualification Product]
@@ -588,7 +588,7 @@ func Qualify_EquitySwap_ParameterReturnVolatility_Index: <"Qualifies a product a
             and // qualifies that the only leg has volatilityReturnTerms
             performancePayout -> returnTerms -> volatilityReturnTerms only exists
             and // qualifies that underlier is an index
-            performancePayout -> underlier -> Observable -> Index exists
+            performancePayout -> underlier -> Observable -> index exists
 
 func Qualify_EquitySwap_ParameterReturnVolatility_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the volatility changes on a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has volatility return terms, 5) the underlier is a basket, and 6) there are no option features.">
     [qualification Product]
@@ -608,7 +608,7 @@ func Qualify_EquitySwap_ParameterReturnVolatility_Basket: <"Qualifies a product 
             and // qualifies that the only leg has varianceReturnTerms
             performancePayout -> returnTerms -> volatilityReturnTerms only exists
             and // qualifies that underlier is a basket
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
 
 func Qualify_EquitySwap_ParameterReturnCorrelation_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on changes in the correlation between the constituents of a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with a single performance leg, 4) which has correlation return terms, 5) the underlier is a basket, and 6) there are no option features.">
     [qualification Product]
@@ -626,7 +626,7 @@ func Qualify_EquitySwap_ParameterReturnCorrelation_Basket: <"Qualifies a product
             and // qualifies that the only leg has varianceReturnTerms
             performancePayout -> returnTerms -> correlationReturnTerms only exists
             and // qualifies that underlier is a basket
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
 
 func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"Qualifies a product as an Equity Swap for which the performance is based on the dividend returns of a single stock.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with one fixed price leg and one performance leg 4) which has dividend return terms, 5) the underlier is a single stock, and 6) there are no option features.">
     [qualification Product]
@@ -647,7 +647,7 @@ func Qualify_EquitySwap_ParameterReturnDividend_SingleName: <"Qualifies a produc
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
             and // qualifies that underlier is a security (single name)
-            performancePayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            performancePayout -> underlier -> Observable -> asset -> Instrument -> Security exists
 
 func Qualify_EquitySwap_ParameterReturnDividend_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the dividend returns of an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with one fixed price leg and one performance leg 4) which has dividend return terms, 5) the underlier is an index, and 6) there are no option features.">
     [qualification Product]
@@ -668,7 +668,7 @@ func Qualify_EquitySwap_ParameterReturnDividend_Index: <"Qualifies a product as 
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
             and // qualifies that underlier is an index
-            performancePayout -> underlier -> Observable -> Index exists
+            performancePayout -> underlier -> Observable -> index exists
 
 func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as an Equity Swap for which the performance is based on the dividend returns of a basket.  The determination of the qualification is based on the economic terms and the following criteria: 1) Is an equity product 2) of swap type, 3) with one fixed price leg and one performance leg 4) which has dividend return terms, 5) the underlier is a basket, and 6) there are no option features.">
     [qualification Product]
@@ -689,7 +689,7 @@ func Qualify_EquitySwap_ParameterReturnDividend_Basket: <"Qualifies a product as
             and // qualifies that the performance Payout has dividendReturnTerms
             performancePayout -> returnTerms -> dividendReturnTerms only exists
             and // qualifies that underlier is a security (single name)
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
 
 func Qualify_BaseProduct_EquityForward: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Forward.">
     inputs:
@@ -714,9 +714,9 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a 
                 // qualifies that only the option payout exist and all other payouts are absent
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies that the underlier is an asset
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Asset exists
+            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> asset exists
                 // qualifies that the underlier is a security (already verified as equity)
-            and optionUnderlier -> Observable -> Asset -> Instrument -> Security exists 
+            and optionUnderlier -> Observable -> asset -> Instrument -> Security exists 
                     // qualifies that no feature other than averaging exists
             and (economicTerms -> payout -> OptionPayout -> feature is absent
                 or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists)
@@ -734,7 +734,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Index: <"Qualifies a produ
                 // qualifies that only the option payout exist and all other payouts are absent
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies that the underlier is an equity index
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Index -> EquityIndex exists
+            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> index -> EquityIndex exists
                 // qualifies that no feature other than averaging exists
             and (economicTerms -> payout -> OptionPayout -> feature is absent
                 or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists)
@@ -752,7 +752,7 @@ func Qualify_EquityOption_PriceReturnBasicPerformance_Basket: <"Qualifies a prod
                 // qualifies that only the option payout exist and all other payouts are absent
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies that the underlier is an equity basket
-            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> Basket exists
+            and economicTerms -> payout -> OptionPayout only-element -> underlier -> Observable -> basket exists
                 // qualifies that no feature other than averaging exists
             and (economicTerms -> payout -> OptionPayout -> feature is absent
                 or economicTerms -> payout -> OptionPayout -> feature -> averagingFeature only exists)
@@ -1416,7 +1416,7 @@ func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate B
     alias forwardPayout: economicTerms -> payout -> SettlementPayout only-element
     set is_product:
         Qualify_AssetClass_InterestRate(economicTerms) = True
-            and (forwardPayout -> underlier -> Observable -> Asset -> Instrument -> Security exists
+            and (forwardPayout -> underlier -> Observable -> asset -> Instrument -> Security exists
                 or forwardPayout -> underlier -> Product -> TransferableProduct -> Instrument -> Security exists)
 
 func Qualify_ForeignExchange_Spot_Forward: <"Qualifies a product as Foreign Exchange based on economic terms, which is defined as an agreement to buy one currency against the delivery of another currency at a rate set on the trade date for settlement on a specified date in the future.  Dependent on conventions specific to local markets the product could be considered either Spot or Forward.">
@@ -1488,7 +1488,7 @@ func Qualify_ForeignExchange_ParameterReturnVariance: <"Qualifies a product as F
     set is_product:
         Qualify_AssetClass_ForeignExchange(economicTerms) = True
                 // qualifies that the product is FX (i.e.: has only foreign Exchange underliers)
-            and performancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+            and performancePayout -> underlier -> Observable -> index -> ForeignExchangeRateIndex exists
             and // qualifies that there is a single leg of performance type
             economicTerms -> payout only-element -> PerformancePayout exists
             and // qualifies that the performance leg has varianceReturnTerms
@@ -1507,7 +1507,7 @@ func Qualify_ForeignExchange_ParameterReturnVolatility: <"Qualifies a product as
     set is_product:
         Qualify_AssetClass_ForeignExchange(economicTerms) = True
                 // qualifies that the product is FX (i.e.: has only foreign Exchange underliers)
-            and performancePayout -> underlier -> Observable -> Index -> ForeignExchangeRateIndex exists
+            and performancePayout -> underlier -> Observable -> index -> ForeignExchangeRateIndex exists
             and // qualifies that there is a single leg of performance type
             economicTerms -> payout only-element -> PerformancePayout exists
             and // qualifies that the performance leg has volatilityReturnTerms
@@ -1528,9 +1528,9 @@ func Qualify_ForeignExchange_ParameterReturnCorrelation: <"Qualifies a product a
             and // qualifies that the performance leg has correlationReturnTerms
             performancePayout -> returnTerms -> correlationReturnTerms only exists
             and // qualifies that the underlier is a basket
-            performancePayout -> underlier -> Observable -> Basket exists
+            performancePayout -> underlier -> Observable -> basket exists
             and // qualifies that the product is FX (i.e.: the basket is constituted by foreign exchange constituents)
-            performancePayout -> underlier -> Observable -> Basket -> basketConstituent extract [ Index -> ForeignExchangeRateIndex exists ] all = True
+            performancePayout -> underlier -> Observable -> basket -> basketConstituent extract [ index -> ForeignExchangeRateIndex exists ] all = True
 
 func Qualify_ForeignExchange_VanillaOption: <"Qualifies a product as FX Plain Vanilla Option based on economic terms, which is defined as one where 1) exercise style is American or European style only, and 2) does not contain any feature like Forward Starting Strike or Performance payout.">
     [qualification Product]
@@ -1617,7 +1617,7 @@ func Qualify_Commodity_Option: <"Qualifies a product as a Option that can be exe
     set is_product:
         Qualify_AssetClass_Commodity(economicTerms) = True
             and economicTerms -> payout only-element -> OptionPayout exists
-            and  ( economicTerms -> payout -> OptionPayout -> underlier -> Observable -> Asset -> Commodity exists
+            and  ( economicTerms -> payout -> OptionPayout -> underlier -> Observable -> asset -> Commodity exists
                 or economicTerms -> payout -> OptionPayout -> underlier -> Product -> TransferableProduct -> Commodity exists )
 
 func Qualify_Commodity_Option_Cash: <"Qualifies a product as a Option that can be exercised into an Commodity.">
