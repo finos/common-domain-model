@@ -5,7 +5,7 @@ import cdm.event.common.functions.ResolvePerformanceObservationIdentifiers;
 import cdm.observable.common.DeterminationMethodEnum;
 import cdm.observable.event.ObservationIdentifier;
 import cdm.product.template.PerformancePayout;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.BeforeEach;

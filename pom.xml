@@ -75,22 +75,24 @@
     <properties>
         <gpg.keyname>configured-by-release-profile</gpg.keyname>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.enforced.version>[17,18)</java.enforced.version>
         <!-- release version is overridden in rosetta-source -->
         <maven.compiler.release>11</maven.compiler.release>
 
         <repoServerHost>s01.oss.sonatype.org</repoServerHost>
         <stagingTimeoutInMinutes>10</stagingTimeoutInMinutes>
-        <rosetta.bundle.version>11.46.0</rosetta.bundle.version>
+        <rosetta.bundle.version>11.48.0</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
-        <rosetta.dsl.version>9.36.6</rosetta.dsl.version>
+        <rosetta.dsl.version>9.37.0</rosetta.dsl.version>
 
-        <xtext.version>2.27.0</xtext.version>
+        <xtext.version>2.38.0</xtext.version>
+        <guice.version>6.0.0</guice.version>
         <opengamma.strata.version>1.7.0</opengamma.strata.version>
         <apache.commons.cli.version>1.4</apache.commons.cli.version>
         <jsoup.version>1.15.3</jsoup.version>
         <jaxb.version>2.3.1</jaxb.version>
         <slf4j-api.version>2.0.7</slf4j-api.version>
-        <guava.version>32.0.1-jre</guava.version>
+        <guava.version>33.3.1-jre</guava.version>
         <jackson.version>2.17.1</jackson.version>
 
         <!-- test -->
@@ -118,6 +120,7 @@
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-enforcer-plugin.version>3.3.0</maven-enforcer-plugin.version>
+        <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <!-- This property is only necessary when building with Java 12 or lower versions. It is set in a Maven profile. -->
@@ -324,6 +327,9 @@
                         </goals>
                         <configuration>
                             <rules>
+                                <requireJavaVersion>
+                                    <version>${java.enforced.version}</version>
+                                </requireJavaVersion>
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>log4j:log4j</exclude>
@@ -337,6 +343,31 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <sourceDirectories>
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                        <sourceDirectory>src/test/java</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>Check style</id>
+                        <!-- This needs to run /after/ (test) source
+                        generation is done. -->
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
             </plugin>
@@ -345,6 +376,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice-bom</artifactId>
+                <version>${guice.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- rosetta START -->
             <dependency>
                 <groupId>com.regnosys.rosetta</groupId>
