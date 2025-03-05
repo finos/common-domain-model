@@ -2,7 +2,6 @@ namespace cdm.legaldocumentation.isdamasteragreement : <"The set of elections th
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.legaldocumentation.common.*
 import cdm.observable.asset.*
 
 type IsdaMasterAgreementSchedule : <"The set of elections that define an ISDA master agreement">
@@ -12,7 +11,6 @@ type IsdaMasterAgreementSchedule : <"The set of elections that define an ISDA ma
 type TerminationProvisions : <"The set of elections regarding the termination provisions of an ISDA master agreement">
     specifiedEntities SpecifiedEntityElection (0..*) <"Any specified entities pertaining to section 5">
     creditEventUponMerger CreditEventUponMerger (1..1) <"Are credit events applicable upon merger?">
-    automaticEarlyTermination AutomaticEarlyTermination (1..1) <"Does automatic early termination apply to either party?">
 
 type SpecifiedEntityElection : <"An election outlining the specified entity with respect to section 5 for either party">
     party CounterpartyRoleEnum (1..1) <"Relevant party">
@@ -21,36 +19,16 @@ type SpecifiedEntityElection : <"An election outlining the specified entity with
     namedAffiliates string (0..*) <"Any named affiliates relating to the section">
 
 type CreditEventUponMerger : <"Elections detailing if the credit event upon merger is applicable to either party">
-    elections CrerditEventUponMergerElection (2..2)
+    elections CreditEventUponMergerElection (2..2)
 
-type CrerditEventUponMergerElection :
+type CreditEventUponMergerElection :
     party CounterpartyRoleEnum (1..1) <"Relevant party">
     isApplicable boolean (0..1) <"If provided, is a credit event upon merger applicable to relevant party?">
 
-type AutomaticEarlyTermination : <"Elections detailing if automatic early termination applies to either party">
-    elections AutomaticEarlyTerminationElection (2..2)
-
-type AutomaticEarlyTerminationElection : 
-    party CounterpartyRoleEnum (1..1) <"Relevant party">
-    isApplicable boolean (0..1) <"If provided, is automatic early termination applicable to relevant party?">
-
 type Miscellaneous : <"Miscellaneous information stored in the ISDA master agreement">
-    addressForNotices AddressForNotices (0..1) <"Address for Notices">
-    processAgent ProcessAgent (0..1) <"Process Agent">
     multiBranchParty MultiBranchParty (0..1) <"Is either party a multibranch party?">
     calculationAgent CalculationAgent (0..1) <"Specify which party acts as the calculation agent">
     creditSupportDocuments CreditSupportDocuments (0..1) <"Is either party providing any credit support documents?">
-
-type ProcessAgent : <"Election to capture if, and who, either party has elected as a process agent">
-    elections ProcessAgentElection (2..2)
-
-type ProcessAgentElection : <"Process agent data for either party">
-    party CounterpartyRoleEnum (1..1) <"Relevant party">
-    isAppointed boolean (1..1) <"Has that party appointed a process agent?">
-    processAgent string (0..1) <"If appointed, process agent should be listed">
-
-    condition AgentMustExist: <"If an agent is appointed they must be named.">
-        if isAppointed then processAgent exists
 
 type MultiBranchParty : <"Is either party a multibranch party?">
     elections MultiBranchPartyElection (2..2)
