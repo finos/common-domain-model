@@ -51,3 +51,14 @@ The namespace hierarchy in the CDM contains 7 components
 -   Regulation -- contains regulation concepts: regulatory bodies,
     corpus, report definitions and field rules
 -   Synonym -- contains model to model synonym mappings
+
+Each of these higher-level namespaces is further divided into
+lower-level namespaces. The independent components in each namespace are
+organised according to their core purpose but can be referenced from
+anywhere in the model to allow all the components to work together for a
+complete modelling solution.
+
+**When developing new CDM components, the positioning of those
+components in the namespace hierarchy is critical** as part of the
+design (or potentially the re-organising of the hierarchy following the
+new development), to ensure the CDM remains well organised.
