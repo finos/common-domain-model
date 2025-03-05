@@ -9,7 +9,7 @@ The [Steering Working Group](CDM-Steering-WG.md) has the role of defining major 
 ## Objectives of Defining Major Releases
 
 * To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
-  - Changes to existing functionality that may create challenges for upgrading [testing]
+  - Changes to existing functionality that may create challenges for upgrading
   - Changes to technology architecture that may create challenges for upgrading
   - Introduction of major new functionality that may affect how users use CDM going forward
 * To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
