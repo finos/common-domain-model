@@ -18,9 +18,6 @@ This working group serves as the driving force behind the strategic direction an
 
 **Join us Monthly on the Second Tuesday 11AM EST (4 PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-## 2024 Roadmap
-
-![Steering WG Roadmap](/img/steering-roadmap.png)
 
 ## Subscribe
 
