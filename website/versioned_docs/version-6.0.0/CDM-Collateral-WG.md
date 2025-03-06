@@ -8,12 +8,15 @@ ISDA has also launched the Get Started with the CDM for Collateral Guide! You ca
 
 ## Overview
 
-The Collateral Working Group plays a pivotal role in the CDM ecosystem by providing a robust framework for harmonizing data and processes related to collateral flows and documentation.
+The Collateral Working Group plays provides a framework for harmonizing data and processes related to collateral flows and documentation.
+
+## 2025 Roadmap
+
+![CDM Collateral Working Group Roadmap](/img/collateral-roadmap.png)
 
 ## Meetings
 
 **Join us on the last Tuesday every month 10AM EST (3PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
-
 
 ## Subscribe
 
