@@ -10,7 +10,7 @@ Focused on swaps (IR, credit, equity, commodity, etc.), options, FX, post-trade 
 
 **Join us on the Second and Last Wednesday at 11:30 AM EST (4:30PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-## 2024 Roadmap
+## 2025 Roadmap
 
 ![CDM Derivatives Roadmap](/img/derivatives-roadmap.png)
 
@@ -20,4 +20,6 @@ To subscribe to the [CDM Derivatives mailing list](https://lists.finos.org/g/cdm
 
 ---
 
-To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+is%3Aopen+%22CDM+Contribution+Review+Working+Group%22) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue%20%22CDM%20Derivatives%20Working%20Group%22%20state%3Aopen%20) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Derivatives+Products+and+Business+Events+Working+Group%22+is%3Aclosed) GitHub Meeting Issues. 
+
+Click [here](working-groups.md) to return back to the Working Groups home page.
