@@ -4,7 +4,9 @@ title: CDM Technology Architecture Working Group
 
 ## Overview
 
-The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies by leveraging [Rune](https://github.com/finos/rune-dsl/blob/main/README.md). Please note, Rune is currently being mantained and developed by the relevant Rune Working Groups to which the Technology Architecture Working Group provides input to. 
+The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on aligning the architecture, tooling services, infrastructure, development practices, and deployment of the CDM with both existing and future technologies by leveraging [Rune](https://github.com/finos/rune-dsl/blob/main/README.md). 
+
+Please note, Rune is currently being mantained and developed by the relevant Rune Working Groups to which the Technology Architecture Working Group provides input to. 
 
 ### Responsibilities
 
@@ -16,6 +18,9 @@ The CDM Technology Architecture [Working Group](cdm-org-structure.md) focuses on
 
 **Join us every 2nd Thursday of Every Month, 9AM EST (2PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
+## 2025 Roadmap
+
+![CDM Technology Architecture Working Group Roadmap](/img/tawg-roadmap.png)
 
 ## Subscribe
 
