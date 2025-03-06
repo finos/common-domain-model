@@ -23,7 +23,7 @@ The Steering Working Group serves as the driving force behind the strategic dire
 
 ## 2025 Roadmap
 
-![CDM Steering Working Group Roadmap](/img/steering-roadmap.png)
+![CDM Steering Roadmap](/img/steering-roadmap.png)
 
 ## Subscribe
 
