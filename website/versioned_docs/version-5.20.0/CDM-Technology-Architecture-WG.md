@@ -20,7 +20,7 @@ Please note, Rune is currently being mantained and developed by the relevant Run
 
 ## 2025 Roadmap
 
-![CDM Technology Architecture Working Group Roadmap](/img/tawg-roadmap.png)
+![CDM Technology Architecture Roadmap](/img/tawg-roadmap.png)
 
 ## Subscribe
 
