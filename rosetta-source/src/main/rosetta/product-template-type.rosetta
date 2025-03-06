@@ -390,6 +390,9 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
     delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    fixedPrice PriceSchedule (0..1) <"Specifies the fixed price on which fixed forward payments are based.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+
 
     condition Underlier: <"The underlier for a settlement payout cannot be a NonTransferableProduct.">
         underlier -> Product -> NonTransferableProduct is absent
@@ -446,12 +449,19 @@ type SchedulePeriod: <"A class that defines the period of a schedule. The period
     deliveryPeriod CalculationScheduleDeliveryPeriods (0..1) <"Period and time profile over which the delivery takes place.">
 
 type FixedPricePayout extends PayoutBase: <"Represents a fixed price payout. There is no underlier associated with this payout type and is based on fixed pricing per a given unit (e.g. in commodities price per barrel)">
-    paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-    fixedPrice FixedPrice (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
-    schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+  paymentDates PaymentDates (1..1) <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
+  fixedPrice PriceSchedule (1..1) <"Specifies the fixed price on which fixed forward payments are based.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
 
-    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-        priceQuantity exists
+  condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption. For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+    priceQuantity exists
+
+  condition NonNegativePrice_amount: <"The fixed price of the payout shall be a non-negative price, so the price amount attribute must be positive.">
+    if fixedPrice -> value exists
+      then fixedPrice -> value >= 0.0 
+    and if fixedPrice -> datedValue exists
+      then fixedPrice -> datedValue -> value all >= 0.0
 
 type CancelableProvision extends BuyerSeller: <"A data defining:  the right of a party to cancel a swap transaction on the specified exercise dates. The provision is for 'walk-away' cancellation (i.e. the fair value of the swap is not paid). A fee payable on exercise can be specified. As a difference from the FpML construct, the canonical model extends the BuyerSeller class.">
     exerciseNotice ExerciseNotice (0..1) <"Definition of the party to whom notice of exercise should be given.">
@@ -662,14 +672,15 @@ type TerminationProvision: <"A class for defining option provisions.">
 
 type OptionStrike: <"Defines the strike price of an option.">
 
-    strikePrice Price (0..1) <"Defines the strike of an option in the form of a price that could be a cash price, interestRate, or other types.">
-    strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
-        [metadata reference]
-    referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
-    averagingStrikeFeature AveragingStrikeFeature (0..1) <"Defines an  option strike that is calculated from an average of observed market prices.">
+  strikePrice PriceSchedule (0..1) <"Defines the strike of an option in the form of a price that could be a cash price, interestRate, or other types.">
+    [metadata address "pointsTo"=PriceQuantity->price]
+  strikeReference FixedRateSpecification (0..1) <"Defines the strike of an option in reference to the spread of the underlying swap (typical practice in the case of an option on a credit single name swaps).">
+    [metadata reference]
+  referenceSwapCurve ReferenceSwapCurve (0..1) <"Defines the strike of an option when expressed by reference to a swap curve (Typically the case for a convertible bond option).">
+  averagingStrikeFeature AveragingStrikeFeature (0..1) <"Defines an option strike that is calculated from an average of observed market prices.">
 
-    condition:
-        one-of
+  condition:
+    one-of
 
 type PassThrough: <"Type which contains pass through payments.">
 
