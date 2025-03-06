@@ -12,7 +12,7 @@ The Collateral Working Group plays provides a framework for harmonizing data and
 
 ## 2025 Roadmap
 
-![CDM Collateral Working Group Roadmap](/img/collateral-roadmap.png)
+![CDM Collateral Roadmap](/img/collateral-roadmap.png)
 
 ## Meetings
 
