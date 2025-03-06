@@ -8,7 +8,7 @@ ISDA has also launched the Get Started with the CDM for Collateral Guide! You ca
 
 ## Overview
 
-The Collateral Working Group plays a pivotal role in the CDM ecosystem by providing a robust framework for harmonizing data and processes related to collateral flows and documentation.
+The Collateral Working Group plays provides a framework for harmonizing data and processes related to collateral flows and documentation.
 
 ## 2025 Roadmap
 
