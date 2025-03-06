@@ -4,7 +4,9 @@ title: CDM Contribution Review Working Group
 
 ## Overview
 
-The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM ecosystem. We [review](maintenance-and-release.md), approve, and implement contribution proposals to the CDM, ensuring the integrity and quality of the project. Additionally, we serve as arbitrators for any disputes arising from contributions, and we uphold the [design principles](design-principles.md), [change control guidelines](change-control-guidelines.md) and the [documentation style guidelines](documentation-style-guide.md) that govern the CDM.
+The CDM Contribution Review Working Group (CRWG) [reviews](maintenance-and-release.md), approves, and implements contribution proposals to the CDM. 
+
+The group works on any disputes to contributions, and upholds the [design principles](design-principles.md), [change control guidelines](change-control-guidelines.md) and the [documentation style guidelines](documentation-style-guide.md) that govern the CDM.
 
 ### Responsibilities
 
@@ -12,7 +14,10 @@ The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM
 - Arbitrates disputes arising from DWG contributions.
 - Guards and enforces design principles and guidelines.
 - Triage and facilitates long-dated PRs and Issues.
-- Meets fortnightly, with sub-groups as required.
+
+## 2025 Roadmap
+
+![CDM Contribution Review WG Roadmap](/img/crwg-roadmap.png)
 
 ## Meetings
 
