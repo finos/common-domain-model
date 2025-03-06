@@ -17,7 +17,7 @@ The group works on any disputes to contributions, and upholds the [design princi
 
 ## 2025 Roadmap
 
-![CDM Contribution Review WG Roadmap](/img/crwg-roadmap.png)
+![CDM Contribution Roadmap](/img/crwg-roadmap.png)
 
 ## Meetings
 
