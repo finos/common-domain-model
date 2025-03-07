@@ -1,23 +1,40 @@
-# _Infrastructure - Dependency Update_
+# *Initial Margin Model - Functional Externalization*
+
+_Background_
+
+Following the latest contribution of the **Standardized Schedule Method** for calculating Initial Margin (IM) within the **Common Domain Model (CDM)**, the decision has been made to partially externalize its functionality (i.e. contributing back to Core CDM some of the functions for its broader utility).
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+**Namespace changes**
 
-Version updates include:
-- `DSL` 9.34.2 bug fix where removing duplicate import causes problems where those imports use aliases. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.2
-- `DSL` 9.35.0 bug fix for recursive reporting rules and support for labels on circular types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.0
-- `DSL` 9.35.1 Rule source label fix and maintenance of generated serialization code. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.1
-- `DSL` 9.36.0 Added condition support in typeAlias. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.0
-- `DSL` 9.36.1 Use package name first segment for model name in RuneDataType annotation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.1
-- `DSL` 9.36.2 Fix extended rule source with extended type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.2
-- `DSL` 9.36.3 Fix XML serializer substitution groups. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.3
-- `DSL` 9.36.4 Make XML serializer substitution groups work in a backward compatible manner. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.4
-- `DSL` 9.36.5 Handle empty inputs when set on meta function output & Fix for setting meta on nested objects. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.5
-- `DSL` 9.36.6 Fix multi cardinality nested meta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.6
+The following functions have been extracted from the namespace `cdm.margin.schedule:func` to new namespaces:
 
-_Review directions_
+- `UnderlierForProduct` has been renamed `UnderlierForOptionOrForwardProduct` and has been moved to `cdm.product.template:func`.
+- `AdjustableOrAdjustedOrRelativeDateResolution`, `AdjustableDateResolution` and `AdjustableDatesResolution` have been moved to `cdm.base.datetime:func`.
+- `FXFarLeg` has been moved to `cdm.product.template:func`.
+- `DateDifferenceYears` has been moved to `cdm.base.datetime:func`.
+- `IsFXNonDeliverableOption` has been renamed `Qualify_ForeignExchange_NDO` and has been moved to `cdm.product.qualification:func`.
+- `Create_ExposureFromTrades` has been moved to `cdm.event.common:func`.
 
-JSON expectations diffs are expected due to the added support for meta data in functions in DSL versions 9.36.6.
+**Renamed Functions**
 
-The changes can be reviewed in PR: [#3474](https://github.com/finos/common-domain-model/pull/3474) 
+The following functions have been renamed, even though they remain in the original workspace `cdm.margin.schedule:func`:
+
+- `IsIRSwapWithCallableBermudanRightToEnterExitSwaps` has been renamed to `Qualify_InterestRate_SwapWithCallableBermudanRightToEnterExitSwaps`.
+- `IsIRSwaptionStraddle` has been renamed to `Qualify_InterestRate_Swaption_Straddle`.
+- `IsCreditNthToDefault` has been renamed to `Qualify_Credit_NthToDefault`.
+- `IsFXNonDeliverableOption` has been renamed `Qualify_ForeignExchange_NDO`.
+- `UnderlierForProduct` has been renamed `UnderlierForOptionOrForwardProduct`.
+
+**Function Modifications**
+
+Also, the function `Qualify_ForeignExchange_VanillaOption` has been slightly modified in order to admit only physically delivered options (as a function for NDO has been created).
+
+_Backward-incompatible changes_
+
+All the functions specified in the **Renamed Functions** and **Function Modifications** sections above are backward-incompatible.
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#3463](https://github.com/finos/common-domain-model/pull/3463)
