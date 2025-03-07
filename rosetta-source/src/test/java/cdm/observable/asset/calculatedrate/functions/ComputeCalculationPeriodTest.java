@@ -1,6 +1,5 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
 import cdm.observable.asset.calculatedrate.ObservationPeriodDatesEnum;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.schedule.ResetDates;
@@ -22,7 +21,7 @@ public class ComputeCalculationPeriodTest extends AbstractFunctionTest {
     void shouldDeterminePeriod() {
         CalculationPeriodBase calcPeriod = period(Date.of(2020,12,10), Date.of(2021, 3, 10));
         CalculationPeriodBase priorCalcPeriod = period(Date.of(2020,9,10), Date.of(2020, 12, 10));
-        ResetDates resetDates = initResetDates(BusinessCenterEnum.GBLO, 3, 2, true);
+        ResetDates resetDates = initResetDates("GBLO", 3, 2, true);
 
         CalculationPeriodBase expected = period(Date.of(2020, 12, 10), Date.of(2021, 3, 10));
         check (expected, func.evaluate(calcPeriod, priorCalcPeriod, ObservationPeriodDatesEnum.STANDARD, null));
