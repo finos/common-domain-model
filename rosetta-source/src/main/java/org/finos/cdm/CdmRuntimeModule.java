@@ -72,13 +72,13 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 
 		// External FpMLCoref data loader
-		//bind(LoadCodeList.class).to(bindLoadCodeList());
+		bind(LoadCodeList.class).to(bindLoadCodeList());
 		bind(ValidateFpMLCodingSchemeDomain.class).to(bindValidateFpMLCodingSchemeDomain());
 	}
 
-//	protected Class<? extends LoadCodeList> bindLoadCodeList() {
-//		return LoadCodeListImpl.class;
-//	}
+	protected Class<? extends LoadCodeList> bindLoadCodeList() {
+		return LoadCodeListImpl.class;
+	}
 
 	protected Class<? extends ValidateFpMLCodingSchemeDomain> bindValidateFpMLCodingSchemeDomain() {
 		return ValidateFpMLCodingSchemeImpl.class;

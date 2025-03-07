@@ -132,8 +132,7 @@ public class ValidateFpMLCodingSchemeImpl extends ValidateFpMLCodingSchemeDomain
                 cache.put(domain, codeList);
             } catch (IOException | URISyntaxException e) {
                 logger.error("Error loading CodeList for domain '{}': {}", domain, e.getMessage());
-                // TODO: Remove this throw, used just for testing purposes
-                throw new RuntimeException(String.format("CodeList for domain '%s' not found", domain), e);
+                return Boolean.TRUE;
             }
         }
 
