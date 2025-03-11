@@ -398,8 +398,6 @@ type ConstituentWeight: <"A class describing the weight of each of the underlier
 
 type SettlementPayout extends PayoutBase: <"Represents a forward settling payout. The underlier attribute captures the underlying payout, which is settled according to the settlementTerms attribute (which is part of PayoutBase). Both FX Spot and FX Forward should use this component.">
     underlier Underlier (1..1) <"The underlying financial product that will be physically or cash settled, which can be of any type, eg an asset such as cash or a security, or the cash settlement of an index rate.">
-    deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23.">
-    delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
     schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     fixedPrice PriceSchedule (0..*) <"Specifies the price of the settlement. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
         [metadata address "pointsTo"=PriceQuantity->price]
@@ -420,32 +418,32 @@ type SettlementPayout extends PayoutBase: <"Represents a forward settling payout
         then settlementTerms exists
 
     condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
-        if delivery -> deliveryCapacity exists
+        if settlementTerms -> physicalSettlementTerms -> delivery -> deliveryCapacity exists
         then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
-                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> deliveryCapacity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
         else if schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity exists
-        then delivery -> deliveryCapacity is absent
-                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+        then settlementTerms -> physicalSettlementTerms -> delivery -> deliveryCapacity is absent
+                and settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> deliveryCapacity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
-        else if delivery -> periods -> profile -> block -> deliveryCapacity exists
+        else if settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> deliveryCapacity exists
         then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
         else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity exists
-        then delivery -> deliveryCapacity is absent
+        then settlementTerms -> physicalSettlementTerms -> delivery -> deliveryCapacity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
-                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> deliveryCapacity is absent
 
     condition PriceTimeIntervalQuantity: <"Checks that only one of the representations of price time interval quantity is present simultaneously.">
         if schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity exists
-        then delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+        then settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
-        else if delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
+        else if settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
         then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
                 and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
         else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity exists
         then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
-                and delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+                and settlementTerms -> physicalSettlementTerms -> delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
 
 type CalculationSchedule: <"A class that allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
     schedulePeriod SchedulePeriod (1..*) <"Defines a period of a calculation schedule structure.">
