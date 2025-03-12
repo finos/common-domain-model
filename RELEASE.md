@@ -82,5 +82,4 @@ or ((economicTerms -> payout -> forwardPayout only exists
                         and (economicTerms -> payout -> interestRatePayout exists or economicTerms -> payout -> cashflow exists)))
 ```
 
-
-Changes can be reviewed in PR: [#3163](https://github.com/finos/common-domain-model/issues/3163)
+Changes can be reviewed in PR: [#3476](https://github.com/finos/common-domain-model/issues/3476)
