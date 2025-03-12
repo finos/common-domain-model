@@ -9,6 +9,7 @@ _What is being released?_
 This release includes the addition of the attributes _exchange_ and _relatedExchange_ in the following types:
 - _Commodity_
 - _Security_
+
 To achieve this, an intermediate type called _Listing_ is created to prevent contamination in other types and to maintain consistency with CDM 6. The rationale behind this change is that a field in the CSA jurisdiction requires extracting the platform on which the underlying asset is traded which is given by _exchange_ and _relatedExchange_ attributes. The discussion on this matter can be found in issue [#3338](https://github.com/finos/common-domain-model/issues/3338).
     
 _Review directions_
