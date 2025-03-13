@@ -1,23 +1,19 @@
-# _Infrastructure - Dependency Update_
+# _CDM Model - Addition of Exchange attributes_
+
+_Background_
+
+In accordance with the CDM roadmap, the model is being expanded and updated to ensure robust support for evolving regulatory requirements. Specifically, CSA jurisdiction requires a new reporting rule from CDE version 3, called _Underlying Asset Trading Platform Identifier_. This reporting rule requires extracting the platform on which the underlying asset is traded, thus this information is given by `exchange` and `relatedExchange` attributes. Since CSA is modelled in DRR 6, which operates using CDM 5, we need to add these attributes in CDM 5. Furthermore, the same field is going to be needed in the future modelling of CFTC version 3.3.
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release includes the addition of the attributes `exchange` and `relatedExchange` in the following types:
+- `Commodity`
+- `Security`
 
-Version updates include:
-- `DSL` 9.34.2 bug fix where removing duplicate import causes problems where those imports use aliases. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.2
-- `DSL` 9.35.0 bug fix for recursive reporting rules and support for labels on circular types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.0
-- `DSL` 9.35.1 Rule source label fix and maintenance of generated serialization code. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.1
-- `DSL` 9.36.0 Added condition support in typeAlias. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.0
-- `DSL` 9.36.1 Use package name first segment for model name in RuneDataType annotation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.1
-- `DSL` 9.36.2 Fix extended rule source with extended type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.2
-- `DSL` 9.36.3 Fix XML serializer substitution groups. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.3
-- `DSL` 9.36.4 Make XML serializer substitution groups work in a backward compatible manner. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.4
-- `DSL` 9.36.5 Handle empty inputs when set on meta function output & Fix for setting meta on nested objects. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.5
-- `DSL` 9.36.6 Fix multi cardinality nested meta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.6
+To achieve this, an intermediate type called `Listing` is created to prevent contamination in other types and to maintain consistency with CDM 6. The rationale behind this change is that a field in the CSA jurisdiction requires extracting the platform on which the underlying asset is traded which is given by `exchange` and `relatedExchange` attributes. The discussion on this matter can be found in issue [#3338](https://github.com/finos/common-domain-model/issues/3338).
 
 _Review directions_
 
-JSON expectations diffs are expected due to the added support for meta data in functions in DSL versions 9.36.6.
-
-The changes can be reviewed in PR: [#3481](https://github.com/finos/common-domain-model/pull/3481) 
+In Rosetta, select the Textual View and inspect each of the changes identified above.
+In Rosetta, go to the following path _cdm.base.staticdata.asset.common_ and review the expectations for the fields listed above.
+The changes can be reviewed in PR: [#3501](https://github.com/finos/common-domain-model/pull/3501)
