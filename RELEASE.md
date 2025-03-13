@@ -16,4 +16,4 @@ _Review directions_
 
 In Rosetta, select the Textual View and inspect each of the changes identified above.
 In Rosetta, go to the following path _cdm.base.staticdata.asset.common_ and review the expectations for the fields listed above.
-The changes can be reviewed in PR: [#3501](https://github.com/finos/common-domain-model/pull/3518)
+The changes can be reviewed in PR: [#3518](https://github.com/finos/common-domain-model/pull/3518)
