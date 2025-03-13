@@ -41,6 +41,13 @@ type ProductBase: <"Serves as an abstract class to specify a product using a pro
     productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
         [metadata address "pointsTo"=Observable->productIdentifier]
 
+type Listing extends ProductBase: <"Specifies the exchange where the asset is listed.">
+    exchange LegalEntity (0..1) <"Exchange refers to the principal financial market where the asset is listed. This is the main venue for the buying and selling of the asset, such as a stock exchange for equities or a futures exchange for commodities.">
+    relatedExchange LegalEntity (0..*) <"Related Exchange denotes any additional exchange or trading platform where the asset is listed. For instance, if the asset is a particular stock, the related exchange might be the exchange where the stock is listed.">
+
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
+
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
 
     name string (0..1) <"Specifies the taxonomy value as a simple string, which may be associated to an external scheme.">
@@ -97,7 +104,7 @@ type IndexReferenceInformation: <"A class defining information related to Index"
 
 type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
 
-type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
+type Commodity extends Listing: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
@@ -183,7 +190,7 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
     condition:
         one-of
 
-type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
+type Security extends Listing: <"Identifies a security by referencing a product identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
