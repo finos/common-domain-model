@@ -8,11 +8,12 @@ _What is being released?_
 
 This release creates following modifications:
 - following new qualification functions are added
-  - `Qualify_Equity_OtherSwap`
-  - `Qualify_Credit_OptionOther`
-  - `Qualify_Commodity_OptionOther`
+  - `Qualify_Equity_OtherSwap` - This function qualifies a product as an Equity Swap (Other) where the base product qualifies as Equity Swap with non standard terms.
+  - `Qualify_Credit_OptionOther` - This function qualifies a product as a Credit Option (Other) where the base product qualifies as Credit Option with non standard terms.
+  - `Qualify_Commodity_OptionOther` - This function qualifies a product as an Commodity Option (Other) where the base product qualifies as Commodity Option with non standard terms.
+  
 ```
-func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
+func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap (Other) with properties of an Equity Swap with non standard terms">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -28,7 +29,7 @@ func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap for which
                     and economicTerms -> payout -> performancePayout count = 1)
             and economicTerms -> nonStandardisedTerms = True
 
-func Qualify_Credit_OptionOther: <"This product qualification is temporary until such time that the ISDA Credit Group specifies a proper taxonomy for credit derivatives that is based upon economic terms.">
+func Qualify_Credit_OptionOther: <"Qualifies a product as an Credit Option (Other) with properties of an Credit Option with non standard terms">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -39,7 +40,7 @@ func Qualify_Credit_OptionOther: <"This product qualification is temporary until
             and Qualify_AssetClass_Credit(economicTerms) = True
             and economicTerms -> nonStandardisedTerms = True
 
-func Qualify_Commodity_OptionOther: <"Qualifies a product as a Option that can be exercised into an Commodity.">
+func Qualify_Commodity_OptionOther: <"Qualifies a product as an Commodity Option (Other) with properties of an Commodity Option with non standard terms">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -82,4 +83,5 @@ or ((economicTerms -> payout -> forwardPayout only exists
                         and (economicTerms -> payout -> interestRatePayout exists or economicTerms -> payout -> cashflow exists)))
 ```
 
-Changes can be reviewed in PR: [#3476](https://github.com/finos/common-domain-model/issues/3476)
+Original Issue: [#3476](https://github.com/finos/common-domain-model/issues/3476)
+Changes can be reviewed in PR: [#3511](https://github.com/finos/common-domain-model/pull/3511)
