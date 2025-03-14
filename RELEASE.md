@@ -1,23 +1,23 @@
-# _Infrastructure - Dependency Update_
+# *CDM Model - Change to CDM 5.x.x for Equity Products*
+
+_Background_
+
+This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release creates following modifications:
+- following new qualification functions are added
+  - `Qualify_Equity_OtherSwap` - This function qualifies a product as an Equity Swap (Other) where the base product qualifies as Equity Swap with non standard terms.
+  - `Qualify_Credit_OptionOther` - This function qualifies a product as a Credit Option (Other) where the base product qualifies as Credit Option with non standard terms.
+  - `Qualify_Commodity_OptionOther` - This function qualifies a product as an Commodity Option (Other) where the base product qualifies as Commodity Option with non standard terms.
+  
+- changes in existing Qualification functions to avoid duplicate qualification
 
-Version updates include:
-- `DSL` 9.34.2 bug fix where removing duplicate import causes problems where those imports use aliases. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.2
-- `DSL` 9.35.0 bug fix for recursive reporting rules and support for labels on circular types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.0
-- `DSL` 9.35.1 Rule source label fix and maintenance of generated serialization code. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.1
-- `DSL` 9.36.0 Added condition support in typeAlias. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.0
-- `DSL` 9.36.1 Use package name first segment for model name in RuneDataType annotation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.1
-- `DSL` 9.36.2 Fix extended rule source with extended type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.2
-- `DSL` 9.36.3 Fix XML serializer substitution groups. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.3
-- `DSL` 9.36.4 Make XML serializer substitution groups work in a backward compatible manner. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.4
-- `DSL` 9.36.5 Handle empty inputs when set on meta function output & Fix for setting meta on nested objects. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.5
-- `DSL` 9.36.6 Fix multi cardinality nested meta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.6
+  - `Qualify_AssetClass_InterestRate` 
+  - `Qualify_AssetClass_Equity`
 
-_Review directions_
+      modifications in the above functions include the modification of existing clause where only `forwardPayout` is allowed. Now, the functions also check for a combination `forwardPayout` with `interestRatePayout` or `cashflows` to qualify the product as `AssetClass: Interest Rate` or  `AssetClass: Equity`
 
-JSON expectations diffs are expected due to the added support for meta data in functions in DSL versions 9.36.6.
-
-The changes can be reviewed in PR: [#3481](https://github.com/finos/common-domain-model/pull/3481) 
+Original Issue: [#3476](https://github.com/finos/common-domain-model/issues/3476)
+Changes can be reviewed in PR: [#3511](https://github.com/finos/common-domain-model/pull/3511)
