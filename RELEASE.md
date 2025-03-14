@@ -2,7 +2,7 @@
 
 _Background_
 
-In accordance with the CDM roadmap, the model is being expanded and updated to ensure robust support for evolving regulatory requirements. Specifically, for a new reporting rule called _Underlying Asset Trading Platform Identifier_. This reporting rule requires extracting the platform on which the underlying asset is traded, thus this information is given by `exchange` and `relatedExchange` attributes. Since this reporting rule is needed in DRR 6, which operates using CDM 5, we need to add these attributes in CDM 5.
+In accordance with the CDM roadmap, the model is being expanded and updated to ensure robust support for evolving regulatory requirements. Specifically, for a new reporting rule called _Underlying Asset Trading Platform Identifier_. This reporting rule requires extracting the platform on which the underlying asset is traded, thus this information is given by `exchange` and `relatedExchange` attributes.
 
 _What is being released?_
 
