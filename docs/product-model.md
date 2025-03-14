@@ -926,7 +926,7 @@ type Loan extends ProductBase:
 ```
 
 ``` Haskell
-type Security extends ProductBase:
+type Security extends Listing:
   securityType SecurityTypeEnum (1..1)
   debtType DebtType (0..1)
   equityType EquityTypeEnum (0..1)
