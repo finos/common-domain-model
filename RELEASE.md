@@ -1,8 +1,8 @@
-# *CDM Model - Change to CDM 5.x.x for Equity Products*
+# *CDM Model 5.x.x - Changes in product qualification functions for Equity Products*
 
 _Background_
 
-This release contains modifications required to accomodate Equity and Exotic Products under individual Asset Classes
+This release contains modifications required to accommodate Equity and Exotic Products under individual Asset Classes. Currently, the product qualification functions does not fully support qualification of Equity Products.
 
 _What is being released?_
 
@@ -18,6 +18,11 @@ This release creates following modifications:
   - `Qualify_AssetClass_Equity`
 
       modifications in the above functions include the modification of existing clause where only `forwardPayout` is allowed. Now, the functions also check for a combination `forwardPayout` with `interestRatePayout` or `cashflows` to qualify the product as `AssetClass: Interest Rate` or  `AssetClass: Equity`
+
+_Review Directions_
+In Rosetta, open CDM model and in Textual view navigate to file cdm > product > qualification > func and review:
+- addition of three new qualification functions
+- modification to the existing qualification functions
 
 Original Issue: [#3476](https://github.com/finos/common-domain-model/issues/3476)
 Changes can be reviewed in PR: [#3522](https://github.com/finos/common-domain-model/pull/3522)
