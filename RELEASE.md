@@ -20,4 +20,4 @@ This release creates following modifications:
       modifications in the above functions include the modification of existing clause where only `forwardPayout` is allowed. Now, the functions also check for a combination `forwardPayout` with `interestRatePayout` or `cashflows` to qualify the product as `AssetClass: Interest Rate` or  `AssetClass: Equity`
 
 Original Issue: [#3476](https://github.com/finos/common-domain-model/issues/3476)
-Changes can be reviewed in PR: [#3511](https://github.com/finos/common-domain-model/pull/3511)
+Changes can be reviewed in PR: [#3522](https://github.com/finos/common-domain-model/pull/3522)
