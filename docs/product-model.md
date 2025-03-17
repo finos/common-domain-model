@@ -980,6 +980,7 @@ type Commodity extends Listing:
     commodityProductDefinition CommodityProductDefinition (0..1)
     priceQuoteType QuotationSideEnum (1..1)
     deliveryDateReference DeliveryDateParameters (0..1)
+    description string (0..1)
 ```
 
 # Product Qualification
