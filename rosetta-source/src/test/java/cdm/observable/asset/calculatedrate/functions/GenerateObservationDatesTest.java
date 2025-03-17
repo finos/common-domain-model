@@ -1,7 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.BusinessCenters;
+
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Inject;
 import com.rosetta.model.lib.records.Date;
@@ -23,7 +22,7 @@ public class GenerateObservationDatesTest extends AbstractFunctionTest {
 	@Test
 	void shouldDeterminedDates() {
 		CalculationPeriodBase obsPeriod = period(Date.of(2020, 12, 7), Date.of(2021, 3, 5));
-		List<BusinessCenterEnum> bc = Collections.singletonList(BusinessCenterEnum.GBLO);
+		List<String> bc = Collections.singletonList("GBLO");
 
 		Integer lockout = 1;
 
