@@ -2,7 +2,7 @@
 
 _Background_
 
-In accordance with the CDM roadmap, the model is being expanded and updated to ensure robust support for evolving regulatory requirements. Specifically, for a new reporting rule called _Underlying Asset Trading Platform Identifier_. This reporting rule requires extracting the platform on which the underlying asset is traded, thus this information is given by `exchange` and `relatedExchange` attributes.
+In accordance with the CDM roadmap, the model is being expanded and updated to ensure robust support for evolving regulatory requirements. Specifically, this is for a new reporting rule called _Underlying Asset Trading Platform Identifier_. This reporting rule requires extracting the platform on which the underlying asset is traded, thus this information is given by `exchange` and `relatedExchange` attributes.
 
 _What is being released?_
 
@@ -12,10 +12,10 @@ This release includes the addition of the attributes `exchange` and `relatedExch
 
 To achieve this, an intermediate type called `Listing` is created to prevent contamination in other types and to maintain consistency with CDM 6. The rationale behind this change is that a new field requires extracting the platform on which the underlying asset is traded which is given by `exchange` and `relatedExchange` attributes. The discussion on this matter can be found in issue [#3338](https://github.com/finos/common-domain-model/issues/3338).
 
-_Review directions_
+_Review Directions_
 
-In Rosetta, select the Textual View and inspect each of the changes identified above.
-In Rosetta, go to the following path _cdm.base.staticdata.asset.common_ and review the expectations for the fields listed above.
+In the Rosetta platform, select the Textual View and inspect each of the changes identified above.
+Select the following path _cdm.base.staticdata.asset.common_ and review the expectations for the fields listed above.
 
 Changes can be reviewed in PR: [#3519](https://github.com/finos/common-domain-model/pull/3519)
 
