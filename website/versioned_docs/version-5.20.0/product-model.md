@@ -1107,3 +1107,46 @@ type ProductTaxonomy extends Taxonomy:
   }
 ]
 ```
+
+# Listing
+
+`exchange` and `relatedExchange` are attributes that refer to the financial markets where the asset is listed. Specifically, their definitions are as follows:
+- Exchange refers to the principal financial market where the asset is listed. This is the main venue for the buying and selling of the asset, such as a stock exchange for equities or a futures exchange for commodities. 
+- Related Exchange denotes any additional exchange or trading platform where the asset is listed. For instance, if the asset is a particular stock, the related exchange might be the exchange where the stock is listed. 
+
+These attributes help identify the platforms on which the asset is listed.
+
+`Listing` is an intermediate type created to add both `exchange` and `relatedExchange` attributes to `Commodity` and `Security` assets, as they are the only types that can be a listed on an exchange.
+
+``` Haskell
+type Listing extends ProductBase:
+    exchange LegalEntity (0..1)
+    relatedExchange LegalEntity (0..*)
+   
+    condition RelatedExchange:
+        if exchange is absent then relatedExchange is absent
+```
+The following snippets show that `Commodity` and `Security` are extended by `Listing`:
+``` Haskell
+type Commodity extends Listing:
+    commodityProductDefinition CommodityProductDefinition (0..1) 
+    priceQuoteType QuotationSideEnum (1..1) 
+    deliveryDateReference DeliveryDateParameters (0..1) 
+    description string (0..1) 
+```
+
+``` Haskell
+type Security extends Listing:
+    securityType SecurityTypeEnum (1..1)
+    debtType DebtType (0..1)
+    equityType EquityTypeEnum (0..1)
+    fundType FundProductTypeEnum (0..1)
+    economicTerms EconomicTerms (0..1)
+```
+
+---
+**Note:**
+The code snippets above exclude the conditions in these data types for
+purposes of brevity.
+
+---
