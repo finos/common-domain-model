@@ -907,11 +907,27 @@ type ProductBase:
   productIdentifier ProductIdentifier (0..*)
 ```
 
-The data types that extend from ProductBase are Index, Commodity, Loan,
-and Security. Index and Commodity do not have any additional attributes.
-In the case of Commodity, the applicable product identifiers are the
-ISDA definitions for reference benchmarks. Loan and Security both have a
-set of additional attributes, as shown below:
+The data types that extend from ProductBase are: Index, Commodity, Loan,
+and Security.
+
+Certain types of product can be listed on exchanges. To account for such cases,
+an additional type called `Listing` is required that also contains an `exchange` and `relatedExchange` attributes
+to identify the platform or market on which the product is listed.
+- Exchange refers to the principal financial market where the product is listed. This is the main venue for the buying and selling of the product, such as a stock exchange for equities or a futures exchange for commodities.
+- Related Exchange denotes any additional exchange or trading platform where the product is listed. For instance, if the product is a particular stock, the related exchange might be the exchange where the stock is listed.
+
+``` Haskell
+type Listing extends ProductBase:
+    exchange LegalEntity (0..1)
+    relatedExchange LegalEntity (0..*)
+   
+    condition RelatedExchange:
+        if exchange is absent then relatedExchange is absent
+```
+
+The product types that require these exchange attributes are `Commodity` and `Security`, so both extend `Listing`.
+
+Loan and Security also have a set of additional attributes, as shown below:
 
 ``` Haskell
 type Loan extends ProductBase:
@@ -925,8 +941,10 @@ type Loan extends ProductBase:
     [metadata scheme]
 ```
 
+As noted above, `Security` extends `Listing`:
+
 ``` Haskell
-type Security extends ProductBase:
+type Security extends Listing:
   securityType SecurityTypeEnum (1..1)
   debtType DebtType (0..1)
   equityType EquityTypeEnum (0..1)
@@ -951,7 +969,19 @@ The product identifier will uniquely identify the security. The
 example for validation as a valid reference obligation for a Credit
 Default Swap. The additional security details are optional as these
 could be determined from a reference database using the product
-identifier as a key
+identifier as a key.
+
+In the case of Commodity, the applicable product identifiers are the
+ISDA definitions for reference benchmarks. The  data type contains additional attributes
+that are specific to the definition of a Commodity, and it also extends `Listing`:
+
+``` Haskell
+type Commodity extends Listing:
+    commodityProductDefinition CommodityProductDefinition (0..1)
+    priceQuoteType QuotationSideEnum (1..1)
+    deliveryDateReference DeliveryDateParameters (0..1)
+    description string (0..1)
+```
 
 # Product Qualification
 
