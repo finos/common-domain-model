@@ -1,4 +1,4 @@
-# _CDM Model - Addition of Exchange attributes_
+# _Product Model - Addition of Exchange attributes_
 
 _Background_
 
@@ -19,7 +19,7 @@ In Rosetta, go to the following path _cdm.base.staticdata.asset.common_ and revi
 
 Changes can be reviewed in PR: [#3519](https://github.com/finos/common-domain-model/pull/3519)
 
-# *CDM  5.x.x - Product Qualification Functions for Equity Products*
+# _Product Qualification - Delineation logic for non-standard terms_
 
 _Background_
 
