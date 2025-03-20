@@ -2,11 +2,11 @@
 
 _Background_
 
-This release fixes a bug in the CDM's product qualification framework introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), where products with non-standardised terms could be double-qualified.
+An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified.
 
 _What is being released?_
 
-Modified the following functions that qualify non-exotic products to add a negative `nonStandardisedTerms` check:
+This release addresses this issue, amending the following functions that qualify non-exotic products to add a negative `nonStandardisedTerms` check:
 
 * Qualify_CreditDefaultSwaption
 * Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName
@@ -34,6 +34,6 @@ _Review Directions_
 
 In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
 
-Bug: [#3545](https://github.com/finos/common-domain-model/issues/3545)
+Defect: [#3545](https://github.com/finos/common-domain-model/issues/3545)
 
 Changes can be reviewed in PR: [#3540](https://github.com/finos/common-domain-model/pull/3540)
