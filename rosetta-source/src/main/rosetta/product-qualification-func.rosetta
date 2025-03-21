@@ -5,8 +5,8 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.mapping.config.*
-import cdm.product.template.*
 import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 isProduct root EconomicTerms;
 
@@ -45,10 +45,10 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                                         optionUnderlier -> security -> economicTerms
                                     ) = True
                         else False))
-            or ((economicTerms -> payout -> forwardPayout only exists or 
-                (economicTerms -> payout -> forwardPayout exists
-                and (economicTerms -> payout -> interestRatePayout exists
-                    or economicTerms -> payout -> cashflow exists)))
+            or ((economicTerms -> payout -> forwardPayout only exists
+                    or (economicTerms -> payout -> forwardPayout exists
+                        and (economicTerms -> payout -> interestRatePayout exists
+                            or economicTerms -> payout -> cashflow exists)))
                 and (forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
                     or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate
                     or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate))
@@ -151,7 +151,7 @@ func Qualify_AssetClass_Equity:
                     then (Qualify_UnderlierProduct_Equity(forwardUnderlier)
                             or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
                             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity)
-                    else False)       
+                    else False)
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
     inputs:
@@ -1732,10 +1732,9 @@ func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap (Other) w
     set is_product:
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
-            and 
-            ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
-                    and economicTerms -> payout -> interestRatePayout count = 1
-                    and economicTerms -> payout -> performancePayout count = 1)
+            and ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
+                and economicTerms -> payout -> interestRatePayout count = 1
+                and economicTerms -> payout -> performancePayout count = 1)
             and economicTerms -> nonStandardisedTerms = True
 
 func Qualify_Credit_OptionOther: <"Qualifies a product as an Credit Option (Other) with properties of an Credit Option with non standard terms.">
