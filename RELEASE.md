@@ -26,17 +26,14 @@ _What is being released?_
 This release updates the `DSL` dependency.
 
 Version updates include:
-- `DSL` 9.34.2 bug fix where removing duplicate import causes problems where those imports use aliases. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.2
-- `DSL` 9.35.0 bug fix for recursive reporting rules and support for labels on circular types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.0
-- `DSL` 9.35.1 Rule source label fix and maintenance of generated serialization code. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.1
-- `DSL` 9.36.0 Added condition support in typeAlias. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.0
-- `DSL` 9.36.1 Use package name first segment for model name in RuneDataType annotation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.1
-- `DSL` 9.36.2 Fix extended rule source with extended type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.2
-- `DSL` 9.36.3 Fix XML serializer substitution groups. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.3
-- `DSL` 9.36.4 Make XML serializer substitution groups work in a backward compatible manner. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.4
-- `DSL` 9.36.5 Handle empty inputs when set on meta function output & Fix for setting meta on nested objects. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.5
-- `DSL` 9.36.6 Fix multi cardinality nested meta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.6
+- `DSL` 9.38.0 Fix setting enum values on meta fields. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.38.0
+- `DSL` 9.39.0 Fix default operation issue and add support for `with-meta` operation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.39.0
+- `DSL` 9.40.0 Add support for regulatory reference paths. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.40.0
+- `DSL` 9.40.1 Deprecated productType, eventType and calculation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.40.1
+- `DSL` 9.41.0 Fixed Simple NPE when code action is not set correctly. Deleted 'new' validator. Type format and cardinality validators injection. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.41.0
+- `DSL` 9.41.1 Annotate POJO attributes to highlight address & locations. Fix issue that is breaking translate parse handlers. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.41.1
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3474](https://github.com/finos/common-domain-model/pull/3474) 
+The changes can be reviewed in PR: [#3554](https://github.com/finos/common-domain-model/pull/3554) 
+
