@@ -4,7 +4,7 @@
 
 # Common Domain Model (CDM)
 
-<img src=".github/bulb.svg" width="30"> [<kbd> <br> View CDM Homepage <br> </kbd>](https://cdm.finos.org/)
+<img src=".github/bulb.svg" width="30"> [<kbd> <br> View CDM Homepage <br> </kbd>](https://cdm.finos.org/)                     <img src=".github/book-open.svg" width="30"> [<kbd> <br> Introduction Training <br> </kbd>](https://cdm.finos.org/docs/training) 
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.   \
  \
@@ -35,9 +35,9 @@ The following Working Groups are currently activated or about to be set up for t
 * [Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
 * [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
 * [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
-* [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
 * [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
 * [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG) - previously known as Derivative Products and Business Events Working Group
+* [Tokenized Assets Working Group](https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG)
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
@@ -83,6 +83,12 @@ Proposals for an entity to be given maintainership status or to have maintainers
 
 **CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements. 
 
+**CDM Steering Working Group Chair Election Governance:**
+
+* **Term** It is proposed that Steering WG Chairs serve for a term of 1 calendar year starting Jan 1st each year, with election of a new chair in the October SWG (nominations being called for at September’s SWG). This start of the tenure nicely coincides with the need to annually review governance rules.
+* **Candidacy Eligibility** Candidates can be nominated by anyone in the community from the list of maintainers on maintainers.md
+* **Voting** Voting rules are covered by existence governance: one vote by entity and only by listed participants in participants.md
+
 ## CDM Design Principles
 
 Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
@@ -96,6 +102,13 @@ Contributions to the CDM have to comply with the following set of design princip
 ## CDM development guidelines 
 
 The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.finos.org/docs/contribution).
+
+## Download Source Code
+
+The CDM source code is open source and can be downloaded from [CDM GitHub](https://github.com/finos/common-domain-model). All released versions are tagged and can be downloaded from
+[CDM GitHub Releases](https://github.com/finos/common-domain-model/releases).
+
+You can download the CDM in multiple formats, including Java, Python, DAML, Scala, C#, Go, TypeScript, Kotlin, Excel, and JSON Schema, [visit this page](https://cdm.finos.org/docs/download#versions) for the latest releases and download links.
 
 ## Getting involved 
 
@@ -184,9 +197,9 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           
 | Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Jason Polis   | ISDA           | OrgRep                                      | JasonPolis-ISDA           | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Tabish Ahmed          | ISDA           | OrgRep                                      | tabi5h            | 
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
