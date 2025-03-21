@@ -73,13 +73,13 @@ func StandardizedScheduleProductClass: <"Identifies the product class of a trade
     alias product: trade -> product
     alias economicTerms: product -> economicTerms
     set productClass:
-        if IsIRSwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
+        if Qualify_InterestRate_SwapWithCallableBermudanRightToEnterExitSwaps(economicTerms)
         then StandardizedScheduleProductClassEnum -> SwapWithCallableBermudanRightToEnterExitSwaps
         else if Qualify_BaseProduct_IRSwap(economicTerms)
         then StandardizedScheduleProductClassEnum -> Swap
         else if Qualify_BaseProduct_CrossCurrency(economicTerms)
         then StandardizedScheduleProductClassEnum -> CrossCurrencySwap
-        else if IsIRSwaptionStraddle(economicTerms)
+        else if Qualify_InterestRate_Swaption_Straddle(economicTerms)
         then StandardizedScheduleProductClassEnum -> SwaptionStraddle
         else if Qualify_InterestRate_Option_Swaption(economicTerms)
         then StandardizedScheduleProductClassEnum -> Swaption
@@ -96,7 +96,7 @@ func StandardizedScheduleProductClass: <"Identifies the product class of a trade
         then StandardizedScheduleProductClassEnum -> IndexTranche
         else if Qualify_CreditDefaultSwaption(economicTerms)
         then StandardizedScheduleProductClassEnum -> Swaption
-        else if IsCreditNthToDefault(economicTerms)
+        else if Qualify_Credit_NthToDefault(economicTerms)
         then StandardizedScheduleProductClassEnum -> CreditNthToDefault
         // Credit Total return swap on a bond not supported
         else if Qualify_ForeignExchange_Swap(economicTerms)
@@ -107,9 +107,9 @@ func StandardizedScheduleProductClass: <"Identifies the product class of a trade
         then StandardizedScheduleProductClassEnum -> DeliverableForward
         else if Qualify_ForeignExchange_NDF(economicTerms)
         then StandardizedScheduleProductClassEnum -> NonDeliverableForward
-        else if IsFXDeliverableOption(economicTerms)
+        else if Qualify_ForeignExchange_VanillaOption(economicTerms)
         then StandardizedScheduleProductClassEnum -> DeliverableOption
-        else if IsFXNonDeliverableOption(economicTerms)
+        else if Qualify_ForeignExchange_NDO(economicTerms)
         then StandardizedScheduleProductClassEnum -> NonDeliverableOption
         else if Qualify_ForeignExchange_ParameterReturnVariance(economicTerms)
         then StandardizedScheduleProductClassEnum -> VarianceSwap
@@ -190,7 +190,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -213,7 +213,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then (economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
@@ -278,7 +278,7 @@ func StandardizedScheduleNotional: <"Extracts the notional amount of a trade, ac
             then 0.0 // No spot price available
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
             then (
-                        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForProduct(
+                        StandardizedScheduleCommoditySwapFixedFloatNotionalAmount(UnderlierForOptionOrForwardProduct(
                                 product
                             ) -> Product ->> economicTerms
                     )) // CO Contract for Difference (CFD) not supported
@@ -313,7 +313,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
                     or productClass = StandardizedScheduleProductClassEnum -> SwaptionStraddle
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> InterestRatePayout
                 filter (priceQuantity -> quantitySchedule exists)
                 then first
                 then priceQuantity
@@ -336,7 +336,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             then (economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ)
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> CreditDefaultPayout only-element -> priceQuantity
                 then StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ) // Credit Total return swap on a bond not supported
             )
         else if assetClass = StandardizedScheduleAssetClassEnum -> ForeignExchange
@@ -389,7 +389,7 @@ func StandardizedScheduleNotionalCurrency: <"Extracts the notional currency of a
             else if productClass = StandardizedScheduleProductClassEnum -> BasisSwap
             then "AAA" // No spot price available
             else if productClass = StandardizedScheduleProductClassEnum -> Swaption
-            then (UnderlierForProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency) // CO Contract for Difference (CFD) not supported
+            then (UnderlierForOptionOrForwardProduct(product) -> Product ->> economicTerms -> payout -> FixedPricePayout only-element -> fixedPrice -> price -> unit -> currency) // CO Contract for Difference (CFD) not supported
             )
 
     post-condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code ">
@@ -442,7 +442,7 @@ func StandardizedScheduleDuration: <"Extracts the duration of a trade, according
         durationInYears number (0..1)
     alias product: trade -> product
     alias economicTerms: product -> economicTerms
-    alias underlier: UnderlierForProduct(product)
+    alias underlier: UnderlierForOptionOrForwardProduct(product)
     alias transactionEffectiveDate:
         AdjustableOrAdjustedOrRelativeDateResolution(
                 ConvertToAdjustableOrAdjustedOrRelativeDate(economicTerms -> effectiveDate)
@@ -564,53 +564,6 @@ func GetStandardizedScheduleMarginRate: <"Computes the margin rate, which is req
         else if assetClass = StandardizedScheduleAssetClassEnum -> Commodity
         then 15.0
 
-//Potential move to other namespaces
-func UnderlierForProduct: <"Extracts the underlier product.">
-    inputs:
-        product NonTransferableProduct (1..1)
-    output:
-        underlierProduct Underlier (1..1)
-    set underlierProduct:
-        if product -> economicTerms -> payout -> OptionPayout exists
-        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
-        else if product -> economicTerms -> payout -> SettlementPayout exists
-        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
-
-//Potential move to other namespaces
-func AdjustableOrAdjustedOrRelativeDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
-    inputs:
-        adjustableDate AdjustableOrAdjustedOrRelativeDate (1..1)
-    output:
-        date date (0..1)
-    set date:
-        if adjustableDate -> unadjustedDate exists
-        then adjustableDate -> unadjustedDate
-        else adjustableDate -> adjustedDate
-
-//Potential move to other namespaces
-func AdjustableDateResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
-    inputs:
-        adjustableDate AdjustableDate (1..1)
-    output:
-        date date (0..1)
-
-    set date:
-        if adjustableDate -> unadjustedDate exists
-        then adjustableDate -> unadjustedDate
-        else adjustableDate -> adjustedDate
-
-//Potential move to other namespaces
-func AdjustableDatesResolution: <"A fall back for unadjustedDate when adjustedDate is only available.">
-    inputs:
-        adjustableDates AdjustableDates (1..1)
-    output:
-        date date (0..*)
-
-    add date:
-        if adjustableDates -> unadjustedDate exists
-        then adjustableDates -> unadjustedDate
-        else adjustableDates -> adjustedDate
-
 func StandardizedScheduleMonetaryNotionalFromResolvablePQ: <"Extracts the notional amount for all products that have it populated in the resolvable priceQuantity.">
     inputs:
         priceQuantity ResolvablePriceQuantity (0..1)
@@ -636,28 +589,6 @@ func StandardizedScheduleMonetaryNotionalCurrencyFromResolvablePQ: <"Extracts th
         then (if priceQuantity -> quantitySchedule -> multiplier exists
             then priceQuantity -> quantitySchedule -> multiplier -> unit -> currency
             else priceQuantity -> quantitySchedule -> unit -> currency)
-
-//Potential move to other namespaces
-func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
-    inputs:
-        product NonTransferableProduct (1..1)
-    output:
-        nearLegPayout SettlementPayout (0..1)
-    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
-    set nearLegPayout:
-        // value date
-        if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
-                and settlementPayout -> settlementTerms -> settlementDate -> valueDate exists
-        then settlementPayout max [ item -> settlementTerms -> settlementDate -> valueDate ]
-        // adjustable or relative date
-        else if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
-                and settlementPayout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
-        then settlementPayout
-            max [
-                AdjustableOrAdjustedOrRelativeDateResolution(
-                        item -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
-                    )
-            ]
 
 func StandardizedScheduleFXSwapNotional: <"Extracts the notional amount and currency of an FX swap.">
     inputs:
@@ -696,30 +627,6 @@ func StandardizedScheduleFXSwapNotional: <"Extracts the notional amount and curr
             first)
     set quantity: extractedExchangedCurrency
 
-// func StandardizedScheduleFXNDFNotional: <"Extracts the notional amount and currency of an FX non-deliverable forward.">
-//     inputs: settlementPayout SettlementPayout (0..1)
-//     output: quantity NonNegativeQuantitySchedule (0..1)
-//     alias settlementCurrency:
-//     forwardPayout -> settlementTerms -> settlementCurrency
-//     alias exchangedCurrencies:
-//     [
-//         forwardPayout -> underlier -> foreignExchange -> exchangedCurrency1,
-//         forwardPayout -> underlier -> foreignExchange -> exchangedCurrency2
-//     ]
-//     set quantity:
-//     exchangedCurrencies filter priceQuantity -> quantitySchedule -> unit -> currency = settlementCurrency then only-element then priceQuantity -> quantitySchedule
-// func StandardizedScheduleFXNDONotional: <"Extracts the notional amount and currency of an FX non-deliverable option.">
-//     inputs: optionPayout OptionPayout (0..1)
-//     output: quantity NonNegativeQuantitySchedule (0..1)
-//     alias settlementCurrency:
-//     optionPayout -> settlementTerms -> settlementCurrency
-//     alias exchangedCurrencies:
-//     [
-//         optionPayout -> underlier -> foreignExchange -> exchangedCurrency1,
-//         optionPayout -> underlier -> foreignExchange -> exchangedCurrency2
-//     ]
-//     set quantity:
-//     exchangedCurrencies filter priceQuantity -> quantitySchedule -> unit -> currency = settlementCurrency then only-element then priceQuantity -> quantitySchedule
 func StandardizedScheduleFXVarianceNotionalAmount: <"Extracts the notional amount of an FX variance swap.">
     inputs:
         performancePayout PerformancePayout (0..1)
@@ -800,18 +707,7 @@ func StandardizedScheduleCommoditySwapFixedFloatNotionalAmount: <"Extracts the n
                 else value)
     set amount: fixedPrice * notionalQuantity
 
-//Potential move to other namespaces
-func DateDifferenceYears: <"Computes the difference in years between two dates. All years are supposed to have 365 days.">
-    inputs:
-        firstDate date (1..1) <"The earlier date.">
-        secondDate date (1..1) <"The later date.">
-    output:
-        difference number (1..1)
-
-    set difference: DateDifference(firstDate, secondDate) / 365.0
-
-//Potential move to other namespaces
-func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.">
+func Qualify_Credit_NthToDefault: <"Qualifies a product as a CR basket Nth to default by checking that 1) it is a credit product with a basket underlier and 2) nth to default information is populated.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -819,28 +715,7 @@ func IsCreditNthToDefault: <"Identifies a product as a CR basket Nth to default.
     set is_Product:
         economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> basketReferenceInformation -> nthToDefault exists
 
-//Potential move to other namespaces
-func IsFXDeliverableOption: <"Identifies a product as an FX deliverable option.">
-    inputs:
-        economicTerms EconomicTerms (1..1)
-    output:
-        is_Product boolean (1..1)
-    set is_Product:
-        Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> OptionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Physical
-
-//Potential move to other namespaces
-func IsFXNonDeliverableOption: <"Identifies a product as an FX non-deliverable option.">
-    inputs:
-        economicTerms EconomicTerms (1..1)
-    output:
-        is_Product boolean (1..1)
-    set is_Product:
-        Qualify_ForeignExchange_VanillaOption(economicTerms)
-            and economicTerms -> payout -> OptionPayout only-element -> settlementTerms -> settlementType = SettlementTypeEnum -> Cash
-
-//Potential move to other namespaces
-func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
+func Qualify_InterestRate_Swaption_Straddle: <"Qualifies a product as an IR swaption straddle by checking that it is indeed an IR swaption with the option type populated as Straddle.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -849,8 +724,7 @@ func IsIRSwaptionStraddle: <"Identifies a product as an IR swaption straddle.">
         Qualify_InterestRate_Option_Swaption(economicTerms)
             and economicTerms -> payout -> OptionPayout only-element -> optionType = OptionTypeEnum -> Straddle
 
-//Potential move to other namespaces
-func IsIRSwapWithCallableBermudanRightToEnterExitSwaps: <"Identifies a product as an IR swap with bermudan/callable right to enter/exit swaps.">
+func Qualify_InterestRate_SwapWithCallableBermudanRightToEnterExitSwaps: <"Qualifies a product as an IR swap with bermudan/callable right to enter/exit swaps, by checking it is an IR swap that has an optional early termination with Bermudan style.">
     inputs:
         economicTerms EconomicTerms (1..1)
     output:
@@ -901,23 +775,3 @@ func GetNetInitialMarginFromExposure: <"Computes the net initial margin, taking 
 
     post-condition NGRAddition: <"Ensure that only a single currency exists">
         tradeInitialMargin -> markToMarketValue -> unit -> currency distinct count = 1
-
-func Create_ExposureFromTrades: <"Builds an Exposure structure from a collection of trades.">
-    inputs:
-        trades TradeState (0..*)
-    output:
-        exposure Exposure (0..1)
-
-    add exposure -> tradePortfolio -> positions:
-        trades
-            extract
-                Position {
-                    cashBalance: empty,
-                    priceQuantity: item -> trade -> tradeLot -> priceQuantity,
-                    tradeReference: empty,
-                    product: Product {
-                        NonTransferableProduct: item -> trade -> product,
-                        ...
-        }}
-
-    set exposure -> tradePortfolio -> lineage -> tradeReference: trades -> trade first
