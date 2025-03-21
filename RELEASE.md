@@ -30,14 +30,13 @@ This release addresses this issue, amending the following functions that qualify
 * Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex
 * Qualify_EquityForward_PriceReturnBasicPerformance_Basket
 
-Details of the Issue and the resolution are available here:
-
-Defect: [#3545](https://github.com/finos/common-domain-model/issues/3545)
-
-Changes can be reviewed in PR: [#3540](https://github.com/finos/common-domain-model/pull/3540)
-
 _Review Directions_
 
 In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
+
+Details of the Issue and the resolution are available here: [#3545](https://github.com/finos/common-domain-model/issues/3545)
+
+Changes can be reviewed in PR: [#3540](https://github.com/finos/common-domain-model/pull/3540)
+
 
 
