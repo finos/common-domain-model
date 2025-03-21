@@ -44,6 +44,14 @@ function Home() {
               to={'https://github.com/finos/common-domain-model'}>
               GITHUB
             </Link>
+            <Link
+              className={classnames(
+                'button button--outline button--secondary button--lg',
+                styles.getStarted
+              )}
+              to={'https://app.cdmassistant.com'}>
+              CDM Assistant
+            </Link>
           </div>
         </div>
       </header>
