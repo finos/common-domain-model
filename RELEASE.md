@@ -1,8 +1,8 @@
-# _Product Qualification - Fix for the double qualification issue for Exotic Products_
+# _Product Qualification - Amendment in filter conditions for Exotic Products_
 
 _Background_
 
-An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified.
+An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified. 
 
 _What is being released?_
 
@@ -30,10 +30,14 @@ This release addresses this issue, amending the following functions that qualify
 * Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex
 * Qualify_EquityForward_PriceReturnBasicPerformance_Basket
 
-_Review Directions_
-
-In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
+Details of the Issue and the resolution are available here:
 
 Defect: [#3545](https://github.com/finos/common-domain-model/issues/3545)
 
 Changes can be reviewed in PR: [#3540](https://github.com/finos/common-domain-model/pull/3540)
+
+_Review Directions_
+
+In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
+
+
