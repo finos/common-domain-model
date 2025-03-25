@@ -1,39 +1,17 @@
-# _Product Qualification - Amendment in filter conditions for Exotic Products_
-
-_Background_
-
-An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified. 
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release addresses this issue, amending the following functions that qualify non-exotic products to add a negative `nonStandardisedTerms` check:
+This release updates the `DSL` dependency.
 
-* Qualify_CreditDefaultSwaption
-* Qualify_EquitySwap_PriceReturnBasicPerformance_SingleName
-* Qualify_EquitySwap_TotalReturnBasicPerformance_SingleName
-* Qualify_EquitySwap_PriceReturnBasicPerformance_Index
-* Qualify_EquitySwap_TotalReturnBasicPerformance_Index
-* Qualify_EquitySwap_PriceReturnBasicPerformance_Basket
-* Qualify_EquitySwap_TotalReturnBasicPerformance_Basket
-* Qualify_EquitySwap_ParameterReturnVariance_SingleName
-* Qualify_EquitySwap_ParameterReturnVariance_Index
-* Qualify_EquitySwap_ParameterReturnVariance_Basket
-* Qualify_EquitySwap_ParameterReturnDispersion
-* Qualify_EquitySwap_ParameterReturnVolatility_SingleName
-* Qualify_EquitySwap_ParameterReturnVolatility_Index
-* Qualify_EquitySwap_ParameterReturnVolatility_Basket
-* Qualify_EquitySwap_ParameterReturnCorrelation_Basket
-* Qualify_EquitySwap_ParameterReturnDividend_SingleName
-* Qualify_EquitySwap_ParameterReturnDividend_Index
-* Qualify_EquitySwap_ParameterReturnDividend_Basket
-* Qualify_EquityForward_PriceReturnBasicPerformance_SingleName
-* Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex
-* Qualify_EquityForward_PriceReturnBasicPerformance_Basket
+Version updates include:
+- `DSL` 9.38.0 Fixed setting enum values on meta fields. For further details, see DSL release notes: [DSL 9.38.0](https://github.com/finos/rune-dsl/releases/tag/9.38.0)
+- `DSL` 9.39.0 Fixed default operation issue and added support for `with-meta` operation. For further details, see DSL release notes: [DSL 9.39.0](https://github.com/finos/rune-dsl/releases/tag/9.39.0)
+- `DSL` 9.40.0 Added support for regulatory reference paths. For further details, see DSL release notes: [DSL 9.40.0](https://github.com/finos/rune-dsl/releases/tag/9.40.0)
+- `DSL` 9.40.1 Deprecated `productType`, `eventType`, and `calculation`. For further details, see DSL release notes: [DSL 9.40.1](https://github.com/finos/rune-dsl/releases/tag/9.40.1)
+- `DSL` 9.41.0 Enabled support for dynamic validation and injection to improve the configurability of the generated code. The change also included a fix that prevented correct operation of DSL quick actions. For further details, see DSL release notes: [DSL 9.41.0](https://github.com/finos/rune-dsl/releases/tag/9.41.0)
+- `DSL` 9.41.1 Annotated POJO attributes to highlight address & locations. Fixed issue that was breaking translate parse handlers. For further details, see DSL release notes: [DSL 9.41.1](https://github.com/finos/rune-dsl/releases/tag/9.41.1)
 
 _Review Directions_
 
-In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
-
-Details of the Issue and the resolution are available here: [#3545](https://github.com/finos/common-domain-model/issues/3545)
-
-Changes can be reviewed in PR: [#3540](https://github.com/finos/common-domain-model/pull/3540)
+The changes can be reviewed in PR: [#3556](https://github.com/finos/common-domain-model/pull/3556) 
