@@ -12,6 +12,8 @@ The standard is developed through the [Community Specification](https://communit
 
 To participate in the standard process and working group meetings, [enroll as a participant](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/Getting%20Started.md#best-practices) by completing a [Community Specification Contributor License Agreement](https://community.finos.org/docs/governance/Standards-Projects#ip-licensing-requirements) (CSL CLA).  All meetings are to be held [in accordance with the FINOS policies and procedures](https://community.finos.org/docs/governance/meeting-procedures).
 
+For a general overview of the Common Domain Model, a comparative analysis with FpML, an exploration of the CDM's historical development and events, as well as insights into its further applications, including its role in the ecosystem and support for smart contract technology, we recommend reviewing the [CDM Overview deck](/pdfs/DM-Overview-Nov.pdf). 
+
 For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 Read more about project contribution guidelines, principles, frequently asked questions and the journey of [Common Domain Model into Open Source at FINOS](https://www.finos.org/hubfs/Accepted%20FINOS%20Edits_%20Common%20Domain%20Model%20into%20Open%20Source%20at%20FINOS.docx.pdf).
@@ -35,7 +37,7 @@ The following Working Groups are currently activated or about to be set up for t
 * [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
 * [Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG)
 * [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
-* [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG)
+* [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG) - previously known as Derivative Products and Business Events Working Group
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA Document Digitisation Working Group (GMSLA)](https://www.islaemea.org/working-groups/)
@@ -117,7 +119,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
 ### 
 **Meetings**
 
-Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivative Products and Business Events Working Group](https://cdm.finos.org/docs/CDM-Derivative-Products-and-Business-Events-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
+Finally, another great way to interact with the community is to attend the bi-weekly [ Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG), monthly [Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG), monthly [FINOS  Structured Products Working Group](https://cdm.finos.org/docs/CDM-Structured-Products-WG), monthly [Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG), monthly [Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG), bi-weekly [Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG), and/or quarterly [Steering Working](https://cdm.finos.org/docs/CDM-Steering-WG) Group: email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 
 ### 
@@ -185,12 +187,12 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
 | David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
 | Leo Labeis           | Regnosys       | OrgRep                                      | lolabeis             | 
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
-| Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
 

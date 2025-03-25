@@ -5,6 +5,14 @@ title: Common Domain Model Materials
 Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D)
 
 ## COMMON DOMAIN MODEL IN THE NEWS 
+
+### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://derivsource.com/2024/08/28/common-domain-model-providing-a-standardised-data-representation-of-trade-events-isda-cdm/?utm_campaign=DerivSource%20SOCIALS&utm_content=305908647&utm_medium=social&utm_source=linkedin&hss_channel=lcp-1903852)
+
+The article examines the CDMs expanded role in enhancing post-trade efficiency through standardized data models for reporting, collateral management, and securities lending, fostering transparency, regulatory alignment, and automation across financial markets.
+
+### [CDM: Release Guidelines Task Force](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm/?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTE3MDQ%3D)
+
+Watch this video to learn more about the CDM Release Guidelines Task Force. 
 ### [CDM: data standardisation across the trade lifecycle](https://www.securitiesfinancetimes.com/sltimes/SFT_issue_324.pdf)
 
 SFT examines what comes next on the Common Domain Model project agenda. Read more about the benefits of CDM adoption include reduced reconciliation burdens and lower risk of settlement failures. The CDM available in FINOS as open source, broadening the base of CDM contributors. Future work includes applying CDM to collateral management and further automating processes like collateral calculation and interest processing.

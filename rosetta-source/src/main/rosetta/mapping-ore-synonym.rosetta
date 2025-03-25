@@ -1,19 +1,16 @@
 namespace cdm.mapping.ore
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.party.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
-
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
-
 import cdm.observable.asset.*
-
 import cdm.product.asset.*
-import cdm.product.template.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 synonym source ORE
 
@@ -27,7 +24,11 @@ synonym source ORE_1_0_39 extends ORE
         + tradeIdentifier
         + party
             [value "Envelope" path "Trade"]
-        + tradableProduct
+        + product
+            [value "SwapData" path "Trade"]
+        + tradeLot
+            [value "Trade"]
+        + counterparty
             [value "Trade" mapper "ORECounterparty"]
         + party
             [value "Envelope" path "Trade"]
@@ -40,7 +41,7 @@ synonym source ORE_1_0_39 extends ORE
         + partyReference
             [value "Envelope"]
         + role
-            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct -> counterparty]
+            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> counterparty]
 
     PriceSchedule:
         + value
@@ -74,29 +75,23 @@ synonym source ORE_1_0_39 extends ORE
         + datedValue
             [value "step"]
 
-    Product:
-        + contractualProduct
-            [value "SwapData"]
-
     Payout:
-        + interestRatePayout
+        + InterestRatePayout
             [value "LegData"]
             [value "LegData"]
-        + creditDefaultPayout
+        + CreditDefaultPayout
             [value "ignore"]
-        + optionPayout
+        + OptionPayout
             [value "ignore"]
-        + commodityPayout
+        + CommodityPayout
             [value "ignore"]
-        + forwardPayout
+        + SettlementPayout
             [value "ignore"]
-        + fixedPricePayout
+        + FixedPricePayout
             [value "ignore"]
-        + cashflow
+        + PerformancePayout
             [value "ignore"]
-        + performancePayout
-            [value "ignore"]
-        + assetPayout
+        + AssetPayout
             [value "ignore"]
 
     InterestRatePayout:
@@ -130,16 +125,16 @@ synonym source ORE_1_0_39 extends ORE
         + unadjustedDate
             [value "StartDate"]
 
-    FloatingRateOption:
+    FloatingRateIndex:
         + floatingRateIndex
             [value "Index" maps 2]
 
     RateSpecification:
-        + fixedRate
+        + FixedRateSpecification
             [value "FixedLegData"]
-        + floatingRate
+        + FloatingRateSpecification
             [value "FloatingLegData"]
-        + inflationRate
+        + InflationRateSpecification
             [value "ignore"]
 
     FixedRateSpecification:

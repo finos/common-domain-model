@@ -2,9 +2,9 @@ namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggr
 version "${project.version}"
 
 import cdm.base.math.*
-import cdm.product.template.*
-import cdm.event.common.*
 import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.product.template.*
 
 func FxMarkToMarket: <"Representation of sample mark to market calculation provided by a member firm.">
     inputs:
@@ -12,21 +12,21 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
     output:
         value number (1..1)
 
-    alias forwardPayout: <"Alias to the forward pay out.">
-        trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout only-element
+    alias settlementPayout: <"Alias to the forward pay out.">
+        trade -> product -> economicTerms -> payout -> SettlementPayout only-element
 
     alias quotedCurrency: <"The quoted currency.">
-        trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> unit -> currency
+        trade -> tradeLot -> priceQuantity -> price -> unit -> currency
             distinct
             only-element
 
     alias baseCurrency: <"The base currency.">
-        trade -> tradableProduct -> tradeLot -> priceQuantity -> price -> perUnitOf -> currency
+        trade -> tradeLot -> priceQuantity -> price -> perUnitOf -> currency
             distinct
             only-element
 
     alias quantities: <"Quantity list. Only works in the case of a single trade lot.">
-        trade -> tradableProduct -> tradeLot only-element -> priceQuantity -> quantity
+        trade -> tradeLot only-element -> priceQuantity -> quantity
 
     alias quotedQuantity: <"Quoted quantity amount.">
         FilterQuantityByCurrency(quantities, quotedCurrency) only-element -> value
@@ -34,16 +34,16 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
     alias baseQuantity: <"Base quantity amount.">
         FilterQuantityByCurrency(quantities, baseCurrency) only-element -> value
 
-    alias interpolatedRate: InterpolateForwardRate(forwardPayout)
+    alias interpolatedRate: InterpolateForwardRate(settlementPayout)
 
-    condition ForwardPayoutExists: <"The forwardPayout on the contract must exist.">
-        trade -> tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> forwardPayout exists
+    condition SettlementPayoutExists: <"The settlementPayout on the contract must exist.">
+        trade -> product -> economicTerms -> payout -> SettlementPayout exists
 
     set value: (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 
 func InterpolateForwardRate:
     inputs:
-        forward ForwardPayout (1..1)
+        settlementPayout SettlementPayout (1..1)
     output:
         result number (1..1)
 

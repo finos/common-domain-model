@@ -1,8 +1,7 @@
 package cdm.product.asset.processor;
 
-import cdm.observable.asset.Observable;
+import cdm.observable.asset.metafields.ReferenceWithMetaBasketConstituent;
 import cdm.product.asset.DividendPayoutRatio;
-import cdm.product.template.Product;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -43,7 +42,7 @@ public class DividendPayoutBasketConstituentMappingProcessor extends MappingProc
         if (isBasketConstituentSynonymPath(synonymPath)) {
             List<DividendPayoutRatio.DividendPayoutRatioBuilder> dividendPayoutRatioBuilders =
                     (List<DividendPayoutRatio.DividendPayoutRatioBuilder>) builders;
-            List<Observable.ObservableBuilder> basketConstituentBuilders = dividendPayoutRatioBuilders.stream()
+            List<ReferenceWithMetaBasketConstituent.ReferenceWithMetaBasketConstituentBuilder> basketConstituentBuilders = dividendPayoutRatioBuilders.stream()
                     .map(DividendPayoutRatio.DividendPayoutRatioBuilder::getBasketConstituent)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
@@ -55,12 +54,12 @@ public class DividendPayoutBasketConstituentMappingProcessor extends MappingProc
                 // - dividendPayoutRatio is set, but the underlier is not a basketConstituent, so remove any dividendPayoutRatio.basketConstituents
                 if (!isDividendPayoutRatioSet()) {
                     // remove data
-                    dividendPayoutRatioBuilders.forEach(b -> b.setBasketConstituent(null));
+                    //dividendPayoutRatioBuilders.forEach(b -> b.setBasketConstituent(null));
                     // remove all dividendPayoutRatio mappings
                     removeAllDividendPayoutRatioMappings(basketConstituentSynonymPathMappings);
                 } else if (basketConstituentSynonymPathMappings.isEmpty()) {
                     // remove data
-                    dividendPayoutRatioBuilders.forEach(b -> b.setBasketConstituent(null));
+                    //dividendPayoutRatioBuilders.forEach(b -> b.setBasketConstituent(null));
                     // remove all dividendPayoutRatio.basketConstituent mappings
                     removeAllDividendPayoutRatioBasketConstituentMappings();
                 }

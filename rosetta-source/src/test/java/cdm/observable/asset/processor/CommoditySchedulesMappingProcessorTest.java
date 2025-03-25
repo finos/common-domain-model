@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SuppressWarnings("unused")
 public class CommoditySchedulesMappingProcessorTest {
     public static final Path SYNONYM_PATH = Path.parse("nonpublicExecutionReport.trade.commodityOption.strikePricePerUnitSchedule.strikePricePerUnitStep");
-    public static final RosettaPath MODEL_PATH = RosettaPath.valueOf("ReportableEvent.originatingWorkflowStep.proposedEvent.instruction(0).before.value.trade.tradableProduct.product.contractualProduct.economicTerms.payout.optionPayout(0).exerciseTerms.strike.strikePrice.datedValue");
+    public static final RosettaPath MODEL_PATH = RosettaPath.valueOf("ReportableEvent.originatingWorkflowStep.proposedEvent.instruction(0).before.value.trade.product.economicTerms.payout.optionPayout(0).exerciseTerms.strike.strikePrice.datedValue");
 
 
     @Test

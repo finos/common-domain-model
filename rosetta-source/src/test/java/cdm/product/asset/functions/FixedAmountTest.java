@@ -74,7 +74,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                                         .build())
                                 .build())
                         .build())
-                .setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
+                .setRateSpecification(RateSpecification.builder().setFixedRateSpecification(FixedRateSpecification.builder()
                         .setRateSchedule(RateSchedule.builder().setPriceValue(PriceSchedule.builder().setValue(price)))))
                 .build();
 

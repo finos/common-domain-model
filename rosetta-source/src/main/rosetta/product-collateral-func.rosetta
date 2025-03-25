@@ -3,30 +3,47 @@ version "${project.version}"
 
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
-import cdm.base.datetime.*
 import cdm.product.template.*
 
-func Create_EligibleCollateralSpecificationFromInstruction: <"Creates an Eligible Collateral Specification through the combination of common and variable characteristics.">
+// New functions added to ease the creation of Collateral Criteria
+func CloneEligibleCollateralWithChangedTreatment: <"Creates a new Eligible Collateral Specification based on an input specification but with one changed criteria and with one changed treatment.">
     inputs:
-        instruction EligibleCollateralSpecificationInstruction (1..1)
+        inputSpecification EligibleCollateralSpecification (1..1)
+        changedCriteria CollateralCriteria (1..1)
+        changedTreatment CollateralTreatment (1..1)
     output:
-        specification EligibleCollateralSpecification (1..1)
+        outputSpecification EligibleCollateralSpecification (1..1)
 
-    add specification -> criteria:
-        instruction -> variable
-            extract MergeEligibleCollateralCriteria(item, instruction -> common)
+    condition NoLogicApplied:
+        changedCriteria -> AllCriteria is absent
+            and changedCriteria -> AnyCriteria is absent
+            and changedCriteria -> NegativeCriteria is absent
 
-func MergeEligibleCollateralCriteria: <"Java implementation merges criteria1 and criteria2.">
+    set outputSpecification: inputSpecification
+    set outputSpecification -> criteria -> treatment: changedTreatment
+    set outputSpecification -> criteria -> collateralCriteria: changedCriteria
+
+func CreateAndCriteria: <"Combines multiple CollateralCriteria together using AND logic.">
     inputs:
-        criteria1 EligibleCollateralCriteria (1..1)
-        criteria2 EligibleCollateralCriteria (1..1)
+        inputCriteria CollateralCriteria (2..*)
     output:
-        criteria EligibleCollateralCriteria (1..1)
+        outputCriteria CollateralCriteria (1..1)
 
+    set outputCriteria -> AllCriteria -> allCriteria: inputCriteria
+
+func CreateOrCriteria: <"Combines multiple CollateralCriteria together using OR logic.">
+    inputs:
+        inputCriteria CollateralCriteria (2..*)
+    output:
+        outputCriteria CollateralCriteria (1..1)
+
+    set outputCriteria -> AnyCriteria -> anyCriteria: inputCriteria
+
+// Functions to check Eligibility
 func CheckEligibilityForProduct:
     inputs:
         specifications EligibleCollateralSpecification (1..*) <"Specifications that determine which collateral meets the eligibility and can be used/posted for delivery. For ICMA usecase - this is the basket(s). For ISDA usecase these are the Elegibility Schedule Lists.">
-        product Product (0..1)
+        product TransferableProduct (0..1)
     output:
         eligibilityResult CheckEligibilityResult (0..1)
 
@@ -41,34 +58,52 @@ type EligibilityQuery: <"Query to check against an EligibleCollateralSpecificati
 
 func CheckEligibilityByDetails: <"This function when presented with a set of Asset and Issuer details to be potentially posted as collateral, will check against a set of given Eligibility Criteria or Basket (EligibleCollateralSpecification) to determine which collateral meets the eligibility and can be used/posted for delivery.">
     inputs:
-        specification EligibleCollateralSpecification (1..1) <"Specifications that determine which collateral meets the eligibility and can be used/posted for delivery. For ICMA usecase - this is the basket(s). For ISDA usecase these are the Elegibility Schedule Lists.">
+        specification EligibleCollateralSpecification (1..1) <"Specifications that determine which collateral meets the eligibility and can be used/posted for delivery. For ICMA usecase - this is the basket(s). For ISDA usecase these are the Eligibility Schedule Lists.">
         query EligibilityQuery (1..1) <"The eligibility query defines the criteria to filter the specifications that will be used to find the eligibility result. For ICMA usecase - The asset infomation related to potential collateral available in your inventory you can use for the Repo trade. For ISDA - the questions related to the asset infomation you can post as collateral. For ICMA usecase - The issuer infomation related to the potential collateral available in your inventory you can use for the Repo trade. For ISDA - the questions related to the issuer infomation you can post as collateral.">
     output:
         eligibilityResult CheckEligibilityResult (1..1)
 
-    alias matchingEligibleCriteria:
-        specification -> criteria
-            filter treatment -> isIncluded
-            then filter [
-                asset
-                    then filter CheckAssetCountryOfOrigin(assetCountryOfOrigin, query)
-                    then filter CheckAgencyRating(agencyRating, query)
-                    then filter CheckAssetType(collateralAssetType, query)
-                    then filter CheckDenominatedCurrency(denominatedCurrency, query)
-                    then filter CheckMaturity(maturityRange, query)
-                    then exists
-            ]
-            then filter [
-                issuer
-                    then filter CheckIssuerName(issuerName, query)
-                    then filter CheckIssuerType(issuerType, query)
-                    then exists
-            ]
+    // remove the criteria which have not been explicitly included
+    alias filteredCriteria: specification -> criteria filter treatment -> isIncluded
 
-    set eligibilityResult -> isEligible: matchingEligibleCriteria count > 0
+    // assess all the included criteria in the specification against the query
+    alias checkedCriteria:
+        filteredCriteria filter CheckCriteria(item -> collateralCriteria, query)
+
+    // specification is eligible if more than one criteria remains after evaluation
+    set eligibilityResult -> isEligible: checkedCriteria count > 0
     set eligibilityResult -> eligibilityQuery: query
     set eligibilityResult -> specification: specification
-    add eligibilityResult -> matchingEligibleCriteria: matchingEligibleCriteria
+    add eligibilityResult -> matchingEligibleCriteria: checkedCriteria
+
+func CheckCriteria: <"This function takes a single criteria and evaluates it against the criteria.  This function handles the recursive use of AND and OR logic.">
+    inputs:
+        inputCriteria CollateralCriteria (1..1)
+        query EligibilityQuery (1..1)
+    output:
+        isEligible boolean (1..1)
+
+    set isEligible: False
+
+    set isEligible:
+        inputCriteria switch
+            // if AND/OR logic attribute used, recurse through criteria and evaluate all
+            AllCriteria then allCriteria extract CheckCriteria(item, query) then all = True,
+            AnyCriteria then anyCriteria extract CheckCriteria(item, query) then any = True,
+            // reverse the inclusion if NOT logic used
+            NegativeCriteria then CheckCriteria(negativeCriteria, query) = False,
+            // otherwise evaluate each of the Criteria variables against the query
+            CollateralIssuerType then  CheckIssuerType(item, query),
+            AssetType then CheckAssetType(item, query),
+            IssuerCountryOfOrigin then CheckCountryOfOrigin(item -> issuerCountryOfOrigin, query),
+            AssetCountryOfOrigin then CheckCountryOfOrigin(item -> assetCountryOfOrigin, query),
+            CurrencyCodeEnum then CheckDenominatedCurrency(item, query),
+            IssuerName then CheckIssuerName(item, query),
+            IssuerAgencyRating then CheckAgencyRating(item -> issuerAgencyRating, query),
+            SovereignAgencyRating then CheckAgencyRating(item -> sovereignAgencyRating, query),
+            AssetAgencyRating then CheckAgencyRating(item -> assetAgencyRating, query),
+            AssetMaturity then CheckMaturity(item, query),
+            default False
 
 type CheckEligibilityResult: <"Result for the CheckEligibilityByDetails and CheckEligibilityForProduct functions">
     isEligible boolean (1..1) <"a simple boolean which is set to true if the asset described in the EligibilityQuery input is eligible">
@@ -76,20 +111,19 @@ type CheckEligibilityResult: <"Result for the CheckEligibilityByDetails and Chec
     eligibilityQuery EligibilityQuery (1..1) <"a copy of the input query that was checked against the eligible collateral specification">
     specification EligibleCollateralSpecification (1..1) <"a copy of the input EligbilityCollateralSpecification that was checked against the query">
 
-func CheckAssetCountryOfOrigin:
+func CheckCountryOfOrigin:
     inputs:
-        assetCountryOfOrigin ISOCountryCodeEnum (0..*)
+        countryOfOrigin ISOCountryCodeEnum (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
 
     set isEqual:
-        assetCountryOfOrigin is absent
-            or assetCountryOfOrigin contains query -> assetCountryOfOrigin
+        countryOfOrigin is absent or countryOfOrigin contains query -> assetCountryOfOrigin
 
 func CheckAgencyRating:
     inputs:
-        agencyRatings AgencyRatingCriteria (0..*)
+        agencyRatings AgencyRatingCriteria (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
@@ -99,16 +133,16 @@ func CheckAgencyRating:
             or (agencyRatings
                 then filter
                     creditNotation -> notation contains query -> agencyRating -> creditNotation -> notation
-                then filter qualifier contains query -> agencyRating -> qualifier
+                        // then filter qualifier = query -> agencyRating -> qualifier
                 then filter
                     referenceAgency is absent
-                        or referenceAgency contains query -> agencyRating -> referenceAgency
+                        or referenceAgency = query -> agencyRating -> referenceAgency
                 then item exists
                 )
 
 func CheckAssetType:
     inputs:
-        collateralAssetTypes AssetType (0..*)
+        collateralAssetTypes AssetType (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
@@ -116,19 +150,19 @@ func CheckAssetType:
     set isEqual:
         collateralAssetTypes is absent
             or (collateralAssetTypes
-                then filter assetType contains query -> collateralAssetType -> assetType
+                then filter assetType = query -> collateralAssetType -> assetType
                 then filter
                     debtType is absent
-                        or debtType -> debtClass contains query -> collateralAssetType -> debtType -> debtClass
+                        or debtType -> debtClass = query -> collateralAssetType -> debtType -> debtClass
                 then filter
                     securityType is absent
-                        or securityType contains query -> collateralAssetType -> securityType
+                        or securityType = query -> collateralAssetType -> securityType
                 then item exists
                 )
 
 func CheckDenominatedCurrency:
     inputs:
-        denominatedCurrency CurrencyCodeEnum (0..*)
+        denominatedCurrency CurrencyCodeEnum (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
@@ -139,41 +173,59 @@ func CheckDenominatedCurrency:
 
 func CheckMaturity:
     inputs:
-        maturityRange PeriodRange (0..1)
+        maturityRange AssetMaturity (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
 
     alias upperBoundCheck:
-        if maturityRange -> upperBound -> period is absent
+        if maturityRange -> maturityRange -> upperBound -> period is absent
         then True
-        else if maturityRange -> upperBound -> inclusive or maturityRange -> upperBound -> inclusive is absent
-        then maturityRange -> upperBound -> period -> periodMultiplier >= query -> maturity
-        else maturityRange -> upperBound -> period -> periodMultiplier > query -> maturity
+        else if maturityRange -> maturityRange -> upperBound -> inclusive or maturityRange -> maturityRange -> upperBound -> inclusive is absent
+        then maturityRange -> maturityRange -> upperBound -> period -> periodMultiplier >= query -> maturity
+        else maturityRange -> maturityRange -> upperBound -> period -> periodMultiplier > query -> maturity
 
     alias lowerBoundCheck:
-        if maturityRange -> lowerBound -> period is absent
+        if maturityRange -> maturityRange -> lowerBound -> period is absent
         then True
-        else if maturityRange -> lowerBound -> inclusive or maturityRange -> lowerBound -> inclusive is absent
-        then maturityRange -> lowerBound -> period -> periodMultiplier <= query -> maturity
-        else maturityRange -> lowerBound -> period -> periodMultiplier > query -> maturity
+        else if maturityRange -> maturityRange -> lowerBound -> inclusive or maturityRange -> maturityRange -> lowerBound -> inclusive is absent
+        then maturityRange -> maturityRange -> lowerBound -> period -> periodMultiplier <= query -> maturity
+        else maturityRange -> maturityRange -> lowerBound -> period -> periodMultiplier > query -> maturity
 
     set isEqual: maturityRange is absent or (upperBoundCheck and lowerBoundCheck)
 
 func CheckIssuerName:
     inputs:
-        issuerName LegalEntity (0..*)
+        issuerName IssuerName (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
 
-    set isEqual: issuerName is absent or issuerName contains query -> issuerName
+    set isEqual:
+        issuerName is absent or issuerName -> issuerName contains query -> issuerName
 
 func CheckIssuerType:
     inputs:
-        issuerType CollateralIssuerType (0..*)
+        issuerType CollateralIssuerType (0..1)
         query EligibilityQuery (1..1)
     output:
         isEqual boolean (1..1)
 
     set isEqual: issuerType is absent or issuerType contains query -> issuerType
+
+func CriteriaMatchesAssetType:
+    inputs:
+        inputCriteria CollateralCriteria (0..1)
+        assetType InstrumentTypeEnum (0..1)
+    output:
+        matches boolean (1..1)
+
+    set matches: False
+
+    set matches:
+        inputCriteria switch
+            AssetType then securityType = assetType,
+            AllCriteria then allCriteria extract CriteriaMatchesAssetType(item, assetType) then all = True,
+            AnyCriteria then anyCriteria extract CriteriaMatchesAssetType(item, assetType) then any = True,
+            NegativeCriteria then CriteriaMatchesAssetType(negativeCriteria, assetType) = False,
+            default False

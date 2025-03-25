@@ -50,6 +50,7 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "capFloorStream", "notionalSchedule", "notionalStepSchedule", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "bondOption", "notionalAmount", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "fra", "notional", "currency")
+                        || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "swapStream", "calculationPeriodAmount", "knownAmountSchedule", "currency")
                         // Credit
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "fixedAmountCalculation", "calculationAmount", "currency")
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "creditDefaultSwap", "protectionTerms", "calculationAmount", "currency")
@@ -59,9 +60,13 @@ public class PriceUnitTypeHelper {
                         || updateCurrencyPerCurrencyUnit(priceScheduleBuilder, synonymPath, "interestLeg", "notional", "relativeNotionalAmount", "href")
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "netPrice", Collections.singletonList("currency"), FinancialUnitEnum.SHARE)
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "returnLeg", Arrays.asList("notional", "notionalAmount", "currency"), FinancialUnitEnum.SHARE)
+                        || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "pricePerOption", Arrays.asList("currency"), FinancialUnitEnum.SHARE)
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("strike", "currency"), getPerUnitOfIndexOrShare())
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("strikePricePerUnit", "currency"), getPerUnitOfIndexOrShare())
                         || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "equityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfIndexOrShare())
+                        || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "brokerEquityOption", Arrays.asList("strike", "currency"), getPerUnitOfIndexOrShare())
+                        || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "brokerEquityOption", Arrays.asList("strikePricePerUnit", "currency"), getPerUnitOfIndexOrShare())
+                        || updateCurrencyPerFinancialUnit(priceScheduleBuilder, synonymPath, "brokerEquityOption", Arrays.asList("equityExercise", "settlementCurrency"), getPerUnitOfIndexOrShare())
                         // Fx
                         || updateFxOption(priceScheduleBuilder, synonymPath)
                         || updateCurrencyPerCurrencyUnitFromQuotedCurrencyPair(priceScheduleBuilder, synonymPath, "fxVarianceSwap",  Arrays.asList("quotedCurrencyPair", "quoteBasis"))

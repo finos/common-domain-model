@@ -11,7 +11,7 @@ from cdm.event.common.TradeIdentifier import TradeIdentifier
 from cdm.product.template.TradableProduct import TradableProduct
 from cdm.product.template.Product import Product
 from cdm.product.template.TradeLot import TradeLot
-from cdm.product.common.settlement.PriceQuantity import PriceQuantity
+from cdm.observable.asset.PriceQuantity import PriceQuantity
 from cdm.base.staticdata.party.Party import Party
 from cdm.base.staticdata.party.PartyIdentifier import PartyIdentifier
 from cdm.base.staticdata.party.Counterparty import Counterparty

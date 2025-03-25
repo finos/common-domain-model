@@ -1,40 +1,56 @@
 namespace cdm.observable.asset : <"Observable concepts applicable to assets: price, reference price, valuation method etc.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
-
+import cdm.mapping.config.*
 import cdm.observable.common.*
 import cdm.product.asset.*
-import cdm.mapping.config.*
 
-//**ART** Needed to support PriceQuantity in BasketConstituent, which will be refactored
-import cdm.product.common.settlement.*
+type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
+    name string (0..1) <"A description of the Index.">
+        [metadata scheme]
+    provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
+    assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
 
-type FloatingRateIndex extends IndexBase:  <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
-		[metadata scheme]
-	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
+choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
+    CreditIndex <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
+    EquityIndex <"An index based on equity securities, e.g. the S&P 500.">
+    InterestRateIndex <"An index based in interest rates or inflation rates in a certain market.">
+        [metadata location]
+    ForeignExchangeRateIndex <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
+    OtherIndex <"An index created by a market participant which doesn't align with the other index types.">
+
+choice InterestRateIndex: <"An index based in interest rates or inflation rates in a certain market.">
+    FloatingRateIndex <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    InflationIndex <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
+
+type FloatingRateIndex extends IndexBase: <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+    floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
+        [metadata scheme]
+    indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
 
     condition InterestRateAssetClass: <"The asset class must be Interest Rate.">
         assetClass = AssetClassEnum -> InterestRate
 
-type ForeignExchangeRate extends IndexBase:  <"Specification of a rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
+type ForeignExchangeRateIndex extends IndexBase: <"Specification of a rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
     quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
+        [metadata location]
     primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
     secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
 
     condition FXAssetClass: <"The asset class must be Foreign Exchange.">
         assetClass = AssetClassEnum -> ForeignExchange
 
-type InflationIndex extends IndexBase:  <"Specification of an index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
-	inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
-		[metadata scheme]
+type InflationIndex extends IndexBase: <"Specification of an index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
+    inflationRateIndex InflationRateIndexEnum (1..1) <"The reference index that is used to specify the inflation interest rate.">
+        [metadata scheme]
+    indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
 
-    condition InterestRateAssetClass:  <"The asset class must be Interest Rate.">
+    condition InterestRateAssetClass: <"The asset class must be Interest Rate.">
         assetClass = AssetClassEnum -> InterestRate
 
 type CreditIndex extends IndexBase: <"Specification of an index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
@@ -71,8 +87,29 @@ type EquityIndex extends IndexBase: <"Specification of an index based on equity 
 type OtherIndex extends IndexBase: <"Specification of a user-defined index that does not meet the criteria of other Index data types.">
     description string (0..1) <"A description that defines the OtherIndex.">
 
-    condition AssetClassRequired:  <"The asset class must be explicitly set.">
+    condition AssetClassRequired: <"The asset class must be explicitly set.">
         assetClass exists
+
+type PriceQuantity: <"Defines a settlement as an exchange between two parties of a specified quantity of an asset (the quantity) against a specified quantity of another asset (the price). The settlement is optional and can be either cash or physical. The quantity can additionally be specified in terms of one or more currency amounts. In the case of non-cash products, the settlement of the price/quantity would not be specified here and instead would be delegated to the product mechanics, as parameterised by the price/quantity values.">
+    [metadata key]
+    price PriceSchedule (0..*) <"Specifies a price to be used for trade amounts and other purposes.">
+        [metadata location]
+    quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity to be associated with an event, for example a trade amount.">
+        [metadata location]
+    observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or an index. The cardinality is optional as some quantity / price cases have no observable (e.g. a fixed rate in a given currency).">
+        [metadata location]
+    effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
+
+    condition NonCurrencyQuantities: <"There should be at most one quantity which is not a currency, except for commodities where there may be two.">
+        (quantity count - quantity -> unit -> currency count) <= 1 or (observable -> Asset -> Commodity exists
+            and quantity -> unit -> capacityUnit exists and (quantity count - quantity -> unit -> currency count) <= 2)
+
+    condition ArithmeticOperator: <"When observable is InterestRateIndex, and price exists, then price should have an arithmetic operator.">
+        if observable -> Index -> InterestRateIndex exists and price exists
+        then price -> arithmeticOperator exists
+
+    condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
+        InterestRateObservableCondition
 
 type PremiumExpression: <"This class corresponds to the FpML Premium.model group for representing the option premium when expressed in a way other than an amount.">
     premiumType PremiumTypeEnum (0..1) <"Forward start premium type">
@@ -163,24 +200,14 @@ type Price extends PriceSchedule: <"Specifies a price as a single value to be as
     condition AmountOnlyExists: <"The amount must exist when the price represents a single value, and steps must be absent.">
         value exists and datedValue is absent
 
-type Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-    //**ART** Wil make this a choice in P3; currently not supported with annotation
-
-    asset Asset (0..1) <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
-    basket Basket (0..1) <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
-    index Index (0..1) <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
-
-    //**ART** Will remove ProductIdentifier and map to Asset in Phase 3
-    productIdentifier ProductIdentifier (0..*)  <"Comprises an identifier and a source of a Product.">
-        [metadata location]
-    //**ART** Will remove rateOption and map to Index in Phase 3    
-    rateOption FloatingRateOption (0..1) <"Specifies a floating rate index and tenor.">
-        [metadata location]
-    
-    condition: one-of
+choice Observable: <"Specifies the object to be observed for a price, it could be an asset or a reference.">
+    Asset <"The object to be observed is an Asset, ie something that can be owned and transferred in the financial markets.">
+    Basket <"The object to be observed is a Basket, ie a collection of Observables with an identifier and optional weightings.">
+    Index <"The object to be observed is an Index, ie an observable computed on the prices, rates or valuations of a number of assets.">
 
 type Basket extends AssetBase: <"Defines a custom basket by referencing an identifier and its constituents.">
     basketConstituent BasketConstituent (1..*) <"Identifies the constituents of the basket">
+        [metadata location]
 
 type BasketConstituent extends Observable: <"Identifies the constituents of the basket">
     quantity NonNegativeQuantitySchedule (0..*) <"Specifies a quantity schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->quantity that this quantity is referencing.">
@@ -190,7 +217,10 @@ type BasketConstituent extends Observable: <"Identifies the constituents of the 
     interimValuationPrice PriceSchedule (0..*) <"Specifies an interim price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
         [metadata address "pointsTo"=PriceQuantity->price]
     finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
-        [metadata address "pointsTo"=PriceQuantity->price]    
+        [metadata address "pointsTo"=PriceQuantity->price]
+
+    condition BasketsOfBaskets: <"To prevent endless looping, baskets of baskets are not supported.">
+        Basket is absent
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">
 
@@ -207,12 +237,6 @@ type Money extends Quantity: <"Defines a monetary amount in a specified currency
     condition CurrencyUnitExists:
         unit -> currency exists
 
-type FxRateObservable: <"Defines foreign exchange (FX) asset class specific parameters for market observations.">
-    [deprecated]
-    quotedCurrencyPair QuotedCurrencyPair (1..1) <"Describes the composition of a rate that has been quoted or is to be quoted.">
-    primaryFxSpotRateSource InformationSource (1..1) <"Specifies the primary source from which a rate should be observed.">
-    secondaryFxSpotRateSource InformationSource (0..1) <"Specifies an alternative, or secondary, source from which a rate should be observed.">
-
 type QuotedCurrencyPair: <"A class that describes the composition of a rate that has been quoted or is to be quoted. This includes the two currencies and the quotation relationship between the two currencies and is used as a building block throughout the FX specification.">
 
     currency1 string (1..1) <"The first currency specified when a pair of currencies is to be evaluated.">
@@ -222,7 +246,7 @@ type QuotedCurrencyPair: <"A class that describes the composition of a rate that
     quoteBasis QuoteBasisEnum (1..1) <"The method by which the exchange rate is quoted.">
 
 type Curve:
-
+    [deprecated]
     interestRateCurve InterestRateCurve (0..1)
     commodityCurve CommodityReferencePriceEnum (0..1)
         [metadata scheme]
@@ -231,7 +255,7 @@ type Curve:
         one-of
 
 type InterestRateCurve:
-
+    [deprecated]
     floatingRateIndex FloatingRateIndexEnum (1..1)
         [metadata scheme]
     tenor Period (1..1)
@@ -304,21 +328,6 @@ type FallbackReferencePrice: <"The method, prioritised by the order it is listed
 type ValuationPostponement: <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
 
     maximumDaysOfPostponement int (1..1) <"The maximum number of days to wait for a quote from the disrupted settlement rate option before proceeding to the next method.">
-
-type FloatingRateOption: <"Specification of a floating rate option as a floating rate index and tenor.">
-    floatingRateIndex FloatingRateIndexEnum (0..1) <"The reference index that is used to specify the floating interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
-        [metadata scheme]
-    inflationRateIndex InflationRateIndexEnum (0..1) <"The reference index that is used to specify the inflation interest rate. The FpML standard maintains the list of such indices, which are positioned as enumeration values as part of the CDM.">
-        [metadata scheme]
-    indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
-    indexReferenceInformation IndexReferenceInformation (0..1) <"This Attribute contains all the terms relevant to defining an Index.">
-
-    condition FloatingRateIndex: <"floating rate and inflation rate index are mutually exclusive">
-            optional choice floatingRateIndex, inflationRateIndex
-
-    condition IndexRefInfo: <"If both floating rate and inflation rate index are absent, then indexReferenceInformation is required">
-            if floatingRateIndex is absent and inflationRateIndex is absent
-            then indexReferenceInformation exists
 
 type FxRate: <"A class describing the rate of a currency conversion: pair of currency, quotation mode and exchange rate.">
 
@@ -433,6 +442,7 @@ type SingleValuationDate: <"A class to specify the number of business days after
 
 type ValuationSource: <"A class describing the method for obtaining a settlement rate, specified through either an information source (page), a settlement rate option (fixing) or by using quotes from reference banks.">
     quotedCurrencyPair QuotedCurrencyPair (0..1) <"Defines the two currencies for an FX trade and the quotation relationship between the two currencies.  This attribute was formerly part of 'fxSettlementTerms', which is now being harmonised into a common 'CashSettlementTerms' that includes a 'ValuationDate'.">
+        [metadata address "pointsTo"=Observable->Index->ForeignExchangeRateIndex->quotedCurrencyPair]
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
@@ -476,4 +486,3 @@ type DividendApplicability: <"The parameters which define whether dividends are 
     optionsExchangeDividends boolean (0..1) <"If present and true, then options exchange dividends are applicable.">
     additionalDividends boolean (0..1) <"If present and true, then additional dividends are applicable.">
     allDividends boolean (0..1) <"Represents the European Master Confirmation value of 'All Dividends' which, when applicable, signifies that, for a given Ex-Date, the daily observed Share Price for that day is adjusted (reduced) by the cash dividend and/or the cash value of any non cash dividend per Share (including Extraordinary Dividends) declared by the Issuer. All Dividends in accordance with the ISDA 2002 Equity Derivatives Definitions.">
-    

@@ -6,7 +6,10 @@ import cdm.base.datetime.PeriodExtendedEnum;
 import cdm.base.datetime.RollConventionEnum;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
-import cdm.base.staticdata.asset.common.*;
+import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
+import cdm.base.staticdata.asset.common.AssetIdentifier;
+import cdm.base.staticdata.asset.common.InstrumentTypeEnum;
+import cdm.base.staticdata.asset.common.Security;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.PartyIdentifier;
 import cdm.event.common.ExecutionTypeEnum;
@@ -17,7 +20,6 @@ import cdm.product.collateral.CollateralProvisions;
 import cdm.product.collateral.CollateralTypeEnum;
 import cdm.product.common.settlement.DeliveryMethodEnum;
 import cdm.product.template.AssetPayout;
-import cdm.product.template.DurationTypeEnum;
 import cdm.product.template.EconomicTerms.EconomicTermsBuilder;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradableProduct.TradableProductBuilder;
@@ -47,8 +49,8 @@ import static cdm.base.datetime.AdjustableDate.AdjustableDateBuilder;
 import static cdm.base.math.UnitType.UnitTypeBuilder;
 import static cdm.base.staticdata.party.Party.PartyBuilder;
 import static cdm.event.common.TradeState.TradeStateBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.asset.InterestRatePayout.InterestRatePayoutBuilder;
-import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
 
 /**
  * This instance override the version in CDM so it can be kept up to date with ISLA model changes.
@@ -92,8 +94,7 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
         getIRP(tradeState).getValue().getOrCreatePaymentDates().getOrCreatePaymentFrequency().setPeriodMultiplier(1);
 
         //sec lending payout
-        getSecPO(tradeState).getValue().getOrCreateDurationType().setDurationType(DurationTypeEnum.OPEN);
-        getSecPO(tradeState).getValue().getOrCreateSecurityInformation().getOrCreateSecurity().setSecurityType(SecurityTypeEnum.EQUITY);
+        getSecPO(tradeState).getValue().getOrCreateUnderlier().getOrCreateInstrument().getOrCreateSecurity().setInstrumentType(InstrumentTypeEnum.EQUITY);
 
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setPayer(CounterpartyRoleEnum.PARTY_1);
         getSecPO(tradeState).getValue().getOrCreatePayerReceiver().setReceiver(CounterpartyRoleEnum.PARTY_2);
@@ -199,13 +200,13 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
             PathValue<InterestRatePayoutBuilder> irp = getIRP(tradeState);
             irp.getValue()
                     .getOrCreateRateSpecification()
-                    .getOrCreateFixedRate()
+                    .getOrCreateFixedRateSpecification()
                     .getOrCreateRateSchedule()
                     .getOrCreatePrice()
                     .setReference(reference);
             return Arrays.asList(
                     new PathValue<>(pq.getModelPath().append(Path.parse("price[0].value.amount")), value),
-                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.fixedRate.rateSchedule.price.reference")), reference));
+                    new PathValue<>(irp.getModelPath().append(Path.parse("rateSpecification.FixedRateSpecification.rateSchedule.price.reference")), reference));
         });
 
         commonMappings.put("Loan_Value", (indexes, value, tradeState) -> {
@@ -336,27 +337,28 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
         commonMappings.put("Security_Sedol_Code", (indexes, value, tradeState) -> {
             // key
             PathValue<PriceQuantityBuilder> pq = getPriceQuantityForSecurityFinancePayout(tradeState);
-            ProductIdentifier productIdentifier = ProductIdentifier.builder()
-                    .setIdentifierValue(value)
-                    .setSource(ProductIdTypeEnum.SEDOL)
-                    .build();
+            Security security = Security.builder()
+                    .setInstrumentType(InstrumentTypeEnum.EQUITY)
+                    .addIdentifier(AssetIdentifier.builder()
+                            .setIdentifierValue(value)
+                            .setIdentifierType(AssetIdTypeEnum.SEDOL));
             pq.getValue()
                     .getOrCreateObservable()
-                    .addProductIdentifierValue(productIdentifier, 0);
+                    .getOrCreateValue()
+                    .getOrCreateAsset()
+                    .getOrCreateInstrument()
+                    .setSecurity(security);
             // reference
             Reference.ReferenceBuilder reference = Reference.builder();
             PathValue<AssetPayout.AssetPayoutBuilder> secLendingPayout = getSecPO(tradeState);
             secLendingPayout
                     .getValue()
-                    .getOrCreateSecurityInformation()
-                    .getOrCreateSecurity()
-                    .addIdentifier(AssetIdentifier.builder()
-                            .setIdentifierValue(value)
-                            .setIdentifierType(AssetIdTypeEnum.SEDOL))
-                    .setSecurityType(SecurityTypeEnum.EQUITY);
+                    .getOrCreateUnderlier()
+                    .getOrCreateInstrument()
+                    .setSecurity(security);
             return Arrays.asList(
-                    new PathValue<>(pq.getModelPath().append(Path.parse("observable.productIdentifier[0].value.identifier.value")), value),
-                    new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.security.productIdentifier[0].value.identifier.value")), reference));
+                    new PathValue<>(pq.getModelPath().append(Path.parse("observable.value.Asset.value.Instrument.security")), value),
+                    new PathValue<>(secLendingPayout.getModelPath().append(Path.parse("securityInformation.identifier.identifier.value")), reference));
         });
 
         commonMappings.put("DVP_Indicator", (indexes, value, tradeState) -> {
@@ -536,31 +538,26 @@ public class FISMapperMappingProcessor extends FlatFileMappingProcessor<Workflow
     }
 
     private PathValue<TradableProductBuilder> getTradableProduct(PathValue<TradeStateBuilder> pv) {
-        return new PathValue<>(pv.getModelPath().append(Path.parse("trade.tradableProduct")),
-                pv.getValue().getOrCreateTrade().getOrCreateTradableProduct());
+        return new PathValue<>(pv.getModelPath().append(Path.parse("trade")),
+                pv.getValue().getOrCreateTrade());
     }
 
     private PathValue<InterestRatePayoutBuilder> getIRP(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("payout").addElement("interestRatePayout", 0),
-                et.getValue().getOrCreatePayout().getOrCreateInterestRatePayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 1).addElement("InterestRatePayout"),
+                et.getValue().getOrCreatePayout(1).getOrCreateInterestRatePayout());
     }
 
     private PathValue<EconomicTermsBuilder> getEcTerms(PathValue<TradeStateBuilder> ts) {
         PathValue<TradableProductBuilder> tp = getTradableProduct(ts);
-        return new PathValue<>(tp.getModelPath().append(Path.parse("product.contractualProduct.economicTerms")),
-                tp.getValue().getOrCreateProduct().getOrCreateContractualProduct().getOrCreateEconomicTerms());
+        return new PathValue<>(tp.getModelPath().append(Path.parse("product.economicTerms")),
+                tp.getValue().getOrCreateProduct().getOrCreateEconomicTerms());
     }
 
     private PathValue<AssetPayout.AssetPayoutBuilder> getSecPO(PathValue<TradeStateBuilder> ts) {
         PathValue<EconomicTermsBuilder> et = getEcTerms(ts);
-        return new PathValue<>(et.getModelPath().addElement("collateral").addElement("collateralPortfolio", 0)
-                .addElement("collateralPosition", 0).addElement("product")
-                .addElement("contractualProduct").addElement("economicTerms")
-                .addElement("payout").addElement("assetPayout", 0),
-                et.getValue().getOrCreateCollateral().getOrCreateCollateralPortfolio(0).getOrCreateValue()
-                        .getOrCreateCollateralPosition(0).getOrCreateProduct().getOrCreateContractualProduct()
-                        .getOrCreateEconomicTerms().getOrCreatePayout().getOrCreateAssetPayout(0));
+        return new PathValue<>(et.getModelPath().addElement("payout", 0).addElement("AssetPayout"),
+                et.getValue().getOrCreatePayout(0).getOrCreateAssetPayout());
     }
 
     private PathValue<CollateralProvisions.CollateralProvisionsBuilder> getColPro(PathValue<TradeStateBuilder> ts) {

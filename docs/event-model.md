@@ -2,6 +2,8 @@
 title: Event Model
 ---
 
+## Introduction to the Event Model
+
 **The CDM event model provides data structures to represent the
 lifecycle events of financial transactions**. A lifecycle event occurs
 when a transaction goes through a *state transition* initiated either by
@@ -68,7 +70,9 @@ Each of them is described in the next four sections.
 
 ![](/img/event-model-overview.png)
 
-# Trade State
+## Trade Events
+
+### Trade State
 
 A trade state is defined in CDM by the `TradeState` data type and
 represents the state of a trade at each stage in its lifecycle. With
@@ -76,10 +80,15 @@ each trade creation or modification event, a new `TradeState` instance
 is created. Chaining together the sequence of `TradeState` instances
 then recreates the path each trade took within its lifecycle.
 
-`TradeState` is a foundational data type in the CDM Event Model as it
-represents the input and output of any state transition. Therefore, all
-trade-related information that can change throughout the trade lifecycle
-are representing within `TradeState`.
+:::tip Definition: TradeState
+
+Defines the fundamental financial information that can be changed by a 
+Primitive Event and by extension any business or life-cycle event. 
+Each TradeState specifies where a Trade is in its life-cycle. TradeState
+is a root type and as such, can be created independently to any other 
+CDM data type, but can also be used as part of the CDM Event Model.
+
+:::
 
 ``` Haskell
 type TradeState:
@@ -101,7 +110,15 @@ economic terms of the transaction as agreed between the parties.
 The `Trade`, `State`, `Reset` and `Transfer` data types that are
 utilised within `TradeState` are all detailed in the sections below.
 
-## Trade
+### Trade
+
+:::tip Definition: Trade
+
+Defines the output of a financial transaction between parties - a Business 
+Event. A Trade impacts the financial position (i.e. the balance sheet) 
+of involved parties.
+
+:::
 
 The `Trade` data type defines the outcome of a financial transaction
 between parties, where the terms are primarily reflected in the tradable
@@ -111,14 +128,13 @@ as the parties, may already be defined in a workflow step or business
 event and can simply be referenced in `Trade`.
 
 ``` Haskell
-type Trade:
+type Trade extends TradableProduct:
   [metadata key]
   tradeIdentifier TradeIdentifier (1..*)
   tradeDate date (1..1)
     [metadata id]
   tradeTime TimeZone (0..1)
     [metadata id]
-  tradableProduct TradableProduct (1..1)
   party Party (0..*)
   partyRole PartyRole (0..*)
   executionDetails ExecutionDetails (0..1)
@@ -136,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#TraableProduct) section of the
+[`tradable-product`](/docs/product-model#TradableProduct) section of the
 documentation.
 
 ---
@@ -145,7 +161,7 @@ Additionally, `Trade` supports the representation of specific execution
 or contractual details via the `executionDetails` and `contractDetails`
 attributes.
 
-### ExecutionDetails
+#### ExecutionDetails
 
 The `ExecutionDetails` data type represents details applicable to trade
 executions and includes attributes that describe the execution venue and
@@ -165,7 +181,7 @@ type ExecutionDetails:
     then executionVenue exists
 ```
 
-### ContractDetails
+#### ContractDetails
 
 `ContractDetails` are only applicable to trades on contractual products
 and are typically provided at or prior to trade confirmation.
@@ -178,7 +194,7 @@ type ContractDetails:
     [metadata scheme]
 ```
 
-## State
+### State
 
 The `State` data type defines the state of a trade at a point in the
 Trade's life cycle. Trades have many state dimensions, all of which are
@@ -215,7 +231,7 @@ enum ClosedStateEnum:
   Terminated
 ```
 
-## Reset
+### Reset
 
 In many cases, a trade relies on the value of an observable which will
 become known in the future: for instance, a floating rate observation at
@@ -261,12 +277,19 @@ type Observation:
   observationIdentifier ObservationIdentifier (1..1)
 ```
 
-## Transfer
+### Transfer
 
 A transfer is a multi-purpose object that represents the transfer of any
 asset, including cash, from one party to another. The `Transfer` object
 is associated to an enumeration to qualify the status that the transfer
 is in, from instruction to settlement or rejection.
+
+:::tip Definition: Transfer
+
+Defines the movement of an Asset (eg cash, securities or commodities)
+between two parties on a date.
+
+:::
 
 ``` Haskell
 type TransferState:
@@ -277,35 +300,27 @@ type TransferState:
 ```
 
 ``` Haskell
-type Transfer extends TransferBase:
-  settlementOrigin SettlementOrigin (0..1)
-  resetOrigin Reset (0..1)
-  transferExpression TransferExpression (1..1)
-```
-
-``` Haskell
-type TransferBase:
-    identifier Identifier (0..*)
+type Transfer extends AssetFlowBase:
+ identifier Identifier (0..*)
         [metadata scheme]
-    quantity NonNegativeQuantity (1..1)
-    asset Asset (1..1)
-    payerReceiver PartyReferencePayerReceiver (1..1)
-    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1)
-
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+    payerReceiver PartyReferencePayerReceiver (1..1) 
+    settlementOrigin Payout (0..1)
+        [metadata reference]
+    resetOrigin Reset (0..1)
+    transferExpression TransferExpression (1..1)
 ```
 
-## Primitive Operator {#primitive-event}
+## Primitive Events {#primitive-event}
 
-**Primitive operators are functional building blocks used to compose
-business events**. Each primitive operator describes a fundamental state
+### Primitive Operator
+
+:::tip Definition: Primitive operators
+
+Primitive operators are functional building blocks used to compose
+business events. Each primitive operator describes a fundamental state
 transition that applies to a trade.
+
+:::
 
 There are nine fundamental operations on trade state. Other than split
 and execution, they each impact separate attributes of a trade state and
@@ -322,7 +337,7 @@ are therefore independent of each other.
     party to another
 9.  split: splits a trade into multiple identical trades
 
-## Primitive Function
+### Primitive Function
 
 A primitive operator is represented by a primitive function that takes a
 before trade state as input and returns an after trade state as output,
@@ -350,7 +365,7 @@ func Create_PartyChange:
     newTrade TradeState (1..1)
 ```
 
-## Primitive Instruction
+### Primitive Instruction
 
 Primitive functions take additional inputs alongside the before trade
 state to specify the parameters of the state transition. Each primitive
@@ -385,7 +400,7 @@ type PrimitiveInstruction:
   transfer TransferInstruction (0..1)
 ```
 
-## Primitive Composition
+### Primitive Composition
 
 The separation between the before trade state and primitive instructions
 allows to compose primitive operators. Primitive operators can be
@@ -426,7 +441,7 @@ func Create_TradeState:
     after TradeState (1..1)
 ```
 
-## Special Case: Split
+### Special Case: Split
 
 Split is a special case of primitive operator. It is used in many
 lifecycle events that require a trade to be copied, such as in clearing
@@ -476,9 +491,9 @@ func Create_Split:
 
 Examples of how primitive operators work are illustrated below.
 
-## Examples of Primitive Operators
+### Examples of Primitive Operators
 
-### Execution Primitive
+#### Execution Primitive
 
 The first step in instantiating a transaction between two parties in the
 CDM is an *execution*. In practice, this execution represents the
@@ -501,9 +516,9 @@ func Create_Execution:
 
 ``` Haskell
 type ExecutionInstruction:
-  product Product (1..1)
+  product NonTransferableProduct (1..1)
   priceQuantity PriceQuantity (1..*)
-  counterparty  Counterparty (2..2)
+  counterparty Counterparty (2..2)
   ancillaryParty AncillaryParty (0..*)
   parties Party (2..*)
   partyRoles PartyRole (0..*)
@@ -514,9 +529,10 @@ type ExecutionInstruction:
       [metadata id]
   tradeIdentifier TradeIdentifier (1..*)
   collateral Collateral (0..1)
+  lotIdentifier Identifier (0..1)
 ```
 
-### Contract Formation Primitive
+#### Contract Formation Primitive
 
 Once an execution is confirmed, a legally binding contract is signed
 between the two executing parties and a *contract formation* associates
@@ -562,7 +578,7 @@ scenario can be represented using a compositive primitive instruction
 that comprises both an execution and a contract formation instruction
 and applies to a null trade state.
 
-### Reset Primitive
+#### Reset Primitive
 
 The reset function associates a reset object to the trade state. The
 reset function creates an instances of the `Reset` data type and adds it
@@ -581,13 +597,13 @@ func Create_Reset:
 
 ``` Haskell
 type ResetInstruction:
-  payout Payout (1..1)
+  payout Payout (1..*)
     [metadata reference]
   rateRecordDate date (0..1)
   resetDate date (1..1)
 ```
 
-### Transfer Primitive
+#### Transfer Primitive
 
 The transfer primitive function takes a `TransferState` object as
 transfer instruction input and adds it to the `transferHistory`
@@ -609,6 +625,15 @@ type TransferInstruction:
 ```
 
 ## Business Event
+
+:::tip Definition: Business Event
+
+A business event represents a life cycle event of a trade. The combination 
+of the state changes results in a qualifiable life cycle event. An example 
+of a Business Event is a PartialTermination which is a defined by a quantity 
+change primitive event.
+
+:::
 
 Business events are built according to the following principles:
 
@@ -662,7 +687,7 @@ mechanism is fully retired.
 
 ---
 
-## Event Composition
+### Event Composition
 
 An example composition of primitive instructions to represent a complete
 lifecycle event is shown below. The event represents the *partial
@@ -754,7 +779,7 @@ that involves multiple before trades being downsized or terminated and
 new trades being created between multiple parties, all of which must
 happen concurrently.
 
-## Event Qualification {#event-qualification-section}
+### Event Qualification {#event-qualification-section}
 
 **The CDM qualifies lifecycle events as a function of their primitive
 components** rather than explicitly declaring the event type. The CDM
@@ -818,7 +843,7 @@ is further detailed in the Rosetta DSL documentation.
 
 ---
 
-## Intent
+### Intent
 
 The intent attribute is an enumeration value that represents the intent
 of a particular business event. It is used in the event qualifcation
@@ -855,7 +880,7 @@ enum EventIntentEnum:
    Repurchase
 ```
 
-## Lineage
+### Lineage
 
 The `BusinessEvent` data type implements *lineage* by tying each trade
 state to the trade state(s) that came before it in the lifecyle. The
@@ -870,7 +895,7 @@ operators specified in the business event. The after trade state is
 optional because it may be latent while the business event is going
 through some acceptance workflow.
 
-## Other Misc. Information
+### Other Misc. Information
 
 Other selected attributes of a business event are explained below.
 
@@ -878,12 +903,14 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](#event-qualification) section.
+    qualification](event-model.md/#Event-Qualification)above. 
 
-# Workflow
+## Workflow
 
 The CDM provides support for implementors to develop workflows to
 process transaction lifecycle events.
+
+:::tip Definition: Workflow
 
 A *workflow* represents a set of actions or steps that are required to
 trigger a business event, including the initial execution or contract
@@ -891,6 +918,8 @@ formation. A workflow is organised into a sequence in which each step is
 represented by a *workflow step*. A workflow may involve multiple
 parties in addition to the parties to the transaction, and may include
 automated and manual steps. A workflow may involve only one step.
+
+:::
 
 The CDM supports a workflow's audit trail by providing lineage from one
 step to another in that workflow.
@@ -922,7 +951,7 @@ type WorkflowStep:
 The different attributes of a workflow step are detailed in the sections
 below.
 
-## Workflow Step Business Event
+### Workflow Step Business Event
 
 This attribute specifies the business event that the workflow step is
 meant to generate. It is optional because the workflow may require a
@@ -931,7 +960,7 @@ business event becomes effective, therefore the business event does not
 exist yet in those steps. The business event attribute is typically
 associated with the final step in the workflow.
 
-## Proposed Event
+### Proposed Event
 
 This attribute specifies the inputs required to perform the event's
 state transition and comprises a subset of the attributes of the
@@ -953,7 +982,7 @@ type EventInstruction:
   instruction Instruction (0..*)
 ```
 
-## Next Event
+### Next Event
 
 Parties sometimes pre-agree a follow-on event that is meant to be
 executed after the current event completes, but separately from it. A
@@ -965,20 +994,20 @@ between the parties as part of the current event.
 The parameters of this next event are represented by an
 `EventInstruction` data type included in the workflow process.
 
-## Previous Workflow Step
+### Previous Workflow Step
 
 This attribute, which is provided as a reference, defines the lineage
 between steps in a workflow. The result is an audit trail for a business
 event, which can trace the various steps leading to the business event
 that was triggered.
 
-## Action
+### Action
 
 The action enumeration qualification specifies whether the event is a
 new one or a correction or cancellation of a prior one, which are trade
 entry references and not reflective of negotiated changes to a contract.
 
-## Message Information
+### Message Information
 
 The `messageInformation` attribute defines details for delivery of the
 message containing the workflow steps.
@@ -1006,7 +1035,7 @@ MessageInformation corresponds to some of the components of the FpML
 
 ---
 
-## Timestamp
+### Timestamp
 
 The CDM adopts a generic approach to represent timestamp information,
 consisting of a `dateTime` and a `qualification` attributes, with the
@@ -1042,7 +1071,7 @@ of this approach.
 ]
 ```
 
-## Event Identifier
+### Event Identifier
 
 The Event Identifier provides a unique id that can be used for reference
 by other workflow steps. The data type is a generic identifier component
@@ -1072,7 +1101,7 @@ which comes in different variations: `PartyTradeIdentifier`, with the
 
 ---
 
-## Other Misc. Attributes
+### Other Misc. Attributes
 
 -   The `party` and `account` information are optional because not
     applicable to certain events.

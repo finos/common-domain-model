@@ -11,9 +11,7 @@ import cdm.event.common.*;
 import cdm.event.common.functions.CalculateTransfer;
 import cdm.event.common.functions.Create_BusinessEvent;
 import cdm.event.common.functions.Create_Return;
-import cdm.event.common.metafields.ReferenceWithMetaCollateralPortfolio;
 import cdm.event.workflow.EventInstruction;
-import cdm.product.collateral.Collateral;
 import cdm.product.template.*;
 import com.google.common.collect.Iterables;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -23,7 +21,10 @@ import com.rosetta.model.metafields.FieldWithMetaDate;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,7 @@ public class SettlementFunctionHelper {
                         .setExecution(executionInstructionWithRefs))
                 .build());
 
-        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions,null,eventDate,null);
+        BusinessEvent businessEvent = create_businessEvent.evaluate(instructions, null, eventDate, null);
         return postProcess(BusinessEvent.class, businessEvent);
     }
 
@@ -75,11 +76,10 @@ public class SettlementFunctionHelper {
     }
 
     private LocalDate settlementDate(BusinessEvent businessEvent, Function<List<? extends AssetLeg>, AssetLeg> assetLegSelector) {
-        return getSecurityPayout(businessEvent)
+        return Optional.ofNullable(Iterables.getLast(getAssetPayouts(businessEvent)))
                 .map(Payout::getAssetPayout)
-                .filter(x -> !x.isEmpty()).map(Iterables::getLast)
                 .map(AssetPayout::getAssetLeg)
-                .filter(x -> !x.isEmpty()).map(assetLegSelector)
+                .map(assetLegSelector)
                 .map(AssetLeg::getSettlementDate)
                 .map(AdjustableOrRelativeDate::getAdjustableDate)
                 .map(AdjustableDate::getAdjustedDate)
@@ -89,7 +89,7 @@ public class SettlementFunctionHelper {
     }
 
     public EventInstruction createTransferInstruction(BusinessEvent executionBusinessEvent, LocalDate transferDate) {
-        Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
+        Payout payout = Iterables.getLast(getAssetPayouts(executionBusinessEvent));
         TradeState before = getAfterState(executionBusinessEvent).orElse(null);
         CalculateTransferInstruction calculateTransferInstruction =
                 CalculateTransferInstruction.builder()
@@ -103,9 +103,9 @@ public class SettlementFunctionHelper {
     }
 
     public EventInstruction createReturnTransferInstruction(BusinessEvent executionBusinessEvent,
-                                                       List<? extends Quantity> quantities,
-                                                       LocalDate transferDate) {
-        Payout payout = getSecurityPayout(executionBusinessEvent).orElse(null);
+                                                            List<? extends Quantity> quantities,
+                                                            LocalDate transferDate) {
+        Payout payout = Iterables.getLast(getAssetPayouts(executionBusinessEvent));
         Quantity shareQuantity = getShareQuantity(quantities);
         TradeState before = getAfterState(executionBusinessEvent).orElse(null);
         CalculateTransferInstruction calculateTransferInstruction =
@@ -146,15 +146,12 @@ public class SettlementFunctionHelper {
     private Optional<PayerReceiver> getPayerReceiver(Payout payout) {
         return Optional.ofNullable(payout)
                 .map(Payout::getAssetPayout)
-                .filter(x -> !x.isEmpty()).map(Iterables::getLast)
                 .map(AssetPayout::getPayerReceiver);
     }
 
     private Optional<PayerReceiver> getReturnPayerReceiver(Payout payout) {
-        return Optional.ofNullable(payout)
-                .map(Payout::getAssetPayout)
-                .filter(x -> !x.isEmpty()).map(Iterables::getLast)
-                .map(x -> invert(x.getPayerReceiver()));
+        return getPayerReceiver(payout)
+                .map(this::invert);
     }
 
     private PayerReceiver invert(PayerReceiver payerReceiver) {
@@ -164,31 +161,19 @@ public class SettlementFunctionHelper {
                 .build();
     }
 
-    private Optional<Payout> getPayout(BusinessEvent executionBusinessEvent) {
+    private List<? extends Payout> getPayouts(BusinessEvent executionBusinessEvent) {
         return getAfterState(executionBusinessEvent)
                 .map(TradeState::getTrade)
-                .map(Trade::getTradableProduct)
                 .map(TradableProduct::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
-                .map(EconomicTerms::getCollateral)
-                .map(Collateral::getCollateralPortfolio)
-                .orElse(Collections.emptyList()).stream()
-                .map(ReferenceWithMetaCollateralPortfolio::getValue)
-                .map(CollateralPortfolio::getCollateralPosition)
-                .flatMap(Collection::stream)
-                .map(CollateralPosition::getProduct)
-                .map(Product::getContractualProduct)
-                .map(ContractualProduct::getEconomicTerms)
+                .map(NonTransferableProduct::getEconomicTerms)
                 .map(EconomicTerms::getPayout)
-                .findFirst();
+                .orElse(Collections.emptyList());
     }
 
-    private Optional<Payout> getSecurityPayout(BusinessEvent executionBusinessEvent) {
-        return getPayout(executionBusinessEvent)
-                .map(Payout::getAssetPayout)
-                .map(securityFinancePayouts -> Payout.builder().setAssetPayout(securityFinancePayouts)
-                        .build());
+    private List<? extends Payout> getAssetPayouts(BusinessEvent executionBusinessEvent) {
+        return getPayouts(executionBusinessEvent).stream()
+                .filter(p -> p.getAssetPayout() != null)
+                .collect(Collectors.toList());
     }
 
     private Optional<TradeState> getAfterState(BusinessEvent executionBusinessEvent) {

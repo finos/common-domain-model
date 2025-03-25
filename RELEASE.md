@@ -1,12 +1,20 @@
-# _Infrastructure - Dependency Update_
+# *Eligible Collateral Model* - Remove Eligible Collateral Instruction data type
+
+_Background_
+
+In CDM 6.0.0, the Eligible Collateral model was enhanced to enable the use of complex AND, OR and NOT logic in the combination of terms within a criteria.
+
+Prior to this change, a function existed to clone an Eligible Collateral Specification.  Although this function was substantially refactored at that time, a data
+type that it used (`EligibleCollateralSpecificationInstruction`) was left in place, albeit marked as deprecated.  This data type is now being removed.
 
 _What is being released?_
 
-This release updates the `DSL` dependency. 
+The data type `EligibleCollateralSpecificationInstruction` has been removed from the model.
 
-Version updates include:
-- `DSL` 9.16.2: support for ingestion tabulators. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.16.2
+_Backward-incompatible changes_
 
-_Review directions_ 
+This release is not backward compatible.
 
-The changes can be reviewed in PR: [#3112](https://github.com/finos/common-domain-model/pull/3112)
+_Review Directions_
+
+The change can be reviewed in PR: [#3515](https://github.com/finos/common-domain-model/pull/3515)

@@ -9,7 +9,8 @@ import util.ResourcesUtils;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Qualify_AssetClass_ForeignExchangeTest  extends AbstractFunctionTest {
 
@@ -36,7 +37,7 @@ class Qualify_AssetClass_ForeignExchangeTest  extends AbstractFunctionTest {
 
     private static EconomicTerms getEconomicTerms(String resourceName) throws IOException {
         TradeState tradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, resourceName);
-        EconomicTerms economicTerms = tradeState.getTrade().getTradableProduct().getProduct().getContractualProduct().getEconomicTerms();
+        EconomicTerms economicTerms = tradeState.getTrade().getProduct().getEconomicTerms();
         return economicTerms;
     }
 }
