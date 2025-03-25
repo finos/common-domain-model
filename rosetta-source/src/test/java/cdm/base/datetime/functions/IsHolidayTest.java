@@ -23,17 +23,17 @@ public class IsHolidayTest extends AbstractFunctionTest {
 
     @Test
     void shouldGetResult() {
-        List<BusinessCenterEnum> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
+        List<String> londonTargetBc = getBusinessCenters(LONDON_TARGET_BC);
         assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 20), londonTargetBc));
         assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 19), londonTargetBc));
         assertEquals(Boolean.TRUE, func.evaluate(Date.of(2021,12, 27), londonTargetBc));
         assertEquals(Boolean.TRUE, func.evaluate(Date.of(2021,12, 28), londonTargetBc));
 
-        List<BusinessCenterEnum> targetBc = getBusinessCenters(TARGET_BC);
+        List<String> targetBc = getBusinessCenters(TARGET_BC);
         assertEquals(Boolean.FALSE, func.evaluate(Date.of(2021,12, 27), targetBc));
     }
 
-    private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+    private List<String> getBusinessCenters(BusinessCenters businessCenters) {
         return businessCentersFunc.evaluate(businessCenters);
     }
 }
