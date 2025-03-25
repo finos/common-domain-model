@@ -12,6 +12,6 @@ Version updates include:
 - `DSL` 9.41.0 Enabled support for dynamic validation and injection to improve the configurability of the generated code. The change also included a fix that prevented correct operation of DSL quick actions. For further details, see DSL release notes: [DSL 9.41.0](https://github.com/finos/rune-dsl/releases/tag/9.41.0)
 - `DSL` 9.41.1 Annotated POJO attributes to highlight address & locations. Fixed issue that was breaking translate parse handlers. For further details, see DSL release notes: [DSL 9.41.1](https://github.com/finos/rune-dsl/releases/tag/9.41.1)
 
-- _Review Directions_
+_Review Directions_
 
 The changes can be reviewed in PR: [#3555](https://github.com/finos/common-domain-model/pull/3555) 
