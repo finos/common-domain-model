@@ -7,8 +7,7 @@ import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.base.staticdata.party.*
-
-import cdm.base.staticdata.party.*
+import cdm.legaldocumentation.common.*
 
 type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
     clause MasterAgreementClause (1..*) <"Clauses that have had elections made against them in this Master Agreement. There must be at least one clause defined in the agreement.">
@@ -137,3 +136,34 @@ type Clause: <"A type for documenting additional clause that cannot yet be repre
     subcomponents Clause (0..*) <"Additional hierarchichal components of the clause if relevant">
     condition: <"The Clause should describe at least the additional terms,  additional subcomponents or both">
         optional choice terms, subcomponents
+
+type MasterAgreementBase : <"A set of elections that can be shared across legal agreement types - this should be built upon for specific contracts">
+    processAgent ProcessAgent (1..1) <"Election to capture if, and who, either party has elected as a process agent">
+    addressForNotices AddressForNotices (0..1) <"Address for Notices">
+    automaticEarlyTermination AutomaticEarlyTermination (1..1) <"Does automatic early termination apply to either party?">
+    designatedOffices DesignatedOffices (0..1) <"Elections detailing designated offices">
+
+type ProcessAgent : <"Election to capture if, and who, either party has elected as a process agent">
+    elections ProcessAgentElection (2..2)
+
+type ProcessAgentElection : <"Process agent data for either party">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    isAppointed boolean (1..1) <"Has that party appointed a process agent?">
+    processAgent string (0..1) <"If appointed, process agent should be listed">
+
+    condition AgentMustExist: <"If an agent is appointed they must be named.">
+        if isAppointed then processAgent exists
+
+type AutomaticEarlyTermination : <"Elections detailing if automatic early termination applies to either party">
+    elections AutomaticEarlyTerminationElection (2..2)
+
+type AutomaticEarlyTerminationElection : 
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    isApplicable boolean (0..1) <"If provided, is automatic early termination applicable to relevant party?">
+
+type DesignatedOffices : <"Elections detailing designated offices">
+    elections DesignatedOfficeElection (2..2)
+
+type DesignatedOfficeElection : <"Designated offices for the respective parties">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    offices string (0..*) <"If provided, which offices are designated for the party? (Will change to city list)">
