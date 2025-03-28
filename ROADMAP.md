@@ -1,8 +1,8 @@
-# 2024 CDM Roadmap from FINOS, ICMA, ISDA, & ISLA
+# 2025 CDM Roadmap from FINOS, ICMA, ISDA, & ISLA
 
-![](.github/cdm-roadmap-2024-1.png)
+![](.github/cdm-roadmap-2025-1.png)
 
-![](.github/cdm-roadmap-2024-2.png)
+![](.github/cdm-roadmap-2025-2.png)
 
 # 2024-5 Release schedule
 ![CDM Release Guidelines Task Force Summary - July 2 2024](https://github.com/finos/common-domain-model/assets/7291088/9542593d-b63e-4447-8a21-cfec1df65221)
