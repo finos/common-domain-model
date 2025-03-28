@@ -2,7 +2,7 @@ namespace cdm.margin.schedule
 version "${project.version}"
 
 import cdm.base.math.*
-
+import cdm.base.staticdata.asset.common.*
 import cdm.observable.asset.*
 
 type StandardizedSchedule:
@@ -12,12 +12,30 @@ type StandardizedSchedule:
     notionalCurrency string (1..1)
     durationInYears number (0..1)
 
+    condition PositiveNotional: <"Ensure notional is greater than 0">
+        notional > 0
+
+    condition ValidCurrency: <"Ensure Currency is an ISO 3-Letter Currency Code">
+        notionalCurrency to-enum ISOCurrencyCodeEnum exists
+
+    condition PositiveDuration: <"Ensure duration is greater than 0.">
+        durationInYears > 0
+
 type StandardizedScheduleTradeInfo:
     assetClass StandardizedScheduleAssetClassEnum (0..1)
     productClass StandardizedScheduleProductClassEnum (0..1)
-    grossInitialMargin Quantity (0..1)
-    markToMarketValue Quantity (0..1)
+    grossInitialMargin Money (0..1)
+    markToMarketValue Money (0..1)
+
+    condition PositiveGrossInitialMargin: <"Ensure gross initial margin is greater than 0">
+        grossInitialMargin -> value > 0
+
+    condition SameCurrencies: <"Ensure that only a single currency exists">
+        grossInitialMargin -> unit -> currency = markToMarketValue -> unit -> currency
 
 type StandardizedScheduleInitialMargin:
     tradeInfo StandardizedScheduleTradeInfo (0..*)
     netInitialMargin Money (1..1)
+
+    condition NonNegativeNetInitialMargin: <"Ensure net initial margin is non-negative">
+        netInitialMargin -> value >= 0

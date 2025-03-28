@@ -1,15 +1,14 @@
 namespace cdm.observable.asset : <"Observable concepts applicable to assets: price, reference price, valuation method etc.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.party.*
-
+import cdm.mapping.config.*
 import cdm.observable.common.*
 import cdm.product.asset.*
-import cdm.mapping.config.*
 
 type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
     name string (0..1) <"A description of the Index.">
@@ -20,16 +19,16 @@ type IndexBase extends AssetBase: <"Identifies an index by referencing an identi
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
     CreditIndex <"An index based on credit risk, typically composed using corporate debt instruments in a region or industry sector, e.g. the iTraxx indices.">
     EquityIndex <"An index based on equity securities, e.g. the S&P 500.">
-    FloatingRateIndex <"An index based in interest rates or inflation rates in a certain market.">
+    InterestRateIndex <"An index based in interest rates or inflation rates in a certain market.">
         [metadata location]
     ForeignExchangeRateIndex <"A rate based on the exchange of a pair of cash assets in specific currencies, e.g. USD versus GBP.">
     OtherIndex <"An index created by a market participant which doesn't align with the other index types.">
 
-choice FloatingRateIndex: <"An index based in interest rates or inflation rates in a certain market.">
-    InterestRateIndex <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+choice InterestRateIndex: <"An index based in interest rates or inflation rates in a certain market.">
+    FloatingRateIndex <"An interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
     InflationIndex <"An index that measures inflation in a specific market, e.g. the US Consumer Price Index.">
 
-type InterestRateIndex extends IndexBase: <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
+type FloatingRateIndex extends IndexBase: <"Specification of an interest rate index which can change over time, e.g. the SONIA (Sterling Overnight Index Average) in the UK.">
     floatingRateIndex FloatingRateIndexEnum (1..1) <"The reference index that is used to specify the floating interest rate.">
         [metadata scheme]
     indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the floating rate tenor.">
@@ -102,13 +101,11 @@ type PriceQuantity: <"Defines a settlement as an exchange between two parties of
     effectiveDate AdjustableOrRelativeDate (0..1) <"Specifies the date at which the price and quantity become effective. This day may be subject to adjustment in accordance with a business day convention, or could be specified as relative to a trade date, for instance. Optional cardinality, as the effective date is usually specified in the product definition, so it may only need to be specified as part of the PriceQuantity in an increase/decrease scenario for an existing trade.">
 
     condition NonCurrencyQuantities: <"There should be at most one quantity which is not a currency, except for commodities where there may be two.">
-        ( quantity count - quantity -> unit -> currency count ) <= 1
-        or ( observable -> Asset -> Commodity exists 
-            and quantity -> unit -> capacityUnit exists
-            and ( quantity count - quantity -> unit -> currency count ) <= 2 )
+        (quantity count - quantity -> unit -> currency count) <= 1 or (observable -> Asset -> Commodity exists
+            and quantity -> unit -> capacityUnit exists and (quantity count - quantity -> unit -> currency count) <= 2)
 
-    condition ArithmeticOperator: <"When observable is FloatingRateIndex, and price exists, then price should have an arithmetic operator.">
-        if observable -> Index -> FloatingRateIndex exists and price exists
+    condition ArithmeticOperator: <"When observable is InterestRateIndex, and price exists, then price should have an arithmetic operator.">
+        if observable -> Index -> InterestRateIndex exists and price exists
         then price -> arithmeticOperator exists
 
     condition InterestRateObservable: <"When the observable is an interest rate index, the price type must be interest rate and the arithmetic operator must be specified.">
@@ -222,7 +219,7 @@ type BasketConstituent extends Observable: <"Identifies the constituents of the 
     finalValuationPrice PriceSchedule (0..*) <"Specifies a final price schedule to be associated to an individual underlier that is a basket constituent. The multiple cardinality is aligned to the one of the PriceQuantity->price that this price is referencing.">
         [metadata address "pointsTo"=PriceQuantity->price]
 
-    condition BasketsOfBaskets:  <"To prevent endless looping, baskets of baskets are not supported.">
+    condition BasketsOfBaskets: <"To prevent endless looping, baskets of baskets are not supported.">
         Basket is absent
 
 type InformationSource: <"A class defining the source for a piece of information (e.g. a rate fix or an FX fixing). The attribute names have been adjusted from FpML to address the fact that the information is not limited to rates.">

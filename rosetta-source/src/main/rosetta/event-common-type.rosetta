@@ -8,15 +8,11 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
-
 import cdm.event.position.*
 import cdm.event.workflow.*
-
 import cdm.legaldocumentation.common.*
-
 import cdm.observable.asset.*
 import cdm.observable.event.*
-
 import cdm.product.asset.*
 import cdm.product.collateral.*
 import cdm.product.common.*
@@ -110,7 +106,7 @@ type ExerciseInstruction: <"Specifies the information required to communicate th
     replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
 
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
-    payout Payout (1..1)
+    payout Payout (1..*)
         [metadata reference]
     rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
     resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
@@ -139,7 +135,7 @@ type IndexTransitionInstruction: <"Defines the information needed to create a In
 
     condition PriceQuantity:
         priceQuantity -> price -> priceType contains PriceTypeEnum -> InterestRate
-            and priceQuantity -> observable -> Index -> FloatingRateIndex exists
+            and priceQuantity -> observable -> Index -> InterestRateIndex exists
             and priceQuantity -> quantity is absent
 
 type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
@@ -211,8 +207,12 @@ type TransferState: <"Defines the fundamental financial information associated w
     transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
     transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends TransferBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
-    settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+        [metadata scheme]
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+    settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
     resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
@@ -230,30 +230,6 @@ type ScheduledTransfer:
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
         if transferType = ScheduledTransferEnum -> CorporateAction
         then corporateActionTransferType exists
-
-type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-
-    commodityPayout CommodityPayout (0..1) <"Represents a reference to an Commodity Payout.">
-        [metadata reference]
-    creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
-        [metadata reference]
-    settlementPayout SettlementPayout (0..1) <"Represents a reference to a Settlement Payout.">
-        [metadata reference]
-    interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
-        [metadata reference]
-    optionPayout OptionPayout (0..1) <"Represents a reference to an Option Payout.">
-        [metadata reference]
-    assetPayout AssetPayout (0..1) <"Represents a reference to an Asset Payout.">
-        [metadata reference]
-    settlementTerms SettlementTerms (0..1) <"Represents a reference to settlement terms, which may have been specified at execution.">
-        [metadata reference]
-    performancePayout PerformancePayout (0..1) <"Represents a reference to a Performance Payout.">
-        [metadata reference]
-    fixedPricePayout FixedPricePayout (0..1) <"Represents a reference to a Fixed Price Payout">
-        [metadata reference]
-
-    condition:
-        one-of
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
     identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
@@ -293,7 +269,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         [deprecated]
 
     condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
-        if product -> economicTerms -> payout -> settlementPayout only exists
+        if SettlementPayoutOnlyExists(product -> economicTerms -> payout)
         then partyRole -> role contains PartyRoleEnum -> Buyer
                 and partyRole -> role contains PartyRoleEnum -> Seller
                 and tradeLot -> priceQuantity -> price exists
@@ -305,80 +281,80 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
     condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
         if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSubordinated exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notContingent exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> assignableLoan exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> transferable exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notBearer exists)
-                and (product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability exists
-                    or product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability exists
-                    or product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSubordinated exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notContingent exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> assignableLoan exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> transferable exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notBearer exists)
+                and (product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability exists)
 
     condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
         if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance exists)
-                and (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability exists
-                    or product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability exists
-                    or product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notSubordinated exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance exists)
+                and (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability exists)
 
     condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
         if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention exists)
 
     condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
         if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
-        then product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
     condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists)
 
     condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists)
 
     condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-                        and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-        then (product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> writedown exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown exists)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> writedown exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown exists)
 
     condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
         if partyRole -> role contains PartyRoleEnum -> HedgingParty
@@ -396,84 +372,84 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         if clearedDate exists then clearedDate >= tradeDate
 
     condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
-        if product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+        if product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
         then tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
     condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-        then product -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
     condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
         then product -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
 
     condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
-        then product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
     condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999CreditDerivatives
-        then product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> substitution is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
 
     condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
-        then product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
     condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-        then product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> cashSettlementTerms exists
-                or product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> cashSettlementTerms exists
+                or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
 
     condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-        then product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
 
     condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
-        then product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> settlementCurrency exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> physicalSettlementPeriod exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> escrow exists
-                and product -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> accruedInterest exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> settlementCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> physicalSettlementPeriod exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> escrow exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> accruedInterest exists
 
     condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
         if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
                 and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-                and product -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-                and product -> economicTerms -> payout -> interestRatePayout -> priceQuantity exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> InterestRatePayout -> priceQuantity exists
                 and tradeLot -> priceQuantity -> quantity -> value exists
-        then product -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+        then product -> economicTerms -> payout -> InterestRatePayout -> dayCountFraction exists
 
     condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
-        if product -> economicTerms -> payout -> interestRatePayout exists
-        then FpmlIrd8(item,account) = True
+        if product -> economicTerms -> payout -> InterestRatePayout exists
+        then FpmlIrd8(item, account) = True
 
     condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout or an equity option payout.">
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
-        then ( product -> economicTerms -> payout -> performancePayout -> returnTerms -> priceReturnTerms exists
-               or product -> economicTerms -> payout -> optionPayout exists )
-            and Qualify_AssetClass_Equity(product -> economicTerms)
+        then (product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
+                    or product -> economicTerms -> payout -> OptionPayout exists)
+                and Qualify_AssetClass_Equity(product -> economicTerms)
 
     condition DisruptionEventsDeterminingParty:
         if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
@@ -528,23 +504,7 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
     corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
     exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
     payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-    underlier Instrument (1..1) <"The instrument (ie security, loan or listed derivative) impacted by the corporate action.">
-
-type TransferBase:
-    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-        [metadata scheme]
-    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
-    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
-
-    condition QuantityUnitExists:
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+    underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
@@ -719,4 +679,10 @@ type MarginCallResponse extends MarginCallBase: <"Represents common attributes r
     marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
     marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
     agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
-    
+
+type ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
+
+    state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">
+    activityDate date (1..1) <"The activity date on which the closing state took place, i.e. either the event date of the closing event (e.g. option exercise, contract early termination) or the contractual termination date.">
+    effectiveDate date (0..1) <"The date on which the closing event contractually takes effect, when different from the activity date. When an explicit event effective date attribute is associated with the closing event, it will be that date. In the case of a cancellation event, it will be the date on which the cancelled event took place.">
+    lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">

@@ -1,14 +1,16 @@
 namespace cdm.product.template : <"Template feature concepts to define payouts.">
 version "${project.version}"
 
+import cdm.base.datetime.*
 import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
-
+import cdm.event.common.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
-
-import cdm.event.common.*
+import cdm.product.common.settlement.*
+import cdm.product.qualification.*
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
     inputs:
@@ -116,3 +118,111 @@ func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as 
         accounts Account (0..*)
     output:
         success boolean (1..1) <"Validation result">
+
+func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows that correspond to a settlement payout. One leg is the asset leg, that settles the asset according to the quantity, direction and date defined in the settlement payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
+    inputs:
+        payout SettlementPayout (1..1) <"The settlement payout from which the cashflows are generated.">
+    output:
+        cashflows Cashflow (2..2) <"The two generated cashflows (asset leg and price leg) going in opposite directions.">
+
+    alias assetLeg: <"The asset leg consists in a cashflow which has the same attributes (asset, quantity, date and direction) as the settlement payout that generates it.">
+        Cashflow {
+            quantity: NonNegativeQuantity {
+                value: payout -> priceQuantity -> quantitySchedule -> value,
+                unit: payout -> priceQuantity -> quantitySchedule -> unit,
+                ...
+            },
+            asset: payout -> underlier -> Observable -> Asset,
+            settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
+            payerReceiver: payout -> payerReceiver,
+            cashflowType: CashflowType {
+                cashflowType: PrincipalPayment,
+                ...
+            },
+            ...
+        }
+
+    alias priceLegAmount: <"The amount (in cash) of the price leg is computed as: quantity (asset) x price. When a monetary amount is specified in the trade's PriceQuantity attribute, e.g. in the case of an FX transaction, a validation rule already ensures than this monetary amount is consistent with quantity x price.">
+        payout -> priceQuantity -> quantitySchedule -> value * payout -> priceQuantity -> priceSchedule only-element -> value
+
+    alias priceLegCurrency: <"The currency of the price leg is the currency in which the price is expressed.">
+        payout -> priceQuantity -> priceSchedule only-element -> unit -> currency
+
+    alias priceLegPayerReceiver: <"The payer / receiver direction of the price leg must be flipped compared to the settlement payout.">
+        PayerReceiver {
+            payer: payout -> payerReceiver -> receiver,
+            receiver: payout -> payerReceiver -> payer
+        }
+
+    alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
+        Cashflow {
+            quantity: NonNegativeQuantity {
+                value: priceLegAmount,
+                unit: UnitType {
+                    currency: priceLegCurrency,
+                    ...
+                },
+                ...
+            },
+            asset: Asset {
+                Cash: Cash {
+                    identifier: AssetIdentifier {
+                        identifier: priceLegCurrency,
+                        identifierType: CurrencyCode
+                    },
+                    ...
+                },
+                ...
+            },
+            settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
+            payerReceiver: priceLegPayerReceiver,
+            cashflowType: CashflowType {
+                cashflowType: PrincipalPayment,
+                ...
+            },
+            ...
+        }
+
+    condition Asset: <"Restricts the function's applicability to a single asset for the underlier.">
+        payout -> underlier -> Observable -> Asset exists
+
+    condition SettlementDate: <"Restricts the function's applicability to the adjustable or relative date for the settlement date.">
+        payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+
+    condition SinglePriceAndQuantity: <"Restricts the function's applicability to a single quantity and price.">
+        payout -> priceQuantity -> quantitySchedule -> value exists
+            and payout -> priceQuantity -> priceSchedule only-element -> value exists
+
+    set cashflows: [assetLeg, priceLeg]
+
+func UnderlierForOptionOrForwardProduct: <"Extracts the underlier from an option or a forward.">
+    inputs:
+        product NonTransferableProduct (1..1)
+    output:
+        underlierProduct Underlier (1..1)
+    set underlierProduct:
+        if product -> economicTerms -> payout -> OptionPayout exists
+        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
+        else if product -> economicTerms -> payout -> SettlementPayout exists
+        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
+
+func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
+    inputs:
+        product NonTransferableProduct (1..1)
+    output:
+        nearLegPayout SettlementPayout (0..1)
+    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
+    set nearLegPayout:
+        // value date
+        if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> valueDate exists
+        then settlementPayout max [ item -> settlementTerms -> settlementDate -> valueDate ]
+        // adjustable or relative date
+        else if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+        then settlementPayout
+            max [
+                AdjustableOrAdjustedOrRelativeDateResolution(
+                        item -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
+                    )
+            ]

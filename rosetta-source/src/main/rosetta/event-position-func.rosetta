@@ -2,9 +2,9 @@ namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggr
 version "${project.version}"
 
 import cdm.base.math.*
-import cdm.product.template.*
-import cdm.event.common.*
 import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.product.template.*
 
 func FxMarkToMarket: <"Representation of sample mark to market calculation provided by a member firm.">
     inputs:
@@ -13,7 +13,7 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
         value number (1..1)
 
     alias settlementPayout: <"Alias to the forward pay out.">
-        trade -> product -> economicTerms -> payout -> settlementPayout only-element
+        trade -> product -> economicTerms -> payout -> SettlementPayout only-element
 
     alias quotedCurrency: <"The quoted currency.">
         trade -> tradeLot -> priceQuantity -> price -> unit -> currency
@@ -37,7 +37,7 @@ func FxMarkToMarket: <"Representation of sample mark to market calculation provi
     alias interpolatedRate: InterpolateForwardRate(settlementPayout)
 
     condition SettlementPayoutExists: <"The settlementPayout on the contract must exist.">
-        trade -> product -> economicTerms -> payout -> settlementPayout exists
+        trade -> product -> economicTerms -> payout -> SettlementPayout exists
 
     set value: (quotedQuantity / interpolatedRate - baseQuantity) * interpolatedRate
 
