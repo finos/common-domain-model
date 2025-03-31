@@ -16,4 +16,4 @@ In the Rosetta platform, select the Textual Browser and inspect each of the chan
 
 Details of the Issue and the resolution are available here: [#3579](https://github.com/finos/common-domain-model/issues/3579)
 
-Changes can be reviewed in PR: [#3584](https://github.com/finos/common-domain-model/pull/3584)
+Changes can be reviewed in PR: [#3596](https://github.com/finos/common-domain-model/pull/3596)
