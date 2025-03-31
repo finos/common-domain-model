@@ -27,10 +27,8 @@ Rosetta has a feature for its enumerations that enables, if a certain enumeratio
 _What is being released?_
 
 This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
-- The following enum values have been added:
+- The following enum value have been added:
     - `XCG <"Caribbean Guilder">`
-    - `ANG <"Netherlands Antillean Guilder">`
-    - `CUC <"Peso Convertible">`
 
 _Review directions_
 
