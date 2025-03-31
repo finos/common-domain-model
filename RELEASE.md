@@ -12,7 +12,7 @@ This release addresses this issue, amending the following functions that qualify
 
 _Review Directions_
 
-In the Rosetta platform, select the Textual Browser and inspect each of the changes identified above, navigating to file cdm > product > qualification > func.
+In the Rosetta platform, select the Textual Browser and inspect the change identified above, navigating to file cdm > product > qualification > func.
 
 Details of the Issue and the resolution are available here: [#3579](https://github.com/finos/common-domain-model/issues/3579)
 
