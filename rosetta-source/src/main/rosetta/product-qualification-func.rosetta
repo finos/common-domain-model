@@ -84,10 +84,13 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                     then (forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
                             or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
                     else False)
-                    // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier)
+                    // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier or Total Return Swap Index with index as underlier)
             or ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
                 and if performanceUnderlier exists
-                    then (performanceUnderlier -> loan exists or performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt))
+                then (performanceUnderlier -> loan -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
+                            or (performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt and 
+                                    performanceUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
+                            or performanceUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit))
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
     inputs:
@@ -284,7 +287,7 @@ func Qualify_UnderlierProduct_Equity: <"Qualifies a product as having the Asset 
             or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
                 and underlier -> security -> fundType = FundProductTypeEnum -> OtherFund)
             or underlier -> security -> securityType = SecurityTypeEnum -> Certificate
-            or (underlier -> index exists /* and underlier -> index -> indexType = IndexTypeEnum -> Equity */ ) // No FpML mappings exist for IndexTypeEnum
+            or (underlier -> index exists and underlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity) // No FpML mappings exist for IndexTypeEnum
                 // Qualifies that the underlier is a basket composed of equity products only
             or (underlier -> basket exists
                 and (underlier -> basket -> basketConstituent -> security -> securityType any = SecurityTypeEnum -> Equity
@@ -708,6 +711,7 @@ func Qualify_BaseProduct_EquityForward: <"Qualifies a product as having the Asse
     set is_product:
         Qualify_AssetClass_Equity(economicTerms) = True
             and economicTerms -> payout -> forwardPayout only exists
+            and (economicTerms -> nonStandardisedTerms is absent or economicTerms -> nonStandardisedTerms = False)
 
 func Qualify_EquityForward_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Forward with a single stock as an underlier.">
     [qualification Product]
@@ -1781,4 +1785,33 @@ func Qualify_Commodity_OptionOther: <"Qualifies a product as an Commodity Option
     set is_product:
         Qualify_AssetClass_Commodity(economicTerms) = True
             and economicTerms -> payout -> optionPayout only exists
+            and economicTerms -> nonStandardisedTerms = True
+
+func Qualify_TotalReturnSwap_Index: <"Qualifies a product as a Credit Total Return Swap which provides protection relative to defaults of a reference entity that could be a corporate, municipal, sovererign, or special purpose vehicle issuer of publically traded debt.  The determination of the qualification is based on the economic terms and the following criteria: 1) A product which qualifies as Credit, 2) has an interest rate leg and a performance leg, 3) performance leg underlier is an Index.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+    
+    alias performanceUnderlier:
+        economicTerms -> payout -> performancePayout only-element -> underlier
+
+    set is_product:
+        Qualify_AssetClass_Credit(economicTerms) = True
+            and ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
+                and if performanceUnderlier exists
+                    then (performanceUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit))
+
+func Qualify_Equity_OtherForward: <"Qualifies a product with properties of an Exotic Forward as Equity Forward (Other)">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "Qualify_EquityOther"]
+            [synonym ISDA_Taxonomy_v2 value "Qualify_EquityOther"]
+    set is_product:
+        Qualify_AssetClass_Equity(economicTerms) = True
+            and economicTerms -> payout -> forwardPayout only exists
             and economicTerms -> nonStandardisedTerms = True
