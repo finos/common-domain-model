@@ -1,12 +1,8 @@
-# _Product Qualification - Amendment in filter conditions for Commodity Products_
-
-_Background_
-
-An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified. The patch that was added earlier missed one `Commodity Option` qualifier function. This patch addresses the issue. 
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release addresses this issue, amending the following functions that qualify non-exotic products to add a negative `nonStandardisedTerms` check:
+This release updates the `DSL` dependency.
 
 Version updates include:
 - `DSL` 9.38.0 Fixed setting enum values on meta fields. For further details, see DSL release notes: [DSL 9.38.0](https://github.com/finos/rune-dsl/releases/tag/9.38.0)
@@ -23,6 +19,16 @@ Version updates include:
 _Review Directions_
 
 The changes can be reviewed in PR [#3556](https://github.com/finos/common-domain-model/pull/3556) and [#3608](https://github.com/finos/common-domain-model/pull/3608).
+
+# _Product Qualification - Amendment in filter conditions for Commodity Products_
+
+_Background_
+
+An issue was identified in the product qualification framework following updates introduced in [Issue #3476](https://github.com/finos/common-domain-model/issues/3476), whereby it was possible for products with non-standardised terms to be double-qualified. The patch that was added earlier missed one `Commodity Option` qualifier function. This patch addresses the issue. 
+
+_What is being released?_
+
+This release addresses this issue, amending the following functions that qualify non-exotic products to add a negative `nonStandardisedTerms` check:
 
 * Qualify_Commodity_option
 
