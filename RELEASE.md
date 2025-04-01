@@ -6,4 +6,4 @@ This release also updates the FpML / ISO code scheme syncing configuration to ex
 
 _Review Directions_
 
-The changes can be reviewed in PR: #3610
+The changes can be reviewed in PR: [#3610] (https://github.com/finos/common-domain-model/pull/3610)
