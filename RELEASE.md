@@ -8,7 +8,7 @@ _What is being released?_
 
 This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
 * The following enum value have been added:
-        * `XCG <"Caribbean Guilder">`
+  * `XCG <"Caribbean Guilder">`
 
 _Review Directions_
 
