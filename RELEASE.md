@@ -6,7 +6,6 @@ The Rosetta platform has a feature for its enumerations that enables, if a certa
 
 _What is being released?_
 
-This release also updates the FpML / ISO code scheme syncing configuration to exact matching allowing backwards incompatible changes, as per the [development version guidelines](https://cdm.finos.org/docs/contributing/#version-availability).
 This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
 * The following enum value have been added:
         * `XCG <"Caribbean Guilder">`
