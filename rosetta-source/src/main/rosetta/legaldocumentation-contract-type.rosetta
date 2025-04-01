@@ -3,13 +3,21 @@ version "${project.version}"
 
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
+import cdm.legaldocumentation.master.isdamasteragreement.*
+import cdm.legaldocumentation.master.gmra.*
+import cdm.legaldocumentation.master.gmsla.*
 
 type Agreement: <"Specification of the standard set of terms that define a legal agreement.">
 
     creditSupportAgreementElections CreditSupportAgreementElections (0..1) <"Elections to specify a Credit Support Annex or Credit Support Deed for Intial or Variation Margin.">
     collateralTransferAgreementElections CollateralTransferAgreementElections (0..1) <"Elections to specify a Collateral Transfer Agreement.">
     securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
-    masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
+    clauseLibrarySchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
     transactionAdditionalTerms TransactionAdditionalTerms (0..1) <"Any additional terms which mainly intend to specify the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens">
-    condition:
-        one-of
+    masterAgreement MasterAgreement (0..1) <"A legal representation of the different possible master agreements">
+
+type MasterAgreement: <"A representation of a master agreement extended from a base agreement of shared elections">
+    isdaMasterAgreementSchedule IsdaMasterAgreementSchedule (0..1) <"The set of elections that define an ISDA master agreement">
+    gmraSchedule GmraSchedule (0..1) <"The set of elections that define a GMRA">
+    gmslaSchedule GmslaSchedule (0..1) <"The set of elections that define a GMSLA">
+    condition: one-of

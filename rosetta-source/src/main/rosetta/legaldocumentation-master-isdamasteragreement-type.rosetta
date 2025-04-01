@@ -1,0 +1,57 @@
+namespace cdm.legaldocumentation.master.isdamasteragreement : <"The set of elections that define characteristics of an ISDA master agreement.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.legaldocumentation.master.*
+
+type IsdaMasterAgreementSchedule extends MasterAgreementBase : <"The set of elections that define an ISDA master agreement">
+    terminationProvisions TerminationProvisions (0..1) <"Termination provisions set out in the ISDA master agreement.">
+    miscellaneous Miscellaneous (0..1) <"Miscellaneous provisions that are typically present in part 4 of an ISDA master agreement">
+
+type TerminationProvisions : <"The set of elections regarding the termination provisions of an ISDA master agreement">
+    specifiedEntities SpecifiedEntityElection (0..*) <"Any specified entities pertaining to section 5">
+    creditEventUponMerger CreditEventUponMerger (1..1) <"Are credit events applicable upon merger?">
+
+type SpecifiedEntityElection : <"An election outlining the specified entity with respect to section 5 for either party">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    section IsdaMasterAgreementSpecifiedEntitySectionEnum (1..1) <"Relevant section">
+    isApplicable boolean (1..1) <"Is the relevant section applicable?">
+    namedAffiliates string (0..*) <"Any named affiliates relating to the section">
+
+type CreditEventUponMerger : <"Elections detailing if the credit event upon merger is applicable to either party">
+    elections CreditEventUponMergerElection (2..2)
+
+type CreditEventUponMergerElection :
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    isApplicable boolean (0..1) <"If provided, is a credit event upon merger applicable to relevant party?">
+
+type Miscellaneous : <"Miscellaneous information stored in the ISDA master agreement">
+    multiBranchParty MultiBranchParty (0..1) <"Is either party a multibranch party?">
+    calculationAgent CalculationAgent (0..1) <"Specify which party acts as the calculation agent">
+    creditSupportDocuments CreditSupportDocuments (0..1) <"Is either party providing any credit support documents?">
+
+type MultiBranchParty : <"Is either party a multibranch party?">
+    elections MultiBranchPartyElection (2..2)
+
+type MultiBranchPartyElection : <"Specify for either party whether it is a multibranch party">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    isMultiBranch boolean (1..1)
+
+type CreditSupportDocuments : <"Specify any provided credit support documents for either party">
+    elections CreditSupportDocumentElection (0..2)
+
+type CreditSupportDocumentElection : <"Election to capture credit support documents provided by each party">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    documents IsdaMasterAgreementCreditSupportDocumentsEnum (1..*)
+    documentsIfOther string (0..*) <"If the document type is not in the enum, can be defined as a bespoke document term">
+
+type CreditSupportProviders : <"Specify any credit support providers for either party">
+
+type CreditSupportProviderElection : <"Election to capture credit support providers for each party">
+    party CounterpartyRoleEnum (1..1) <"Relevant party">
+    partyHasAProvider boolean (1..1)
+    providerOfCreditSupport string (0..1) <"If the party has a provider, they should be listed">
+
+    condition ProviderMustExist: <"If an agent is appointed they must be named.">
+        if partyHasAProvider then providerOfCreditSupport exists
