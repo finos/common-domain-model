@@ -75,8 +75,8 @@ module.exports = {
               href: 'https://cdm.finos.org/docs/CDM-Technology-Architecture-WG',
             },
             {
-              label: 'Structured Products Working Group',
-              href: 'https://cdm.finos.org/docs/CDM-Structured-Products-WG',
+              label: 'Tokenized Assets Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG',
             }
           ]
         },
