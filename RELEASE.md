@@ -1,6 +1,7 @@
 # _Infrastructure - Dependency Update_
 
 _Background_
+
 The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
 
 _What is being released?_
