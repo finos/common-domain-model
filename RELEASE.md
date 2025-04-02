@@ -1,18 +1,21 @@
 # _Infrastructure - Dependency Update_
 
+_Background_
+
+The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
+
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release updates the FpML / ISO code scheme syncing configuration to exact matching allowing backward-incompatible changes, as per the [development version guidelines](https://cdm.finos.org/docs/contributing/#version-availability).
+This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
 
-Version updates include:
-- `DSL` 9.38.0 Fixed setting enum values on meta fields. For further details, see DSL release notes: [DSL 9.38.0](https://github.com/finos/rune-dsl/releases/tag/9.38.0)
-- `DSL` 9.39.0 Fixed default operation issue and added support for `with-meta` operation. For further details, see DSL release notes: [DSL 9.39.0](https://github.com/finos/rune-dsl/releases/tag/9.39.0)
-- `DSL` 9.40.0 Added support for regulatory reference paths. For further details, see DSL release notes: [DSL 9.40.0](https://github.com/finos/rune-dsl/releases/tag/9.40.0)
-- `DSL` 9.40.1 Deprecated `productType`, `eventType`, and `calculation`. For further details, see DSL release notes: [DSL 9.40.1](https://github.com/finos/rune-dsl/releases/tag/9.40.1)
-- `DSL` 9.41.0 Enabled support for dynamic validation and injection to improve the configurability of the generated code. The change also included a fix that prevented correct operation of DSL quick actions. For further details, see DSL release notes: [DSL 9.41.0](https://github.com/finos/rune-dsl/releases/tag/9.41.0)
-- `DSL` 9.41.1 Annotated POJO attributes to highlight address & locations. Fixed issue that was breaking translate parse handlers. For further details, see DSL release notes: [DSL 9.41.1](https://github.com/finos/rune-dsl/releases/tag/9.41.1)
-
+* The following enum value have been
+  * removed:
+    * `ANG`
+    * `CUC`  
+  * added:
+    * `XCG <"Caribbean Guilder">`
+    
 _Review Directions_
 
-The changes can be reviewed in PR: [#3554](https://github.com/finos/common-domain-model/pull/3554) 
-
+The changes can be reviewed in PR: [#3610](https://github.com/finos/common-domain-model/pull/3610)
