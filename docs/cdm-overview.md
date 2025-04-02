@@ -83,8 +83,8 @@ The Common Domain Model (CDM) is a standardised, machine-readable and machine-ex
 
 There are no patents involved in the CDM.
 
-## CDM 2024 Roadmap
-Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
+## CDM 2025 Roadmap
+Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
 
 The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](roadmap.mdx)
 
