@@ -85,6 +85,8 @@ There are no patents involved in the CDM.
 
 ## CDM 2025 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
+![](/img/cdm-roadmap-2025-2.png)
+![](/img/cdm-roadmap-2025-1.png)
 
 The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found [here](roadmap.mdx)
 

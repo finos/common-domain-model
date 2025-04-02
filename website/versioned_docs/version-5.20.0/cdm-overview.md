@@ -155,7 +155,7 @@ terms. In particular:
 
 ---
 **Note:**
-The CDM Portal and Rosetta have been developed by technology firm
+Rosetta has been developed by technology firm
 [REGnosys](https://regnosys.com). FINOS encourages the adoption of CDM by software providers
 but does not endorse any CDM application component.
 
