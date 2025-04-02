@@ -7,7 +7,7 @@ The Rosetta platform has a feature for its enumerations that enables, if a certa
 _What is being released?_
 
 This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
-* The following enum value have been added:
+* The following enum value has been added:
   * `XCG <"Caribbean Guilder">`
 
 _Review Directions_
