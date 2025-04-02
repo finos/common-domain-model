@@ -12,7 +12,7 @@ This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest IS
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3611] (https://github.com/finos/common-domain-model/pull/3611)
+The changes can be reviewed in PR: [#3611](https://github.com/finos/common-domain-model/pull/3611)
 
 # _Infrastructure - Dependency Update_
 
