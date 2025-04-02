@@ -42,7 +42,7 @@ Details on how to interact with the CDM community are covered in our [Get Involv
 
 ## Contributing
 
-See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).
+See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/CONTRIBUTING.md).
 
 To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](docs/contributions.md)
 
