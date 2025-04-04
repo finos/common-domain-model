@@ -2,16 +2,15 @@
 
 _Background_
 
-In order to enhance the capability to model equity products, CDM Product Qualification model requires additional functions for `Total Return Swap (Index)` and `Equity Forward (Other)`. Additionally, existing functions also require modifications to qualify Equity Products in the required asset classes. This release contains these modifications required to accommodate Equity and Exotic Products. The details of the required modication is avaialble in [Issue #3544](https://github.com/finos/common-domain-model/issues/3544)
+In order to enhance the capability to model Equity Products, Product Qualification in CDM requires additional functions for `Total Return Swap (Index)` and `Equity Forward (Other)`. Additionally, existing functions require modifications to qualify Equity Products in the required asset classes. This release contains these modifications to accommodate Equity and Exotic Products. The details of these modifications are available in [Issue #3544](https://github.com/finos/common-domain-model/issues/3544)
 
 _What is being released?_
 
-- Added qualification functions
+- Added qualification functions:
   - `Qualify_TotalReturnSwap_Index`
   - `Qualify_Equity_OtherForward`
 
-- Modified functions
-
+- Modified functions:
   - `Qualify_AssetClass_Credit`
   - `Qualify_UnderlierProduct_Equity`
 
