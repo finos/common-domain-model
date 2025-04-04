@@ -31,7 +31,7 @@ Version updates include:
 - `DSL` 9.43.0 Improved code-generation performance and patched the `with-meta` operator. For further details, see DSL release notes: [DSL 9.43.0](https://github.com/finos/rune-dsl/releases/tag/9.43.0)
 - `DSL` 9.44.0 Added support for conditions on type aliases. For further details, see DSL release notes: [DSL 9.44.0](https://github.com/finos/rune-dsl/releases/tag/9.44.0)
 - `DSL` 9.44.1 Patch for code-generating conditions. For further details, see DSL release notes: [DSL 9.44.1](https://github.com/finos/rune-dsl/releases/tag/9.44.1)
-- `DSL` 9.45.1 Improved `to-meta` operator so it now ingnores the Display Name when converting between two enumerations, see DSL release notes: [DSL 9.45.1](https://github.com/finos/rune-dsl/releases/tag/9.45.1)
+- `DSL` 9.45.1 Improved `to-meta` operator so it now ignores the Display Name when converting between two enumerations, see DSL release notes: [DSL 9.45.1](https://github.com/finos/rune-dsl/releases/tag/9.45.1)
   
 _Review Directions_
 
