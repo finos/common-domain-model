@@ -1,21 +1,17 @@
 # _Infrastructure - Dependency Update_
 
-_Background_
-
-The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
-
 _What is being released?_
 
-This release updates the FpML / ISO code scheme syncing configuration to exact matching allowing backward-incompatible changes, as per the [development version guidelines](https://cdm.finos.org/docs/contributing/#version-availability).
-This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
+This release updates the `DSL` dependency.
 
-* The following enum value have been
-  * removed:
-    * `ANG`
-    * `CUC`  
-  * added:
-    * `XCG <"Caribbean Guilder">`
-    
+Version updates include:
+- `DSL` 9.42.0 Added support for converting enums to other enums directly using the `to-enum` operator. For further details, see DSL release notes: [DSL 9.42.0](https://github.com/finos/rune-dsl/releases/tag/9.42.0)
+- `DSL` 9.43.0 Improved code-generation performance and patched the `with-meta` operator. For further details, see DSL release notes: [DSL 9.43.0](https://github.com/finos/rune-dsl/releases/tag/9.43.0)
+- `DSL` 9.44.0 Added support for conditions on type aliases. For further details, see DSL release notes: [DSL 9.44.0](https://github.com/finos/rune-dsl/releases/tag/9.44.0)
+- `DSL` 9.44.1 Patch for code-generating conditions. For further details, see DSL release notes: [DSL 9.44.1](https://github.com/finos/rune-dsl/releases/tag/9.44.1)
+- `DSL` 9.45.1 Improved `to-meta` operator so it now ingnores the Display Name when converting between two enumerations, see DSL release notes: [DSL 9.45.1](https://github.com/finos/rune-dsl/releases/tag/9.45.1)
+
 _Review Directions_
 
-The changes can be reviewed in PR: [#3610](https://github.com/finos/common-domain-model/pull/3610)
+The changes can be reviewed in PR: [#3597](https://github.com/finos/common-domain-model/pull/3597) 
+
