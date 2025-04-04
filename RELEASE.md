@@ -38,7 +38,7 @@ CDM > base > staticdata > identifier > type > IdentifiedList
 
 Original Issue: [#3544](https://github.com/finos/common-domain-model/issues/3544)
 
-Changes can be reviewed in PR: [#3612](https://github.com/finos/common-domain-model/pull/3612)
+Changes can be reviewed in PR: [#3618](https://github.com/finos/common-domain-model/pull/3618)
 
 # _Infrastructure - Dependency Update_
 
