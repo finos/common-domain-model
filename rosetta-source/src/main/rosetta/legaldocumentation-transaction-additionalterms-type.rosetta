@@ -1,12 +1,270 @@
 namespace cdm.legaldocumentation.transaction.additionalterms
 version "${project.version}"
 
+import cdm.base.staticdata.party.*
+import cdm.base.math.*
+import cdm.legaldocumentation.common.*
+import cdm.observable.event.*
+import cdm.legaldocumentation.transaction.*
+import cdm.legaldocumentation.csa.*
+import cdm.base.datetime.*
+import cdm.base.*
+import cdm.observable.asset.*
+
+corpus Confirmation "2018 ISDA CDM Equity Confirmation for Security Equity Swap" Confirmation_SecurityEquitySwap_2018
+corpus Definitions "1998 FX and Currency Option Definitions" FXandCurrencyOptionsDefintions_1998
+corpus Definitions "2002 ISDA Equity Derivatives Definitions" EQDerivsDefinitions_2002
+
+segment section
+segment paragraph
+segment exhibit
+segment clause
+segment name
+
 type FxAdditionalTerms: <"TransactionAdditionalTerms which apply to the CurrencyPair asset class.">
+    disruptionEvents FxDisruptionEvents (0..1)
+    determinationTerms DeterminationRolesAndTerms (0..1)
+    noFaultTermination boolean (0..1)
 
-type DeterminationRolesAndTerms: <"Defines the roles and related terms which document the agreement of parties about any determination requirements ; mostly about Extraordinary Events, without being necessarily restricted to such scope, as further specified in the particular product at stake e.g. for instance when Calculation Agent is mentioned as the Price Determination Method enumarated value, etc.">
+    condition SpecificDeterminationRetrictionsForFx:
+        determinationTerms -> determinationRole = DeterminationRoleEnum -> CalculationAgent
 
-type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
+    condition NoFaultTerminationOrDisruptionTerms:
+        (disruptionEvents exists and noFaultTermination is absent or noFaultTermination = False)
+            or (disruptionEvents is absent and noFaultTermination = True)
 
 type Representations:
+    nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
+    agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">
+    indexDisclaimer boolean (0..1) <"If present and true, then index disclaimer is applicable.">
+    additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
+    additionalBespokeTerms Clause (0..*)
 
-type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
+type IndexAdjustmentEvents:
+    [docReference ISDA EQDerivsDefinitions_2002]
+    indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
+    indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
+    indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">
+
+type DeterminationRolesAndTerms: <"Defines the roles and related terms which document the agreement of parties about any determination requirements ; mostly about Extraordinary Events, without being necessarily restricted to such scope, as further specified in the particular product at stake e.g. for instance when Calculation Agent is mentioned as the Price Determination Method enumarated value, etc.">
+    determinationRole DeterminationRoleEnum (1..1) <"Defines the enumerated values to specify the determination roles to the transaction. Such roles mostly adress any determination that would be required when some Extraordinary Events would happen, for instance qualifying the effectiveness of such event, or when a calculation is required, etc. else any other kind of determination as need be. Yet for clarity, other kinds of determination may be covered by such roles, which are not necessarily restricted to the scope of Extarordinary Events, depending on particular product specifications e.g. for instance when Calculation Agent is mentioned as the Price Determination Method enumarated value, etc.">
+    whoToDetermine CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction is granted with the particular role ; cardinality of this object is 2, in case parties are both having the same role e.g. jointly CalculationAgent, jointly Determining Party, etc. ">
+    disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the determination role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of CalculationAgent, yet Party B could be Disputing Party in regard of such Role.">
+    fallbackLanguageBespokeTerms Clause (0..1) <"Where parties may optionnaly describe any extra bespoke agreements about fallback procedure attached to a particular determination role. This fallback bespoke paragraph would typically address topics such as : delay for the Disputing Party to notify a disagreement when receiving a determination from the Calculation Agent ; Independent Third Party Dealers election terms e.g. number of Dealers to be jointly elected by the counterparties ; delay for joint election of Dealers by the counterparties ; further fallback election procedure in case of disagreement between parties to jointly elect all the Dealers e.g. typically each party designates 1 Dealer, each a Party Representant, which thus result in 2 Dealers in charge of joint election of 3 other Dealers who will be the final ones to provide the response, each a Final Dealer ; delay for joint election of the Final Dealers by the Party Representants ; fees repartition e.g. typically cost and fees incurred by the election of Dealers are equally shared by the parties ; etc.">
+
+    condition DisputingPartyCannotHaveOriginalRole:
+        whoToDetermine all <> disputingParty
+
+type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
+    [docReference ISDA Confirmation_SecurityEquitySwap_2018]
+    shareForShare ShareExtraordinaryEventEnum (1..1)
+    shareForOther ShareExtraordinaryEventEnum (1..1)
+    shareForCombined ShareExtraordinaryEventEnum (1..1)
+
+type FxDisruptionEvents:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 exhibit "II-E"]
+    illegalityOrImpossibility FxIllegalityOrImpossibilityEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(c).(i)"]
+    forceMajeureOrActOfSState FxForceMajeureOrActOfSStateEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(c).(ii)"]
+    eventCurrency EventCurrency (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998]
+    priceSourceDisruption FxPriceSourceDisruption (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(xi)"]
+    benchmarkObligationDefault FxBenchmarkObligationDefault (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(i)"]
+    dualExchangeRate FxDualExchangeRate (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(ii)"]
+    inconvertibilityOrNonTransferability FxInconvertibilityOrNonTransferability (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(vii)"]
+    governmentalAuthorityDefault GovernmentalAuthorityDefault (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(v)"]
+    illiquidity Illiquidity (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(vi)"]
+    materialChangeInCircumstance MaterialChangeInCircumstance (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(viii)"]
+    nationalization Nationalization (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(ix)"]
+    priceMateriality PriceMateriality (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(x)"]
+    fallbackLanguageBespokeTerms Clause (0..1) <"Where parties may optionnaly describe any extra bespoke agreements about fallback procedure attached to a particular determination role.">
+
+type GovernmentalAuthorityDefault:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(v)"]
+    governmentalAuthorityDefaultIsApplicable boolean (1..1)
+    escrowArrangement EscrowArrangement (0..1)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    specifiedValue SpecifiedValueEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(w)"]
+    maximumDaysOfDisruption ValuationPostponement (0..1)
+
+type Illiquidity: 
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(vi)"]
+    illiquidityIsApplicable boolean (1..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(vi)"]
+    escrowArrangement EscrowArrangement (0..1)
+    minimumAmount Quantity (0..1)
+    fallbackReferencePrice SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+    illiquidityValuationDate AdjustedRelativeDateOffset (0..1)
+
+type MaterialChangeInCircumstance:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(viii)"]
+    materialChangeInCircumstanceIsApplicable boolean (1..1)
+    escrowArrangement EscrowArrangement (0..1)
+    maximumDaysOfDisruption ValuationPostponement (0..1)
+
+type Nationalization:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(ix)"]
+    nationalizationIsApplicable boolean (1..1)
+    relevantAffiliate AncillaryEntity (0..*)
+    escrowArrangement EscrowArrangement (0..1)
+    assignmentOfClaim boolean (0..1)
+    maximumDaysOfDisruption ValuationPostponement (0..1)
+
+    condition AssignmentOfClaim:
+        if nationalizationIsApplicable = False
+        then assignmentOfClaim is absent
+
+type PriceMateriality:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(x)"]
+    priceMaterialityIsApplicable boolean (1..1)
+    escrowArrangement EscrowArrangement (0..1)
+    fallbackReferencePrice SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+
+type FxPriceSourceDisruption:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(xi)"]
+    priceSourceDisruptionIsApplicable boolean (1..1)
+    fallbackReferencePrice SettlementRateOption (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+    escrowArrangement EscrowArrangement (0..1)
+
+type FxBenchmarkObligationDefault:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(i)"]
+    benchmarkObligationDefaultIsApplicable boolean (1..1)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    specifiedValue SpecifiedValueEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(w)"]
+    escrowArrangement EscrowArrangement (0..1)
+
+type FxDualExchangeRate:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(ii)"]
+    dualExchangeRateIsApplicable boolean (1..1)
+    fallbackReferencePrice FallbackReferencePrice (0..1) <"The method, prioritised by the order it is listed in this element, to get a replacement rate for the disrupted settlement rate option.">
+    escrowArrangement EscrowArrangement (0..1)
+
+type FxInconvertibilityOrNonTransferability:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(vii)"]
+    generalInconvertibility GeneralInconvertibility (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(iii)"]
+    generalNonTransferability GeneralNonTransferability (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(iv)"]
+    specificInconvertibility SpecificInconvertibility (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(xii)"]
+    specificNonTransferability SpecificNonTransferability (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(xiii)"]
+
+type GeneralInconvertibility:
+    generalInconvertivilityIsApplicable boolean (1..1)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+    nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+    escrowArrangement EscrowArrangement (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
+
+    condition SettlementPostponementExistence:
+        if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+        then maximumDaysOfDisruption exists
+
+    condition SubstituteTermsChoice:
+        if localSubstituteProvisionType exists
+        then nonDeliverableSubstitute is absent
+                or if nonDeliverableSubstitute exists
+                    then localSubstituteProvisionType is absent
+
+type GeneralNonTransferability:
+    generalNonTransferabilityIsApplicable boolean (1..1)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+    nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+    escrowArrangement EscrowArrangement (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
+
+    condition SettlementPostponementExistence:
+        if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+        then maximumDaysOfDisruption exists
+
+    condition SubstituteTermsChoice:
+        if localSubstituteProvisionType exists
+        then nonDeliverableSubstitute is absent
+                or if nonDeliverableSubstitute exists
+                    then localSubstituteProvisionType is absent
+
+type SpecificInconvertibility:
+    specificInconvertibilityIsApplicable boolean (1..1)
+    minimumAmount Quantity (0..1)
+    relevantClass string (0..*)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
+    nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+    escrowArrangement EscrowArrangement (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
+
+    condition SettlementPostponementExistence:
+        if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+        then maximumDaysOfDisruption exists
+
+    condition SubstituteTermsChoice:
+        if localSubstituteProvisionType exists
+        then nonDeliverableSubstitute is absent
+                or if nonDeliverableSubstitute exists
+                    then localSubstituteProvisionType is absent
+
+type SpecificNonTransferability:
+    specificNonTransferabilityIsApplicable boolean (1..1)
+    relevantClass string (0..*)
+    localSubstituteProvisionType FxSubstitutionProvisionTypeEnum (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
+    maximumDaysOfDisruption ValuationPostponement (0..1)
+    nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
+    escrowArrangement EscrowArrangement (0..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
+
+    condition SettlementPostponementExistence:
+        if localSubstituteProvisionType = FxSubstitutionProvisionTypeEnum -> LocalCurrencySubstitute
+        then maximumDaysOfDisruption exists
+
+    condition SubstituteTermsChoice:
+        if localSubstituteProvisionType exists
+        then nonDeliverableSubstitute is absent
+                or if nonDeliverableSubstitute exists
+                    then localSubstituteProvisionType is absent
+
+type EscrowArrangement:
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
+    escrowArrangementIsApplicable boolean (1..1)
+    maximumDaysOfDisruption ValuationPostponement (0..1)
+    bespokeEscrowArrangements Clause (0..1)
+
+    condition SettlementPostponementExistence:
+        if escrowArrangementIsApplicable = False
+        then maximumDaysOfDisruption is absent
+                and if escrowArrangementIsApplicable = True
+                    then maximumDaysOfDisruption exists
+
+type EventCurrency: 
+    [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(c)"]
+    eventCurrency string (1..1)
+        [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(c)"]
+        [metadata scheme]
+    eventCurrentAmount Quantity (0..1) <"Defines the Event Currency Amount to be exchanged on the Settlement Date.">
+    eventCurrencyBuyerSeller BuyerSeller (0..2) <"Unless otherwised specified, the Buyer is the party to which the Event Currency Amount is owed on the Settlement Date and the Seller is the party which owes the Event Currency Amount on the Settlement Date.">
+
+type NonDeliverableSubstitute:
+    nonDeliverableSubstituteIsApplicable boolean (1..1)
+    valuationDate AdjustedRelativeDateOffset (0..1)
+    settlementDate AdjustedRelativeDateOffset (0..1)
+    settlementRateOption SettlementRateOption (0..1)
