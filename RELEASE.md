@@ -1,4 +1,4 @@
-# *Product Qualification - Amendment in qualification functions for Equity Products*
+# *Product Qualification functions for Equity Products*
 
 _Background_
 
