@@ -22,4 +22,4 @@ Added CSA components & namespaces to legaldocumentation
 
 _Review Directions_
 
-The change can be reviewed in PR: #3627
+The change can be reviewed in PR: [3627](https://github.com/finos/common-domain-model/pull/3627)
