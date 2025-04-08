@@ -1,39 +1,17 @@
-# _Infrastructure - Dependency Update_
+# _Legal Agreements - Added skeleton framework for GMSLA, GMRA and ISDA Master Agreements into Agreement Namespace_
 
 _Background_
 
-The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
+While the CDM is leading the path in making a universal language to discuss legal agreements, a huge hurdle to get over is that the legal agreements themselves are written inherently differently. While there is overlap, there is NOT enough overlap to allow for e.g. an ISDA master agreement to be represented easily and readily into the system.
+
+This is something the collateral working groups are moving towards with the ISDA foundations model and I believe a similar, heavily typed approach would work for the CDM for an ISDA master agreement, as well as a GMRA and GMSLA
 
 _What is being released?_
 
-This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
-* The following enum value has been added:
-  * `XCG <"Caribbean Guilder">`
+As per issue [3206](https://github.com/finos/common-domain-model/issues/3206) on Github, we are implementing step one in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for GMRA, GMSLA and IsdaMasterAgreement respectively. These are all currently empty and will be populated provisionally and initially into the next development release.
+
+MasterAgreementSchedule is remaining as is for the time being to ensure backwards compatability with production, but will be deprecated and changed in a future release PR.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3611](https://github.com/finos/common-domain-model/pull/3611)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `DSL` dependency.
-
-Version updates include:
-- `DSL` 9.38.0 Fixed setting enum values on meta fields. For further details, see DSL release notes: [DSL 9.38.0](https://github.com/finos/rune-dsl/releases/tag/9.38.0)
-- `DSL` 9.39.0 Fixed default operation issue and added support for `with-meta` operation. For further details, see DSL release notes: [DSL 9.39.0](https://github.com/finos/rune-dsl/releases/tag/9.39.0)
-- `DSL` 9.40.0 Added support for regulatory reference paths. For further details, see DSL release notes: [DSL 9.40.0](https://github.com/finos/rune-dsl/releases/tag/9.40.0)
-- `DSL` 9.40.1 Deprecated `productType`, `eventType`, and `calculation`. For further details, see DSL release notes: [DSL 9.40.1](https://github.com/finos/rune-dsl/releases/tag/9.40.1)
-- `DSL` 9.41.0 Enabled support for dynamic validation and injection to improve the configurability of the generated code. The change also included a fix that prevents correct operation of DSL quick actions. For further details, see DSL release notes: [DSL 9.41.0](https://github.com/finos/rune-dsl/releases/tag/9.41.0)
-- `DSL` 9.41.1 Annotated POJO attributes to highlight address & locations. Fixed issue in code generation for translate. For further details, see DSL release notes: [DSL 9.41.1](https://github.com/finos/rune-dsl/releases/tag/9.41.1)
-- `DSL` 9.42.0 Added support for converting enums to other enums directly using the `to-enum` operator. For further details, see DSL release notes: [DSL 9.42.0](https://github.com/finos/rune-dsl/releases/tag/9.42.0)
-- `DSL` 9.43.0 Improved code-generation performance and patched the `with-meta` operator. For further details, see DSL release notes: [DSL 9.43.0](https://github.com/finos/rune-dsl/releases/tag/9.43.0)
-- `DSL` 9.44.0 Added support for conditions on type aliases. For further details, see DSL release notes: [DSL 9.44.0](https://github.com/finos/rune-dsl/releases/tag/9.44.0)
-- `DSL` 9.44.1 Patch for code-generating conditions. For further details, see DSL release notes: [DSL 9.44.1](https://github.com/finos/rune-dsl/releases/tag/9.44.1)
-- `DSL` 9.45.1 Improved `to-meta` operator so it now ignores the Display Name when converting between two enumerations, see DSL release notes: [DSL 9.45.1](https://github.com/finos/rune-dsl/releases/tag/9.45.1)
-  
-_Review Directions_
-
-The changes can be reviewed in PR [#3555](https://github.com/finos/common-domain-model/pull/3555) and [#3607](https://github.com/finos/common-domain-model/pull/3607).
-
+The changes can be reviewed in PR: [3624](https://github.com/finos/common-domain-model/pull/3624)
