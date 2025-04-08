@@ -14,4 +14,4 @@ MasterAgreementSchedule is remaining as is for the time being to ensure backward
 
 _Review Directions_
 
-The changes can be reviewed in PR: [3624](https://github.com/finos/common-domain-model/pull/3624)
+The changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
