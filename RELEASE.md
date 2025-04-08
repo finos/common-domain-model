@@ -25,4 +25,4 @@ The following types along with the components that roll up to them are added
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3620](https://github.com/finos/common-domain-model/pull/3620)
+The changes can be reviewed in PR: [3628](https://github.com/finos/common-domain-model/pull/3628)
