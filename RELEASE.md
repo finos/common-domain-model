@@ -1,29 +1,18 @@
-# *Legal Agreement Model - Move transaction-related component to dedicated sub-namespace*
+# _Infrastructure - Dependency Update_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM. Preparation must be first be done in the CDM to synchronise it with the ISDA Foundations project and simplify the migration of any ISDA Foundations components.
-
-The issue [#3348](https://github.com/finos/common-domain-model/issues/3348) proposes to migrate the ISDA Foundations project to the CDM, without the ISDA legal documentation IP. This includes a number of components related to “additional terms” positioned in the `legaldocumentation.master` namespace, that all roll-up to the type `TransactionAdditionalTerms`.
-
-A new namespace was originally created called `legaldocumentation.master.additionalterms` in PR [#3352](https://github.com/finos/common-domain-model/issues/3352). It was since agreed that transaction-related components should have their own namespace in alignment with other legal documentation concepts. This is covered in the issue [#3408](https://github.com/finos/common-domain-model/issues/3408)
+The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
 
 _What is being released?_
 
-This release moves transaction-related components to a dedicated `legaldocumentation.transaction` namespace for transaction concepts, and all empty types to `legaldocumentation.transaction.additionalterms` namespace, in preparation for the ISDA Foundations migration.
-
-- Created new namespaces `legaldocumentation.transaction` and `legaldocumentation.transaction.additionalterms`
-- Moved type `TransactionAdditionalTerms` and the "additional terms" components that roll up to it to the new namespace provided they are not empty
-- Moved all empty types related to “additional terms” (used in TransactionAdditionalTerms) to sub-namespace legaldocumentation.transaction.additionalterms
-- Deleted unused namespace `legaldocumentation.master.additionalterms`
-
-_Backward-incompatible changes_
-
-None.
+This release updates `ISOCurrencyCodeEnum` to keep it in sync with the latest ISO 4217 coding scheme.
+* The following enum value has been added:
+  * `XCG <"Caribbean Guilder">`
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3478](https://github.com/finos/common-domain-model/pull/3478)
+The changes can be reviewed in PR: [#3611](https://github.com/finos/common-domain-model/pull/3611)
 
 # _Infrastructure - Dependency Update_
 
@@ -32,19 +21,19 @@ _What is being released?_
 This release updates the `DSL` dependency.
 
 Version updates include:
-- `DSL` 9.34.2 bug fix where removing duplicate import causes problems where those imports use aliases. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.34.2
-- `DSL` 9.35.0 bug fix for recursive reporting rules and support for labels on circular types. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.0
-- `DSL` 9.35.1 Rule source label fix and maintenance of generated serialization code. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.35.1
-- `DSL` 9.36.0 Added condition support in typeAlias. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.0
-- `DSL` 9.36.1 Use package name first segment for model name in RuneDataType annotation. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.1
-- `DSL` 9.36.2 Fix extended rule source with extended type. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.2
-- `DSL` 9.36.3 Fix XML serializer substitution groups. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.3
-- `DSL` 9.36.4 Make XML serializer substitution groups work in a backward compatible manner. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.4
-- `DSL` 9.36.5 Handle empty inputs when set on meta function output & Fix for setting meta on nested objects. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.5
-- `DSL` 9.36.6 Fix multi cardinality nested meta. For further details see DSL release notes: https://github.com/finos/rune-dsl/releases/tag/9.36.6
+- `DSL` 9.38.0 Fixed setting enum values on meta fields. For further details, see DSL release notes: [DSL 9.38.0](https://github.com/finos/rune-dsl/releases/tag/9.38.0)
+- `DSL` 9.39.0 Fixed default operation issue and added support for `with-meta` operation. For further details, see DSL release notes: [DSL 9.39.0](https://github.com/finos/rune-dsl/releases/tag/9.39.0)
+- `DSL` 9.40.0 Added support for regulatory reference paths. For further details, see DSL release notes: [DSL 9.40.0](https://github.com/finos/rune-dsl/releases/tag/9.40.0)
+- `DSL` 9.40.1 Deprecated `productType`, `eventType`, and `calculation`. For further details, see DSL release notes: [DSL 9.40.1](https://github.com/finos/rune-dsl/releases/tag/9.40.1)
+- `DSL` 9.41.0 Enabled support for dynamic validation and injection to improve the configurability of the generated code. The change also included a fix that prevents correct operation of DSL quick actions. For further details, see DSL release notes: [DSL 9.41.0](https://github.com/finos/rune-dsl/releases/tag/9.41.0)
+- `DSL` 9.41.1 Annotated POJO attributes to highlight address & locations. Fixed issue in code generation for translate. For further details, see DSL release notes: [DSL 9.41.1](https://github.com/finos/rune-dsl/releases/tag/9.41.1)
+- `DSL` 9.42.0 Added support for converting enums to other enums directly using the `to-enum` operator. For further details, see DSL release notes: [DSL 9.42.0](https://github.com/finos/rune-dsl/releases/tag/9.42.0)
+- `DSL` 9.43.0 Improved code-generation performance and patched the `with-meta` operator. For further details, see DSL release notes: [DSL 9.43.0](https://github.com/finos/rune-dsl/releases/tag/9.43.0)
+- `DSL` 9.44.0 Added support for conditions on type aliases. For further details, see DSL release notes: [DSL 9.44.0](https://github.com/finos/rune-dsl/releases/tag/9.44.0)
+- `DSL` 9.44.1 Patch for code-generating conditions. For further details, see DSL release notes: [DSL 9.44.1](https://github.com/finos/rune-dsl/releases/tag/9.44.1)
+- `DSL` 9.45.1 Improved `to-meta` operator so it now ignores the Display Name when converting between two enumerations, see DSL release notes: [DSL 9.45.1](https://github.com/finos/rune-dsl/releases/tag/9.45.1)
+  
+_Review Directions_
 
-_Review directions_
+The changes can be reviewed in PR [#3555](https://github.com/finos/common-domain-model/pull/3555) and [#3607](https://github.com/finos/common-domain-model/pull/3607).
 
-JSON expectations diffs are expected due to the added support for meta data in functions in DSL versions 9.36.6.
-
-The changes can be reviewed in PR: [#3480](https://github.com/finos/common-domain-model/pull/3480)
