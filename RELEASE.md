@@ -11,7 +11,7 @@ Version updates include:
 
 The changes in this release contain a number of functions in the model now annotated with the `codeImplementation` annotation. This marks that the function has been implemented statically in the model, for example by a Java implementation that exists in the model.
 
-The number of the FIS successful mappings has now increased due to the processor fix mentioned in version 9.45.3 above.
+The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
 
 _Review Directions_
 
