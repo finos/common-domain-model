@@ -1,0 +1,257 @@
+namespace cdm.legaldocumentation.csa
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.*
+import cdm.observable.asset.*
+
+func PostedCreditSupportItemAmount: <"Calculates the Value for the given Posted Credit Support item.">
+    [docReference ISDA CSA_IM_NewYork_2018 paragraph "13"]
+    [calculation]
+    inputs:
+        postedItem PostedCreditSupportItem (1..1)
+        baseCurrency string (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+    output:
+        result Money (1..1)
+
+    alias cashOrSecurityValue: postedItem -> cashOrSecurityValue -> value
+
+    alias haircutPercentage: postedItem -> haircutPercentage
+
+    alias fxHaircutPercentage: postedItem -> fxHaircutPercentage
+
+    alias additionalHaircutPercentage: postedItem -> fxHaircutPercentage
+
+    alias postedCreditSupportAmount:
+        cashOrSecurityValue * (1.00 - (haircutPercentage + fxHaircutPercentage + additionalHaircutPercentage))
+
+    condition CurrencyMatches:
+        baseCurrency = postedItem -> cashOrSecurityValue -> unit -> currency
+            and baseCurrency = postedItem -> disputedCashOrSecurityValue -> unit -> currency
+
+    set result -> value:
+        postedCreditSupportAmount - postedItem -> disputedCashOrSecurityValue -> value
+
+    set result -> unit -> currency: baseCurrency
+
+func UndisputedAdjustedPostedCreditSupportAmount:
+    [calculation]
+    inputs:
+        postedCreditSupportItems PostedCreditSupportItem (0..*)
+        priorDeliveryAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        priorReturnAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        disputedTransferredPostedCreditSupportAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "5"]
+        baseCurrency string (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+    output:
+        result Money (1..1)
+
+    alias totalPostedCreditSupportAmount:
+        postedCreditSupportItems
+            extract PostedCreditSupportItemAmount(item, baseCurrency) -> value
+            then sum
+
+    alias adjustedPostedCreditSupportAmount:
+        totalPostedCreditSupportAmount + priorDeliveryAmountAdjustment -> value - priorReturnAmountAdjustment -> value
+
+    condition CurrencyMatches:
+        (baseCurrency = priorDeliveryAmountAdjustment -> unit -> currency)
+            and (baseCurrency = priorReturnAmountAdjustment -> unit -> currency)
+            and (baseCurrency = disputedTransferredPostedCreditSupportAmount -> unit -> currency)
+
+    set result -> value:
+        adjustedPostedCreditSupportAmount - disputedTransferredPostedCreditSupportAmount -> value
+
+    set result -> unit -> currency: baseCurrency
+
+func CreditSupportAmount:
+    [calculation]
+    inputs:
+        marginAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(i)"]
+        threshold Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+        marginApproach MarginApproachEnum (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(iii)" name "Margin Approach"]
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(iii)"]
+        marginAmountIA Money (0..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(iii)" name "Margin Approach"]
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(ii)"]
+        baseCurrency string (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+    output:
+        result Money (1..1)
+
+    alias creditSupportAmountCalc: Max(marginAmount -> value - threshold -> value, 0.0)
+
+    condition CurrencyMatches:
+        (baseCurrency = marginAmount -> unit -> currency)
+            and (baseCurrency = threshold -> unit -> currency)
+            and (if marginAmountIA exists then baseCurrency = marginAmountIA -> unit -> currency else True)
+
+    condition MarginAmountIA:
+        if marginApproach = MarginApproachEnum -> Distinct
+                or marginApproach = MarginApproachEnum -> Allocated
+        then marginAmountIA is absent
+        else if marginApproach = MarginApproachEnum -> GreaterOf
+        then marginAmountIA exists
+
+    set result -> value:
+        if marginApproach = MarginApproachEnum -> Distinct
+                or marginApproach = MarginApproachEnum -> Allocated
+        then creditSupportAmountCalc
+        else if marginApproach = MarginApproachEnum -> GreaterOf
+        then Max(creditSupportAmountCalc, marginAmountIA -> value)
+
+    set result -> unit -> currency: baseCurrency
+
+func ReturnAmount:
+    [docReference ISDA CSA_IM_2018 paragraph "3" clause "(b)"]
+    [calculation]
+    inputs:
+        postedCreditSupportItems PostedCreditSupportItem (0..*)
+        priorDeliveryAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        priorReturnAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        disputedTransferredPostedCreditSupportAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "5"]
+        marginAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(i)"]
+        threshold Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+        marginApproach MarginApproachEnum (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(iii)"]
+        marginAmountIA Money (0..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(ii)"]
+        minimumTransferAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+        rounding CollateralRounding (1..1)
+            [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+            [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+            [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+        disputedReturnAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "5"]
+        baseCurrency string (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+    output:
+        result Money (1..1)
+
+    alias undisputedAdjustedPostedCreditSupportAmount:
+        UndisputedAdjustedPostedCreditSupportAmount(
+                postedCreditSupportItems,
+                priorDeliveryAmountAdjustment,
+                priorReturnAmountAdjustment,
+                disputedTransferredPostedCreditSupportAmount,
+                baseCurrency
+            )
+
+    alias creditSupportAmount:
+        CreditSupportAmount(
+                marginAmount,
+                threshold,
+                marginApproach,
+                marginAmountIA,
+                baseCurrency
+            )
+
+    alias returnAmount:
+        Max(
+                undisputedAdjustedPostedCreditSupportAmount -> value - creditSupportAmount -> value,
+                0.0
+            )
+
+    alias undisputedReturnAmount: Max(returnAmount - disputedReturnAmount -> value, 0.0)
+
+    condition CurrencyMatches:
+        (baseCurrency = minimumTransferAmount -> unit -> currency)
+            and (baseCurrency = disputedReturnAmount -> unit -> currency)
+
+    set result -> value:
+        if undisputedReturnAmount >= minimumTransferAmount -> value
+        then RoundToNearest(
+                    undisputedReturnAmount,
+                    rounding -> returnAmount,
+                    RoundingModeEnum -> Down
+                )
+        else 0.0
+
+    set result -> unit -> currency: baseCurrency
+
+func DeliveryAmount:
+    [docReference ISDA CSA_IM_2018 paragraph "3" clause "a" name "Delivery Amount"]
+    [calculation]
+    inputs:
+        postedCreditSupportItems PostedCreditSupportItem (0..*)
+        priorDeliveryAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        priorReturnAmountAdjustment Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(a)(ii)"]
+        disputedTransferredPostedCreditSupportAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "5"]
+        marginAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(i)"]
+        threshold Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+        marginApproach MarginApproachEnum (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(iii)"]
+        marginAmountIA Money (0..1)
+            [docReference ISDA CSA_IM_2018 paragraph "3" clause "(c)(ii)"]
+        minimumTransferAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+        rounding CollateralRounding (1..1)
+            [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+            [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+            [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principals" clause "(d)(vi)(C)" name "Rounding"]
+        disputedDeliveryAmount Money (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "5"]
+        baseCurrency string (1..1)
+            [docReference ISDA CSA_IM_2018 paragraph "13"]
+    output:
+        result Money (1..1)
+
+    alias undisputedAdjustedPostedCreditSupportAmount:
+        UndisputedAdjustedPostedCreditSupportAmount(
+                postedCreditSupportItems,
+                priorDeliveryAmountAdjustment,
+                priorReturnAmountAdjustment,
+                disputedTransferredPostedCreditSupportAmount,
+                baseCurrency
+            )
+
+    alias creditSupportAmount:
+        CreditSupportAmount(
+                marginAmount,
+                threshold,
+                marginApproach,
+                marginAmountIA,
+                baseCurrency
+            )
+
+    alias deliveryAmount:
+        Max(
+                creditSupportAmount -> value - undisputedAdjustedPostedCreditSupportAmount -> value,
+                0.0
+            )
+
+    alias undisputedDeliveryAmount:
+        Max(deliveryAmount - disputedDeliveryAmount -> value, 0.0)
+
+    condition CurrencyMatches:
+        (baseCurrency = minimumTransferAmount -> unit -> currency
+            and (baseCurrency = disputedDeliveryAmount -> unit -> currency))
+
+    set result -> value:
+        if undisputedDeliveryAmount >= minimumTransferAmount -> value
+        then RoundToNearest(
+                    undisputedDeliveryAmount,
+                    rounding -> deliveryAmount,
+                    RoundingModeEnum -> Up
+                )
+        else 0.0
+
+    set result -> unit -> currency: baseCurrency
