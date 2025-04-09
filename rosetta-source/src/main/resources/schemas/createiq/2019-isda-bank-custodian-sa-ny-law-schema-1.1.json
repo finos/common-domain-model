@@ -1,0 +1,469 @@
+{
+  "children": [
+    {
+      "nr": 1,
+      "name": "parties",
+      "type": "election",
+      "label": "Parties",
+      "style": "inline",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Security-provider",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Security-taker",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ]
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 2,
+      "name": "execution_date",
+      "type": "election",
+      "label": "Date of Agreement",
+      "style": "annex-date-provision",
+      "children": [
+        {
+          "name": "executionDate",
+          "type": "datePicker",
+          "hideWhen": {
+            "executionDate": null
+          },
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        },
+        {
+          "type": "view",
+          "label": "Date of the Agreement will be agreed separately during the execution stage",
+          "showWhen": {
+            "executionDate": null
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 3,
+      "name": "collateral_transfer_agreement",
+      "type": "election",
+      "amend": true,
+      "label": "Date of Collateral Transfer Agreement",
+      "children": [
+        {
+          "name": "collateral_transfer_agreement_date",
+          "type": "datePicker",
+          "label": "Date of Collateral Transfer Agreement",
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        }
+      ],
+      "optional": true,
+      "description": "Introduction"
+    },
+    {
+      "nr": 4,
+      "name": "umbrella_agreement_and_principal_identification",
+      "type": "election",
+      "label": "Umbrella Agreement and Principal Identification",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Umbrella Agreement",
+              "value": "applicable"
+            }
+          ]
+        },
+        {
+          "name": "language",
+          "type": "editor",
+          "label": "Umbrella preamble language",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        {
+          "type": "group",
+          "label": "Principal Identification Schedule",
+          "children": [
+            [
+              {
+                "type": "view",
+                "label": "Principal name",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Legal Entity Identifier (LEI)",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Security-provider and Security-taker Elections",
+                "style": "flex-padding"
+              }
+            ],
+            {
+              "name": "principal_identification_schedule",
+              "type": "multi",
+              "showWhen": {
+                "is_applicable": "applicable"
+              },
+              "bulkUpload": [
+                {
+                  "label": "Principal name",
+                  "value": "principal_name",
+                  "validate": {
+                    "name": "name",
+                    "type": "matchReference",
+                    "preFill": true,
+                    "warning": true,
+                    "required": true
+                  }
+                },
+                {
+                  "label": "Legal Entity Identifier",
+                  "value": "lei",
+                  "validate": {
+                    "name": "lei",
+                    "type": "matchReference",
+                    "unique": "true",
+                    "maxLength": 20,
+                    "minLength": 20
+                  }
+                }
+              ],
+              "scrollable": true,
+              "defaultValue": [
+                {},
+                {}
+              ],
+              "repeatChildren": [
+                [
+                  {
+                    "name": "principal_name",
+                    "type": "text"
+                  },
+                  {
+                    "name": "lei",
+                    "type": "text"
+                  },
+                  {
+                    "name": "additional",
+                    "type": "editor"
+                  }
+                ]
+              ]
+            }
+          ],
+          "scrollTo": "umbrella_agreement_and_principal_identification_part2",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 5,
+      "name": "process_agent",
+      "type": "election",
+      "amend": true,
+      "label": "Process Agent",
+      "children": [
+        [
+          {
+            "name": {
+              "suffix": "_process_agent",
+              "position": "partyA"
+            },
+            "type": "radio",
+            "label": "Security-provider",
+            "options": [
+              {
+                "label": "Not applicable",
+                "value": "not_applicable"
+              },
+              {
+                "label": "Specify Process Agent",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyA"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": {
+                      "partyA_process_agent": "other"
+                    },
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": {
+              "suffix": "_process_agent",
+              "position": "partyB"
+            },
+            "type": "radio",
+            "label": "Security-taker",
+            "options": [
+              {
+                "label": "Not applicable",
+                "value": "not_applicable"
+              },
+              {
+                "label": "Specify Process Agent",
+                "value": "other",
+                "children": [
+                  {
+                    "name": {
+                      "suffix": "_specify",
+                      "position": "partyB"
+                    },
+                    "type": "editor",
+                    "label": "Specify",
+                    "showWhen": {
+                      "partyB_process_agent": "other"
+                    },
+                    "placeholder": "Specify text"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 6,
+      "name": "jurisdiction",
+      "type": "election",
+      "amend": true,
+      "label": "Jurisdiction",
+      "children": [
+        {
+          "name": "exclusive_jurisdiction",
+          "type": "radio",
+          "label": "Exclusive Jurisdiction",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "description": "Other provisions"
+    },
+    {
+      "nr": 7,
+      "name": "jury_waiver",
+      "type": "election",
+      "amend": true,
+      "label": "Jury Waiver",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "description": "Other provisions"
+    },
+    {
+      "nr": 8,
+      "name": "japanese_securities_provisions",
+      "type": "election",
+      "amend": true,
+      "label": "Japanese Securities Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 9,
+      "name": "amendments",
+      "type": "election",
+      "label": "Amendments",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Specify amendments",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify any other modifications to Paragraphs 1 to 6",
+                  "showWhen": {
+                    "is_applicable": "applicable"
+                  },
+                  "placeholder": "Specify text"
+                }
+              ]
+            },
+            {
+              "label": "None specified",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 10,
+      "name": "additional_terms",
+      "type": "election",
+      "label": "Additional Terms",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Specify any additional terms",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify any additional terms to this Agreement",
+                  "showWhen": {
+                    "is_applicable": "applicable"
+                  },
+                  "placeholder": "Specify text"
+                }
+              ]
+            },
+            {
+              "label": "None specified",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 11,
+      "name": "execution_language",
+      "type": "election",
+      "label": "Execution Language",
+      "children": [
+        {
+          "name": "execution_language",
+          "type": "editor",
+          "label": "Specify execution language",
+          "defaultValue": "<strong>IN WITNESS WHEREOF this Agreement has been entered into on the date stated at its beginning.</strong>"
+        }
+      ],
+      "description": "Signature pages"
+    },
+    {
+      "nr": 12,
+      "name": "signature_blocks",
+      "type": "election",
+      "label": "Signature Blocks",
+      "children": [
+        {
+          "type": "group",
+          "label": "Security-provider",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>[NAME OF SECURITY-PROVIDER]<br>SIGNED</strong> for and on behalf of<br><br>…………………………………<br><br>&nbsp;<br><br>By: …………………………………<br><br>Name: …………………………………<br><br>Title: …………………………………"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Security-taker",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>[NAME OF SECURITY-TAKER]<br>SIGNED</strong> for and on behalf of<br><br>…………………………………<br><br>&nbsp;<br><br>By: …………………………………<br><br>Name: …………………………………<br><br>Title: …………………………………"
+            }
+          ]
+        }
+      ],
+      "description": "Signature pages"
+    }
+  ]
+}

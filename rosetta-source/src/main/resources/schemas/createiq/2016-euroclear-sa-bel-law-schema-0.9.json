@@ -1,0 +1,524 @@
+{
+  "children": [
+    {
+      "nr": 1,
+      "name": "parties",
+      "type": "election",
+      "label": "Parties",
+      "style": "inline",
+      "children": [
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Security-provider",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "name": {
+                "suffix": "_name",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Security-taker",
+              "placeholder": "Entity to be specified in the next step"
+            }
+          ]
+        ]
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 2,
+      "name": "execution_date",
+      "type": "election",
+      "label": "Date of Agreement",
+      "style": "annex-date-provision",
+      "children": [
+        {
+          "name": "executionDate",
+          "type": "datePicker",
+          "hideWhen": {
+            "executionDate": null
+          },
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        },
+        {
+          "type": "view",
+          "label": "Date of the Agreement will be agreed separately during the execution stage",
+          "showWhen": {
+            "executionDate": null
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 3,
+      "name": "collateral_transfer_agreement",
+      "type": "election",
+      "amend": true,
+      "label": "Date of Collateral Transfer Agreement",
+      "children": [
+        {
+          "name": "collateral_transfer_agreement_date",
+          "type": "datePicker",
+          "label": "Date of Collateral Transfer Agreement",
+          "validate": {
+            "max": 0
+          },
+          "placeholder": "Specify date"
+        }
+      ],
+      "optional": true,
+      "description": "Introduction"
+    },
+    {
+      "nr": 4,
+      "name": "umbrella_agreement_and_principal_identification",
+      "type": "election",
+      "label": "Umbrella Agreement and Principal Identification",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            },
+            {
+              "label": "Umbrella Agreement",
+              "value": "applicable"
+            }
+          ]
+        },
+        {
+          "name": "language",
+          "type": "editor",
+          "label": "Umbrella preamble language",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        },
+        {
+          "type": "group",
+          "label": "Principal Identification Schedule",
+          "children": [
+            [
+              {
+                "type": "view",
+                "label": "Principal name",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Legal Entity Identifier (LEI)",
+                "style": "flex-padding"
+              },
+              {
+                "type": "view",
+                "label": "Security-provider and Security-taker Elections",
+                "style": "flex-padding"
+              }
+            ],
+            {
+              "name": "principal_identification_schedule",
+              "type": "multi",
+              "showWhen": {
+                "is_applicable": "applicable"
+              },
+              "bulkUpload": [
+                {
+                  "label": "Principal name",
+                  "value": "principal_name",
+                  "validate": {
+                    "name": "name",
+                    "type": "matchReference",
+                    "preFill": true,
+                    "warning": true,
+                    "required": true
+                  }
+                },
+                {
+                  "label": "Legal Entity Identifier",
+                  "value": "lei",
+                  "validate": {
+                    "name": "lei",
+                    "type": "matchReference",
+                    "unique": "true",
+                    "maxLength": 20,
+                    "minLength": 20
+                  }
+                }
+              ],
+              "scrollable": true,
+              "defaultValue": [
+                {},
+                {}
+              ],
+              "repeatChildren": [
+                [
+                  {
+                    "name": "principal_name",
+                    "type": "text"
+                  },
+                  {
+                    "name": "lei",
+                    "type": "text"
+                  },
+                  {
+                    "name": "additional",
+                    "type": "editor"
+                  }
+                ]
+              ]
+            }
+          ],
+          "scrollTo": "umbrella_agreement_and_principal_identification_part2",
+          "showWhen": {
+            "is_applicable": "applicable"
+          }
+        }
+      ],
+      "description": "Introduction"
+    },
+    {
+      "nr": 5,
+      "name": "early_termination_date",
+      "type": "election",
+      "amend": true,
+      "label": "Early Termination Date - paid in full language",
+      "children": [
+        {
+          "name": "paid_in_full_language",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Include language",
+              "value": "include"
+            },
+            {
+              "label": "Exclude language",
+              "value": "exclude"
+            }
+          ]
+        }
+      ],
+      "description": "Enforcement Event Definition"
+    },
+    {
+      "nr": 6,
+      "name": "delivery_in_lieu_right",
+      "type": "election",
+      "amend": true,
+      "label": "Delivery in Lieu Right",
+      "children": [
+        {
+          "name": "right",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ],
+          "defaultValue": "applicable"
+        }
+      ],
+      "description": "Modification to Security-provider’s Rights and Remedies"
+    },
+    {
+      "nr": 7,
+      "name": "bespoke_provisions",
+      "type": "election",
+      "label": "Bespoke Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Add bespoke provisions",
+              "value": "applicable",
+              "children": [
+                {
+                  "name": "specify",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "is_applicable": "applicable"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ],
+          "defaultValue": "not_applicable"
+        }
+      ],
+      "description": "Other Provisions"
+    },
+    {
+      "nr": 8,
+      "name": "japanese_collateral_provisions",
+      "type": "election",
+      "amend": true,
+      "label": "Japanese Collateral Provisions",
+      "children": [
+        {
+          "name": "is_applicable",
+          "type": "radio",
+          "options": [
+            {
+              "label": "Applicable",
+              "value": "applicable"
+            },
+            {
+              "label": "Not Applicable",
+              "value": "not_applicable"
+            }
+          ]
+        }
+      ],
+      "amendValues": {
+        "is_applicable": "applicable"
+      },
+      "description": "Japanese Collateral Provisions"
+    },
+    {
+      "nr": 9,
+      "name": "execution_language",
+      "type": "election",
+      "amend": true,
+      "label": "Execution Language",
+      "children": [
+        {
+          "name": "execution_language",
+          "type": "radio",
+          "label": "Execution Language",
+          "options": [
+            {
+              "label": "Standard execution language",
+              "value": "standard_language",
+              "children": [
+                {
+                  "name": "number_of_originals",
+                  "type": "text",
+                  "label": "Number of originals",
+                  "showWhen": [
+                    {
+                      "execution_language": "standard_language"
+                    }
+                  ],
+                  "validate": {
+                    "pattern": "^[-+]?[0-9]*?[0-9]+$",
+                    "maxLength": 15
+                  },
+                  "placeholder": "Number of originals"
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other_execution_language",
+              "children": [
+                {
+                  "name": "specify_execution_language",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "execution_language": "other_execution_language"
+                    }
+                  ],
+                  "placeholder": "Specify text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "location_of_execution",
+          "type": "radio",
+          "label": "Location of Execution",
+          "options": [
+            {
+              "label": "Executed outside of Belgium",
+              "value": "executed_outside_of_belgium"
+            },
+            {
+              "label": "Executed in Belgium",
+              "value": "executed_in_belgium",
+              "children": [
+                {
+                  "name": "documentary_duty_payer",
+                  "type": "radio",
+                  "label": "Documentary duty payer",
+                  "options": [
+                    {
+                      "label": "Security-provider",
+                      "value": "party_A",
+                      "position": "partyA"
+                    },
+                    {
+                      "label": "Security-taker",
+                      "value": "party_B",
+                      "position": "partyB"
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_documentary_duty_payer",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "documentary_duty_payer": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "location_of_execution": "executed_in_belgium"
+                    }
+                  ]
+                },
+                {
+                  "name": "documentary_duty_date",
+                  "type": "radio",
+                  "label": "Date of payment of documentary duty",
+                  "options": [
+                    {
+                      "label": "Select date",
+                      "value": "select",
+                      "children": [
+                        {
+                          "name": "select_documentary_duty_date",
+                          "type": "datePicker",
+                          "showWhen": [
+                            {
+                              "documentary_duty_date": "select"
+                            }
+                          ],
+                          "validate": {
+                            "max": 0
+                          },
+                          "placeholder": "Specify date"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Other / specify",
+                      "value": "other",
+                      "children": [
+                        {
+                          "name": "specify_documentary_duty_date_datepicker",
+                          "type": "editor",
+                          "label": "Specify",
+                          "showWhen": [
+                            {
+                              "documentary_duty_date": "other"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "showWhen": [
+                    {
+                      "location_of_execution": "executed_in_belgium"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Other / specify",
+              "value": "other",
+              "children": [
+                {
+                  "name": "specify_location_of_execution",
+                  "type": "editor",
+                  "label": "Specify",
+                  "showWhen": [
+                    {
+                      "location_of_execution": "other"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "optional": true,
+      "description": "Signature Pages"
+    },
+    {
+      "nr": 10,
+      "name": "signature_blocks",
+      "type": "election",
+      "label": "Signature Blocks",
+      "children": [
+        {
+          "type": "group",
+          "label": "Security-provider",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyA"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>[NAME OF SECURITY-PROVIDER]</strong><br><br>___________________________<br><br>By:<br><br>Title:<br><br><br>___________________________<br><br>By:<br><br>Title:<br><br>"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": "Security-taker",
+          "children": [
+            {
+              "name": {
+                "suffix": "_standard",
+                "position": "partyB"
+              },
+              "type": "editor",
+              "label": "Specify signature block",
+              "defaultValue": "<strong>[NAME OF SECURITY-TAKER]</strong><br><br>___________________________<br><br>By:<br><br>Title:<br><br><br>___________________________<br><br>By:<br><br>Title:<br><br>"
+            }
+          ]
+        }
+      ],
+      "description": "Signature pages"
+    }
+  ]
+}
