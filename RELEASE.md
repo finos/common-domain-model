@@ -1,4 +1,4 @@
-# _Migrating additionalTerms components toCDM - Migrating transaction additionalTerms components from ISDA Foundations project to the CDM_
+# _Legal Documentation - Migrating transaction additionalTerms components from ISDA Foundations project to the CDM_
 
 _Background_
 
