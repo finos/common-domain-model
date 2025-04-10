@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.*
 import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
@@ -66,7 +67,7 @@ type BusinessEvent extends EventInstruction: <"A business event represents a lif
         eventDate exists
 
 type CounterpartyPositionBusinessEvent: <"A business event represents a life cycle event of a position. The combination of the state changes results in a qualifiable life cycle event.">
-    intent PositionEventIntentEnum (1..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those.">
+    intent EventIntentEnum (1..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those.">
     corporateActionIntent CorporateActionTypeEnum (0..1) <"The intent of a corporate action on the position.">
     eventDate date (0..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
     effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
@@ -500,11 +501,95 @@ type CreditEvent: <"Specifies the relevant data regarding a credit event.">
     publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
     referenceInformation ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
 
-type CorporateAction: <"Specifies the relevant data regarding a corporate action.">
-    corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
-    exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
-    payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-    underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
+type CorporateAction: <"Specifies the relevant data regarding a corporate action">
+  corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
+  exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
+  payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
+  recordDate date (0..1) <"The date on which the account phyical balance and related underlier ownership is recorded by the custodian.">
+  announcementDate date (0..1) <"The date on which the corporate action is announced by the issuer.">
+  underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
+  adjustmentFactor AdjustmentFactor (0..1) <"Specifies any additional details e.g. further descriptions depending on the particular type of Corporate Action, adjustmentFactor, calculations">
+  informationSource InformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+  dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+  bespokeEventDescription string (0..1) <"Corporate action triggered by the occurrence of an event which description is seperatly agreed between the parties and/or described in any referenced agreement (for instance bespoke term described in any string type objects present in most root attributes of Agreement type).">
+
+    condition DividendObservation: <"Price type is restricted to record observations of dividends.">
+    if dividendObservation exists
+    then dividendObservation -> priceType = PriceTypeEnum -> Dividend
+
+    condition CorporateActionTypeBespoke: <"When Enum value does not corresponds to standard terms, then bespoke description must be populated.">
+    if corporateActionType = CorporateActionTypeEnum -> BespokeEvent
+    then bespokeEventDescription exists
+
+    condition: <"If intent is to record dividend observation per se with no relation to an adjustment (typically when such observation is made, looking forward dividend passthrough payments) then no adjustment is expected, and vice-versa. For the avoidance of doubts, in the case dividend terms are involved in the calculation or the occurrence of an adjustment calculation, then such information shall be defined at such proper level i.e. precisely as an attribute of the adjustmentFactorCalculation.">
+    optional choice adjustmentFactor, dividendObservation
+
+type AdjustmentFactor:<"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
+
+  value number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
+  calculation PriceAdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+
+type PriceAdjustmentFactorCalculationTerms : <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+  shareForShareRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of shares after the event and 'N' is the number of shares prior to the event. ">
+  shareForRightsRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of rights after the event, and 'N' of shares prior to the event. ">
+  rightsSubscriptionPrice Price (0..1) <"The price to pay per each right.">
+  dividendRatio number (0..1) <"Multipler value (e.g. 85 %, etc.) to calculate net dividend amount, given gross amount before taking into account the relevant fiscal features.">
+  spinOff SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+  merger Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
+  accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
+  lastFixingPriceBeforeAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
+  dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+  bespokeCalculationFormula string (0..1) <"To describe the formula used to calculate the Adjustment Factor."> // temporary place holder -> plan is to re-use BespokePayoutFormula type designed by Structured Product WG
+
+    condition SpinOffOrMergerOrAccrual:
+    optional choice spinOff, merger, accrualFactor
+
+    condition DividendObservation: <"Price type is restricted to record observations of dividends.">
+    if dividendObservation exists
+    then dividendObservation -> priceType = PriceTypeEnum -> Dividend
+
+    condition ShareRatio:
+    optional choice shareForShareRatio, shareForRightsRatio
+
+type AccrualFactor :<"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to the last fixing then applying accruals per each remaining underlier price fixing date required i.e. for each fixing date, adjustedPrice = lastFixingPrice x accrualFactor, where: accrualFactor = (1 + accrualRateValue x DCF).">
+  value PriceSchedule (0..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
+   [metadata location]
+  calculation AccrualFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the accrual factor.">
+
+    condition AccrualPriceIsRate:
+    value -> priceType = PriceTypeEnum -> InterestRate
+
+type AccrualFactorCalculationTerms: <"Describes the input terms involved in the calculation of the accrual factor. Optionnally, long and short stub interpolation rates can be specified.">
+  tenorTillMaturity number (1..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
+  dayCountFraction DayCountFractionEnum (1..1) <"The enumerated values to specify the day count fraction.">
+  shortStubInterpolationRate FloatingRate (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
+  longStubInterpolationRate FloatingRate (0..1) <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
+
+    condition TenorExistsInInterpolation:
+    if shortStubInterpolationRate exists 
+    or longStubInterpolationRate exists
+    then shortStubInterpolationRate -> rateOption -> FloatingRateIndex -> indexTenor exists
+    and longStubInterpolationRate -> rateOption -> FloatingRateIndex -> indexTenor exists
+
+type SpinOff :<"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+  parentCompany Security (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action.">
+  parentPriceObservation Price (1..1) <"The price observation that relates to underlier for the Parent Company.">
+  childCompany Security (1..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action.">
+  childPriceObservation Price (1..1) <"The price observation that relates to underlier for the Child Company.">
+
+    condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
+    parentCompany -> instrumentType = InstrumentTypeEnum -> Equity
+    and childCompany -> instrumentType = InstrumentTypeEnum -> Equity
+
+type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Merger corporate action, as well as th respective price observation for each.">
+  purchaserCompanyPrice Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
+  purchaserPriceObservation Price (1..1) <"The price observation that relates to underlier for the Purchaser Company.">
+  acquiredCompanyPrice Security (1..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action.">
+  acquiredPriceObservation Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
+
+    condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
+    purchaserCompanyPrice -> instrumentType = InstrumentTypeEnum -> Equity
+    and acquiredCompanyPrice -> instrumentType = InstrumentTypeEnum -> Equity
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
