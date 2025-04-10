@@ -2588,3 +2588,23 @@ func ExtractTradeCollateralPrice:
             then flatten
             then filter item -> priceType = PriceTypeEnum -> AssetPrice
             then extract item -> value
+
+func Create_ExposureFromTrades: <"Builds an Exposure structure from a list of trades.">
+    inputs:
+        trades TradeState (0..*)
+    output:
+        exposure Exposure (0..1)
+
+    add exposure -> tradePortfolio -> positions:
+        trades
+            extract
+                Position {
+                    cashBalance: empty,
+                    priceQuantity: item -> trade -> tradeLot -> priceQuantity,
+                    tradeReference: item,
+                    product: Product {
+                        NonTransferableProduct: item -> trade -> product,
+                        ...
+        }}
+
+    set exposure -> tradePortfolio -> lineage -> tradeReference: trades -> trade first

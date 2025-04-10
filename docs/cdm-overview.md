@@ -48,8 +48,8 @@ at <cdm@lists.finos.org>.
 
 ## Design Principles
 
-To support these objectives, the CDM is built according to a set of
-design principles that include the following concepts:
+To support the objectives described above, the CDM is built according to a set of
+[design principles](design-principles.md) that include the following concepts:
 
 -   **Normalisation** through abstraction of common components
 -   **Composability** where objects are composed and qualified from the
@@ -59,12 +59,12 @@ design principles that include the following concepts:
 -   **Modularisation** into logical layers
 
 These design principles are further detailed in the
-[design-principles](#design-principles) section of the CDM
+[design principles](design-principles.md) section of the CDM
 documentation.
 
 ## Governance
 
-The CDM [governance framework](contribution#governance) regulates
+The CDM [governance framework](dev-guidelines#governance) regulates
 the development of the CDM in open source.
 
 ## Scope
@@ -191,5 +191,4 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-
+[CDM Java Distribution Guidelines](/docs/cdm-java-distribution).

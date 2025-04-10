@@ -138,7 +138,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).
 
-To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](https://cdm.finos.org/docs/contribution).
+To implement changes in the CDM repository resolving an issue please read our [contribution guidelines](https://cdm.finos.org/docs/dev-guidelines).
 
 NOTE: Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA.
 
@@ -158,7 +158,7 @@ Steps:
 1. Fork it (https://github.com/finos/common-domain-model)
 1. Create your feature branch (`git checkout -b feature/my-new-feature`)
 1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
-1. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+1. Read our [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 1. Commit your changes (`git commit -am 'My New Feature'`)
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request

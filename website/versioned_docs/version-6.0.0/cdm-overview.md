@@ -46,10 +46,18 @@ For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
 at <cdm@lists.finos.org>.
 
+## Model Overview 
+The key models defined in the CDM are listed below. Click each one to learn more. 
+- [Product model](product-model.md) -  describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
+- [Event model](event-model.md) - provides data structures to represent the lifecycle events of financial transactions.
+- [Process model](process-model.md) - lays the foundation for the standardisation, automation and inter-operability of industry processes.
+- [Reference data model](reference-data-model.md) – describes underlying business entities such as parties, legal entities, floating rate indexes, and so on that needed to model the in-scope products, events, legal agreements and function components.
+- [Use cases](use-cases.md) – business process areas in the financial ecosystem that the CDM supports.
+
 ## Design Principles
 
-To support these objectives, the CDM is built according to a set of
-design principles that include the following concepts:
+To support the objectives described above, the CDM is built according to a set of
+[design principles](design-principles.md) that include the following concepts:
 
 -   **Normalisation** through abstraction of common components
 -   **Composability** where objects are composed and qualified from the
@@ -59,17 +67,19 @@ design principles that include the following concepts:
 -   **Modularisation** into logical layers
 
 These design principles are further detailed in the
-[design-principles](#design-principles) section of the CDM
+[design principles](design-principles.md) section of the CDM
 documentation.
 
 ## Governance
 
-The CDM [governance framework](contribution#governance) regulates
+The CDM [governance framework](dev-guidelines#governance) regulates
 the development of the CDM in open source.
 
 ## Scope
 
-The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
+The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
+
+There are no patents involved in the CDM.
 
 ## CDM 2024 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
@@ -191,5 +201,4 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-
+[CDM Java Distribution Guidelines](/docs/cdm-java-distribution).
