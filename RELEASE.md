@@ -1,20 +1,19 @@
-# *Eligible Collateral Model* - Remove Eligible Collateral Instruction data type
-
-_Background_
-
-In CDM 6.0.0, the Eligible Collateral model was enhanced to enable the use of complex AND, OR and NOT logic in the combination of terms within a criteria.
-
-Prior to this change, a function existed to clone an Eligible Collateral Specification.  Although this function was substantially refactored at that time, a data
-type that it used (`EligibleCollateralSpecificationInstruction`) was left in place, albeit marked as deprecated.  This data type is now being removed.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-The data type `EligibleCollateralSpecificationInstruction` has been removed from the model.
+This release updates the `DSL` dependency.
 
-_Backward-incompatible changes_
+Version updates include:
+- `DSL` 9.45.3 Fixed highlighting for labels. Fixed generated object processor paths for address and location, see DSL release notes: [DSL 9.45.3](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
+- `DSL` 9.46.0 Contains a work-around to handle the issue where the generated code order causes generation to fail with referencing errors, see DSL release notes: [DSL 9.46.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
+- `DSL` 9.47.0 Added annotation to mark static code that is implemented in the model, see DSL release notes: [DSL 9.47.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
 
-This release is not backward compatible.
+The changes in this release contain a number of functions in the model now annotated with the `codeImplementation` annotation. This marks that the function has been implemented statically in the model, for example by a Java implementation that exists in the model.
+
+The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
 
 _Review Directions_
 
-The change can be reviewed in PR: [#3515](https://github.com/finos/common-domain-model/pull/3515)
+The changes can be reviewed in PR: [#3630](https://github.com/finos/common-domain-model/pull/3630) 
+
