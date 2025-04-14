@@ -18,16 +18,17 @@ import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import cdm.observable.asset.FeeTypeEnum;
 import cdm.observable.asset.PriceQuantity;
 import com.google.inject.Inject;
+import org.finos.cdm.example.AbstractExampleTest;
+import org.finos.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
 import com.rosetta.model.lib.RosettaModelObject;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.finos.cdm.example.AbstractExampleTest;
-import org.finos.cdm.example.util.ResourcesUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -51,7 +52,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
 
     @Test
-    void createPartialTerminationEvent() {
+    void createPartialTerminationEvent() throws IOException {
         // Create function input that contains workflow step instructions (i.e. WorkflowStep containing a proposed EventInstruction)
         WorkflowStep workflowStepInstruction = getWorkflowStepInstruction();
 
@@ -66,8 +67,9 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
      * Creates function input.
      *
      * @return WorkflowStep containing a proposed EventInstruction
+     * @throws IOException
      */
-    private WorkflowStep getWorkflowStepInstruction() {
+    private WorkflowStep getWorkflowStepInstruction() throws IOException {
         // Trade to be partially terminated.  Note that all references are resolved here.
         TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
 
@@ -92,7 +94,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
                                 .setTransferExpression(TransferExpression.builder()
-                                        .setPriceTransfer(FeeTypeEnum.PARTIAL_UNWIND))
+                                        .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION))
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
@@ -169,7 +171,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_UNWIND, transfer.getTransferExpression().getPriceTransfer());
+        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
         assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
     }
 

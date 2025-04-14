@@ -377,7 +377,7 @@ class FunctionInputCreationTest {
                 getTerminationVanillaSwapTradeState(),
                 Date.of(2019, 12, 12),
                 "cdm-sample-files/functions/business-event/quantity-change/partial-termination-vanilla-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.PARTIAL_UNWIND);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
@@ -405,7 +405,7 @@ class FunctionInputCreationTest {
                 getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
-                quantityChangeInstruction, FeeTypeEnum.PARTIAL_UNWIND);
+                quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
     }
 
     @Test
