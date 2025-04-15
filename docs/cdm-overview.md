@@ -48,8 +48,8 @@ at <cdm@lists.finos.org>.
 
 ## Design Principles
 
-To support these objectives, the CDM is built according to a set of
-design principles that include the following concepts:
+To support the objectives described above, the CDM is built according to a set of
+[design principles](design-principles.md) that include the following concepts:
 
 -   **Normalisation** through abstraction of common components
 -   **Composability** where objects are composed and qualified from the
@@ -59,22 +59,22 @@ design principles that include the following concepts:
 -   **Modularisation** into logical layers
 
 These design principles are further detailed in the
-[design-principles](#design-principles) section of the CDM
+[design principles](design-principles.md) section of the CDM
 documentation.
 
 ## Governance
 
-The CDM [governance framework](contribution#governance) regulates
+The CDM [governance framework](dev-guidelines#governance) regulates
 the development of the CDM in open source.
 
 ## Scope
 
 The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
-## CDM 2024 Roadmap
-Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
-![](/img/cdm-roadmap-2024-2.png)
-![](/img/cdm-roadmap-2024-1.png)
+## CDM 2025 Roadmap
+Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
+![](/img/cdm-roadmap-2025-2.png)
+![](/img/cdm-roadmap-2025-1.png)
 
 - The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
@@ -191,5 +191,4 @@ repository using the repository settings contained in the `settings.xml`
 file in the CDM jar.
 
 For more details, please follow the
-[CDM Java Distribution Guidelines](/docs/cdm-guidelines).
-
+[CDM Java Distribution Guidelines](/docs/cdm-java-distribution).

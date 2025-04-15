@@ -1,6 +1,7 @@
 namespace cdm.product.template : <"Template feature concepts to define payouts.">
 version "${project.version}"
 
+import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
@@ -9,6 +10,7 @@ import cdm.event.common.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
 import cdm.product.common.settlement.*
+import cdm.product.qualification.*
 
 func FilterTradeLot: <"Filter list of TradeLot based on TradeLot->lotIdentifier.">
     inputs:
@@ -111,6 +113,7 @@ func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation
         else True
 
 func FpmlIrd8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
+  [codeImplementation]
     inputs:
         trade Trade (1..1)
         accounts Account (0..*)
@@ -192,3 +195,35 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             and payout -> priceQuantity -> priceSchedule only-element -> value exists
 
     set cashflows: [assetLeg, priceLeg]
+
+func UnderlierForOptionOrForwardProduct: <"Extracts the underlier from an option or a forward.">
+    inputs:
+        product NonTransferableProduct (1..1)
+    output:
+        underlierProduct Underlier (1..1)
+    set underlierProduct:
+        if product -> economicTerms -> payout -> OptionPayout exists
+        then product -> economicTerms -> payout -> OptionPayout only-element -> underlier
+        else if product -> economicTerms -> payout -> SettlementPayout exists
+        then product -> economicTerms -> payout -> SettlementPayout only-element -> underlier
+
+func FXFarLeg: <"Extracts the far leg of an FX swap (deliverable or not) based on two criteria: the forward payout with the latest value date or the forward payout with the latest settlement date.">
+    inputs:
+        product NonTransferableProduct (1..1)
+    output:
+        nearLegPayout SettlementPayout (0..1)
+    alias settlementPayout: product -> economicTerms -> payout -> SettlementPayout
+    set nearLegPayout:
+        // value date
+        if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> valueDate exists
+        then settlementPayout max [ item -> settlementTerms -> settlementDate -> valueDate ]
+        // adjustable or relative date
+        else if (Qualify_ForeignExchange_Swap(product -> economicTerms) or Qualify_ForeignExchange_NDS(product -> economicTerms))
+                and settlementPayout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+        then settlementPayout
+            max [
+                AdjustableOrAdjustedOrRelativeDateResolution(
+                        item -> settlementTerms -> settlementDate -> adjustableOrRelativeDate
+                    )
+            ]
