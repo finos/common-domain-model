@@ -4,6 +4,9 @@ version "${project.version}"
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
 import cdm.legaldocumentation.transaction.*
+import cdm.legaldocumentation.master.isla.* as isla
+import cdm.legaldocumentation.master.icma.* as icma
+import cdm.legaldocumentation.master.isda.* as isda
 
 type Agreement: <"Specification of the standard set of terms that define a legal agreement.">
 
@@ -12,9 +15,17 @@ type Agreement: <"Specification of the standard set of terms that define a legal
     securityAgreementElections SecurityAgreementElections (0..1) <"Elections to specify a Security agreement.">
     masterAgreementSchedule MasterAgreementSchedule (0..1) <"Elections to specify a Master Agreement Schedule.">
     transactionAdditionalTerms TransactionAdditionalTerms (0..1) <"Any additional terms which mainly intend to specify the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens">
+    masterAgreementElections MasterAgreementElections (0..1) <"A legal representation of the different possible master agreements">
     condition:
         one-of
 
 type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
     brokerConfirmationType BrokerConfirmationTypeEnum (1..1) <"The type of broker confirmation executed between the parties.">
         [metadata scheme]
+
+type MasterAgreementElections: <"A representation of a master agreement extended from a base agreement of shared elections">
+    islaGmsla isla.GlobalMasterSecuritiesLendingAgreement (0..1) <"The set of elections that define a GMSLA">
+    icmaGmra icma.GlobalMasterRepoAgreement (0..1) <"The set of elections that define a GMRA">
+    isdaMaster isda.MasterAgreement (0..1) <"The set of elections that define an ISDA Master Agreement">
+    condition:
+        one-of

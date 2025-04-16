@@ -1,25 +1,17 @@
-# *Add CSA components from ISDA Foundations to CDM - Added enum, func, and types to legaldocumentation.csa namespace*
+# _Legal Agreements - Added skeleton framework for GMSLA, GMRA and ISDA Master Agreements into Agreement Namespace_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
+While the CDM is leading the path in making a universal language to discuss legal agreements, a huge hurdle to get over is that the legal agreements themselves are written inherently differently. While there is overlap, there is NOT enough overlap to allow for e.g. an ISDA master agreement to be represented easily and readily into the system.
 
-Any “hard-coded” legal provision are removed from the model description
-
-All ISDA legal IP has been scrubbed from components and hidden behind a docReference tag, with the path to legal definitions & descriptions clearly identified and listed.
+This is something the collateral working groups are moving towards with the ISDA foundations model and I believe a similar, heavily typed approach would work for the CDM for an ISDA master agreement, as well as a GMRA and GMSLA
 
 _What is being released?_
 
-A CDM user has access to all the components that were previously in ISDA Foundations
+As per issue [3206](https://github.com/finos/common-domain-model/issues/3206) on Github, we are implementing step one in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for GMRA, GMSLA and IsdaMasterAgreement respectively. These are all currently empty and will be populated provisionally and initially into the next development release.
 
-Added CSA components & namespaces to legaldocumentation
-
-- isda.legaldocumentation.csa.enum
-- isda.legaldocumentation.csa.func
-- isda.legaldocumentation.csa.type
-
-- These will have minimal impact as only the csa.type namespace currently exists in CDM, and consists of 3 empty types.
+MasterAgreementSchedule is remaining as is for the time being to ensure backwards compatability with production, but will be deprecated and changed in a future release PR.
 
 _Review Directions_
 
-The change can be reviewed in PR: [3652](https://github.com/finos/common-domain-model/pull/3652)
+The changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
