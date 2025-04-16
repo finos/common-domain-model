@@ -14,6 +14,8 @@ import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
+import com.regnosys.rosetta.translate.datamodel.json.CreateiQJsonSchemaParser;
+import com.regnosys.rosetta.translate.datamodel.json.JsonSchemaParser;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
@@ -66,6 +68,8 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(CalculationPeriods.class).to (bindCalculationPeriods());
 		bind(ResolveAdjustableDate.class).to(bindResolveAdjustableDate());
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
+		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
+
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
