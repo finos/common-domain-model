@@ -530,6 +530,7 @@ as the output, as shown below:
 
 ``` Haskell
 func CalculationPeriod:
+  [codeImplementation]
   inputs:
     calculationPeriodDates CalculationPeriodDates (1..1)
     date date (1..1)
@@ -802,6 +803,7 @@ type, which ensures the integrity of the observed value.
 
 ``` Haskell
 func ResolveObservation:
+  [codeImplementation]
     inputs:
         identifiers ObservationIdentifier (1..*)
         averagingMethod AveragingCalculationMethod (0..1)
