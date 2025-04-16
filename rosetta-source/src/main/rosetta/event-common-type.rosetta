@@ -527,14 +527,14 @@ type CorporateAction: <"Specifies the relevant data regarding a corporate action
 type AdjustmentFactor:<"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
 
   value number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
-  calculation PriceAdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+  calculationTerms AdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
 
-type PriceAdjustmentFactorCalculationTerms : <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+type AdjustmentFactorCalculationTerms : <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
   shareForShareRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of shares after the event and 'N' is the number of shares prior to the event. ">
   shareForRightsRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of rights after the event, and 'N' of shares prior to the event. ">
   rightsSubscriptionPrice Price (0..1) <"The price to pay per each right.">
   dividendRatio number (0..1) <"Multipler value (e.g. 85 %, etc.) to calculate net dividend amount, given gross amount before taking into account the relevant fiscal features.">
-  spinOff SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+  spinOff SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
   merger Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
   accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
   lastFixingPriceBeforeAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
@@ -552,9 +552,9 @@ type PriceAdjustmentFactorCalculationTerms : <"Describes the input terms involve
     optional choice shareForShareRatio, shareForRightsRatio
 
 type AccrualFactor :<"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to the last fixing then applying accruals per each remaining underlier price fixing date required i.e. for each fixing date, adjustedPrice = lastFixingPrice x accrualFactor, where: accrualFactor = (1 + accrualRateValue x DCF).">
-  value PriceSchedule (0..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
+  value PriceSchedule (1..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
    [metadata location]
-  calculation AccrualFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the accrual factor.">
+  calculationTerms AccrualFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the accrual factor.">
 
     condition AccrualPriceIsRate:
     value -> priceType = PriceTypeEnum -> InterestRate
@@ -562,34 +562,32 @@ type AccrualFactor :<"The accrual rate and related terms, to adjust the price of
 type AccrualFactorCalculationTerms: <"Describes the input terms involved in the calculation of the accrual factor. Optionnally, long and short stub interpolation rates can be specified.">
   tenorTillMaturity number (1..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
   dayCountFraction DayCountFractionEnum (1..1) <"The enumerated values to specify the day count fraction.">
-  shortStubInterpolationRate FloatingRate (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
-  longStubInterpolationRate FloatingRate (0..1) <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
+  shortStubInterpolationFloatingRate StubValue (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
+  longStubInterpolationFloatingRate StubValue (0..1) <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
 
-    condition TenorExistsInInterpolation:
-    if shortStubInterpolationRate exists 
-    or longStubInterpolationRate exists
-    then shortStubInterpolationRate -> rateOption -> FloatingRateIndex -> indexTenor exists
-    and longStubInterpolationRate -> rateOption -> FloatingRateIndex -> indexTenor exists
+    condition BothStubLegsExistWhenStubExists:
+    (shortStubInterpolationFloatingRate is absent and longStubInterpolationFloatingRate is absent)
+    or (shortStubInterpolationFloatingRate exists and longStubInterpolationFloatingRate exists)
 
 type SpinOff :<"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
-  parentCompany Security (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action.">
-  parentPriceObservation Price (1..1) <"The price observation that relates to underlier for the Parent Company.">
-  childCompany Security (1..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action.">
-  childPriceObservation Price (1..1) <"The price observation that relates to underlier for the Child Company.">
+  parentSecurity Security (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action.">
+  parentSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Parent Company.">
+  childSecurity Security (1..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action.">
+  childSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Child Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-    parentCompany -> instrumentType = InstrumentTypeEnum -> Equity
-    and childCompany -> instrumentType = InstrumentTypeEnum -> Equity
+    parentSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+    and childSecurity -> instrumentType = InstrumentTypeEnum -> Equity
 
 type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Merger corporate action, as well as th respective price observation for each.">
-  purchaserCompanyPrice Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
-  purchaserPriceObservation Price (1..1) <"The price observation that relates to underlier for the Purchaser Company.">
-  acquiredCompanyPrice Security (1..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action.">
-  acquiredPriceObservation Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
+  purchaserSecurity Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
+  purchaserSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Purchaser Company.">
+  acquiredSecurity Security (1..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action.">
+  acquiredSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-    purchaserCompanyPrice -> instrumentType = InstrumentTypeEnum -> Equity
-    and acquiredCompanyPrice -> instrumentType = InstrumentTypeEnum -> Equity
+    purchaserSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+    and acquiredSecurity -> instrumentType = InstrumentTypeEnum -> Equity
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
