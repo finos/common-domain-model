@@ -562,12 +562,13 @@ type AccrualFactor :<"The accrual rate and related terms, to adjust the price of
 type AccrualFactorCalculationTerms: <"Describes the input terms involved in the calculation of the accrual factor. Optionnally, long and short stub interpolation rates can be specified.">
   tenorTillMaturity number (1..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
   dayCountFraction DayCountFractionEnum (1..1) <"The enumerated values to specify the day count fraction.">
-  shortStubInterpolationFloatingRate StubValue (0..1) <"Describes the rate and related tenor for the short stub when the accrualRate optionnaly results from an interpolation method.">
-  longStubInterpolationFloatingRate StubValue (0..1) <"Describes the rate and related tenor for the long stub when the accrualRate optionnaly results from an interpolation method.">
+  interpolationTerms StubValue (0..1) <"Describes the rate, tenor, period duration for the short and long stubs, when the accrualRate optionnaly results from an interpolation method.">
 
-    condition BothStubLegsExistWhenStubExists:
-    (shortStubInterpolationFloatingRate is absent and longStubInterpolationFloatingRate is absent)
-    or (shortStubInterpolationFloatingRate exists and longStubInterpolationFloatingRate exists)
+  condition InterpolationMethodIsUsed:
+
+  if interpolationTerms exists
+  then interpolationTerms -> interpolationFloatingRate exists
+  or interpolationTerms -> interpolationFixedRate exists
 
 type SpinOff :<"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
   parentSecurity Security (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action.">
