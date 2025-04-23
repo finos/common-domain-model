@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,8 +49,10 @@ public class LoadCodeListImpl extends LoadCodeList {
         Set<String> jsonFiles = listCodeListResources();
 
         // Find the first JSON file whose name contains the given domain
+        Pattern pattern = Pattern.compile("org/isda/codelist/json/" + Pattern.quote(domain.toLowerCase()) + "-\\d+-\\d+\\.json$");
         String matchedFile = jsonFiles.stream()
-                .filter(name -> name.toLowerCase().contains(domain.toLowerCase()))
+                .map(name -> name.replace("\\", "/")) // Normalize
+                .filter(name -> pattern.matcher(name.toLowerCase()).matches())
                 .findFirst()
                 .orElseThrow(() -> new FileNotFoundException("No matching CodeList found for: " + domain));
 

@@ -1,7 +1,9 @@
 package cdm.base.staticdata.codelist;
 
+import cdm.base.staticdata.codelist.functions.LoadCodeList;
 import cdm.base.staticdata.codelist.functions.ValidateFpMLCodingSchemeDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +44,12 @@ public class ValidateFpMLCodingSchemeImpl extends ValidateFpMLCodingSchemeDomain
     /** Cache to store loaded CodeLists to avoid redundant file reads. */
     private static final Map<String, CodeList> cache = new HashMap<>();
 
+    @Inject
+    LoadCodeList loadCodeListFunc;
+
     /**
      * Loads a CodeList JSON file corresponding to the given domain.
+     * Can be removed by loaCodeListFunc + handle cache management
      *
      * @param domain The domain name used to identify the relevant CodeList file.
      * @return The deserialized CodeList object.
@@ -129,8 +135,13 @@ public class ValidateFpMLCodingSchemeImpl extends ValidateFpMLCodingSchemeDomain
             // Load the CodeList from resources and cache it
             try {
                 codeList = loadCodeList(domain);
-                cache.put(domain, codeList);
-            } catch (IOException | URISyntaxException e) {
+                if (codeList.getCodes().isEmpty()) {
+                    logger.error("Error loading CodeList for domain '{}'", domain);
+                } else {
+                    cache.put(domain, codeList);
+                }
+            }
+            catch (IOException | URISyntaxException e) {
                 logger.error("Error loading CodeList for domain '{}': {}", domain, e.getMessage());
                 return Boolean.TRUE;
             }

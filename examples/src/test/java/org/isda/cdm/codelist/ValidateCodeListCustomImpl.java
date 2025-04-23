@@ -12,12 +12,14 @@ public class ValidateCodeListCustomImpl extends ValidateFpMLCodingSchemeDomain {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidateCodeListCustomImpl.class);
 
-    private static Map<String, Set<String>> myCodeListSubsets;
+    public static Map<String, Set<String>> myCodeListSubsets;
 
-    public ValidateCodeListCustomImpl() {
+    static {
         myCodeListSubsets = new HashMap<>();
         //My allowed business-center codes
         myCodeListSubsets.put("business-center", Set.of("EUTA", "GBLO"));
+        myCodeListSubsets.put("floating-rate-index", Set.of("LIBOR", "EURIBOR"));
+
     }
 
     @Override
