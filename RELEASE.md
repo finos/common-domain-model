@@ -1,25 +1,15 @@
-# *Add CSA components from ISDA Foundations to CDM - Added enum, func, and types to legaldocumentation.csa namespace*
+# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-Any “hard-coded” legal provision are removed from the model description
-
-All ISDA legal IP has been scrubbed from components and hidden behind a docReference tag, with the path to legal definitions & descriptions clearly identified and listed.
+While the CDM is leading the path in developing a universal language to discuss legal agreements, a hurdle to overcome is that the legal agreements themselves are written inherently differently. While there is overlap, there is not enough overlap to allow for e.g. an ISDA Master Agreement to be represented easily and readily by the CDM.
 
 _What is being released?_
 
-A CDM user has access to all the components that were previously in ISDA Foundations
+As per GitHub Issue [3206](https://github.com/finos/common-domain-model/issues/3206), step one is being implemented in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for MasterAgreement, GlobalMasterRepoAgreement, and GlobalMasterSecuritiesLendingAgreement, respectively. These are all currently empty and will be populated in future releases.
 
-Added CSA components & namespaces to legaldocumentation
-
-- isda.legaldocumentation.csa.enum
-- isda.legaldocumentation.csa.func
-- isda.legaldocumentation.csa.type
-
-- These will have minimal impact as only the csa.type namespace currently exists in CDM, and consists of 3 empty types.
+The MasterAgreementSchedule is unaltered for the time being to ensure backward-compatibility with the production release, but will become deprecated in the future.
 
 _Review Directions_
 
-The change can be reviewed in PR: [3652](https://github.com/finos/common-domain-model/pull/3652)
+Changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
