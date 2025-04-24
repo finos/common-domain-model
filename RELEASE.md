@@ -1,4 +1,4 @@
-# _Legal Agreements - Added skeleton framework for GMSLA, GMRA and ISDA Master Agreements into Agreement Namespace_
+# _Legal Agreements - Skeleton framework for Trade Associaion Agreements in Agreement Namespace_
 
 _Background_
 
