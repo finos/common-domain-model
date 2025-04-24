@@ -3,7 +3,7 @@
 
 _Background_
 
-While the CDM is leading the path in making a universal language to discuss legal agreements, a huge hurdle to get over is that the legal agreements themselves are written inherently differently. While there is overlap, there is NOT enough overlap to allow for e.g. an ISDA master agreement to be represented easily and readily into the system.
+While the CDM is leading the path in making a universal language to discuss legal agreements, a huge hurdle to get over is that the legal agreements themselves are written inherently differently. While there is overlap, there is NOT enough overlap to allow for e.g. an ISDA master agreement to be represented easily and readily by the CDM.
 
 This is something the collateral working groups are moving towards with the ISDA foundations model and I believe a similar, heavily typed approach would work for the CDM for an ISDA master agreement, as well as a GMRA and GMSLA
 
