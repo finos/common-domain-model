@@ -1,4 +1,4 @@
-# _Legal Agreements - Skeleton framework for Trade Associaion Agreements in Agreement Namespace_
+# _Legal Agreement Model - Skeleton framework for Trade Association Agreements in Agreement Namespace_
 
 _Background_
 
