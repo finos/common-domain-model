@@ -1,4 +1,4 @@
-# _Enrich Corporate Action description_
+# _Enrich Corporate Action_
 
 _Background_
 
