@@ -1,15 +1,22 @@
-# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
+# _Refactor payer / receiver (Party1 / Party2) for a Tradeable Product's embedded payout_
 
 _Background_
 
-While the CDM is leading the path in developing a universal language to discuss legal agreements, a hurdle to overcome is that the legal agreements themselves are written inherently differently. While there is overlap, there is not enough overlap to allow for e.g. an ISDA Master Agreement to be represented easily and readily by the CDM.
+An InterestRatePayout defines the payerReceiver as a counterparty (Party1 or Party2) as defined in TradeableProduct. For trades with settlementPayout this works but when you add the interestRatePayout for bonds or equities with Product or Instrument->Underlier, the payer/receiver are incorrect and there is no way to link the payer to an Issuer. 
+There is a related problem that it's not possible to define the Issuer on the Asset.
 
 _What is being released?_
 
-As per GitHub Issue [3206](https://github.com/finos/common-domain-model/issues/3206), step one is being implemented in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for MasterAgreement, GlobalMasterRepoAgreement, and GlobalMasterSecuritiesLendingAgreement, respectively. These are all currently empty and will be populated in future releases.
+As per GitHub Issue [3590](https://github.com/finos/common-domain-model/issues/3590) and [3567](https://github.com/finos/common-domain-model/issues/3567): 
 
-The MasterAgreementSchedule is unaltered for the time being to ensure backward-compatibility with the production release, but will become deprecated in the future.
+1) Add new PartyRole "Issuer"
+2) Add productParty Counterparty (0..1) to TransferableProduct
+3) Add to AssetBase:
+	-assetPayer Party (0..1)
+	-assetPayerRole PartyRole (0..1)
+	-assetAncillaryParty AncillaryParty (0..*)
+4) Add new function input tests, bond-execution-with-bond-details.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
+Changes can be reviewed in PR: [3666](https://github.com/finos/common-domain-model/pull/3666)
