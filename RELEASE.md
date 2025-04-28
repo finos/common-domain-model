@@ -2,38 +2,40 @@
 
 _Background_
 
-This change releases enrich the description of **Corporate Action**, mainly used in **Event model** (in root path `ObservationInstruction`)
-
-- by adding new optional attributes to existing type CorporateAction, among which an important one from business standpoint, based on new type AdjustmentFactor
-- also by completing existing type CorporateActionTypeEnum with values that were missing in the list
+This releases enrich the description of Corporate Action, mainly used in Event model (in root path `ObservationInstruction`), with new attributes to represent some information that has been missing so far to ensure exhaustive description of such event from business standpoint.
 
 _What is being released?_
 
-- a set of attributes is added to `CorporateAction` ; all of them have optional cardinality `(0..1)` :
+- four new values are added in the list of existing type `CorporateActionTypeEnum` :
 
-    - `recordDate` date (existing type)
-    - `annoucementDate` date (existing type)
-    - `informationSource InformationSource` (existing type)
-    - `dividendObservation PriceSchedule` (existing type)
-    - `bespokeEventDescription string` (existing type)
-    - `adjustmentFactor AdjustmentFactor` (new type) : see details below
+    - `BankruptcyOrInsolvency`
+    - `IssuerNationalization`
+    - `Relisting`
+    - `BespokeEvent`
 
-- new type `AdjustmentFactor` : for specifying any additional details e.g. further descriptions depending on the particular type of Corporate Action, adjustment factor and calculations terms to resolve for calculating the adjustment factor - hencing coming with two attributes :
+- a set of attributes is added to CorporateAction. all of them have optional cardinality (0..1) :
+    
+   - `recordDate date` (existing type)
+   - `announcementDate date` (existing type)
+   - `informationSource InformationSource` (existing type)
+   - `dividendObservation PriceSchedule` (existing type)
+   - `bespokeEventDescription string` (existing type)
+   - `adjustmentFactor AdjustmentFactor` (new type : see details below)
+  
+- new type `AdjustmentFactor` : to populate the adjustment factor value, as well as to describe the resolvable terms required when calculating an adjustment factor, depending the type of Corporate Action at stake (merger, split, etc.) :
 
-    - `value number`  (existing type) : to represent the multipler value applied to the price of the underlier impacted by a Corporate Action.
-    - `calculation PriceAdjustmentFactorCalculationTerms` (new type) : see details below
+     - compulsory attribute : `value number`  (existing type) : to represent the multipler value applied to the price of the underlier impacted by a Corporate Action. this attribute is compulsory
+     - optional attribute : `calculation PriceAdjustmentFactorCalculationTerms` (new type : see details below)
 
-- new type `PriceAdjustmentFactorCalculationTerms` : to represent the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action. All of them are optional, given that need for populating depends on the event type of the Corporate Action. Accordingly, new conditions are also added to ensure consistency in the choices that can be made :
+- new type `PriceAdjustmentFactorCalculationTerms` : to represent the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action ; all attributes are optional, given that the need for populating such terms, depends on the event type of the Corporate Action, and new conditions are added to ensure consistency in the choices that can be made :
 
-    - some attributes are existing types `number` (example `shareForShareRatio`, `shareForRightsRatio`, `dividendRatio`) or `Price` (example `rightsSubscriptionPrice`) or `string` (example `bespokeCalculationFormula`)
-    - other ones are new types to enrich description of particular event type, such as `SpinOff`, `Merger`, `AccrualFactor` (example of attributes for `SpinOff`, logic being similar for other attributes : `parentCompany Security`, `parentPriceObservation Price`, `childCompany Security` and `childPriceObservation Price`)
-
-- four new values are added in the list of existing type CorporateActionTypeEnum :
-
-    - BankruptcyOrInsolvency
-    - IssuerNationalization
-    - Relisting
-    - BespokeEvent
+    - some attributes are existing types `number` (example `shareForShareRatio`, `shareForRightsRatio`, `dividendRatio`) 
+      - or `Price` (example `rightsSubscriptionPrice`) 
+      - or `string` (example `bespokeCalculationFormula`)
+      
+    - other ones are using new type, such as `SpinOff`, `Merger` and `AccrualFactor` which in turn are-use existing types:
+      - example with `SpinOff` attributes : `Security` is re-used by both `parentCompany` and `childCompany`
+      - `Price` is re-used by both `parentPriceObservation` and `childPriceObservation`
 
 _Review Directions_
 
