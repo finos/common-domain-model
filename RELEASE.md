@@ -10,4 +10,4 @@ Migrated components relating to an ISDA Master Agreement and the related compone
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3667](https://github.com/finos/common-domain-model/pull/3677)
+Changes can be reviewed in PR: [3667](https://github.com/finos/common-domain-model/pull/3667)
