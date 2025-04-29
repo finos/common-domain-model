@@ -1,4 +1,4 @@
-# *Adding Master Agreement terms to isda namespace - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
+# *Legal Agreement Model - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
 
 _Background_
 
