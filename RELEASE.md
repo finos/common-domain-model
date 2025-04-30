@@ -1,4 +1,4 @@
-# _Event Model: Enrich Corporate Action_
+# _Event Model - Enrich Corporate Action_
 
 _Background_
 
