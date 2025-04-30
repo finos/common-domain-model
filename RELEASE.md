@@ -1,19 +1,15 @@
-# _Infrastructure - Dependency Update_
+# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
+
+_Background_
+
+While the CDM is leading the path in developing a universal language to discuss legal agreements, a hurdle to overcome is that the legal agreements themselves are written inherently differently. While there is overlap, there is not enough overlap to allow for e.g. an ISDA Master Agreement to be represented easily and readily by the CDM.
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+As per GitHub Issue [3206](https://github.com/finos/common-domain-model/issues/3206), step one is being implemented in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for MasterAgreement, GlobalMasterRepoAgreement, and GlobalMasterSecuritiesLendingAgreement, respectively. These are all currently empty and will be populated in future releases.
 
-Version updates include:
-- `DSL` 9.45.3 Fixed highlighting for labels. Fixed generated object processor paths for address and location, see DSL release notes: [DSL 9.45.3](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.46.0 Contains a work-around to handle the issue where the generated code order causes generation to fail with referencing errors, see DSL release notes: [DSL 9.46.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.47.0 Added annotation to mark static code that is implemented in the model, see DSL release notes: [DSL 9.47.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-
-The changes in this release contain a number of functions in the model now annotated with the `codeImplementation` annotation. This marks that the function has been implemented statically in the model, for example by a Java implementation that exists in the model.
-
-The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
+The MasterAgreementSchedule is unaltered for the time being to ensure backward-compatibility with the production release, but will become deprecated in the future.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3630](https://github.com/finos/common-domain-model/pull/3630) 
-
+Changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
