@@ -1,15 +1,43 @@
-# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
+# _Event Model - Enrich Corporate Action_
 
 _Background_
 
-While the CDM is leading the path in developing a universal language to discuss legal agreements, a hurdle to overcome is that the legal agreements themselves are written inherently differently. While there is overlap, there is not enough overlap to allow for e.g. an ISDA Master Agreement to be represented easily and readily by the CDM.
+This releases enrich the description of Corporate Action, mainly used in Event model (in root path `ObservationInstruction`), with new attributes to represent some information that has been missing so far to ensure exhaustive description of such event from business standpoint.
 
 _What is being released?_
 
-As per GitHub Issue [3206](https://github.com/finos/common-domain-model/issues/3206), step one is being implemented in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for MasterAgreement, GlobalMasterRepoAgreement, and GlobalMasterSecuritiesLendingAgreement, respectively. These are all currently empty and will be populated in future releases.
+- four new values are added in the list of existing type `CorporateActionTypeEnum` :
 
-The MasterAgreementSchedule is unaltered for the time being to ensure backward-compatibility with the production release, but will become deprecated in the future.
+    - `BankruptcyOrInsolvency`
+    - `IssuerNationalization`
+    - `Relisting`
+    - `BespokeEvent`
+
+- a set of attributes is added to CorporateAction. all of them have optional cardinality (0..1) :
+    
+   - `recordDate date` (existing type)
+   - `announcementDate date` (existing type)
+   - `informationSource InformationSource` (existing type)
+   - `dividendObservation PriceSchedule` (existing type)
+   - `bespokeEventDescription string` (existing type)
+   - `adjustmentFactor AdjustmentFactor` (new type : see details below)
+  
+- new type `AdjustmentFactor` : to populate the adjustment factor value, as well as to describe the resolvable terms required when calculating an adjustment factor, depending the type of Corporate Action at stake (merger, split, etc.) :
+
+     - compulsory attribute : `value number`  (existing type) : to represent the multipler value applied to the price of the underlier impacted by a Corporate Action. this attribute is compulsory
+     - optional attribute : `calculation PriceAdjustmentFactorCalculationTerms` (new type : see details below)
+
+- new type `PriceAdjustmentFactorCalculationTerms` : to represent the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action ; all attributes are optional, given that the need for populating such terms, depends on the event type of the Corporate Action, and new conditions are added to ensure consistency in the choices that can be made :
+
+    - some attributes are existing types `number` (example `shareForShareRatio`, `shareForRightsRatio`, `dividendRatio`) 
+      - or `Price` (example `rightsSubscriptionPrice`) 
+      - or `string` (example `bespokeCalculationFormula`)
+      
+    - other ones are using new type, such as `SpinOff`, `Merger` and `AccrualFactor` which in turn are-use existing types:
+      - example with `SpinOff` attributes : `Security` is re-used by both `parentCompany` and `childCompany`
+      - `Price` is re-used by both `parentPriceObservation` and `childPriceObservation`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
+The changes can be reviewed in PR: [#3642](https://github.com/finos/common-domain-model/pull/3642) 
+
