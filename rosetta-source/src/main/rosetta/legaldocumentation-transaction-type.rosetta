@@ -5,6 +5,10 @@ import cdm.base.staticdata.party.*
 import cdm.legaldocumentation.master.*
 import cdm.legaldocumentation.transaction.additionalterms.*
 import cdm.base.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
 
 corpus Confirmation "2018 ISDA CDM Equity Confirmation for Security Equity Swap" SecurityEquitySwapConfirmation_2018
 corpus Definitions "2002 ISDA Equity Derivatives Definitions" EquityDerivativesDefinitions_2002
@@ -13,7 +17,6 @@ segment section
 segment paragraph
 segment exhibit
 segment name
-
 
 type TransactionAdditionalTerms: <"Additional specification for the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens. Such terms are typically required to extend the economics terms, for the purpose of producing the final legal contractual form of the Transaction.">
     equityAdditionalTerms EquityAdditionalTerms (0..1)
@@ -88,6 +91,19 @@ type Clause: <"A type for documenting additional clause that cannot yet be repre
     condition: <"The Clause should describe at least the additional terms,  additional subcomponents or both">
         optional choice terms, subcomponents
 
+type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
+
 type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
     brokerConfirmationType BrokerConfirmationTypeEnum (1..1) <"The type of broker confirmation executed between the parties.">
         [metadata scheme]
+
+type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+
+    typeOfSwapElection ReturnTypeEnum (1..1) <"Per Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns'">
+    pricingMethodElection PriceReturnTerms (1..1) <"Per Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1">
+    linearInterpolationElection InterpolationMethodEnum (1..1) <"Per Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3">
+    settlementTerms SettlementTerms (1..1) <"Per Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap">
+    valuationDates ValuationDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
+    equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Per Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73">
+
+type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
