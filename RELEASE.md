@@ -1,15 +1,23 @@
-# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
+# *Legal Agreement Model - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
 
 _Background_
 
-While the CDM is leading the path in developing a universal language to discuss legal agreements, a hurdle to overcome is that the legal agreements themselves are written inherently differently. While there is overlap, there is not enough overlap to allow for e.g. an ISDA Master Agreement to be represented easily and readily by the CDM.
+The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
+
+Following the completion of a new structure under `legaldocumentation` and the addition of `docReference` tags to hide ISDA legal definitions, Master Agreement components are ready for migration.
 
 _What is being released?_
 
-As per GitHub Issue [3206](https://github.com/finos/common-domain-model/issues/3206), step one is being implemented in this contribution. This entails adding the MasterAgreementBase to the master namespace type which is then extended for MasterAgreement, GlobalMasterRepoAgreement, and GlobalMasterSecuritiesLendingAgreement, respectively. These are all currently empty and will be populated in future releases.
-
-The MasterAgreementSchedule is unaltered for the time being to ensure backward-compatibility with the production release, but will become deprecated in the future.
+This release migrates the following components relating to an ISDA Master Agreement to the new ISDA namespace under the legaldocumentation structure within CDM.
+- `Master Agreement`
+- `AutomaticEarlyTermination`
+- `AutomaticEarlyTerminationElection`
+- `TerminationCurrency`
+- `TerminationCurrencySelection`
+- `PartyOptionTerminationCurrency`
+- `SpecifiedEntities`
+- `SpecifiedEntity`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3629](https://github.com/finos/common-domain-model/pull/3629)
+Changes can be reviewed in PR: [3679](https://github.com/finos/common-domain-model/pull/3679)
