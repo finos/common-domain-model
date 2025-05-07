@@ -20,5 +20,5 @@ Following the migration of all ISDA Foundations components, this task will 'clea
 
 _Review directions_
 
-Changes can be reviewed in PR: [#3670](https://github.com/finos/common-domain-model/pull/3670)
+Changes can be reviewed in PR: [#3694](https://github.com/finos/common-domain-model/pull/3694)
 
