@@ -2,11 +2,21 @@
 
 _Background_
 
-These components have been migrated from the ISDA Foundations project into the new structure under cdm.legaldocumentation.master
+The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
+
+Following the completion of a new structure under `legaldocumentation` and the addition of `docReference` tags to hide ISDA legal definitions, Master Agreement components are ready for migration.
 
 _What is being released?_
 
-Migrated components relating to an ISDA Master Agreement and the related components to the new ISDA namespace under the legaldocumentation structure within CDM.
+This release migrates the following components relating to an ISDA Master Agreement to the new ISDA namespace under the legaldocumentation structure within CDM.
+- `Master Agreement`
+- `AutomaticEarlyTermination`
+- `AutomaticEarlyTerminationElection`
+- `TerminationCurrency`
+- `TerminationCurrencySelection`
+- `PartyOptionTerminationCurrency`
+- `SpecifiedEntities`
+- `SpecifiedEntity`
 
 _Review Directions_
 
