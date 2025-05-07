@@ -2,5 +2,86 @@ namespace cdm.legaldocumentation.master.isda
 version "${project.version}"
 
 import cdm.legaldocumentation.master.*
+import cdm.base.staticdata.party.*
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.csa.*
+import cdm.base.*
 
-type MasterAgreement extends MasterAgreementBase : <"The set of elections that define an ISDA Master Agreement">
+corpus MasterAgreement "1998 Master Agreement" ISDA_MA_1998 
+corpus MasterAgreement "2002 Master Agreement" ISDA_MA_2002 
+
+segment section
+
+type MasterAgreement extends MasterAgreementBase: <"The set of elections that define an ISDA Master Agreement">
+    automaticEarlyTermination AutomaticEarlyTermination (1..1) <"The specification of whether there is an automatic occurrence of an Early Termination Date in respect of Transactions upon the occurrence of certain bankruptcy / insolvency related events.">
+    terminationCurrency TerminationCurrency (1..1) <"Specification of the currency in which the termination payment is made (including the process by which such currency is determined).">
+    addressForNotices AddressForNotices (1..1) <"Specification of the address and other details for notices.">
+    nonContractualObligations boolean (1..1) <"Specification of whether the Governing Law clause extends to Non-Contractual Obligations (True) or does not extend to Non-Contractual Obligations (False).">
+    creditSupportDocument CreditSupportDocument (1..1) <"Identification of party specific Credit Support Documents applicable to the document.">
+    creditSupportProvider CreditSupportProvider (1..1) <"Identification of party specific Credit Support Providers applicable to the document.">
+    specifiedEntities SpecifiedEntities (4..4) <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
+
+type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
+    [docReference ISDA ISDA_MA_1998 section "6(a)"]
+    [docReference ISDA ISDA_MA_2002 section "6(a)"] 
+    fallbackAET boolean (1..1) <"Specifies whether automatic termination applies in the event of certain bankruptcy events.">
+    indemnity boolean (1..1) <"Specifies whether indemnity applies in the event AET is applicable to one or both of the parties.">
+    partyElection AutomaticEarlyTerminationElection (0..2) <"The party election specific to the Automatic Early Termination Clause.">
+
+    condition FallbackAET: <"The fallback Automatic Early Termination provision can only be specified as applicable if the Automatic Early Termination Clause is not applicable to one of the parties.">
+        if fallbackAET = True
+        then partyElection -> isApplicable all = False
+
+    condition Indemnity: <"If Automatic Early Termination can never apply then indemnity cannot apply.">
+        if fallbackAET = False and partyElection -> isApplicable all = False
+        then indemnity = False
+
+type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
+    party Party (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
+    isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
+
+type TerminationCurrency: <"Specifies how the Termination Currency for the agreement will be determined.">
+    statedTerminationCurrency TerminationCurrencySelection (0..1) <"Allows for specific Termination Currency(ies) and a fallback Termination Currency to be selected.">
+    partyOptionTerminationCurrency PartyOptionTerminationCurrency (0..1) <"Provides that the Termination Currency will be determined by reference to a contractual mechanism when closing out the Agreement.">
+
+type TerminationCurrencySelection: <"Specifies Termination Currency where a currency is stated at the time the agreement is entered into.">
+    statedCurrency string (0..1) <"Specifies a single Termination Currency for the agreement.">
+    fallbackCurrency string (0..1) <"Specifies a single fallback Termination Currency should the stated currency not be freely available.">
+    partyElection PartyTerminationCurrencySelection (0..2) <"Specifies different termination currencies to apply depending on which party or parties are the Defaulting Party Affected Party(ies).">
+    bothAffected string (0..1) <"Specifies fallback Termination Currency where both parties are Affected Parties.">
+
+type PartyOptionTerminationCurrency: <"Specifies mechanism for Termination currency to be selected by the Non-defaulting Party/party which is not the Affected Party.">
+    bothAffectedTermCurrencyOption string (0..1) <"Specifies termination currency where there are two Affected Parties and they cannot agree on the termination currency.">
+    terminationCurrencySpecifiedCondition string (0..1) <"Specifies alternative conditions for selection of the termination currency.">
+    terminationCurrencyCondition TerminationCurrencyConditionEnum (1..1) <"Specifies the enumerated conditions for selection of the termination currency.">
+
+    condition TerminationCurrencyCondition: <"A validation rule to ensure that Termination Currency alternative conditions are specified when required.">
+        if terminationCurrencyCondition = TerminationCurrencyConditionEnum -> Specified
+        then terminationCurrencySpecifiedCondition exists
+
+type PartyTerminationCurrencySelection: <"Specifies the termination currency to be used by a party when it is the Non-Defaulting Party or the Party which is not the Affected Party.">
+    party Party (1..1) <"The elective party.">
+    statedPartyCurrency string (1..1) <"Specifies termination Currency">
+
+type SpecifiedEntities: <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events">
+    specifiedEntityClause SpecifiedEntityClauseEnum (1..1) <"The Event of Default or Termination event for which Specified Entities terms are being defined.">
+    specifiedEntity SpecifiedEntity (2..2) <"The party specific election of Specified Entities for the Event of Default or Termination Event specified.">
+
+type SpecifiedEntity: <"The party specific election of Specified Entities for the Event of Default or Termination Event specified.">
+    party Party (1..1) <"The elective party">
+    specifiedEntityTerms SpecifiedEntityTermsEnum (1..1) <"The specified entity terms for the Event of Default or Termination Event specified.">
+    specifiedEntity LegalEntity (0..*) <"The specified entities for the Event of Default or Termination Event specified.">
+    materialSubsidiaryTerms string (0..1) <"The meaning of Material Subsidiary for the Event of Default or Termination Event specified.">
+    otherSpecifiedEntityTerms string (0..1) <"The non standard terms for the Event of Default or Termination Event specified.">
+
+    condition SpecifiedEntity: <"A validation rule to ensure that a SpecifiedEntity is specified when required.">
+        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> NamedSpecifiedEntity
+        then specifiedEntity exists
+
+    condition MaterialSubsidiary: <"A validation rule to ensure that Material Subsidiary terms are specified when required.">
+        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> MaterialSubsidiary
+        then materialSubsidiaryTerms exists
+
+    condition OtherSpecifiedEntity: <"A validation rule to ensure that non standard Specified Entity terms are provided when required.">
+        if specifiedEntityTerms = SpecifiedEntityTermsEnum -> OtherSpecifiedEntity
+        then otherSpecifiedEntityTerms exists
