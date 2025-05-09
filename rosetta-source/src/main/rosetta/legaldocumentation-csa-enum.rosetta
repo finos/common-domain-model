@@ -1,0 +1,438 @@
+namespace cdm.legaldocumentation.csa
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.datetime.*
+
+enum RecalculationOfValueElectionEnum: <"Values to specify the procedure under which the market value of posted collateral will be recalculated.">
+    ConsulationProcedure <"The parties agree to consult">
+    OtherRegulatoryCSAProcedure <"The procedures specified in an Other Regulatory CSA">
+    NotApplicable <"Description to be added">
+    Specified <"Bespoke Recalculation of value terms are specified in the agreement.">
+
+enum SimmExceptionApplicableEnum: <"Values to specify the SIMM normalized exception approaches">
+    [docReference ISDA CSA_IM_2018 paragraph "13 General Principles"]
+    FallBackToMandatoryMethod <"The ISDA Standard Initial Margin Model exception is applicable as a Fallback to Mandatory Method.">
+    MandatoryMethod <"The ISDA Standard Initial Margin Model exception is applicable as a Mandatory Method.">
+    OtherMethod <"An alternative approach is described in the document.">
+
+enum ExceptionEnum: <"Values to specify the normalized exceptions applicable to an Initial Margin CSA.">
+    [docReference ISDA CSA_IM_2016 paragraph "13 General Principles"]
+    [docReference ISDA CSA_IM_2018 paragraph "13 General Principles"]
+    Applicable <"The election is applicable.">
+    NotApplicable <"The election is not applicable.">
+    Other <"An alternative approach is described in the document as follows.">
+
+enum SensitivitiesEnum: <"Values to specify the methodology according to which sensitivities to (i) equity indices, funds and ETFs, and (ii) commodity indices are computed.">
+    [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(gg)(2)"]
+    Alternative <"The parties agree that in respect of the relevant sensitivities, the delta is allocated back to individual constituents.">
+    Standard <"The relevant sensitivities are addressed by the standard preferred approach where the entire delta is put into the applicable asset class/category.">
+
+enum RegulatoryRegimeEnum: <"Values to specify the regulatory regimes.">
+    [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" name "Regime"]
+    [docReference ISDA CSA_IM_2018 paragraph "13 General Principles" name "Regime"]
+    AustraliaMarginRules displayName "Australia" <"Australian Prudential Standard CPS 226 Margining and risk mitigation for non-centrally cleared derivatives.">
+    CanadaMarginRules displayName "Canada" <"Guideline E-22, Margin Requirements for Non-Centrally Cleared Derivatives issued by the Canadian Office of the Superintendent of Financial Institutions in February 2016">
+    CFTC_MarginRules displayName "CFTC" <"Margin requirements adopted by the U.S. Commodity Futures Trading Commission pursuant to CEA  4s(e).">
+    EMIR_MarginRules displayName "EMIR" <"Regulation (EU) No 648/2012 of the European Parliament and of the Council of 4 July 2012 on OTC derivatives, central counterparties and trade repositories (including the EMIR RTS, which means the published regulatory technical standards on risk-mitigation techniques for OTC-derivative contracts not cleared by a CCP under Article 11(15) of EMIR).">
+    HongKongMarginRules displayName "Hong Kong" <"Chapter CR-G-14 'Non-centrally Cleared OTC Derivatives Transactions  Margin and Other Risk Mitigation Standards' in the Banking Supervisory Policy Manual issued by the Hong Kong Monetary Authority.">
+    JapanMarginRules displayName "Japan" <"Margin rules adopted by the Financial Services Agency of Japan pursuant to Article 40, Item 2 of the Financial Instruments and Exchange Act (kinyuu shouhin torihiki hou) (Act No. 25 of 1948) and by the Ministry of Agriculture, Forestry and Fisheries and the Ministry of Economy, Trade and Industry pursuant to the Commodity Derivatives Act (shouhin sakimono torihiki hou) (Act No. 239 of 1950) (including their subordinated regulations and the related supervisory guidelines).">
+    US_PrudentialMarginRules displayName "Prudential" <"Margin requirements adopted by a 'prudential regulator' (as defined in CEA  1a(39)) pursuant to CEA  4s(e) and Exchange Act  15F(e).">
+    SEC_MarginRules displayName "SEC" <"Margin requirements adopted by the U.S. Securities and Exchange Commission pursuant to Exchange Act  15F(e).">
+    SingaporeMarginRules displayName "Singapore" <"Guidelines on Margin Requirements for Non-centrally Cleared OTC Derivatives Contracts issued by the Monetary Authority of Singapore (MAS) pursuant to section 321 of the Securities and Futures Act, Chapter 289 of Singapore.">
+    SwitzerlandMarginRules displayName "Switzerland" <"Margin rules adopted by the Swiss Federal Council pursuant to Article 110-111 of the Financial Market Infrastructure Act as well as Articles 100 to 107 and Annexes 3 to 5 of the Financial Market Infrastructure Ordinance.">
+    BrazilMarginRules displayName "Brazil" <"The Central Bank of Brazil margin requirements adopted pursuant to Resolution no. 4,662, of 25 May 2018, enacted by the National Monetary Council.">
+    UnitedKingdomMarginRules displayName "United Kingdom" <"EMIR (including, for the avoidance of doubt, the EMIR RTS) as it forms part of UK domestic law by virtue of section 3 of the European Union (Withdrawal) Act 2018 (as amended) (the EUWA) (including any amendments made to such legislation when it is brought into UK domestic law pursuant to section 8 of the EUWA or any regulations made thereunder), and which, for the avoidance of doubt, shall be subject to the interpretation provision in Paragraph [11(g)].3">
+    SouthAfricaMarginRules displayName "South Africa" <"the requirements contained in Joint Standard 2 of 2020 made in terms of the South African Financial Sector Regulation Act, 2017.">
+    SouthKoreaMarginRules displayName "South Korea" <"Margin requirements adopted by the Korean Financial Services Commission and Financial Supervisory Service pursuant to the Guidelines on Margin Requirements for Non-Centrally Cleared OTC Derivatives Transactions, which are expected to be incorporated into the Financial Investment Services and Capital Markets Act.">
+    HongKongSFCMarginRules displayName "Hong Kong SFC" <"Part III of Schedule 10 to Code of Conduct for Persons Licensed by or Registered with the Securities and Futures Commission of Hong Kong.">
+
+enum MarginApproachEnum: <"Values to specify the margin approach specific to Initial Margin agreements.">
+    [docReference ISDA CSA_IM_NewYork_2018 paragraph "13"]
+    Distinct <"Distinct Margin Flow (IM) Approach">
+    Allocated <"Allocated Margin Flow (IM/IA) Approach">
+    GreaterOf <"Greater of Margin Flow (IM/IA) Approach">
+
+enum InterestAdjustmentPeriodicityEnum:  <"Values to specify the interest adjustment periodicity election through standard language.">
+    [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(n)(ii)"]
+    LastLocalBusinessDayOfMonth <"The interest adjustment takes place on the last local business day of each calendar month">
+    EachDay <"The interest adjustment takes place each day.">
+
+enum IndependentAmountEligibilityEnum: <"The enumerated values to specify the instances where the independent amount eligible collateral is not defined as a set of eligible collateral assets. ">
+    [docReference ISDA FpML_Coding_Scheme schemeLocation "http://www.fpml.org/coding-scheme/independent-amount-eligibility"]
+    None <"None.">
+    NoneUnlessSpecifiedInConfirmation <"None, unless otherwise specified in a Confirmation.">
+
+enum HoldingPostedCollateralEnum: <"The enumerated values to specify condition(s) required by a party from the other party to hold its posted collateral.">
+    [docReference ISDA CSA_VM_2016 paragraph "13 General Principles" clause "(h)(i)" name "Eligibility to Hold Posted Collateral (VM); Custodians (VM)"]
+    [docReference ISDA FpML_Coding_Scheme schemeLocation "http://www.fpml.org/coding-scheme/holding-posted-collateral"]
+    AcceptableCustodian <"The custodian is acceptable to the other party to the agreement.">
+
+enum CollateralAssetDefinitionsEnum:
+    [docReference ISDA CollateralAssetDefinitions_2003]
+    AU_CASH <"Australian Dollar (AUD) Cash.">
+    AU_CIB displayName "AU-CIB" <"Australian Government Securities Capital-Indexed Bonds.">
+    AU_FIB displayName "AU-FIB" <"Australian Semi-Government Securities Fixed Interest Bonds.">
+    AU_FRB displayName "AU-FRB" <"Australian Government Securities Fixed Rate Bonds.">
+    AU_ILB displayName "AU-ILB" <"Australian Semi-Government Securities Index Linked Bonds.">
+    AU_NOTE displayName "AU-NOTE" <"Australian Government Securities Treasury Notes.">
+    AU_STATENOTE displayName "AU-STATENOTE" <"Australian Semi-Government Securities Treasury Notes.">
+    AU_TAB displayName "AU-TAB" <"Australian Government Securities Treasury Adjustable Rate Bonds.">
+    BE_BEL20 displayName "BE-BEL20" <"BEL20 Equity Securities.">
+    BE_CERT displayName "BE-CERT" <"Belgian Treasury Certificates.">
+    BE_LINEAR displayName "BE-LINEAR" <"Belgian Linear Obligations.">
+    BE_NOTE displayName "BE-NOTE" <"Belgian Treasury notes.">
+    BE_REGIONGT displayName "BE-REGIONGT" <"Public sector issues guaranteed by Regional Authorities.">
+    BE_STATEGT displayName "BE-STATEGT" <"Public sector issues guaranteed by the Belgian State.">
+    BE_STATELOAN displayName "BE-STATELOAN" <"Belgian State Loans.">
+    CA_BOND displayName "CA-BOND" <"Canada Bonds.">
+    CA_CASH displayName "CA-CASH" <"Canadian Dollar (CAD) Cash.">
+    CA_RRB displayName "CA-RRB" <"Government of Canada Real Return Bonds.">
+    CA_TBILL displayName "CA-TBILL" <"Government of Canada Treasury Bills.">
+    CH_CANTON displayName "CH-CANTON" <"Public Authority Bond.">
+    CH_CASH displayName "CH-CASH" <"Swiss Franc (CHF) Cash.">
+    CH_FEDBOND displayName "CH-FEDBOND" <"Federal Bond.">
+    DE_BILL displayName "DE-BILL" <"Unverzinsliche Schatzanweisungen (Bills).">
+    DE_BOND displayName "DE-BOND" <"Bundesanleihen (Bonds).">
+    DE_ERBLAST displayName "DE-ERBLAST" <"Negotiable Debt Obligations issued by or taken over and since serviced and managed by the Erblasttilgungsfond (Redemption Fund for Inherited Liabilities) backed by Federal Republic of Germany, including but not limited to former issues of the Treuhandanstalt, the Bundesbahn, the Bundespost, the Economic Recovery Program (ERP), the privatised Federal Railway (Bahn AG), the telecommunications element of the Federal Post Office (Telekom) and the German Unity Fund.">
+    DE_MUNI displayName "DE-MUNI" <"Kommunalschuldverschreib\tungen (Municipal Bonds).">
+    DE_NOTE2 displayName "DE-NOTE2" <"Bundesschatzanweisungen (Notes).">
+    DE_NOTE5_5 displayName "DE-NOTE5.5" <"Bundesobligationen (Notes).">
+    DE_PFAND displayName "DE-PFAND" <"Hypothekenpfandbriefe (Mortgage Bonds).">
+    DK_BILL displayName "DK-BILL" <"Skatkammerbeviser (Treasury Bills).">
+    DK_BOLIGX displayName "DK-BOLIGX" <"BoligX obligationer.">
+    DK_BOND displayName "DK-BOND" <"Statsobligationer (Government Bonds).">
+    DK_CALLMORT displayName "DK-CALLMORT" <"Callable Mortgage Bonds.">
+    DK_CASH displayName "DK-CASH" <"Danish Krone (DKK) Cash.">
+    DK_KFX displayName "DK-KFX" <"KFX Equity Securities.">
+    DK_MORT displayName "DK-MORT" <"Non-callable Mortgage Bonds.">
+    DK_NOTE displayName "DK-NOTE" <"Statsgaeldsbeviser (Treasury Notes).">
+    ES_BILL displayName "ES-BILL" <"Treasury Bills - Letras del Tesoro.">
+    ES_BOND displayName "ES-BOND" <"Public Government Debt.">
+    ES_CEDULAS displayName "ES-CEDULAS" <"Cedulas.">
+    ES_CORP displayName "ES-CORP" <"Corporate Bonds.">
+    ES_EQUITY displayName "ES-EQUITY" <"Equity securities issued by a Spanish company, and listed as an IBEX 35 constituent company as reported by the Sociedad de Bolsas, each share representing the minimum unit of participation of a shareholder in the stock capital of the company.">
+    EU_CASH displayName "EU-CASH" <"Euro (EUR) Cash.">
+    EU_EURO100 displayName "EU-EURO100" <"FTSE Euro 100 Index Equity Securities.">
+    EU_EUROTOP300 displayName "EU-EUROTOP300" <"FTSE Eurotop 300 Index Equity Securities.">
+    EU_STOXX50 displayName "EU-STOXX50" <"EuroSTOXX 50 Index Equity Securities.">
+    EU_STOXX600 displayName "EU-STOXX600" <"STOXX 600 Index Equity Securities.">
+    FI_BILL displayName "FI-BILL" <"Treasury bills.">
+    FI_BOND displayName "FI-BOND" <"Serial bonds (Finnish Government Bond).">
+    FI_HEX displayName "FI-HEX" <"HEX Equity Securities.">
+    FR_BDT displayName "FR-BDT" <"Commercial Paper: (Billet de Trsorerie).">
+    FR_BTAN displayName "FR-BTAN" <"Treasury Notes: Bons du Trsor  Taux Annuel (BTAN).">
+    FR_BTF displayName "FR-BTF" <"Treasury Bills: Bons du Trsor  Taux Fixe (BTF).">
+    FR_OAT displayName "FR-OAT" <"Government bonds: Obligations Assimilables du Trsor (OAT).">
+    FR_STRIP displayName "FR-STRIP" <"STRIPS.">
+    GA_AU_GOV displayName "GA-AU-GOV" <"Generally Accepted Australian Government Obligations.">
+    GA_BE_GOV displayName "GA-BE-GOV" <"Generally Accepted Belgian Government Obligations.">
+    GA_CA_GOV displayName "GA-CA-GOV" <"Generally Accepted Canadian Government Obligations.">
+    GA_CH_GOV displayName "GA-CH-GOV" <"Generally Accepted Swiss Government Obligations.">
+    GA_DE_GOV displayName "GA-DE-GOV" <"Generally Accepted German Government Obligations.">
+    GA_DK_GOV displayName "GA-DK-GOV" <"Generally Accepted Danish Government Obligations.">
+    GA_ES_GOV displayName "GA-ES-GOV" <"Generally Accepted Spanish Government Obligations.">
+    GA_EUROZONE_GOV displayName "GA-EUROZONE-GOV" <"Generally Accepted Euro Zone Government Securities.">
+    GA_EU_GOV displayName "GA-EU-GOV" <"Generally Accepted EU Member State Government Securities.">
+    GA_FI_GOV displayName "GA-FI-GOV" <"Generally Accepted Finnish Government Obligations.">
+    GA_FR_GOV displayName "GA-FR-GOV" <"Generally Accepted French Government Obligations.">
+    GA_G5_GOV displayName "GA-G5-GOV" <"Generally Accepted G5 Government Obligations.">
+    GA_GB_GOV displayName "GA-GB-GOV" <"Generally Accepted British Government Obligations.">
+    GA_HK_GOV displayName "GA-HK-GOV" <"Generally Accepted Hong Kong Government Obligations.">
+    GA_IT_GOV displayName "GA-IT-GOV" <"Generally Accepted Italian Government Obligations.">
+    GA_JP_GOV displayName "GA-JP-GOV" <"Generally Accepted Japanese Government Obligations.">
+    GA_KR_GOV displayName "GA-KR-GOV" <"Generally Accepted Korean Government Obligations.">
+    GA_NL_GOV displayName "GA-NL-GOV" <"Generally Accepted Netherlands Government Obligations.">
+    GA_NO_GOV displayName "GA-NO-GOV" <"Generally Accepted Norwegian Government Obligations.">
+    GA_NZ_GOV displayName "GA-NZ-GOV" <"Generally Accepted New Zealand Government Obligations.">
+    GA_SE_GOV displayName "GA-SE-GOV" <"Generally Accepted Swedish Government Obligations.">
+    GA_SG_GOV displayName "GA-SG-GOV" <"Generally Accepted Singaporean Government Obligations.">
+    GA_US_AGENCY displayName "GA-US-AGENCY" <"Generally Accepted US Agency Obligations.">
+    GA_US_GOV displayName "GA-US-GOV" <"Generally Accepted US Government Obligations.">
+    GA_US_MORTGAGES displayName "GA-US-MORTGAGES" <"Generally Accepted US Mortgage-Backed Obligations.">
+    GB_CASH displayName "GB-CASH" <"British Pound Sterling (GBP) Cash.">
+    GB_DDGILT displayName "GB-DDGILT" <"Double-dated Gilts.">
+    GB_FT100 displayName "GB-FT100" <"FTSE 100 Equity Securities.">
+    GB_FT250 displayName "GB-FT250" <"FTSE 250 Equity Securities.">
+    GB_FT350 displayName "GB-FT350" <"FTSE 350 Equity Securities.">
+    GB_GILT displayName "GB-GILT" <"Conventional Gilts.">
+    GB_INDEXGILT displayName "GB-INDEXGILT" <"Index-Linked Gilts.">
+    GB_PERPGILT displayName "GB-PERPGILT" <"Undated or Perpetual Gilts.">
+    GB_RUMPGILT displayName "GB-RUMPGILT" <"Rump Stock.">
+    GB_SUPR1 displayName "GB-SUPR1" <"Bank of England Euro Bills.">
+    GB_SUPR2 displayName "GB-SUPR2" <"Bank of England Euro Notes.">
+    GB_TBILL displayName "GB-TBILL" <"UK Treasury Bills.">
+    GB_ZEROGILT displayName "GB-ZEROGILT" <"Gilt Strips or Zero Coupon Gilts.">
+    HK_BILL displayName "HK-BILL" <"Hong Kong Government Exchange Fund Bills.">
+    HK_CASH displayName "HK-CASH" <"Hong Kong Dollar (HKD) Cash.">
+    HK_NOTE displayName "HK-NOTE" <"Hong Kong Government Exchange Fund Notes.">
+    IT_BOT displayName "IT-BOT" <"Botbuoni Ordinari del Tesoro (BOT) zero coupon debt securities issued by the Italian Treasury with maturities up to 365 days.">
+    IT_BTP displayName "IT-BTP" <"Buoni del Tesoro Poliennali fixed interest semi-annual debt securities issued by the Italian Treasury with original maturities between 3 and 30 years.">
+    IT_CCT displayName "IT-CCT" <"Certificati di Credito del Tesoro a Cedola Variable (CCT) or floating rate interest bearing debt securities issued by the Italian Treasury.">
+    IT_CORP displayName "IT-CORP" <"Corporate bonds.">
+    IT_CTZ displayName "IT-CTZ" <"Certificati del Tesoro zero coupon debt securities issued by the Italian Treasury with maturities between 18 and 24 months.">
+    IT_MIB30 displayName "IT-MIB30" <"MIB30 Equity Securities.">
+    IT_REP displayName "IT-REP" <"Debt securities issued and marketed by the Republic of Italy outside the Italian market, traded as Eurobonds.">
+    JP_CASH displayName "JP-CASH" <"Japanese Yen (JPY) Cash.">
+    JP_CORPORATE displayName "JP-CORPORATE" <"Corporate bonds including straight bonds.">
+    JP_CP displayName "JP-CP" <"Commercial Paper.">
+    JP_EQUITY displayName "JP-EQUITY" <"Equity securities issued by a Japanese company, each share representing the minimum unit of participation of a partner in the stock capital of the company.">
+    JP_EUROBOND displayName "JP-EUROBOND" <"Yen-denominated foreign bonds.">
+    JP_JGB displayName "JP-JGB" <"Japanese Government Bonds.">
+    KR_BOND displayName "KR-BOND" <"Korean Treasury Bonds.">
+    KR_CASH displayName "KR-CASH" <"Korean Won (KRW) Cash.">
+    KR_EXIM displayName "KR-EXIM" <"Non Korean Won denominated Export-Import Bank of Korea bonds.">
+    KR_KDICKRW displayName "KR-KDICKRW" <"Korean Development Insurance Corporation Bonds (Korean Won denominated).">
+    KR_KDR displayName "KR-KDR" <"Non-Korean Won denominated Korea Development Bank bonds (KDBs).">
+    KR_KEPCO displayName "KR-KEPCO" <"KEPCO bonds.">
+    KR_MSB displayName "KR-MSB" <"Monetary Stabilisation Bonds.">
+    KR_NHC displayName "KR-NHC" <"Non Korean Won denominated Korea National Housing Corporation bonds (KNHCs).">
+    KR_ROK displayName "KR-ROK" <"Non-Korean Won denominated Republic of Korea bonds (ROKs).">
+    NL_AEX displayName "NL-AEX" <"AEX Equity Securities.">
+    NL_BILL displayName "NL-BILL" <"Dutch Treasury Certificates.">
+    NL_BOND displayName "NL-BOND" <"Dutch State Loans.">
+    NO_BOND displayName "NO-BOND" <"Norwegian Government Bonds.">
+    NO_CASH displayName "NO-CASH" <"Norwegian Krone (NOK) Cash.">
+    NO_OBX displayName "NO-OBX" <"OBX Equity Securities.">
+    NO_TBILL displayName "NO-TBILL" <"Norwegian T-Bills.">
+    NZ_BOND displayName "NZ-BOND" <"New Zealand Government Bonds.">
+    NZ_CASH displayName "NZ-CASH" <"New Zealand Dollar (NZD) Cash.">
+    NZ_TBILL displayName "NZ-TBILL" <"New Zealand Government Treasury Bills.">
+    SE_CASH displayName "SE-CASH" <"Swedish Krona (SEK) Cash.">
+    SE_GOVT displayName "SE-GOVT" <"Swedish Government Bonds (SGB).">
+    SE_ILGOVT displayName "SE-ILGOVT" <"Swedish Index Linked Government bonds.">
+    SE_MORT displayName "SE-MORT" <"Swedish Mortgage Bonds.">
+    SE_OMX displayName "SE-OMX" <"OMX Equity Securities.">
+    SE_TBILL displayName "SE-TBILL" <"Swedish Treasury Bills (STB).">
+    SG_BOND displayName "SG-BOND" <"Singapore Government (SGS) Bonds.">
+    SG_CASH displayName "SG-CASH" <"Singapore Dollar (SGD) Cash.">
+    SG_TBILL displayName "SG-TBILL" <"Singapore Government T-Bills (T-Bills).">
+    SU_IADB displayName "SU-IADB" <"Inter-American Development Bank Bonds.">
+    SU_IBRDDN displayName "SU-IBRDDN" <"International Bank for Reconstruction and Development (World Bank) Discount Notes.">
+    SU_IBRDGB displayName "SU-IBRDGB" <"International Bank for Reconstruction and Development (World Bank or IBRD) Global Benchmark Bonds.">
+    US_ARM displayName "US-ARM" <"Adjustable Rate Mortgage (ARM) Bonds.">
+    US_CASH displayName "US-CASH" <"United States of America Dollar (USD) Cash.">
+    US_DERIV displayName "US-DERIV" <"REMICs, CMOs and other derivative structures.">
+    US_DOW displayName "US-DOW" <"Dow Jones Industrial Average Equity Securities.">
+    US_DOW_COMP displayName "US-DOW-COMP" <"Dow Jones Composite Average Equity Securities.">
+    US_DOW_TRAN displayName "US-DOW-TRAN" <"Dow Jones Transportation\tAverage Equity Securities.">
+    US_DOW_UTIL displayName "US-DOW-UTIL" <"Dow Jones Utilities Average Equity Securities.">
+    US_FAMC displayName "US-FAMC" <"Federal Agricultural Mortgage Corp (Farmer Mac) Bonds.">
+    US_FCS displayName "US-FCS" <"Farm Credit System (FCS) Bonds.">
+    US_FCSFAC displayName "US-FCSFAC" <"Farm Credit System Financial Assistance Corporation (FCSFAC) Bonds.">
+    US_FHLB displayName "US-FHLB" <"Callable Agency Debt  Federal Home Loan Bank (FHLB).">
+    US_FHLBNC displayName "US-FHLBNC" <"Non-Callable Federal Home Loan Bank Debt.">
+    US_FHLBNCDN displayName "US-FHLBNCDN" <"Non-Callable Federal Home Loan Bank Discount Notes.">
+    US_FHLMC displayName "US-FHLMC" <"Callable Agency Debt  the Federal Home Loan Mortgage Corporation (FHLMC or Freddie Mac).">
+    US_FHLMCMBS displayName "US-FHLMCMBS" <"Federal Home Loan Mortgage Corporation Certificates  Mortgage Backed Securities.">
+    US_FICO displayName "US-FICO" <"Financing Corp (FICO) Bonds.">
+    US_FNMA displayName "US-FNMA" <"Callable Agency Debt  Federal National Mortgage Association (FNMA or Fannie Mae).">
+    US_FNMAMBS displayName "US-FNMAMBS" <"Federal National Mortgage Association Certificates  Mortgage Backed Securities.">
+    US_GNMA displayName "US-GNMA" <"Callable Agency Debt  Government National Mortgage Association (GNMA).">
+    US_GNMAMBS displayName "US-GNMAMBS" <"Government National Mortgage Association Certificates  Mortgage Backed Securities (GNMA or Ginnie Mae)">
+    US_LEHM_BOND displayName "US-LEHM-BOND" <"Lehman Brothers Credit Bond Index Debt Securities.">
+    US_NAS_100 displayName "US-NAS-100" <"NASDAQ-100 Index Equity Securities.">
+    US_NAS_COMP displayName "US-NAS-COMP" <"NASDAQ Composite Index Equity Securities.">
+    US_NCAD displayName "US-NCAD" <"Non-Callable Agency Debt  Various Issuers.">
+    US_NCADN displayName "US-NCADN" <"Non-Callable Agency Discount Notes  Various Issuers.">
+    US_NYSE_COMP displayName "US-NYSE-COMP" <"NYSE Composite Index Equity Securities.">
+    US_REFCORP displayName "US-REFCORP" <"Resolution Funding Corp (REFCorp) Bonds.">
+    US_SLMA displayName "US-SLMA" <"Student Loan Marketing Association (Sallie Mae) Bonds.">
+    US_STRIP displayName "US-STRIP" <"US Treasury Strips.">
+    US_S_P100 displayName "US-S&P100" <"Standard & Poors 100 Index Equity Securities.">
+    US_S_P400 displayName "US-S&P400" <"Standard & Poors Midcap 400 Equity Securities. corporations that are included within the Standard And Poor's Midcap 400 Index published by Standard And Poor's, a division of The McGraw-Hill Companies, Inc.">
+    US_S_P500 displayName "US-S&P500" <"Standard & Poors 500 Index Equity Securities.">
+    US_S_P600 displayName "US-S&P600" <"Standard & Poors Smallcap 600 Index Equity Securities.">
+    US_TBILL displayName "US-TBILL" <"US Treasury Bills.">
+    US_TBOND displayName "US-TBOND" <"US Treasury Bonds.">
+    US_TIPS displayName "US-TIPS" <"US Treasury Inflation Protected Issues (TIPS).">
+    US_TNOTE displayName "US-TNOTE" <"US Treasury Notes.">
+    US_TVA displayName "US-TVA" <"Tennessee Valley Authority (TVA) Bonds.">
+
+enum AmendmentEffectiveDateEnum: <"The enumerated values to specify the effective date of the Amendment to Termination Currency when specified as a specific date (e.g. the annex date).">
+    [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(t)"]
+    AnnexDate <"The effective date corresponds to the Annex date.">
+    DeedDate <"The effective date corresponds to the Deed date.">
+    AgreementDate <"The effective date corresponds to the Agreement date.">
+    AmendmentEffectiveDate <"The effective date corresponds to the Amendment Effective Date (IM).">
+
+enum AdditionalTypeEnum: <"The enumerated values to specify the Additional Type of transaction that can require the collection or delivery of initial margin under a given regulatory regime for the purposes of Covered Transactions">
+    [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(b)(B)"]
+    NotApplicable <"No Additional Type of transaction is applicable to the regulatory regulatory regime.">
+    EquityOptionOrIndexOption <"Single stock equity option or index option transaction as referred to in the transitional provisions (if any) of the EMIR RTS.">
+    Other
+
+enum ElectiveAmountEnum: <"The enumerated values to specify an elective amount.">
+    Zero <"The elective amount is zero.">
+    Unlimited <"The elective amount has no upper limit.">
+
+enum SecurityInterestObligationsEnum: <"The enumerated values applicable for Security Interest for Obligations.">
+    NotApplicable <"Security Interest for Obligations is not applicable to the Party">
+    AllObligationsOfPartyA displayName "All Obligations of Party A" <"All Obligations of Party A">
+    AllObligationsOfPartyB displayName "All Obligations of Party B" <"All Obligations of Party B">
+    Other <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
+
+enum SecurityInterestObligeeEnum: <"The enumerated values applicable for Security Interest for Obligations Obligee.">
+    PartyA <"Party A.">
+    PartyAOrAffiliate displayName "Party A or any Affiliate of Party A" <"Party A or any Affiliate of Party A.">
+    PartyB <"Party B.">
+    PartyBOrAffiliate displayName "Party B or any Affiliate of Party B" <"Party B or any Affiliate of Party B.">
+    Other <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
+
+enum ThresholdZeroEventEnum: <"The enumerated values for defining the relevant trigger(s) for the threshold to fall to zero.">
+    EventOfDefault <"An Event of Default.">
+    TerminationEvent <"A Termination Event.">
+    TerminationEventAllAffectedTransactions displayName "A Termination Event in respect of which all Transactions are Affected Transactions" <"A Termination Event in respect of which all Transactions are Affected Transactions.">
+    PotentialEventOfDefault <"A Potential Event of Default.">
+    AdditionalTerminationEvent <"An Additional Termination Event (ATE).">
+    Other <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
+
+enum ThresholdRatedPartyEnum: <"The enumerated values applicable where a Rated Party is defined within the Threshold clause.">
+    Party <"Party.">
+    CreditSupportProvider <"Credit Support Provider.">
+    NamedEntity <"A Named Entity.">
+    PartyOrCreditSupportProvider <"The Party or Credit Support Provider.">
+    NamedAffiliate <"A Named Affiliate of the Party.">
+    AllAffiliates displayName "All Affiliates to the Party" <"All Affiliates to the Party.">
+
+enum MTAZeroEventEnum: <"The enumerated values for defining the relevant trigger(s) for the Minimum Transfer Amount (MTA) to fall to zero.">
+    EventOfDefault <"An Event of Default.">
+    TerminationEvent <"A Termination Event.">
+    TerminationEventAllAffectedTransactions displayName "A Termination Event in respect of which all Transactions are Affected Transactions" <"A Termination Event in respect of which all Transactions are Affected Transactions.">
+    PotentialEventOfDefault <"A Potential Event of Default.">
+    AdditionalTerminationEvent <"An Additional Termination Event (ATE).">
+    Other <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
+
+enum MTARatedPartyEnum: <"The enumerated values applicable where a Rated Party is defined within the Minimum Transfer Amount (MTA) clause.">
+    Party <"Party.">
+    CreditSupportProvider <"Credit Support Provider.">
+    NamedEntity <"An Named Entity.">
+    PartyOrCreditSupportProvider <"The Party or Credit Support Provider.">
+    NamedAffiliate <"An Named Affiliate of the Party.">
+    AllAffiliates displayName "All Affiliates to the Party" <"All Affiliates to the Party.">
+
+enum RatingTypeEnum: <"The relevant rating type.">
+    LongTerm <"Long Term Ratings are applicable for the stated Rating Agency.">
+    ShortTerm <"Short Term Ratings are applicable for the stated Rating Agency.">
+
+enum NotRatedByEnum: <"The enumerated values applicable to define the what conditions apply to trigger a Not Rated condition">
+    All <"No rating is available for the Party for any of the stated Rating Agencies.">
+    One <"No rating is available for the Party for any one of the stated Rating Agencies.">
+    Two <"No rating is available for the Party for any two of the stated Rating Agencies.">
+
+enum NumberOfRatingAgenciesEnum: <"The enumerated values to define the number of Rating Agencies that must be considered to meet the rating condition.">
+    All <"Ratings for all defined Rating Agencies will be considered">
+    AnyOne <"Ratings for Any 1 stated Rating Agency will be applicable.">
+    AnyTwo <"Ratings for Any 2 stated Rating Agencies will be applicable.">
+    Other <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
+
+enum LegacyDeliveryReturnAmountEnum: <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be transferred to it as a Delivery or Return Amount.">
+    Standard <"Standard definition applies.">
+    NonStandardRatings <"Election includes non-standard ratings-based langauge.">
+    NonStandardOther <"Election includes non-standard bespoke language.">
+
+enum ValuationTimeEnum: <"The type of time specified for the Valuation Time.">
+    CloseOfBusiness <"The valuation time should be at close of business.">
+    SpecificTime <"The valuation time should be at a specific time.">
+    AsSelected <"The valuation time should be as selected.">
+
+enum ValuationTimeDayEnum: <"The day at which the value of the collateral and obligations to transfer or return collateral are to be calculated relative to the Valuation Date.">
+    PreviousLocalBusinessDay displayName "Previous Local Business Day" <"Should be calculated relative to the previous local business day.">
+    PreviousLocalBusinessDayMarket displayName "Previous Local Business Day (Relevant Market)" <"Should be calculated relative to the previous local business day in the Relevant Market).">
+    PreviousLocalBusinessDayCityOfAgent displayName "Previous Local Business Day (City of Valuation Agent)" <"Should be calculated relative to the previous local business day in the city of the Valuation Agent.">
+    ValuationDate displayName "Valuation Date" <"Should be calculated on the Valuation Date.">
+    AsSelected displayName "As Selected" <"Should be calculated relative to the previous local business day as selected.">
+
+enum ValuationDateDateEnum: <"Defines whether the date of a Valuation is defined by a certain day of the week or a particular date in the month.">
+    Each <"Specific Valuation date frequency.">
+    Last <"Specific Valuation date frequency.">
+    Secondlast displayName "2nd Last" <"Specific Valuation date frequency.">
+    Thirdlast displayName "3rd Last" <"Specific Valuation date frequency.">
+    Fourthlast displayName "4th Last" <"Specific Valuation date frequency.">
+    CalendarDay <"A specific day of the calendar, defined.">
+    AsSelected displayName "As Selected" <"As Selected.">
+
+enum ValuationDateDayEnum extends DayOfWeekEnum: <"Defines the conditions for the day for a Valuation Date.">
+    LocalBusinessDay <"The Date must be a day on which commercial banks are open for general business in the local market.">
+    CalendarDay <"The Date can be a given day on the regular calendar.">
+    NewYorkBankingDay displayName "New York Banking Day" <"The Date must be a New York Banking Day, that is a day, other than a Saturday or Sunday, on which banks are open for general commercial business in New York, USA.">
+
+enum ValuationDateFrequencyEnum: <"The regularity of the event for the Valuation Date.">
+    Daily
+    Weekly
+    Fortnightly
+    Monthly
+    AsAgreed
+    AsSelected
+
+enum ValuationAgentPartyEnum: <"Specification of which party calculating the value of collateral to be delivered or returned.">
+    Party1 displayName "Party 1" <"Party 1 will calculate the value of collateral to be delivered or returned.">
+    Party2 displayName "Party 2" <"Party 2 will calculate the value of collateral to be delivered or returned.">
+    PartyMakingDemand displayName "Party Making the Demand" <"The party making the demand will calculate the value of collateral to be delivered or returned.">
+
+enum LegacyValuationAgentEnum: <"Specifies how the Valuation Agent is determined.">
+    SoleValuationAgent <"There is only a Sole Valuation Agent.">
+    SwitchUponDefault <"Switch of Valuation Agent can occur upon Default.">
+    SwitchUponFailureToPerform <"Switch of Valuation Agent can occur upon failure to perform.">
+    FixedPartyForDisputes <"There is a fixed party for disputes.">
+
+enum LegacyVMCustodianEnum: <"Details of how the Custodian is determined.">
+    NotApplicable <"Not Applicable.">
+    NamedEntity <"A named entity is specified as the Custodian.">
+    AsAdvised1to2 displayName "As advised by Party 1 to Party 2" <"The Custodian as advised by Party 1 to Party 2.">
+    AsAdvised2to1 displayName "As advised by Party 2 to Party 1" <"The Custodian as advised by Party 2 to Party 1.">
+    Party1toParty2 displayName "Party 1 will notify Party 2" <"Party 1 will notify Party 2 of the custodian.">
+    Party2toParty1 displayName "Party 2 will notify Party 1" <"Party 2 will notify Party 1 of the custodian.">
+
+enum LegacyConsentEnum: <"Details of the consent requirements (if any) for Substitution.">
+    ConsentRequired <"Consent is required for Substitution.">
+    NoConsent <"No consent is required for Substitution.">
+    ConsentRequiredNoDelay <"Consent is required, with no unreasonable delay, for Substitution.">
+    TimesAdjusted <"Times adjusted.">
+    NoticeConditions <"Notice conditions apply for Substitution.">
+    CostsApportioned <"Costs apportioned for Substitution.">
+
+enum ExposureScopeProductEnum: <"Description of the relevant derivative transactions excluded from the calculation of exposure.">
+    FXTransactions displayName "FX Transactions" <"FX Transactions.">
+    FXSettlementDate displayName "FX Transaction with Settlement Date" <"FX Transactions with Settlement date.">
+    CurrencyOptionTransactions displayName "Currency Option Transactions" <"Currency Option Transactions.">
+
+enum CreditSupportAmountEnum: <"Specifies whether the meaning of credit support amount follows the pre-print definition or deviates from the standard (either based on a rating or some other methodology).">
+    Standard displayName "Standard" <"The standard definition of the credit support amount applies.">
+    IAFloorGIA displayName "Non-Standard - IA Floor (Less GiverIA)"
+    IAFloorGIATIA displayName "Non-Standard - IA Floor (Less GiverIA and TakerIA)"
+    NonStandardRatings displayName "Non-Standard - Ratings"
+    NonStandardOther displayName "Non-Standard - Other"
+
+enum LegacyResolutionAlternativeEnum: <"Details of the alternative dispute resolution procedure (if any).">
+    NoAlternative <"No Alternative dispute resolution procedure is defined.">
+    SplitDifference <"A split the difference resolution procedure applies.">
+    AdditionalConditions <"Additional Conditions are defined.">
+
+enum ValueCashEnum: <"Details of how cash collateral is valued when resolving disputes.">
+    CashAmount displayName "Cash - Amount Thereof" <"Cash - Amount thereof.">
+    CashPercentage displayName "Cash - Amount Thereof multiplied by Valuation Percentage" <"Cash - amount thereof multiplied by Valuation Percentage.">
+    CashPercentageLessHaircut displayName "Cash - Amount Thereof multiplied by (Valuation Percentage - FX Haircut)" <"Cash - Amount Thereof multiplied by (Valuation Percentage - FX Haircut).">
+    Other <"Exception value.">
+
+enum ValueSecuritiesEnum: <"Details of how securities collateral is valued when resolving disputes">
+    BidPricePercentage displayName "Securities - Bid Price multiplied by Valuation Percentage" <"Securities collateral is valued using the bid price multiplied by the valuation percentage.">
+    BidPricePercentageLessHaircut displayName "Securities - Bid Price multiplied by (Valuation Percentage - FX Haircut)" <"Securities collateral is valued using the bid price multiplied by the valuation percentage less the FX haircut.">
+    MidPricePercentage displayName "Securities - Mid Price multiplied by Valuation Percentage" <"Securities collateral is valued using the mid price multiplied by the valuation percentage.">
+    MidPricePercentageLessHaircut displayName "Securities - Mid Price multiplied by (Valuation Percentage - FX Haircut)" <"Securities collateral is valued using the mid price multiplied by the valuation percentage less the FX haircut.">
+    Other <"Exception value.">
+
+enum CashCTSTimeEnum: <"Details the day on which cash collateral is required to be transferred relative to the Notification Time.">
+    Same <"The cash collateral should be transferred on the same day.">
+    Next <"The cash collateral should be transferred on the next day.">
+    FirstLBD displayName "First Local Business Day" <"The cash collateral should be transferred on the first local business day.">
+    SecondLBD displayName "Second Local Business Day" <"The cash collateral should be transferred on the second local business day.">
+    Other <"Exception value.">
+
+enum SecuritiesCTSTimeEnum: <"Details the day on which securities collateral is required to be transferred relative to the Notification Time.">
+    Same <"The securities collateral should be transferred on the same day.">
+    Next <"The securities collateral should be transferred on the next day.">
+    FirstDay displayName "First Local Business Day" <"The securities collateral should be transferred on the first local business day.">
+    SecondDay displayName "Second Local Business Day" <"The securities collateral should be transferred on the second local business day.">
+    ThirdDay displayName "Third Local Business Day" <"The securities collateral should be transferred on the third local business day.">
+    Other <"Exception value.">
