@@ -1,5 +1,5 @@
 
-# _Legal Agreement Model - Skeleton framework for Trade Association Agreements_
+# _Collateral Model - Concentration Limit Bug_
 
 _Background_
 
