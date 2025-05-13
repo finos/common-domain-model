@@ -14,4 +14,4 @@ This release allows users to set the different types of concentration limits by 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3690](https://github.com/finos/common-domain-model/pull/3690)
+Changes can be reviewed in PR: [3701](https://github.com/finos/common-domain-model/pull/3701)
