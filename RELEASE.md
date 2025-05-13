@@ -1,47 +1,42 @@
-
-# _Legal Agreement Model - Final cleanup of CDM after ISDA Foundations migration_
-
-_Background_
-
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-All ISDA legal IP has been scrubbed from components and hidden behind a `docReference` tag, with the path to legal definitions & descriptions clearly identified and listed. A new legaldocumentation structure is also in place for ISDA Master Agreement components.
-
-_What is being released?_
-
-Following the migration of all ISDA Foundations components, this task will 'clean up' the model where new namespaces or types have been added.
-
-- `EquitySwapMasterConfirmation2018` and its related components are moved to the transaction namespace
-- `BrokerConfirmation` and related enums are moved to `legaldocumentation.transaction`
-- `Agreement` is moved to `legaldocumentation.common`
-- `legaldocumentation.contract` namespace now empty and has been deleted
-- Re-included some descriptions (without any Legal IP) that were wrongly removed from ISDA Foundations
-- Scrubbed all remaining reference to ISDA legal documentation from `legaldocumentation.transaction.type` and replace with `docReference`
-
-_Review directions_
-
-Changes can be reviewed in PR: [#3694](https://github.com/finos/common-domain-model/pull/3694)
-
-# *Legal Agreement Model - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
+# _Event Model - Enrich Corporate Action_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-Following the completion of a new structure under `legaldocumentation` and the addition of `docReference` tags to hide ISDA legal definitions, Master Agreement components are ready for migration.
+This releases enrich the description of Corporate Action, mainly used in Event model (in root path `ObservationInstruction`), with new attributes to represent some information that has been missing so far to ensure exhaustive description of such event from business standpoint.
 
 _What is being released?_
 
-This release migrates the following components relating to an ISDA Master Agreement to the new ISDA namespace under the legaldocumentation structure within CDM.
-- `Master Agreement`
-- `AutomaticEarlyTermination`
-- `AutomaticEarlyTerminationElection`
-- `TerminationCurrency`
-- `TerminationCurrencySelection`
-- `PartyOptionTerminationCurrency`
-- `SpecifiedEntities`
-- `SpecifiedEntity`
+- four new values are added in the list of existing type `CorporateActionTypeEnum` :
+
+    - `BankruptcyOrInsolvency`
+    - `IssuerNationalization`
+    - `Relisting`
+    - `BespokeEvent`
+
+- a set of attributes is added to CorporateAction. all of them have optional cardinality (0..1) :
+    
+   - `recordDate date` (existing type)
+   - `announcementDate date` (existing type)
+   - `informationSource InformationSource` (existing type)
+   - `dividendObservation PriceSchedule` (existing type)
+   - `bespokeEventDescription string` (existing type)
+   - `adjustmentFactor AdjustmentFactor` (new type : see details below)
+  
+- new type `AdjustmentFactor` : to populate the adjustment factor value, as well as to describe the resolvable terms required when calculating an adjustment factor, depending the type of Corporate Action at stake (merger, split, etc.) :
+
+     - compulsory attribute : `value number`  (existing type) : to represent the multipler value applied to the price of the underlier impacted by a Corporate Action. this attribute is compulsory
+     - optional attribute : `calculation PriceAdjustmentFactorCalculationTerms` (new type : see details below)
+
+- new type `PriceAdjustmentFactorCalculationTerms` : to represent the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action ; all attributes are optional, given that the need for populating such terms, depends on the event type of the Corporate Action, and new conditions are added to ensure consistency in the choices that can be made :
+
+    - some attributes are existing types `number` (example `shareForShareRatio`, `shareForRightsRatio`, `dividendRatio`) 
+      - or `Price` (example `rightsSubscriptionPrice`) 
+      - or `string` (example `bespokeCalculationFormula`)
+      
+    - other ones are using new type, such as `SpinOff`, `Merger` and `AccrualFactor` which in turn are-use existing types:
+      - example with `SpinOff` attributes : `Security` is re-used by both `parentCompany` and `childCompany`
+      - `Price` is re-used by both `parentPriceObservation` and `childPriceObservation`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3679](https://github.com/finos/common-domain-model/pull/3679)
+The changes can be reviewed in PR: [#3642](https://github.com/finos/common-domain-model/pull/3642) 
