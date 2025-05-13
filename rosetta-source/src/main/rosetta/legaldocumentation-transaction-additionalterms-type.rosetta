@@ -38,7 +38,7 @@ type Representations:
     additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
     additionalBespokeTerms Clause (0..*)
 
-type IndexAdjustmentEvents:
+type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events">
     [docReference ISDA EquityDerivativesDefinitions_2002]
     indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
     indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
@@ -55,17 +55,17 @@ type DeterminationRolesAndTerms: <"Defines the roles and related terms which doc
 
 type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
     [docReference ISDA SecurityEquitySwapConfirmation_2018]
-    shareForShare ShareExtraordinaryEventEnum (1..1)
-    shareForOther ShareExtraordinaryEventEnum (1..1)
-    shareForCombined ShareExtraordinaryEventEnum (1..1)
+    shareForShare ShareExtraordinaryEventEnum (1..1) <"Shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration.">
+    shareForOther ShareExtraordinaryEventEnum (1..1) <"Shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration.">
+    shareForCombined ShareExtraordinaryEventEnum (1..1) <"Shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration.">
 
-type FxDisruptionEvents:
+type FxDisruptionEvents: <"Additional Provisions for a Confirmation of an FX or Currency Option Transaction">
     [docReference ISDA FXandCurrencyOptionsDefintions_1998 exhibit "II-E"]
-    illegalityOrImpossibility FxIllegalityOrImpossibilityEnum (0..1)
+    illegalityOrImpossibility FxIllegalityOrImpossibilityEnum (0..1) 
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(c).(i)"]
     forceMajeureOrActOfSState FxForceMajeureOrActOfSStateEnum (0..1)
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(c).(ii)"]
-    eventCurrency EventCurrency (0..1)
+    eventCurrency EventCurrency (0..1) <"Additional Provisions for a Confirmation of an FX or Currency Option Transaction.">
         [docReference ISDA FXandCurrencyOptionsDefintions_1998]
     priceSourceDisruption FxPriceSourceDisruption (0..1)
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(xi)"]
@@ -85,7 +85,7 @@ type FxDisruptionEvents:
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(ix)"]
     priceMateriality PriceMateriality (0..1)
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(x)"]
-    fallbackLanguageBespokeTerms Clause (0..1) <"Where parties may optionnaly describe any extra bespoke agreements about fallback procedure attached to a particular determination role.">
+    fallbackLanguageBespokeTerms Clause (0..1) <"Where parties may optionaly describe any extra bespoke agreements about fallback procedure attached to a particular determination role.">
 
 type GovernmentalAuthorityDefault:
     [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.1.(d).(v)"]
@@ -168,7 +168,7 @@ type GeneralInconvertibility:
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
     maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
     nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
-    escrowArrangement EscrowArrangement (0..1)
+    escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective">
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
 
     condition SettlementPostponementExistence:
@@ -187,7 +187,7 @@ type GeneralNonTransferability:
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
     maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
     nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
-    escrowArrangement EscrowArrangement (0..1)
+    escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective">
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
 
     condition SettlementPostponementExistence:
@@ -208,7 +208,7 @@ type SpecificInconvertibility:
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c)" paragraph "(vi)" paragraph "(vii)" paragraph "(viii)"]
     maximumDaysOfDisruption ValuationPostponement (0..1) <"Specifies how long to wait to get a quote from a settlement rate option upon a price source disruption.">
     nonDeliverableSubstitute NonDeliverableSubstitute (0..1)
-    escrowArrangement EscrowArrangement (0..1)
+    escrowArrangement EscrowArrangement (0..1) <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective">
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
 
     condition SettlementPostponementExistence:
@@ -241,7 +241,7 @@ type SpecificNonTransferability:
                 or if nonDeliverableSubstitute exists
                     then localSubstituteProvisionType is absent
 
-type EscrowArrangement:
+type EscrowArrangement: <"Refers to the segregation deposit procedure parties may want to commmit into during the time a Disruption Event is effective">
     [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.2.(c).(iv)"]
     escrowArrangementIsApplicable boolean (1..1)
     maximumDaysOfDisruption ValuationPostponement (0..1)
@@ -253,9 +253,9 @@ type EscrowArrangement:
                 and if escrowArrangementIsApplicable = True
                     then maximumDaysOfDisruption exists
 
-type EventCurrency: 
+type EventCurrency: <"Defines the currency referenced as such in any terms related to FX Disruption Events">
     [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(c)"]
-    eventCurrency string (1..1)
+    eventCurrency string (1..1) <"Defines the currency referenced as such in any terms related to FX Disruption Events">
         [docReference ISDA FXandCurrencyOptionsDefintions_1998 section "5.4.(c)"]
         [metadata scheme]
     eventCurrentAmount Quantity (0..1) <"Defines the Event Currency Amount to be exchanged on the Settlement Date.">

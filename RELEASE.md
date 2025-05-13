@@ -40,4 +40,3 @@ _What is being released?_
 _Review Directions_
 
 The changes can be reviewed in PR: [#3642](https://github.com/finos/common-domain-model/pull/3642) 
-
