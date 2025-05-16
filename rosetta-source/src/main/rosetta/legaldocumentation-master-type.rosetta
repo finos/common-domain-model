@@ -2,10 +2,9 @@ namespace cdm.legaldocumentation.master : <"Master agreement concepts.">
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.asset.*
-import cdm.product.common.schedule.*
-import cdm.product.common.settlement.*
+import cdm.legaldocumentation.master.icma.* as icma
+import cdm.legaldocumentation.master.isda.* as isda
+import cdm.legaldocumentation.master.isla.* as isla
 
 type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
     clause MasterAgreementClause (1..*) <"Clauses that have had elections made against them in this Master Agreement. There must be at least one clause defined in the agreement.">
@@ -42,16 +41,11 @@ type MasterAgreementVariableSet: <"Defines a type where additional variables ass
     condition ValueMustExist: <"If we have a value then we must also have a name.">
         if value exists then name exists
 
-type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+type MasterAgreementBase: <"A set of elections that can be shared across master agreement types - this should be built upon for specific contracts">
 
-    typeOfSwapElection ReturnTypeEnum (1..1) <"Per Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns'">
-    pricingMethodElection PriceReturnTerms (1..1) <"Per Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1">
-    linearInterpolationElection InterpolationMethodEnum (1..1) <"Per Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3">
-    settlementTerms SettlementTerms (1..1) <"Per Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap">
-    valuationDates ValuationDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
-    equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Per Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73">
-
-type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
-
-type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
-
+type MasterAgreementElections: <"A representation of a master agreement extended from a base agreement of shared elections">
+    islaGmsla isla.GlobalMasterSecuritiesLendingAgreement (0..1) <"The set of elections that define a GMSLA">
+    icmaGmra icma.GlobalMasterRepoAgreement (0..1) <"The set of elections that define a GMRA">
+    isdaMaster isda.MasterAgreement (0..1) <"The set of elections that define an ISDA Master Agreement">
+    condition:
+        one-of

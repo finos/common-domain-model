@@ -14,6 +14,13 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  MvnSettings:
+    stage: 'setup'
+    title: Setup Maven settings
+    image: alpine/git
+    commands:
+      - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\""
+
   SetProperties:
     stage: 'setup'
     title: Setup build
@@ -59,12 +66,16 @@ steps:
     working_directory: ./
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - mvn ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - mvn ${{MVN_DEPLOY_FLAGS}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
+      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
   BuildParallelTasks:
     stage: 'build'
     type: parallel
+    when:
+      condition:
+        all:
+          buildPassed: steps.Build.result == 'success'
     steps:
       BuildDaml:
         stage: 'build'
@@ -223,8 +234,8 @@ steps:
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
-      - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} clean deploy -P gpg
+      - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P gpg
 
   DeployPython:
     stage: 'build'
