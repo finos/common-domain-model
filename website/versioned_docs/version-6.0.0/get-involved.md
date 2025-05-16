@@ -26,9 +26,9 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           
 | Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               |
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| David Shone          | ISDA           | OrgRep                                      | dshoneisda           | 
+| Jason Polis          | ISDA           | OrgRep                                      | JasonPolis-ISDA      | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
 | Minesh Patel         | Regnosys       | OrgRep                                      | minesh-s-patel       | 
