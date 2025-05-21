@@ -17,62 +17,63 @@ jobs:
             const statusFieldId = PVTSSF_lADOC-y4YM4AyroxzgomHbc"; // <-- Replace with ID of 'Status' field
             const abandonedOptionId = "a3ed8e08"; // <-- Replace with ID for 'Abandoned' option
 
-            const query = `
-              query {
-                node(id: "${projectId}") {
-                  ... on ProjectV2 {
-                    items(first: 100) {
-                      nodes {
-                        id
-                        content {
-                          ... on Issue {
-                            number
-                            title
-                            state
-                          }
-                        }
-                        fieldValues(first: 10) {
-                          nodes {
-                            ... on ProjectV2ItemFieldSingleSelectValue {
-                              field {
-                                id
-                              }
-                              optionId
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `;
+            # const query = `
+            #   query {
+            #     node(id: "${projectId}") {
+            #       ... on ProjectV2 {
+            #         items(first: 100) {
+            #           nodes {
+            #             id
+            #             content {
+            #               ... on Issue {
+            #                 number
+            #                 title
+            #                 state
+            #               }
+            #             }
+            #             fieldValues(first: 10) {
+            #               nodes {
+            #                 ... on ProjectV2ItemFieldSingleSelectValue {
+            #                   field {
+            #                     id
+            #                   }
+            #                   optionId
+            #                 }
+            #               }
+            #             }
+            #           }
+            #         }
+            #       }
+            #     }
+            #   }
+            # `;
 
-            const result = await github.graphql(query);
-            const items = result.node.items.nodes;
+            # const result = await github.graphql(query);
+            # const items = result.node.items.nodes;
 
-            for (const item of items) {
-              const issue = item.content;
-              if (!issue || issue.state !== "OPEN") continue;
+            # for (const item of items) {
+            #   const issue = item.content;
+            #   if (!issue || issue.state !== "OPEN") continue;
 
-              const statusValue = item.fieldValues.nodes.find(fv => fv.field.id === statusFieldId);
-              if (!statusValue || statusValue.optionId !== abandonedOptionId) continue;
+            #   const statusValue = item.fieldValues.nodes.find(fv => fv.field.id === statusFieldId);
+            #   if (!statusValue || statusValue.optionId !== abandonedOptionId) continue;
 
-              const issue_number = issue.number;
+            #   const issue_number = issue.number;
 
+            #   console.log(`Closing abandoned issue #${issue_number}`);
+
+            #   await github.rest.issues.createComment({
+            #     owner: context.repo.owner,
+            #     repo: context.repo.repo,
+            #     issue_number,
+            #     body: "This issue has been marked as **Abandoned** in the project and will be closed as **Not Planned**.",
+            #   });
+
+            #   await github.rest.issues.update({
+            #     owner: context.repo.owner,
+            #     repo: context.repo.repo,
+            #     issue_number,
+            #     state: "closed",
+            #   });
+            # }
               console.log(`Closing abandoned issue #${issue_number}`);
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                body: "This issue has been marked as **Abandoned** in the project and will be closed as **Not Planned**.",
-              });
-
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number,
-                state: "closed",
-              });
-            }
