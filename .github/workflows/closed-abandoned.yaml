@@ -2,82 +2,20 @@ name: Close Issues Marked as Abandoned (Projects v2)
 
 on:
   workflow_dispatch:  # Allows manual triggering from the GitHub UI
-
+  issues:
+    types:
+      - opened
 jobs:
-  close_abandoned:
+  titlePrefixCheck:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Close Abandoned Issues in Projects v2
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GH_TOKEN }} 
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      # - run: console.log(`Closing abandoned issue #${issue_number}`);
+      - name: Set repo
+        run: gh repo set-default user/private-repo
 
-             # script: |
-            # const projectId = "PVT_kwDOC-y4YM4Ayrox"; // <-- Replace this with your Project V2 Node ID
-            # const statusFieldId = PVTSSF_lADOC-y4YM4AyroxzgomHbc"; // <-- Replace with ID of 'Status' field
-            # const abandonedOptionId = "a3ed8e08"; // <-- Replace with ID for 'Abandoned' option
-
-            # const query = `
-            #   query {
-            #     node(id: "${projectId}") {
-            #       ... on ProjectV2 {
-            #         items(first: 100) {
-            #           nodes {
-            #             id
-            #             content {
-            #               ... on Issue {
-            #                 number
-            #                 title
-            #                 state
-            #               }
-            #             }
-            #             fieldValues(first: 10) {
-            #               nodes {
-            #                 ... on ProjectV2ItemFieldSingleSelectValue {
-            #                   field {
-            #                     id
-            #                   }
-            #                   optionId
-            #                 }
-            #               }
-            #             }
-            #           }
-            #         }
-            #       }
-            #     }
-            #   }
-            # `;
-
-            # const result = await github.graphql(query);
-            # const items = result.node.items.nodes;
-
-            # for (const item of items) {
-            #   const issue = item.content;
-            #   if (!issue || issue.state !== "OPEN") continue;
-
-            #   const statusValue = item.fieldValues.nodes.find(fv => fv.field.id === statusFieldId);
-            #   if (!statusValue || statusValue.optionId !== abandonedOptionId) continue;
-
-            #   const issue_number = issue.number;
-
-            #   console.log(`Closing abandoned issue #${issue_number}`);
-
-            #   await github.rest.issues.createComment({
-            #     owner: context.repo.owner,
-            #     repo: context.repo.repo,
-            #     issue_number,
-            #     body: "This issue has been marked as **Abandoned** in the project and will be closed as **Not Planned**.",
-            #   });
-
-            #   await github.rest.issues.update({
-            #     owner: context.repo.owner,
-            #     repo: context.repo.repo,
-            #     issue_number,
-            #     state: "closed",
-            #   });
-            # }
-            
+      - name: Close Issue
+        run: gh issue close --comment "Auto-closing issue" "1"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
