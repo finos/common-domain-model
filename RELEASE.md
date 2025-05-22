@@ -1,13 +1,13 @@
-# _Reference Data - Update ISOCurrencyCodeEnum_
+# _Infrastructure - update Java version to 21_
 
 _What is being released?_
 
-Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
+The project now builds using `Java 21` for improved tooling, performance, and developer experience.
 
-Version updates include:
-- added value: `XAD`
+_Backwards Compatability
 
+Despite the upgrade to `Java 21`, while the `--release flag` is set to `Java 11`. This ensures continued compatibility with environments running Java 11 and above. This means the `implementor` will `not` be required to change their Java Version, it will work same as before.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#3700](https://github.com/finos/common-domain-model/pull/3700)
+The changes can be reviewed in PR: 
