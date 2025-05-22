@@ -1,12 +1,15 @@
-# _Infrastructure - update Java version to 21_
+# _Infrastructure - Upgrade Java Version_
 
 _What is being released?_
 
-The project now builds using `Java 21` for improved tooling, performance, and developer experience.
+This release updates the project to compile and run using `Java 21`, taking advantage of the latest improvements in the Java platform, including enhanced performance and security updates.
 
-_Backwards Compatability
+_Backwards Compatability_
 
-Despite the upgrade to `Java 21`, while the `--release flag` is set to `Java 11`. This ensures continued compatibility with environments running Java 11 and above. This means the `implementor` will `not` be required to change their Java Version, it will work same as before.
+While the project compiles using `Java 21`, the distributed artifacts remain compatible with `Java 11`. This ensures backward compatibility with `Java 11` (and later) runtime environments.  
+
+- CDM contributors need `Java 21` installed locally to build or contribute to the project
+- CDM implementors do not need to upgrade as the runtime compatibility remains at `Java 11`
 
 _Review directions_
 
