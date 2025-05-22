@@ -1,18 +1,16 @@
-# _Infrastructure - Dependency Update_
+# _Infrastructure - Upgrade Java Version_
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release upgrades the project to compile and run using `Java 21`, taking advantage of the latest improvements in the Java platform, including enhanced performance and security updates.
 
-Version updates include:
-- `DSL` 9.45.3 Fixed highlighting for labels. Fixed generated object processor paths for address and location, see DSL release notes: [DSL 9.45.3](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.46.0 Contains a work-around to handle the issue where the generated code order causes generation to fail with referencing errors, see DSL release notes: [DSL 9.46.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.47.0 Added annotation to mark static code that is implemented in the model, see DSL release notes: [DSL 9.47.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
+_Backwards Compatability_
 
-The changes in this release contain a number of functions in the model now annotated with the `codeImplementation` annotation. This marks that the function has been implemented statically in the model, for example by a Java implementation that exists in the model.
+While the project compiles using `Java 21`, the distributed artifacts remain compatible with `Java 11`. This ensures backward compatibility with `Java 11` (and later) runtime environments.  
 
-The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
+- CDM contributors need `Java 21` installed locally to build or contribute to the project
+- CDM implementors do not need to upgrade as the runtime compatibility remains at `Java 11`
 
-_Review Directions_
+_Review directions_
 
-The changes can be reviewed in PR: [#3632](https://github.com/finos/common-domain-model/pull/3632) 
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3689
