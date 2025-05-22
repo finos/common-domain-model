@@ -10,4 +10,4 @@ Despite the upgrade to `Java 21`, while the `--release flag` is set to `Java 11`
 
 _Review directions_
 
-The changes can be reviewed in PR: 
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3687
