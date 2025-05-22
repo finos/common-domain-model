@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release updates the project to compile and run using `Java 21`, taking advantage of the latest improvements in the Java platform, including enhanced performance and security updates.
+This release upgrades the project to compile and run using `Java 21`, taking advantage of the latest improvements in the Java platform, including enhanced performance and security updates.
 
 _Backwards Compatability_
 
