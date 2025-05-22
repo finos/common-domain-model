@@ -4,6 +4,8 @@ import cdm.base.staticdata.asset.common.ISOCurrencyCodeEnum;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.legaldocumentation.csa.CollateralTransferAgreementElections;
 
+import cdm.legaldocumentation.csa.ElectiveAmountElection;
+import cdm.legaldocumentation.csa.MinimumTransferAmountAmendment;
 import cdm.observable.asset.Money;
 import com.google.common.collect.ImmutableMap;
 import com.regnosys.rosetta.common.translation.Mapping;
