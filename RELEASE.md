@@ -6,10 +6,10 @@ This release upgrades the project to compile and run using `Java 21`, taking adv
 
 _Backwards Compatability_
 
-While the project compiles using `Java 21`, the distributed artifacts remain compatible with `Java 11`. This ensures backward compatibility with `Java 11` (and later) runtime environments.  
+While the project compiles using `Java 21`, the distributed artifacts remain compatible with `Java 8`. This ensures backward compatibility with `Java 8` (and later) runtime environments.  
 
 - CDM contributors need `Java 21` installed locally to build or contribute to the project
-- CDM implementors do not need to upgrade as the runtime compatibility remains at `Java 11`
+- CDM implementors do not need to upgrade as the runtime compatibility remains at `Java 8`
 
 _Review directions_
 
