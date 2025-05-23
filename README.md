@@ -28,7 +28,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
 
 ### Active Working Groups
 
-The following Working Groups are currently active this project:
+The following Working Groups are currently active in this project:
 
 * [CDM Steering Working Group](https://cdm.finos.org/docs/CDM-Steering-WG)
 * [CDM Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
@@ -96,31 +96,14 @@ The CDM Development Guidelines are defined by the Steering Working Group. The fu
 
 ## Getting involved 
 
-Interact with the CDM community
+Ways to interact with the CDM community: 
 
+* **GitHub**: CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
+* **Email**: If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
+* **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-### 
-**GitHub**
-
-CDM activity primarily happens in this [CDM GitHub repository](https://github.com/finos/common-domain-model). [Watch](https://docs.github.com/en/account-and-profile/managing-subscriptions-and-notifications-on-github/setting-up-notifications/configuring-notifications#configuring-your-watch-settings-for-an-individual-repository) the repository in order to be notified of new Pull Requests and issues.
-
-
-### 
-**Email**
-
-If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
-
-
-### 
-**Meetings**
-
-Finally, another great way to interact with the community is to attend the Working Groups.  Eail help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
-
-
-### 
-**Need help?**
-
-Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
+> [!TIP]
+> **Need help?**  Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
 
 ## Roadmap
 
@@ -131,9 +114,13 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 ## Contributing
 
-If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you shoud raise a Pull Request.  
+> [!IMPORTANT]
+> If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you shoud raise a Pull Request.  
 
-Please read our [development guidelines](https://cdm.finos.org/docs/dev-guidelines), [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct). See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).  NOTE: Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA. Need an ICLA? Unsure if you are covered under an existing CCLA? Email help@finos.org.
+Please read our [development guidelines](https://cdm.finos.org/docs/dev-guidelines), [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct). See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).  
+
+> [!NOTE]
+> Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA. Need an ICLA? Unsure if you are covered under an existing CCLA? Email help@finos.org.
 
 ### Contribution Governance
 
@@ -143,7 +130,8 @@ The CDM Governance process defines the roles of the Maintainers and Working Grou
 
 ### Pull Requests via Rosetta
 
-The [Rosetta Design](https://rosetta-technology.io/design) application can be used to contribute to the CDM without setting up any development environment. Rosetta Design’s [source control integration](https://docs.rosetta-technology.io/rosetta/rosetta-products/1-workspace/#source-control-integration) means that a PR is automatically created to a fork of the FINOS CDM under the [Rosetta Models](https://github.com/rosetta-models) GitHub Organisation.
+> [!TIP]
+> The [Rosetta Design](https://rosetta-technology.io/design) application can be used to contribute to the CDM without setting up any development environment. 
 
 Steps:
   1. Create a Workspace for the CDM in Rosetta Design
