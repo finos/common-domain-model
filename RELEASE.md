@@ -43,4 +43,4 @@ This release enriches the description of **Corporate Action** with new attribute
 
 _Review Directions_
 
-Changes can be reviewed in PR #3642
+Changes can be reviewed in PR [#3642](https://github.com/finos/common-domain-model/pull/3642)
