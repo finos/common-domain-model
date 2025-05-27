@@ -2,7 +2,7 @@ package com.regnosys.granite.projector.fpml_5_10;
 
 import cdm.event.common.TradeState;
 import cdm.event.workflow.WorkflowStep;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.granite.ingestor.parser.InputValidationReport;
 import com.regnosys.granite.projector.AbstractTest;
 import com.regnosys.granite.projector.ProjectionReport;

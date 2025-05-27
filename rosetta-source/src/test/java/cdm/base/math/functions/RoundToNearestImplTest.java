@@ -1,7 +1,7 @@
 package cdm.base.math.functions;
 
 import cdm.base.math.RoundingModeEnum;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 

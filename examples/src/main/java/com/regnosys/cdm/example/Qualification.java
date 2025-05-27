@@ -4,7 +4,7 @@ import cdm.product.template.ContractualProduct;
 import cdm.product.template.EconomicTerms;
 import cdm.product.template.Payout;
 import cdm.product.template.meta.EconomicTermsMeta;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.qualify.QualifyResult;
