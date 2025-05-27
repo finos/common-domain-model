@@ -12,7 +12,7 @@ import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.google.inject.Provider;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
