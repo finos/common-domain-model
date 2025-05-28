@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class VectorGrowthOperationImplTest extends AbstractFunctionTest {
 
 	@Inject
-	private final VectorGrowthOperation vectorGrowthOp = new VectorGrowthOperationImpl();
+	private VectorGrowthOperation vectorGrowthOp;
 
 	@Test
 	void shouldApplyOperation() {
