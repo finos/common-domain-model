@@ -13,6 +13,9 @@ The changes in this release contain a number of functions in the model now annot
 
 The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
 
+ - This release also updated `ISOCurrencyCodeEnum`
+   - adding `XAD`
+ 
 _Review Directions_
 
 The changes can be reviewed in PR: [#3632](https://github.com/finos/common-domain-model/pull/3632) 
