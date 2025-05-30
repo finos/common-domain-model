@@ -15,7 +15,7 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import cdm.observable.asset.PriceQuantity;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.finos.cdm.example.AbstractExampleTest;
 import org.finos.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
