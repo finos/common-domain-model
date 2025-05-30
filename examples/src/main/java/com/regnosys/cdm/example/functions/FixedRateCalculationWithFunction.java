@@ -5,7 +5,7 @@ import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.functions.FixedAmount;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.cdm.example.AbstractExample;
 import com.regnosys.cdm.example.InterestRatePayoutCreation;
 import com.rosetta.model.lib.records.Date;

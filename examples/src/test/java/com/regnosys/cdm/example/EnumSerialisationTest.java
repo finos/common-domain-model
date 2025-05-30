@@ -1,6 +1,6 @@
 package com.regnosys.cdm.example;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 class EnumSerialisationTest extends AbstractExampleTest {

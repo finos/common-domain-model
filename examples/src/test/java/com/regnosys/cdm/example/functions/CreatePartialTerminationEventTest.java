@@ -14,7 +14,7 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import cdm.observable.asset.FeeTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import com.regnosys.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;

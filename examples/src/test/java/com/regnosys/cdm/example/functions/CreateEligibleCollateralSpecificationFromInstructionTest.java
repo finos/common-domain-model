@@ -7,7 +7,7 @@ import cdm.base.datetime.PeriodRange;
 import cdm.base.staticdata.asset.common.*;
 import cdm.product.collateral.*;
 import cdm.product.collateral.functions.Create_EligibleCollateralSpecificationFromInstruction;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import com.regnosys.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
