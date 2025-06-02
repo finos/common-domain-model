@@ -1,18 +1,18 @@
-# _Infrastructure - Dependency Update_
+# _CDM Event Model - Decrease to zero_
+
+_Background_
+
+The CDM function `QuantityDecreasedToZero` currently assumes that a decrease has occurred when the quantity is reduced to zero by checking that:
+
+1. The quantity in the after TradeState is zero.
+2. The quantity in the before TradeState is zero or greater.
+
+This leads to incorrectly flagging as decrease cases where both the `before` and `after` quantities are zero, which should not be considered a decrease.
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
-
-Version updates include:
-- `DSL` 9.45.3 Fixed highlighting for labels. Fixed generated object processor paths for address and location, see DSL release notes: [DSL 9.45.3](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.46.0 Contains a work-around to handle the issue where the generated code order causes generation to fail with referencing errors, see DSL release notes: [DSL 9.46.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-- `DSL` 9.47.0 Added annotation to mark static code that is implemented in the model, see DSL release notes: [DSL 9.47.0](https://github.com/finos/rune-dsl/releases/tag/9.45.3)
-
-The changes in this release contain a number of functions in the model now annotated with the `codeImplementation` annotation. This marks that the function has been implemented statically in the model, for example by a Java implementation that exists in the model.
-
-The number of FIS successful mappings has increased due to the processor fix in version 9.45.3 mentioned above.
+This contribution modifies the logic in the `QuantityDecreasedToZero` function so that a decrease is only considered when the before quantity is greater than zero, not equal to zero.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3632](https://github.com/finos/common-domain-model/pull/3632) 
+The changes can be reviewed in PR: [#3635](https://github.com/finos/common-domain-model/pull/3635) 
