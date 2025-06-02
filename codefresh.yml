@@ -69,6 +69,17 @@ steps:
       - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
       - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
 
+  FailBuildPipeline:
+    stage: 'build'
+    title: Fail pipeline if the Maven build failed
+    image: codefresh/cli
+    when:
+      condition:
+        any:
+          mvnBuildFailure: steps.Build.result == 'failure'
+    commands:
+      - exit 1
+
   BuildParallelTasks:
     stage: 'build'
     type: parallel
@@ -277,51 +288,13 @@ steps:
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-json-schema ${{RELEASE_NAME}} zip
       - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-json-schema-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-json-schema -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-json-schema-${{RELEASE_NAME}}.pom
 
-  NotifySlackOnFail:
+  FailDeployPipeline:
     stage: 'finalise'
-    title: Trigger Slack dev channel notification if master build failed
-    image: codefresh/cli
-    when:
-      branch:
-        only:
-          - master
-      condition:
-        any:
-          mvnBuildFailed: steps.Build.result == 'error'
-          buildDamlFailed: steps.BuildDaml.result == 'error'
-          buildScalaFailed: steps.BuildScala.result == 'error'
-          buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
-          buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
-          buildPythonFailed: steps.BuildPython.result == 'error'
-          deployDamlFailed: steps.DeployDaml.result == 'error'
-          deployScalaFailed: steps.DeployScala.result == 'error'
-          deployTypeScriptFailed: steps.DeployTypeScript.result == 'error'
-          deployCSharp8Failed: steps.DeployCSharp8.result == 'error'
-          deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
-          deployGoFailed: steps.DeployGo.result == 'error'
-          deployKotlinFailed: steps.DeployKotlin.result == 'error'
-          deployPythonFailed: steps.DeployPython.result == 'error'
-          deployExcelFailed: steps.DeployExcel.result == 'error'
-          deployJsonSchemaFailed: steps.DeployJsonSchema.result == 'error'
-    commands:
-      - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
-      - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
-      - export SAFE_REPO_NAME='${{CF_REPO_NAME}}'
-      - export REPO_NAME=${SAFE_REPO_NAME:-NoRepo}
-      - export SAFE_COMMIT_MESSAGE='${{CF_COMMIT_MESSAGE}}'
-      - export COMMIT_MESSAGE=${SAFE_COMMIT_MESSAGE:-NoCommitMsg}
-      - echo Author is $SAFE_COMMIT_AUTHOR and commit msg is $SAFE_COMMIT_MESSAGE and repo is $SAFE_REPO_NAME
-      - echo After substitution author is $COMMIT_AUTHOR and commit msg is $COMMIT_MESSAGE and repo is $REPO_NAME
-      - codefresh run slack-notifier -v REPO_NAME="${REPO_NAME}" -v COMMIT_AUTHOR="${COMMIT_AUTHOR}" -v COMMIT_MESSAGE="${COMMIT_MESSAGE}"  --detach
-
-  FailPipeline:
-    stage: 'finalise'
-    title: Fail pipeline if the Maven build failed
+    title: Fail pipeline if the Maven deploy failed
     image: codefresh/cli
     when:
       condition:
         any:
-          mvnBuildFailure: steps.Build.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
