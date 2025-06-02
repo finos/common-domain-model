@@ -1,6 +1,6 @@
 # Community Specification Governance Policy 1.0
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements in this document.
+This document provides the governance policy for specifications and other documents developed using the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements in this document.
 
 The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org/docs/contribution).
 
@@ -8,18 +8,18 @@ The first few sections cover general FINOS community guidelines. Specific rules,
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.
+* 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants. More information about the appointment of a CDM Maintainer can be found [here](maintainers.md).
 
 * 1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the [CDM maintainers via email](https://lists.finos.org/g/cdm-maintainers). If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
   
-* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the Community Specification License. Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
+* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the [Community Specification License](LICENSE.md). Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
 
 * 1.4. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
 
 
 ## 2. Decision Making
 
-* 2.1. Consensus-Based Decision Making. Working Groups make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
+* 2.1. Consensus-Based Decision Making. [Working Groups](working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
 
 * 2.2. Appeal Process. Decisions may be appealed via a pull request or an issue, and that appeal will be considered by the Maintainer in good faith, who will respond in writing within a reasonable time.
 
@@ -63,86 +63,13 @@ The attached deck summarizes the governance guidelines discussed below.
 
 [CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
-The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](major-release-scheduling-guidelines.md) page discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
-### 6.1 Objectives of defining major releases
-
-* To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
-  - Changes to existing functionality that may create challenges for upgrading [testing]
-  - Changes to technology architecture that may create challenges for upgrading
-  - Introduction of major new functionality that may affect how users use CDM going forward
-* To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
-* To promote planned and new CDM capabilities to encourage adoption
-  
-### 6.2 Objectives of defining guidelines for scheduling and approving major releases
-
-* To ensure that major releases are planned, scheduled, and approved in a predictable, consistent, and transparent way
-  - Ensure smoother development
-  - Reduce conflict
-* To ensure that we follow industry best-practices for evolving software.
-  
-### 6.3 Overall Principles for Scheduling Major Releases
-
-* Major releases shall be planned ahead of time and these plans reviewed and approved by the SWG  so that consumers of CDM are aware of the planned changes and can plan for those changes.
-There is a balance between moving too quickly (and creating many changes, potentially discouraging adoption) and moving too slowly (and not addressing major issues in a timely fashion).  The SWG will be tasked with assessing and maintaining that balance and communicating its decisions.  That balance is likely to change over time as the CDM software matures; likely major release frequency will slow down in the future.
-* Part of the role of the guidelines will be to help the CDM SWG to resist pressure to create too many major releases.  However, the guidelines need to provide the SWG with enough flexibility to address major challenges relatively quickly and flexibly when required.
-  * Defining the guidelines is important to implement the above objective
-    
-### 6.4 Detailed Guidelines – Scheduling Major Releases
-
-* No major release will be planned/scheduled  (decision and content) without formal approval at a meeting of the SWG
-  * *Rationale:*  Designation of a major release is an important decision that requires transparency and control
- 
-* The intention is that major releases shall be planned and reviewed at the SWG at least 3 months ahead of the anticipated release date.  
-  * *Rationale:*  Giving the community advance warning of major changes will help CDM users plan for how they will use CDM and avoid major surprises.  It will also help CDM developers plan their own changes
-    
-* It is anticipated that for at least the next several years (say 4-5) at least one major release will be planned each year.
-  * *Rationale:* we anticipate that there will be an accumulation of desired changes that cannot be accommodated within a minor release and we wish to ensure that these can be addressed without undue delay
-    
-* Any addition to the scope/contents of (or technical change to) a planned major release requires SWG approval
-  * *Rationale:*   similar to the above guideline on scheduling major releases
-    
-* If planned scope items for a major release are not available in time for the planned release date, the SWG will need to decide whether to slip the release date or drop the item, based on industry priorities
-  
-* These guidelines can be overridden in exceptional circumstances by a formal vote of the SWG.
-  * *Rationale:*  Sometimes unanticipated issues will come up and we need the ability to move quickly in these cases. However, there should be an explicit decision process when breaking a guideline.
-    
-* These guidelines can be amended by the SWG following a formal review process
-
-### 6.5 Detailed Guidelines – Long Term Planning and Outreach
-
-* Ideally the SWG will establish plans for upcoming major releases for at least the following 9-12 months
-  * *Rationale:*  this provides transparency for the users and potential users of CDM (supporting adoption)
-    
-* Major release schedules shall be published on the CDM GitHub repository once approved by the SWG (in https://github.com/finos/common-domain-model/blob/master/ROADMAP.md)
-  * *Rationale:* as above
-
-### 6.6 Detailed Guidelines – Changes vs.  Major Versions
-
-* Breaking changes (as defined in the change control guidelines) can only be implemented in a major version
-  - *Rationale:* this is required to ensure that within a single major version there is stability across minor versions.
-    
-* Changes (PRs) will be categorized into those that can only be done in major releases (because they contain breaking changes) and others.  PRs requiring a major release shall only be approved for major releases.
-  - *Rationale:* this is necessary to ensure that the meaning of major releases is enforced
-    
-* Even in a new major version, changes that are contrary to the change control guidelines will not be approved unless the SWG executes an exception process.
-  - *Rationale:* this is required to ensure that CDM provides stability across major versions, in terms of functionality that is supported
-
-* When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
-  - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
 ## 7.0 Change Control Guidelines
 
-This section discusses how changes to the CDM are controlled within and between releases, in particular:
+The [Change Control Guidelines](change-control-guidelines.md) page discusses how changes to the CDM are controlled within and between releases.
 
-* Principles
-  * What we are trying to achieve with the change control guidelines; 
-  * What constraints/objectives we have for putting these guidelines in place
-* Rules
-  * The specific rules we want to define and enforce to meet the principles
-* Evaluation methods
-  * How we want to ensure that the rules are evaluated and enforced during development
-  * This includes development processes (e.g. review and approval) as well as automated tooling (e.g. regression test cases)
 
 ## 7.1 Change Control Principles
 
