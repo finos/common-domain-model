@@ -15,4 +15,4 @@ This contribution modifies the logic in the `QuantityDecreasedToZero` function s
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3635](https://github.com/finos/common-domain-model/pull/3635) 
+The changes can be reviewed in PR: [#3757](https://github.com/finos/common-domain-model/pull/3757) 
