@@ -3,7 +3,6 @@ import pytest
 from pydantic import ValidationError
 from rosetta.runtime.utils import ConditionViolationError
 from cdm.base.math.NonNegativeQuantity import NonNegativeQuantity
-from cdm.base.math.CapacityUnitEnum import CapacityUnitEnum
 from cdm.base.math.UnitType import UnitType
 from cdm.base.datetime.Frequency import Frequency
 from cdm.base.datetime.PeriodExtendedEnum import PeriodExtendedEnum
