@@ -190,3 +190,14 @@ components belong to, and those CDM layers are organised from inner- to
 outer-most. 
 
 Please refer to our [Namespaces](namespace.md) page for more information. 
+
+Namespaces have many benefits:
+
+-   Accelerated understanding of the model by allowing users to easily
+    see a high-level view of the model and easily find, select, and
+    study specific areas of interest
+-   Faster and easier to find data types and functions for
+    referencing/use in new components
+-   Allowing for partial adoption of areas of interest in the model
+-   Smaller upgrades representing new versions limited to the name
+    spaces that are impacted
