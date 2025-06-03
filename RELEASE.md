@@ -25,12 +25,14 @@ Version updates include:
 
 This release also updates `BusinessCenterEnum` and `FloatingRateIndexEnum` to keep it in sync with their latest coding schemes.
 
-_Review Directions_
+_Backward Compatibility_
 
-While the project compiles using `Java 21`, the distributed `cdm-java` artifact remains compatible with Java 8. This ensures backward compatibility with `Java 8` (and later) runtime environments.
+While the project compiles using `Java 21`, the distributed artifacts remain compatible with `Java 8`. This ensures backward compatibility with `Java 8` (and later) runtime environments.
 
 - CDM contributors need `Java 21` installed locally to build or contribute to the project
 - CDM implementors do not need to upgrade as the runtime compatibility remains at `Java 8`
+
+_Review Directions_
 
 There are no changes to the test expectations.
 
