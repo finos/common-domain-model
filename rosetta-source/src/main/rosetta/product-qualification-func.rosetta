@@ -5,8 +5,8 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.mapping.config.*
-import cdm.product.template.*
 import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 isProduct root EconomicTerms;
 
@@ -45,10 +45,10 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                                         optionUnderlier -> security -> economicTerms
                                     ) = True
                         else False))
-                        or ((economicTerms -> payout -> forwardPayout only exists or 
-                (economicTerms -> payout -> forwardPayout exists
-                and (economicTerms -> payout -> interestRatePayout exists
-                    or economicTerms -> payout -> cashflow exists)))
+            or ((economicTerms -> payout -> forwardPayout only exists
+                    or (economicTerms -> payout -> forwardPayout exists
+                        and (economicTerms -> payout -> interestRatePayout exists
+                            or economicTerms -> payout -> cashflow exists)))
                 and (forwardUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
                     or forwardUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate
                     or forwardUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> InterestRate))
@@ -87,9 +87,9 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                     // Interest Rate Payout + Performance Payout (Total Return Swap with a debt instrument as underlier or Total Return Swap Index with index as underlier)
             or ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
                 and if performanceUnderlier exists
-                then (performanceUnderlier -> loan -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
-                            or (performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt and 
-                                    performanceUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
+                    then (performanceUnderlier -> loan -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit
+                            or (performanceUnderlier -> security -> securityType = SecurityTypeEnum -> Debt
+                                and performanceUnderlier -> security -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit)
                             or performanceUnderlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Credit))
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
@@ -287,10 +287,11 @@ func Qualify_UnderlierProduct_Equity: <"Qualifies a product as having the Asset 
             or (underlier -> security -> securityType = SecurityTypeEnum -> Fund
                 and underlier -> security -> fundType = FundProductTypeEnum -> OtherFund)
             or underlier -> security -> securityType = SecurityTypeEnum -> Certificate
-            or (underlier -> index exists and (if underlier -> index -> productTaxonomy -> primaryAssetClass exists 
-                                                then  underlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity 
-                                                else True)) // No FpML mappings exist for IndexTypeEnum
-                // Qualifies that the underlier is a basket composed of equity products only
+            or (underlier -> index exists
+                and (if underlier -> index -> productTaxonomy -> primaryAssetClass exists
+                    then underlier -> index -> productTaxonomy -> primaryAssetClass any = AssetClassEnum -> Equity
+                    else True)) // No FpML mappings exist for IndexTypeEnum
+                    // Qualifies that the underlier is a basket composed of equity products only
             or (underlier -> basket exists
                 and (underlier -> basket -> basketConstituent -> security -> securityType any = SecurityTypeEnum -> Equity
                     or underlier -> basket -> basketConstituent -> security -> securityType any = SecurityTypeEnum -> Certificate
@@ -311,7 +312,7 @@ func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset C
         // all underliers must be equity asset class
         Qualify_AssetClass_Equity(economicTerms) = True
             and ( // Interest Rate Payout + Performance Payout (Price Return Swap, Total Return Swap)
-                (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
+            (economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
                 // Performance Payout + Fixed Price Payout (Dividend Swap)
                 or (economicTerms -> payout -> performancePayout, economicTerms -> payout -> fixedPricePayout) only exists
                     // Performance Payout only (Variance, Volatility and Correlation Swap)
@@ -382,12 +383,12 @@ func Qualify_EquitySwap_PriceReturnBasicPerformance_Index: <"Qualifies a product
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
             and // qualifies that there is exactly one performance leg, one interest rate leg and no legs of other types
             ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
-            and economicTerms -> payout -> interestRatePayout count = 1
-            and economicTerms -> payout -> performancePayout count = 1
-            and // qualifies that the performance leg has priceReturnTerms
-            performancePayout -> returnTerms -> priceReturnTerms only exists
-            and // qualifies that underlier is an index
-            performancePayout -> underlier -> index exists)
+                and economicTerms -> payout -> interestRatePayout count = 1
+                and economicTerms -> payout -> performancePayout count = 1
+                and // qualifies that the performance leg has priceReturnTerms
+                performancePayout -> returnTerms -> priceReturnTerms only exists
+                and // qualifies that underlier is an index
+                performancePayout -> underlier -> index exists)
             and (economicTerms -> nonStandardisedTerms is absent or economicTerms -> nonStandardisedTerms = False)
 
 func Qualify_EquitySwap_TotalReturnBasicPerformance_Index: <"Qualifies a product as an Equity Swap for which the performance is based on the price changes and dividend returns on an index.  The determination of the qualification is based on the economic terms and the following criteria: 1) An equity product with one performance leg and one interest leg 2) with the former featuring priceReturnTerms and dividendReturnTerms, 3) the underlier is an index, and 4) there are no option features.">
@@ -1652,9 +1653,9 @@ func Qualify_SecuritiesFinance: <"Qualifies a product as generic Securities Fina
     set is_product:
         economicTerms -> payout -> interestRatePayout only exists
             and economicTerms -> payout -> interestRatePayout count = 1
-            and (economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms 
-            extract payout -> assetPayout only exists
-            ) all = True
+            and (economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> contractualProduct -> economicTerms
+                extract payout -> assetPayout only exists
+                ) all = True
 
 func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedPricePayout, and 3) there are no other payout types.">
     [qualification Product]
@@ -1760,10 +1761,9 @@ func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap (Other) w
     set is_product:
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
-            and 
-            ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
-                    and economicTerms -> payout -> interestRatePayout count = 1
-                    and economicTerms -> payout -> performancePayout count = 1)
+            and ((economicTerms -> payout -> interestRatePayout, economicTerms -> payout -> performancePayout) only exists
+                and economicTerms -> payout -> interestRatePayout count = 1
+                and economicTerms -> payout -> performancePayout count = 1)
             and economicTerms -> nonStandardisedTerms = True
 
 func Qualify_Credit_OptionOther: <"Qualifies a product as an Credit Option (Other) with properties of an Credit Option with non standard terms.">
@@ -1796,7 +1796,7 @@ func Qualify_TotalReturnSwap_Index: <"Qualifies a product as a Total Return Swap
         economicTerms EconomicTerms (1..1)
     output:
         is_product boolean (1..1)
-    
+
     alias performanceUnderlier:
         economicTerms -> payout -> performancePayout only-element -> underlier
 
