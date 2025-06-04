@@ -47,3 +47,17 @@ _Review Directions_
 There are no changes to the test expectations.
 
 The changes can be reviewed in PR: [3735](https://github.com/finos/common-domain-model/pull/3735)
+
+# _Reference Data - Update ISOCurrencyCodeEnum_
+
+_What is being released?_
+
+Updated `ISOCurrencyCodeEnum` based on updated scheme ISO Standard 4217.
+
+Version updates include:
+- added value: `XAD`
+
+
+_Review directions_
+
+The changes can be reviewed in PR: [#3699](https://github.com/finos/common-domain-model/pull/3699)
