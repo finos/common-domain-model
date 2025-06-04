@@ -2,7 +2,7 @@ package cdm.product.qualification.functions;
 
 import cdm.event.common.TradeState;
 import cdm.product.template.EconomicTerms;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 import util.ResourcesUtils;

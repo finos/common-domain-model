@@ -1,6 +1,6 @@
 package com.regnosys.cdm.example.functions;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.cdm.example.AbstractExampleTest;
 import org.junit.jupiter.api.Test;
 
