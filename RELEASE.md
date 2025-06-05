@@ -1,13 +1,13 @@
-# _CDM Event Model - Decrease to zero_
+# _Event Model - TradeState Quantity Decrease update_
 
 _Background_
 
-The CDM function `QuantityDecreasedToZero` currently assumes that a decrease has occurred when the quantity is reduced to zero by checking that:
+The `QuantityDecreasedToZero` function currently assumes that a decrease has occurred when the quantity is reduced to zero by checking that:
 
 1. The quantity in the after TradeState is zero.
 2. The quantity in the before TradeState is zero or greater.
 
-This leads to incorrectly flagging as decrease cases where both the `before` and `after` quantities are zero, which should not be considered a decrease.
+This leads to incorrectly flagging as decreases the cases where both the `before` and `after` quantities are zero, which should not be considered decreases.
 
 _What is being released?_
 
