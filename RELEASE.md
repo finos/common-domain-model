@@ -12,7 +12,7 @@ This release adds descriptions to the recently migrated components. Some descrip
 
 This release also amends formatting and punctuation on all descriptions following feedback on the previous PR [#3693](https://github.com/finos/common-domain-model/pull/3693). 
 
-_Review directions_
+_Review Directions_
 
 Changes can be reviewed in PR: [#3770](https://github.com/finos/common-domain-model/pull/3770)
 
