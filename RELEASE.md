@@ -1,4 +1,4 @@
-# _Legal Documentation - Adding descriptions for migrated components_
+# _Legal Documentation - Descriptions for Migrated Components_
 
 _Background_
 
