@@ -8,7 +8,25 @@ All ISDA Foundations components have since been migrated to CDM as part of issue
 
 _What is being released?_
 
-This release adds descriptions to the recently migrated components. Some descriptions were reinstated after being removed during migration, while others are new and provided by ISDA.
+This release adds descriptions to the recently migrated components. Some descriptions were reinstated after being removed during migration, while others are new and provided by ISDA. Updated components and their attributes:
+- `AccessConditionsElections`
+- `ConditionsPrecedent`
+- `ControlAgreementNecEvent`
+- `ControlAgreementNecEventElection`
+- `CreditSupportObligationsVariationMargin`
+- `CustodyArrangements`
+- `IneligibleCreditSupport`
+- `MarginApproach`
+- `OtherAgreements`
+- `RegimeTerms`
+- `SecurityProviderRightsEvent`
+- `SecurityProviderRightsEventElection`
+- `Substitution`
+- `CSAMinimumTransferAmount`
+- `PostedCreditSupportItemAmount`
+- `UndisputedAdjustedPostedCreditSupportAmount`
+- `CreditSupportAmount`
+
 
 This release also amends formatting and punctuation on all descriptions following feedback on the previous PR [#3693](https://github.com/finos/common-domain-model/pull/3693). 
 
