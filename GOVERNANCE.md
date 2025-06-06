@@ -2,7 +2,7 @@
 
 This document provides the governance policy for specifications and other documents developed using the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) process in a repository (each a “Working Group”). Each [Working Group](docs/working-groups.md) must adhere to the requirements in this document.
 
-The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org/docs/contribution).
+The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org).
 
 ## 1. Roles
 
