@@ -218,44 +218,5 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 ## 9.0 Release Build Approval Guidelines
 
-This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
+The [Maintenance and Release](docs/maintenance-and-release.md) page covers scheduling of minor, development, patch releases, and approvals for all builds and releases.
 
-## 9.1 Development Release Scheduling and Approvals
-* Development releases may be scheduled by the maintainers to optimize development resources, based on the queue of approved PRs
-  * There is no particular desired/expected release frequency; releases may be cut as soon as there is an approved PR, or several PRs may be consolidated into a single release at the convenience of the maintainers and dev staff
-  * *Rationale:*  Development releases are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
-  * Each development release shall require the approval of one maintainer once all the PRs are approved, and the test cases all pass successfully.
-* Development releases shall be reported in brief to the CRWG and the SWG
-
-## 9.2 Major Production Release Build & Release Approvals
-
-* Major production releases will be scheduled by the SWG as described above
-  * *(TODO:  insert a diagram of the promotion process)*
-* Each major production release shall require the approval of two maintainers after the following are complete:
-  * The scope of the major production release is finalized and ratified by the SWG
-  * All approved PRs for the major production release are complete
-  * The SWG reviews the final list of enhancements in the release and signs off on releasing the development version into production
-
-## 9.3 Minor Production Release Scheduling and Approvals
-
-* Minor production releases may be scheduled by the maintainers based on the queue of approved PRs
-* Minor production releases to introduce enhancements should be combined  to minimize the number of production releases, targeting minor production releases to be issued around four weeks or so as long as there is a queue of approved PRs.  (This frequency can be increased in times of urgent need for new functionality).
-  * *Rationale:*   Minimizing the number of production releases will help with supportability, by reducing the number of releases that end users wishing to remain current need to consider, and reducing communications overhead.
-* Each minor production release shall require the approval of two maintainers.
-* Minor production releases shall be reported in brief to the CRWG and the SWG, 
-* A roadmap of anticipated minor production releases shall be reported by the maintainers to the CRWG based on PRs that are in process.
-
-## 9.4  Production Patch Release Scheduling and Approvals
-
-* Production patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approved defect correction PRs, or other non-functional PRs (e.g. security remediations).
-* Production patch releases require the approval of one maintainer
-* Production patch releases shall be reported to the CRWG.
-
- ## 9.5 Summary of Release Approval Requirements
-
-| Type of Release      | Approval Requirement |  Notes                                        |
-| ---------------------| -------------------- |  -------------------------------------------  |
-| Major Release (6.0.0)| 2 maintainers        | Scheduling via SWG; Include analysis of the changes from last major release as part of the approval  |
-| Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
-| Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
-| Development Release (6.0.0-dev.13)| 1 maintainer         | Scheduling is up to the maintainer            |
