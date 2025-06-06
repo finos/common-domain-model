@@ -4,12 +4,11 @@ import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.UnitType;
 import cdm.event.common.Trade;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.*;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
         // set up the interpolateForwardRate to always return 1.5
         binder.bind(InterpolateForwardRate.class).toInstance(new InterpolateForwardRate() {
             @Override
-            protected BigDecimal doEvaluate(ForwardPayout forward) {
+            protected BigDecimal doEvaluate(SettlementPayout settlementPayout) {
                 return BigDecimal.valueOf(1.5);
             }
         });
@@ -69,22 +68,19 @@ class FxMarkToMarketTest extends AbstractFunctionTest {
                         .setCurrency(FieldWithMetaString.builder()
                                 .setValue(curr2)));
         return Trade.builder()
-                .setTradableProduct(TradableProduct.builder()
-                	.setProduct(Product.builder()
-		                .setContractualProduct(ContractualProduct.builder()
-		                        .setEconomicTerms(EconomicTerms.builder()
-		                                .setPayout(Payout.builder()
-		                                        .addForwardPayout(ForwardPayout.builder())))))
-                        .addTradeLot(TradeLot.builder()
-                                .addPriceQuantity(PriceQuantity.builder()
-                                        .addQuantityValue(quantity1)
-                                        .addQuantityValue(quantity2)
-                                        .addPriceValue(Price.builder()
-                                                .setValue(BigDecimal.valueOf(1.234))
-                                                .setUnit(UnitType.builder().setCurrencyValue(curr1))
-                                                .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
-                                                .setPriceExpression(PriceExpression.builder()
-                                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))))
+                .setProduct(NonTransferableProduct.builder()
+                        .setEconomicTerms(EconomicTerms.builder()
+                                .addPayout(Payout.builder()
+                                        .setSettlementPayout(SettlementPayout.builder()))))
+                .addTradeLot(TradeLot.builder()
+                        .addPriceQuantity(PriceQuantity.builder()
+                                .addQuantityValue(quantity1)
+                                .addQuantityValue(quantity2)
+                                .addPriceValue(Price.builder()
+                                        .setValue(BigDecimal.valueOf(1.234))
+                                        .setUnit(UnitType.builder().setCurrencyValue(curr1))
+                                        .setPerUnitOf(UnitType.builder().setCurrencyValue(curr2))
+                                        .setPriceType(PriceTypeEnum.EXCHANGE_RATE))))
                 .build();
     }
 

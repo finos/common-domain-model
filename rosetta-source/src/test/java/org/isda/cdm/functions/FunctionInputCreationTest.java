@@ -1,14 +1,9 @@
 package org.isda.cdm.functions;
 
-import cdm.base.datetime.AdjustableOrAdjustedOrRelativeDate;
-import cdm.base.datetime.AdjustableOrRelativeDate;
-import cdm.base.datetime.Period;
-import cdm.base.datetime.PeriodEnum;
+import cdm.base.datetime.*;
 import cdm.base.math.*;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.base.staticdata.asset.common.*;
-import cdm.base.staticdata.asset.common.metafields.FieldWithMetaProductIdentifier;
-import cdm.base.staticdata.asset.common.metafields.ReferenceWithMetaProductIdentifier;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.base.staticdata.asset.rates.metafields.FieldWithMetaFloatingRateIndexEnum;
 import cdm.base.staticdata.identifier.AssignedIdentifier;
@@ -28,16 +23,16 @@ import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
 import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
-import cdm.observable.asset.metafields.FieldWithMetaFloatingRateOption;
+import cdm.observable.asset.metafields.FieldWithMetaInterestRateIndex;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.ReferenceInformation;
+import cdm.product.collateral.*;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.common.settlement.ScheduledTransferEnum;
 import cdm.product.common.settlement.SettlementDate;
-import cdm.product.template.ContractualProduct;
-import cdm.product.template.Product;
+import cdm.product.template.NonTransferableProduct;
+import cdm.product.template.Payout;
 import cdm.product.template.TradableProduct;
 import cdm.product.template.TradeLot;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -45,7 +40,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.collect.Lists;
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.regnosys.rosetta.common.postprocess.WorkflowPostProcessor;
@@ -55,7 +52,7 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -63,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import util.ResourcesUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,7 +73,7 @@ import java.util.stream.Collectors;
 
 import static org.isda.cdm.functions.FunctionUtils.guard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static util.ResourcesUtils.reKey;
+import static util.ResourcesUtils.*;
 
 class FunctionInputCreationTest {
 
@@ -167,14 +165,6 @@ class FunctionInputCreationTest {
                 "result-json-files/fpml-5-10/products/fx/fx-ex03-fx-fwd.json",
                 Date.parse("2001-11-19"),
                 "cdm-sample-files/functions/business-event/execution/execution-fx-forward-func-input.json");
-    }
-
-    @Test
-    void validateExecutionRepoFixedRateFuncInputJson() throws IOException {
-        validateExecutionFuncInputJson(
-                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
-                Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/business-event/execution/execution-repo-fixed-rate-func-input.json");
     }
 
     @Test
@@ -306,15 +296,6 @@ class FunctionInputCreationTest {
                 null);
     }
 
-    @Test
-    void validateContractFormationRepoFixedRateFuncInputJson() throws IOException {
-        validateContractFormationFuncInputJson(
-                "result-json-files/fpml-5-10/products/repo/repo-ex01-repo-fixed-rate.json",
-                Date.parse("2013-10-29"),
-                "cdm-sample-files/functions/business-event/contract-formation/contract-formation-repo-fixed-rate-func-input.json",
-                null);
-    }
-
     private void validateContractFormationFuncInputJson(String tradeStatePath, Date eventDate, String expectedJsonPath, LegalAgreement legalAgreement) throws IOException {
         TradeState tradeState = ResourcesUtils.getObject(TradeState.class, tradeStatePath);
 
@@ -401,29 +382,27 @@ class FunctionInputCreationTest {
 
     @Test
     void validatePartialTerminationEquitySwapFuncInputJson() throws IOException {
-        // The tradeState input to partial termination is output from increase event
-        CreateBusinessEventInput increaseEquitySwapInput = getIncreaseEquitySwapFuncInputJson();
-        BusinessEvent increaseOutput = runCreateBusinessEventFunc(increaseEquitySwapInput);
-        TradeState increaseTradeState = increaseOutput.getAfter().get(0);
-
-        // Quantity change to terminate tradeLot LOT-1.  Quantity in tradeLot LOT-2 remains unchanged.
-        QuantityChangeInstruction quantityChangeInstruction = QuantityChangeInstruction.builder()
+        // Quantity change to terminate tradeLot LOT-2.  Quantity in tradeLot LOT-1 remains unchanged.
+        // 20 percentage decrease. Output quantity should be 152,080 shares and 5,693,875 USD
+        final QuantityChangeInstruction.QuantityChangeInstructionBuilder quantityChangeInstructionBuilder = QuantityChangeInstruction.builder();
+        QuantityChangeInstruction quantityChangeInstruction = quantityChangeInstructionBuilder
                 .setDirection(QuantityChangeDirectionEnum.DECREASE)
                 .addLotIdentifier(Identifier.builder()
                         .addAssignedIdentifier(AssignedIdentifier.builder()
-                                .setIdentifierValue("LOT-1")))
+                                .setIdentifierValue("LOT-2")))
                 .addChange(PriceQuantity.builder()
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(760400))
+                                        .setValue(BigDecimal.valueOf(152080))
                                         .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setValue(NonNegativeQuantitySchedule.builder()
-                                        .setValue(BigDecimal.valueOf(28469376))
+                                        .setValue(BigDecimal.valueOf(5693875))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD")))));
+        reKey(quantityChangeInstructionBuilder);
 
         validateQuantityChangeFuncInputJson(
-                increaseTradeState,
+                getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots(),
                 Date.of(2021, 11, 11),
                 "cdm-sample-files/functions/business-event/quantity-change/partial-termination-equity-swap-func-input.json",
                 quantityChangeInstruction, FeeTypeEnum.PARTIAL_TERMINATION);
@@ -432,8 +411,86 @@ class FunctionInputCreationTest {
     @Test
     void validateIncreaseEquitySwapFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getIncreaseEquitySwapFuncInputJson();
-
         assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-input.json", actual);
+    }
+
+    @Test
+    void validateIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
+        CreateBusinessEventInput actual = getIncreaseEquitySwapExistingTradeLotFuncInputJson();
+        assertJsonEquals("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-existing-trade-lot-func-input.json", actual);
+    }
+
+    private CreateBusinessEventInput getIncreaseEquitySwapExistingTradeLotFuncInputJson() throws IOException {
+        final Identifier.IdentifierBuilder identifierBuilder = Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2"));
+        QuantityChangeInstruction quantityChangeInstructions = QuantityChangeInstruction.builder()
+                .setDirection(QuantityChangeDirectionEnum.INCREASE)
+                .addLotIdentifier(identifierBuilder).addChange(PriceQuantity.builder()
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-2"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(250000))
+                                        .setUnit(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE)))))
+                // interest rate payout PQ
+                .addChange(PriceQuantity.builder()
+                        .setObservableValue(Observable.builder()
+                                .setIndex(Index.builder()
+                                        .setInterestRateIndex(FieldWithMetaInterestRateIndex.builder()
+                                                .setMeta(createKey("rateOption-1"))
+                                                .setValue(InterestRateIndex.builder()
+                                                        .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                .setIndexTenor(Period.builder()
+                                                                        .setPeriod(PeriodEnum.M)
+                                                                        .setPeriodMultiplier(1)))))))
+                        .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
+                                .setMeta(createKey("quantity-1"))
+                                .setValue(NonNegativeQuantitySchedule.builder()
+                                        .setValue(BigDecimal.valueOf(7500000))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))))
+                        .addPrice(FieldWithMetaPriceSchedule.builder()
+                                .setMeta(createKey("price-1"))
+                                .setValue(PriceSchedule.builder()
+                                        .setValue(BigDecimal.valueOf(0.0020))
+                                        .setUnit(UnitType.builder().setCurrencyValue("USD"))
+                                        .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
+
+        TradeState tradeState = getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(tradeState)
+                .setPrimitiveInstruction(PrimitiveInstruction.builder()
+                        .setQuantityChange(quantityChangeInstructions));
+
+        reKey(instructionBuilder);
+
+        return new CreateBusinessEventInput(
+                Lists.newArrayList(instructionBuilder.build()),
+                null,
+                Date.of(2021, 11, 11),
+                null);
+    }
+
+    private TradeState getQuantityChangeEquitySwapTradeStateWithMultipleTradeLots() throws IOException {
+        TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
+        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeStateBuilder.getTrade();
+        TradeLot.TradeLotBuilder tradeLot1Builder = tradableProductBuilder.getTradeLot().get(0);
+
+        //Take a copy of the trade lot
+        TradeLot.TradeLotBuilder tradeLot2Builder = tradeLot1Builder.build().toBuilder();
+
+        tradeLot1Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-1")));
+        tradeLot2Builder.addLotIdentifier(Identifier.builder()
+                .addAssignedIdentifier(AssignedIdentifier.builder()
+                        .setIdentifierValue("LOT-2")));
+        tradableProductBuilder.addTradeLot(tradeLot2Builder);
+        reKey(tradableProductBuilder);
+        return tradeStateBuilder.build();
     }
 
     /**
@@ -449,14 +506,16 @@ class FunctionInputCreationTest {
                                 .setIdentifierValue("LOT-2")))
                 // equity payout PQ
                 .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .addProductIdentifier(FieldWithMetaProductIdentifier.builder()
-                                        .setMeta(createKey("productIdentifier-1"))
-                                        .setValue(ProductIdentifier.builder()
-                                                .setSource(ProductIdTypeEnum.OTHER)
-                                                .setIdentifier(FieldWithMetaString.builder()
-                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
-                                                        .setValue("SHPGY.O")))))
+                        .setObservableValue(Observable.builder()
+                                .setAsset(Asset.builder()
+                                        .setInstrument(Instrument.builder()
+                                                .setSecurity(Security.builder()
+                                                        .setInstrumentType(InstrumentTypeEnum.EQUITY)
+                                                        .addIdentifier(AssetIdentifier.builder()
+                                                                .setIdentifierType(AssetIdTypeEnum.OTHER)
+                                                                .setIdentifier(FieldWithMetaString.builder()
+                                                                        .setMeta(MetaFields.builder().setScheme("http://www.abc.com/instrumentId"))
+                                                                        .setValue("SHPGY.O")))))))
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-2"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -468,19 +527,26 @@ class FunctionInputCreationTest {
                                         .setValue(BigDecimal.valueOf(30))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOf(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
-                                        .setPriceExpression(PriceExpression.builder()
-                                                .setPriceType(PriceTypeEnum.ASSET_PRICE)
-                                                .setGrossOrNet(GrossOrNetEnum.NET)))))
+                                        .setPriceType(PriceTypeEnum.ASSET_PRICE))))
                 // interest rate payout PQ
                 .addChange(PriceQuantity.builder()
-                        .setObservable(Observable.builder()
-                                .setRateOption(FieldWithMetaFloatingRateOption.builder()
-                                        .setMeta(createKey("rateOption-1"))
-                                        .setValue(FloatingRateOption.builder()
-                                                .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
-                                                .setIndexTenor(Period.builder()
-                                                        .setPeriod(PeriodEnum.M)
-                                                        .setPeriodMultiplier(1)))))
+                        .setObservableValue(Observable.builder()
+                                .setIndex(Index.builder()
+                                        .setInterestRateIndex(
+                                                FieldWithMetaInterestRateIndex.builder()
+                                                        .setMeta(createKey("rateOption-1"))
+                                                        .setValue(InterestRateIndex.builder()
+                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.USD_LIBOR_BBA)
+                                                                        .setIndexTenor(Period.builder()
+                                                                                .setPeriod(PeriodEnum.M)
+                                                                                .setPeriodMultiplier(1))
+                                                                )
+
+                                                        )
+                                        )
+                                )
+                        )
                         .addQuantity(FieldWithMetaNonNegativeQuantitySchedule.builder()
                                 .setMeta(createKey("quantity-1"))
                                 .setValue(NonNegativeQuantitySchedule.builder()
@@ -492,9 +558,8 @@ class FunctionInputCreationTest {
                                         .setValue(BigDecimal.valueOf(0.0020))
                                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                         .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
-                                        .setPriceExpression(PriceExpression.builder()
-                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                .setSpreadType(SpreadTypeEnum.SPREAD)))));
+                                        .setArithmeticOperator(ArithmeticOperationEnum.ADD)
+                                        .setPriceType(PriceTypeEnum.INTEREST_RATE))));
 
         TradeState tradeState = getQuantityChangeEquitySwapTradeState();
 
@@ -503,7 +568,7 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setQuantityChange(quantityChangeInstructions)
                         .setTransfer(getTransferInstruction(tradeState, FeeTypeEnum.INCREASE)));
-
+        reKey(instructionBuilder);
         return new CreateBusinessEventInput(
                 Lists.newArrayList(instructionBuilder.build()),
                 null,
@@ -530,8 +595,8 @@ class FunctionInputCreationTest {
 
     private TransferInstruction.TransferInstructionBuilder getTransferInstruction(TradeState tradeState, FeeTypeEnum feeType) {
         Trade trade = tradeState.getTrade();
-        List<? extends Counterparty> counterparties = trade.getTradableProduct().getCounterparty();
-        UnitType currencyUnitType = trade.getTradableProduct().getTradeLot().stream()
+        List<? extends Counterparty> counterparties = trade.getCounterparty();
+        UnitType currencyUnitType = trade.getTradeLot().stream()
                 .map(TradeLot::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity::getQuantity)
@@ -607,9 +672,8 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json").toBuilder();
 
         Trade.TradeBuilder tradeBuilder = tradeStateBuilder.getTrade();
-        TradableProduct.TradableProductBuilder tradableProductBuilder = tradeBuilder.getTradableProduct();
 
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradableProductBuilder.getTradeLot().get(0);
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeBuilder.getTradeLot().get(0);
         tradeLotBuilder
                 .getPriceQuantity().get(0)
                 .getQuantity().get(0)
@@ -619,12 +683,15 @@ class FunctionInputCreationTest {
                 .getQuantity().get(0)
                 .getValue().setValue(BigDecimal.valueOf(16000.00));
 
-        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders = tradableProductBuilder
-                .getProduct()
-                .getContractualProduct()
-                .getEconomicTerms()
-                .getPayout()
-                .getInterestRatePayout();
+        List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayoutBuilders =
+                tradeBuilder
+                        .getProduct()
+                        .getEconomicTerms()
+                        .getPayout()
+                        .stream()
+                        .map(Payout.PayoutBuilder::getInterestRatePayout)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
         Date effectiveDate = Date.of(2018, 4, 3);
         Date terminationDate = Date.of(2026, 2, 8);
@@ -961,7 +1028,7 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/allocation/allocation-func-input.json", actual);
     }
 
-    ObservationEvent getCreditEventObservationEvent(){
+    ObservationEvent getCreditEventObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
                         .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
@@ -980,6 +1047,7 @@ class FunctionInputCreationTest {
 
         return observationEvent;
     }
+
     @Test
     void validateCreditEventFuncInputJson() throws IOException {
 
@@ -1041,31 +1109,22 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/business-event/credit-event/credit-event-obs-func-input.json", actual);
     }
 
-    ObservationEvent getCorporateActionObservationEvent() {
+    private ObservationEvent getCorporateActionObservationEvent() {
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
-                        .setExDate(Date.of(2009, 2, 1))
-                        .setPayDate(Date.of(2009, 2, 1))
-                        .setUnderlier(Product.builder()
-                                .setSecurity(Security.builder()
-                                        .setSecurityType(SecurityTypeEnum.EQUITY)
-                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-                                                .setValue(ProductIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
-                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-                                                        )
-                                                        .setSource(ProductIdTypeEnum.NAME))
-
-                                        ))
-                                )
-                        )
-
-
+                                .setCorporateActionType(CorporateActionTypeEnum.STOCK_SPLIT)
+                                .setExDate(Date.of(2009, 2, 1))
+                                .setPayDate(Date.of(2009, 2, 1))
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
                 );
-
         return observationEvent;
     }
+
     @Test
     void validateCorporateActionFuncInputJson() throws IOException {
 
@@ -1088,6 +1147,7 @@ class FunctionInputCreationTest {
 
         assertJsonEquals("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-input.json", actual);
     }
+
     @Test
     void validateCorporateActionWithObservationFuncInputJson() throws IOException {
 
@@ -1096,24 +1156,15 @@ class FunctionInputCreationTest {
 
         ObservationEvent observationEvent = ObservationEvent.builder()
                 .setCorporateAction(CorporateAction.builder()
-                        .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
-                        .setExDate(Date.of(2009, 2, 13))
-                        .setPayDate(Date.of(2009, 2, 13))
-                        .setUnderlier(Product.builder()
-                                .setSecurity(Security.builder()
-                                        .setSecurityType(SecurityTypeEnum.EQUITY)
-                                        .setProductIdentifier(Collections.singletonList(ReferenceWithMetaProductIdentifier.builder()
-                                                .setValue(ProductIdentifier.builder()
-                                                        .setIdentifier(FieldWithMetaString.builder()
-                                                                .setValue("VOLKSWAGEN AG VZO O.N.")
-                                                        )
-                                                        .setSource(ProductIdTypeEnum.NAME))
-
-                                        ))
-                                )
-                        )
-
-
+                                .setCorporateActionType(CorporateActionTypeEnum.CASH_DIVIDEND)
+                                .setExDate(Date.of(2009, 2, 13))
+                                .setPayDate(Date.of(2009, 2, 13))
+//                        .setUnderlier(Underlier.builder()
+//                                .setObservableValue(Observable.builder()
+//                                        .setIndex(Index.builder()
+//                                                .setEquityIndex(EquityIndex.builder()
+//                                                        .setAssetClass(AssetClassEnum.EQUITY)
+//                                                        .setNameValue("VOLKSWAGEN AG VZO O.N.")))))
                 );
 
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
@@ -1355,14 +1406,15 @@ class FunctionInputCreationTest {
         tradeStateBuilder.getTrade().addPartyRole(reportingPartyRole);
         // effective and termination date
         List<? extends InterestRatePayout.InterestRatePayoutBuilder> interestRatePayouts = tradeStateBuilder.getTrade()
-                .getTradableProduct()
                 .getProduct()
-                .getContractualProduct()
                 .getEconomicTerms()
                 .getPayout()
-                .getInterestRatePayout();
+                .stream()
+                .map(Payout.PayoutBuilder::getInterestRatePayout)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         interestRatePayouts.stream()
-                .filter(payout -> payout.getRateSpecification().getFloatingRate() != null)
+                .filter(payout -> payout.getRateSpecification().getFloatingRateSpecification() != null)
                 .findFirst()
                 .ifPresent(floatingLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = floatingLeg.getCalculationPeriodDates();
@@ -1370,7 +1422,7 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         interestRatePayouts.stream()
-                .filter(payout -> payout.getRateSpecification().getFixedRate() != null)
+                .filter(payout -> payout.getRateSpecification().getFixedRateSpecification() != null)
                 .findFirst()
                 .ifPresent(fixedLeg -> {
                     CalculationPeriodDates.CalculationPeriodDatesBuilder calculationPeriodDates = fixedLeg.getCalculationPeriodDates();
@@ -1378,7 +1430,7 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         // quantity
-        tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().stream()
+        tradeStateBuilder.getTrade().getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)
                 .map(PriceQuantity.PriceQuantityBuilder::getQuantity)
@@ -1398,7 +1450,7 @@ class FunctionInputCreationTest {
 
     private TradeState getQuantityChangeEquitySwapTradeState() throws IOException {
         TradeState.TradeStateBuilder tradeStateBuilder = ResourcesUtils.getObject(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json").toBuilder();
-        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradableProduct().getTradeLot().get(0);
+        TradeLot.TradeLotBuilder tradeLotBuilder = tradeStateBuilder.getTrade().getTradeLot().get(0);
         tradeLotBuilder.addLotIdentifier(Identifier.builder()
                 .addAssignedIdentifier(AssignedIdentifier.builder()
                         .setIdentifierValue("LOT-1")));
@@ -1415,19 +1467,22 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setIndexTransition(IndexTransitionInstruction.builder()
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(6))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndexValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(6)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.003))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("EUR"))
-                                                .setPriceExpression(PriceExpression.builder()
-                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .setEffectiveDate(Date.of(2000, 10, 3))))
                 .prune();
 
@@ -1450,38 +1505,46 @@ class FunctionInputCreationTest {
                 .setPrimitiveInstruction(PrimitiveInstruction.builder()
                         .setIndexTransition(IndexTransitionInstruction.builder()
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndex(FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
-                                                                .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(3))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndex(
+                                                                                                FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                                        .setValue(FloatingRateIndexEnum.USD_LIBOR_ISDA)
+                                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(6)))))))
+
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.002))
                                                 .setUnit(UnitType.builder().setCurrencyValue("USD"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
-                                                .setPriceExpression(PriceExpression.builder()
-                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .addPriceQuantity(PriceQuantity.builder()
-                                        .setObservable(Observable.builder()
-                                                .setRateOptionValue(FloatingRateOption.builder()
-                                                        .setFloatingRateIndex(
-                                                                FieldWithMetaFloatingRateIndexEnum.builder()
-                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
-                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
-                                                        .setIndexTenor(Period.builder()
-                                                                .setPeriod(PeriodEnum.M)
-                                                                .setPeriodMultiplier(3))))
+                                        .setObservableValue(Observable.builder()
+                                                .setIndex(Index.builder()
+                                                        .setInterestRateIndex(
+                                                                FieldWithMetaInterestRateIndex.builder()
+                                                                        .setValue(InterestRateIndex.builder()
+                                                                                .setFloatingRateIndex(FloatingRateIndex.builder()
+                                                                                        .setFloatingRateIndex(
+                                                                                                FieldWithMetaFloatingRateIndexEnum.builder()
+                                                                                                        .setValue(FloatingRateIndexEnum.EUR_EURIBOR_REUTERS)
+                                                                                                        .setMeta(MetaFields.builder().setScheme("http://www.fpml.org/coding-scheme/floating-rate-index")))
+                                                                                        .setIndexTenor(Period.builder()
+                                                                                                .setPeriod(PeriodEnum.M)
+                                                                                                .setPeriodMultiplier(3)))))))
                                         .addPriceValue(Price.builder()
                                                 .setValue(BigDecimal.valueOf(0.001))
                                                 .setUnit(UnitType.builder().setCurrencyValue("EUR"))
                                                 .setPerUnitOf(UnitType.builder().setCurrencyValue("EUR"))
-                                                .setPriceExpression(PriceExpression.builder()
-                                                        .setPriceType(PriceTypeEnum.INTEREST_RATE)
-                                                        .setSpreadType(SpreadTypeEnum.SPREAD))))
+                                                .setPriceType(PriceTypeEnum.INTEREST_RATE)
+                                                .setArithmeticOperator(ArithmeticOperationEnum.ADD)))
                                 .setEffectiveDate(Date.of(2018, 6, 19))))
                 .prune();
 
@@ -1527,7 +1590,6 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
         // Update quantity to an incorrect value (which is corrected later)
         tradeStateWithIncorrectQuantity.getTrade()
-                .getTradableProduct()
                 .getTradeLot()
                 .stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
@@ -1579,7 +1641,6 @@ class FunctionInputCreationTest {
                 ResourcesUtils.getObject(TradeState.class, tradeStatePath).toBuilder();
         // Update quantity to an incorrect value (which is corrected later)
         tradeStateWithIncorrectQuantity.getTrade()
-                .getTradableProduct()
                 .getTradeLot()
                 .stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
@@ -1642,7 +1703,7 @@ class FunctionInputCreationTest {
                                                   WorkflowStep previousWorkflowStep,
                                                   ActionEnum action) {
         // Create Execution BusinessEvent
-        CreateBusinessEventInput executionBusinessEventInput =  getExecutionFuncInputJson(tradeState.build(), eventDate);
+        CreateBusinessEventInput executionBusinessEventInput = getExecutionFuncInputJson(tradeState.build(), eventDate);
         BusinessEvent businessEvent = runCreateBusinessEventFunc(executionBusinessEventInput);
 
         // Create WorkflowStep
@@ -1749,12 +1810,31 @@ class FunctionInputCreationTest {
         return workflowStep.build();
     }
 
+
+    @Test
+    void validateBondExecutionInput() throws IOException {
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json").toBuilder();
+        BusinessEvent businessEvent = reKey(businessEventBuilder).build();
+        List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/bond-execution-func-input.json", actual);
+    }
+
+    @Test
+    void validateRepoExecutionInput() throws IOException {
+        BusinessEvent.BusinessEventBuilder businessEventBuilder = ResourcesUtils.getObject(BusinessEvent.class, "cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json").toBuilder();
+        BusinessEvent businessEvent = reKey(businessEventBuilder).build();
+        List<Instruction> instruction = (List<Instruction>) businessEvent.getInstruction();
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(instruction, businessEvent.getIntent(), businessEvent.getEventDate(), businessEvent.getEffectiveDate());
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-execution-func-input.json", actual);
+    }
+
     @Test
     void validateRollInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
         AdjustableOrRelativeDate effectiveRollDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-effective-roll-date.json");
         AdjustableOrRelativeDate terminationDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/roll-primitive-instruction-termination-date.json");
-        List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradableProduct().getTradeLot().get(0).getPriceQuantity();
+        List<? extends PriceQuantity> priceQuantity = executionTradeState.getTrade().getTradeLot().get(0).getPriceQuantity();
 
         Create_RollPrimitiveInstruction create_rollPrimitiveInstruction = injector.getInstance(Create_RollPrimitiveInstruction.class);
         PrimitiveInstruction rollPrimitiveInstruction = create_rollPrimitiveInstruction.evaluate(executionTradeState,
@@ -1772,6 +1852,7 @@ class FunctionInputCreationTest {
         CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(rollInstructionBuilder.build()), null, unadjustedRollDate, unadjustedRollDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/roll-input.json", actual);
     }
+
     @Test
     void validateOnDemandRateChangeInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -1788,9 +1869,10 @@ class FunctionInputCreationTest {
 
         reKey(onDemandRateChangeInstructionBuilder);
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput( Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(onDemandRateChangeInstructionBuilder.build()), null, unadjustedEffectiveDate, unadjustedEffectiveDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/on-demand-rate-change-input.json", actual);
     }
+
     @Test
     void validatePairOffInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
@@ -1802,15 +1884,15 @@ class FunctionInputCreationTest {
         Create_PairOffInstruction create_pairOffInstruction = injector.getInstance(Create_PairOffInstruction.class);
 
         List<? extends Instruction> pairOffInstruction = create_pairOffInstruction.evaluate(Lists.newArrayList(executionTradeState, executionTradeState), pairReferenceIdentifierBuilder.build());
-        List<Instruction> rekeyedPairOffInstruction = pairOffInstruction.stream().map(i -> {
-            Instruction.InstructionBuilder instructionBuilder = i.toBuilder();
-            reKey(instructionBuilder);
-            return instructionBuilder.build();
-        }).collect(Collectors.toList());
+        List<Instruction> rekeyedPairOffInstructions = pairOffInstruction.stream()
+                .map(Instruction::toBuilder)
+                .map(b -> reKey(b))
+                .map(Instruction::build)
+                .collect(Collectors.toList());
 
         Date tradeDate = executionTradeState.getTrade().getTradeDate().getValue();
 
-        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstruction, null, tradeDate, tradeDate);
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(rekeyedPairOffInstructions, null, tradeDate, tradeDate);
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/pair-off-input.json", actual);
     }
 
@@ -1860,6 +1942,14 @@ class FunctionInputCreationTest {
     }
 
     @Test
+    void validateShapingPrimitiveInstructionTradeLots() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/shaping-primitive-instruction-trade-lots.json";
+        List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
+        List<TradeLot> actual = build(reKey(tradeLotBuilders));
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
     void validateShapingEventInput() throws IOException {
         TradeState executionTradeState = getRepoExecutionAfterTradeState();
 
@@ -1881,14 +1971,125 @@ class FunctionInputCreationTest {
         assertJsonEquals("cdm-sample-files/functions/repo-and-bond/shaping-input.json", actual);
     }
 
+    @Test
+    void validatePartialDeliveryDeliveredPriceQuantity() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json";
+        List<PriceQuantity.PriceQuantityBuilder> priceQuantityBuilder = toBuilder(ResourcesUtils.getObjectList(PriceQuantity.class, resourceName));
+        List<PriceQuantity> actual = build(reKey(priceQuantityBuilder));
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
+    void validatePartialDeliveryEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-effective-date.json");
+        List<? extends PriceQuantity> deliveredPriceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/partial-delivery-delivered-price-quantity.json");
+
+        Create_PartialDeliveryPrimitiveInstruction create_partialDeliveryPrimitiveInstruction = injector.getInstance(Create_PartialDeliveryPrimitiveInstruction.class);
+        PrimitiveInstruction partialDeliveryPrimitiveInstruction = create_partialDeliveryPrimitiveInstruction.evaluate(executionTradeState, deliveredPriceQuantity).toBuilder();
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(partialDeliveryPrimitiveInstruction);
+
+        reKey(instructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/partial-delivery-input.json", actual);
+    }
+
+    @Test
+    void validateRepriceEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        BigDecimal newAllinPrice = new BigDecimal("101.25");
+        BigDecimal newCashValue = new BigDecimal("9922500.00");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-reprice-effective-date.json");
+
+        Create_RepricePrimitiveInstruction create_repriceInstruction = injector.getInstance(Create_RepricePrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_repriceInstruction.evaluate(executionTradeState, newAllinPrice, newCashValue, effectiveDate).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-reprice-input.json", actual);
+    }
+
+    @Test
+    void validateAdjustmentEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        BigDecimal newAllinPrice = new BigDecimal("99.25");
+        BigDecimal newAssetQuantity = new BigDecimal("10151134");
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-adjustment-effective-date.json");
+
+        Create_AdjustmentPrimitiveInstruction create_adjustmentInstruction = injector.getInstance(Create_AdjustmentPrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_adjustmentInstruction.evaluate(executionTradeState, newAllinPrice, newAssetQuantity, effectiveDate).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-adjustment-input.json", actual);
+    }
+
+    @Test
+    void validateRepoSubstitutionCollateral() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json";
+        Collateral.CollateralBuilder collateralBuilder = ResourcesUtils.getObject(Collateral.class, resourceName).toBuilder();
+        Collateral actual = reKey(collateralBuilder).build();
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
+    void validateRepoSubstitutionPriceQuantity() throws IOException {
+        String resourceName = "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json";
+        List<TradeLot.TradeLotBuilder> tradeLotBuilders = toBuilder(ResourcesUtils.getObjectList(TradeLot.class, resourceName));
+        List<TradeLot> actual = build(reKey(tradeLotBuilders));
+        assertJsonEquals(resourceName, actual);
+    }
+
+    @Test
+    void validateSubstitutionEventInput() throws IOException {
+        TradeState executionTradeState = getRepoExecutionAfterTradeState();
+        AdjustableOrRelativeDate effectiveDate = ResourcesUtils.getObject(AdjustableOrRelativeDate.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-effective-date.json");
+        CollateralPortfolio newCollateralPortfolio = ResourcesUtils.getObject(CollateralPortfolio.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-collateral.json");
+        List<? extends PriceQuantity> priceQuantity = ResourcesUtils.getObjectList(PriceQuantity.class, "cdm-sample-files/functions/repo-and-bond/repo-substitution-price-quantity.json");
+
+        Create_SubstitutionPrimitiveInstruction create_substitutionInstruction = injector.getInstance(Create_SubstitutionPrimitiveInstruction.class);
+        PrimitiveInstruction.PrimitiveInstructionBuilder primitiveInstructionBuilder = create_substitutionInstruction.evaluate(executionTradeState, effectiveDate, newCollateralPortfolio, priceQuantity).toBuilder();
+
+        reKey(primitiveInstructionBuilder);
+
+        Instruction.InstructionBuilder instructionBuilder = Instruction.builder()
+                .setBeforeValue(executionTradeState)
+                .setPrimitiveInstruction(primitiveInstructionBuilder);
+
+        Date eventDate = effectiveDate.getAdjustableDate().getUnadjustedDate();
+
+        CreateBusinessEventInput actual = new CreateBusinessEventInput(Lists.newArrayList(instructionBuilder.build()), null, eventDate, eventDate);
+        assertJsonEquals("cdm-sample-files/functions/repo-and-bond/repo-substitution-input.json", actual);
+    }
+
     private TradeState removeIsdaProductTaxonomy(TradeState tradeState) {
         TradeState.TradeStateBuilder tradeStateBuilder = tradeState.toBuilder();
-        ContractualProduct.ContractualProductBuilder contractualProductBuilder =
-                tradeStateBuilder.getTrade().getTradableProduct().getProduct().getContractualProduct();
-        List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = contractualProductBuilder.getProductTaxonomy().stream()
+        NonTransferableProduct.NonTransferableProductBuilder nonTransferableProductBuilder =
+                tradeStateBuilder.getTrade().getProduct();
+        List<? extends ProductTaxonomy.ProductTaxonomyBuilder> newProductTaxonomies = nonTransferableProductBuilder.getTaxonomy().stream()
                 .filter(taxonomy -> taxonomy.getSource() == null || !taxonomy.getSource().equals(TaxonomySourceEnum.ISDA))
                 .collect(Collectors.toList());
-        contractualProductBuilder.setProductTaxonomy(newProductTaxonomies);
+        nonTransferableProductBuilder.setTaxonomy(newProductTaxonomies);
         return tradeStateBuilder.build();
     }
 
@@ -1897,16 +2098,55 @@ class FunctionInputCreationTest {
         return ResourcesUtils.resolveReferences(removeIsdaProductTaxonomy(executionBusinessEvent.getAfter().get(0)));
     }
 
-    private void assertJsonEquals(String expectedJsonPath, Object actual) throws IOException {
-        String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
-        String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
-        if (!expectedJson.equals(actualJson)) {
-            if (WRITE_EXPECTATIONS) {
-                writeExpectation(expectedJsonPath, actualJson);
+    private static PeriodRange getMaturityRange(int lowerBound, int upperBound) {
+        return PeriodRange.builder()
+                .setLowerBound(getMaturityBound(lowerBound, true))
+                .setUpperBound(getMaturityBound(upperBound, false))
+                .build();
+    }
+
+    private static PeriodRange getMaturityRange(int lowerBound) {
+        return PeriodRange.builder()
+                .setLowerBound(getMaturityBound(lowerBound, true))
+                .build();
+    }
+
+    private static PeriodBound.PeriodBoundBuilder getMaturityBound(int years, boolean inclusive) {
+        return PeriodBound.builder()
+                .setInclusive(inclusive)
+                .setPeriod(Period.builder()
+                        .setPeriodMultiplier(years)
+                        .setPeriod(PeriodEnum.Y));
+    }
+
+    private static EligibleCollateralCriteria getVariableCriteria(double haircutPercentage, PeriodRange maturityRange) {
+        return EligibleCollateralCriteria.builder()
+                .setTreatment(CollateralTreatment.builder()
+                        .setIsIncluded(true)
+                        .setValuationTreatment(CollateralValuationTreatment.builder()
+                                .setHaircutPercentage(BigDecimal.valueOf(haircutPercentage))))
+                .setCollateralCriteria(CollateralCriteria.builder()
+                        .setAssetMaturity(AssetMaturity.builder()
+                                .setMaturityType(MaturityTypeEnum.REMAINING_MATURITY)
+                                .setMaturityRange(maturityRange))
+                )
+                .build();
+    }
+
+    private void assertJsonEquals(String expectedJsonPath, Object actual) {
+        try {
+            String actualJson = STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual);
+            String expectedJson = ResourcesUtils.getJson(expectedJsonPath);
+            if (!expectedJson.equals(actualJson)) {
+                if (WRITE_EXPECTATIONS) {
+                    writeExpectation(expectedJsonPath, actualJson);
+                }
             }
+            assertEquals(expectedJson, actualJson,
+                    "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        assertEquals(expectedJson, actualJson,
-                "The input JSON for " + Paths.get(expectedJsonPath).getFileName() + " has been updated (probably due to a model change). Update the input file");
     }
 
     private void writeExpectation(String writePath, String json) {

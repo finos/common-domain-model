@@ -4,16 +4,17 @@ import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
-import cdm.base.math.NonNegativeQuantity;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.Money;
 import cdm.product.asset.FloatingRateSpecification;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -33,9 +34,12 @@ class FloatingAmountTest extends AbstractFunctionTest {
 
     private static final InterestRatePayout INTEREST_RATE_PAYOUT = InterestRatePayout.builder()
             .setRateSpecification(RateSpecification.builder()
-                    .setFloatingRate(FloatingRateSpecification.builder()
-                            .setRateOptionValue(FloatingRateOption.builder()
-                                    .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA))
+                    .setFloatingRateSpecification(FloatingRateSpecification.builder()
+                            .setRateOptionValue(
+                                    InterestRateIndex.builder()
+                                            .setFloatingRateIndex(
+                                                    FloatingRateIndex.builder()
+                                                            .setFloatingRateIndexValue(FloatingRateIndexEnum.GBP_LIBOR_BBA)))
                             .build())
                     .build())
             .setDayCountFraction(FieldWithMetaDayCountFractionEnum.builder().setValue(DayCountFractionEnum._30E_360).build())

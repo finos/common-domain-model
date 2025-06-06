@@ -1,51 +1,63 @@
 namespace cdm.event.common : <"Business event concepts: primitives, contract state and associated state transition function specifications.">
 version "${project.version}"
 
+import cdm.base.*
+
 enum ConfirmationStatusEnum: <"Enumeration for the different types of confirmation status.">
-	Confirmed
-	Unconfirmed
+    Confirmed
+    Unconfirmed
 
 enum AffirmationStatusEnum: <"Enumeration for the different types of affirmation status.">
-	Affirmed
-	Unaffirmed
-	
+    Affirmed
+    Unaffirmed
+
 enum ExecutionTypeEnum: <"The enumerated values to specify how a contract has been executed, e.g. electronically, verbally, ...">
-	Electronic <"Execution via electronic execution facility, derivatives contract market, or other electronic message such as an instant message.">
-	OffFacility <"Bilateral execution between counterparties not pursuant to the rules of a SEF or DCM.">
-	//ICMA-P2
-	OnVenue <"Execution via a platform that may or may not be covered by a regulatory defintion. OnVenue is intended to distinguish trades executed on a trading platform from those executed via phone, email or messaging apps. The role and details of the venue are included in the party attribute of the trade. The general rule is that if the parties utilitzed the services of the platform to execute the trade then it would be considered OnVenue.">
-	
+    Electronic <"Execution via electronic execution facility, derivatives contract market, or other electronic message such as an instant message.">
+    OffFacility <"Bilateral execution between counterparties not pursuant to the rules of a SEF or DCM.">
+    // ICMA-P2
+    OnVenue <"Execution via a platform that may or may not be covered by a regulatory defintion. OnVenue is intended to distinguish trades executed on a trading platform from those executed via phone, email or messaging apps. The role and details of the venue are included in the party attribute of the trade. The general rule is that if the parties utilitzed the services of the platform to execute the trade then it would be considered OnVenue.">
+
 enum ActionEnum: <"The enumeration values to specify the actions associated with transactions.">
-	New <"A new instance of a transaction event, which is also characterized by the fact that the eventIdentifier has an associated version 1.">
-	Correct <"A correction of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
-	Cancel <"A cancellation of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
+    New <"A new instance of a transaction event, which is also characterized by the fact that the eventIdentifier has an associated version 1.">
+    Correct <"A correction of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
+    Cancel <"A cancellation of a prior instance of the transaction event. The eventIdentifier has an associated version greater than 1.">
 
 enum AssetTransferTypeEnum: <"The qualification of the type of asset transfer.">
-	FreeOfPayment <"The transfer of assets takes place without a corresponding exchange of payment.">
+    FreeOfPayment <"The transfer of assets takes place without a corresponding exchange of payment.">
 
 enum EventIntentEnum: <"The enumeration values to qualify the intent associated with a transaction event.">
-	Allocation <"The intent is to allocate one or more trades as part of an allocated block trade.">
-	CashFlow <"The intent is to designate a stand-alone cash transfer as a result of Trade contracual terms e.g. incurred by payout for instance a Performance Amount or a Floating Rate Amount. The particular CashFlow at stake shall be further specified in priceTransferEnum or transferTypeEnum. For clarity, such intentEnum value shall not be used whenever a cash transfer is not stand-alone but is instead embedded in another Event as part of the composable modelling e.g. Decrease with Fees, Cross-Currency Notional Reset, etc. or any other Event whenever including a cash transfer with other features. For clarity, a principal payment related to a Principal Exhange is excluded as well, because a dedicated intentEnum value exists for this event i.e. PrincipalExchange value.">
-	Clearing <"The intent is to clear the contract.">
-	Compression <"The intent is to compress multiple trades as part of a netting or compression event.">
-	ContractFormation <"The intent is to form a contract from an execution.">
-	ContractTermsAmendment <"The intent is to amend the terms of the contract through renegotiation.">
-	CorporateActionAdjustment <"The intent is to take into effect the occurrence of a Corporate Action and the particular Corporate Action at stake shall be further specified in CorporateActionTypeEnum.">
-	CreditEvent <"The intent is to take into effect the occurrence of a Credit Event.">
-	Decrease <"The intent is to Decrease the quantity or notional of the contract.">
+    Allocation <"The intent is to allocate one or more trades as part of an allocated block trade.">
+    CashFlow <"The intent is to designate a stand-alone cash transfer as a result of Trade contracual terms e.g. incurred by payout for instance a Performance Amount or a Floating Rate Amount. The particular CashFlow at stake shall be further specified in priceTransferEnum or transferTypeEnum. For clarity, such intentEnum value shall not be used whenever a cash transfer is not stand-alone but is instead embedded in another Event as part of the composable modelling e.g. Decrease with Fees, Cross-Currency Notional Reset, etc. or any other Event whenever including a cash transfer with other features. For clarity, a principal payment related to a Principal Exhange is excluded as well, because a dedicated intentEnum value exists for this event i.e. PrincipalExchange value.">
+    Clearing <"The intent is to clear the contract.">
+    Compression <"The intent is to compress multiple trades as part of a netting or compression event.">
+    ContractFormation <"The intent is to form a contract from an execution.">
+    ContractTermsAmendment <"The intent is to amend the terms of the contract through renegotiation.">
+    CorporateActionAdjustment <"The intent is to take into effect the occurrence of a Corporate Action and the particular Corporate Action at stake shall be further specified in CorporateActionTypeEnum.">
+    CreditEvent <"The intent is to take into effect the occurrence of a Credit Event.">
+    Decrease <"The intent is to Decrease the quantity or notional of the contract.">
     EarlyTerminationProvision <"The intent is to fully unwind the Trade, as a result of the application of Trade contractual terms (e.g. an obligation to do so before Termination Date as part of any kind of Early Termination terms) as defined within the CDM EarlyTerminationProvision data type. Accordingly, increase and decrease of positions which result from negotiation by the parties shall not be designated by such intentEnum. For clarity, partial exercise of an option before its expiration date is excluded as well, though related to Trade contract terms, because a dedicated intentEnum value exists for this event i.e. OptionExercise value.">
-	Increase <"The intent is to Increase the quantity or notional of the contract.">
-	IndexTransition <"The intent is to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any). ">
+    Increase <"The intent is to Increase the quantity or notional of the contract.">
+    IndexTransition <"The intent is to replace an interest rate index by another one during the life of a trade and add a transition spread on top of this index (and on top of the spreads already defined in the trade, if any). ">
     NotionalReset <"The intent is to increase or to decrease the notional of the Trade, in accordance with Notional Reset features e.g. could apply for Cross Currency Swaps, Equity Performance Swaps, etc.">
-	NotionalStep <"The intent is to increase or to decrease the notional of the Trade, in accordance with Step features attached to a Payout Quantity.">
-	Novation <"The intent is to novate the contract.">
-	ObservationRecord <"The intent is to record any kind of stand-alone obervervations e.g. internal data recording, usage of CDM for recording and/or exchanging data as part of pricing 'consensus' processing, etc. For clarity, such intentEnum value shall not be used whenever an observation is not stand-alone but is instead embedded in another Event as part of the composable modelling e.g. CashFlow to which an observation of prices is associated, etc.">
+    NotionalStep <"The intent is to increase or to decrease the notional of the Trade, in accordance with Step features attached to a Payout Quantity.">
+    Novation <"The intent is to novate the contract.">
+    ObservationRecord <"The intent is to record any kind of stand-alone obervervations e.g. internal data recording, usage of CDM for recording and/or exchanging data as part of pricing 'consensus' processing, etc. For clarity, such intentEnum value shall not be used whenever an observation is not stand-alone but is instead embedded in another Event as part of the composable modelling e.g. CashFlow to which an observation of prices is associated, etc.">
     OptionExercise <"The intent is to Exercise a contract that is made of one or several option payout legs. For clarity, such intentEnum value shall not be used whenever an optional right is exercised in relation with a Trade which composition includes other types of payout legs e.g. right to call or to cancel before Termination Date as part of any kind of Early Termination terms other than genuine bermuda or american style features described in option payout. ">
-	OptionalExtension <"The intent is to extend the trade through exercise of an optional right as defined within the CDM OptionProvision data type.">
-	OptionalCancellation <"The intent is to cancel the trade through exercise of an optional right as defined within the CDM OptionProvision data type.">
-	PrincipalExchange <"The intent is to pay or to receive a cash transfer, in accordance with Principal Exchange features.">
-	Reallocation <"The intent is to reallocate one or more trades as part of an allocated block trade.">
-	Repurchase <"The intent is to close a repo transaction through repurchase.">
+    OptionalExtension <"The intent is to extend the trade through exercise of an optional right as defined within the CDM OptionProvision data type.">
+    OptionalCancellation <"The intent is to cancel the trade through exercise of an optional right as defined within the CDM OptionProvision data type.">
+    PortfolioRebalancing <"The intent is to rebalance a portfolio, by inserting new derivatives transactions into portfolios of participants to reduce risks linked to those trades. These are offsetting trades that rebalance relationships between different counterparties when it comes to exposure of portfolios to certain types of risk, such as interest rate risk.">
+    PrincipalExchange <"The intent is to pay or to receive a cash transfer, in accordance with Principal Exchange features.">
+    Reallocation <"The intent is to reallocate one or more trades as part of an allocated block trade.">
+    Repurchase <"The intent is to close a repo transaction through repurchase.">
+
+enum PositionEventIntentEnum:
+    PositionCreation <"The intent is to form a position from a fully formed contract.">
+    CorporateActionAdjustment <"The intent is to take into effect the occurrence of a Corporate Action and the particular Corporate Action at stake shall be further specified in CorporateActionTypeEnum.">
+    Decrease <"The intent is to Decrease the quantity of the position.">
+    Increase <"The intent is to Increase the quantity of the position.">
+    Transfer <"The intent is to transfer the position to another clearing member.">
+    OptionExercise <"The intent is to Exercise a position or part of a position.">
+    Valuation <"The intent is to update the valuation of the position.">
 
 enum RecordAmountTypeEnum: <"The enumeration of the account level for the billing summary.">
     AccountTotal
@@ -53,90 +65,115 @@ enum RecordAmountTypeEnum: <"The enumeration of the account level for the billin
     ParentTotal
 
 enum TransferStatusEnum: <"The enumeration values to specify the transfer status.">
-	Disputed <"The transfer is disputed.">
-	Instructed <"The transfer has been instructed.">
-	Pending <"The transfer is pending instruction.">
-	Settled <"The transfer has been settled.">
-	Netted <"The transfer has been netted into a separate Transfer.">
+    Disputed <"The transfer is disputed.">
+    Instructed <"The transfer has been instructed.">
+    Pending <"The transfer is pending instruction.">
+    Settled <"The transfer has been settled.">
+    Netted <"The transfer has been netted into a separate Transfer.">
 
 enum InstructionFunctionEnum: <"The enumeration values indicating the BusinessEvent function associated input instructions.">
-	Execution
-	ContractFormation
-	QuantityChange
-	Renegotiation
-	Compression
+    Execution
+    ContractFormation
+    QuantityChange
+    Renegotiation
+    Compression
 
 enum CallTypeEnum: <"Represents the enumeration values that indicate the intended status of message type, such as expected call, notification of a call or a margin call.">
-	MarginCall <"Identifies an actionable Margin Call.">
-	Notification <"Identifies a notification of a Margin Call for legal obligation to notify other party to initiate a margin call when notifying party is calculation or valuation agent.">
-	ExpectedCall <"Identifies an expected Margin Call instruction for either party to notify the other or their service provider of an expected margin call movement.">
-	
+    MarginCall <"Identifies an actionable Margin Call.">
+    Notification <"Identifies a notification of a Margin Call for legal obligation to notify other party to initiate a margin call when notifying party is calculation or valuation agent.">
+    ExpectedCall <"Identifies an expected Margin Call instruction for either party to notify the other or their service provider of an expected margin call movement.">
+
 enum MarginCallActionEnum: <"Represents the enumeration values to identify the collateral action instruction.">
-	Delivery <"Indicates an instruction of a new collateral asset delivery.">
-	Return <"Indicates an instruction for a return of a principals collateral asset delivery.">
+    Delivery <"Indicates an instruction of a new collateral asset delivery.">
+    Return <"Indicates an instruction for a return of a principals collateral asset delivery.">
 
 enum CollateralStatusEnum: <"Represents the enumeration list to identify the settlement status of the collateral.">
-	FullAmount <"Indicates the collateral balance amount in full, inclusive of any pre-agreed collateral positions in transit for settlement.">
-	SettledAmount <"Indicates the collateral is settled and not an in transit pre-agreed collateral amount/s.">
-	InTransitAmount <"Indicates collateral amount in transit settlement cycle only, excluding settled collateral amount/s.">
+    FullAmount <"Indicates the collateral balance amount in full, inclusive of any pre-agreed collateral positions in transit for settlement.">
+    SettledAmount <"Indicates the collateral is settled and not an in transit pre-agreed collateral amount/s.">
+    InTransitAmount <"Indicates collateral amount in transit settlement cycle only, excluding settled collateral amount/s.">
 
 enum MarginCallResponseTypeEnum: <"Represents the enumeration values to define the response type to a margin call.">
-	AgreeinFull <"Specifies a 'Full Agreement' to Margin Call.">
-	PartiallyAgree <"Specifies a 'Partial agreement' to Margin Call.">
-	Dispute <"Specifies a 'Full Dispute' to a Margin call.">
+    AgreeinFull <"Specifies a 'Full Agreement' to Margin Call.">
+    PartiallyAgree <"Specifies a 'Partial agreement' to Margin Call.">
+    Dispute <"Specifies a 'Full Dispute' to a Margin call.">
 
 enum RegMarginTypeEnum: <"Represents the enumeration values to specify the margin type in relation to bilateral or regulatory obligation.">
-	VM <"Indicates Variation Margin">
-	RegIM <"Indicates Regulatory Initial Margin">
-	NonRegIM <"Indicates Non Regulatory Initial margin or independent amount">
+    VM <"Indicates Variation Margin">
+    RegIM <"Indicates Regulatory Initial Margin">
+    NonRegIM <"Indicates Non Regulatory Initial margin or independent amount">
 
 enum RegIMRoleEnum: <"Represents the enumeration values to specify the role of the party in relation to a regulatory initial margin call.">
-	Pledgor <"Indicates 'Pledgor' party of initial margin call.">
-	Secured <"Indicates 'Secured' party of initial margin call.">
+    Pledgor <"Indicates 'Pledgor' party of initial margin call.">
+    Secured <"Indicates 'Secured' party of initial margin call.">
 
 enum HaircutIndicatorEnum: <"Represents the enumeration indicators to specify if an asset or group of assets valuation is based on any valuation treatment haircut.">
-	PreHaircut <"Indicates Pre haircut value">
-	PostHaircut <"Indicates Post haircut value">
+    PreHaircut <"Indicates Pre haircut value">
+    PostHaircut <"Indicates Post haircut value">
 
 enum PerformanceTransferTypeEnum: <"The enumerated values to specify the origin of a performance transfer">
-	Commodity
-	Correlation
-	Dividend
-	Equity
-	Interest
-	Volatility
-	Variance
+    Commodity
+    Correlation
+    Dividend
+    Equity
+    Interest
+    Volatility
+    Variance
 
 enum CorporateActionTypeEnum: <"The enumerated values to specify the origin of a corporate action transfer.">
-	CashDividend <"Corporate action triggered by the distribution of a cash dividend.">
-	StockDividend <"Corporate action triggered by the distribution of a stock dividend.">
-	StockSplit <"Corporate action triggered by a stock split. A stock split or stock divide increases the number of shares in a public company. The price is adjusted such that the before and after market capitalization of the company remains the same and dilutiondoes not occur. The value maps closely to the ISO code (SPLF) defined as a distribution of subsidiary stock to the shareholders of the parent company without a surrender of shares.">
-	ReverseStockSplit <"Corporate action triggered by a reverse split. A reverse stock split or reverse split is a process by a company of issuing to each shareholder in that company a smaller number of new shares in proportion to that shareholder's original shares that are subsequently canceled. A reverse stock split is also called a stock merge. The reduction in the number of issued shares is accompanied by a proportional increase in the share price. The value maps closely to the ISO code (SPLR) defined as a decrease in a company's number of outstanding equities without any change in the shareholder's equity or the aggregate market value at the time of the split. Equity price and nominal value are increased accordingly.">
-	SpinOff <"Corporate action triggered by a spin Off. A spin-out, also known as a spin-off or a starburst, refers to a type of corporate action where a company splits off sections of itself as a separate business. The value maps closely to the ISO code (SOFF) defined as a a distribution of subsidiary stock to the shareholders of the parent company without a surrender of shares. Spin-off represents a form of divestiture usually resulting in an independent company or in an existing company. For example, demerger, distribution, unbundling.">
-	Merger <"Corporate action triggered by a merger. Mergers and acquisitions (abbreviated M&A) is an aspect of corporate strategy, corporate finance and management dealing with the buying, selling, dividing and combining of different companies and similar entities that can help an enterprise grow rapidly in its sector or location of origin, or a new field or new location, without creating a subsidiary, other child entity or using a joint venture. The distinction between a merger and an acquisition has become increasingly blurred in various respects (particularly in terms of the ultimate economic outcome), although it has not completely disappeared in all situations. The value maps closely to the ISO code (MRGR) defined as an offer made to shareholders, normally by a third party, requesting them to sell (tender) or exchange their equities.">
-	Delisting <"Corporate action triggered by the removal of a security from a stock exchange.">
-	StockNameChange <"Corporate action triggered by a change in the name used to trade the security.">
-	StockIdentifierChange <"Corporate action triggered by a change in the code used to trade the security.">
-	RightsIssue <"Corporate action triggered by an issuance to shareholders of rights to purchase additional shares at a discount.">
-	Takeover <"Corporate action triggered by a takeover. A takeover is the purchase of onecompany (the target) by another (the acquirer, or bidder). The value maps to the ISO code (TEND) but is finer grained than TEND which emcompasses Tender/Acquisition/Takeover/Purchase Offer/Buyback. ISO defines the TEND code as an offer made to shareholders, normally by a third party, requesting them to sell (tender) or exchange their equities.">
-	StockReclassification <"Corporate action triggered by a Stock Reclassification.">
-	BonusIssue <"Corporate action triggered by a bonus issue. A bonus issue or bonus share is a free share of stock given to current shareholders in a company, based upon the number of shares that the shareholder already owns. While the issue of bonus shares increases the total number of shares issued and owned, it does not change the value of the company. The value maps closely to the ISO code (BONU) defined as a bonus, scrip or capitalisation issue. Security holders receive additional assets free of payment from the issuer, in proportion to their holding.">
-	ClassAction <"Corporate action triggered by a Class Action. An action where an individual represents a group in a court claim. The judgment from the suit is for all the members of the group (class). The value maps closely to the ISO code (CLSA) defined as the situation where interested parties seek restitution for financial loss. The security holder may be offered the opportunity to join a class action proceeding and would need to respond with an instruction.">
-	EarlyRedemption <"Corporate action triggered by an early redemption. The value maps closely to the ISO code (MCAL) defined as the redemption of an entire issue outstanding of securities, for example, bonds, preferred equity, funds, by the issuer or its agent, for example, asset manager, before final maturity.">
-	Liquidation <"Corporate action triggered by a liquidation. When a business or firm is terminated or bankrupt, its assets are sold (liquidated) and the proceeds pay creditors. Any leftovers are distributed to shareholders. The value maps closely to the ISO code (LIQU) defined as a distribution of cash, assets or both. Debt may be paid in order of priority based on preferred claims to assets specified by the security.">
+    CashDividend <"Corporate action triggered by the distribution of a cash dividend.">
+    StockDividend <"Corporate action triggered by the distribution of a stock dividend.">
+    StockSplit <"Corporate action triggered by a stock split. A stock split or stock divide increases the number of shares in a public company. The price is adjusted such that the before and after market capitalization of the company remains the same and dilutiondoes not occur. The value maps closely to the ISO code (SPLF) defined as a distribution of subsidiary stock to the shareholders of the parent company without a surrender of shares.">
+    ReverseStockSplit <"Corporate action triggered by a reverse split. A reverse stock split or reverse split is a process by a company of issuing to each shareholder in that company a smaller number of new shares in proportion to that shareholder's original shares that are subsequently canceled. A reverse stock split is also called a stock merge. The reduction in the number of issued shares is accompanied by a proportional increase in the share price. The value maps closely to the ISO code (SPLR) defined as a decrease in a company's number of outstanding equities without any change in the shareholder's equity or the aggregate market value at the time of the split. Equity price and nominal value are increased accordingly.">
+    SpinOff <"Corporate action triggered by a spin Off. A spin-out, also known as a spin-off or a starburst, refers to a type of corporate action where a company splits off sections of itself as a separate business. The value maps closely to the ISO code (SOFF) defined as a a distribution of subsidiary stock to the shareholders of the parent company without a surrender of shares. Spin-off represents a form of divestiture usually resulting in an independent company or in an existing company. For example, demerger, distribution, unbundling.">
+    Merger <"Corporate action triggered by a merger. Mergers and acquisitions (abbreviated M&A) is an aspect of corporate strategy, corporate finance and management dealing with the buying, selling, dividing and combining of different companies and similar entities that can help an enterprise grow rapidly in its sector or location of origin, or a new field or new location, without creating a subsidiary, other child entity or using a joint venture. The distinction between a merger and an acquisition has become increasingly blurred in various respects (particularly in terms of the ultimate economic outcome), although it has not completely disappeared in all situations. The value maps closely to the ISO code (MRGR) defined as an offer made to shareholders, normally by a third party, requesting them to sell (tender) or exchange their equities.">
+    Delisting <"Corporate action triggered by the removal of a security from a stock exchange.">
+    StockNameChange <"Corporate action triggered by a change in the name used to trade the security.">
+    StockIdentifierChange <"Corporate action triggered by a change in the code used to trade the security.">
+    RightsIssue <"Corporate action triggered by an issuance to shareholders of rights to purchase additional shares at a discount.">
+    Takeover <"Corporate action triggered by a takeover. A takeover is the purchase of onecompany (the target) by another (the acquirer, or bidder). The value maps to the ISO code (TEND) but is finer grained than TEND which emcompasses Tender/Acquisition/Takeover/Purchase Offer/Buyback. ISO defines the TEND code as an offer made to shareholders, normally by a third party, requesting them to sell (tender) or exchange their equities.">
+    StockReclassification <"Corporate action triggered by a Stock Reclassification.">
+    BonusIssue <"Corporate action triggered by a bonus issue. A bonus issue or bonus share is a free share of stock given to current shareholders in a company, based upon the number of shares that the shareholder already owns. While the issue of bonus shares increases the total number of shares issued and owned, it does not change the value of the company. The value maps closely to the ISO code (BONU) defined as a bonus, scrip or capitalisation issue. Security holders receive additional assets free of payment from the issuer, in proportion to their holding.">
+    ClassAction <"Corporate action triggered by a Class Action. An action where an individual represents a group in a court claim. The judgment from the suit is for all the members of the group (class). The value maps closely to the ISO code (CLSA) defined as the situation where interested parties seek restitution for financial loss. The security holder may be offered the opportunity to join a class action proceeding and would need to respond with an instruction.">
+    EarlyRedemption <"Corporate action triggered by an early redemption. The value maps closely to the ISO code (MCAL) defined as the redemption of an entire issue outstanding of securities, for example, bonds, preferred equity, funds, by the issuer or its agent, for example, asset manager, before final maturity.">
+    Liquidation <"Corporate action triggered by a liquidation. When a business or firm is terminated or bankrupt, its assets are sold (liquidated) and the proceeds pay creditors. Any leftovers are distributed to shareholders. The value maps closely to the ISO code (LIQU) defined as a distribution of cash, assets or both. Debt may be paid in order of priority based on preferred claims to assets specified by the security.">
+    BankruptcyOrInsolvency <"Corporate action triggered by bankruptcy, insolvency filing or insolvency of the issuer of the Security.">
+    IssuerNationalization <"Corporate action triggered by the nationalization of the issuer of the Security.">
+    Relisting <"Corporate action triggered by the relisting of a security from the original stock exchange to another exchange.">
+    BespokeEvent <"Corporate Action which is separately agreed between the parties and/or described elsewhere in the document (for instance in bespoke term described in string type objects present in some root attributes of Agreement type).">
 
 enum CreditEventTypeEnum: <"Represents the enumerated values to specify a credit event type.">
-	Bankruptcy <"The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as technically a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">
-	FailureToPay <"This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregrate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">
-	FailureToPayPrincipal <"This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregrate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">
-	FailureToPayInterest <"Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.">
-	ObligationDefault <"One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.">
-	ObligationAcceleration <"One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.">
-	RepudiationMoratorium <"The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.">
-	Restructuring <"A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.">
-	GovernmentalIntervention <"A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.">
-	DistressedRatingsDowngrade <"Results from the fact that the rating of the reference obligation is downgraded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.">
-	MaturityExtension <"Results from the fact that the underlier fails to make principal payments as expected.">
-	Writedown <"Results from the fact that the underlier writes down its outstanding principal amount.">
-	ImpliedWritedown <"Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
-	DefaultRequirement <"In relation to certain credit events, serves as a threshold for Obligation Acceleration, Obligation Default, Repudiation/Moratorium and Restructuring. Market standard is USD 10,000,000 (JPY 1,000,000,000 for all Japanese Yen trades). This is applied on an aggregate or total basis across all Obligations of the Reference Entity. Used to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Default Requirement.">
+    [docReference ISDA FpML_Coding_Scheme schemeLocation "http://www.fpml.org/coding-scheme/credit-event-type"]
+
+    Bankruptcy <"The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as 'technically' a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">
+    DistressedRatingsDowngrade <"Results from the fact that the rating of the reference obligation is downgraded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.">
+    FailureToPay <"This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregrate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">
+    FailureToPayInterest <"Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.">
+    FailureToPayPrincipal <"Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
+    GovernmentalIntervention <"A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.">
+    ImpliedWritedown <"Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
+    MaturityExtension <"Results from the fact that the underlier fails to make principal payments as expected.">
+    ObligationAcceleration <"One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.">
+    ObligationDefault <"One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.">
+    RepudiationMoratorium <"The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.">
+    Restructuring <"A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.">
+    Writedown <"Results from the fact that the underlier writes down its outstanding principal amount.">
+
+enum ValuationTypeEnum: <"Method used for the valuation of the transaction by the valuation party.">
+    MarkToMarket <"Mark-to-Market">
+    MarkToModel <"Mark-to-Model">
+
+enum ValuationSourceEnum: <"Source for the valuation of the transaction by the valuation party.">
+    CentralCounterparty <"Central Counterparty's Valuation">
+
+enum PriceTimingEnum:
+    ClosingPrice <"The last price anyone paid for a share of a product during the business hours of the exchange where the product is traded on a business day.">
+    OpeningPrice <"The first price anyone paid for a share of a product during the business hours of the exchange where the product is traded on a business day.">
+
+enum ClosedStateEnum: <"The enumerated values to specify what led to the contract or execution closure.">
+    Allocated <"The execution or contract has been allocated.">
+    Cancelled <"The execution or contract has been cancelled.">
+    Exercised <"The (option) contract has been exercised.">
+    Expired <"The (option) contract has expired without being exercised.">
+    Matured <"The contract has reached its contractual termination date.">
+    Novated <"The contract has been novated. This state applies to the stepped-out contract component of the novation event.">
+    Terminated <"The contract has been subject of an early termination event.">

@@ -3,10 +3,9 @@ package cdm.observable.event.functions;
 import cdm.base.math.FinancialUnitEnum;
 import cdm.base.math.UnitType;
 import cdm.observable.asset.Price;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.event.Observation;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +33,7 @@ class ResolveObservationAverageTest extends AbstractFunctionTest {
         assertEquals(BigDecimal.valueOf(37.4), averagePrice.getValue());
         assertEquals("USD", averagePrice.getUnit().getCurrency().getValue());
         assertEquals(FinancialUnitEnum.SHARE, averagePrice.getPerUnitOf().getFinancialUnit());
-        assertEquals(PriceTypeEnum.ASSET_PRICE, averagePrice.getPriceExpression().getPriceType());
+        assertEquals(PriceTypeEnum.ASSET_PRICE, averagePrice.getPriceType());
     }
 
     private Observation.ObservationBuilder getObservation(double amount) {
@@ -43,6 +42,6 @@ class ResolveObservationAverageTest extends AbstractFunctionTest {
                         .setValue(BigDecimal.valueOf(amount))
                         .setUnit(UnitType.builder().setCurrencyValue("USD"))
                         .setPerUnitOf(UnitType.builder().setFinancialUnit(FinancialUnitEnum.SHARE))
-                        .setPriceExpression(PriceExpression.builder().setPriceType(PriceTypeEnum.ASSET_PRICE)));
+                       .setPriceType(PriceTypeEnum.ASSET_PRICE));
     }
 }

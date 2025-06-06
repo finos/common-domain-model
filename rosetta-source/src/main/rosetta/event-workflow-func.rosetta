@@ -1,223 +1,226 @@
 namespace cdm.event.workflow : <"Workflow concepts (orthogonal to business event): time stamp, credit limit, trade warehouse info and associated function specifications.">
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
-
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
 
 annotation creation: <"Annotation to describe the intent of a function">
     [prefix Create]
 
     BusinessEvent BusinessEvent (0..1) <"A business event function should take as its inputs the after state of previous business event or in case where the is no before state, all of the inputs required to produce the outcome BusinessEvent.">
-	WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
+    WorkflowStep WorkflowStep (0..1) <"Create a proposed, accepted or rejected WorkflowStep with details about the message, identifiers, event timestamps, parties and accounts involved in the step and allow the action to be set to New, Correct or Cancel.">
 
 func Create_WorkflowStep: <"Function to create a workflow step with a business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step. The function should be used when there is already a fully formed business event with the action set to signify that the step is new, or a correction/cancellation of a previous step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> New, New -> Correct, New -> Cancel, Correct -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
-	[creation WorkflowStep]
-	inputs:
-		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
-		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
-		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
-		account Account (0..*) <"Optional account information that could be associated to the event.">
-		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it. If specified, the previous action is used to constrain the actions allows to the resulting workflow step.">
-		action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation. When a previous workflow step is specified, the allowed actions are as follows; New -> New, New -> Correct, New -> Cancel, Correct -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New. Two consecutive workflow steps with action New, is valid when you have multiple steps e.g. new execution -> new contract formation">
-		businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The business event must be specified if the action is new or corrected, and must be absent in the case of a cancel where the previous step would provide the lineage to the business event.">
+    [creation WorkflowStep]
+    inputs:
+        messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
+        timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
+        eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
+        party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+        account Account (0..*) <"Optional account information that could be associated to the event.">
+        previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it. If specified, the previous action is used to constrain the actions allows to the resulting workflow step.">
+        action ActionEnum (1..1) <"Specifies whether the event is a new, a correction or a cancellation. When a previous workflow step is specified, the allowed actions are as follows; New -> New, New -> Correct, New -> Cancel, Correct -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New. Two consecutive workflow steps with action New, is valid when you have multiple steps e.g. new execution -> new contract formation">
+        businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The business event must be specified if the action is new or corrected, and must be absent in the case of a cancel where the previous step would provide the lineage to the business event.">
+    output:
+        workflowStep WorkflowStep (1..1) <"Workflow step with a business event (in the event of action being new or correct) and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
 
-	output:
-		workflowStep WorkflowStep (1..1) <"Workflow step with a business event (in the event of action being new or correct) and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
+    condition PreviousBusinessEventExists: <"The previous workflow step must contain a business event. Use Create_AcceptedWorkflowStep when the previous workflow step is a proposal.">
+        if previousWorkflowStep exists
+        then previousWorkflowStep -> businessEvent exists
 
-	condition PreviousBusinessEventExists: <"The previous workflow step must contain a business event. Use Create_AcceptedWorkflowStep when the previous workflow step is a proposal.">
-		if previousWorkflowStep exists
-		then previousWorkflowStep -> businessEvent exists
+    condition ActionEnumChange: <"Valid action transitions are: New -> New, New -> Correct, New -> Cancel, Correct -> New, Correct -> Correct and Correct -> Cancel">
+        if (previousWorkflowStep -> action = ActionEnum -> New or previousWorkflowStep -> action = ActionEnum -> Correct)
+        then (action = ActionEnum -> New or action = ActionEnum -> Correct or action = ActionEnum -> Cancel)
 
-	condition ActionEnumChange: <"Valid action transitions are: New -> New, New -> Correct, New -> Cancel, Correct -> New, Correct -> Correct and Correct -> Cancel">
-		if (previousWorkflowStep -> action = ActionEnum -> New or previousWorkflowStep -> action = ActionEnum -> Correct)
-		then (action = ActionEnum -> New or action = ActionEnum -> Correct or action = ActionEnum -> Cancel)
+    condition CancelledPreviousStep: <"You cannot create a business event on a cancelled previous step">
+        previousWorkflowStep -> action <> ActionEnum -> Cancel
 
-	condition CancelledPreviousStep: <"You cannot create a business event on a cancelled previous step">
-		previousWorkflowStep -> action <> ActionEnum -> Cancel
-	
-	condition NewAction: <"Action must be New if there is no previous step">
-		if (previousWorkflowStep is absent or previousWorkflowStep -> action is absent)
-		then (action = ActionEnum -> New)
+    condition NewAction: <"Action must be New if there is no previous step">
+        if (previousWorkflowStep is absent or previousWorkflowStep -> action is absent)
+        then (action = ActionEnum -> New)
 
-	set workflowStep -> action: <"Assign the workflowStep action.">
-		action
+    set workflowStep -> action: <"Assign the workflowStep action.">
+        action
 
-	set workflowStep -> messageInformation: <"Assign the workflowStep action.">
-		messageInformation
+    set workflowStep -> messageInformation: <"Assign the workflowStep action.">
+        messageInformation
 
-	add workflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
-		timestamp
+    add workflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+        timestamp
 
-	add workflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
-		eventIdentifier
+    add workflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
+        eventIdentifier
 
-	add workflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
-		party
+    add workflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+        party
 
-	add workflowStep -> account: <"Assign the account information that could be associated to the event.">
-		account
+    add workflowStep -> account: <"Assign the account information that could be associated to the event.">
+        account
 
-	set workflowStep -> previousWorkflowStep: <"Assign the key of the previous step to resulting step providing lineage.">
-		if previousWorkflowStep exists then previousWorkflowStep as-key
+    set workflowStep -> previousWorkflowStep: <"Assign the key of the previous step to resulting step providing lineage.">
+        if previousWorkflowStep exists then previousWorkflowStep as-key
 
-	set workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
-		businessEvent
+    set workflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+        businessEvent
 
 func Create_AcceptedWorkflowStep: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. PartyChangeInstruction from the previous step is used with Create_PartyChange to produce the business event which should used as an input to this step.">
-	[creation WorkflowStep]
-	inputs:
-		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
-		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
-		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
-		account Account (0..*) <"Optional account information that could be associated to the event.">
-		proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
-		businessEvent BusinessEvent (1..1) <"Life cycle event for the step">
+    [creation WorkflowStep]
+    inputs:
+        messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header.">
+        timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
+        eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
+        party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+        account Account (0..*) <"Optional account information that could be associated to the event.">
+        proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+        businessEvent BusinessEvent (1..1) <"Life cycle event for the step">
+    output:
+        acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
 
-	output:
-		acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
+    condition ProposedEventExists: <"The previous step being accepted must be a proposed step containing an instruction.">
+        proposedWorkflowStep -> proposedEvent exists
 
-	condition ProposedEventExists: <"The previous step being accepted must be a proposed step containing an instruction.">
-		proposedWorkflowStep -> proposedEvent exists
+    condition CancelledProposedStep: <"You cannot accept a business event on a cancelled previous step.">
+        proposedWorkflowStep -> action <> ActionEnum -> Cancel
 
-	condition CancelledProposedStep: <"You cannot accept a business event on a cancelled previous step.">
-		proposedWorkflowStep -> action <> ActionEnum -> Cancel
+    condition RejectedProposedStep: <"The previous step cannot be rejected.">
+        proposedWorkflowStep -> rejected <> True
 
-	condition RejectedProposedStep: <"The previous step cannot be rejected.">
-		proposedWorkflowStep -> rejected <> True
+    set acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+        messageInformation
 
-	set acceptedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
-		messageInformation
+    add acceptedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+        timestamp
 
-	add acceptedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
-		timestamp
+    add acceptedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
+        eventIdentifier
 
-	add acceptedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
-		eventIdentifier
+    add acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+        party
 
-	add acceptedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
-		party
+    add acceptedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
+        account
 
-	add acceptedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
-		account
+    set acceptedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+        proposedWorkflowStep as-key
 
-	set acceptedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
-		proposedWorkflowStep as-key
-
-	set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
-		businessEvent
+    set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+        businessEvent
 
 func Create_AcceptedWorkflowStepFromInstruction: <"Represents the acceptance of a proposed instruction that results in a workflow step containing a business event, message details, identifiers, event timestamps, parties and accounts. The previous workflow step input must exist to provide workflow lineage. The instruction from the previous workflow step should be used with a [creation BusinessEvent] function to create the input business event passed into this function e.g. PartyChangeInstruction from the previous step is used with Create_PartyChange to produce the business event which should used as an input to this step.">
-	[creation WorkflowStep]
-	inputs:
-		proposedWorkflowStep WorkflowStep (1..1) <"WorkflowStep as instruction.">
-	output:
-		acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
+    [creation WorkflowStep]
+    inputs:
+        proposedWorkflowStep WorkflowStep (1..1) <"WorkflowStep as instruction.">
+    output:
+        acceptedWorkflowStep WorkflowStep (1..1) <"Accepted WorkflowStep populated with the business event and associated details about the message, identifiers, event timestamps, parties and accounts involved in the step.">
 
-	condition ProposedEventExists: <"The previous step being accepted must be a proposed step containing an instruction.">
-		proposedWorkflowStep -> proposedEvent exists
+    condition ProposedEventExists: <"The previous step being accepted must be a proposed step containing an instruction.">
+        proposedWorkflowStep -> proposedEvent exists
 
-	condition CancelledProposedStep: <"You cannot accept a business event on a cancelled previous step.">
-		proposedWorkflowStep -> action <> ActionEnum -> Cancel
+    condition CancelledProposedStep: <"You cannot accept a business event on a cancelled previous step.">
+        proposedWorkflowStep -> action <> ActionEnum -> Cancel
 
-	condition RejectedProposedStep: <"The previous step cannot be rejected.">
-		proposedWorkflowStep -> rejected <> True
+    condition RejectedProposedStep: <"The previous step cannot be rejected.">
+        proposedWorkflowStep -> rejected <> True
 
     set acceptedWorkflowStep -> action: proposedWorkflowStep -> action
-	set acceptedWorkflowStep -> messageInformation: proposedWorkflowStep -> messageInformation
-	add acceptedWorkflowStep -> timestamp: proposedWorkflowStep -> timestamp
-	add acceptedWorkflowStep -> eventIdentifier: proposedWorkflowStep -> eventIdentifier
-	set acceptedWorkflowStep -> previousWorkflowStep: proposedWorkflowStep -> previousWorkflowStep as-key
+    set acceptedWorkflowStep -> messageInformation:
+        proposedWorkflowStep -> messageInformation
+    add acceptedWorkflowStep -> timestamp: proposedWorkflowStep -> timestamp
+    add acceptedWorkflowStep -> eventIdentifier: proposedWorkflowStep -> eventIdentifier
+    set acceptedWorkflowStep -> previousWorkflowStep: proposedWorkflowStep as-key
     set acceptedWorkflowStep -> nextEvent: proposedWorkflowStep -> nextEvent
 
-	set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
-		Create_BusinessEvent(
-		    proposedWorkflowStep -> proposedEvent -> instruction,
-		    proposedWorkflowStep -> proposedEvent -> intent,
-		    proposedWorkflowStep -> proposedEvent -> eventDate,
-		    proposedWorkflowStep -> proposedEvent -> effectiveDate )
+    set acceptedWorkflowStep -> businessEvent: <"Assign the business event corresponding to the workflow step.">
+        Create_BusinessEvent(
+                proposedWorkflowStep -> proposedEvent -> instruction,
+                proposedWorkflowStep -> proposedEvent -> intent,
+                proposedWorkflowStep -> proposedEvent -> eventDate,
+                proposedWorkflowStep -> proposedEvent -> effectiveDate
+            )
 
-    add acceptedWorkflowStep -> party: acceptedWorkflowStep -> businessEvent -> after -> trade -> party distinct
-    add acceptedWorkflowStep -> account: acceptedWorkflowStep -> businessEvent -> after -> trade -> account distinct
+    add acceptedWorkflowStep -> party:
+        acceptedWorkflowStep -> businessEvent -> after -> trade -> party distinct
+    add acceptedWorkflowStep -> account:
+        acceptedWorkflowStep -> businessEvent -> after -> trade -> account distinct
 
 func Create_ProposedWorkflowStep: <"Represents the proposal to create a business event that results in a workflow step containing an instruction, message details, identifiers, event timestamps, parties and accounts. The optional previous workflow step input provides workflow lineage to where there has been a correction or cancellation to the proposed step. The action is constrained so that when a previous workflow step is specified, the valid actions are as follows; New -> Correct and Correct -> Cancel. When a previous workflow is not specified, the action must be New.">
-	[creation WorkflowStep]
-	inputs:
-		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
-		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
-		party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
-		account Account (0..*) <"Optional account information that could be associated to the event.">
-		previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
-		action ActionEnum (1..1) <"Specifies whether the event is new or a correction. The action cannot be a cancellation or new if the previous step is also new.">
-		proposedEvent EventInstruction (1..1) <"The proposed instruction for the step to initiate a workflow e.g. Clearing Instruction or Allocation Instruction">
+    [creation WorkflowStep]
+    inputs:
+        messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
+        timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
+        eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
+        party Party (0..*) <"The specification of the parties involved in the WorkflowStep.">
+        account Account (0..*) <"Optional account information that could be associated to the event.">
+        previousWorkflowStep WorkflowStep (0..1) <"Optional previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+        action ActionEnum (1..1) <"Specifies whether the event is new or a correction. The action cannot be a cancellation or new if the previous step is also new.">
+        proposedEvent EventInstruction (1..1) <"The proposed instruction for the step to initiate a workflow e.g. Clearing Instruction or Allocation Instruction">
+        approval WorkflowStepApproval (0..*) <"The approval status of all parties on the proposed event.">
+    output:
+        proposedWorkflowStep WorkflowStep (1..1) <"Proposed WorkflowStep populated with the proposed instruction">
 
-	output:
-		proposedWorkflowStep WorkflowStep (1..1) <"Proposed WorkflowStep populated with the proposed instruction">
+    condition CorrectAction: <"When the previous step is new or corrected and contains an instruction (proposed), the following action can only be correct.">
+        if (previousWorkflowStep -> proposedEvent exists and (previousWorkflowStep -> action = ActionEnum -> New or previousWorkflowStep -> action = ActionEnum -> Correct))
+        then action = ActionEnum -> Correct
 
-	condition CorrectAction: <"When the previous step is new or corrected and contains an instruction (proposed), the following action can only be correct.">
-		if (previousWorkflowStep -> proposedEvent exists and (previousWorkflowStep -> action = ActionEnum -> New or previousWorkflowStep -> action = ActionEnum -> Correct))
-		then action = ActionEnum -> Correct
+    condition NewAction: <"When the previous step contains a business event, the following action can only be new.">
+        if (previousWorkflowStep is absent or previousWorkflowStep -> businessEvent exists)
+        then action = ActionEnum -> New
 
-	condition NewAction: <"When the previous step contains a business event, the following action can only be new.">
-		if (previousWorkflowStep is absent or previousWorkflowStep -> businessEvent exists)
-		then action = ActionEnum -> New
+    set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+        messageInformation
 
-	set proposedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
-		messageInformation
+    add proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+        timestamp
 
-	add proposedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
-		timestamp
+    add proposedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
+        eventIdentifier
 
-	add proposedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
-		eventIdentifier
+    add proposedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
+        party
 
-	add proposedWorkflowStep -> party: <"Assign the parties involved in the WorkflowStep.">
-		party
+    add proposedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
+        account
 
-	add proposedWorkflowStep -> account: <"Assign the account information that could be associated to the event.">
-		account
+    set proposedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+        previousWorkflowStep as-key
 
-	set proposedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
-		previousWorkflowStep as-key
+    set proposedWorkflowStep -> proposedEvent: proposedEvent
 
-	set proposedWorkflowStep -> proposedEvent:
-	    proposedEvent
+    add proposedWorkflowStep -> approval: <"Assign the party approval statuses for this WorkflowStep">
+        approval
 
 func Create_RejectedWorkflowStep: <"Represents the rejection of a proposed instruction that results in a workflow step containing the rejection flag, message details, identifiers, event timestamps, parties and accounts involved in the step. The previous workflow step input must exist to provide workflow lineage. This function will be further developed to provide the reasons for rejection.">
-	[creation WorkflowStep]
-	inputs:
-		messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
-		timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
-		eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
-		proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+    [creation WorkflowStep]
+    inputs:
+        messageInformation MessageInformation (0..1) <"Contains all information pertaining the messaging header">
+        timestamp EventTimestamp (1..*) <"The dateTime and qualifier associated with this event.">
+        eventIdentifier Identifier (1..*) <"The identifiers that uniquely identify this lifecycle event.">
+        proposedWorkflowStep WorkflowStep (1..1) <"Required previous WorkflowStep that provides lineage to WorkflowStep that precedes it.">
+    output:
+        rejectedWorkflowStep WorkflowStep (1..1) <"Rejected WorkflowStep with lineage to the proposed step that preceded it.">
 
-	output:
-		rejectedWorkflowStep WorkflowStep (1..1) <"Rejected WorkflowStep with lineage to the proposed step that preceded it.">
+    condition ProposedEventExists: <"The previous proposed step being rejected must exist">
+        proposedWorkflowStep -> proposedEvent exists
 
-	condition ProposedEventExists: <"The previous proposed step being rejected must exist">
-		proposedWorkflowStep -> proposedEvent exists
-	
-	set rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
-		messageInformation
+    set rejectedWorkflowStep -> messageInformation: <"Assign the workflowStep action.">
+        messageInformation
 
-	add rejectedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
-		timestamp
+    add rejectedWorkflowStep -> timestamp: <"Assign the dateTime and qualifier associated with this event.">
+        timestamp
 
-	add rejectedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
-		eventIdentifier
+    add rejectedWorkflowStep -> eventIdentifier: <"Assign the identifiers that uniquely identify this lifecycle event.">
+        eventIdentifier
 
-	set rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
-		proposedWorkflowStep as-key
+    set rejectedWorkflowStep -> previousWorkflowStep: <"Set the reference to the previous WorkflowStep to provide lineage">
+        proposedWorkflowStep as-key
 
-	set rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
-		True
+    set rejectedWorkflowStep -> rejected: <"Set the rejected flag to True">
+        True
 
 func Create_Workflow: <"Function to create a Workflow from a list of WorkflowStep.">
-	inputs: steps WorkflowStep (1..*)
-	output: workflow Workflow (1..1)
-    add workflow -> steps:
-        steps
+    inputs:
+        steps WorkflowStep (1..*)
+    output:
+        workflow Workflow (1..1)
+    add workflow -> steps: steps

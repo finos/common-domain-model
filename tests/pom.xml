@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>cdm-parent</artifactId>
-        <groupId>com.isda</groupId>
-        <version>0.0.0.master</version>
+        <groupId>org.finos.cdm</groupId>
+        <version>0.0.0.master-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,8 +14,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.isda</groupId>
-                <artifactId>cdm</artifactId>
+                <groupId>org.finos.cdm</groupId>
+                <artifactId>cdm-java</artifactId>
                 <version>${project.parent.version}</version>
             </dependency>
             <dependency>
@@ -23,39 +23,54 @@
                 <artifactId>ingest-test-framework</artifactId>
                 <version>${rosetta.bundle.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.regnosys.rosetta</groupId>
+                        <artifactId>com.regnosys.rosetta.xcore</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.osgi</groupId>
+                        <artifactId>org.osgi.service.prefs</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform-commons.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>com.isda</groupId>
-            <artifactId>cdm</artifactId>
+            <groupId>org.finos.cdm</groupId>
+            <artifactId>cdm-java</artifactId>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
             <artifactId>ingest-test-framework</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
             <artifactId>rosetta-testing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
-        <!--
-            The osgi dependency from rosetta.lib can take precedence on the classpath causing
-            Java security exceptions when matchers form the same package are subsequently loaded from Hamcrest
-        -->
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>java-hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

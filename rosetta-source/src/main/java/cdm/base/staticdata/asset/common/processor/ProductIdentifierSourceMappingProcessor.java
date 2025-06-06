@@ -2,8 +2,6 @@ package cdm.base.staticdata.asset.common.processor;
 
 import cdm.base.staticdata.asset.common.ProductIdTypeEnum;
 import cdm.base.staticdata.asset.common.ProductIdentifier;
-import cdm.base.staticdata.asset.common.ProductTaxonomy;
-import cdm.base.staticdata.asset.common.TaxonomySourceEnum;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.MappingProcessorUtils;
@@ -15,6 +13,12 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.util.List;
 
+/**
+ * Update product identifier source enum based on the instrumentIdScheme or productIdScheme.
+ *
+ * @see cdm.base.staticdata.asset.common.processor.AssetIdentifierTypeMappingProcessor
+ */
+@SuppressWarnings("unused")
 public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
 
 
@@ -26,7 +30,6 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
             MappingProcessorUtils.getNonNullMappingForModelPath(getMappings(), PathUtils.toPath(getModelPath().newSubPath("value")))
                 .map(m -> m.getXmlPath())
                 .ifPresent(xmlPath -> {
-//
                     ProductIdentifier.ProductIdentifierBuilder productIdentifierBuilder = (ProductIdentifier.ProductIdentifierBuilder) parent;
                     FieldWithMetaString.FieldWithMetaStringBuilder productIdentifierValueBuilder = (FieldWithMetaString.FieldWithMetaStringBuilder) builder;
 
@@ -40,13 +43,6 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
     }
 
     protected void updateSchemeAndSource(Path xmlPath, ProductIdentifier.ProductIdentifierBuilder productIdentifierBuilder, FieldWithMetaString.FieldWithMetaStringBuilder productIdentifierValueBuilder) {
-        setValueAndUpdateMappings(xmlPath.addElement("instrumentIdScheme"),
-                xmlValue -> {
-                    // Update scheme
-                    productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
-                    // Update Source
-                    productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
-                });
         setValueAndUpdateMappings(xmlPath.addElement("productIdScheme"),
                 xmlValue -> {
                     // Update scheme
@@ -54,9 +50,6 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
                     // Update Source
                     productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
                 });
-        if (xmlPath.endsWith("description")) {
-            productIdentifierBuilder.setSource(ProductIdTypeEnum.NAME);
-        }
     }
 
     protected ProductIdTypeEnum getSourceEnum(String scheme) {
@@ -68,8 +61,10 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
             return ProductIdTypeEnum.RIC;
         } else if (scheme.contains("Bloomberg")){
             return ProductIdTypeEnum.BBGID;
-        }else if (scheme.contains("commodity-reference-price")){
+        } else if (scheme.contains("commodity-reference-price")){
             return ProductIdTypeEnum.ISDACRP;
+        } else if (scheme.contains("iso4914")) {
+            return ProductIdTypeEnum.UPI;
         } else {
             return ProductIdTypeEnum.OTHER;
         }

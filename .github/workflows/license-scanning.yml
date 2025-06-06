@@ -3,6 +3,12 @@ name: License Scanning for Maven
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
+    paths:
+      - 'pom.xml'
+      - '.github/workflows/license-scanning.yml'
+  pull_request:
     paths:
       - 'pom.xml'
       - '.github/workflows/license-scanning.yml'
@@ -16,19 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module-folder: ["./", "./isda-demo", "./rosetta-source", "./rosetta-project", "./cdm-distribution", "./scheme-import"]
+        module-folder: ["./", "./examples", "./rosetta-source"]
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: 11
-        cache: maven
-        distribution: 'adopt'
     - name: Install XQ
       run: pip install xq
-    - name: Build with Maven
-      run: mvn clean install -DskipTests
+    - uses: ./.github/actions/maven-build
+      with:
+        run-tests: false
     - name: License XML report
       run: mvn org.codehaus.mojo:license-maven-plugin:2.0.0:download-licenses
     - name: Validate XML report
@@ -39,12 +40,12 @@ jobs:
         if [ $LINES_FOUND -gt 1 ]; then echo $LICENSE_REPORT ; exit -1; fi
       working-directory: ${{ matrix.module-folder }}
     - name: Upload license reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: license-reports
+        name: license-reports-${{ strategy.job-index }}
         path: '**/dependencies.html'
     - name: Upload license XML reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: license-xml-report
+        name: license-xml-report-${{ strategy.job-index }}
         path: '**/${{ env.REPORT_PATH }}'

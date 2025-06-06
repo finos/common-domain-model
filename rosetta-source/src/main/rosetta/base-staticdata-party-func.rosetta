@@ -1,97 +1,57 @@
 namespace cdm.base.staticdata.party : <"Basic party concepts: legal entity, natural person, contact details, buyer / payer and all related enums.">
 version "${project.version}"
 
-func Create_Counterparty: <"Constructs a Counterparty given a party and a counterparty enum value.">
-	inputs:
-		party Party (1..1)
-		role CounterpartyRoleEnum (1..1)
-	output:
-		counterparty Counterparty (1..1)
-
-	set counterparty -> partyReference: <"Party serves the role of a key.">
-		party as-key
-
-	set counterparty -> role:
-		role
-
-func Create_PartyRole: <"Constructs a PartyRole given a party and party role enumeration value.">
-	inputs:
-		party Party (1..1)
-		role PartyRoleEnum (1..1)
-	output:
-		partyRole PartyRole (1..1)
-
-	set partyRole -> partyReference:
-		party
-
-	set partyRole -> role:
-		role
-
 func ExtractCounterpartyByRole: <"Extracts from a list of Counterparty data types, the Counterparty that corresponds to the role i.e. Party1 or Party2.">
-	inputs:
-		counterparties Counterparty (1..*) <"The list of counterparties to filter.">
-		roleEnumToExtract CounterpartyRoleEnum (1..1) <"The counterparty role enum to filter by.">
-	output:
-		counterparty Counterparty (0..1) <"The counterparty with specified counterparty role.">
+    inputs:
+        counterparties Counterparty (1..*) <"The list of counterparties to filter.">
+        roleEnumToExtract CounterpartyRoleEnum (1..1) <"The counterparty role enum to filter by.">
+    output:
+        counterparty Counterparty (0..1) <"The counterparty with specified counterparty role.">
 
     set counterparty:
         counterparties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+            filter role = roleEnumToExtract
+            then only-element
 
 func ExtractAncillaryPartyByRole: <"Extracts from a list of AncillaryParty data types, the AncillaryParty that corresponds to the AncillaryRoleEnum.">
-	inputs:
-		ancillaryParties AncillaryParty (1..*) <"The list of ancillary parties to filter.">
-		roleEnumToExtract AncillaryRoleEnum (1..1) <"The ancillary role enum to filter by.">
-	output:
-		ancillaryParty AncillaryParty (0..1) <"The ancillary party with specified ancillary role.">
+    inputs:
+        ancillaryParties AncillaryParty (1..*) <"The list of ancillary parties to filter.">
+        roleEnumToExtract AncillaryRoleEnum (1..1) <"The ancillary role enum to filter by.">
+    output:
+        ancillaryParty AncillaryParty (0..1) <"The ancillary party with specified ancillary role.">
 
     set ancillaryParty:
         ancillaryParties
-            filter [ item -> role = roleEnumToExtract ]
-            only-element
+            filter role = roleEnumToExtract
+            then only-element
 
 func ReplaceParty: <"Removes the old party, and adds the new party.">
-	inputs:
-		parties Party (0..*) <"Specifies the list of parties to update.">
-		oldParty Party (1..1) <"Specifies the party to be removed.">
-		newParty Party (1..1) <"Specifies the party to be added.">
-	output:
-		updatedParties Party (0..*) <"The updated list of parties.">
+    inputs:
+        parties Party (0..*) <"Specifies the list of parties to update.">
+        oldParty Party (1..1) <"Specifies the party to be removed.">
+        newParty Party (1..1) <"Specifies the party to be added.">
+    output:
+        updatedParties Party (0..*) <"The updated list of parties.">
 
     add updatedParties:
         parties
-            extract [ if item = oldParty then newParty else item ]
-            distinct
-
-func Create_PayerReceiver:
-	inputs:
-		payer CounterpartyRoleEnum (0..1)
-		receiver CounterpartyRoleEnum (0..1)
-	output:
-		payerReceiver PayerReceiver (1..1)
-
-	set payerReceiver -> payer: payer
-	set payerReceiver -> receiver: receiver
+            extract (if item = oldParty then newParty else item)
+            then distinct
 
 func FilterPartyRole: <"Filters the list of partyRoles based on the provided partyRoleEnum.">
-	inputs:
-		partyRoles PartyRole (0..*)
-		partyRoleEnum PartyRoleEnum (1..1)
-	output:
-		filteredPartyRoles PartyRole (0..*)
+    inputs:
+        partyRoles PartyRole (0..*)
+        partyRoleEnum PartyRoleEnum (1..1)
+    output:
+        filteredPartyRoles PartyRole (0..*)
 
-	add filteredPartyRoles:
-	    partyRoles
-	        filter [ item -> role = partyRoleEnum ]
+    add filteredPartyRoles: partyRoles filter role = partyRoleEnum
 
 func FilterRelatedPartyByRole: <"Filters the list of RelatedParty based on the provided partyRoleEnum.">
-	inputs:
-		relatedParties RelatedParty (0..*)
-		partyRoleEnum PartyRoleEnum (1..1)
-	output:
-		filteredRelatedParties RelatedParty (0..*)
+    inputs:
+        relatedParties RelatedParty (0..*)
+        partyRoleEnum PartyRoleEnum (1..1)
+    output:
+        filteredRelatedParties RelatedParty (0..*)
 
-	add filteredRelatedParties:
-	    relatedParties
-	        filter [ item -> role = partyRoleEnum ]
+    add filteredRelatedParties: relatedParties filter role = partyRoleEnum

@@ -5,10 +5,11 @@ import cdm.base.math.NonNegativeQuantitySchedule;
 import cdm.base.math.QuantityChangeDirectionEnum;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
-import cdm.observable.asset.PriceExpression;
+import cdm.observable.asset.PriceComposite;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.asset.PriceSchedule;
+import cdm.observable.asset.PriceTypeEnum;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.product.common.settlement.PriceQuantity;
 import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
@@ -89,17 +90,26 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 				.filter(Objects::nonNull)
 				.map(FieldWithMetaPriceScheduleBuilder::getValue)
 				.forEach(priceToUpdate ->
-						findPrice(newPrices, priceToUpdate.getUnit(), priceToUpdate.getPerUnitOf(), priceToUpdate.getPriceExpression())
+						findPrice(newPrices, priceToUpdate.getUnit(), priceToUpdate.getPerUnitOf(), priceToUpdate.getPriceType(), priceToUpdate.getComposite())
 								.ifPresent(matchingPrice ->
 										updateAmount(priceToUpdate, matchingPrice.getValue(), direction)));
 	}
 
-	private Optional<? extends PriceSchedule> findPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceExpression priceExpression) {
+	private Optional<? extends PriceSchedule> findPrice(Set<? extends PriceSchedule> prices, UnitType unitOfAmount, UnitType perUnitOfAmount, PriceTypeEnum priceTypeEnum, PriceComposite composite) {
 		return Optional.ofNullable(prices).orElseGet(HashSet::new).stream()
 				.filter(price -> Objects.nonNull(price.getUnit()))
 				.filter(price -> unitTypeEquals(price.getUnit(), unitOfAmount))
 				.filter(price -> unitTypeEquals(price.getPerUnitOf(), perUnitOfAmount))
-				.filter(price -> Objects.equals(price.getPriceExpression().toBuilder().prune(), priceExpression.toBuilder().prune()))
+				.filter(price -> Objects.equals(price.getPriceType(), priceTypeEnum))
+				.filter(price -> {
+					if (price.getComposite() == null && composite == null) {
+						return true;
+					}
+					if (price.getComposite() == null || composite == null) {
+						return false;
+					}
+                    return Objects.equals(price.getComposite().toBuilder().prune(), composite.toBuilder().prune());
+                })
 				.findFirst();
 	}
 
@@ -108,6 +118,9 @@ public class UpdateAmountForEachMatchingQuantityImpl extends UpdateAmountForEach
 			return;
 		}
 		switch (direction) {
+			case INCREASE:
+				measureBaseToUpdate.setValue(measureBaseToUpdate.getValue().add(newAmount));
+				break;
 			case DECREASE:
 				measureBaseToUpdate.setValue(measureBaseToUpdate.getValue().subtract(newAmount));
 				break;

@@ -5,271 +5,312 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-
 import cdm.observable.asset.*
 
-import cdm.product.template.*
+choice Asset: <"An Asset is defined as something that can be owned and transferred in the financial markets. As a choice data type, one and only one of the attributes must be used.">
+    Cash <"An Asset that consists solely of a monetary holding in a currency.">
+    Commodity <"An Asset comprised of raw or refined materials or agricultural products, eg gold, oil or wheat.">
+    DigitalAsset <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
+    Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
-type AssetPool: <"Characterizes the asset pool behind an asset backed bond.">
+type AssetBase: <"The base data type to specify common attributes for all Assets.">
+    identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
+    taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
+    isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
+    exchange LegalEntity (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
 
-	version string (0..1) <"The asset pool version.">
-	effectiveDate date (0..1) <"Optionally it is possible to specify a version effective date when a version is supplied.">
-	initialFactor number (1..1) <"The part of the mortgage that is outstanding on trade inception, i.e. has not been repaid yet as principal. It is expressed as a multiplier factor to the mortgage: 1 means that the whole mortgage amount is outstanding, 0.8 means that 20% has been repaid.">
-	currentFactor number (0..1) <"The part of the mortgage that is currently outstanding. It is expressed similarly to the initial factor, as factor multiplier to the mortgage. This term is formally defined as part of the 'ISDA Standard Terms Supplement for use with credit derivatives transactions on mortgage-backed security with pas-as-you-go or physical settlement'.">
+    condition ExchangeListed: <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if exchange exists then isExchangeListed
 
-	condition EffectiveDate: <"FpML specifies that it is possible to specify a version effective date when a versionId is supplied.">
-		if version is absent
-		then effectiveDate is absent
+    condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
+        if exchange is absent then relatedExchange is absent
 
-type Bond extends IdentifiedProduct: <"A class to specify a bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
+type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
+    identifier string (1..1) <"The identifier value.">
+        [metadata scheme]
+    identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
-type ConvertibleBond extends IdentifiedProduct: <"A class to specify a convertible bond as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
+type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
+    instrumentType InstrumentTypeEnum (1..1) <"Identifies the type of an instrument using an enumerated list.">
 
-type Equity extends IdentifiedProduct: <"A class to specify an equity as having a product identifier. As a difference versus the FpML standard, the CDM structure of this class only includes the productIdentifier class, which consists of an identifier, productTaxonomy, and source of the identifier. The reason for this approach is to avoid the potential for conflicting information between the information associated with the contractual product and the reference information maintained by the relevant service provider.">
-    [deprecated]
+choice Instrument: <"A type of Asset that is issued by one party to one or more others.">
+    ListedDerivative <"A securitized derivative on another asset that is created by an exchange.">
+    Loan <"An Asset that represents a loan or borrow obligation.">
+    Security <"An Asset that is issued by a party to be held by or transferred to others.">
 
 type ProductIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
-	identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
-		[metadata scheme]
-	source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
-
-type IdentifiedProduct: <"An abstract class to specify a product which terms are abstracted through reference data.">
-	productIdentifier ProductIdentifier (1..1)
-
-type ProductBase: <"Serves as an abstract class to specify a product using a productIdentifier.">
-	productTaxonomy ProductTaxonomy (0..*) <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	productIdentifier ProductIdentifier (0..*) <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the ProductIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-        [metadata address "pointsTo"=Observable->productIdentifier]
+    [metadata key]
+    identifier string (1..1) <"Provides an identifier associated with a specific product.  The identifier is unique within the public source specified in the source attribute.">
+        [metadata scheme]
+    source ProductIdTypeEnum (1..1) <"Defines the source of the identifier.">
 
 type TaxonomyValue: <"Defines a taxonomy value as either a simple string or a more granular expression with class names and values for each class.">
-	
-	name string (0..1) <"Specifies the taxonomy value as a simple string, which may be associated to an external scheme.">
-		[metadata scheme]
-	classification TaxonomyClassification (0..*) <"Specifies the taxonomy value as a set of class names and values for each class.">
 
-	condition ValueExists:
-		name exists or classification exists
+    name string (0..1) <"Specifies the taxonomy value as a simple string, which may be associated to an external scheme.">
+        [metadata scheme]
+    classification TaxonomyClassification (0..*) <"Specifies the taxonomy value as a set of class names and values for each class.">
+
+    condition ValueExists:
+        name exists or classification exists
 
 type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object).">
-	source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
-	value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
-		
+    source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
+    value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
+
+    condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
+        if value -> classification -> ordinal exists
+        then DifferentOrdinalsCondition
+
+// This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
+func DifferentOrdinalsCondition:
+    inputs:
+        taxonomy Taxonomy (1..1)
+    output:
+        result boolean (1..1)
+    set result:
+        (taxonomy -> value
+            extract [ classification -> ordinal = classification -> ordinal distinct ]
+        = True)
+
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
-	primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
-		[metadata scheme]
-	secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
-		[metadata scheme]
-	productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
+    primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
+        [metadata scheme]
+    secondaryAssetClass AssetClassEnum (0..*) <" Classifies additional risk classes of the trade, if any.">
+        [metadata scheme]
+    productQualifier string (0..1) <"Derived from the product payout features using a CDM product qualification function that determines the product type based on the product payout features.">
 
-	condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
-		required choice source, primaryAssetClass, secondaryAssetClass
+    condition TaxonomyType: <"Requires a taxonomy type to be chosen, either from a taxonomy source or using asset classes.">
+        required choice source, primaryAssetClass, secondaryAssetClass
 
-	condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
-		if source exists then ( value exists or productQualifier exists )
-	
-	condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
-		optional choice value, productQualifier
+    condition TaxonomySource: <"A taxonomy source can only be associated with a taxonomy value or productQualifier">
+        if source exists
+        then (value exists or productQualifier exists)
 
-type Index extends ProductBase: <"Identifies an index by referencing a product identifier.">
+    condition TaxonomyValue: <"A taxonomy value and product qualifier are mutually exclusive. Choice is optional as it only applies when source exists.">
+        optional choice value, productQualifier
 
-type Commodity extends ProductBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
-	commodityProductDefinition CommodityProductDefinition (0..1)  <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
-	priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
-	deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
+type Cash extends AssetBase: <"An Asset that consists solely of a monetary holding in a currency. The currency of the Cash asset is held in the string Identifier (from AssetBase) and the AssetIdTypeEnum must be set to define that a CurrencyCode is set.  The function SetCashCurrency can be used to create (or update) a Cash object and the function GetCashCurrency can be used to retrieve the currency of a Cash object.">
+
+    condition CurrencyExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">
+        AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) count = 1
+            and AssetIdentifierByType(identifier, AssetIdTypeEnum -> CurrencyCode) -> identifier
+                first
+                to-enum CurrencyCodeEnum
+                exists
+
+    condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
+        taxonomy is absent
+
+    condition NoExchange: <"Cash cannot be a listed Asset.">
+        exchange is absent and isExchangeListed is absent
+
+type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
+    commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
+    priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
+    deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
 
-type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
-	referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
-	priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
-	commodityInfoPublisher CommodityInformationPublisherEnum (0..1) <"Specifies the publication where the commodity prices can be found.">
-	exchangeId string (1..1) <" Identifies the exchange from which the reference price should be sourced, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
-	    [metadata scheme]
+    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
+        if taxonomy -> value -> classification count > 1
+        then taxonomy -> value -> classification -> ordinal exists
 
-	condition CommodityProductDefinitionChoice: <"Requires the definition of either delivery date parameters or non-exchange price source.">
-		optional choice exchangeId, priceSource
+    condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
+        if taxonomy exists
+        then (taxonomy -> source exists and taxonomy -> value exists)
+
+type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
+    referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
+    priceSource PriceSource (0..1) <"Specifies a publication that provides the commodity price, including, where applicable the details of where in the publication the price is published.  Applicable when the commodity reference price is not a futures contract">
+    commodityInfoPublisher CommodityInformationPublisherEnum (0..1) <"Specifies the publication where the commodity prices can be found.">
+    exchangeId string (1..1) <" Identifies the exchange from which the reference price should be sourced, using the scheme at the following url: http://www.fpml.org/coding-scheme/external/exchange-id-MIC-1-0">
+        [metadata scheme]
+
+    condition CommodityProductDefinitionChoice: <"Requires the definition of either delivery date parameters or non-exchange price source.">
+        optional choice exchangeId, priceSource
 
 type DeliveryDateParameters: <"Specifies a specific date or the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
-	
-	deliveryNearby cdm.base.datetime.Offset (0..1) <"Provides a container for the parametric representation that specifies which nearby contract date would be used as a refrence for a price.">
-	deliveryDate cdm.base.datetime.AdjustableDate (0..1) <"Specifies the specific contract date for the contract that should be referenced for a price.">
-	deliveryDateRollConvention cdm.base.datetime.Offset (0..1) <"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 days should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 business day should be specified and so on.">
-	deliveryDateExpirationConvention cdm.base.datetime.Offset (0..1)<"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will expire ahead of the actual expiration of the referenced future. For example: Z21 Contract expires on 19Nov21, with an adjust of 2D the 'expire' will be 16Nov21. DeliveryDateRollConvention takes precedence. Example: Pricing on the Z21 Contract with NearbyContractDay and a deliveryDateRoll of 10D, Sampling of the F22 Contract will occur on 8Nov21 through the last Date of the Z21 Contract. With an ExpConvention of 5D, the last sampling date on the F22 contract will be 12Nov21.">
+
+    deliveryNearby cdm.base.datetime.Offset (0..1) <"Provides a container for the parametric representation that specifies which nearby contract date would be used as a refrence for a price.">
+    deliveryDate cdm.base.datetime.AdjustableDate (0..1) <"Specifies the specific contract date for the contract that should be referenced for a price.">
+    deliveryDateRollConvention cdm.base.datetime.Offset (0..1) <"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will roll to the next nearby month prior to the expiration of the referenced future. If the future will not roll at all - i.e. the price will be taken from the expiring contract, 0 days should be specified here. If the future will roll to the next nearby on the last trading day - i.e. the price will be taken from the next nearby on the last trading day, then 1 business day should be specified and so on.">
+    deliveryDateExpirationConvention cdm.base.datetime.Offset (0..1) <"Specifies, for a Commodity Transaction that references a listed future, the day on which the specified future will expire ahead of the actual expiration of the referenced future. For example: Z21 Contract expires on 19Nov21, with an adjust of 2D the 'expire' will be 16Nov21. DeliveryDateRollConvention takes precedence. Example: Pricing on the Z21 Contract with NearbyContractDay and a deliveryDateRoll of 10D, Sampling of the F22 Contract will occur on 8Nov21 through the last Date of the Z21 Contract. With an ExpConvention of 5D, the last sampling date on the F22 contract will be 12Nov21.">
 
     condition DeliveryDateParametersChoice: <"Requires definition of a delivery date or delieryNearby parameters.">
-		optional choice deliveryNearby, deliveryDate
-	
-type CommodityReferenceFramework: <"Specifies the type of commodity.">
-	commodityBase string (1..1) <"Identifies the base type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. AgriculturalProducts, CommodityCompositeIndices, Energy, Freight, Metals, or PaperAndPlastic. Implementors can define their own scheme with additional values.">
-	    [metadata scheme]
-	subCommodity string (1..1) <"Identifies the sub product type of the commodity being traded, using the names defined in the ISDA 2005 Commodity Definitions SubAnnex A where possible, e.g. under Energy, the possible values are Benzene, Coal, DieselFuel, Electricity, FuelOil, GasOil, Gasoline, HeatingOil, JetFuelKerosene, Methanol, Naphtha, NaturalGas, NaturalGasLiquids, Oil, and UltraLowSulpherDiesel. Implementors can define their own scheme with additional values.">
-	    [metadata scheme]
-	commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
-	capacityUnit cdm.base.math.CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
-	weatherUnit cdm.base.math.WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
-	currency string (1..1) <"Defines the currency in which the commodity is priced.">
-	    [metadata scheme]
-	
-	condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
-		optional choice capacityUnit, weatherUnit
+        optional choice deliveryNearby, deliveryDate
 
-type Loan extends ProductBase: <"Identifies a loan by referencing a product identifier and through an optional set of attributes.">
-	borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
-	lien string (0..1) <"Specifies the seniority level of the lien.">
-		[metadata scheme]
-	facilityType string (0..1) <"Specifies the type of loan facility (letter of credit, revolving, ...).">
-		[metadata scheme]
-	creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
-	tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
-		[metadata scheme]
+type CommodityReferenceFramework: <"Specifies the type of commodity.">
+    commodityName string (1..1) <"Identifies the commodity more specifically. Where possible, this should follow the naming convention used in the 2005 ISDA Commodity Definitions SubAnnex A, including the subCommodity and additional qualifiers, but should be limited to 256 characters or less.">
+    capacityUnit CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
+    weatherUnit WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
+    currency string (1..1) <"Defines the currency in which the commodity is priced.">
+        [metadata scheme]
+
+    condition CommodityReferenceFrameworkChoice: <"Requires that either the capacity unit or weather unit is populated.">
+        optional choice capacityUnit, weatherUnit
+
+type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
+
+type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
+    deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23. Optional as this can be uniquely identified in the identifier.">
+    optionType PutCallEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
+    strike number (0..1) <"Specifies the strike of the option.">
+
+    condition Options: <"Options must have a strike price.">
+        if optionType exists then strike exists else strike is absent
+
+type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
+    borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
+    lien string (0..1) <"Specifies the seniority level of the lien.">
+        [metadata scheme]
+    facilityType string (0..1) <"Specifies the type of loan facility (letter of credit, revolving, ...).">
+        [metadata scheme]
+    creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
+    tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
+        [metadata scheme]
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
     taxonomySource TaxonomySourceEnum (1..1) <"Specifies the taxonomy source.">
-    
-	condition Eu_EligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as EU EMIR Eligible Collateral then the enumeration must be EU EMIR Eligible Collateral.">
-		if taxonomySource = TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass
-	    	then taxonomyValue -> eu_EMIR_EligibleCollateral exists
-	
-	condition UkEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as UK EMIR Eligible Collateral then the enumeration must be UK EMIR Eligible Collateral.">
-    	if taxonomySource = TaxonomySourceEnum-> UK_EMIR_EligibleCollateralAssetClass
-    		then taxonomyValue -> uk_EMIR_EligibleCollateral exists
-	
-	condition UsEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as US CFTCPR Eligbile Collateral then the enumeration must be US CFTCPR Eligible Collateral.">
-		if taxonomySource = TaxonomySourceEnum-> US_CFTC_PR_EligibleCollateralAssetClass
-			then taxonomyValue -> us_CFTC_PR_EligibleCollateral exists
-	
-	condition TaxonomyValue: <"If the Taxonomy Value is specified as a string then the taxonomy Source cannot be either EU Eligible Collateral or Uk Eligible Collateral or US Eligible Collateral.">
-		if taxonomyValue -> nonEnumeratedTaxonomyValue exists
-			then taxonomySource <> TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass
-				and taxonomySource <> TaxonomySourceEnum -> UK_EMIR_EligibleCollateralAssetClass
-				and taxonomySource <> TaxonomySourceEnum -> US_CFTC_PR_EligibleCollateralAssetClass
+
+    condition Eu_EligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as EU EMIR Eligible Collateral then the enumeration must be EU EMIR Eligible Collateral.">
+        if taxonomySource = TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass
+        then taxonomyValue -> eu_EMIR_EligibleCollateral exists
+
+    condition UkEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as UK EMIR Eligible Collateral then the enumeration must be UK EMIR Eligible Collateral.">
+        if taxonomySource = TaxonomySourceEnum -> UK_EMIR_EligibleCollateralAssetClass
+        then taxonomyValue -> uk_EMIR_EligibleCollateral exists
+
+    condition UsEligibleCollateralTaxonomy: <"If the Taxonomy Source is specified as US CFTCPR Eligbile Collateral then the enumeration must be US CFTCPR Eligible Collateral.">
+        if taxonomySource = TaxonomySourceEnum -> US_CFTC_PR_EligibleCollateralAssetClass
+        then taxonomyValue -> us_CFTC_PR_EligibleCollateral exists
+
+    condition TaxonomyValue: <"If the Taxonomy Value is specified as a string then the taxonomy Source cannot be either EU Eligible Collateral or Uk Eligible Collateral or US Eligible Collateral.">
+        if taxonomyValue -> nonEnumeratedTaxonomyValue exists
+        then taxonomySource <> TaxonomySourceEnum -> EU_EMIR_EligibleCollateralAssetClass
+                and taxonomySource <> TaxonomySourceEnum -> UK_EMIR_EligibleCollateralAssetClass
+                and taxonomySource <> TaxonomySourceEnum -> US_CFTC_PR_EligibleCollateralAssetClass
 
 type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either as a specified enumeration or as a string.">
-	eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
-	uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
-	us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules.">
-	nonEnumeratedTaxonomyValue string (0..*) <"Identifies the taxonomy value when not specified as an enumeration.">
-	    [metadata scheme]
+    eu_EMIR_EligibleCollateral EU_EMIR_EligibleCollateralEnum (0..*) <"Identifies European Union Eligible Collateral Assets classification categories based on EMIR Uncleared Margin Rules. Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM">
+    uk_EMIR_EligibleCollateral UK_EMIR_EligibleCollateralEnum (0..*) <"Identifies United Kingdom Eligible Collateral Assets classification categories based on UK Onshored EMIR Uncleared Margin Rules Eligible Collateral asset classes for both initial margin (IM) and variation margin (VM) posted and collected between specified entities. Please note: UK EMIR regulation will detail which eligible collateral assets classes apply to each type of entity pairing (counterparty) and which apply to posting of IM and VM.">
+    us_CFTC_PR_EligibleCollateral US_CFTC_PR_EligibleCollateralEnum (0..*) <"Identifies US Eligible Collateral Assets classification categories based on Uncleared Margin Rules published by the CFTC and the US Prudential Regulator. Note: While the same basic categories exist in the CFTC and US Prudential Regulators’ margin rules, the precise definitions or application of those rules could differ between the two rules.">
+    nonEnumeratedTaxonomyValue string (0..*) <"Identifies the taxonomy value when not specified as an enumeration.">
+        [metadata scheme]
 
-    condition: one-of
+    condition:
+        one-of
 
-type Security extends ProductBase: <"Identifies a security by referencing a product identifier and by specifying the sector.">
-	[docReference ICMA GMRA namingConvention "Purchased Security"
+type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
+    [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
-	securityType SecurityTypeEnum (1..1) <"Identifies the type of security using an enumerated list.">
-	debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
-	equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
-	fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
-	economicTerms EconomicTerms (0..1) <"The economic terms associated with a contractual product, i.e. the set of features that are price-forming.">
+    debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
+    equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
+    fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
-	condition DebtSubType:
-		if securityType <> SecurityTypeEnum -> Debt
-		then debtType is absent
+    condition DebtSubType:
+        if instrumentType <> InstrumentTypeEnum -> Debt
+        then debtType is absent
 
-	condition EquitySubType:
-		if securityType <> SecurityTypeEnum -> Equity
-		then equityType is absent
+    condition EquitySubType:
+        if instrumentType <> InstrumentTypeEnum -> Equity
+        then equityType is absent
 
-	condition FundSubType:
-		if securityType <> SecurityTypeEnum -> Fund
-		then fundType is absent
-
-	condition BondEconomicTerms:
-		if economicTerms exists then
-			securityType = SecurityTypeEnum -> Debt
+    condition FundSubType:
+        if instrumentType <> InstrumentTypeEnum -> Fund
+        then fundType is absent
 
 type DebtType: <"Specifies the type of debt instrument.">
-	debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
-	debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
+    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
+    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
 
 type DebtEconomics: <"Specifies selected economics of a debt instrument.">
-	debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-	debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
-	debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+    debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
+    debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
+    debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
 
 type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
 
-	issuerType IssuerTypeEnum (1..1) <"Specifies the origin of entity issuing the collateral.">
-	supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Specifies debt issued by international organisations and multilateral banks.">
-	quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
-	regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Specifies Regional government, local authority or municipal.">
-	specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1) <"Specifies a subsidiary company that is formed to undertake a specific business purpose of acquisition and financing of specific assets on a potentially limited recourse basis dependent of how it is designed. E.g. asset backed securities, including securitisations.">
+    issuerType IssuerTypeEnum (1..1) <"Specifies the origin of entity issuing the collateral.">
+    supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Specifies debt issued by international organisations and multilateral banks.">
+    quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
+    regionalGovernmentType RegionalGovernmentIssuerType (0..1) <"Specifies Regional government, local authority or municipal.">
+    specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1) <"Specifies a subsidiary company that is formed to undertake a specific business purpose of acquisition and financing of specific assets on a potentially limited recourse basis dependent of how it is designed. E.g. asset backed securities, including securitisations.">
 
-	condition SupraNationalSubType:
-		if issuerType <> IssuerTypeEnum -> SupraNational
-		then supraNationalType is absent
+    condition SupraNationalSubType:
+        if issuerType <> IssuerTypeEnum -> SupraNational
+        then supraNationalType is absent
 
-	condition QuasiGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> QuasiGovernment
-		then quasiGovernmentType is absent
+    condition QuasiGovernmentSubType:
+        if issuerType <> IssuerTypeEnum -> QuasiGovernment
+        then quasiGovernmentType is absent
 
-	condition RegionalGovernmentSubType:
-		if issuerType <> IssuerTypeEnum -> RegionalGovernment
-		then regionalGovernmentType is absent
+    condition RegionalGovernmentSubType:
+        if issuerType <> IssuerTypeEnum -> RegionalGovernment
+        then regionalGovernmentType is absent
 
-	condition SpecialPurposeVehicleSubType:
-		if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
-		then specialPurposeVehicleType is absent
+    condition SpecialPurposeVehicleSubType:
+        if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
+        then specialPurposeVehicleType is absent
 
 type QuasiGovernmentIssuerType: <"Represents a class to allow specification of different types of Quasi Government collateral.">
 
-	sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
-	sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	
-	condition NonSovereignEntityRecourse:
-		if sovereignRecourse exists then sovereignEntity = False
+    sovereignEntity boolean (1..1) <"True if sovereign entity (e.g. not separate legal personality from sovereign) or false if non-sovereign entity (e.g. separate legal personality from sovereign).">
+    sovereignRecourse boolean (0..1) <"Applies to non-sovereign entity (e.g. separate legal personality from sovereign).  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+
+    condition NonSovereignEntityRecourse:
+        if sovereignRecourse exists then sovereignEntity = False
 
 type RegionalGovernmentIssuerType: <"Represents a class to allow specification of different type of Regional government collateral.">
 
-	sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
-	
+    sovereignRecourse boolean (1..1) <"Applies to regional governments, local authorities or municipals.  True if entity has recourse to sovereign (e.g. debt guaranteed by government).  False if entity does not have recourse to sovereign.">
+
 type SpecialPurposeVehicleIssuerType: <"Represents a class to allow specification of different types of special purpose vehicle (SPV) collateral.">
-	creditRisk CreditRiskEnum (0..1) <"Indicates tranched or untranched credit risk."> 
+    creditRisk CreditRiskEnum (0..1) <"Indicates tranched or untranched credit risk.">
 
 type TaxonomyClassification:
-	className string (1..1) <"The name defined by the classification system for a specific attribute in the taxonomy.">
-	value string (1..1) <"The value set by the taxonomu that is specific to the className attribute.">
-	description string (0..1) <"A descuription of the class.">
+    className string (0..1) <"The name defined by the classification system for a specific attribute in the taxonomy">
+    value string (1..1) <"The value set by the taxonomy that is specific to the className attribute.">
+    description string (0..1) <"A description of the class.">
+    ordinal int (0..1) <"In the case of multi-layered hierarchical classification systems such as commodity classification, the layer the value and className occupy in the classification hierarchy, where 1 represents the top-layer.">
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
-	assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-	securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
-	debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
-	equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
-	fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
-	otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
-	
-	condition SecuritySubType:
-		if assetType <> AssetTypeEnum -> Security
-		then securityType is absent and debtType is absent and equityType is absent and fundType is absent
-	
-	condition BondSubType:
-		if securityType <> SecurityTypeEnum -> Debt
-		then debtType is absent
+    assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
+    securityType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
+    equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
+    fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
+    otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 
-	condition EquitySubType:
-		if securityType <> SecurityTypeEnum -> Equity
-		then equityType is absent
+    condition SecuritySubType:
+        if assetType <> AssetTypeEnum -> Security
+        then securityType is absent
+                and debtType is absent
+                and equityType is absent
+                and fundType is absent
 
-	condition FundSubType:
-		if securityType <> SecurityTypeEnum -> Fund
-		then fundType is absent
+    condition BondSubType:
+        if securityType <> InstrumentTypeEnum -> Debt
+        then debtType is absent
 
-	condition OtherAssetSubType:
-		if assetType = AssetTypeEnum -> Other 
-		then otherAssetType exists
+    condition EquitySubType:
+        if securityType <> InstrumentTypeEnum -> Equity
+        then equityType is absent
+
+    condition FundSubType:
+        if securityType <> InstrumentTypeEnum -> Fund
+        then fundType is absent
+
+    condition OtherAssetSubType:
+        if assetType = AssetTypeEnum -> Other
+        then otherAssetType exists
 
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
-	pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">
-	    [metadata scheme]
-	priceSourceLocation string (0..1) <"Specifies the location of the price which may be a specific page, electornic screen name, or a code (e.g. a RIC code) where the price can be found.">
-	priceSourceHeading string (0..1) <"Specifies the heading or field name for the price  on a given page or screen, where applicable.">
-	priceSourceTime time (0..1) <"Specifies the time at which the price should be observed.">
-	
-	condition PriceSourceHeading: <"Requires that if a priceSourceHeading is specified, then a priceSourceLocation must be speficified">
-		if priceSourceHeading exists
-		then priceSourceLocation exists
-	
+    pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">
+        [metadata scheme]
+    priceSourceLocation string (0..1) <"Specifies the location of the price which may be a specific page, electornic screen name, or a code (e.g. a RIC code) where the price can be found.">
+    priceSourceHeading string (0..1) <"Specifies the heading or field name for the price  on a given page or screen, where applicable.">
+    priceSourceTime time (0..1) <"Specifies the time at which the price should be observed.">
+
+    condition PriceSourceHeading: <"Requires that if a priceSourceHeading is specified, then a priceSourceLocation must be speficified">
+        if priceSourceHeading exists then priceSourceLocation exists

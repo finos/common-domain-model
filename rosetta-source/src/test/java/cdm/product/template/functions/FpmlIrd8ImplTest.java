@@ -5,8 +5,8 @@ import cdm.base.staticdata.party.Counterparty;
 import cdm.base.staticdata.party.CounterpartyRoleEnum;
 import cdm.base.staticdata.party.Party;
 import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
-import cdm.product.template.TradableProduct;
-import com.google.inject.Inject;
+import cdm.event.common.Trade;
+import javax.inject.Inject;
 import com.regnosys.rosetta.common.hashing.GlobalKeyProcessStep;
 import com.regnosys.rosetta.common.hashing.NonNullHashCollector;
 import com.rosetta.model.lib.RosettaModelObject;
@@ -31,43 +31,43 @@ class FpmlIrd8ImplTest extends AbstractFunctionTest {
 	void differentPartiesShouldEvaluateToValid() {
 		Party party1 = getParty("Party A");
 		Party party2 = getParty("Party B");
-		TradableProduct tradableProduct = getTradableProduct(party1, party2);
+		Trade trade = getTradableProduct(party1, party2);
 
-		assertTrue(func.evaluate(tradableProduct, Collections.emptyList()));
+		assertTrue(func.evaluate(trade, Collections.emptyList()));
 	}
 
 	@Test
 	void samePartiesAndDifferentAccountsShouldEvaluateToValid() {
 		Party party = getParty("Party A");
-		TradableProduct tradableProduct = getTradableProduct(party, party);
+		Trade trade = getTradableProduct(party, party);
 		List<Account> accounts = getAccounts(party, "Account 1", party, "Account 2");
 
-		assertTrue(func.evaluate(tradableProduct, accounts));
+		assertTrue(func.evaluate(trade, accounts));
 	}
 
 	@Test
 	void samePartiesAndNoAccountsShouldEvaluateToInvalid() {
 		Party party = getParty("Party A");
-		TradableProduct tradableProduct = getTradableProduct(party, party);
+		Trade trade = getTradableProduct(party, party);
 
-		assertFalse(func.evaluate(tradableProduct, Collections.emptyList()));
+		assertFalse(func.evaluate(trade, Collections.emptyList()));
 	}
 
 	@Test
 	void samePartiesAndSameAccountsShouldEvaluateToInvalid() {
 		Party party = getParty("Party A");
-		TradableProduct tradableProduct = getTradableProduct(party, party);
+		Trade trade = getTradableProduct(party, party);
 		List<Account> accounts = getAccounts(party, "Account 1", party, "Account 1");
 
-		assertFalse(func.evaluate(tradableProduct, accounts));
+		assertFalse(func.evaluate(trade, accounts));
 	}
 
 	private Party getParty(String name) {
 		return generateGlobalKeys(Party.class, Party.builder().setName(FieldWithMetaString.builder().setValue(name).build()));
 	}
 
-	private TradableProduct getTradableProduct(Party party1, Party party2) {
-		return TradableProduct.builder()
+	private Trade getTradableProduct(Party party1, Party party2) {
+		return Trade.builder()
 				.addCounterparty(getCounterparty(party1, CounterpartyRoleEnum.PARTY_1))
 				.addCounterparty(getCounterparty(party2, CounterpartyRoleEnum.PARTY_2))
 				.build();

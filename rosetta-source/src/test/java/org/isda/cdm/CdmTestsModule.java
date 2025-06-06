@@ -6,6 +6,7 @@ import cdm.product.asset.functions.ResolveRateIndex;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import cdm.product.common.schedule.functions.ResolveRateIndexImpl;
 import cdm.product.common.schedule.functions.TestableCalculationPeriod;
+import org.finos.cdm.CdmRuntimeModule;
 
 public class CdmTestsModule extends CdmRuntimeModule {
 

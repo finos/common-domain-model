@@ -10,9 +10,9 @@ import cdm.event.common.functions.Create_Execution;
 import cdm.event.workflow.Workflow;
 import cdm.event.workflow.WorkflowStep;
 import cdm.observable.asset.Price;
+import cdm.observable.asset.PriceQuantity;
 import cdm.observable.event.Observation;
 import cdm.observable.event.ObservationIdentifier;
-import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.TradeLot;
 import cdm.security.lending.functions.RunNewSettlementWorkflow;
 import cdm.security.lending.functions.RunReturnSettlementWorkflow;
@@ -34,11 +34,12 @@ import com.rosetta.model.lib.process.PostProcessor;
 import com.rosetta.model.lib.records.Date;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
-import org.isda.cdm.CdmRuntimeModule;
+import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ResourcesUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -78,10 +79,11 @@ class SecLendingFunctionInputCreationTest {
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
     public static final String EXECUTION_INSTRUCTION_JSON = "/cdm-sample-files/functions/sec-lending/block-execution-instruction.json";
+    public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "cdm-sample-files/functions/sec-lending/block-execution-trade-state.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
     public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/sec-lending/new-settlement-workflow-func-input.json";
-
+    
     private static Injector injector;
 
     @BeforeAll
@@ -107,9 +109,25 @@ class SecLendingFunctionInputCreationTest {
     }
 
     @Test
-    void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+    void validateExecutionInstructionWorkflowFuncOutputJson() throws IOException {
+        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
+        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
+        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
 
+        TradeState.TradeStateBuilder tradeStateBuilder = createExecution.evaluate(executionInstruction).toBuilder();
+
+        PostProcessor postProcessor = injector.getInstance(PostProcessor.class);
+        postProcessor.postProcess(TradeState.class, tradeStateBuilder);
+        
+        assertJsonEquals(BLOCK_EXECUTION_TRADE_STATE_JSON, tradeStateBuilder.build());
+    }
+
+    private static TradeState getBlockExecutionTradeStateJson() throws IOException {
+        return ResourcesUtils.getObjectAndResolveReferences(TradeState.class, BLOCK_EXECUTION_TRADE_STATE_JSON);
+    }
+
+    @Test
+    void validatePartReturnSettlementWorkflowFuncInputJson() throws IOException {
         RunReturnSettlementWorkflowInput actual = new RunReturnSettlementWorkflowInput(getTransferTradeState(),
                 ReturnInstruction.builder()
                         .addQuantity(Quantity.builder()
@@ -125,15 +143,12 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 8)
         );
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for part-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
     void validateFullReturnSettlementWorkflowFuncInputJson() throws IOException {
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
-
         ReturnInstruction returnInstruction = ReturnInstruction.builder()
                 .addQuantity(Quantity.builder()
                         .setValue(BigDecimal.valueOf(200000))
@@ -147,9 +162,8 @@ class SecLendingFunctionInputCreationTest {
                 returnInstruction,
                 Date.of(2020, 10, 21));
 
-        assertEquals(readResource("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json"),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actual),
-                "The input JSON for full-return-settlement-workflow-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
@@ -162,7 +176,7 @@ class SecLendingFunctionInputCreationTest {
 
     private CreateBusinessEventInput getAllocationInput() throws IOException {
         // Agent Lender lends 200k SDOL to Borrower CP001
-        TradeState blockExecutionTradeState = getBlockExecutionTradeState();
+        TradeState blockExecutionTradeState = getBlockExecutionTradeStateJson();
 
         SplitInstruction splitInstruction = SplitInstruction.builder()
                 // Fund 1 lends 120k SDOL to Borrower CP001
@@ -326,11 +340,8 @@ class SecLendingFunctionInputCreationTest {
                         )))
                 .build();
 
-        BillingInstruction expectedBillingInstruction = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
-
-        assertEquals(STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(expectedBillingInstruction),
-                STRICT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(actualBillingInstruction),
-                "The input JSON for create-security-lending-invoice-func-input.json has been updated (probably due to a model change). Update the input file");
+        assertJsonEquals("cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", actualBillingInstruction);
+        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
     }
 
     private BillingRecordInstruction createBillingRecordInstruction(TradeState transferTradeState, Date billingStartDate, Date billingEndDate, Date settlementDate, List<Observation> observations) {
@@ -354,19 +365,6 @@ class SecLendingFunctionInputCreationTest {
                         .build())
                 .build();
     }
-
-
-    private static TradeState getBlockExecutionTradeState() throws IOException {
-        URL resource = SecLendingFunctionInputCreationTest.class.getResource(EXECUTION_INSTRUCTION_JSON);
-        ExecutionInstruction executionInstruction = STRICT_MAPPER.readValue(resource, ExecutionInstruction.class);
-        Create_Execution createExecution = injector.getInstance(Create_Execution.class);
-
-        TradeState tradeState = createExecution.evaluate(executionInstruction);
-
-        assertNotNull(tradeState, "Expected an after trade state");
-        return tradeState;
-    }
-
 
     private static TradeState getTransferTradeState() throws IOException {
         URL resource = SecLendingFunctionInputCreationTest.class.getResource(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON);
@@ -418,7 +416,7 @@ class SecLendingFunctionInputCreationTest {
     }
 
     private static Party getParty(TradeState tradeState, CounterpartyRoleEnum counterpartyRoleEnum) {
-        return tradeState.build().toBuilder().getTrade().getTradableProduct()
+        return tradeState.build().toBuilder().getTrade()
                 .getCounterparty().stream()
                 .filter(c -> c.getRole() == counterpartyRoleEnum)
                 .map(Counterparty::getPartyReference)
@@ -428,7 +426,7 @@ class SecLendingFunctionInputCreationTest {
 
 
     private static List<NonNegativeQuantitySchedule> scaleQuantities(TradeState tradeState, double percent) {
-        return tradeState.build().toBuilder().getTrade().getTradableProduct()
+        return tradeState.build().toBuilder().getTrade()
                 .getTradeLot().stream()
                 .map(TradeLot.TradeLotBuilder::getPriceQuantity)
                 .flatMap(Collection::stream)

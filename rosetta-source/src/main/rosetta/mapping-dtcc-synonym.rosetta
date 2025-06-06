@@ -2,13 +2,11 @@ namespace cdm.mapping.dtcc
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
-
 import cdm.event.common.*
 import cdm.event.workflow.*
-
-import cdm.mapping.fpml.processes.*
-
+import cdm.mapping.fpml.confirmation.workflowstep.*
 import cdm.product.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
@@ -19,9 +17,7 @@ synonym source DTCC_11_0 extends DTCC_BASE
         + intent
             [set to EventIntentEnum -> ContractFormation when "OTC_Matching->Trade->FpML->trade" exists]
         + instruction
-            [value "Manifest" path "OTC_RM",
-                "ReportingHeader" path "OTC_Matching->ReportingData",
-                "FpML" path "OTC_Matching->Trade"]
+            [value "Manifest" path "OTC_RM" , "ReportingHeader" path "OTC_Matching->ReportingData" , "FpML" path "OTC_Matching->Trade"]
 
     Instruction:
         + before
@@ -35,7 +31,7 @@ synonym source DTCC_9_0 extends DTCC_BASE
         + party
             [value "party" path "Body->OTC_Matching->Payment->FpML"]
 
-	EventInstruction:
+    EventInstruction:
         + intent
             [value "ignore"]
         + instruction
@@ -51,168 +47,165 @@ synonym source DTCC_9_0 extends DTCC_BASE
 
     TransferInstruction:
         + transferState
-           [value "payment"]
+            [value "payment"]
 
     TransferState:
         - transfer
+
+    Asset:
+        + Instrument
+            [value "ignore"]
 }
 
-synonym source DTCC_BASE extends FpML_5_10_Processes
+synonym source DTCC_BASE extends FpML_5_Confirmation_To_WorkflowStep
 {
     AdjustableOrAdjustedOrRelativeDate:
         + adjustedDate
             [value "adjustedPaymentDate"]
-
-	CalculationAgentModel:
-		+ calculationAgentBusinessCenter
-			[value "calculationAgentBusinessCenter" path "Body->OTC_Matching->Trade->FpML->trade"]
 
     TradeState:
         + trade
             [value "TradeMsg"]
             [value "ReportingJurisdiction"]
 
-	Trade:
-		- tradeIdentifier
-		+ tradeIdentifier
-			[value "Submitter"]
-			[value "ContraTradeId"]
-			[value "YourTradeId"]
-			[value "tradeIdentifyingItems"]
+    Trade:
+        - tradeIdentifier
+        + tradeIdentifier
+            [value "Submitter"]
+            [value "ContraTradeId"]
+            [value "YourTradeId"]
+            [value "tradeIdentifyingItems"]
             [value "USI"]
-			[value "OriginatingUSI"]
+            [value "OriginatingUSI"]
             [value "UTI"]
 
-	Product:
-		+ contractualProduct
-			[hint "ProductType"]
+    TransferableProduct:
+        + Instrument
+            [hint "ProductType"]
 
-	AssignedIdentifier:
-		+ identifier
-			[value "tradeId" path "partyTradeIdentifier" maps 2
-			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier,
-			 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Trade -> tradeIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
-			[value "USITradeId" meta "tradeIdScheme"]
-			[value "UTITradeId" meta "tradeIdScheme"]
-			[value "identifier" meta "paymentIdScheme"]
+    AssignedIdentifier:
+        + identifier
+            [value "tradeId" path "partyTradeIdentifier" maps 2 set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "EventProcessingId" and rosettaPath = WorkflowStep -> eventIdentifier -> assignedIdentifier -> identifier , set when "partyTradeIdentifier->tradeId->tradeIdScheme" = "TradeRefNbr" and rosettaPath = Trade -> tradeIdentifier -> assignedIdentifier -> identifier meta "tradeIdScheme"]
+            [value "USITradeId" meta "tradeIdScheme"]
+            [value "UTITradeId" meta "tradeIdScheme"]
+            [value "identifier" meta "paymentIdScheme"]
 
-	Identifier:
-		+ issuerReference
-			[value "partyReference" path "partyTradeIdentifier" maps 2 meta "href"]
-		+ issuer
-			[value "USIIssuer" meta "issuerIdScheme"]
-			[value "UTIIssuer" meta "issuerIdScheme"]
+    Identifier:
+        + issuerReference
+            [value "partyReference" path "partyTradeIdentifier" maps 2 meta "href"]
+        + issuer
+            [value "USIIssuer" meta "issuerIdScheme"]
+            [value "UTIIssuer" meta "issuerIdScheme"]
 
-	InterestShortFall:
-		+ rateSource
-			[value "rateSource" meta "floatingRateIndexScheme"]
+    InterestShortFall:
+        + rateSource
+            [value "rateSource" meta "floatingRateIndexScheme"]
 
-	CustomisedWorkflow:
-		+ itemName
-			[set to "comment" when path = "PartyWorkflowFields->comment"]
-			[set to "superId" when path = "PartyWorkflowFields->superId"]
-			[set to "deskId" when path = "PartyWorkflowFields->deskId"]
-			[set to "eTradeId" when path = "PartyWorkflowFields->eTradeId"]
-			[set to "designatedParty" when path = "PartyWorkflowFields->designatedParty"]
-			[set to "brokerName" when path = "PartyWorkflowFields->brokerName"]
-			[set to "branchLocation" when path = "PartyWorkflowFields->branchLocation"]
-			[set to "midMarketPriceType" when path = "PartyWorkflowFields->midMarketPrice->midMarketPriceType"]
-			[set to "amount" when path = "PartyWorkflowFields->midMarketPrice->amount"]
-		+ itemValue
-			[value "comment" path "PartyWorkflowFields"]
-			[value "superId" path "PartyWorkflowFields"]
-			[value "deskId" path "PartyWorkflowFields"]
-			[value "eTradeId" path "PartyWorkflowFields"]
-			[value "designatedParty" path "PartyWorkflowFields"]
-			[value "brokerName" path "PartyWorkflowFields"]
-			[value "branchLocation" path "PartyWorkflowFields"]
-			[value "midMarketPriceType" path "PartyWorkflowFields->midMarketPrice"]
-			[value "amount" path "PartyWorkflowFields->midMarketPrice"]
+    CustomisedWorkflow:
+        + itemName
+            [set to "comment" when path = "PartyWorkflowFields->comment"]
+            [set to "superId" when path = "PartyWorkflowFields->superId"]
+            [set to "deskId" when path = "PartyWorkflowFields->deskId"]
+            [set to "eTradeId" when path = "PartyWorkflowFields->eTradeId"]
+            [set to "designatedParty" when path = "PartyWorkflowFields->designatedParty"]
+            [set to "brokerName" when path = "PartyWorkflowFields->brokerName"]
+            [set to "branchLocation" when path = "PartyWorkflowFields->branchLocation"]
+            [set to "midMarketPriceType" when path = "PartyWorkflowFields->midMarketPrice->midMarketPriceType"]
+            [set to "amount" when path = "PartyWorkflowFields->midMarketPrice->amount"]
+        + itemValue
+            [value "comment" path "PartyWorkflowFields"]
+            [value "superId" path "PartyWorkflowFields"]
+            [value "deskId" path "PartyWorkflowFields"]
+            [value "eTradeId" path "PartyWorkflowFields"]
+            [value "designatedParty" path "PartyWorkflowFields"]
+            [value "brokerName" path "PartyWorkflowFields"]
+            [value "branchLocation" path "PartyWorkflowFields"]
+            [value "midMarketPriceType" path "PartyWorkflowFields->midMarketPrice"]
+            [value "amount" path "PartyWorkflowFields->midMarketPrice"]
 
-	WorkflowStep:
-	    + proposedEvent
-	        [value "Body", "Header"]
+    WorkflowStep:
+        + proposedEvent
+            [value "Body" , "Header"]
         - messageInformation
-		+ messageInformation
-			[value "FpML" path "Body->OTC_Matching->Trade"]
-			[value "FpML" path "Body->OTC_Matching->Payment"]
-			[value "RouteInfo" path "Header->OTC_RM->Delivery"]
-			[value "Manifest" path "Header->OTC_RM"]
-		+ timestamp
-			[value "header" path "Body->OTC_Matching->Trade->FpML"]
-			[value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
-			[value "header" path "Body->OTC_Matching->Payment->FpML"]
-		- eventIdentifier
-		+ eventIdentifier
-			[value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
-			[value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
-			[value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
-			[value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
-		+ action
-			[value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
+        + messageInformation
+            [value "FpML" path "Body->OTC_Matching->Trade"]
+            [value "FpML" path "Body->OTC_Matching->Payment"]
+            [value "RouteInfo" path "Header->OTC_RM->Delivery"]
+            [value "Manifest" path "Header->OTC_RM"]
+        + timestamp
+            [value "header" path "Body->OTC_Matching->Trade->FpML"]
+            [value "Route" path "Header->OTC_RM->Delivery->RouteHist"]
+            [value "header" path "Body->OTC_Matching->Payment->FpML"]
+        - eventIdentifier
+        + eventIdentifier
+            [value "Submitter" path "Header->OTC_RM->Manifest->TradeMsg"]
+            [value "ContraTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
+            [value "YourTradeId" path "Header->OTC_RM->Manifest->TradeMsg"]
+            [value "tradeIdentifyingItems" path "Header->OTC_RM->Manifest->TradeMsg"]
+        + action
+            [value "Activity" path "Header->OTC_RM->Manifest->TradeMsg"]
         + workflowState
             [value "OTC_Matching" path "Body"]
 
-	EventTimestamp:
-		+ dateTime
-			[value "creationTimestamp"]
-			[value "expiryTimestamp"]
-			[value "ReceiveTime"]
-		+ qualification
-			[set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-			[set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-			[set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
+    EventTimestamp:
+        + dateTime
+            [value "creationTimestamp"]
+            [value "expiryTimestamp"]
+            [value "ReceiveTime"]
+        + qualification
+            [set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+            [set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+            [set to EventTimestampQualificationEnum -> eventSubmittedDateTime when "ReceiveTime" exists]
 
-	MessageInformation:
-		+ messageId
-			[value "messageId" path "header" meta "messageIdScheme"]
-		+ sentBy
-			[value "From"]
-		+ sentTo
-			[value "To"]
+    MessageInformation:
+        + messageId
+            [value "messageId" path "header" meta "messageIdScheme"]
+        + sentBy
+            [value "From"]
+        + sentTo
+            [value "To"]
 
-	PartyCustomisedWorkflow:
-		+ partyReference
-			[value "partyReference" maps 2 meta "href"]
+    PartyCustomisedWorkflow:
+        + partyReference
+            [value "partyReference" maps 2 meta "href"]
 
-	WorkflowState:
-		+ warehouseIdentity
-			[value "WarehousePositionType" path "WarehouseState"]
-		+ workflowStatus
-			[value "WarehouseStatus" path "WarehouseState"]
-		+ partyCustomisedWorkflow
-			[value "WorkflowData"]
+    WorkflowState:
+        + warehouseIdentity
+            [value "WarehousePositionType" path "WarehouseState"]
+        + workflowStatus
+            [value "WarehouseStatus" path "WarehouseState"]
+        + partyCustomisedWorkflow
+            [value "WorkflowData"]
 
-	enums
+    enums
 
-	ActionEnum:
-		+ New
-			[value "New"]
-		+ Correct
-			[value "Modify"]
-		+ Cancel
-			[value "Disable"]
+    ActionEnum:
+        + New
+            [value "New"]
+        + Correct
+            [value "Modify"]
+        + Cancel
+            [value "Disable"]
 
-	TransferSettlementEnum:
-		+ PaymentVersusPayment
-			[value "CentralSettlement"]
-		+ NotCentralSettlement
-			[value "NotCentralSettlement"]
+    TransferSettlementEnum:
+        + PaymentVersusPayment
+            [value "CentralSettlement"]
+        + NotCentralSettlement
+            [value "NotCentralSettlement"]
 
-	WarehouseIdentityEnum:
-		+ DTCC_TIW_Gold
-			[value "Gold"]
+    WarehouseIdentityEnum:
+        + DTCC_TIW_Gold
+            [value "Gold"]
 
-	WorkflowStatusEnum:
-		+ Alleged
-			[value "Alleged"]
-		+ Certain
-			[value "Certain"]
-		+ Submitted
-			[value "Submit"]
-		+ Uncertain
-			[value "Uncertain"]
-		+ Unconfirmed
-			[value "Unconfirmed"]
+    WorkflowStatusEnum:
+        + Alleged
+            [value "Alleged"]
+        + Certain
+            [value "Certain"]
+        + Submitted
+            [value "Submit"]
+        + Uncertain
+            [value "Uncertain"]
+        + Unconfirmed
+            [value "Unconfirmed"]
 }
-

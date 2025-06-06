@@ -5,7 +5,7 @@ import cdm.event.common.functions.ResolvePerformanceObservationIdentifiers;
 import cdm.observable.common.DeterminationMethodEnum;
 import cdm.observable.event.ObservationIdentifier;
 import cdm.product.template.PerformancePayout;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ public class ResolvePerformanceObservationIdentifiersTest extends AbstractFuncti
     void setUpTestData() throws IOException {
         TradeState tradeState = getObjectAndResolveReferences(TradeState.class,
                 "result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
-        performancePayout = tradeState.getTrade().getTradableProduct().getProduct().getContractualProduct().getEconomicTerms().getPayout().getPerformancePayout().get(0);
+        performancePayout = tradeState.getTrade().getProduct().getEconomicTerms().getPayout().get(0).getPerformancePayout();
     }
 
     @Test
@@ -35,7 +35,7 @@ public class ResolvePerformanceObservationIdentifiersTest extends AbstractFuncti
         ObservationIdentifier observationIdentifier = func.evaluate(performancePayout, Date.of(2002, 1, 18));
 
         assertEquals(Date.of(2002, 1, 14), observationIdentifier.getObservationDate());
-        assertEquals("SHPGY.O", observationIdentifier.getObservable().getProductIdentifier().get(0).getValue().getIdentifier().getValue());
+        assertEquals("SHPGY.O", observationIdentifier.getObservable().getAsset().getInstrument().getSecurity().getIdentifier().get(0).getIdentifier().getValue());
         assertEquals(DeterminationMethodEnum.VALUATION_TIME, observationIdentifier.getDeterminationMethodology().getDeterminationMethod());
     }
 

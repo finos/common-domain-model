@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static cdm.base.staticdata.party.PayerReceiver.*;
+import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
 import static com.rosetta.util.CollectionUtils.emptyIfNull;
 
 /**
@@ -29,32 +29,27 @@ public class DividendFixedLegMappingProcessor extends MappingProcessor {
     }
 
     @Override
-    public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-        AtomicInteger index = new AtomicInteger(0);
-        emptyIfNull((List<? extends FixedPricePayout.FixedPricePayoutBuilder>) builders).stream()
-                .filter(RosettaModelObjectBuilder::hasData)
-                .forEach(fixedPricePayout ->
-                        mapFixedPricePayoutPayerReceiver(synonymPath.getParent(),
-                                getModelPath().withIndex(index.getAndIncrement()).newSubPath("payerReceiver"),
-                                fixedPricePayout));
-    }
-
-    private void mapFixedPricePayoutPayerReceiver(Path dividendLegSynonymPath,
-                                                  RosettaPath payerReceiverModelPath,
-                                                  FixedPricePayout.FixedPricePayoutBuilder fixedPricePayout) {
-        LOGGER.debug("Mapping FixedPricePayout.payerReceiver [synonymPath={}, modelPath={}]", dividendLegSynonymPath, payerReceiverModelPath);
+    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
+        FixedPricePayout.FixedPricePayoutBuilder fixedPricePayoutBuilder = (FixedPricePayout.FixedPricePayoutBuilder) builder;
+        if (fixedPricePayoutBuilder.getPayerReceiver() != null) {
+            return;
+        }
+        Path dividendOrFixedLegSynonymPath = synonymPath.getParent();
+        Path fixedLegSynonymPath = dividendOrFixedLegSynonymPath.getParent().addElement("fixedLeg");
         PartyMappingHelper.getInstance(getContext())
                 .ifPresent(helper -> {
-                    PayerReceiverBuilder payerReceiver = fixedPricePayout.getOrCreatePayerReceiver();
+                    PayerReceiverBuilder payerReceiver = fixedPricePayoutBuilder.getOrCreatePayerReceiver();
+                    RosettaPath payerReceiverModelPath = getModelPath().newSubPath("payerReceiver");
+                    LOGGER.debug("Mapping FixedPricePayout.payerReceiver [synonymPath={}, modelPath={}]", fixedLegSynonymPath, payerReceiverModelPath);
 
                     helper.setCounterpartyRoleEnum(
                             payerReceiverModelPath.newSubPath("payer"),
-                            dividendLegSynonymPath.addElement("payerPartyReference"),
+                            fixedLegSynonymPath.addElement("payerPartyReference"),
                             payerReceiver::setPayer);
 
                     helper.setCounterpartyRoleEnum(
                             payerReceiverModelPath.newSubPath("receiver"),
-                            dividendLegSynonymPath.addElement("receiverPartyReference"),
+                            fixedLegSynonymPath.addElement("receiverPartyReference"),
                             payerReceiver::setReceiver);
                 });
     }

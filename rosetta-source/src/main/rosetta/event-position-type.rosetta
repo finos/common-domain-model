@@ -1,44 +1,107 @@
 namespace cdm.event.position : <"Position concepts: portfolio and portfolio aggregation.">
 version "${project.version}"
 
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
-
-import cdm.product.common.settlement.*
-import cdm.product.template.*
-import cdm.observable.asset.*
 import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.observable.asset.*
+import cdm.product.collateral.*
+import cdm.product.template.*
+
+type ContractBase: <"Encapsulates data features common to trade and position.">
+    contractDetails ContractDetails (0..1) <"Represents information specific to trades or positions involving contractual products.">
+        [metadata reference]
+    executionDetails ExecutionDetails (0..1) <"Defines specific attributes that relate to trade or position executions.">
+        [metadata reference]
+    collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
+        [metadata reference]
+
+type CounterpartyPosition extends ContractBase: <"A Position describes the accumulated effect of a set of securities or financial transactions.">
+    positionIdentifier PositionIdentifier (0..*) <"Represents the identifier(s) that uniquely identify a position for an identity issuer. A position can include multiple identifiers, for example an internal position identifer and a UTI (Unique Trade Identifier).">
+    openDateTime dateTime (0..1) <"The date and time when the position was opened.">
+    tradeReference TradeState (0..*) <"Reference to all the trades that constitute the position.">
+        [metadata reference]
+    party Party (0..*) <"The parties involved in the position, including the Clearing Organization.">
+    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the position.">
+    positionBase TradableProduct (1..1) <"Encapsulates the core constituents that characterize a position.">
 
 type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
-	
-	priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
-	product Product (1..1) <"The product underlying the position.">
-	cashBalance Money (0..1) <"The aggregate cost of proceeds">
- 	tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
- 		[metadata reference]
-	
+
+    priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
+    product Product (1..1) <"The product underlying the position.">
+    cashBalance Money (0..1) <"The aggregate cost of proceeds">
+    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+        [metadata reference]
+
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
-	[metadata key]
+    [metadata key]
 
-	positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
-	lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
+    positions Position (0..*) <"The list of positions, each containing a Quantity and a Product.">
+    lineage Lineage (1..1) <"Pointer to the previous PortfolioState and new Event(s) leading to the current (new) state. Previous PortfolioState in the Lineage can be Null in case this is the start of the chain of Events.">
 
-	condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
-		if lineage -> portfolioStateReference is absent
-		then positions is absent
-			and lineage -> eventReference is absent
+    condition Initialisation: <"When the PortfolioState is the starting state of the Portfolio, as identified by a Null state in the Lineage, Positions must be empty and the reference to the latest Event is also empty. This is how a Portfolio gets initialised.">
+        if lineage -> portfolioStateReference is absent
+        then positions is absent and lineage -> eventReference is absent
+
+    condition NonTransferable: <"The Product in a PortfolioState should be a nonTransferableProduct.">
+        positions -> product -> NonTransferableProduct exists
 
 type AggregationParameters: <" Parameters to be used to filter events that are relevant to a given portfolio in order to calculate the state of this portfolio. The attributes correspond to all the possible aggregation criteria that can be used and these criteria can be combined. All the attributes are optional.">
-	dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
-	totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
-	positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
-	party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
-		[metadata reference]
-	product Product (0..*) <"To aggregate based on a selection of products.">
-	productQualifier productType (0..*) <"To aggregate based on a selection of product type(s).">
-	tradeReference Trade (0..*)
-	    [metadata reference]
+    dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
+    totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
+    positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
+    party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
+        [metadata reference]
+    product NonTransferableProduct (0..*) <"To aggregate based on a selection of products.">
+    productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
+    tradeReference Trade (0..*)
+        [metadata reference]
 
 type Portfolio: <" A Portfolio represents an aggregation of multiple Positions, by describing the parameters that this Portfolio should be aggregated based on. The resulting PortfolioState is calculated using these aggregation parameters as inputs, by aggregating all the Events that are relevant to this Portfolio. The concept of Portfolio works at all levels in the model: from the highest for a given LegalEntity for instance, to the lowest to account for security substitutions in a secutity financing transaction. As such, Portfolio can be used either above or below the Contract level.">
+    aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
+    portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
 
-	aggregationParameters AggregationParameters (1..1) <"Describes the portfolio by describing how to aggregate all its relevant Events.">
-	portfolioState PortfolioState (1..1) <"Describes the state of the Portfolio as a list of Positions resulting from the aggregation.">
+type Inventory: <"A data type that can be used to describe an inventory of securities.">
+    inventoryRecord InventoryRecord (0..*) <"An array holding the list of inventory being described. Each element in the inventoryRecord array represents an individual piece of inventory i.e. a security.">
+
+type InventoryRecord: <"An individual piece of inventory. This represents a single security.">
+    identifer AssignedIdentifier (1..1) <"Unique identifier for this record. This can be used to uniquely identify a specific piece of inventory.">
+    security Security (1..1) <"The security details.">
+
+type AvailableInventory: <"A data type that can be used to describe the inventory of securities that a party holds. The securities are held in the AvailableInventoryRecord, with each item in the array being an individual security and its associated criteria. Criteria can include the quantity available, the rate at which the security is available to borrow at, as well as other details that can affect the decision as to whether a party wants to utilise the securities listed.">
+    availableInventoryType AvailableInventoryTypeEnum (1..1) <"Defines the purpose of this inventory.">
+    messageInformation MessageInformation (0..1) <"Allows details related to the availability messaging use case to be defined">
+    party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
+    partyRole PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the inventory.">
+    availableInventoryRecord AvailableInventoryRecord (0..*) <"An array holding the list of inventory being described. Each element in the inventoryRecord array represents an individual piece of inventory i.e. a security.">
+
+    condition ValidPartyRole: <"Restrict roles to be only those that would be associated to the overall list of availability">
+        IsValidPartyRole(
+                partyRole,
+                [PartyRoleEnum -> AgentLender, PartyRoleEnum -> BeneficialOwner, PartyRoleEnum -> Borrower, PartyRoleEnum -> Custodian, PartyRoleEnum -> Lender]
+            )
+
+type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of available inventory. This represents a single security and its associated criteria. The criteria are used to describe any restrictions on the securities.">
+    expirationDateTime zonedDateTime (0..1) <"There may be a set period/time restriction associated to the security.">
+    collateral CollateralProvisions (0..*) <"The type of collateral can often be required when determining if the piece of availability being described is suitable for a party.">
+    partyRole PartyRole (0..*) <"An individual security may be held by several agents. Including the party role at this level allows us to reference the party holding this specific item.">
+    quantity Quantity (0..1) <"The quantity of the security">
+    interestRate Price (0..1) <"An optional element which can be used to hold a rate associated to this piece of availability.">
+
+    condition InterestRate: <"Where an Interest Rate has been specified then the Price Type must be set to interest rate">
+        if interestRate exists
+        then interestRate -> priceType = PriceTypeEnum -> InterestRate
+
+    condition ValidPartyRole: <"Restrict roles to be only those that would be associated to an individual piece of availability">
+        IsValidPartyRole(
+                partyRole,
+                [PartyRoleEnum -> AgentLender, PartyRoleEnum -> BeneficialOwner, PartyRoleEnum -> Custodian, PartyRoleEnum -> Lender]
+            )
+
+type SecurityLocate extends AvailableInventory: <"A locate is an approval from a broker that needs to be obtained prior to effecting a short sale in an equity security. Similar to security availability, a borrower can request a single or multiple securities, but at least one must be requested.">
+
+    condition RequestOneSecurityMinimum: <"A locate must request the availability of at least one security.">
+        availableInventoryRecord exists

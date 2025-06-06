@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public final class PatternStreamer {
 	private final Pattern pattern;
 	public PatternStreamer(String regex) {
-		this.pattern = Pattern.compile(regex, Pattern.MULTILINE);
+		this.pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
 	}
 	public Stream<MatchResult> results(CharSequence input) {
 		List<MatchResult> list = new ArrayList<>();

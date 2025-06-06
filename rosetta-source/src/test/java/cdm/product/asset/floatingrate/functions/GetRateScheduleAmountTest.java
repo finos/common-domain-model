@@ -1,13 +1,12 @@
 package cdm.product.asset.floatingrate.functions;
 
+import cdm.base.math.ArithmeticOperationEnum;
 import cdm.base.math.DatedValue;
 import cdm.base.math.UnitType;
-import cdm.observable.asset.PriceExpression;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
-import cdm.observable.asset.SpreadTypeEnum;
 import cdm.product.common.schedule.RateSchedule;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -55,9 +54,8 @@ public class GetRateScheduleAmountTest extends AbstractFunctionTest {
 				.setValue(BigDecimal.valueOf(spreadAmount))
 				.setUnit(UnitType.builder().setCurrencyValue("USD"))
 				.setPerUnitOf(UnitType.builder().setCurrencyValue("USD"))
-				.setPriceExpression(PriceExpression.builder()
-						.setPriceType(PriceTypeEnum.INTEREST_RATE)
-						.setSpreadType(SpreadTypeEnum.SPREAD));
+				.setPriceType(PriceTypeEnum.INTEREST_RATE)
+				.setArithmeticOperator(ArithmeticOperationEnum.ADD);
 	}
 
 	private void check(double expected, BigDecimal actual) {

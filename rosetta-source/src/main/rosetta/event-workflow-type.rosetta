@@ -2,138 +2,144 @@ namespace cdm.event.workflow : <"Workflow concepts (orthogonal to business event
 version "${project.version}"
 
 import cdm.base.datetime.*
-
-import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
-
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
 
 type CreditLimitInformation: <"A class to represent the credit limit utilisation information.">
 
-	limitApplicable LimitApplicableExtended (1..*)
+    limitApplicable LimitApplicableExtended (1..*)
 
 type CreditLimitUtilisation: <"Credit limit utilisation breakdown by executed trades and pending orders.">
 
-	executed CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to executed trades.">
-	pending CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to pending unexecuted orders.">
+    executed CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to executed trades.">
+    pending CreditLimitUtilisationPosition (0..1) <"Credit limit utilisation attributable to pending unexecuted orders.">
 
 type CreditLimitUtilisationPosition:
 
-	shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">
-	longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">
-	global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
+    shortPosition number (0..1) <"Credit limit utilisation attributable to short positions.">
+    longPosition number (0..1) <"Credit limit utilisation attributable to long positions.">
+    global number (0..1) <"Global credit limit utilisation amount, agnostic of long/short position direction.">
 
 type CustomisedWorkflow: <"In its initial iteration, this class is meant to support the DTCC TIW workflow information.">
 
-	itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
-	itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
+    itemName string (1..1) <"In this initial iteration, this corresponds to the DTCC TIW element name.">
+    itemValue string (1..1) <"In this initial iteration, this corresponds to the DTCC value.">
 
+type WorkflowStepApproval: <"Party approvals associated to the current WorkflowStep. ">
+    [metadata key]
+    approved boolean (1..1) <"Flag denoting whether the workflow step is approved or not">
+    party Party (1..1) <"Reference to the Party who is approving/rejecting this workflow step">
+        [metadata reference]
+    rejectedReason string (0..1) <"Optional reason for rejecting the workflow step">
+    timestamp EventTimestamp (1..1) <"Timestamp of the approval">
 
 type WorkflowStep: <"A workflow step represents the state of a business event. The workflow step contains a reference to a previous WorkflowStep in order to preserve lineage. A workflow step is accepted if it contains a business event, proposed if proposedEvent is present and is rejected if the rejected flag is set.">
-	[metadata key]
-	[rootType]
+    [metadata key]
+    [rootType]
 
-	businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedEvent or rejection are present.">
-	proposedEvent EventInstruction (0..1) <"The proposed event for a workflow step. The proposedEvent is optional when the businessEvent or rejection are present">
-	rejected boolean (0..1) <"Flags this step as rejected.">
-	previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
-		[metadata reference]
-	nextEvent EventInstruction (0..1) <"The intended next event can be specified, even if the instructions are not known yet.">
-	messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
-	timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
-	eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
-	action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
-	party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
-	account Account (0..*) <"Optional account information that could be associated to the event.">
-	lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
-	    [deprecated]
-	creditLimitInformation CreditLimitInformation (0..1)
-	workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
-		
-	condition WorkflowStepStatus:
-		(WorkflowStep -> businessEvent exists and WorkflowStep -> nextEvent -> instruction is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> nextEvent -> instruction exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> rejected exists and WorkflowStep -> businessEvent is absent and WorkflowStep -> nextEvent is absent)
-        or
-        (WorkflowStep -> proposedEvent exists and WorkflowStep -> nextEvent is absent and WorkflowStep -> rejected is absent)
-		or
-		(WorkflowStep -> previousWorkflowStep exists and action = ActionEnum->Cancel)
+    businessEvent BusinessEvent (0..1) <"Life cycle event for the step. The businessEvent is optional when a proposedEvent or rejection are present.">
+    counterpartyPositionBusinessEvent CounterpartyPositionBusinessEvent (0..1) <"Documents the life cycle event for a position.">
+    proposedEvent EventInstruction (0..1) <"The proposed event for a workflow step. The proposedEvent is optional when the businessEvent or rejection are present">
+    rejected boolean (0..1) <"Flags this step as rejected.">
+    approval WorkflowStepApproval (0..*) <"Optional party approvals for the current workflow step. A workflow step can have any number of parties associated to it, thus this object is represented as a list. All parties that are expected to provide approval should have an item in this list that references them.">
+    previousWorkflowStep WorkflowStep (0..1) <"Optional previous workflow step that provides lineage to workflow steps that precedes it.">
+        [metadata reference]
+    nextEvent EventInstruction (0..1) <"The intended next event can be specified, even if the instructions are not known yet.">
+    messageInformation MessageInformation (0..1) <"Contains all information pertaining the FpML messaging header ">
+    timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
+    eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
+    action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
+    party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
+    account Account (0..*) <"Optional account information that could be associated to the event.">
+    lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
+        [deprecated]
+    creditLimitInformation CreditLimitInformation (0..1)
+    workflowState WorkflowState (0..1) <"The event workflow information, i.e. the workflow status, the associated comment and the partyCustomisedWorkflow which purpose is to provide the ability to associate custom workflow information to the CDM.">
+
+    condition WorkflowStepStatus:
+        (businessEvent exists and nextEvent -> instruction is absent and rejected is absent)
+            or (nextEvent -> instruction exists and businessEvent is absent and rejected is absent)
+            or (rejected exists and businessEvent is absent and nextEvent is absent)
+            or (proposedEvent exists and nextEvent is absent and rejected is absent)
+            or (previousWorkflowStep exists and action = ActionEnum -> Cancel)
+
+    condition CounterpartyPositionBusinessEventOrBusinessEventChoice: <"Choice rule to control that either positionBusinessEvent is present or businessEvent is present, but not both at the same time.">
+        required choice counterpartyPositionBusinessEvent, businessEvent
 
 type Workflow: <"A collection of workflow steps which together makeup an entire workflow sequence.">
 
-	steps WorkflowStep (1..*)
+    steps WorkflowStep (1..*)
 
 type EventInstruction: <"Specifies instructions to create a BusinessEvent.">
 
-	intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
-	corporateActionIntent CorporateActionTypeEnum (0..1)
-	eventDate date (0..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
-	effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
-	packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
+    intent EventIntentEnum (0..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those. An example of such is a reduction in the trade notional, which could be interpreted as either a trade correction (unless a maximum period of time post-event is specified as part of the qualification), a partial termination or a portfolio rebalancing in the case of an equity swap. On the other hand, an event such as the exercise is not expected to have an associated intent as there should not be ambiguity.">
+    corporateActionIntent CorporateActionTypeEnum (0..1)
+    eventDate date (0..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
+    effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
+    packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
     instruction Instruction (0..*) <"Specifies the instructions to create the Business Event.">
 
-	condition CorporateAction:
-		if corporateActionIntent exists then intent = EventIntentEnum -> CorporateActionAdjustment
-		
+    condition CorporateAction:
+        if corporateActionIntent exists
+        then intent = EventIntentEnum -> CorporateActionAdjustment
+
 type EventTimestamp: <"A class to represent the various set of timestamps that can be associated with lifecycle events, as a collection of [dateTime, qualifier].">
 
-	dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-	qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
+    dateTime zonedDateTime (1..1) <"The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
+    qualification EventTimestampQualificationEnum (1..1) <"The timestamp qualifier is specified through an enumeration because the experience of integrating the DTCC and CME data representations suggests that a wide set of timestamps are currently utilized among service providers, while there is not at present an objective set of criteria that could help suggest a defined set of timestamps as part of the CDM. At some future point, one possible baseline could be developed from the review of the set of timestamps specified across regulatory regimes and regulations (incl. regulations such as high frequency trading). Also, the integration with a further set of implementations and the specification of business workflows such as clearing as part of the CDM development should help confirm the implementation approach in this respect.">
 
 type WorkflowState: <"A class to specify workflow information, which is conceptually applicable to all lifecycle events.">
 
-	workflowStatus WorkflowStatusEnum (1..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
-	comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
-	partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
-	warehouseIdentity WarehouseIdentityEnum (0..1) <"The identity of the warehouse, if any, that is executing that workflow step.">
+    workflowStatus WorkflowStatusEnum (1..1) <"The workflow status indicator, e.g. Accepted, Rejected, ...">
+    comment string (0..1) <"A comment field to be associated with the workflow, e.g. to specify why a transaction event was rejected by a party.">
+    partyCustomisedWorkflow PartyCustomisedWorkflow (0..*) <"Workflow data that is specific to certain market participants and is expressed as part of the CDM in a very generic manner, which can be party-specific. The initial use cases have been derived from the CME clearing and the DTCC TIW submissions.">
+    warehouseIdentity WarehouseIdentityEnum (0..1) <"The identity of the warehouse, if any, that is executing that workflow step.">
 
 type LimitApplicable:
 
-	limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
-		[metadata scheme]
-	clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
-	amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-	utilization CreditLimitUtilisation (0..1)
-	amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-	currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	velocity Velocity (0..1)
+    limitType CreditLimitTypeEnum (0..1) <"Standard code to indicate which type of credit line is being referred to - i.e. IM, DV01, PV01, CS01, Notional, Clip Size, Notional, maximumOrderQuantity.">
+        [metadata scheme]
+    clipSize int (0..1) <"This element is required in FpML, optional in CDM for the purpose of accommodating the CME data representation while making reference to the FpML one.">
+    amountUtilized number (0..1) <"The limit utilised by all the cleared trades for the limit level and limit type. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+    utilization CreditLimitUtilisation (0..1)
+    amountRemaining number (0..1) <"The limit remaining for the limit level and limit type. This does not take into account any pending trades. While the attribute is of type integer in FpML and the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+    currency string (0..1) <"The currency in which the applicable limit is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+        [metadata scheme]
+    velocity Velocity (0..1)
 
-	condition LimitApplicableChoice: <"Choice rule to represent an FpML choice construct.">
-		optional choice amountUtilized, utilization
+    condition LimitApplicableChoice: <"Choice rule to represent an FpML choice construct.">
+        optional choice amountUtilized, utilization
 
 type LimitApplicableExtended extends LimitApplicable: <"A class to represent the CDM attributes that are not part of the FpML standard. Once broader usage is confirmed, it is expected that those two classes can be collapsed.">
 
-	limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
-		[metadata scheme]
-	limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
-	limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+    limitLevel LimitLevelEnum (0..1) <"The level at which the limit is set: customer business, proprietary business or account level. This attribute is specified as a string as part of the CME clearing confirmation specification.">
+        [metadata scheme]
+    limitAmount number (0..1) <"The total limit available for the limit level and limit type. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
+    limitImpactDueToTrade number (0..1) <"The limit utilized by this specific trade. While the attribute is of type integer in the CME schema, it has been specified to be of type number in the CDM to take into consideration java size limits as well as for consistency purposes with the way most monetary amounts are expressed.">
 
 type MessageInformation: <"This class corresponds to the components of the FpML MessageHeader.model.">
 
-	messageId string (1..1) <"A unique identifier assigned to the message.">
-		[metadata scheme]
-	sentBy string (0..1) <"The identifier for the originator of a message instance.">
-		[metadata scheme]
-	sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
-		[metadata scheme]
-	copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
-		[metadata scheme]
+    messageId string (1..1) <"A unique identifier assigned to the message.">
+        [metadata scheme]
+    sentBy string (0..1) <"The identifier for the originator of a message instance.">
+        [metadata scheme]
+    sentTo string (0..*) <"The identifier(s) for the recipient(s) of a message instance.">
+        [metadata scheme]
+    copyTo string (0..*) <"A unique identifier (within the specified coding scheme) giving the details of some party to whom a copy of this message will be sent for reference.">
+        [metadata scheme]
 
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 
-	partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
-		[metadata reference]
-	partyName string (0..1) <"The party name to which the workflow pertains to.">
-	customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
+    partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
+        [metadata reference]
+    partyName string (0..1) <"The party name to which the workflow pertains to.">
+    customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
 
-	condition PartyCustomisedWorkflowChoice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
-		required choice partyName, partyReference
+    condition PartyCustomisedWorkflowChoice: <"The identification of the party to which the PartyCustomisedWorkflow pertains to can be done through either a party reference or the party name.">
+        required choice partyName, partyReference
 
 type Velocity:
 
-	periodMultiplier int (0..1)
-	period PeriodTimeEnum (0..1)
-
+    periodMultiplier int (0..1)
+    period PeriodTimeEnum (0..1)

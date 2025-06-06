@@ -2,45 +2,21 @@ namespace cdm.product.common.settlement : <"Common product settlement concepts: 
 version "${project.version}"
 
 import cdm.base.math.*
-
 import cdm.observable.asset.*
 
 func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
-	inputs:
-		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
-		amount number (1..1) <"The new amount.">
-	output:
-		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+    [codeImplementation]
+    inputs:
+        priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+        amount number (1..1) <"The new amount.">
+    output:
+        updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
 
 func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
-	inputs:
-		priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
-		change PriceQuantity (1..*)
-		direction QuantityChangeDirectionEnum (1..1)
-	output:
-		updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
-
-	condition DirectionNotIncrease: direction <> QuantityChangeDirectionEnum -> Increase
-
-func Create_PriceQuantity: <"Populates a PriceQuantity object based on Price and/or Quantity inputs.">
-	inputs:
-		price PriceSchedule (0..*) <"List of prices">
-		quantity NonNegativeQuantitySchedule (0..*) <"List of quantities">
-		observable Observable (0..1)
-	output:
-		priceQuantity PriceQuantity (1..1) <"The PriceQuantity object populated from the Price and Quantity list inputs.">
-
-	add priceQuantity -> price: price
-	add priceQuantity -> quantity: quantity
-	set priceQuantity -> observable: observable
-
-
-func Create_ResolvablePriceQuantity: <"Populates a PriceQuantity object based on Price and/or Quantity inputs.">
-	inputs:
-		quantity NonNegativeQuantitySchedule (1..1)
-		price PriceSchedule (0..*)
-	output:
-		priceQuantity ResolvablePriceQuantity (1..1) <"The Resolvable PriceQuantity object populated from the Price and Quantity list inputs.">
-
-	set priceQuantity -> quantitySchedule: quantity
-	set priceQuantity -> priceSchedule: price
+    [codeImplementation]
+    inputs:
+        priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
+        change PriceQuantity (1..*)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">

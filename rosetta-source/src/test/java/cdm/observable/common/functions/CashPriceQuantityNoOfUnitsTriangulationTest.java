@@ -5,9 +5,9 @@ import cdm.base.math.metafields.FieldWithMetaNonNegativeQuantitySchedule;
 import cdm.event.common.TradeState;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
-import cdm.product.common.settlement.PriceQuantity;
+import cdm.observable.asset.PriceQuantity;
 import cdm.product.template.TradableProduct;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	@Test
 	void shouldTriangulateEquityPriceNotionalAndNoOfUnitsAndReturnSuccess() throws IOException {
 		TradeState tradeState = getObject(TradeState.class, EQUITY_DIR + "eqs-ex01-single-underlyer-execution-long-form.json");
-		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
+		TradableProduct tradableProduct = tradeState.getTrade();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
 		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()
@@ -55,7 +55,7 @@ public class CashPriceQuantityNoOfUnitsTriangulationTest extends AbstractFunctio
 	@Test
 	void shouldReturnSuccessNotApplicableBecauseNoOfUnitsNotDefined() throws IOException {
 		TradeState tradeState = getObject(TradeState.class, EQUITY_DIR + "eqs-ex10-short-form-interestLeg-driving-schedule-dates.json");
-		TradableProduct tradableProduct = tradeState.getTrade().getTradableProduct();
+		TradableProduct tradableProduct = tradeState.getTrade();
 
 		List<? extends PriceQuantity> priceQuantity = tradableProduct.getTradeLot().get(0).getPriceQuantity();
 		List<? extends NonNegativeQuantitySchedule> quantity = priceQuantity.stream()

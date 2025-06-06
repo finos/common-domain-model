@@ -2,36 +2,9 @@ namespace cdm.observable.asset.fro : <"Support for floating rate option definiti
 version "${project.version}"
 
 import cdm.base.staticdata.asset.rates.*
-
-import cdm.observable.asset.*
-
-// =====================================================================
-//
-// Index value lookup (observation) functions
-//
-// these functions allow retrieval of the value of an index on a date or set of dates
-// the could perhaps be moved to a different package
-//
-// ======================================================================
-
-func IndexValueObservation: <"Retrieve the values of the supplied index on the specified observation date.">
-    // data provider - implementation provides observed value from data source
-	inputs:
-		observationDate date (1..1)
-		floatingRateOption FloatingRateOption (1..1)
-	output:
-		observedValue number (1..1)
-
-func IndexValueObservationMultiple: <"Retrieve the values of the supplied index on the specified observation dates.">
-	inputs:
-		observationDate date (0..*)
-		floatingRateOption FloatingRateOption (1..1)
-	output:
-		observedValues number (0..*)
-
-	add observedValues:
-	    observationDate
-            extract [ IndexValueObservation( item, floatingRateOption ) ]
+import cdm.event.common.*
+import cdm.legaldocumentation.common.*
+import cdm.observable.asset.fro.*
 
 // =====================================================================
 //
@@ -41,9 +14,38 @@ func IndexValueObservationMultiple: <"Retrieve the values of the supplied index 
 // and validation that it is a valid floating rate index name
 //
 // ======================================================================
-
 func FloatingRateIndexMetadata: <"Retrieve all available metadata for the floating rate index.">
-	inputs:
-		floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
-	output:
-		floatingRateIndexDescription FloatingRateIndexDefinition (0..1)	<"The detailed description of the index if available, null otherwise.">
+    [codeImplementation]
+    inputs:
+        floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
+    output:
+        floatingRateIndexDescription FloatingRateIndexDefinition (0..1) <"The detailed description of the index if available, null otherwise.">
+
+func ValidateFloatingRateIndexName: <"Return whether the supplied floating rate index name is valid for the supplied contractual definitions.">
+    inputs:
+        floatingRateIndexName FloatingRateIndexEnum (1..1) <"The name of the floating rate index.">
+        contractualDefs ContractualDefinitionsEnum (0..1) <"The contractual definitions to validate against.">
+    output:
+        isValid boolean (1..1) <"True if this is a floating rate index name that is valid.">
+
+    alias defs: FloatingRateIndexMetadata(floatingRateIndexName)
+    alias isPresent: defs exists
+    alias defsOk:
+        defs -> supportedDefinition -> contractualDefinitionIdentifier -> contractualDefinitionType contains contractualDefs
+    alias okDefs:
+        if contractualDefs exists then defsOk else defs exists
+
+    set isValid: okDefs
+
+func FilterInvalidFloatingRateIndexTradeDate: <"Returns the invalid floating rate index or indices of a trade based on their metadata and the trade date.">
+    inputs:
+        tradeState TradeState (1..1) <"The input is a trade to validate its floating rate index based on the trade date">
+    output:
+        invalidFloatingRateIndex FloatingRateIndexEnum (0..*) <"The invalid floating rate index or indices of a trade based on their metadata and the trade date.">
+
+    set invalidFloatingRateIndex:
+        tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex -> FloatingRateIndex -> floatingRateIndex
+            extract FloatingRateIndexMetadata
+            then filter
+                history -> startDate > tradeState -> trade -> tradeDate or history -> endDate < tradeState -> trade -> tradeDate
+            then extract item -> fro -> floatingRateIndex

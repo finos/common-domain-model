@@ -2,65 +2,55 @@ namespace cdm.observable.asset : <"Observable concepts applicable to assets: pri
 version "${project.version}"
 
 import cdm.base.math.*
+import cdm.observable.asset.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
         prices PriceSchedule (0..*) <"List of prices to filter.">
         priceType PriceTypeEnum (1..1) <"The price type to filter by: asset price, cash price, exchange rate etc.">
- 	    priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
- 	    grossOrNet GrossOrNetEnum (0..1) <"Optionally filter between gross / net price.">
- 	    cashPriceType CashPriceTypeEnum (0..1) <"Optionally filter by type of cash price: fee or premium.">
- 	    cleanOrDirty CleanOrDirtyPriceEnum (0..1) <"Optionally filter by clean / dirty price.">
- 	    capFloor CapFloorEnum (0..1) <"Optionally filter by type of interest rate cap / floor.">
- 	    spreadType SpreadTypeEnum (0..1) <"Optionally filter by type of spread / base price.">
+        arithmeticOperators ArithmeticOperationEnum (0..*) <"Optionally filter based on the type of operator, e.g. if price is specified as a spread or a multiplier. Several operators can be passed as arguments (e.g. [ Add, Subtract ]).">
+        priceExpression PriceExpressionEnum (0..1) <"Optionally filter by type of price expression: percentage of notional, par value fraction">
     output:
         price PriceSchedule (0..1)
 
     set price: <"Return as single element rather than a list.">
         prices
-            filter [ item -> priceExpression -> priceType = priceType ]
-            filter [ if priceExpression exists then item -> priceExpression -> priceExpression = priceExpression else True ]
-            filter [ if grossOrNet exists then item -> priceExpression -> grossOrNet = grossOrNet else True ]
-            filter [ if cashPriceType exists then item -> priceExpression -> cashPrice -> cashPriceType = cashPriceType else True ]
-            filter [ if cleanOrDirty exists then item -> priceExpression -> cleanOrDirty = cleanOrDirty else True ]
-            filter [ if capFloor exists then item -> priceExpression -> capFloor = capFloor else True ]
-            filter [ if spreadType exists then item -> priceExpression -> spreadType = spreadType else True ]
-            only-element
+            filter item -> priceType = priceType
+            then filter
+                if arithmeticOperators exists
+                then arithmeticOperators contains item -> arithmeticOperator
+                else True
+            then filter
+                if priceExpression exists
+                then item -> priceExpression = priceExpression
+                else True
+            then only-element
 
-func Create_Price: <"Populates a price object based on inputs.">
-	inputs:
-		value number (1..1)
-		unit UnitType (1..1)
-		perUnitOf UnitType (1..1)
-		priceExpression PriceExpression (1..1)
-	output:
-		price Price (1..1)
+func InterestRateObservableCondition: <"Implementation for PriceQuantity.InterestRateObservable condition.">
+    inputs:
+        pq PriceQuantity (1..1)
+    output:
+        valid boolean (0..1)
 
-	set price -> value: value
-	set price -> unit: unit
-	set price -> perUnitOf: perUnitOf
-	set price -> priceExpression: priceExpression
+    set valid:
+        if pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists
+        then pq -> price
+                extract [
+                    priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
+                ] all = True
 
-func Create_PriceSchedule: <"Populates a price schedule object based on inputs.">
-	inputs:
-		amount number (1..1)
-		unitOfAmount UnitType (1..1)
-		perUnitOfAmount UnitType (1..1)
-		priceExpression PriceExpression (1..1)
-	output:
-		price PriceSchedule (1..1)
+func ObservableIsCommodity: <"Validates whether all of the constituents of an Observable are Commodities.">
+    inputs:
+        observable Observable (0..1)
+    output:
+        valid boolean (1..1)
 
-	set price -> value: amount
-	set price -> unit: unitOfAmount
-	set price -> perUnitOf: perUnitOfAmount
-	set price -> priceExpression: priceExpression
-
-func Create_Money: <"Create Money with given amount and currency.">
-	inputs:
-		amount number (1..1)
-		currency string (1..1)
-	output:
-		money Money (1..1)
-
-	set money -> value: amount
-	set money -> unit -> currency: currency
+    set valid:
+        if observable -> Asset exists
+        then observable -> Asset -> Commodity exists
+        else if observable -> Basket exists
+        then observable -> Basket -> basketConstituent extract [ Asset -> Commodity exists ]
+            all = True
+        else if observable -> Index exists
+        then observable -> Index ->> assetClass = Commodity
+        else False

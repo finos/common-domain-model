@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static cdm.base.staticdata.party.PayerReceiver.PayerReceiverBuilder;
-import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isCreditFundingLeg;
-import static cdm.base.staticdata.party.processor.CreditPartyMappingHelper.isFra;
 
 /**
  * FpML mapping processor.

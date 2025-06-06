@@ -1,701 +1,740 @@
 namespace cdm.product.asset : <"Product concepts applicable to specific asset classes.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
-import cdm.base.staticdata.party.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.asset.credit.*
-
+import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
-import cdm.observable.event.*
-import cdm.observable.common.*
-
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
 import cdm.observable.asset.calculatedrate.*
-
-import cdm.mapping.config.*
+import cdm.observable.common.*
+import cdm.observable.event.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 type CommodityPayout extends PayoutBase: <"Payout based on the averaged price of a referenced underlier. (e.g. Commodities). Can represent both average (average of many) & bullet (average of 1) pricing">
-	[metadata key]
-	averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
-	commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
-	pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
-    schedule CommoditySchedule (0..1) <"Allows the full representation of a commodity payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
-	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
+    averagingFeature AveragingCalculation (0..1) <"Indicates if the averaging calculation, when applicable, is weighted or unweighted.">
+    commodityPriceReturnTerms CommodityPriceReturnTerms (0..1) <"Defines parameters in which the commodity price is assessed.">
+    pricingDates PricingDates (1..1) <"Specifies specific dates or parametric rules for the dates on which the price will be determined.">
+    schedule CalculationSchedule (0..1) <"Allows the full representation of a payout by defining a set of schedule periods. It supports standard schedule customization by expressing all the dates, quantities, and pricing data in a non-parametric way.">
+    calculationPeriodDates CalculationPeriodDates (0..1) <"Defines the calculation period dates schedule.">
     paymentDates PaymentDates (1..1) <"Defines the payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the valuation dates).">
-    underlier Product (1..1)<"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap.  Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
-    fxFeature FxFeature (0..1)<"Defines quanto or composite FX features that are included in the swap leg.">
+    underlier Underlier (1..1) <"Identifies the underlying product that is referenced for pricing of the applicable leg in a swap. Referenced in the '2018 ISDA CDM Equity Confirmation for Security Equity Swap' as Security.">
+    fxFeature FxFeature (0..1) <"Defines quanto or composite FX features that are included in the swap leg.">
+    delivery AssetDeliveryInformation (0..1) <"Contains the information relative to the delivery of the asset.">
 
-	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		priceQuantity exists
+    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+        priceQuantity exists
 
     condition CalculationPeriod: <"The calculation periods are either specified parametrically via CalculationPeriodDates or non-parametrically via SchedulePeriod.">
-		required choice schedule, calculationPeriodDates
+        required choice schedule, calculationPeriodDates
+
+    condition CommodityUnderlier: <"The underlier for a CommodityPayout should be a commodity.">
+        if underlier -> Observable exists
+        then ObservableIsCommodity(underlier -> Observable)
+        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout exists
+        then ObservableIsCommodity(
+                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> OptionPayout -> underlier -> Observable
+                ) // Commodity Option
+        else if underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout exists
+        then ObservableIsCommodity(
+                    underlier -> Product -> TransferableProduct -> economicTerms -> payout only-element -> SettlementPayout -> underlier -> Observable
+                ) // Commodity Future
+        else False
+
+    condition DeliveryCapacity: <"Checks that only one of the representations of delivery capacity is present simultaneously.">
+        if delivery -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if delivery -> periods -> profile -> block -> deliveryCapacity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> deliveryCapacity exists
+        then delivery -> deliveryCapacity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> deliveryCapacity is absent
+                and delivery -> periods -> profile -> block -> deliveryCapacity is absent
+
+    condition PriceTimeIntervalQuantity: <"Checks that only one of the representations of price time interval quantity is present simultaneously.">
+        if schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity exists
+        then delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if delivery -> periods -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity is absent
+        else if schedule -> schedulePeriod -> deliveryPeriod -> profile -> block -> priceTimeIntervalQuantity exists
+        then schedule -> schedulePeriod -> deliveryPeriod -> priceTimeIntervalQuantity is absent
+                and delivery -> periods -> profile -> block -> priceTimeIntervalQuantity is absent
+
+type AssetDeliveryInformation: <"Contains the information relative to the delivery of the asset.">
+    periods AssetDeliveryPeriods (0..1) <"Defines the periods of delivery, including the delivery profile.">
+    location LocationIdentifier (0..*) <"Defines the location of the delivery of the commodity.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+
+type AssetDeliveryPeriods: <"Defines the periods of delivery, including the delivery profile.">
+    profile AssetDeliveryProfile (0..*) <"Defines the delivery profile of the asset, including the load type and the delivery intervals.">
+    startDate date (0..1) <"Delivery start date">
+    endDate date (0..1) <"Delivery end date">
+
+type CalculationScheduleDeliveryPeriods extends AssetDeliveryPeriods: <"Period and time profile over which the delivery takes place.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
+
+type AssetDeliveryProfile: <"Defines the delivery profile of the asset, including the load type and the delivery intervals.">
+    loadType LoadTypeEnum (0..1) <"Identification of the delivery profile.">
+    block AssetDeliveryProfileBlock (0..*) <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
+    bankHolidaysTreatment BankHolidayTreatmentEnum (0..1) <"Specifies whether the dates defined include holidays or not.">
+
+type AssetDeliveryProfileBlock: <"Defines a delivery profile block, including start and end time, days of the week, duration, delivery capacity and price time interval quantity.">
+    startTime time (0..1) <"The start time of the delivery interval for each block or shape.">
+    endTime time (0..1) <"The end time of the delivery interval for each block or shape.">
+    dayOfWeek DayOfWeekEnum (0..7) <"The days of the week of the delivery.">
+    deliveryCapacity Quantity (0..1) <"The number of units included in the transaction for each delivery interval">
+    priceTimeIntervalQuantity Price (0..1) <"Price per quantity per delivery time interval.">
 
 type CreditDefaultPayout extends PayoutBase: <" The credit default payout specification provides the details necessary for determining when a credit payout will be triggered as well as the parameters for calculating the payout and the settlement terms. The associated globalKey denotes the ability to associate a hash value to the CreditDefaultPayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
+    generalTerms GeneralTerms (1..1) <"The specification of the non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms.">
+    protectionTerms ProtectionTerms (0..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
+    transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">
 
-	generalTerms GeneralTerms (1..1) <"The specification of the non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms.">
-	protectionTerms ProtectionTerms (0..*) <"Specifies the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
-	transactedPrice TransactedPrice (0..1) <"The qualification of the price at which the contract has been transacted, in terms of market fixed rate, initial points, market price and/or quotation style. In FpML, those attributes are positioned as part of the fee leg.">
+    condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
+        if generalTerms -> referenceInformation -> referencePrice exists
+        then generalTerms -> referenceInformation -> referencePrice -> value >= 0
 
-	condition FpML_cd_12: <"FpML validation rule cd-12 - If referencePrice exists, referencePrice must be greater or equal to 0">
-		if generalTerms -> referenceInformation -> referencePrice exists
-		then generalTerms -> referenceInformation -> referencePrice -> value >= 0
-	
-	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		priceQuantity exists
+    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+        priceQuantity exists
 
 type GeneralTerms: <" A class specifying a set of non-monetary terms for the Credit Derivative Transaction, including the buyer and seller and selected items from the ISDA 2014 Credit Definition article II, such as the reference obligation and related terms. The CDM GeneralTerms class corresponds to the FpML GeneralTerms complex type, except that the effectiveDate and scheduledTerminationDate have been positioned as part of the InterestRatePayout class in the CDM instead of in GeneralTerms.">
 
-	referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">
-	indexReferenceInformation IndexReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit DefaultSwap Index.">
-	basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">
-	additionalTerm string (0..*) <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">
-		[metadata scheme]
-	substitution boolean (0..1) <"Value of this attribute set to 'true' indicates that substitution is applicable.">
-	modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">
+    referenceInformation ReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the reference entity and reference obligation(s).">
+    indexReferenceInformation CreditIndex (0..1) <"This attribute contains all the terms relevant to the underlying Index.">
+    basketReferenceInformation BasketReferenceInformation (0..1) <"This attribute contains all the terms relevant to defining the Credit Default Swap Basket.">
+    additionalTerm string (0..*) <"This attribute is used for representing information contained in the Additional Terms field of the 2003 Master Credit Derivatives confirm.">
+        [metadata scheme]
+    substitution boolean (0..1) <"Value of this attribute set to 'true' indicates that substitution is applicable.">
+    modifiedEquityDelivery boolean (0..1) <"Value of this attribute set to 'true' indicates that modified equity delivery is applicable.">
 
-	condition GeneralTermsChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice referenceInformation, indexReferenceInformation, basketReferenceInformation
+    condition GeneralTermsChoice: <"Choice rule to represent an FpML choice construct.">
+        required choice referenceInformation, indexReferenceInformation, basketReferenceInformation
 
-	condition FpML_cd_41: <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
-		if indexReferenceInformation -> tranche is absent
-		then modifiedEquityDelivery is absent
+    condition FpML_cd_41: <"FpML validation rule cd-41 - If indexReferenceInformation/tranche does not exist, then modifiedEquityDelivery must not exist.">
+        if indexReferenceInformation -> tranche is absent
+        then modifiedEquityDelivery is absent
 
-	condition FpML_cd_42: <"FpML validation rule cd-42 - If basketReferenceInformation does not exist, then substitution must not exist.">
-		if basketReferenceInformation is absent
-		then substitution is absent
+    condition FpML_cd_42: <"FpML validation rule cd-42 - If basketReferenceInformation does not exist, then substitution must not exist.">
+        if basketReferenceInformation is absent
+        then substitution is absent
 
-	condition BasketReferenceInformationNameOrId: <"The BasketReferenceInformation requires either a basket name or a basket identifier.">
-		if basketReferenceInformation exists
-		then basketReferenceInformation -> basketName exists
-			or basketReferenceInformation -> basketId exists
+    condition BasketReferenceInformationNameOrId: <"The BasketReferenceInformation requires either a basket name or a basket identifier.">
+        if basketReferenceInformation exists
+        then basketReferenceInformation -> basketName exists
+                or basketReferenceInformation -> basketId exists
 
 type InterestRatePayout extends PayoutBase: <" A class to specify all of the terms necessary to define and calculate a cash flow based on a fixed, a floating or an inflation index rate. The interest rate payout can be applied to interest rate swaps and FRA (which both have two associated interest rate payouts), credit default swaps (to represent the fee leg when subject to periodic payments) and equity swaps (to represent the funding leg). The associated globalKey denotes the ability to associate a hash value to the InterestRatePayout instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
+    rateSpecification RateSpecification (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
+    dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
+        [metadata scheme]
+    calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
+    paymentDates PaymentDates (0..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the reset dates).">
+    paymentDate AdjustableDate (0..1) <"The payment date, where only one date is specified, as for the FRA product.">
+    paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
+    resetDates ResetDates (0..1) <"The reset dates schedule, i.e. the dates on which the new observed index value is applied for each period and the interest rate hence begins to accrue.">
+    discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">
+    compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">
+    cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">
+    stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">
+    bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
+    fixedAmount calculation (0..1) <"Fixed Amount Calculation">
+    floatingAmount calculation (0..1) <"Floating Amount Calculation">
+    spreadCalculationMethod SpreadCalculationMethodEnum (0..1) <"Method by which spread is calculated. For example on an asset swap: 'ParPar' or 'Proceeds' may be the method indicated.">
 
-	rateSpecification RateSpecification (0..1) <"The specification of the rate value(s) applicable to the contract using either a floating rate calculation, a single fixed rate, a fixed rate schedule, or an inflation rate calculation.">
-	dayCountFraction DayCountFractionEnum (0..1) <"The day count fraction. The cardinality has been relaxed when compared with the FpML interest rate swap for the purpose of accommodating standardized credit default swaps which DCF is not explicitly stated as part of the economic terms. The data rule InterestRatePayout_dayCountFraction requires that the DCF be stated for interest rate products.">
-		[metadata scheme]
-	calculationPeriodDates CalculationPeriodDates (0..1) <"The parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods.">
-	paymentDates PaymentDates (0..1) <"The payment date schedule, as defined by the parameters that are needed to specify it, either in a parametric way or by reference to another schedule of dates (e.g. the reset dates).">
-	paymentDate AdjustableDate (0..1) <"The payment date, where only one date is specified, as for the FRA product.">
-	paymentDelay boolean (0..1) <"Applicable to CDS on MBS to specify whether payment delays are applicable to the fixed Amount. RMBS typically have a payment delay of 5 days between the coupon date of the reference obligation and the payment date of the synthetic swap. CMBS do not, on the other hand, with both payment dates being on the 25th of each month.">
-	resetDates ResetDates (0..1) <"The reset dates schedule, i.e. the dates on which the new observed index value is applied for each period and the interest rate hence begins to accrue.">
-	discountingMethod DiscountingMethod (0..1) <"The parameters specifying any discounting conventions that may apply. This element must only be included if discounting applies.">
-	compoundingMethod CompoundingMethodEnum (0..1) <"If one or more calculation period contributes to a single payment amount this element specifies whether compounding is applicable and, if so, what compounding method is to be used. This element must only be included when more than one calculation period contributes to a single payment amount.">
-	cashflowRepresentation CashflowRepresentation (0..1) <"The cashflow representation of the swap stream.">
-	stubPeriod StubPeriod (0..1) <"The stub calculation period amount parameters. This element must only be included if there is an initial or final stub calculation period. Even then, it must only be included if either the stub references a different floating rate tenor to the regular calculation periods, or if the stub is calculated as a linear interpolation of two different floating rate tenors, or if a specific stub rate or stub amount has been negotiated.">
-	bondReference BondReference (0..1) <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
-	fixedAmount calculation (0..1) <"Fixed Amount Calculation">
-	floatingAmount calculation (0..1) <"Floating Amount Calculation">
+    condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
+        priceQuantity exists
 
-	condition Quantity: <"When there is an OptionPayout the quantity can be expressed as part of the payoutQuantity, or as part of the underlier in the case of a Swaption.  For all other payouts that extend PayoutBase the payoutQuantity is a mandatory attribute.">
-		priceQuantity exists
+    condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
+        optional choice paymentDates, paymentDate
 
-	condition InterestRatePayoutChoice: <"The paymentDates attributes is applicable to interest rate payouts with periodic payments, while the paymentDate reflects the FpML FRA implementation where one specific date is specified.">
-		optional choice paymentDates, paymentDate
+    condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
+        if rateSpecification -> FixedRateSpecification is absent
+        then priceQuantity -> futureValueNotional is absent
 
-	condition FutureValueNotional: <"The BRL CDI future value notional only applies to a fixed Rate Schedule.">
-		if rateSpecification -> fixedRate is absent
-		then priceQuantity -> futureValueNotional is absent
+    condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
+        if priceQuantity -> futureValueNotional exists
+        then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
 
-	condition TerminationDate: <"FpML states that the value date associated with the future value notional should match the adjusted termination date.">
-		if priceQuantity -> futureValueNotional exists
-		then priceQuantity -> futureValueNotional -> valueDate = calculationPeriodDates -> terminationDate -> adjustableDate -> adjustedDate
+    condition RateSpecification: <"Zero Coupon Swaps with a Known Amount are expressed without the rate specification and the known amount expressed as a price. ">
+        if rateSpecification is absent
+        then priceQuantity -> priceSchedule exists
 
-	condition RateSpecification:
-		if rateSpecification is absent
-		then principalPayment -> finalPayment = True
+    condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
+        if paymentDates -> firstPaymentDate exists
+                and calculationPeriodDates -> effectiveDate exists
+        then paymentDates -> firstPaymentDate > calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
 
-	condition FpML_ird_6: <"FpML validation rule ird-6 - If paymentDates/firstPaymentDate exists, and if calculationPeriodDates/effectiveDate exists, then paymentDates/firstPaymentDate must be after calculationPeriodDates/effectiveDate/unadjustedDate.">
-		if paymentDates -> firstPaymentDate exists
-			and calculationPeriodDates -> effectiveDate exists
-		then paymentDates -> firstPaymentDate > calculationPeriodDates -> effectiveDate -> adjustableDate -> unadjustedDate
+    condition FpML_ird_23: <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
+        if stubPeriod -> initialStub exists
+        then calculationPeriodDates -> firstRegularPeriodStartDate exists
 
-	condition FpML_ird_23: <"FpML validation rule ird-23 - If the initialStub exists, the calculationPeriodDates element referenced by the @href attribute of stubCalculationPeriodAmount/calculationPeriodDatesReference contains firstRegularPeriodStartDate.">
-		if stubPeriod -> initialStub exists
-		then calculationPeriodDates -> firstRegularPeriodStartDate exists
+    condition FpML_ird_24: <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
+        if stubPeriod -> finalStub exists
+        then calculationPeriodDates -> lastRegularPeriodEndDate exists
 
-	condition FpML_ird_24: <"FpML validation rule ird-24 - The finalStub exists if and only if the calculationPeriodDates element referenced by calculationPeriodDates/@href contains a lastRegularPeriodEndDate.">
-		if stubPeriod -> finalStub exists
-		then calculationPeriodDates -> lastRegularPeriodEndDate exists
+    condition InitialStubFinalStub: <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
+        if stubPeriod exists
+        then stubPeriod -> initialStub exists or stubPeriod -> finalStub exists
 
-	condition InitialStubFinalStub: <"Data rule to represent the FpML nested XML construct as part of StubCalculationPeriodAmount.">
-		if stubPeriod exists
-		then stubPeriod -> initialStub exists
-			or stubPeriod -> finalStub exists
+    condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
+        if settlementTerms -> settlementCurrency exists
+                and (settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
+                    or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
+        then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
+                or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
 
-	condition CashSettlementTerms: <"Cash Settlements Terms must exist when the settlement currency is different to the notional currency of the trade.">
-		if settlementTerms -> settlementCurrency exists and
-			(settlementTerms -> settlementCurrency <> priceQuantity -> quantitySchedule -> unit -> currency
-			or settlementTerms -> settlementCurrency <> priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> varyingNotionalCurrency)
-		then (settlementTerms -> cashSettlementTerms -> valuationMethod exists and settlementTerms -> cashSettlementTerms -> valuationDate exists)
-		    or priceQuantity -> quantityMultiplier -> fxLinkedNotionalSchedule -> fxSpotRateSource exists
+    condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
+        if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
+                and paymentDates -> paymentFrequency -> periodMultiplier = calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
+        then (compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None)
 
-	condition FpML_ird_7_1: <"FpML validation rule ird-7 1/2 - The existence of compoundingMethod is prohibited when the calculation period and payment frequencies are the same.">
-		if paymentDates -> paymentFrequency -> period = calculationPeriodDates -> calculationPeriodFrequency -> period
-			and paymentDates -> paymentFrequency -> periodMultiplier = calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier
-		then (compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None)
+    condition FpML_ird_7_2: <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
+        if (paymentDates -> paymentFrequency -> period exists
+                    and calculationPeriodDates -> calculationPeriodFrequency -> period exists
+                    and paymentDates -> paymentFrequency -> period <> calculationPeriodDates -> calculationPeriodFrequency -> period)
+                or (paymentDates -> paymentFrequency -> periodMultiplier exists
+                    and calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier exists
+                    and paymentDates -> paymentFrequency -> periodMultiplier <> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
+        then compoundingMethod exists
 
-	condition FpML_ird_7_2: <"FpML validation rule ird-7 2/2 - The existence of compoundingMethod is required when the calculation period and payment frequencies differ.">
-		if (paymentDates -> paymentFrequency -> period exists
-		    and calculationPeriodDates -> calculationPeriodFrequency -> period exists
-			and paymentDates -> paymentFrequency -> period <> calculationPeriodDates -> calculationPeriodFrequency -> period)
-			or (paymentDates -> paymentFrequency -> periodMultiplier exists
-			and calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier exists
-			and paymentDates -> paymentFrequency -> periodMultiplier <> calculationPeriodDates -> calculationPeriodFrequency -> periodMultiplier)
-		then compoundingMethod exists
+    condition FpML_ird_9: <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
+        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
+        then resetDates exists
 
-	condition FpML_ird_9: <"FpML validation rule ird-9 - If calculationPeriodAmount/calculation/compoundingMethod exists, then resetDates must exist.">
-		if compoundingMethod exists
-		then resetDates exists
+    condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
+        if compoundingMethod exists and compoundingMethod <> CompoundingMethodEnum -> None
+        then rateSpecification -> FixedRateSpecification is absent
 
-	condition FpML_ird_29: <"FpML validation rule ird-29 - If compoundingMethod exists, then fixedRateSchedule must not exist.">
-		if compoundingMethod exists
-		then rateSpecification -> fixedRate is absent
+    condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
+        if compoundingMethod is absent or compoundingMethod = CompoundingMethodEnum -> None
+        then calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
 
-	condition CalculationPeriodDatesFirstCompoundingPeriodEndDate: <"FpML specifies that the firstCompoundingPeriodEndDate must only be specified when the compounding method is specified and not equal to a value of None.">
-		if compoundingMethod is absent
-			or compoundingMethod = CompoundingMethodEnum -> None
-		then calculationPeriodDates -> firstCompoundingPeriodEndDate is absent
+choice RateSpecification: <" A data type to specify the fixed interest rate, floating interest rate or inflation rate.">
 
-type RateSpecification: <" A class to specify the fixed interest rate, floating interest rate or inflation rate.">
-
-	fixedRate FixedRateSpecification (0..1) <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
-	floatingRate FloatingRateSpecification (0..1) <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
-	inflationRate InflationRateSpecification (0..1) <"An inflation rate calculation definition.">
-	condition: one-of
+    FixedRateSpecification <"The fixed rate or fixed rate specification expressed as explicit fixed rates and dates.">
+    FloatingRateSpecification <"The floating interest rate specification, which includes the definition of the floating rate index. the tenor, the initial value, and, when applicable, the spread, the rounding convention, the averaging method and the negative interest rate treatment.">
+    InflationRateSpecification <"An inflation rate calculation definition.">
 
 type DividendPayoutRatio: <"A class describing the dividend payout ratio associated with an equity underlier. In certain cases the actual ratio is not known on trade inception, and only general conditions are then specified.">
 
-	totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
-	basketConstituent Product (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
+    totalRatio number (1..1) <"Specifies the total actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+    cashRatio number (0..1) <"Specifies the cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+    nonCashRatio number (0..1) <"Specifies the non cash actual dividend payout ratio associated with the equity underlier. A ratio of 90% should be expressed at 0.90.">
+    basketConstituent BasketConstituent (0..1) <"In the case of a basket underlier, specifies to which component of the basket this particular set of dividend payout ratios correspond.">
+        [metadata address "pointsTo"=PriceQuantity->observable->Basket->basketConstituent]
 
-	condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		totalRatio >= 0
-			and totalRatio <= 1
+    condition DividendPayoutRatioTotal: <"The dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
+        totalRatio >= 0 and totalRatio <= 1
 
-	condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if cashRatio exists
-		then cashRatio >= 0
-			and totalRatio <= 1
+    condition DividendPayoutRatioCash: <"The cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
+        if cashRatio exists then cashRatio >= 0 and totalRatio <= 1
 
-	condition DividendPayoutRatioNonCash: <"The non cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
-		if nonCashRatio exists
-		then nonCashRatio >= 0
-			and totalRatio <= 1
+    condition DividendPayoutRatioNonCash: <"The non cash dividend payout ratio should be comprised between 0 and 100%, meaning 0 and 1.">
+        if nonCashRatio exists
+        then nonCashRatio >= 0 and totalRatio <= 1
 
 type AdditionalFixedPayments: <"A class to specify the events that will give rise to the payment additional fixed payments.">
 
-	interestShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual interest amount in respect to the reference obligation that is greater than the expected interest amount. ISDA 2003 Term: Interest Shortfall Reimbursement.">
-	principalShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual principal amount in respect to the reference obligation that is greater than the expected principal amount. ISDA 2003 Term: Principal Shortfall Reimbursement.">
-	writedownReimbursement boolean (0..1) <"An Additional Fixed Payment. Corresponds to the payment by or on behalf of the issuer of an amount in respect to the reference obligation in reduction of the prior writedowns. ISDA 2003 Term: Writedown Reimbursement.">
+    interestShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual interest amount in respect to the reference obligation that is greater than the expected interest amount. ISDA 2003 Term: Interest Shortfall Reimbursement.">
+    principalShortfallReimbursement boolean (0..1) <"An additional Fixed Payment Event. Corresponds to the payment by or on behalf of the Issuer of an actual principal amount in respect to the reference obligation that is greater than the expected principal amount. ISDA 2003 Term: Principal Shortfall Reimbursement.">
+    writedownReimbursement boolean (0..1) <"An Additional Fixed Payment. Corresponds to the payment by or on behalf of the issuer of an amount in respect to the reference obligation in reduction of the prior writedowns. ISDA 2003 Term: Writedown Reimbursement.">
 
 type BasketReferenceInformation: <"CDS Basket Reference Information.">
 
-	basketName string (0..1) <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">
-		[metadata scheme]
-	basketId string (0..*) <"A CDS basket identifier.">
-		[metadata scheme]
-	referencePool ReferencePool (1..1) <"This element contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
-	nthToDefault int (0..1) <"N th reference obligation to default triggers payout.">
-	mthToDefault int (0..1) <"M th reference obligation to default to allow representation of N th to M th defaults.">
-	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
+    basketName string (0..1) <"The name of the basket expressed as a free format string. FpML does not define usage rules for this element.">
+        [metadata scheme]
+    basketId string (0..*) <"A CDS basket identifier.">
+        [metadata scheme]
+    referencePool ReferencePool (1..1) <"This element contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
+    nthToDefault int (0..1) <"N th reference obligation to default triggers payout.">
+    mthToDefault int (0..1) <"M th reference obligation to default to allow representation of N th to M th defaults.">
+    tranche Tranche (0..1) <"This element contains CDS tranche terms.">
 
-	condition BasketReferenceInformationChoice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
-		required choice nthToDefault, tranche
+    condition BasketReferenceInformationChoice: <"Choice rule to represent an FpML choice construct. This choice rule is complemented by the data rule BasketReferenceInformation_nthToDefault to represent the FpML construct where there is a choice between a tranche element and a [required nthToDefault, optional mthToDefault] branch.">
+        required choice nthToDefault, tranche
 
-	condition NthToDefault: <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
-		if mthToDefault exists
-		then nthToDefault exists
+    condition NthToDefault: <"As part of the branch of the choice node, FpML requires the nthToDefault element to be present, while the mthToDefault one is optional.">
+        if mthToDefault exists then nthToDefault exists
 
-	condition MthToDefault: <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
-		if (nthToDefault exists and mthToDefault exists)
-		then nthToDefault < mthToDefault
+    condition MthToDefault: <"FpML validation rule cd-39 - Context: BasketReferenceInformation (complex type). If nthToDefault exists, and if mthToDefault exists, then nthToDefault must be less than mthToDefault.">
+        if (nthToDefault exists and mthToDefault exists)
+        then nthToDefault < mthToDefault
 
 type FloatingAmountEvents: <"A class to specify the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
 
-	failureToPayPrincipal boolean (0..1) <"A floating rate payment event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
-	interestShortfall InterestShortFall (0..1) <"A floating rate payment event. With respect to any Reference Obligation Payment Date, either (a) the non-payment of an Expected Interest Amount or (b) the payment of an Actual Interest Amount that is less than the Expected Interest Amount. ISDA 2003 Term: Interest Shortfall.">
-	writedown boolean (0..1) <"A floating rate payment event. Results from the fact that the underlier writes down its outstanding principal amount. ISDA 2003 Term: Writedown.">
-	impliedWritedown boolean (0..1) <"A floating rate payment event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
-	floatingAmountProvisions FloatingAmountProvisions (0..1) <"Specifies the floating amount provisions associated with the floatingAmountEvents.">
-	additionalFixedPayments AdditionalFixedPayments (0..1) <"Specifies the events that will give rise to the payment additional fixed payments.">
+    failureToPayPrincipal boolean (0..1) <"A floating rate payment event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
+    interestShortfall InterestShortFall (0..1) <"A floating rate payment event. With respect to any Reference Obligation Payment Date, either (a) the non-payment of an Expected Interest Amount or (b) the payment of an Actual Interest Amount that is less than the Expected Interest Amount. ISDA 2003 Term: Interest Shortfall.">
+    writedown boolean (0..1) <"A floating rate payment event. Results from the fact that the underlier writes down its outstanding principal amount. ISDA 2003 Term: Writedown.">
+    impliedWritedown boolean (0..1) <"A floating rate payment event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
+    floatingAmountProvisions FloatingAmountProvisions (0..1) <"Specifies the floating amount provisions associated with the floatingAmountEvents.">
+    additionalFixedPayments AdditionalFixedPayments (0..1) <"Specifies the events that will give rise to the payment additional fixed payments.">
 
 type FloatingAmountProvisions:
 
-	wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
-	stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
-
-type IndexReferenceInformation: <"A class defining a Credit Default Swap Index.">
-	[metadata key]
-
-	indexName string (0..1)  <"The name of the index expressed as a free format string with an associated scheme.">
-		[metadata scheme]
-	indexId string (0..*) <"A CDS index identifier (e.g. RED pair code).">
-		[metadata scheme]
-	indexSeries int (0..1) <"A CDS index series identifier, e.g. 1, 2, 3 etc.">
-	indexAnnexVersion int (0..1) <"A CDS index series version identifier, e.g. 1, 2, 3 etc.">
-	indexAnnexDate date (0..1) <"A CDS index series annex date.">
-	indexAnnexSource IndexAnnexSourceEnum (0..1) <"A CDS index series annex source.">
-		[metadata scheme]
-	excludedReferenceEntity ReferenceInformation (0..*) <"Excluded reference entity.">
-	tranche Tranche (0..1) <"This element contains CDS tranche terms.">
-	settledEntityMatrix SettledEntityMatrix (0..1) <"Used to specify the Relevant Settled Entity Matrix when there are settled entities at the time of the trade.">
-	indexFactor number (0..1) <"Index Factor is the index version factor or percent, expressed as an absolute decimal value between 0 and 1, that multiplied by the original notional amount yields the notional amount covered by the seller of protection.">
-	seniority CreditSeniorityEnum (0..1) <"Seniority of debt instruments comprising the index.">
-
-	condition IndexSeries: <"FpML specifies the type associated to indexSeries as a positive integer.">
-		if indexSeries exists
-		then indexSeries >= 0
-
-	condition IndexAnnexVersion: <"FpML specifies the type associated to indexVersion as a positive integer.">
-		if indexAnnexVersion exists
-		then indexAnnexVersion >= 0
-
-	condition IndexFactor: <"Index factor is expressed as a decimal and should be a positive number between o and 1.">
-		if indexFactor exists
-		then indexFactor >= 0 and
-			indexFactor <= 1
+    wacCapInterestProvision boolean (0..1) <"As specified by the ISDA Supplement for use with trades on mortgage-backed securities, 'WAC Cap' means a weighted average coupon or weighted average rate cap provision (however defined in the Underlying Instruments) of the Underlying Instruments that limits, increases or decreases the interest rate or interest entitlement, as set out in the Underlying Instruments on the Effective Date without regard to any subsequent amendment The presence of the element with value set to 'true' signifies that the provision is applicable. From a usage standpoint, this provision is typically applicable in the case of CMBS and not applicable in case of RMBS trades.">
+    stepUpProvision boolean (0..1) <"As specified by the ISDA Standard Terms Supplement for use with trades on mortgage-backed securities. The presence of the element with value set to 'true' signifies that the provision is applicable. If applicable, the applicable step-up terms are specified as part of that ISDA Standard Terms Supplement. From a usage standpoint, this provision is typically applicable in the case of RMBS and not applicable in case of CMBS trades.">
 
 type InterestShortFall: <"A class to specify the interest shortfall floating rate payment event.">
 
-	interestShortfallCap InterestShortfallCapEnum (1..1) <"Specifies the nature of the interest Shortfall cap (i.e. Fixed Cap or Variable Cap) in the case where it is applicable. ISDA 2003 Term: Interest Shortfall Cap.">
-	compounding boolean (1..1)
-	rateSource FloatingRateIndexEnum (0..1) <"The rate source in the case of a variable cap.">
-		[metadata scheme]
+    interestShortfallCap InterestShortfallCapEnum (1..1) <"Specifies the nature of the interest Shortfall cap (i.e. Fixed Cap or Variable Cap) in the case where it is applicable. ISDA 2003 Term: Interest Shortfall Cap.">
+    compounding boolean (1..1)
+    rateSource FloatingRateIndexEnum (0..1) <"The rate source in the case of a variable cap.">
+        [metadata scheme]
 
 type ProtectionTerms: <"A class to specify the terms for calculating a payout to protect the buyer of the swap in the case of a qualified credit event. These terms include the applicable credit events, the reference obligation, and in the case of a CDS on mortgage-backed securities, the floatingAmountEvents.">
-	[metadata key]
+    [metadata key]
 
-	creditEvents CreditEvents (0..1) <"Specifies the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
-	obligations Obligations (0..1) <"The underlying obligations of the reference entity on which you are buying or selling protection. The credit events Failure to Pay, Obligation Acceleration, Obligation Default, Restructuring, Repudiation/Moratorium are defined with respect to these obligations.">
-	floatingAmountEvents FloatingAmountEvents (0..1) <"This element contains the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
+    creditEvents CreditEvents (0..1) <"Specifies the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
+    obligations Obligations (0..1) <"The underlying obligations of the reference entity on which you are buying or selling protection. The credit events Failure to Pay, Obligation Acceleration, Obligation Default, Restructuring, Repudiation/Moratorium are defined with respect to these obligations.">
+    floatingAmountEvents FloatingAmountEvents (0..1) <"This element contains the ISDA terms relating to the floating rate payment events and the implied additional fixed payments, applicable to the credit derivatives transactions on mortgage-backed securities with pay-as-you-go or physical settlement.">
 
 type ReferenceInformation: <"A class specifying the Credit Default Swap Reference Information.">
 
-	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity which is subject to the swap transaction and any successor that assumes all or substantially all of its contractual and other obligations. Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2014 Credit definitions article II section 2.1: `Reference Entity` means the entity specified as such in the related Confirmation.">
-	referenceObligation ReferenceObligation (0..*) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
-	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
-	unknownReferenceObligation boolean (0..1) <"Used to indicate that the Reference obligation associated with the Credit Default Swap is currently not known. This is not valid for Legal Confirmation purposes, but is valid for earlier stages in the trade life cycle (e.g. Broker Confirmation).">
-	allGuarantees boolean (0..1) <"Indicates whether an obligation of the Reference Entity, guaranteed by the Reference Entity on behalf of a non-Affiliate, is to be considered an Obligation for the purpose of the transaction. It will be considered an obligation if allGuarantees is applicable (true) and not if allGuarantees is inapplicable (false). ISDA 2003 Term: All Guarantees.">
-	referencePrice Price (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
-	referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">
-	securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
+    referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity which is subject to the swap transaction and any successor that assumes all or substantially all of its contractual and other obligations. Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2014 Credit definitions article II section 2.1: `Reference Entity` means the entity specified as such in the related Confirmation.">
+    referenceObligation ReferenceObligation (0..*) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
+    noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
+    unknownReferenceObligation boolean (0..1) <"Used to indicate that the Reference obligation associated with the Credit Default Swap is currently not known. This is not valid for Legal Confirmation purposes, but is valid for earlier stages in the trade life cycle (e.g. Broker Confirmation).">
+    allGuarantees boolean (0..1) <"Indicates whether an obligation of the Reference Entity, guaranteed by the Reference Entity on behalf of a non-Affiliate, is to be considered an Obligation for the purpose of the transaction. It will be considered an obligation if allGuarantees is applicable (true) and not if allGuarantees is inapplicable (false). ISDA 2003 Term: All Guarantees.">
+    referencePrice Price (0..1) <"Used to determine (a) for physically settled trades, the Physical Settlement Amount, which equals the Floating Rate Payer Calculation Amount times the Reference Price and (b) for cash settled trades, the Cash Settlement Amount, which equals the greater of (i) the difference between the Reference Price and the Final Price and (ii) zero. ISDA 2003 Term: Reference Price.">
+    referencePolicy boolean (0..1) <"Applicable to the transactions on mortgage-backed security, which can make use of a reference policy. Presence of the element with value set to 'true' indicates that the reference policy is applicable; absence implies that it is not.">
+    securedList boolean (0..1) <"With respect to any day, the list of Syndicated Secured Obligations of the Designated Priority of the Reference Entity published by Markit Group Limited or any successor thereto appointed by the Specified Dealers (the 'Secured List Publisher') on or most recently before such day, which list is currently available at [http://www.markit.com]. ISDA 2003 Term: Relevant Secured List.">
 
-	condition ReferenceInformationChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
+    condition ReferenceInformationChoice: <"Choice rule to represent an FpML choice construct.">
+        required choice referenceObligation, noReferenceObligation , unknownReferenceObligation
 
 type ReferenceObligation: <"A class to specify the reference obligation that is associated with a credit derivative instrument.">
-	security Security (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
-	loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">
-	primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">
-	primaryObligorReference LegalEntity (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">
-		[metadata reference]
-	guarantor LegalEntity (0..1) <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">
-	guarantorReference string (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the guarantor.">
-	standardReferenceObligation boolean (0..1) <"Indicates if the reference obligation is a Standard Reference Obligation. ISDA 2014 Term: Standard Reference Obligation.">
+    security Security (0..1) <"Identifies the underlying asset when it is a security, such as a bond or convertible bond. The security data type requires one or more productIdentifiers, specificaiton of the security type (e.g. debt), and includes optional attributes to specify a debt class, such as asset-backed, as well as seniority.">
+    loan Loan (0..1) <"Identifies the underlying asset when it is a loan.">
+    primaryObligor LegalEntity (0..1) <"The entity primarily responsible for repaying debt to a creditor as a result of borrowing or issuing bonds. ISDA 2003 Term: Primary Obligor.">
+    primaryObligorReference LegalEntity (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the primary obligor.">
+        [metadata reference]
+    guarantor LegalEntity (0..1) <"The party that guarantees by way of a contractual arrangement to pay the debts of an obligor if the obligor is unable to make the required payments itself. ISDA 2003 Term: Guarantor.">
+    guarantorReference string (0..1) <"A pointer style reference to a reference entity defined elsewhere in the document. Used when the reference entity is the guarantor.">
+    standardReferenceObligation boolean (0..1) <"Indicates if the reference obligation is a Standard Reference Obligation. ISDA 2014 Term: Standard Reference Obligation.">
 
-	condition AssetChoice: <"Represents the choice in a CDS contract.">
-		required choice security, loan
+    condition AssetChoice: <"Represents the choice in a CDS contract.">
+        required choice security, loan
 
-	condition LegalEntityChoice : <"Represents the choice in a CDS contract..">
-		optional choice primaryObligor, primaryObligorReference
+    condition MustBeDebtSecurity: <"Only debt securities can be used as the reference obligation for a credit derivative.">
+        if security exists
+        then security -> instrumentType = InstrumentTypeEnum -> Debt
+
+    condition LegalEntityChoice: <"Represents the choice in a CDS contract..">
+        optional choice primaryObligor, primaryObligorReference
 
 type ReferencePair:
 
-	referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity on which you are buying or selling protection and any successor that assumes all or substantially all of its contractual and other obligations. It is vital to use the correct legal name of the entity and to be careful not to choose a subsidiary if you really want to trade protection on a parent company. Please note, Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2003 Term: Reference Entity.">
-	referenceObligation ReferenceObligation (0..1) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
-	noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
-	entityType EntityTypeEnum (1..1) <"Defines the reference entity types corresponding to a list of types in the ISDA First to Default documentation.">
-		[metadata scheme]
+    referenceEntity LegalEntity (1..1) <"The corporate or sovereign entity on which you are buying or selling protection and any successor that assumes all or substantially all of its contractual and other obligations. It is vital to use the correct legal name of the entity and to be careful not to choose a subsidiary if you really want to trade protection on a parent company. Please note, Reference Entities cannot be senior or subordinated. It is the obligations of the Reference Entities that can be senior or subordinated. ISDA 2003 Term: Reference Entity.">
+    referenceObligation ReferenceObligation (0..1) <"The Reference Obligation is a financial instrument that is either issued or guaranteed by the reference entity. It serves to clarify the precise reference entity protection is being offered upon, and its legal position with regard to other related firms (parents/subsidiaries). Furthermore the Reference Obligation is ALWAYS deliverable and establishes the Pari Passu ranking (as the deliverable bonds must rank equal to the reference obligation). ISDA 2003 Term: Reference Obligation.">
+    noReferenceObligation boolean (0..1) <"Used to indicate that there is no Reference Obligation associated with this Credit Default Swap and that there will never be one.">
+    entityType EntityTypeEnum (1..1) <"Defines the reference entity types corresponding to a list of types in the ISDA First to Default documentation.">
+        [metadata scheme]
 
-	condition ReferenceChoice: <"Choice rule to represent an FpML choice construct.">
-		required choice referenceObligation, noReferenceObligation
+    condition ReferenceChoice: <"Choice rule to represent an FpML choice construct.">
+        required choice referenceObligation, noReferenceObligation
 
 type ReferencePool: <"This type contains all the reference pool items to define the reference entity and reference obligation(s) in the basket.">
 
-	referencePoolItem ReferencePoolItem (1..*) <"This type contains all the constituent weight and reference information.">
+    referencePoolItem ReferencePoolItem (1..*) <"This type contains all the constituent weight and reference information.">
 
-	condition FpML_cd_44_openUnits: <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
-		if referencePoolItem -> constituentWeight -> openUnits exists
-		then referencePoolItem -> constituentWeight -> basketPercentage is absent
+    condition FpML_cd_44_openUnits: <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
+        if referencePoolItem -> constituentWeight -> openUnits exists
+        then referencePoolItem -> constituentWeight -> basketPercentage is absent
 
-	condition FpML_cd_44_basketPercentage: <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
-		if referencePoolItem -> constituentWeight -> basketPercentage exists
-		then referencePoolItem -> constituentWeight -> openUnits is absent
+    condition FpML_cd_44_basketPercentage: <"FpML validation rule cd-44 - All referencePoolItem/constituentWeight must have the same name of child element.">
+        if referencePoolItem -> constituentWeight -> basketPercentage exists
+        then referencePoolItem -> constituentWeight -> openUnits is absent
 
 type ReferencePoolItem: <"This type contains all the constituent weight and reference information.">
 
-	constituentWeight ConstituentWeight (0..1) <"Describes the weight of each of the constituents within the basket. If not provided, it is assumed to be equal weighted.">
-	referencePair ReferencePair (1..1)
-	protectionTermsReference ProtectionTerms (0..1) <"Reference to the documentation terms applicable to this item.">
-		[metadata reference]
-	
-	cashSettlementTermsReference CashSettlementTerms (0..1) <"Reference to the cash settlement terms applicable to this item.">
-		[metadata reference]
-	physicalSettlementTermsReference PhysicalSettlementTerms (0..1) <"Reference to the physical settlement terms applicable to this item.">
-		[metadata reference]
+    constituentWeight ConstituentWeight (0..1) <"Describes the weight of each of the constituents within the basket. If not provided, it is assumed to be equal weighted.">
+    referencePair ReferencePair (1..1)
+    protectionTermsReference ProtectionTerms (0..1) <"Reference to the documentation terms applicable to this item.">
+        [metadata reference]
+    cashSettlementTermsReference CashSettlementTerms (0..1) <"Reference to the cash settlement terms applicable to this item.">
+        [metadata reference]
+    physicalSettlementTermsReference PhysicalSettlementTerms (0..1) <"Reference to the physical settlement terms applicable to this item.">
+        [metadata reference]
 
-	condition SettlementChoice: <"A choice rule between a reference to the cash or physical settlement terms.">
-		optional choice cashSettlementTermsReference, physicalSettlementTermsReference
+    condition SettlementChoice: <"A choice rule between a reference to the cash or physical settlement terms.">
+        optional choice cashSettlementTermsReference, physicalSettlementTermsReference
 
 type SettledEntityMatrix: <"A class to specify the Relevant Settled Entity Matrix.">
 
-	matrixSource SettledEntityMatrixSourceEnum (1..1) <"Relevant settled entity matrix source.">
-		[metadata scheme]
-	publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">
+    matrixSource SettledEntityMatrixSourceEnum (1..1) <"Relevant settled entity matrix source.">
+        [metadata scheme]
+    publicationDate date (0..1) <"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the Standard Terms Supplement defines rules for which version of the matrix is applicable.">
 
 type Tranche: <"The class to represent a CDS Tranche.">
 
-	attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">
-	exhaustionPoint number (1..1) <"Upper bound percentage of the loss that the Tranche can endure, expressed as a decimal. An exhaustion point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is call the width of the Tranche.">
-	incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
+    attachmentPoint number (1..1) <"Lower bound percentage of the loss that the Tranche can endure, expressed as a decimal. An attachment point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is called the width of the Tranche.">
+    exhaustionPoint number (1..1) <"Upper bound percentage of the loss that the Tranche can endure, expressed as a decimal. An exhaustion point of 5% would be represented as 0.05. The difference between Attachment and Exhaustion points is call the width of the Tranche.">
+    incurredRecoveryApplicable boolean (0..1) <"Outstanding Swap Notional Amount is defined at any time on any day, as the greater of: (a) Zero; If Incurred Recovery Amount Applicable: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts and all Incurred Recovery Amounts (if any) determined under this Confirmation at or prior to such time.Incurred Recovery Amount not populated: (b) The Original Swap Notional Amount minus the sum of all Incurred Loss Amounts determined under this Confirmation at or prior to such time.">
 
-	condition AttachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		attachmentPoint >= 0.0 and attachmentPoint <= 1.0
+    condition AttachmentPoint: <"FpML definition associated with the attachmentPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
+        attachmentPoint >= 0.0 and attachmentPoint <= 1.0
 
-	condition ExhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
-		exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
+    condition ExhaustionPoint: <"FpML definition associated with the exhaustionPoint element specifies that a schema facet to constraint the value between 0 to 1 will be introduced in FpML 4.3.">
+        exhaustionPoint >= 0.0 and exhaustionPoint <= 1.0
 
-	condition AttachmentPointLessThanExhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
-		attachmentPoint <= exhaustionPoint
+    condition AttachmentPointLessThanExhaustionPoint: <"FpML validation rule cd-40 - Context: Tranche (complex type) attachmentPoint must be less or equal to exhaustionPoint.">
+        attachmentPoint <= exhaustionPoint
 
 type DividendCurrency: <"A class to specify the currency in which the dividends will be denominated, i.e. either in the dividend currency or in a currency specified as part of the contract.">
 
-	currency string (0..1) <"The currency in which the dividend is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which the dividend is determined, e.g. the dividend currency.">
-	currencyReference string (0..1) <"Reference to a currency specified elsewhere in the document">
-		[metadata reference]
+    currency string (0..1) <"The currency in which the dividend is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+        [metadata scheme]
+    determinationMethod DeterminationMethodEnum (0..1) <"Specifies the method according to which the dividend is determined, e.g. the dividend currency.">
+    currencyReference string (0..1) <"Reference to a currency specified elsewhere in the document">
+        [metadata reference]
 
-	condition: one-of
+    condition:
+        one-of
 
 type DividendDateReference: <"A class to specify the dividend date by reference to another date, with the ability to apply and offset. This class doesn't exist in FpML and is meant to simplify the choice constraint associated with the DividendPaymentDate class.">
 
-	dateReference DividendDateReferenceEnum (1..1) <"Specification of the dividend date using an enumeration, with values such as the pay date, the ex-date or the record date.">
-	paymentDateOffset Offset (0..1) <"Only to be used when SharePayment has been specified in the dividendDateReference element. The number of Currency Business Days following the day on which the Issuer of the Shares pays the relevant dividend to holders of record of the Shares.">
+    dateReference DividendDateReferenceEnum (1..1) <"Specification of the dividend date using an enumeration, with values such as the pay date, the ex-date or the record date.">
+    paymentDateOffset Offset (0..1) <"Only to be used when SharePayment has been specified in the dividendDateReference element. The number of Currency Business Days following the day on which the Issuer of the Shares pays the relevant dividend to holders of record of the Shares.">
 
-	condition PaymentDateOffset: <" FpML specifies that paymentDateOffset is only to be used when SharePayment has been specified in the dividendDateReference element.">
-		if paymentDateOffset exists
-		then dateReference = DividendDateReferenceEnum -> SharePayment
+    condition PaymentDateOffset: <" FpML specifies that paymentDateOffset is only to be used when SharePayment has been specified in the dividendDateReference element.">
+        if paymentDateOffset exists
+        then dateReference = DividendDateReferenceEnum -> SharePayment
 
 type DividendPaymentDate: <"A class describing the date on which the dividend will be paid/received. This class is also used to specify the date on which the FX rate will be determined, when applicable.">
 
-	dividendDateReference DividendDateReference (0..1)
-	dividendDate AdjustableOrRelativeDate (0..1)
-	    [metadata reference]
+    dividendDateReference DividendDateReference (0..1)
+    dividendDate AdjustableOrRelativeDate (0..1)
+        [metadata reference]
 
-	condition: one-of
+    condition:
+        one-of
 
 type DividendReturnTerms: <"A class describing the conditions governing the payment of dividends to the receiver of the equity return, with the exception of the dividend payout ratio, which is defined for each of the underlying components.">
 
-	dividendPayoutRatio DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
-	dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
-	dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
-	dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
-	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
-	firstOrSecondPeriod DividendPeriodEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Dividend Period as either the First Period or the Second Period. | ">
-	extraordinaryDividendsParty AncillaryRoleEnum (0..1) <"Specifies the party which determines if dividends are extraordinary in relation to normal levels.">
-	excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">
-	dividendCurrency DividendCurrency (0..1) <"Specifies the currency in which the dividend will be denominated, e.g. the dividend currency, or a specified currency. This class is not specified as such in FpML, which makes use of the CurrencyAndDeterminationMethod.model to specify such terms.">
-	nonCashDividendTreatment NonCashDividendTreatmentEnum (0..1) <"Specifies the treatment of Non-Cash Dividends.">
-	dividendComposition DividendCompositionEnum (0..1) <"Specifies how the composition of Dividends is to be determined.">
-	specialDividends boolean (0..1) <"Specifies the method according to which special dividends are determined.">
-	materialDividend boolean (0..1) <"If present and true, then material non cash dividends are applicable.">
-	dividendPeriod DividendPeriod (0..*) <"One to many time bounded dividend payment periods, each with a dividend payment date per period.">
+    dividendPayoutRatio DividendPayoutRatio (0..*) <"Specifies the dividend payout ratio associated with each underlier. In FpML 5.10 the payout is positioned at the underlier level, although there is an intent to reconsider this approach and position it at the leg level. This is approach adopted by the CDM.">
+    dividendReinvestment boolean (0..1) <"Boolean element that defines whether the dividend will be reinvested or not.">
+    dividendEntitlement DividendEntitlementEnum (0..1) <"Defines the date on which the receiver of the equity return is entitled to the dividend.">
+    dividendAmountType DividendAmountTypeEnum (0..1) <"Specifies whether the dividend is paid with respect to the Dividend Period.">
+    performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+    firstOrSecondPeriod DividendPeriodEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Dividend Period as either the First Period or the Second Period. | ">
+    extraordinaryDividendsParty AncillaryRoleEnum (0..1) <"Specifies the party which determines if dividends are extraordinary in relation to normal levels.">
+    excessDividendAmount DividendAmountTypeEnum (0..1) <"Determination of Gross Cash Dividend per Share.">
+    dividendCurrency DividendCurrency (0..1) <"Specifies the currency in which the dividend will be denominated, e.g. the dividend currency, or a specified currency. This class is not specified as such in FpML, which makes use of the CurrencyAndDeterminationMethod.model to specify such terms.">
+    nonCashDividendTreatment NonCashDividendTreatmentEnum (0..1) <"Specifies the treatment of Non-Cash Dividends.">
+    dividendComposition DividendCompositionEnum (0..1) <"Specifies how the composition of Dividends is to be determined.">
+    specialDividends boolean (0..1) <"Specifies the method according to which special dividends are determined.">
+    materialDividend boolean (0..1) <"If present and true, then material non cash dividends are applicable.">
+    dividendPeriod DividendPeriod (0..*) <"One to many time bounded dividend payment periods, each with a dividend payment date per period.">
 
-	condition DividendPeriod: <"FpML specifies a choice between dividendPeriod on one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
-		if firstOrSecondPeriod exists
-		then dividendPeriod -> startDate is absent
-			and dividendPeriod -> endDate is absent
+    condition DividendPeriod: <"FpML specifies a choice between dividendPeriod on one end, and dividendPeriodEffectiveDate and dividendPeriodEndDate on the other end.">
+        if firstOrSecondPeriod exists
+        then dividendPeriod -> startDate is absent and dividendPeriod -> endDate is absent
 
-	condition ExtraordinaryDividendsParty:
-		if extraordinaryDividendsParty exists
-		then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
+    condition ExtraordinaryDividendsParty:
+        if extraordinaryDividendsParty exists
+        then extraordinaryDividendsParty = AncillaryRoleEnum -> ExtraordinaryDividendsParty
 
 type DividendPeriod: <"Time bounded dividend payment periods, each with a dividend payment date per period.">
 
     startDate DividendPaymentDate (0..1) <"Dividend period start date.">
     endDate DividendPaymentDate (0..1) <"Dividend period end date.">
     dateAdjustments BusinessDayAdjustments (1..1) <"Date adjustments for all unadjusted dates in this dividend period.">
-    basketConstituent Product (0..1) <"For basket undeliers, reference to the basket component which is paying dividends in the specified period.">
+    basketConstituent BasketConstituent (0..1) <"For basket underliers, reference to the basket component which is paying dividends in the specified period.">
+        [metadata address "pointsTo"=PriceQuantity->observable->Basket->basketConstituent]
     dividendPaymentDate DividendPaymentDate (1..1) <"Specifies when the dividend will be paid to the receiver of the equity return. Has the meaning as defined in the ISDA 2002 Equity Derivatives Definitions. Is not applicable in the case of a dividend reinvestment election.">
     dividendValuationDate AdjustableOrRelativeDate (0..1) <"Specifies the dividend valuation dates of the swap.">
 
 type PriceReturnTerms:
 
-	valuationPriceInitial PriceSchedule (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-	valuationPriceFinal PriceSchedule (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-	returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
-	conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
-	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+    returnType ReturnTypeEnum (1..1) <"The type of return associated with the equity swap.">
+    conversionFactor number (0..1) <"Defines the conversion applied if the quantity unit on contract is different from unit on referenced underlier.">
+    performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
 type ReturnTermsBase: <"Contains all common elements in variance, volatility and correlation return Terms.">
 
-	valuation Valuation (1..1) <"Contains all non-date valuation information.">
-	annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
-	dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
-	equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
-	sharePriceDividendAdjustment boolean (0..1) <"Indicates whether the price of shares is adjusted for dividends or not.">
-	expectedN int (1..1) <"Expected number of trading days.">
-	initialLevel number (0..1) <"Contract will strike off this initial level. Providing just the initialLevel without initialLevelSource, infers that this is AgreedInitialPrice - a specified Initial Index Level.">
-	initialLevelSource DeterminationMethodEnum (0..1) <"In this context, this is AgreedInitialPrice - a specified Initial Index Level.">
-	meanAdjustment boolean (0..1) <"Specifies whether Mean Adjustment is applicable or not in the calculation of the Realized Volatility, Variance or Correlation">
-	performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
+    valuationTerms ValuationTerms (1..1) <"Contains all non-date valuation information.">
+    annualizationFactor int (0..1) <"This specifies the numerator of an annualization factor. Frequently this number is equal to the number of observations of prices in a year e.g. 252.">
+    dividendApplicability DividendApplicability (0..1) <"The parameters which define whether dividends are applicable">
+    equityUnderlierProvisions EquityUnderlierProvisions (0..1) <"Contains Equity Underlyer provisions regarding jurisdiction and fallbacks.">
+    sharePriceDividendAdjustment boolean (0..1) <"Indicates whether the price of shares is adjusted for dividends or not.">
+    expectedN int (1..1) <"Expected number of trading days.">
+    initialLevel number (0..1) <"Contract will strike off this initial level. Providing just the initialLevel without initialLevelSource, infers that this is AgreedInitialPrice - a specified Initial Index Level.">
+    initialLevelSource DeterminationMethodEnum (0..1) <"In this context, this is AgreedInitialPrice - a specified Initial Index Level.">
+    meanAdjustment boolean (0..1) <"Specifies whether Mean Adjustment is applicable or not in the calculation of the Realized Volatility, Variance or Correlation">
+    performance calculation (0..1) <"Performance calculation, in accordance with Part 1 Section 12 of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap, Para 75. 'Equity Performance'. Cumulative performance is used as a notional multiplier factor on both legs of an Equity Swap.">
 
-	condition InitialLevelOrInitialLevelSource: <"At least one of initialLevel and initialLevelSource must be present, or both">
-		if initialLevel is absent then initialLevelSource exists
-		and if initialLevelSource is absent then initialLevel exists
+    condition InitialLevelOrInitialLevelSource: <"At least one of initialLevel and initialLevelSource must be present, or both">
+        if initialLevel is absent
+        then initialLevelSource exists
+                and if initialLevelSource is absent
+                    then initialLevel exists
 
-	condition PositiveExpectedN: <"The number of expected trading dates must be positive">
-		expectedN > 0
+    condition PositiveExpectedN: <"The number of expected trading dates must be positive">
+        expectedN > 0
 
 type VarianceReturnTerms extends ReturnTermsBase:
 
-	varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-	volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-	varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
-	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
-	vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
-		//vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
-	exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+    varianceStrikePrice Price (0..1) <"Variance Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    volatilityStrikePrice Price (0..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    varianceCapFloor VarianceCapFloor (0..1) <"Contains possible barriers for variance products, both variance-based and underlier price based">
+    volatilityCapFloor VolatilityCapFloor (0..1) <"Contains containing volatility-based barriers">
+    vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
+    // vegaNotionalAmount is only present here in varianceReturnTerms because it is an optional complement to the varianceAmount expressed in payoutQuantity.quantitySchedule.initialQuantity.amount.   In volatilityReturnTerms this element does not exist because the vegaNotionalAmount is compulsory and should therefore be expressed in payoutQuantity.quantitySchedule.initialQuantity.amount. in the corresponding units.
+    exchangeTradedContractNearest Observable (0..1) <"Specification of the exchange traded contract nearest.">
+        [metadata address "pointsTo"=PriceQuantity->observable]
 
-	condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
-		if vegaNotionalAmount -> value exists then vegaNotionalAmount -> value > 0
+    condition Positive_VegaNotionalAmount: <"When the optional vegaNotionalAmount is present in the varianceReturnTerms, it needs to have a positive value.">
+        if vegaNotionalAmount -> value exists
+        then vegaNotionalAmount -> value > 0
 
-	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
-		if exchangeTradedContractNearest exists
-		then exchangeTradedContractNearest -> productIdentifier exists
+    condition UnderlierMustBeListedDerivative: <"If an exchange traded contract nearest is specified, it must have a listed derivative as underlier.">
+        if exchangeTradedContractNearest exists
+        then exchangeTradedContractNearest -> Asset -> Instrument -> ListedDerivative exists
 
-	condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
-		if valuation -> futuresPriceValuation = True then exchangeTradedContractNearest exists
+    condition ReferenceContract: <"If futurePriceValuation is true, an exchange traded contract is used as a reference, therefore such contract must be specified in exchangeTradedContractNearest">
+        if valuationTerms -> futuresPriceValuation = True
+        then exchangeTradedContractNearest exists
 
-	condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
-		required choice volatilityStrikePrice, varianceStrikePrice
+    condition StrikePriceMustExist: <"The strike price must be present, but it can be expressed in either variance or volatility terms">
+        required choice volatilityStrikePrice, varianceStrikePrice
 
-	condition NonNegativeStrikePrice: <"The strike price must have a positive value">
-		if volatilityStrikePrice -> value  exists then volatilityStrikePrice -> value >= 0 and
-		if varianceStrikePrice -> value exists then varianceStrikePrice -> value >= 0
+    condition NonNegativeStrikePrice: <"The strike price must have a positive value">
+        if volatilityStrikePrice -> value exists
+        then volatilityStrikePrice -> value >= 0 and if varianceStrikePrice -> value exists
+                then varianceStrikePrice -> value >= 0
 
 type VolatilityReturnTerms extends ReturnTermsBase:
 
-	volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-	volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
-	//vegaNotionalAmount NonNegativeQuantitySchedule (0..1) <"Vega Notional represents the approximate gain/loss at maturity for a 1% difference between RVol (realised vol) and KVol (strike vol). It does not necessarily represent the Vega Risk of the trade.">
-	exchangeTradedContractNearest Observable (0..1)  <"Specification of the exchange traded contract nearest.">
-
-	condition UnderlierMustBeSecurity: <"If an exchange traded contract nearest is specified, it must have a security as underlier.">
-		if exchangeTradedContractNearest exists
-		then exchangeTradedContractNearest -> productIdentifier exists
+    volatilityStrikePrice Price (1..1) <"Volatility Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    volatilityCapFloor VolatilityCapFloor (0..1) <"Contains volatility-based barriers">
+    exchangeTradedContractNearest ListedDerivative (0..1) <"Specification of the exchange traded contract nearest.">
 
 type CorrelationReturnTerms extends ReturnTermsBase:
 
-	correlationStrikePrice Price (1..1) <"Correlation Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
-	boundedCorrelation NumberRange (0..1) <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
-	numberOfDataSeries int (0..1) <"Number of data series, normal market practice is that correlation data sets are drawn from geographic market areas, such as America, Europe and Asia Pacific, each of these geographic areas will have its own data series to avoid contagion.">
+    correlationStrikePrice Price (1..1) <"Correlation Strike Price in accordance with the ISDA 2011 Equity Derivatives Definitions.">
+    boundedCorrelation NumberRange (0..1) <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
+    numberOfDataSeries int (0..1) <"Number of data series, normal market practice is that correlation data sets are drawn from geographic market areas, such as America, Europe and Asia Pacific, each of these geographic areas will have its own data series to avoid contagion.">
 
-	condition PositiveNumberOfDataSeries: <"The number of data series must be positive">
-		if numberOfDataSeries exists then numberOfDataSeries > 0
+    condition PositiveNumberOfDataSeries: <"The number of data series must be positive">
+        if numberOfDataSeries exists then numberOfDataSeries > 0
 
-	condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
-		correlationStrikePrice -> value > -1 and correlationStrikePrice -> value < 1
+    condition CorrelationValue: <"The correlation strike price is a decimal with allowed values only between 1 and -1">
+        correlationStrikePrice -> value > -1 and correlationStrikePrice -> value < 1
 
-type Valuation:
-	futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
-	optionsPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions">
-	numberOfValuationDates int (0..1) <"The number of valuation dates between valuation start date and valuation end date.">
-	dividendValuationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dividend valuation dates of the swap.">
-	fPVFinalPriceElectionFallback FPVFinalPriceElectionFallbackEnum (0..1) <"Specifies the fallback provisions for Hedging Party in the determination of the Final Price.">
-	multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
-	componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
-	//valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-	//valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
-
-	condition PositiveNumberOfValuationDates: <"The number of valuation dates must be positive.">
-		if numberOfValuationDates exists then numberOfValuationDates > 0
+type ValuationTerms:
+    futuresPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions.">
+    optionsPriceValuation boolean (0..1) <"The official settlement price as announced by the related exchange is applicable, in accordance with the ISDA 2002 definitions">
+    numberOfValuationDates int (0..1) <"The number of valuation dates between valuation start date and valuation end date.">
+    dividendValuationDates AdjustableRelativeOrPeriodicDates (0..1) <"Specifies the dividend valuation dates of the swap.">
+    fPVFinalPriceElectionFallback FPVFinalPriceElectionFallbackEnum (0..1) <"Specifies the fallback provisions for Hedging Party in the determination of the Final Price.">
+    multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
+    componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
+    // valuationPriceInitial Price (0..1) <"Specifies the initial valuation price(s) of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    // valuationPriceFinal Price (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Final Price | Specifies the final valuation price of the underlier. This price can be expressed either as an actual amount/currency, as a determination method, or by reference to another value specified in the swap document.">
+    condition PositiveNumberOfValuationDates: <"The number of valuation dates must be positive.">
+        if numberOfValuationDates exists
+        then numberOfValuationDates > 0
 
 type EquityUnderlierProvisions:
-	multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
-	componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
-	localJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
-		[metadata scheme]
-	relevantJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
-		[metadata scheme]
+    multipleExchangeIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Multiple Exchange Index Annex is applicable to the transaction. This annex defines additional provisions which are applicable where an index is comprised of component securities that are traded on multiple exchanges.">
+    componentSecurityIndexAnnexFallback boolean (0..1) <"For an index option or swap transaction, a flag to indicate whether a relevant Component Security Index Annex is applicable to the transaction.">
+    localJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+        [metadata scheme]
+    relevantJurisdiction string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+        [metadata scheme]
 
-	condition ComponentSecurityOrMultipleExchange: <"If multipleExchangeIndexAnnexFallback is present then componentSecurityIndexAnnexFallback must be absent and vice versa.">
-		optional choice multipleExchangeIndexAnnexFallback, componentSecurityIndexAnnexFallback
+    condition ComponentSecurityOrMultipleExchange: <"If multipleExchangeIndexAnnexFallback is present then componentSecurityIndexAnnexFallback must be absent and vice versa.">
+        optional choice multipleExchangeIndexAnnexFallback, componentSecurityIndexAnnexFallback
 
 type VarianceCapFloor:
 
-	varianceCap boolean (1..1) <"If present and true, then variance cap is applicable.">
-	unadjustedVarianceCap number (0..1) <"For use when varianceCap is applicable. Contains the scaling factor of the Variance Cap that can differ on a trade-by-trade basis in the European market. For example, a Variance Cap of 2.5^2 x Variance Strike Price has an unadjustedVarianceCap of 2.5.">
-	boundedVariance BoundedVariance (0..1) <"Conditions which bound variance. The contract specifies one or more boundary levels. These levels are expressed as prices for confirmation purposes Underlyer price must be equal to or higher than Lower Barrier is known as Up Conditional Swap Underlyer price must be equal to or lower than Upper Barrier is known as Down Conditional Swap Underlyer price must be equal to or higher than Lower Barrier and must be equal to or lower than Upper Barrier is known as Barrier Conditional Swap.">
+    varianceCap boolean (1..1) <"If present and true, then variance cap is applicable.">
+    unadjustedVarianceCap number (0..1) <"For use when varianceCap is applicable. Contains the scaling factor of the Variance Cap that can differ on a trade-by-trade basis in the European market. For example, a Variance Cap of 2.5^2 x Variance Strike Price has an unadjustedVarianceCap of 2.5.">
+    boundedVariance BoundedVariance (0..1) <"Conditions which bound variance. The contract specifies one or more boundary levels. These levels are expressed as prices for confirmation purposes Underlyer price must be equal to or higher than Lower Barrier is known as Up Conditional Swap Underlyer price must be equal to or lower than Upper Barrier is known as Down Conditional Swap Underlyer price must be equal to or higher than Lower Barrier and must be equal to or lower than Upper Barrier is known as Barrier Conditional Swap.">
 
-	condition PositiveUnadjustedVarianceCap: <"Unadjusted variance cap must be positive">
-    	if unadjustedVarianceCap exists then unadjustedVarianceCap > 0
+    condition PositiveUnadjustedVarianceCap: <"Unadjusted variance cap must be positive">
+        if unadjustedVarianceCap exists then unadjustedVarianceCap > 0
 
-	condition CapFloorApplicability: <"Caps/floors can and must be specified if varianceCap is set to true. If false, barriers cannot be established">
-		if varianceCap = True then unadjustedVarianceCap exists or boundedVariance exists // If CapFloor is applicable at least one cap expression must exist
-		else unadjustedVarianceCap is absent and boundedVariance is absent // If CapFloor is not applicable, then there cannot be any volatility caps
+    condition CapFloorApplicability: <"Caps/floors can and must be specified if varianceCap is set to true. If false, barriers cannot be established">
+        if varianceCap = True
+        then unadjustedVarianceCap exists or boundedVariance exists // If CapFloor is applicable at least one cap expression must exist
+        else unadjustedVarianceCap is absent and boundedVariance is absent // If CapFloor is not applicable, then there cannot be any volatility caps
 
 type BoundedVariance:
 
-	realisedVarianceMethod RealisedVarianceMethodEnum (1..1) <"The contract specifies which price must satisfy the boundary condition.">
-	daysInRangeAdjustment boolean (1..1) <"The contract specifies whether the notional should be scaled by the Number of Days in Range divided by the Expected N. The number of Days in Ranges refers to the number of returns that contribute to the realized volatility.">
-	upperBarrier number (0..1) <"All observations above this price level will be excluded from the variance calculation.">
-	lowerBarrier number (0..1) <"All observations below this price level will be excluded from the variance calculation.">
- 
-	condition NonNegativeBarriers: <"Barriers cannot be set to negative values">
-		if upperBarrier exists then upperBarrier >= 0 and 
-		if lowerBarrier exists then lowerBarrier >= 0
+    realisedVarianceMethod RealisedVarianceMethodEnum (1..1) <"The contract specifies which price must satisfy the boundary condition.">
+    daysInRangeAdjustment boolean (1..1) <"The contract specifies whether the notional should be scaled by the Number of Days in Range divided by the Expected N. The number of Days in Ranges refers to the number of returns that contribute to the realized volatility.">
+    upperBarrier number (0..1) <"All observations above this price level will be excluded from the variance calculation.">
+    lowerBarrier number (0..1) <"All observations below this price level will be excluded from the variance calculation.">
+
+    condition NonNegativeBarriers: <"Barriers cannot be set to negative values">
+        if upperBarrier exists
+        then upperBarrier >= 0 and if lowerBarrier exists
+                then lowerBarrier >= 0
 
 type VolatilityCapFloor: <"Contains volatility-based barriers. Volatility Cap needs to be specified in accordance with the ISDA 2011 Equity Derivatives Definitions.">
 
-	applicable boolean (1..1) <"Indicates whether the volatility cap is applicable in accordance with the ISDA 2011 Equity Derivatives Definitions. Setting the element 'applicable' to 'False' - means No Volatility Cap and no 'totalVolatilityCap' or 'volatilityCapFactor' should be provided. Setting the element 'applicable' to 'True' - means Volatility Cap election, then 'totalVolatilityCap' or 'volatilityCapFactor' should be provided, otherwise it defaults to volatilityCapFactor=2.5.">
-	totalVolatilityCap number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. This means the Volatility Cap Amount election is a number.">
-	volatilityCapFactor number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. The Calculated VolCapAmt can be optionally provided.">
+    applicable boolean (1..1) <"Indicates whether the volatility cap is applicable in accordance with the ISDA 2011 Equity Derivatives Definitions. Setting the element 'applicable' to 'False' - means No Volatility Cap and no 'totalVolatilityCap' or 'volatilityCapFactor' should be provided. Setting the element 'applicable' to 'True' - means Volatility Cap election, then 'totalVolatilityCap' or 'volatilityCapFactor' should be provided, otherwise it defaults to volatilityCapFactor=2.5.">
+    totalVolatilityCap number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. This means the Volatility Cap Amount election is a number.">
+    volatilityCapFactor number (0..1) <"Volatility Cap Amount in accordance with the ISDA 2011 Equity Derivatives Definitions. The Calculated VolCapAmt can be optionally provided.">
 
-	condition CapFloorApplicability: <"Caps/floors can and must be specified if applicable is set to true. If false, barriers cannot be established">
-		if applicable = True then totalVolatilityCap exists or volatilityCapFactor exists // If CapFloor is applicable at least one cap expression must exist
-		else totalVolatilityCap is absent and volatilityCapFactor is absent // If CapFloor is not applicable, then there cannot be any volatility caps
+    condition CapFloorApplicability: <"Caps/floors can and must be specified if applicable is set to true. If false, barriers cannot be established">
+        if applicable = True
+        then totalVolatilityCap exists or volatilityCapFactor exists // If CapFloor is applicable at least one cap expression must exist
+        else totalVolatilityCap is absent and volatilityCapFactor is absent // If CapFloor is not applicable, then there cannot be any volatility caps
 
-	condition PositiveCaps: <"Barriers must be set to positive values">
-		if totalVolatilityCap exists then totalVolatilityCap >= 0 and
-		if volatilityCapFactor exists then volatilityCapFactor >= 0
+    condition PositiveCaps: <"Barriers must be set to positive values">
+        if totalVolatilityCap exists
+        then totalVolatilityCap >= 0 and if volatilityCapFactor exists
+                then volatilityCapFactor >= 0
 
 type BoundedCorrelation: <"Describes correlation bounds, which form a cap and a floor on the realized correlation.">
-	minimumBoundaryPercent number (0..1) <"Minimum Boundary as a percentage of the Strike Price.">
-	maximumBoundaryPercent number (0..1) <"Maximum Boundary as a percentage of the Strike Price.">
+    minimumBoundaryPercent number (0..1) <"Minimum Boundary as a percentage of the Strike Price.">
+    maximumBoundaryPercent number (0..1) <"Maximum Boundary as a percentage of the Strike Price.">
 
 type ForeignExchange: <"From FpML: A type defining either a spot or forward FX transactions.">
-
-	exchangedCurrency1 Cashflow (1..1) <"This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.">
-	exchangedCurrency2 Cashflow (1..1) <"This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.">
-	tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">
-	exchangeRate ExchangeRate (0..1) <"The rate of exchange between the two currencies.">
-        [deprecated]
+    [deprecated]
+    exchangedCurrency1 Cashflow (1..1) <"This is the first of the two currency flows that define a single leg of a standard foreign exchange transaction.">
+    exchangedCurrency2 Cashflow (1..1) <"This is the second of the two currency flows that define a single leg of a standard foreign exchange transaction.">
+    tenorPeriod Period (0..1) <"A tenor expressed as a period type and multiplier (e.g. 1D, 1Y, etc.)">
 
 type BondReference: <"Reference to a bond underlier to represent an asset swap or Condition Precedent Bond.">
 
-	bond ProductIdentifier (1..1) <"Reference to a bond underlier.">
-	conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
-	discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
+    bond Security (1..1) <"Reference to a bond underlier.">
+    conditionPrecedentBond boolean (1..1) <"To indicate whether the Condition Precedent Bond is applicable. The swap contract is only valid if the bond is issued and if there is any dispute over the terms of fixed stream then the bond terms would be used.">
+    discrepancyClause boolean (0..1) <"To indicate whether the Discrepancy Clause is applicable.">
+    couponRate FixedRateSpecification (0..1) <"Specifies the coupon rate (expressed in percentage) of a fixed income security or convertible bond.">
+
+    condition BondUnderlier: <"The underlier should be a bond.">
+        bond -> instrumentType = InstrumentTypeEnum -> Debt
 
 type CashflowRepresentation: <"A data defining:  the cashflow representation of a swap trade.">
 
-	cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
-	paymentCalculationPeriod PaymentCalculationPeriod (0..*) <"The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.">
+    cashflowsMatchParameters boolean (1..1) <"A true/false flag to indicate whether the cashflows match the parametric definition of the stream, i.e. whether the cashflows could be regenerated from the parameters without loss of information.">
+    paymentCalculationPeriod PaymentCalculationPeriod (0..*) <"The adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. A list of payment calculation period elements may be ordered in the document by ascending adjusted payment date. An FpML document containing an unordered list of payment calculation periods is still regarded as a conformant document.">
 
 type DiscountingMethod: <"A data defining:  discounting information. The 2000 ISDA definitions, section 8.4. discounting (related to the calculation of a discounted fixed amount or floating amount) apply. This type must only be included if discounting applies.">
 
-	discountingType DiscountingTypeEnum (1..1) <"The discounting method that is applicable.">
-	discountRate number (0..1) <"A discount rate, expressed as a decimal, to be used in the calculation of a discounted amount. A discount amount of 5% would be represented as 0.05.">
-	discountRateDayCountFraction DayCountFractionEnum (0..1) <"A discount day count fraction to be used in the calculation of a discounted amount.">
-		[metadata scheme]
+    discountingType DiscountingTypeEnum (1..1) <"The discounting method that is applicable.">
+    discountRate number (0..1) <"A discount rate, expressed as a decimal, to be used in the calculation of a discounted amount. A discount amount of 5% would be represented as 0.05.">
+    discountRateDayCountFraction DayCountFractionEnum (0..1) <"A discount day count fraction to be used in the calculation of a discounted amount.">
+        [metadata scheme]
 
-	condition DiscountRate: <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
-		if discountRateDayCountFraction exists
-		then discountRate exists
+    condition DiscountRate: <"In FpML discountingRate and discountRateDayCountFraction are part of an optional node, with discountingRate as the required element as part of that node.">
+        if discountRateDayCountFraction exists
+        then discountRate exists
 
 type FloatingRateDefinition: <"A data defining:  parameters associated with a floating rate reset. This data forms:  part of the cashflows representation of a stream.">
 
-	calculatedRate number (0..1) <"The final calculated rate for a calculation period after any required averaging of rates A calculated rate of 5% would be represented as 0.05.">
+    calculatedRate number (0..1) <"The final calculated rate for a calculation period after any required averaging of rates A calculated rate of 5% would be represented as 0.05.">
+    rateObservation RateObservation (0..*) <"The details of a particular rate observation, including the fixing date and observed rate. A list of rate observation elements may be ordered in the document by ascending adjusted fixing date. An FpML document containing an unordered list of rate observations is still regarded as a conformant document.">
+    floatingRateMultiplier number (0..1) <"A rate multiplier to apply to the floating rate. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one).">
+    spread number (0..1) <"The ISDA Spread, if any, which applies for the calculation period. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
+    capRate Strike (0..*) <"The cap rate, if any, which applies to the floating rate for the calculation period. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain strike level. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
+    floorRate Strike (0..*) <"The floor rate, if any, which applies to the floating rate for the calculation period. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. The floor rate of 5% would be represented as 0.05.">
 
-	rateObservation RateObservation (0..*) <"The details of a particular rate observation, including the fixing date and observed rate. A list of rate observation elements may be ordered in the document by ascending adjusted fixing date. An FpML document containing an unordered list of rate observations is still regarded as a conformant document.">
-	floatingRateMultiplier number (0..1) <"A rate multiplier to apply to the floating rate. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one).">
-	spread number (0..1) <"The ISDA Spread, if any, which applies for the calculation period. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
-	capRate Strike (0..*) <"The cap rate, if any, which applies to the floating rate for the calculation period. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain strike level. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
-	floorRate Strike (0..*) <"The floor rate, if any, which applies to the floating rate for the calculation period. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. The floor rate of 5% would be represented as 0.05.">
-
-	condition FloatingRateMultiplier: <"FpML specifies that the floatingRateMultiplier should only be included if different from 1.">
-		if floatingRateMultiplier exists
-		then floatingRateMultiplier <> 1
+    condition FloatingRateMultiplier: <"FpML specifies that the floatingRateMultiplier should only be included if different from 1.">
+        if floatingRateMultiplier exists
+        then floatingRateMultiplier <> 1
 
 type InflationRateSpecification extends FloatingRateSpecification: <"A data to:  specify the inflation rate.">
-	[synonym ISO20022 value "InfltnIndx"]
 
-	inflationLag Offset (1..1) <"An off-setting period from the payment date which determines the reference period for which the inflation index is observed.">
-	indexSource string (1..1) <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">
-		[metadata scheme]
-	mainPublication string (1..1) <"The current main publication source such as relevant web site or a government body. FpML specifies mainPublication to be of type mainPublicationSource, but without specifying actual values.">
-		[metadata scheme]
-	interpolationMethod InterpolationMethodEnum (1..1) <"The method used when calculating the Inflation Index Level from multiple points. The most common is Linear.">
-		[metadata scheme]
-	initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">
-	fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
+    inflationLag Offset (1..1) <"An off-setting period from the payment date which determines the reference period for which the inflation index is observed.">
+    indexSource string (1..1) <"The reference source such as Reuters or Bloomberg. FpML specifies indexSource to be of type rateSourcePageScheme, but without specifying actual values.">
+        [metadata scheme]
+    mainPublication string (1..1) <"The current main publication source such as relevant web site or a government body. FpML specifies mainPublication to be of type mainPublicationSource, but without specifying actual values.">
+        [metadata scheme]
+    interpolationMethod InterpolationMethodEnum (1..1) <"The method used when calculating the Inflation Index Level from multiple points. The most common is Linear.">
+        [metadata scheme]
+    initialIndexLevel number (0..1) <"Initial known index level for the first calculation period.">
+    fallbackBondApplicable boolean (1..1) <"The applicability of a fallback bond as defined in the 2006 ISDA Inflation Derivatives Definitions, sections 1.3 and 1.8.">
+    calculationMethod InflationCalculationMethodEnum (0..1) <"Indicates how to use the inflation index to calculate the payment (e.g. Ratio, Return, Spread). Added for Inflation Asset Swap">
+    calculationStyle InflationCalculationStyleEnum (0..1) <"Indicates the style of how the inflation index calculates the payment (e.g. YearOnYear, ZeroCoupon).">
+    finalPrincipalExchangeCalculation FinalPrincipalExchangeCalculationEnum (0..1) <"To be specified only for products that embed a redemption payment.">
 
+    condition InflationIndex:
+        rateOption -> InflationIndex exists
 
-type FloatingRate: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
-	[metadata key]
+type FloatingRateBase: <"A class defining a floating interest rate through the specification of the floating rate index, the tenor, the multiplier schedule, the spread, the qualification of whether a specific rate treatment and/or a cap or floor apply.">
+    [metadata key]
 
-    rateOption FloatingRateOption (0..1)
-        [metadata address "pointsTo"=Observable->rateOption]
-	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
-	fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
-	floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
-	spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
-	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
-	capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
-	floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
+    rateOption InterestRateIndex (0..1)
+        [metadata address "pointsTo"=Observable->Index->InterestRateIndex]
+    spreadSchedule SpreadSchedule (0..1) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
+    capRateSchedule StrikeSchedule (0..1) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
+    floorRateSchedule StrikeSchedule (0..1) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
+
+type FloatingRate extends FloatingRateBase:
+    floatingRateMultiplierSchedule RateSchedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
+    rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
+    calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
+    fallbackRate FallbackRateParameters (0..1) <"Definition of any fallback rate that may be applicable.">
 
 type FloatingRateSpecification extends FloatingRate: <"A class to specify the floating interest rate by extending the floating rate definition with a set of attributes that specify such rate: the initial value specified as part of the trade, the rounding convention, the averaging method and the negative interest rate treatment.">
 
-	initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
-	finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
-	averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
-	negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+    initialRate Price (0..1) <"The initial floating rate reset agreed between the principal parties involved in the trade. This is assumed to be the first required reset rate for the first regular calculation period. It should only be included when the rate is not equal to the rate published on the source implied by the floating rate index. An initial rate of 5% would be represented as 0.05.">
+    finalRateRounding Rounding (0..1) <"The rounding convention to apply to the final rate used in determination of a calculation period amount.">
+    averagingMethod AveragingWeightingMethodEnum (0..1) <"If averaging is applicable, this component specifies whether a weighted or unweighted average method of calculation is to be used. The component must only be included when averaging applies.">
+    negativeInterestRateTreatment NegativeInterestRateTreatmentEnum (0..1) <"The specification of any provisions for calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
 
 type FixedRateSpecification: <"Type defining the specification for a fixed rate.">
-	[metadata key]
-	rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+    [metadata key]
+    rateSchedule RateSchedule (0..1) <"The fixed rate or fixed rate schedule expressed as explicit fixed rates and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
 
 type FutureValueAmount: <"A class defining a currency and a future value date.">
     quantity NonNegativeQuantitySchedule (0..1)
         [metadata address "pointsTo"=PriceQuantity->quantity]
-	currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
-	valueDate date (1..1) <"Adjusted value date of the future value amount.">
+    currency string (1..1) <"The currency in which the an amount is denominated. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+        [metadata scheme]
+    calculationPeriodNumberOfDays int (1..1) <"The number of days from the adjusted calculation period start date to the adjusted value date, calculated in accordance with the applicable day count fraction.">
+    valueDate date (1..1) <"Adjusted value date of the future value amount.">
 
-	condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
-		calculationPeriodNumberOfDays >= 0
+    condition PositiveCalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positiveInteger.">
+        calculationPeriodNumberOfDays >= 0
 
 type SpreadSchedule extends RateSchedule: <"Adds an optional spread type element to the Schedule to identify a long or short spread value.">
 
-	spreadScheduleType SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">
-		[metadata scheme]
+    spreadScheduleType SpreadScheduleTypeEnum (0..1) <"An element which purpose is to identify a long or short spread value.">
+        [metadata scheme]
 
 type StubFloatingRate: <"A class defining a floating rate.">
 
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index.">
-	indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate.">
-	floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
-	spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
-	rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
-	capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
-	floorRateSchedule StrikeSchedule (0..*) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
+    floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index.">
+    indexTenor Period (0..1) <"The ISDA Designated Maturity, i.e. the tenor of the floating rate.">
+    floatingRateMultiplierSchedule Schedule (0..1) <"A rate multiplier or multiplier schedule to apply to the floating rate. A multiplier schedule is expressed as explicit multipliers and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in the calculationPeriodDatesAdjustments. The multiplier can be a positive or negative decimal. This element should only be included if the multiplier is not equal to 1 (one) for the term of the stream.">
+    spreadSchedule SpreadSchedule (0..*) <"The ISDA Spread or a Spread schedule expressed as explicit spreads and dates. In the case of a schedule, the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The spread is a per annum rate, expressed as a decimal. For purposes of determining a calculation period amount, if positive the spread will be added to the floating rate and if negative the spread will be subtracted from the floating rate. A positive 10 basis point (0.1%) spread would be represented as 0.001.">
+    rateTreatment RateTreatmentEnum (0..1) <"The specification of any rate conversion which needs to be applied to the observed rate before being used in any calculations. The two common conversions are for securities quoted on a bank discount basis which will need to be converted to either a Money Market Yield or Bond Equivalent Yield. See the Annex to the 2000 ISDA Definitions, Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraphs (g) and (h) for definitions of these terms.">
+    capRateSchedule StrikeSchedule (0..*) <"The cap rate or cap rate schedule, if any, which applies to the floating rate. The cap rate (strike) is only required where the floating rate on a swap stream is capped at a certain level. A cap rate schedule is expressed as explicit cap rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The cap rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A cap rate of 5% would be represented as 0.05.">
+    floorRateSchedule StrikeSchedule (0..*) <"The floor rate or floor rate schedule, if any, which applies to the floating rate. The floor rate (strike) is only required where the floating rate on a swap stream is floored at a certain strike level. A floor rate schedule is expressed as explicit floor rates and dates and the step dates may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments. The floor rate is assumed to be exclusive of any spread and is a per annum rate, expressed as a decimal. A floor rate of 5% would be represented as 0.05.">
 
 type StubValue: <"A type defining how a stub calculation period amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating rate tenors many be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3 Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 
-	floatingRate StubFloatingRate (0..2) <"The rates to be applied to the initial or final stub may be the linear interpolation of two different rates. While the majority of the time, the rate indices will be the same as that specified in the stream and only the tenor itself will be different, it is possible to specift two different rates. For example, a 2 month stub period may use the linear interpolation of a 1 month and 3 month rate. The different rates would be specified in this component. Note that a maximum of two rates can be specified. If a stub period uses the same floating rate index, including tenor, as the regular calculation periods then this should not be specified again within this component, i.e. the stub calculation period amount component may not need to be specified even if there is an initial or final stub period. If a stub period uses a different floating rate index compared to the regular calculation periods then this should be specified within this component. If specified here, they are likely to have id attributes, allowing them to be referenced from within the cashflows component.">
-	stubRate number (0..1) <"An actual rate to apply for the initial or final stub period may have been agreed between the principal parties (in a similar way to how an initial rate may have been agreed for the first regular period). If an actual stub rate has been agreed then it would be included in this component. It will be a per annum rate, expressed as a decimal. A stub rate of 5% would be represented as 0.05.">
-	stubAmount Money (0..1) <"An actual amount to apply for the initial or final stub period may have been agreed between the two parties. If an actual stub amount has been agreed then it would be included in this component.">
+    floatingRate StubFloatingRate (0..2) <"The rates to be applied to the initial or final stub may be the linear interpolation of two different rates. While the majority of the time, the rate indices will be the same as that specified in the stream and only the tenor itself will be different, it is possible to specift two different rates. For example, a 2 month stub period may use the linear interpolation of a 1 month and 3 month rate. The different rates would be specified in this component. Note that a maximum of two rates can be specified. If a stub period uses the same floating rate index, including tenor, as the regular calculation periods then this should not be specified again within this component, i.e. the stub calculation period amount component may not need to be specified even if there is an initial or final stub period. If a stub period uses a different floating rate index compared to the regular calculation periods then this should be specified within this component. If specified here, they are likely to have id attributes, allowing them to be referenced from within the cashflows component.">
+    stubRate number (0..1) <"An actual rate to apply for the initial or final stub period may have been agreed between the principal parties (in a similar way to how an initial rate may have been agreed for the first regular period). If an actual stub rate has been agreed then it would be included in this component. It will be a per annum rate, expressed as a decimal. A stub rate of 5% would be represented as 0.05.">
+    stubAmount Money (0..1) <"An actual amount to apply for the initial or final stub period may have been agreed between the two parties. If an actual stub amount has been agreed then it would be included in this component.">
 
-	condition: one-of
+    condition:
+        one-of
 
 type FixedAmountCalculationDetails: <"Type for reporting the detailed results of calculating a cash flow for a calculation period.  This is enhanced relative to the FpML-based cashflows structure to allow more information to be returned about daily compounded rates.">
-	calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating calculation was performed.">
-	calculationPeriodNotionalAmount Money (1..1) <"The notional in effect during the calculation period.">
-	fixedRate number (1..1) <"The value of the fixed rate that was used.">
-	yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
-	calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
+    calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating calculation was performed.">
+    calculationPeriodNotionalAmount Money (1..1) <"The notional in effect during the calculation period.">
+    fixedRate number (1..1) <"The value of the fixed rate that was used.">
+    yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
+    calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
