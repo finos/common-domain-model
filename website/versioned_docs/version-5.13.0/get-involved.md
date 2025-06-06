@@ -37,5 +37,6 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            |
+| Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger         | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
