@@ -30,9 +30,6 @@ Contributions to the CDM have to comply with the following set of design princip
 * **Embedded logic** to represent industry processes
 * **Modularisation** into logical layers \
 
-## CDM development guidelines 
-
-The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.finos.org/docs/contribution).
 
 ## Getting involved 
 
