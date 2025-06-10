@@ -1,47 +1,34 @@
-
-# _Legal Agreement Model - Final cleanup of CDM after ISDA Foundations migration_
-
-_Background_
-
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-All ISDA legal IP has been scrubbed from components and hidden behind a `docReference` tag, with the path to legal definitions & descriptions clearly identified and listed. A new legaldocumentation structure is also in place for ISDA Master Agreement components.
-
-_What is being released?_
-
-Following the migration of all ISDA Foundations components, this task will 'clean up' the model where new namespaces or types have been added.
-
-- `EquitySwapMasterConfirmation2018` and its related components are moved to the transaction namespace
-- `BrokerConfirmation` and related enums are moved to `legaldocumentation.transaction`
-- `Agreement` is moved to `legaldocumentation.common`
-- `legaldocumentation.contract` namespace now empty and has been deleted
-- Re-included some descriptions (without any Legal IP) that were wrongly removed from ISDA Foundations
-- Scrubbed all remaining reference to ISDA legal documentation from `legaldocumentation.transaction.type` and replace with `docReference`
-
-_Review directions_
-
-Changes can be reviewed in PR: [#3694](https://github.com/finos/common-domain-model/pull/3694)
-
-# *Legal Agreement Model - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
+# _Legal Documentation - Descriptions for Migrated Components_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
+The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM. 
 
-Following the completion of a new structure under `legaldocumentation` and the addition of `docReference` tags to hide ISDA legal definitions, Master Agreement components are ready for migration.
+All ISDA Foundations components have since been migrated to CDM as part of issue [#3348](https://github.com/finos/common-domain-model/issues/3348), with all ISDA legal IP scrubbed from components and hidden behind a docReference tag. As part of the migration, some descriptions were erroneously removed, while some components did not have descriptions to begin with.
 
 _What is being released?_
 
-This release migrates the following components relating to an ISDA Master Agreement to the new ISDA namespace under the legaldocumentation structure within CDM.
-- `Master Agreement`
-- `AutomaticEarlyTermination`
-- `AutomaticEarlyTerminationElection`
-- `TerminationCurrency`
-- `TerminationCurrencySelection`
-- `PartyOptionTerminationCurrency`
-- `SpecifiedEntities`
-- `SpecifiedEntity`
+This release adds descriptions to the recently migrated components. Some descriptions were reinstated after being removed during migration, while others are new and provided by ISDA. Updated components and their attributes:
+- `AccessConditionsElections`
+- `ConditionsPrecedent`
+- `ControlAgreementNecEvent`
+- `ControlAgreementNecEventElection`
+- `CreditSupportObligationsVariationMargin`
+- `CustodyArrangements`
+- `IneligibleCreditSupport`
+- `MarginApproach`
+- `OtherAgreements`
+- `RegimeTerms`
+- `SecurityProviderRightsEvent`
+- `SecurityProviderRightsEventElection`
+- `Substitution`
+- `CSAMinimumTransferAmount`
+- `PostedCreditSupportItemAmount`
+- `UndisputedAdjustedPostedCreditSupportAmount`
+- `CreditSupportAmount`
+
+This release also amends formatting and punctuation on all descriptions following feedback on the previous PR [#3693](https://github.com/finos/common-domain-model/pull/3693). 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3679](https://github.com/finos/common-domain-model/pull/3679)
+Changes can be reviewed in PR: [#3774](https://github.com/finos/common-domain-model/pull/3774)
