@@ -223,16 +223,38 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
     debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
-    assetBackedType AssetBackedSecurityEnum (0..1) <"Specifies the type of Asset Backed Security. Only required if debtClass is AssetBacked.">
 
-    condition ABSType:
-        if debtClass <> DebtClassEnum -> AssetBacked
-        then assetBackedType is absent
+    condition VanillaDebt:
+        if debtClass = DebtClassEnum -> Vanilla
+        then debtEconomics -> debtSeniority only-element <> DebtSeniorityEnum -> Secured
 
 type DebtEconomics: <"Specifies selected economics of a debt instrument.">
     debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
     debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
     debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+    securedType SecuredTypeEnum (0..1) <"Specifies the type of Asset Backed Security. Only required if debtClass is AssetBacked.">
+    assetBacked AssetBackedEnum (0..1)
+    convertibleType ConvertibleTypeEnum (0..1)
+    isConvertible boolean (0..1)//Should this be called 'isConvertibleExchangeable'?
+    partyType ConvertibleOrExchangablePartyElectionEnum (0..1)
+    isIssuer boolean (0..1)
+    //Where should RegCap go 
+
+    condition SecuredDebtExists:
+        if securedType exists
+        then debtSeniority = DebtSeniorityEnum -> Secured
+        
+    condition AssetBackedExists:
+        if securedType <> SecuredTypeEnum -> AssetBacked
+        then assetBacked is absent
+
+    condition IsConvertible:
+        if isConvertible = True
+        then convertibleType = Convertible
+    
+    condition IsHolder:
+        if isIssuer = True
+        then partyType = Issuer
 
 type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
 
