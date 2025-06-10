@@ -4,7 +4,7 @@ title: CDM Steering Working Group
 
 ## Overview
 
-The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups. 
+The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic [roadmap](/ROADMAP.md), and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups. 
 
 
 ### Responsibilities:
