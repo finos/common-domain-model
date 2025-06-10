@@ -72,8 +72,8 @@ The CDM Development Guidelines are defined by the Steering Working Group. The fu
 The CDM is developed, built and released using standard software
 source-control management. Each new released version is announced to
 users via a *release note* that describes the change introduced by that
-new version. The CDM release history is available in the [Release
-Section](#) of the CDM documentation.
+new version. The CDM release history can be found [here](/RELEASE.md).
+
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
 
