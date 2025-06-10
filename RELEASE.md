@@ -13,4 +13,4 @@ _Review Directions_
 
 There are no changes to the test expectations.
 
-The changes can be reviewed in PR: [#3788](https://github.com/finos/common-domain-model/pull/3788) 
+The changes can be reviewed in PR: [#3789](https://github.com/finos/common-domain-model/pull/3789) 
