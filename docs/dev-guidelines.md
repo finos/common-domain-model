@@ -6,13 +6,13 @@ title: Development Guidelines
 
 The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
 
-The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, visit the [Notice](/NOTICE.md) page. 
 
-For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please see [Governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md). For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
+For a more detailed overview of the existing Working Group and standard Participants, Editors and Maintainers, please visit the [Governance](/GOVERNANCE.md) page.  For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 A proposal can be defined at a conceptual level or a logical level (i.e.
-in code). In each case, the proposal must be developed in line with the CDM [design-principles](/docs/cdm-overview#design-principles) and
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and submitted to FINOS staff and the Architecture & Review Committee for approval. In
+in code). In each case, the proposal must be developed in line with the CDM [design-principles](design-principles.md) and
+[agile-development-approach](development-approach.md) and submitted to FINOS staff and the Architecture & Review Committee for approval. In
 some instances, the proposal may not be immediately approved but may be
 assigned to an existing or new Working Group for the purpose of
 reviewing, revising or extending the proposal.
@@ -21,11 +21,11 @@ Once approved, the amendment will be scheduled to be merged with the
 CDM's main code branch by the CDM Maintainers.
 
 ### Roles
-The CSL specifies [three different contribution roles](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#1roles) for each specific Working Group:
+The CSL specifies [three different contribution roles](/GOVERNANCE.md#roles) for each specific Working Group:
 
 * Maintainers - those who drive consensus within the working group
 * Editors - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants](/Participants.md) file. 
 
 # Working Groups
 
@@ -49,7 +49,7 @@ The CSL specifies [three different contribution roles](https://github.com/finos/
     * Proven experience in data modelling and/or software development in financial markets.
     * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).
       
-**2.2.3 CDM Steering Working Group Decision Making:** As outlined in [governance.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/5._Governance.md#2decision-making), The CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
+**2.2.3 CDM Steering Working Group Decision Making:** As outlined in the [Governance](/GOVERNANCE.md#2decision-making) page, the CDM Steering Working Group will operate by consensus-based decision-making. Maintainers are responsible for determining and documenting when consensus has been reached. In the event a clear consensus is not reached, Maintainers may call for a simple majority vote of Participants to determine outcomes.
 
 **2.2.4 CDM Steering Working Group Appointment of the Editor(s):** Editors will review and implement pull requests not expressed in code, test and release new functionalities, resolve bugs and implement approved improvements.
 
@@ -240,14 +240,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and
-    [governance](/docs/cdm-overview#governance)
+-   Review the [design-principles](design-principles.md) and
+    [governance](/GOVERNANCE.md) pages.
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-[agile-development-approach](/docs/cdm-overview#agile-development-approach) and follows
+[agile-development-approach](development-approach.md) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -365,13 +365,13 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the [namespace-documentation](/docs/namespace) section for more details.
+Please refer to the [namespace-documentation](namespace.md) page for more details.
 
 ### Descriptions
 
 All model components (e.g. types, attributes, conditions, functions
 etc.) should be specified with descriptions in accordance with the [CDM
-Documentation Style Guide](#documentation-style-guide).
+Documentation Style Guide](documentation-style-guide.md).
 
 ## Contributing model changes
 
@@ -397,7 +397,7 @@ following contribution checklist:
 A contribution should be a whole [releasable
 unit](#what-is-a-releasable-unit) and its size calibrated in accordance
 with the CDM's [agile development
-approach](#agile-development-approach).
+approach](development-approach.md).
 
 ---
 
@@ -458,7 +458,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content-of-release-notes](documentation-style-guide.md/#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -481,7 +481,7 @@ through the following review checklist:
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-[downstream-dependencies](#downstream-dependencies) section for more
+[downstream-dependencies](dev-guidelines.md/#downstream-dependencies) section below for more
 details.
 
 ---
@@ -650,7 +650,7 @@ release notes), they will be specified as such.
 
 The model should be referred to as *the CDM*, without any ownership
 mention. The only exception is the [Overview of the FINOS
-CDM](/docs/cdm-overview) section at the beginning of the user
+CDM](cdm-overview.md) section at the beginning of the user
 documentation when the CDM is introduced as *the FINOS CDM*.
 
 ### General data definition components
@@ -670,13 +670,13 @@ The two data definition components should be referred to as follows:
 ### Product
 
 1.  *Financial Product*. The user documentation defines
-    [financial-product](/docs/product-model#financial-product) as the highest
+    [financial-product](product-model.md/#financial-product) as the highest
     level of the hierarchy of the universe of products. The term
     *Financial Product* should be used consistently throughout the
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    [contractual-product](/docs/product-model#contractual-product) is defined as a
+    a contractual-product is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
@@ -686,13 +686,13 @@ The two data definition components should be referred to as follows:
 
 ### Event
 
-1.  *Business Event*. In the CDM, a [business-event](/docs/event-model#business-event) represents an event that may occur during the lifecycle
+1.  *Business Event*. In the CDM, a [business-event](event-model.md/#business-event) represents an event that may occur during the lifecycle
     of a trade, such as an amendment, a termination, a reset or a
     payment.
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a [primitive-event](/docs/event-model#primitive-event) represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](event-model.md/#primitive-event) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
