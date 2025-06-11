@@ -36,7 +36,7 @@ namespaces ("siblings"), which can also refer to each other.
 
 Example -- the base namespace
 
-![](/img/cdm-namespace.png)
+![](/website/static/img/namespaces.png)
 
 In the example above the layers of the "base" namespace can be observed.
 There are four layers to the namespace. The outer layer "base" contains
