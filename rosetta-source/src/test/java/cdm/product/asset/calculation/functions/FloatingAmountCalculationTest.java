@@ -14,7 +14,7 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;

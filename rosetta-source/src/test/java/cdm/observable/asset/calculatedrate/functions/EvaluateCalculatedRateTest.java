@@ -12,7 +12,7 @@ import cdm.observable.asset.fro.functions.IndexValueObservationMultiple;
 import cdm.product.asset.floatingrate.FloatingRateSettingDetails;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
