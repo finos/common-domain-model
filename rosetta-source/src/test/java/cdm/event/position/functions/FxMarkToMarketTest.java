@@ -8,7 +8,7 @@ import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.settlement.PriceQuantity;
 import cdm.product.template.*;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
