@@ -7,7 +7,7 @@ import cdm.product.template.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
