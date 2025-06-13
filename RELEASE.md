@@ -12,7 +12,7 @@ The attribute intended to contain the type `ProductGradeEnum` is located within 
 
 _Review directions_
 
-Changes can be reviewed in PR: [#3709](https://github.com/finos/common-domain-model/pull/3709)
+Changes can be reviewed in PR: [#3796](https://github.com/finos/common-domain-model/pull/3796)
 
 # _Infrastructure - Dependency Update_
 
