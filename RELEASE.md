@@ -10,7 +10,7 @@ The proposal is to include the value `CSA` in the `TaxonomySourceEnum` to suppor
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3716](https://github.com/finos/common-domain-model/pull/3716)
+The changes can be reviewed in PR: [#3802](https://github.com/finos/common-domain-model/pull/3802)
 
 # _Product Model - Additional values included within Product Id Type Enumeration_
 
