@@ -1,4 +1,4 @@
-# _Product Taxonomy Model - Adding "CSA" value in TaxonomySourceEnum_
+# _Documentation - Removing reference to ISDA Foundations from CDM documentation_
 
 _Background_
 
