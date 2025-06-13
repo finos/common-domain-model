@@ -24,7 +24,7 @@ This release includes the addition of `REDID` and `Valoren` values within `Produ
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3719](https://github.com/finos/common-domain-model/pull/3720)
+The changes can be reviewed in PR: [#3720](https://github.com/finos/common-domain-model/pull/3720)
 
 # _Infrastructure - Dependency Update_
 
