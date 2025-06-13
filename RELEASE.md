@@ -1,15 +1,15 @@
-# _Infrastructure - Dependency Update_
+# _CDM Model - Addition of Product Grade Enumeration_
+
+_Background_
+
+In alignment with the CDM roadmap, the jurisdictional coverage of the model is being expanded and updated ensuring a robust support for evolving regulatory requirements. This release includes the modelling of the ProductGradeEnum.
 
 _What is being released?_
 
-This release updates the `DSL` dependencies.
+The FpML coding scheme designated `productGradeScheme` (http://www.fpml.org/coding-scheme/commodity-oil-product-grade-1-0.xml) has been added in a new namespace named _cdm.base.staticdata.asset.commodity_.
 
-Version updates include:
-- DSL 9.55.0: no relevant changes for the CDM. See DSL release notes: [DSL 9.55.0](https://github.com/finos/rune-dsl/releases/tag/9.55.0)
-- DSL 9.56.0: infrastructure optimization for Rosetta. See DSL release notes: [DSL 9.56.0](https://github.com/finos/rune-dsl/releases/tag/9.56.0)
+The attribute intended to contain the type `ProductGradeEnum` is located within `AssetDeliveryInformation`, as it contains information relative to the delivery of the asset within `CommodityPayout`, and is named `commodityGrade`.
 
-_Review Directions_
+_Review directions_
 
-There are no changes to the test expectations.
-
-The changes can be reviewed in PR: [#3788](https://github.com/finos/common-domain-model/pull/3788) 
+Changes can be reviewed in PR: [#3799](https://github.com/finos/common-domain-model/pull/3799)
