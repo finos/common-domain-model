@@ -1,6 +1,6 @@
 package org.finos.cdm.example;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 public class ValidateAndQualifySampleTest extends AbstractExampleTest {
