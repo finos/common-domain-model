@@ -14,7 +14,7 @@ The update in this release allows users to set different types of concentration 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3690](https://github.com/finos/common-domain-model/pull/3690)
+Changes can be reviewed in PR: [3698](https://github.com/finos/common-domain-model/pull/3698)
 
 # _Product Taxonomy Model - Adding "CSA" value in TaxonomySourceEnum_
 
