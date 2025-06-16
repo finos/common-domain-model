@@ -1,16 +1,27 @@
-# _Documentation - Removing reference to ISDA Foundations from CDM documentation_
+# _Product Taxonomy Model - Adding "CSA" value in TaxonomySourceEnum_
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-All ISDA Foundations components have since been migrated to CDM as part of issue [#3348](https://github.com/finos/common-domain-model/issues/3348), with all ISDA legal IP scrubbed from components and hidden behind a docReference tag. Following this migration, the ISDA Foundations project can be removed and all references in the CDM documentation should be updated.
+A model limitation has been identified in representing the taxonomy values of the underlying commodity asset defined by the CSA (Canadian Securities Administrators) Regulation. Identifying the taxonomy source as CSA is crucial for integrating the values into the model and populating the `CSA Commodity Underlyer ID` field modeled in DRR.
 
 _What is being released?_
 
-This release removes all reference to ISDA Foundations from the CDM documentation, specifically in the Legal Agreements and Working Groups sections. The Legal Agreements section has also been updated to refer to the new legal agreement structure for master agreements.
+The proposal is to include the value `CSA` in the `TaxonomySourceEnum` to support the representation of the CSA Taxonomy values, needed to meet the reporting requirements for this regulation.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3773](https://github.com/finos/common-domain-model/pull/3773)
+The changes can be reviewed in PR: [#3804](https://github.com/finos/common-domain-model/pull/3804)
 
+# _Product Model - Additional values included within Product Id Type Enumeration_
+
+_Background_
+
+In alignment with the CDM roadmap, the jurisdictional coverage of the model is being expanded and updated, ensuring robust support for evolving regulatory requirements. This release includes the addition of two new values within `ProductIdTypeEnum`
+
+_What is being released?_
+
+This release includes the addition of `REDID` and `Valoren` values within `ProductIdTypeEnum`.
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#3722](https://github.com/finos/common-domain-model/pull/3722)
