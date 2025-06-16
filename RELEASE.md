@@ -1,4 +1,3 @@
-
 # _Collateral Model - Concentration Limit Update_
 
 _Background_
@@ -17,7 +16,6 @@ _Review Directions_
 
 Changes can be reviewed in PR: [3701](https://github.com/finos/common-domain-model/pull/3701)
 
-# _Reference Data - Update ISOCurrencyCodeEnum_
 # _Product Taxonomy Model - Adding "CSA" value in TaxonomySourceEnum_
 
 _Background_
