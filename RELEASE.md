@@ -1,3 +1,19 @@
+# _CDM Model - Addition of Product Grade Enumeration_
+
+_Background_
+
+This release includes the extension of the `ProductGradeEnum` to expand the jurisdictional coverage for commodity products.
+
+_What is being released?_
+
+The FpML coding scheme designated `productGradeScheme` (http://www.fpml.org/coding-scheme/commodity-oil-product-grade-1-0.xml) has been added in a new namespace named _cdm.base.staticdata.asset.commodity_. The synonym mapping to the coding scheme has been also added to facilitate the ingestion of FpML messages.
+
+The attribute intended to contain the type `ProductGradeEnum` is located within `AssetDeliveryInformation`, as it contains information relative to the delivery of the asset within `CommodityPayout`, and is named `commodityGrade`.
+
+_Review directions_
+
+Changes can be reviewed in PR: [#3796](https://github.com/finos/common-domain-model/pull/3796)
+
 # _Product Taxonomy Model - Adding "CSA" value in TaxonomySourceEnum_
 
 _Background_
