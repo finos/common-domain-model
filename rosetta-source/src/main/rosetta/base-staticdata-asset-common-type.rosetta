@@ -18,9 +18,11 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
     exchange LegalEntity (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
+    [deprecated]
     relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
-    party Party (1..1) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
-    partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity">
+    [deprecated]
+    party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
+    partyRole AssetPartyRole (0..*) <"The role of the payer specific to the asset type, i.e. bond, equity">
     assetAncillaryParty AncillaryParty (0..*) <"Other ancillary parties linked to the asset but independent of the trade, i.e. transfer agent, registrar">
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
 
@@ -30,20 +32,17 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     condition RelatedExchange: <"Related Exchange should only be specified if an Exchange is also specified.">
         if exchange is absent then relatedExchange is absent
 
-    condition Party: <"Asset party must exist.">
-        party exists
-
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
         if assetType -> assetType any = AssetTypeEnum -> Security
-            then partyRole -> role = AssetPartyRoleEnum -> Issuer
+            then partyRole -> role any = AssetPartyRoleEnum -> Issuer
 
     condition Exchange: <"If the asset type is a security then the role must be issuer.">
         if assetType -> securityType any = InstrumentTypeEnum -> ListedDerivative
-            then partyRole -> role = AssetPartyRoleEnum -> Exchange
+            then partyRole -> role any = AssetPartyRoleEnum -> Exchange
 
     condition LenderBorrower: <"If the asset type is a security then the role must be issuer.">
         if assetType -> assetType = AssetTypeEnum -> Loan
-            then partyRole -> role = AssetPartyRoleEnum -> Lender or partyRole -> role = AssetPartyRoleEnum -> Borrower
+            then partyRole -> role any = AssetPartyRoleEnum -> Lender or partyRole -> role any = AssetPartyRoleEnum -> Borrower
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
     identifier string (1..1) <"The identifier value.">
@@ -179,7 +178,7 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
         if optionType exists then strike exists else strike is absent
 
     condition PartyRole: <"If the asset type is a listed derivative then the role must be exchange.">
-            partyRole -> role = AssetPartyRoleEnum -> Exchange
+            partyRole -> role any = AssetPartyRoleEnum -> Exchange
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
@@ -192,7 +191,7 @@ type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset id
         [metadata scheme]
 
     condition PartyRole: <"If the asset type is a security then the role must be issuer.">
-            partyRole -> role = AssetPartyRoleEnum -> Lender or partyRole -> role = AssetPartyRoleEnum -> Borrower
+            partyRole -> role any = AssetPartyRoleEnum -> Lender or partyRole -> role any = AssetPartyRoleEnum -> Borrower
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
@@ -246,7 +245,7 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
         then fundType is absent
 
     condition PartyRole: <"If the asset type is a security then the role must be issuer.">
-            partyRole -> role = AssetPartyRoleEnum -> Issuer
+            partyRole -> role any = AssetPartyRoleEnum -> Issuer
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
