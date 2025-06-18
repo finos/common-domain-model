@@ -2,6 +2,8 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.base.staticdata.codelist.*;
+import cdm.base.staticdata.codelist.functions.*;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
@@ -70,6 +72,17 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
+		// External FpML Coding Schemes data loader
+		bind(LoadCodeList.class).to(bindLoadCodeList());
+		bind(ValidateFpMLCodingSchemeDomain.class).to(bindValidateFpMLCodingSchemeDomain());
+	}
+
+	protected Class<? extends LoadCodeList> bindLoadCodeList() {
+		return LoadCodeListImpl.class;
+	}
+
+	protected Class<? extends ValidateFpMLCodingSchemeDomain> bindValidateFpMLCodingSchemeDomain() {
+		return ValidateFpMLCodingSchemeImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
