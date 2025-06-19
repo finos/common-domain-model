@@ -1,7 +1,7 @@
 package cdm.base.datetime.functions;
 
 import cdm.base.datetime.DayOfWeekEnum;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;

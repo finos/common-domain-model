@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 
 import java.time.LocalDate;

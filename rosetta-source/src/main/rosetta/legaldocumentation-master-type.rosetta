@@ -2,23 +2,22 @@ namespace cdm.legaldocumentation.master : <"Master agreement concepts.">
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.asset.*
-import cdm.product.common.schedule.*
-import cdm.product.common.settlement.*
+import cdm.legaldocumentation.master.icma.* as icma
+import cdm.legaldocumentation.master.isda.* as isda
+import cdm.legaldocumentation.master.isla.* as isla
 
 type MasterAgreementSchedule: <"The set of elections which specify a Master Agreement.">
     clause MasterAgreementClause (1..*) <"Clauses that have had elections made against them in this Master Agreement. There must be at least one clause defined in the agreement.">
 
-type MasterAgreementClause: <"Defines clauses that make up a Master Agreement">
-    identifer MasterAgreementClauseIdentifierEnum (1..1) <"Unique identifier for the clause">
+type MasterAgreementClause: <"Defines clauses that make up a Master Agreement.">
+    identifer MasterAgreementClauseIdentifierEnum (1..1) <"Unique identifier for the clause.">
     name string (0..1) <"Optional textual description of the clause.">
     counterparty CounterpartyRoleEnum (0..2) <"Optional counterparty role. This can be used where a clause needs to be assigned to a specific party on the agreement based upon their role i.e. Party A or Party B.">
     otherParty PartyRoleEnum (0..*) <"Optional party. This can be required for umbrella agreements where a clause may need to be assigned to a specific party who may or may not be on the agreement.">
     variant MasterAgreementClauseVariant (1..*) <"Allows multiple variants to be defined for a clause. This needs to be an array as some clauses can specify different variants for different parties. At least one variant must be specified for a clause.">
 
-type MasterAgreementClauseVariant: <"Sets the details for a specific variant associated to a clause in a Master Agreement">
-    identifier MasterAgreementVariantIdentifierEnum (1..1) <"Unique identifier for this variant">
+type MasterAgreementClauseVariant: <"Sets the details for a specific variant associated to a clause in a Master Agreement.">
+    identifier MasterAgreementVariantIdentifierEnum (1..1) <"Unique identifier for this variant.">
     name string (0..1) <"Optional textual description of the variant.">
     counterparty CounterpartyRoleEnum (0..2) <"Optional counterparty role. This can be used where a clause needs to assign a different variant to the different parties on the agreement based upon their role i.e. Party A or Party B.">
     otherParty PartyRoleEnum (0..*) <"Optional party. This can be used where a clause needs to assign different variants to different parties who may or may not be on the agreement.">
@@ -26,8 +25,8 @@ type MasterAgreementClauseVariant: <"Sets the details for a specific variant ass
 
 type MasterAgreementVariableSet: <"Defines a type where additional variables associated to clauses and their variants can be described.">
     variableSet MasterAgreementVariableSet (0..*) <"For some variants a table of variables is required. To support this use case we need to be able to specify variables within variables. Including a variable set here gives us infinite nesting opportunities - realistically we are only ever expecting that a table would need to be defined for any particular clause, so we would expect two levels of nesting as a maximum i.e. variableSet->variableSet->name/value.">
-    name string (0..1) <"The name of the variable">
-    value string (0..1) <"The value for this variable">
+    name string (0..1) <"The name of the variable.">
+    value string (0..1) <"The value for this variable.">
 
     condition VariableSetExists: <"If we have a variableSet then we must not have any name/value pairs at this level.">
         if variableSet exists then name is absent and value is absent
@@ -42,17 +41,11 @@ type MasterAgreementVariableSet: <"Defines a type where additional variables ass
     condition ValueMustExist: <"If we have a value then we must also have a name.">
         if value exists then name exists
 
-type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+type MasterAgreementBase: <"A set of elections that can be shared across master agreement types - this should be built upon for specific contracts.">
 
-    typeOfSwapElection ReturnTypeEnum (1..1) <"Per Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns'">
-    pricingMethodElection PriceReturnTerms (1..1) <"Per Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1">
-    linearInterpolationElection InterpolationMethodEnum (1..1) <"Per Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3">
-    settlementTerms SettlementTerms (1..1) <"Per Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap">
-    valuationDates ValuationDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
-    equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Per Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73">
-
-type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
-
-type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
-
-type MasterAgreementBase : <"A set of elections that can be shared across master agreement types - this should be built upon for specific contracts">
+type MasterAgreementElections: <"A representation of a master agreement extended from a base agreement of shared elections.">
+    islaGmsla isla.GlobalMasterSecuritiesLendingAgreement (0..1) <"The set of elections that define a GMSLA.">
+    icmaGmra icma.GlobalMasterRepoAgreement (0..1) <"The set of elections that define a GMRA.">
+    isdaMaster isda.MasterAgreement (0..1) <"The set of elections that define an ISDA Master Agreement.">
+    condition:
+        one-of
