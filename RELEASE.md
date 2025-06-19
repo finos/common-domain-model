@@ -1,14 +1,22 @@
-# _Enhancement of Valuation functionality - Addition of new scope attribute to Valuation._
+# _Refactor payer / receiver (Party1 / Party2) for a Tradeable Product's embedded payout_
 
 _Background_
 
-Mark To Markets on securities lending trades update the value of the collateral used against the trade. To support this the existing Valuation processing needs to be able to define whether the valuation is of the collateral or of the trade itself.
+An InterestRatePayout defines the payerReceiver as a counterparty (Party1 or Party2) as defined in TradeableProduct. For trades with settlementPayout this works but when you add the interestRatePayout for bonds or equities with Product or Instrument->Underlier, the payer/receiver are incorrect and there is no way to link the payer to an Issuer. 
+There is a related problem that it's not possible to define the Issuer on the Asset.
 
 _What is being released?_
 
-1. New ValuationScopeEnum
-2. New Valuation -> scope attribute using the new enum
+As per GitHub Issue [3590](https://github.com/finos/common-domain-model/issues/3590) and [3567](https://github.com/finos/common-domain-model/issues/3567): 
 
-_Review directions_
+1) Add new PartyRole "Issuer"
+2) Add productParty Counterparty (0..1) to TransferableProduct
+3) Add to AssetBase:
+	-assetPayer Party (0..1)
+	-assetPayerRole PartyRole (0..1)
+	-assetAncillaryParty AncillaryParty (0..*)
+4) Add new function input tests, bond-execution-with-bond-details.
 
-Changes can be reviewed in PR: [#3815](https://github.com/finos/common-domain-model/pull/3815)
+_Review Directions_
+
+Changes can be reviewed in PR: [3666](https://github.com/finos/common-domain-model/pull/3666)
