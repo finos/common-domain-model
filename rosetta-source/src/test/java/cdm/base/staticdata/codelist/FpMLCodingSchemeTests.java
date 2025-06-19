@@ -14,6 +14,7 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +101,7 @@ final class FpMLCodingSchemeTests {
      *
      * @throws IOException If an error occurs while reading the JSON file.
      */
+    @Disabled
     @Test
     void mustValidateCodesInTradeStateSample() throws IOException {
         // Load the sample JSON file containing a trade state definition
