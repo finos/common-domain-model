@@ -32,22 +32,16 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the TradeState and generate a validation report
         ValidationReport report = validate(sample);
-
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Qualified Object Type: " + result.getValidationType());
-            logger.debug("Qualified Object Details: " + result.getDefinition());
-            logger.debug("Qualified Object Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the qualification result indicates success
-        assertTrue(report.success(), "The qualification result should indicate success");
+        assertTrue(report.success(), "The validation result should indicate success");
 
         // Verify that all validation results indicate success
         assertTrue(report.getValidationResults().stream().allMatch(ValidationResult::isSuccess), "All validation results should indicate success");
 
         // Verify that the qualified object type is as expected
-        assertEquals(report.getResultObject().getType(),TradeState.class, "The qualified object type should match the expected type");
+        assertEquals(report.getResultObject().getType(),TradeState.class, "The validation result object type should match the expected type");
     }
 
     /**
@@ -64,14 +58,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the invalid TradeState and generate a validation report
         ValidationReport report = validate(sample);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure for an invalid product");
@@ -83,7 +70,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
         assertFalse(report.getValidationResults().stream().allMatch(result -> result.isSuccess()), "At least one validation result should indicate failure");
 
         // Verify that the result object type is as expected
-        assertEquals(report.getResultObject().getType(), TradeState.class, "The qualified object type should still match the expected type");
+        assertEquals(report.getResultObject().getType(), TradeState.class, "The validation result object type should still match the expected type");
     }
 
     /**
@@ -101,14 +88,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(sample);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process succeeded
         assertTrue(report.success(), "The validation report should indicate success");
@@ -133,14 +113,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(ws);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure");
@@ -177,6 +150,4 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
             fail("An unexpected exception was thrown: " + e.getMessage());
         }
     }
-
-
 }

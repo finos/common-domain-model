@@ -1,8 +1,6 @@
 package cdm.base.staticdata.codelist;
 
-import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenterTime;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.event.common.TradeState;
 import cdm.product.template.EconomicTerms;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,13 +65,9 @@ final class FpMLCodingSchemeTests {
     @Test
     void mustFailValidatingBusinessCenterCodingScheme() {
         // Create a BusinessCenterTime object with an invalid business center code ("DUMMY")
-//        BusinessCenterTime bct = BusinessCenterTime.builder()
-//                .setBusinessCenter(FieldWithMetaString.builder()
-//                        .setValue("DUMMY") // Invalid business center code
-//                        .build())
-//                .build();
         BusinessCenterTime bct = BusinessCenterTime.builder()
-                .setBusinessCenter(FieldWithMetaBusinessCenterEnum.builder().setValue(BusinessCenterEnum.AEAD)
+                .setBusinessCenter(FieldWithMetaString.builder()
+                        .setValue("DUMMY") // Invalid business center code
                         .build())
                 .build();
 
@@ -87,17 +81,17 @@ final class FpMLCodingSchemeTests {
 
         // Assert that exactly one TYPE_FORMAT validation failure occurs
         assertEquals(1, report.getValidationResults().stream()
-                .filter(it -> it.getValidationType() == ValidationResult.ValidationType.TYPE_FORMAT)
-                .count(), "A single TYPE_FORMAT failure is expected");
+                .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
+                .count(), "A single DATA_RULE failure is expected");
 
         // Assert that the validation failure message matches the expected error
         assertTrue(report.getValidationResults().stream()
-                        .filter(it -> it.getValidationType() == ValidationResult.ValidationType.TYPE_FORMAT)
+                        .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
                         .findFirst()
                         .flatMap(ValidationResult::getFailureReason)
-                        .map(reason -> reason.equalsIgnoreCase("DUMMY code not found in domain 'business-center'"))
+                        .map(reason -> reason.equalsIgnoreCase("Condition has failed."))
                         .orElse(false),
-                "The expected TYPE_FORMAT rule must fail with a specific message");
+                "The expected DATA_RULE rule must fail with a specific message");
     }
 
     /**

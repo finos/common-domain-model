@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+//import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.BusinessCenters;
 import com.rosetta.model.lib.records.Date;
 
@@ -9,9 +9,9 @@ import java.util.List;
 
 class BusinessCenterHolidaysTestData {
 
-	static final BusinessCenterEnum LONDON = BusinessCenterEnum.GBLO;
-	static final BusinessCenterEnum TARGET = BusinessCenterEnum.EUTA;
-	static final BusinessCenterEnum US = BusinessCenterEnum.USGS;
+	static final String LONDON = "GBLO";
+	static final String TARGET = "EUTA";
+	static final String US = "USGS";
 
 	static final List<Date> LONDON_HOLIDAYS_2021 = Arrays.asList(
 			Date.of(2020, 12, 25),
@@ -114,7 +114,7 @@ class BusinessCenterHolidaysTestData {
 	static final BusinessCenters LONDON_US_BC_REF = toBusinessCentersRef(LONDON_US_BC);
 	static final BusinessCenters TARGET_BC_REF = toBusinessCentersRef(TARGET_BC);
 
-	private static BusinessCenters.BusinessCentersBuilder toBusinessCenters(BusinessCenterEnum... businessCenters) {
+	private static BusinessCenters.BusinessCentersBuilder toBusinessCenters(String... businessCenters) {
 		return BusinessCenters.builder().addBusinessCenterValue(Arrays.asList(businessCenters));
 	}
 
