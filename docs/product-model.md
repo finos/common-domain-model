@@ -47,8 +47,6 @@ type AssetBase:
     identifier AssetIdentifier (1..*)
     taxonomy Taxonomy (0..*)
     isExchangeListed boolean (0..1)
-    exchange LegalEntity (0..1)
-    relatedExchange LegalEntity (0..*)
     party Party (0..*)
     partyRole AssetPartyRole (0..*)
     assetAncillaryParty AncillaryParty (0..*)
