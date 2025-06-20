@@ -2,8 +2,9 @@ package cdm.product.common.schedule.functions;
 
 import cdm.product.common.schedule.CalculationPeriodData;
 import cdm.product.common.schedule.CalculationPeriodDates;
-import com.google.inject.Singleton;
 import com.rosetta.model.lib.records.Date;
+
+import javax.inject.Singleton;
 
 /**
  * Used in DayCountFractionEnumTest

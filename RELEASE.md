@@ -17,6 +17,5 @@ As per GitHub Issue [3590](https://github.com/finos/common-domain-model/issues/3
 	-assetAncillaryParty AncillaryParty (0..*)
 4) Add new function input tests, bond-execution-with-bond-details.
 
-_Review Directions_
-
 Changes can be reviewed in PR: [3666](https://github.com/finos/common-domain-model/pull/3666)
+

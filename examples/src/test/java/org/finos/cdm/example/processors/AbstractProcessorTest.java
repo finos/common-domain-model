@@ -2,7 +2,7 @@ package org.finos.cdm.example.processors;
 
 import cdm.event.workflow.functions.Create_AcceptedWorkflowStepFromInstruction;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import com.regnosys.rosetta.common.hashing.ReferenceResolverProcessStep;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.regnosys.rosetta.common.postprocess.qualify.QualifyProcessorStep;

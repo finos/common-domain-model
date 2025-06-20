@@ -5,7 +5,7 @@ import cdm.product.asset.RateSpecification;
 import cdm.product.asset.calculation.functions.GetNotionalAmountTest;
 import cdm.product.asset.floatingrate.FloatingRateProcessingParameters;
 import cdm.product.common.schedule.CalculationPeriodBase;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
