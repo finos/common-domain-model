@@ -107,6 +107,8 @@ The following Working Groups are currently active in this project:
 * [CDM Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
 * [CDM Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
 * [CDM Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
+* [CDM Physical Risk Working Group](https://cdm.finos.org/docs/CDM-Physical-Risk-WG)
+* [CDM Tokenized Assets Working Group](https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG)
 * [CDM Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG) - previously known as Derivatives Products and Business Events Working Group
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
