@@ -4,202 +4,199 @@ version "${project.version}"
 import cdm.base.datetime.*
 
 // ** following is the new year fraction calculation logic, which is independent of the calculation period generation logic
-
 func YearFraction: <"The fraction of a year represented by a date range">
-	[calculation]
-	inputs:
-		dayCountFractionEnum DayCountFractionEnum (1..1) <"The day count fraction to use">
-		startDate date (1..1) <"The start date of the range for which the year fraction is required">
-		endDate date (1..1) <"The end date of the range for which the year fraction is required">
-		terminationDate date (0..1) <"The termination date of the payout; this is needed for some day count fractions">
-		periodsInYear int (0..1) <"The number of periods in a year in the payout; this is needed for some day count fractions">
-	output:
-		result number (1..1) <"The fraction of a year represented by period from the startDate to the endDate">
+    [codeImplementation]
+    [calculation]
+    inputs:
+        dayCountFractionEnum DayCountFractionEnum (1..1) <"The day count fraction to use">
+        startDate date (1..1) <"The start date of the range for which the year fraction is required">
+        endDate date (1..1) <"The end date of the range for which the year fraction is required">
+        terminationDate date (0..1) <"The termination date of the payout; this is needed for some day count fractions">
+        periodsInYear int (0..1) <"The number of periods in a year in the payout; this is needed for some day count fractions">
+    output:
+        result number (1..1) <"The fraction of a year represented by period from the startDate to the endDate">
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _1_1): <"2006 ISDA Definition Article 4 section 4.16(a):	if '1/1' is specified, 1;.">
-	[calculation]
-	set result: 1.0
+    [calculation]
+    set result: 1.0
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ISDA): <"'2021 ISDA Definitions Section 4.6.1(ii): if 'Actual/Actual', 'Actual/Actual(ISDA)', 'Act/Act' or 'Act/Act(ISDA)' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which the calculation is being made divided by 365 (or, if any portion of that Calculation Period or Compounding Period falls in a leap year, the sum of (1) the actual number of days in that portion of the Calculation Period or Compounding Period falling in a leap year divided by 366 and (2) the actual number of days in that portion of the Calculation Period or Compounding Period falling a non-leap year divided by 365), calculated as follows: (daysInNonLeapPeriod/365)+(daysInLeapYearPeriod/366)' '2006 ISDA Definition Article 4 section 4.16(b): if 'Actual/Actual', 'Actual/Actual(ISDA)', 'Act/Act' or 'Act/Act(ISDA)' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which the calculation is being made divided by 365 (or, if any portion of that Calculation Period or Compounding Period falls in a leap year, the sum of (1) the actual number of days in that portion of the Calculation Period or Compounding Period falling in a leap year divided by 366 and (2) the actual number of days in that portion of the Calculation Period or Compounding Period falling a non-leap year divided by 365).'">
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	alias daysInLeapYearPeriod: <"the actual number of days in that portion of the Calculation Period or Compounding Period falling in a leap year.">
-		LeapYearDateDifference(startDate, endDate)
-	alias daysInNonLeapPeriod: <"the actual number of days in that portion of the Calculation Period or Compounding Period falling in a non-leap year, equal to the difference between (a) the total days in the period and (b) the days in leap year period.">
-		daysInPeriod - daysInLeapYearPeriod
-	set result:
-		(daysInNonLeapPeriod / 365) + (daysInLeapYearPeriod / 366)
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    alias daysInLeapYearPeriod: <"the actual number of days in that portion of the Calculation Period or Compounding Period falling in a leap year.">
+        LeapYearDateDifference(startDate, endDate)
+    alias daysInNonLeapPeriod: <"the actual number of days in that portion of the Calculation Period or Compounding Period falling in a non-leap year, equal to the difference between (a) the total days in the period and (b) the days in leap year period.">
+        daysInPeriod - daysInLeapYearPeriod
+    set result: (daysInNonLeapPeriod / 365) + (daysInLeapYearPeriod / 366)
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_ACT_ICMA): <"'2021 ISDA Definitions Section 4.6.1(iii): if 'Actual/Actual(ICMA)' or 'Act/Act(ICMA)'' is specified, a fraction calculated in accordance with Rule 251 of the statutes, by-laws, rules and recommendations of the International Capital Market Association (or any successor thereto), as applied to non-U.S. Dollar denominated straight and convertible bonds issued after December 31, 1998, as though the interest coupon on a bond were being calculated for a coupon period corresponding to the relevant Calculation Period or Compounding Period.' '2006 ISDA Definition Article 4 section 4.16(c):	(c)	if 'Actual/Actual (ICMA)' or 'Act/Act (ICMA)' is specified, a fraction equal to 'number of days accrued/number of days in year', as such terms are used in Rule 251 of the statutes, by-laws, rules and recommendations of the International Capital Market Association (the 'ICMA Rule Book'), calculated in accordance with Rule 251 of the ICMA Rule Book as applied to non US dollar denominated straight and convertible bonds issued after December 31, 1998, as though the interest coupon on a bond were being calculated for a coupon period corresponding to the Calculation Period or Compounding Period in respect of which payment is being made;.">
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	set result:
-		daysInPeriod / (daysInPeriod * periodsInYear)
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    set result: daysInPeriod / (daysInPeriod * periodsInYear)
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365_FIXED): <"'2021 ISDA Definitions Section 4.6.1(iv): if 'Actual/365(Fixed)', 'Act/365(Fixed)', 'A/365(Fixed)'or 'A/365F' is specified, the actual number of days in the relevant Calculation Period or Compounding Period divided by 365, calculated as follows: (daysInPeriod/365)' '2006 ISDA Definition Article 4 section 4.16(d): If 'Actual/365 (Fixed)', 'Act/365 (Fixed)', 'A/365 (Fixed)' or 'A/365F' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365.">
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	set result:
-		daysInPeriod / 365
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    set result: daysInPeriod / 365
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_360): <"'2021 ISDA Definitions Section 4.6.1(v): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the relevant Calculation Period or Compounding Period divided by 360, calculated as follows: (daysInPeriod/360)' '2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360.'">
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	set result:
-		daysInPeriod / 360
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    set result: daysInPeriod / 360
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30_360): <"'2021 ISDA Definitions Section 4.6.1(vi): if '30/360', '360/360' or 'Bond Basis' is specified, the number of days in the relevant Calculation Period or Compounding Period divided by 360, calculated as follows: [360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360' '2006 ISDA Definition Article 4 section 4.16(f): if '30/360', '360/360' or 'Bond Basis' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360.''">
-	[calculation]
+    [calculation]
 
-	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> year
+    alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> year
 
-	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> year
+    alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> year
 
-	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> month
+    alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> month
 
-	alias endMonth: <"The calendar month, expressed as number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> month
+    alias endMonth: <"The calendar month, expressed as number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> month
 
-	alias endDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31 and D1, is greater than 29, in which case D2 will be 30.">
-		if startDate -> day > 29 then Min(endDate -> day, 30) else endDate -> day
+    alias endDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31 and D1, is greater than 29, in which case D2 will be 30.">
+        if startDate -> day > 29
+        then Min(endDate -> day, 30)
+        else endDate -> day
 
-	alias startDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case, will be 30.">
-		Min(startDate -> day, 30)
-	set result:
-		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+    alias startDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case, will be 30.">
+        Min(startDate -> day, 30)
+    set result:
+        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360): <"'2021 ISDA Definitions Section 4.6.1(vii): if '30E/360' or 'Eurobond Basis' is specified, the number of days in the relevant Calculation Period or Compounding Period divided by 360, calculated as follows: [[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360' '2006 ISDA Definition Article 4 section 4.16(e): if 'Actual/360', 'Act/360' or 'A/360' is specified, the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360 calculated on a formula basis as follows:[[360 x (Y2 - Y1)] + [30 x (M2 - M1)] + (D2 - D1)]/360.'">
-	[calculation]
+    [calculation]
 
-	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> year
+    alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> year
 
-	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> year
+    alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> year
 
-	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> month
+    alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> month
 
-	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> month
+    alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> month
 
-	alias endDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
-		Min(endDate -> day, 30)
+    alias endDay: <"The first calendar day, expressed as a number, of the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
+        Min(endDate -> day, 30)
 
-	alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
-		Min(startDate -> day, 30)
-	set result:
-		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
+    alias startDay: <"The calendar day, expressed as a number, immediately following the last day included in the Calculation Period or Compounding Period, unless such number would be 31, in which case will be 30.">
+        Min(startDate -> day, 30)
+    set result:
+        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> _30E_360_ISDA): <"2006 ISDA Definition Article 4 section 4.16(h): if '30E/360 (ISDA)' is specified, the number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 360, calculated on a formula basis as follows: [[360 × (Y2 - Y1)]+[30 × (M2 - M1)] +(D2 - D1)]/360 .">
-	[calculation]
+    [calculation]
 
-	alias startDateIsInLeapYear:
-		IsLeapYear(startDate -> year)
+    alias startDateIsInLeapYear: IsLeapYear(startDate -> year)
 
-	alias endDateIsInLeapYear:
-		IsLeapYear(endDate -> year)
+    alias endDateIsInLeapYear: IsLeapYear(endDate -> year)
 
-	alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> year
+    alias startYear: <"The year, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> year
 
-	alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> year
+    alias endYear: <"The year, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> year
 
-	alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
-		startDate -> month
+    alias startMonth: <"The calendar month, expressed as a number, in which the first day of the Calculation Period or Compounding Period falls.">
+        startDate -> month
 
-	alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
-		endDate -> month
+    alias endMonth: <"The calendar month, expressed as a number, in which the day immediately following the last day included in the Calculation Period or Compounding Period falls.">
+        endDate -> month
 
-	alias startDay:
-		if startDateIsInLeapYear = False and startDate -> month = 2 and startDate -> day = 28
-			or startDateIsInLeapYear = True and startDate -> month = 2 and startDate -> day = 29
-			or startDate -> day = 31
-		then 30 else endDate -> day
+    alias startDay:
+        if startDateIsInLeapYear = False
+                    and startDate -> month = 2
+                    and startDate -> day = 28
+                or startDateIsInLeapYear = True
+                    and startDate -> month = 2
+                    and startDate -> day = 29
+                or startDate -> day = 31
+        then 30
+        else endDate -> day
 
-	alias endDay:
-		if endDateIsInLeapYear = False and endDate -> month = 2 and endDate -> day = 28
-			or endDateIsInLeapYear = True and endDate -> month = 2 and endDate -> day = 29
-			or endDate -> day = 31
-			or endDate = terminationDate
-		then 30 else endDate -> day
-	set result:
-		(360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
-
+    alias endDay:
+        if endDateIsInLeapYear = False and endDate -> month = 2 and endDate -> day = 28
+                or endDateIsInLeapYear = True
+                    and endDate -> month = 2
+                    and endDate -> day = 29
+                or endDate -> day = 31
+                or endDate = terminationDate
+        then 30
+        else endDate -> day
+    set result:
+        (360 * (endYear - startYear) + 30 * (endMonth - startMonth) + (endDay - startDay)) / 360
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_364): <"the actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 364.">
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	set result:
-		daysInPeriod / 364
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    set result: daysInPeriod / 364
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> ACT_365L): <"'2021 ISDA Definitions Section 4.6.1(ix): if 'Act/365L' is specified, the actual number of days in the relevant Calculation Period or Compounding Period divided by 365 (or, if the later Period End Date of the Calculation Period or Compounding Date of the Compounding Period falls in a leap year, divided by 366)' 'The actual number of days in the Calculation Period or Compounding Period in respect of which payment is being made divided by 365 (or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366).'">
-	[calculation]
+    [calculation]
 
-	alias endDateIsInLeapYear:
-		IsLeapYear(endDate -> year)
+    alias endDateIsInLeapYear: IsLeapYear(endDate -> year)
 
-	alias daysInPeriod: DateDifference(startDate, endDate)
+    alias daysInPeriod: DateDifference(startDate, endDate)
 
-	alias daysInYear: <"365 or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366.">
-		if (endDateIsInLeapYear = True) then 366 else 365
+    alias daysInYear: <"365 or, if the later Period End Date of the Calculation Period or Compounding Period falls in a leap year, divided by 366.">
+        if (endDateIsInLeapYear = True) then 366 else 365
 
-	set result:
-		daysInPeriod / daysInYear
+    set result: daysInPeriod / daysInYear
 
 func YearFraction(dayCountFractionEnum: DayCountFractionEnum -> CAL_252): <"'2021 ISDA Definitions Section 4.6.1(x): if 'Calculation/252' is specified, the actual number of Calculation Days in the relevant Calculation Period or Compounding Period divided by 252, calculated as follows: [daysInPeriod/252], where 'daysInPeriod' is, unless otherwise specified in the Confirmation, in respect of the relevant Floating Amount or Fixed Amount to which this Day Count Fraction applies, the Business Days in the relevant Calculation Period or Compounding Period determined by reference to the Business Day and Business Day Convention applicable to the determination of such Floating Amount or Fixed Amount, as applicable.">
+    [calculation]
+    alias daysInPeriod: DateDifference(startDate, endDate)
+    set result: daysInPeriod / 252
 
-	[calculation]
-	alias daysInPeriod: DateDifference(startDate, endDate)
-	set result:
-		daysInPeriod / 252
-		
 func YearFractionForOneDay: <"Return the year fraction represented by a single day, i.e 1 / dayCountBasis, where daycountBasis represents the denominator of the day count fraction. This perhaps should take into account leap years, though the ISDA compounding formulas do not cover ACT basis at the moment.">
-	[calculation]
-	inputs:
-		dcf DayCountFractionEnum (1..1)	<"Supplied Day count fraction.">
-	output:
-		yearFrac number (1..1)	<"Corresponding year fraction.">
-	// calculate and return the value from the DayCountBasis
-	set yearFrac: 1 / DayCountBasis(dcf)
-
+    [calculation]
+    inputs:
+        dcf DayCountFractionEnum (1..1) <"Supplied Day count fraction.">
+    output:
+        yearFrac number (1..1) <"Corresponding year fraction.">
+    // calculate and return the value from the DayCountBasis
+    set yearFrac: 1 / DayCountBasis(dcf)
 
 func DayCountBasis: <"Return the day count basis (the denominator of the day count fraction) for the day count fraction.">
-	[calculation]
-	inputs:
-		dcf DayCountFractionEnum (1..1)	<"Day count fraction.">
-	output:
-		basis int (1..1) <"The corresponding basis, typically 360 or 365.">
+    [codeImplementation]
+    [calculation]
+    inputs:
+        dcf DayCountFractionEnum (1..1) <"Day count fraction.">
+    output:
+        basis int (1..1) <"The corresponding basis, typically 360 or 365.">
 
 func DayCountBasis(dcf: DayCountFractionEnum -> ACT_360):
-	set basis: 360
+    set basis: 360
 
-func DayCountBasis(dcf: DayCountFractionEnum ->_30_360):
-	set basis: 360
+func DayCountBasis(dcf: DayCountFractionEnum -> _30_360):
+    set basis: 360
 
-func DayCountBasis(dcf: DayCountFractionEnum ->_30E_360):
-	set basis: 360
+func DayCountBasis(dcf: DayCountFractionEnum -> _30E_360):
+    set basis: 360
 
 func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365L):
-	set basis: 365
+    set basis: 365
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_365_FIXED):
-	set basis: 365
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_365_FIXED):
+    set basis: 365
 
 // the following day count bases are under review by ISDA Legal and may be updated in a future version of CDM
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_AFB):
+    set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_AFB):
-	set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_ISDA):
+    set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ISDA):
-	set basis: 365 // Should this support 366 in leap years?  requires passing in the actual dates
+func DayCountBasis(dcf: DayCountFractionEnum -> ACT_ACT_ICMA):
+    set basis: 365 // Should this support 366 in leap years? requires passing in the actual dates
 
-func DayCountBasis(dcf: DayCountFractionEnum ->ACT_ACT_ICMA):
-	set basis: 365 // Should this support 366 in leap years? requires passing in the actual dates
-
-func DayCountBasis(dcf: DayCountFractionEnum ->CAL_252):
-	set basis: 252
+func DayCountBasis(dcf: DayCountFractionEnum -> CAL_252):
+    set basis: 252

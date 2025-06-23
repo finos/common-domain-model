@@ -1,0 +1,109 @@
+namespace cdm.legaldocumentation.transaction
+version "${project.version}"
+
+import cdm.base.*
+import cdm.base.staticdata.party.*
+import cdm.legaldocumentation.master.*
+import cdm.legaldocumentation.transaction.additionalterms.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+
+corpus Confirmation "2018 ISDA CDM Equity Confirmation for Security Equity Swap" SecurityEquitySwapConfirmation_2018
+corpus Definitions "2002 ISDA Equity Derivatives Definitions" EquityDerivativesDefinitions_2002
+
+segment section
+segment paragraph
+segment exhibit
+segment name
+
+type TransactionAdditionalTerms: <"Additional specification for the extraordinary events that may affect a trade and the related contractual rights and obligation of the parties when this happens. Such terms are typically required to extend the economics terms, for the purpose of producing the final legal contractual form of the Transaction.">
+    equityAdditionalTerms EquityAdditionalTerms (0..1)
+    foreignExchangeAdditionalTerms FxAdditionalTerms (0..1)
+    commoditiesAdditionalTerms string (0..1)
+    creditAdditionalTerms string (0..1)
+    interestRateAdditionalTerms string (0..1)
+    digitalAssetAdditionalTerms string (0..1)
+
+type EquityAdditionalTerms: <"Transaction AdditionalTerms that apply to Equity asset class.">
+    extraordinaryEvents ExtraordinaryEvents (0..1)
+    determinationTerms DeterminationRolesAndTerms (1..*)
+    substitutionProvision UnderlierSubstitutionProvision (0..1)
+
+type UnderlierSubstitutionProvision: <"Where parties describe any substitution terms.">
+    whoMaySubstitute CounterpartyRoleEnum (1..2) <"Designates which Counterparty to the transaction who has the right to trigger a substitution or to provide related determination e.g. for instance to qualify the effectiveness of an Event which may be a trigger for substitution, determine the replacement Share to substitute, etc. ; cardinality of this object is 2, in case parties jointly have this role.">
+    substitutionBeSpokeTerms Clause (0..*) <"Where parties describe any substitution terms e.g. for instance the election criteria for an Asset to be eligible as the Substitute Asset to the prior Affected Asset in terms of sector of activity, currency, market capitalisation, liquidity, volatility, or any additional features that parties would agree to take into considerations, etc.">
+    substitutionTriggerEvents ExtraordinaryEvents (0..*) <"Where the parties may optionnally explictly specify the list of Events to be considered as a trigger for a Substitution.">
+    disputingParty CounterpartyRoleEnum (0..1) <"Where the party who is not granted with the substitution role at least has a right to dispute the determination given by the counterparty with such role. As an example, a given PartyA is the unique Counterparty with the Role of WhoMaySubstitute, yet PartyB could be Disputing Party in regard of such Role.">
+
+    condition DisputingPartyCannotHaveOriginalRole:
+        whoMaySubstitute all <> disputingParty
+
+type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
+    [docReference ISDA SecurityEquitySwapConfirmation_2018]
+    [docReference ISDA EquityDerivativesDefinitions_2002]
+    additionalBespokeTerms Clause (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
+    mergerEvents EquityCorporateEvents (0..1)
+    tenderOfferEvents EquityCorporateEvents (0..1)
+    compositionOfCombinedConsideration boolean (0..1)
+    indexAdjustmentEvents IndexAdjustmentEvents (0..1)
+        [docReference ISDA EquityDerivativesDefinitions_2002 section "Adjustment to Indices"]
+    additionalDisruptionEvents AdditionalDisruptionEvents (0..1)
+    failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
+    representations Representations (0..1)
+    nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1)
+    delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1)
+
+    condition ExtraordinaryEventsChoice: <"condition to represent an FpML choice construct.">
+        required choice additionalDisruptionEvents, failureToDeliver
+
+type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
+    [docReference ISDA EquityDerivativesDefinitions_2002]
+    changeInLaw boolean (0..1)
+    failureToDeliver boolean (0..1)
+    insolvencyFiling boolean (0..1)
+    hedgingDisruption boolean (0..1)
+    increasedCostOfHedging boolean (0..1)
+    foreignOwnershipEvent boolean (0..1)
+    lossOfStockBorrow boolean (0..1)
+    maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
+    increasedCostOfStockBorrow boolean (0..1)
+    initialStockLoanRate number (0..1) <"Specifies the initial stock loan per ISDA Def. A percentage of 5% is represented as 0.05.">
+    determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
+    additionalBespokeTerms Clause (0..*) <"Where parties may optionnaly describe any extra bespoke agreements, in regards of the standardized Extraordinary Events.">
+    condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+        if maximumStockLoanRate exists
+        then maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
+
+    condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
+        if initialStockLoanRate exists
+        then initialStockLoanRate >= 0 and initialStockLoanRate <= 1
+
+    condition DisruptionEventsDeterminingParty:
+        if determiningParty exists
+        then determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+
+type Clause: <"A type for documenting additional clause that cannot yet be represented with the model and yet needed for a digital representation of the agreement.">
+    identifier string (0..1) <"The  name or identifier associated to this clause.">
+    terms string (0..1) <"Content of this bespoke clause.">
+    subcomponents Clause (0..*) <"Additional hierarchical components of the clause if relevant.">
+    condition: <"The Clause should describe at least the additional terms,  additional subcomponents or both.">
+        optional choice terms, subcomponents
+
+type MasterConfirmationBase: <"Legal agreement specification for General Terms and Elections that are applicable across multiple confirmations and are referenced by these confirmations.">
+
+type BrokerConfirmation: <"Identifies the market sector in which the trade has been arranged.">
+    brokerConfirmationType BrokerConfirmationTypeEnum (1..1) <"The type of broker confirmation executed between the parties.">
+        [metadata scheme]
+
+type EquitySwapMasterConfirmation2018 extends EquityMasterConfirmation: <"Specification for the General Terms and Relationship Supplement Elections as provided in the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+
+    typeOfSwapElection ReturnTypeEnum (1..1) <"Per Part 1 Section 4, 'Dividend Obligations', of the 2018 ISDA CDM Equity Confirmation, Para 4.2 'Dividend Returns'.">
+    pricingMethodElection PriceReturnTerms (1..1) <"Per Part 1 Section 5, 'Pricing', of the 2018 ISDA CDM Equity Confirmation, Para 5.1.">
+    linearInterpolationElection InterpolationMethodEnum (1..1) <"Per Part 1 Section 3, 'Floating Obligations', of the 2018 ISDA CDM Equity Confirmation. Para 3.3.">
+    settlementTerms SettlementTerms (1..1) <"Per Part 1 Section 8, 'Settlement', of the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">
+    valuationDates ValuationDates (1..1) <"The parameters used to generate the 'Equity Valuation Dates' schedule, including the Effective Date and Termination Date for the Swap.">
+    equityCashSettlementDates PaymentDates (1..1) <"The parameters used to generate the payment date schedule, relative to the equityCalculationPeriod. Per Part 1 Section 12, 'Definitions', of the 2018 ISDA CDM Equity Confirmation. Para 73.">
+
+type EquityMasterConfirmation extends MasterConfirmationBase: <"Specification for General Terms and Elections of an Equity Master Confirmation that is applicable across multiple Equity confirmations and is referenced by each of these confirmations, an example of which being the 2018 ISDA CDM Equity Confirmation for Security Equity Swap.">

@@ -2,6 +2,7 @@ namespace cdm.observable.asset : <"Observable concepts applicable to assets: pri
 version "${project.version}"
 
 import cdm.base.math.*
+import cdm.observable.asset.*
 
 func FilterPrice: <"Filter list of prices based on price type.">
     inputs:
@@ -25,3 +26,31 @@ func FilterPrice: <"Filter list of prices based on price type.">
                 else True
             then only-element
 
+func InterestRateObservableCondition: <"Implementation for PriceQuantity.InterestRateObservable condition.">
+    inputs:
+        pq PriceQuantity (1..1)
+    output:
+        valid boolean (0..1)
+
+    set valid:
+        if pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists
+        then pq -> price
+                extract [
+                    priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists
+                ] all = True
+
+func ObservableIsCommodity: <"Validates whether all of the constituents of an Observable are Commodities.">
+    inputs:
+        observable Observable (0..1)
+    output:
+        valid boolean (1..1)
+
+    set valid:
+        if observable -> Asset exists
+        then observable -> Asset -> Commodity exists
+        else if observable -> Basket exists
+        then observable -> Basket -> basketConstituent extract [ Asset -> Commodity exists ]
+            all = True
+        else if observable -> Index exists
+        then observable -> Index ->> assetClass = Commodity
+        else False

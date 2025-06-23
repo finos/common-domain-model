@@ -6,193 +6,189 @@ import cdm.base.staticdata.identifier.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
 
-	role CounterpartyRoleEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
-	partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
-		[metadata reference]
+    role CounterpartyRoleEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
+    partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
+        [metadata reference]
 
 type AncillaryParty: <"Defines an ancillary role enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 
-	role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum that is associated to the party reference. An ancillary party is any involved party that is not one of the two principal parties to the transaction.">
-	partyReference Party (1..*) <"Specifies the party, or parties, associated to the ancillary role.">
-		[metadata reference]
-	onBehalfOf CounterpartyRoleEnum (0..1) <"Optionally specifies the counterparty that the ancillary party is acting on behalf of.">
+    role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum that is associated to the party reference. An ancillary party is any involved party that is not one of the two principal parties to the transaction.">
+    partyReference Party (1..*) <"Specifies the party, or parties, associated to the ancillary role.">
+        [metadata reference]
+    onBehalfOf CounterpartyRoleEnum (0..1) <"Optionally specifies the counterparty that the ancillary party is acting on behalf of.">
 
 type BuyerSeller: <"This class corresponds to the FpML BuyerSeller.model construct.">
 
-	buyer CounterpartyRoleEnum (1..1) <"Buyer party that can be resolved as one of the two principal parties to the transaction. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
-	seller CounterpartyRoleEnum (1..1) <"Seller party that can be resolved as one of the two principal parties to the transaction. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
+    buyer CounterpartyRoleEnum (1..1) <"Buyer party that can be resolved as one of the two principal parties to the transaction. The party that buys this instrument, i.e. pays for this instrument and receives the rights defined by it. ISDA 2002 Equity Definitions section 1.18: `Buyer` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (b)(i) relating to a Swaption: 'Buyer' means the party that will, on each Premium Payment Date, pay to Seller the Premium | ISDA 2006 Definitions article 12.1 (b)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such in the related Confirmation, or the Exercising Party if neither party is specified | ISDA 2006 Definitions article 12.1 (b)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Buyer` means the Fixed Rate Payer.">
+    seller CounterpartyRoleEnum (1..1) <"Seller party that can be resolved as one of the two principal parties to the transaction. The party that sells ('writes') this instrument, i.e. that grants the rights defined by this instrument and in return receives a payment for it. ISDA 2002 Equity Definitions section 1.19: `Seller` means the party specified as such in the related Confirmation. | ISDA 2006 Definitions article 12.1 (a)(i) relating to a Swaption: 'Seller' means the party the party specified as such or as writer in the related Confirmation | ISDA 2006 Definitions article 12.1 (a)(ii) relating to Swap Transactions with applicable Early Termination: the party specified as such or as writer in the related Confirmation or, if neither party is specified as such, the Non-exercising Party | ISDA 2006 Definitions article 12.1 (a)(iii) relating to any other Option Transaction: the party specified as such in the related Confirmation. | ISDA 2014 Credit Definition article 1.4: `Seller` means the Floating Rate Payer.">
 
 type PayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
-	payer CounterpartyRoleEnum (1..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
-		[docReference ICMA GMRA namingConvention "Seller"
-			provision "As defined in the GMRA, paragraph 1(a). The Seller transfers Securities in exchange for the Purchase Price on the Purchase Date and agrees to buy Equivalent Securities from the Buyer in exchange for the Repurchase Price on the Repurchase Date."]
-		[docReference ICMA ERCCBestPractice 
-			namingConvention "Seller"
-			provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who sells collateral for cash in the form of the Purchase Price on the Purchase Date and commits to buy back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Seller is effectively borrowing cash. Cf Buyer."]
+    payer CounterpartyRoleEnum (1..1) <"Specifies the counterparty responsible for making the payments defined by this structure.  The party is one of the two principal parties to the transaction.">
+        [docReference ICMA GMRA namingConvention "Seller"
+            provision "As defined in the GMRA, paragraph 1(a). The Seller transfers Securities in exchange for the Purchase Price on the Purchase Date and agrees to buy Equivalent Securities from the Buyer in exchange for the Repurchase Price on the Repurchase Date."]
+        [docReference ICMA ERCCBestPractice namingConvention "Seller"
+            provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who sells collateral for cash in the form of the Purchase Price on the Purchase Date and commits to buy back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Seller is effectively borrowing cash. Cf Buyer."]
     receiver CounterpartyRoleEnum (1..1) <"Specifies the party that receives the payments corresponding to this structure.  The party is one of the two counterparties to the transaction.">
-		[docReference ICMA GMRA namingConvention "Buyer"
-			provision "As defined in the GMRA, paragraph 1(a). The Buyer purchases Securities at the Purchase Price on the Purchase Date and agrees to sell Equivalent Securities to the Seller in exchange for the Repurchase Price on the Repurchase Date."]
-		[docReference ICMA ERCCBestPractice namingConvention "Buyer"
-			provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who buys collateral at the Purchase Price on the Purchase Date and commits to sell back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Buyer is effectively a lender of cash and is said to be doing a reverse repo."]
+        [docReference ICMA GMRA namingConvention "Buyer"
+            provision "As defined in the GMRA, paragraph 1(a). The Buyer purchases Securities at the Purchase Price on the Purchase Date and agrees to sell Equivalent Securities to the Seller in exchange for the Repurchase Price on the Repurchase Date."]
+        [docReference ICMA ERCCBestPractice namingConvention "Buyer"
+            provision "ERCC Guide: Annex II  Glossary of repo terminology. The party to a repo who buys collateral at the Purchase Price on the Purchase Date and commits to sell back the same quantity of equivalent collateral on the Repurchase Date --- which will be a fixed maturity date or, in the case of open repo, on demand --- at an agreed or calculable Repurchase Price. The Buyer is effectively a lender of cash and is said to be doing a reverse repo."]
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
-	payerPartyReference Party (1..1) <"The party responsible for making the payments defined by this structure.">
-		[metadata reference]
-	payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
-		[metadata reference]
-	receiverPartyReference Party (1..1) <"The party that receives the payments corresponding to this structure.">
-		[metadata reference]
-	receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
-		[metadata reference]
+    payerPartyReference Party (1..1) <"The party responsible for making the payments defined by this structure.">
+        [metadata reference]
+    payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
+        [metadata reference]
+    receiverPartyReference Party (1..1) <"The party that receives the payments corresponding to this structure.">
+        [metadata reference]
+    receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
+        [metadata reference]
 
 type ReferenceBank: <"A class to describe an institution (party) identified by means of a coding scheme and an optional name.">
 
-	referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
-		[metadata scheme]
-	referenceBankName string (0..1) <"The name of the institution (party). A free format string. FpML does not define usage rules for the element.">
+    referenceBankId string (1..1) <"An institution (party) identifier, e.g. a bank identifier code (BIC). FpML specifies a referenceBankIdScheme.">
+        [metadata scheme]
+    referenceBankName string (0..1) <"The name of the institution (party). A free format string. FpML does not define usage rules for the element.">
 
 type ReferenceBanks: <"A class defining the list of reference institutions polled for relevant rates or prices when determining the cash settlement amount for a product where cash settlement is applicable.">
-	referenceBank ReferenceBank (1..*) <"An institution (party) identified by means of a coding scheme and an optional name.">
+    referenceBank ReferenceBank (1..*) <"An institution (party) identified by means of a coding scheme and an optional name.">
 
 type RelatedParty:
 
-	partyReference Party (1..1) <"Reference to a party.">
-		[metadata reference]
-	accountReference Account (0..1) <"Reference to an account.">
-		[metadata reference]
-	role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor, the related party acts as a guarantor for the base party.">
+    partyReference Party (1..1) <"Reference to a party.">
+        [metadata reference]
+    accountReference Account (0..1) <"Reference to an account.">
+        [metadata reference]
+    role PartyRoleEnum (1..1) <"The category of the relationship. The related party performs the role specified in this field for the base party. For example, if the role is ,Guarantor, the related party acts as a guarantor for the base party.">
 
 type Account: <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
-	[metadata key]
+    [metadata key]
 
-	partyReference Party (0..1) <"A reference to the party to which the account refers to.">
-		[metadata reference]
-	accountNumber string (1..1) <"The account number.">
-		[metadata scheme]
-		
-	accountName string (0..1) <"The name by which the account is known.">
-		[metadata scheme]
-		
-	accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">
-		[metadata scheme]
-	accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
-		[metadata reference]
-	servicingParty Party (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
-		[metadata reference]
+    partyReference Party (0..1) <"A reference to the party to which the account refers to.">
+        [metadata reference]
+    accountNumber string (1..1) <"The account number.">
+        [metadata scheme]
+    accountName string (0..1) <"The name by which the account is known.">
+        [metadata scheme]
+    accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">
+        [metadata scheme]
+    accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
+        [metadata reference]
+    servicingParty Party (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
+        [metadata reference]
 
 type Address: <"A class to specify a post or street address.">
 
-	street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">
-	city string (0..1) <"The city component of the postal address.">
-	state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons, ...">
-	country string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
-		[metadata scheme]
-	postalCode string (0..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">
+    street string (1..*) <"The set of street and building number information that identifies a postal address within a city.">
+    city string (0..1) <"The city component of the postal address.">
+    state string (0..1) <"A country subdivision used in postal addresses in some countries. For example, US states, Canadian provinces, Swiss cantons, ...">
+    country string (0..1) <"The ISO 3166 standard code for the country within which the postal address is located.">
+        [metadata scheme]
+    postalCode string (0..1) <"The code, required for computerized mail sorting systems, that is allocated to a physical address by a national postal authority.">
 
 type BusinessUnit: <"A class to specify an organizational unit.">
-	[metadata key]
+    [metadata key]
 
-	name string (1..1) <"A name used to describe the organizational unit">
-	identifier Identifier (0..1) <"An identifier used to uniquely identify the organizational unit">
-	contactInformation ContactInformation (0..1) <"The contact information for such business unit, when different from the contact information associated with the party.">
+    name string (1..1) <"A name used to describe the organizational unit">
+    identifier Identifier (0..1) <"An identifier used to uniquely identify the organizational unit">
+    contactInformation ContactInformation (0..1) <"The contact information for such business unit, when different from the contact information associated with the party.">
 
 type ContactInformation: <"A class to specify contact information associated with a party: telephone, postal/street address, email and web page.">
 
-	telephone TelephoneNumber (0..*) <"The telephone number.">
-	address Address (0..*) <"The street/postal address.">
-	email string (0..*) <"The email address.">
-	webPage string (0..*) <"The web page. This attribute is not specified as part of the FpML ContactInformation complex type.">
+    telephone TelephoneNumber (0..*) <"The telephone number.">
+    address Address (0..*) <"The street/postal address.">
+    email string (0..*) <"The email address.">
+    webPage string (0..*) <"The web page. This attribute is not specified as part of the FpML ContactInformation complex type.">
 
 type LegalEntity: <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
-	[metadata key]
+    [metadata key]
 
-	entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
-		[metadata scheme]
-	name string (1..1) <"The legal entity name.">
-		[metadata scheme]
+    entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
+        [metadata scheme]
+    name string (1..1) <"The legal entity name.">
+        [metadata scheme]
 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
-	[metadata key]
+    [metadata key]
 
-	personId PersonIdentifier (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
-		[metadata scheme]
-	honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
-	firstName string (0..1) <"The natural person's first name. It is optional in FpML.">
-	middleName string (0..*) <"The natural person's middle name(s). If a middle name is provided then an initial should be absent.">
-	initial string (0..*) <"The natural person's middle initial(s). If a middle initial is provided then a name should be absent.">
-	surname string (0..1) <"The natural person's surname.">
-	suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
-	dateOfBirth date (0..1) <"The natural person's date of birth.">
-	contactInformation ContactInformation (0..1) <"The contact information for such person, when different from the contact information associated with the party.">
-	personRole NaturalPersonRole (0..*) <"The role of the person(s) ">
+    personId PersonIdentifier (0..*) <"The identifier associated with a person, e.g. the internal identification code.">
+        [metadata scheme]
+    honorific string (0..1) <"An honorific title, such as Mr., Ms., Dr. etc.">
+    firstName string (0..1) <"The natural person's first name. It is optional in FpML.">
+    middleName string (0..*) <"The natural person's middle name(s). If a middle name is provided then an initial should be absent.">
+    initial string (0..*) <"The natural person's middle initial(s). If a middle initial is provided then a name should be absent.">
+    surname string (0..1) <"The natural person's surname.">
+    suffix string (0..1) <"Name suffix, such as Jr., III, etc.">
+    dateOfBirth date (0..1) <"The natural person's date of birth.">
+    contactInformation ContactInformation (0..1) <"The contact information for such person, when different from the contact information associated with the party.">
 
-
-	condition NameOrIdChoice: 
+    condition NameOrIdChoice:
         (firstName exists and surname exists) or personId exists
 
-	condition NaturalPersonChoice: <"Choice rule to represent an FpML choice construct.">
-		optional choice middleName, initial
+    condition NaturalPersonChoice: <"Choice rule to represent an FpML choice construct.">
+        optional choice middleName, initial
 
 type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) may have in relation to the contract.">
 
-	personReference NaturalPerson (1..1) <"A reference to the natural person to whom the role refers to.">
-		[metadata reference]
-	role NaturalPersonRoleEnum (0..*) <"FpML specifies a person role that is distinct from the party role.">
-		[metadata scheme]
+    personReference NaturalPerson (1..1) <"A reference to the natural person to whom the role refers to.">
+        [metadata reference]
+    role NaturalPersonRoleEnum (0..*) <"FpML specifies a person role that is distinct from the party role.">
+        [metadata scheme]
 
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
-	[metadata key]
+    [metadata key]
 
-	partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
-	name string (0..1) <"The party name.">
-		[metadata scheme]
-	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
-	person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
-	personRole NaturalPersonRole (0..*) <"The role of the person(s) ">
-	account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
-	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s) or person (s), it should be associated with those.">
+    partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
+    name string (0..1) <"The party name.">
+        [metadata scheme]
+    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
+    person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
+    personRole NaturalPersonRole (0..*) <"The role of the person(s) ">
+    account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s) or person (s), it should be associated with those.">
 
 type PartyIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
-	identifier string (1..1) <"Provides an identifier associated with a party. The identifier is unique within the public source specified in the source attribute.">
-		[metadata scheme]
-	identifierType PartyIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
+    [metadata key]
+    identifier string (1..1) <"Provides an identifier associated with a party. The identifier is unique within the public source specified in the source attribute.">
+        [metadata scheme]
+    identifierType PartyIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
 
 type PersonIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PersonIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
-	[metadata key]
-	identifier string (1..1) <"Provides an identifier associated with a person. The identifier is unique within the public source specified in the source attribute.">
-		[metadata scheme]
-	identifierType PersonIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
-	country string (0..1) <"The ISO 3166 standard code for the country issuing the identifier.">
-		[metadata scheme]
+    [metadata key]
+    identifier string (1..1) <"Provides an identifier associated with a person. The identifier is unique within the public source specified in the source attribute.">
+        [metadata scheme]
+    identifierType PersonIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
+    country string (0..1) <"The ISO 3166 standard code for the country issuing the identifier.">
+        [metadata scheme]
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
 
-	partyReference Party (0..1) <"The reference to the party to which the contact information refers to.">
-		[metadata reference]
-	contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
-	businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
-	person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
-	additionalInformation string (0..1) <"Specification of special instructions of the relevant party.">
+    partyReference Party (0..1) <"The reference to the party to which the contact information refers to.">
+        [metadata reference]
+    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
+    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
+    person NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
+    additionalInformation string (0..1) <"Specification of special instructions of the relevant party.">
 
 type PartyRole: <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
 
-	partyReference Party (1..1) <"A reference to the party to which the role refers to.">
-		[metadata reference]
-	role PartyRoleEnum (1..1) <"The party role.">
-	ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
-		[metadata reference]
+    partyReference Party (1..1) <"A reference to the party to which the role refers to.">
+        [metadata reference]
+    role PartyRoleEnum (1..1) <"The party role.">
+    ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
+        [metadata reference]
 
 type TelephoneNumber: <"A class to specify a telephone number as a type of phone number (e.g. work, personal, ...) alongside with the actual number.">
 
-	telephoneNumberType TelephoneTypeEnum (0..1) <"The type of telephone number, e.g. work, mobile.">
-	number string (1..1) <"The actual telephone number.">
+    telephoneNumberType TelephoneTypeEnum (0..1) <"The type of telephone number, e.g. work, mobile.">
+    number string (1..1) <"The actual telephone number.">
 
 type AncillaryEntity: <"Holds an identifier for an ancillary entity, either identified directly via its ancillary role or directly as a legal entity.">
 
-	ancillaryParty AncillaryRoleEnum (0..1) <"Identifies a party via its ancillary role on a transaction (e.g. CCP or DCO through which the trade should be cleared.)">
-	legalEntity LegalEntity (0..1)
+    ancillaryParty AncillaryRoleEnum (0..1) <"Identifies a party via its ancillary role on a transaction (e.g. CCP or DCO through which the trade should be cleared.)">
+    legalEntity LegalEntity (0..1)
 
-	condition: one-of
+    condition:
+        one-of

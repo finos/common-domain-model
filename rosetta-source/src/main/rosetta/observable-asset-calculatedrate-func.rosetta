@@ -1,15 +1,12 @@
 namespace cdm.observable.asset.calculatedrate : <"Support for calculated floating rates such as lookback compound or observation shift compound rate.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
-
+import cdm.base.math.*
 import cdm.observable.asset.*
-
-import cdm.product.common.schedule.*
 import cdm.product.asset.floatingrate.*
-import cdm.observable.asset.fro.*
+import cdm.product.common.schedule.*
 
 // =====================================================================
 //
@@ -20,298 +17,410 @@ import cdm.observable.asset.fro.*
 // These calculations are described in Section 7 of the 2021 ISDA Definitions.
 //
 // ======================================================================
-
 func EvaluateCalculatedRate: <"Evaluate a calculated rate as described in the 2021 ISDA Definitions.">
-	inputs:
-		floatingRateOption FloatingRateOption (1..1) <"The base floating rate inde.">
-		calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		resetDates ResetDates (0..1) <"Reset structure (needed only for fallback rates, otherwise will be empty).">
-		calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
-		priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
-		dayCount DayCountFractionEnum (1..1) <"The day count fraction in effect on the stream.">
-	output:
-		results FloatingRateSettingDetails (1..1) <"detailed results of the floating rate calculation.">
+    inputs:
+        interestRateIndex InterestRateIndex (1..1) <"The base floating rate index.">
+        calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+        resetDates ResetDates (0..1) <"Reset structure (needed only for fallback rates, otherwise will be empty).">
+        calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
+        priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
+        dayCount DayCountFractionEnum (1..1) <"The day count fraction in effect on the stream.">
+    output:
+        results FloatingRateSettingDetails (1..1) <"detailed results of the floating rate calculation.">
 
-	// get the FRO
-	alias fro: floatingRateOption
+    alias rate: interestRateIndex
 
-	// work out the observation dates needed and the weight for each
-	alias datesAndWeights: GenerateObservationDatesAndWeights(calculationParameters, resetDates, calculationPeriod, priorCalculationPeriod)
+    // work out the observation dates needed and the weight for each
+    alias datesAndWeights:
+        GenerateObservationDatesAndWeights(
+                calculationParameters,
+                resetDates,
+                calculationPeriod,
+                priorCalculationPeriod
+            )
 
-	// get the observations
-	alias observationDates: datesAndWeights -> observationDates
-	alias observations: IndexValueObservationMultiple(observationDates, fro)
+    // get the observations
+    alias observationDates: datesAndWeights -> observationDates
+    alias observations: IndexValueObservationMultiple(observationDates, rate)
 
-	// apply observation parameters (caps/floors)
-	alias processedObservations: ProcessObservations(calculationParameters, observations)
+    // apply observation parameters (caps/floors)
+    alias processedObservations: ProcessObservations(calculationParameters, observations)
 
-	// perform the calculation (compounding or averaging)
-	alias calculationMethod: calculationParameters -> calculationMethod
-	alias isCompounding: calculationMethod = CalculationMethodEnum -> Compounding
-	alias weights: datesAndWeights -> weights
-	alias yearFraction: YearFractionForOneDay(dayCount) // the year fraction of 1 business day (needed for compounding formula)
-	alias calculationResults:
-		if isCompounding
-		then ApplyCompoundingFormula(processedObservations, weights, yearFraction)
-		else ApplyAveragingFormula(observations, weights)
+    // perform the calculation (compounding or averaging)
+    alias calculationMethod: calculationParameters -> calculationMethod
+    alias isCompounding: calculationMethod = CalculationMethodEnum -> Compounding
+    alias weights: datesAndWeights -> weights
+    alias yearFraction: YearFractionForOneDay(dayCount) // the year fraction of 1 business day (needed for compounding formula)
+    alias calculationResults:
+        if isCompounding
+        then ApplyCompoundingFormula(processedObservations, weights, yearFraction)
+        else ApplyAveragingFormula(observations, weights)
 
-	// record the results
-	set results -> calculationDetails: calculationResults
-	add results -> calculationDetails -> observations -> observationDates: datesAndWeights -> observationDates
-	add results -> calculationDetails -> observations -> weights: datesAndWeights -> weights
-	add results -> calculationDetails -> observations -> observedRates: observations
-	add results -> calculationDetails -> observations -> processedRates: processedObservations
-	set results -> floatingRate: calculationResults -> calculatedRate
+    // record the results
+    set results -> calculationDetails: calculationResults
+    add results -> calculationDetails -> observations -> observationDates:
+        datesAndWeights -> observationDates
+    add results -> calculationDetails -> observations -> weights: datesAndWeights -> weights
+    add results -> calculationDetails -> observations -> observedRates: observations
+    add results -> calculationDetails -> observations -> processedRates:
+        processedObservations
+    set results -> floatingRate: calculationResults -> calculatedRate
 
 func GenerateObservationDatesAndWeights: <"Apply shifts to generate the list of observation dates and weights for each of those date.">
-	inputs:
-		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		resetDates ResetDates (0..1) <"Reset structure (needed only for fallback rates, otherwise will be empty.">
-		calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
-		priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
-	output:
-		results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresponding weight.">
+    inputs:
+        calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+        resetDates ResetDates (0..1) <"Reset structure (needed only for fallback rates, otherwise will be empty.">
+        calculationPeriod CalculationPeriodBase (1..1) <"Calculation period for which we want to determine the rate.">
+        priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior calculation period (needed only for set in advance observation shift rate.">
+    output:
+        results CalculatedRateObservationDatesAndWeights (1..1) <"observation dates and corresponding weight.">
 
-	// set up some convenience accessors
-	alias obsShift: calculationParams -> observationShiftCalculation
-	alias lockout: calculationParams -> lockoutCalculation
-	alias specifiedLockout: if lockout -> offsetDays exists then lockout -> offsetDays else 5
-	alias lockoutDays: if (lockout exists) then specifiedLockout else 0
-	alias businessDays: GetAllBusinessCenters(calculationParams -> applicableBusinessDays)
+    // set up some convenience accessors
+    alias obsShift: calculationParams -> observationShiftCalculation
+    alias lockout: calculationParams -> lockoutCalculation
+    alias specifiedLockout:
+        if lockout -> offsetDays exists
+        then lockout -> offsetDays
+        else 5
+    alias lockoutDays:
+        if (lockout exists) then specifiedLockout else 0
+    alias businessDays: GetAllBusinessCenters(calculationParams -> applicableBusinessDays)
 
-	// work out the calculation period for which the rate will actually be computed (might be the prior period or based on resetDates)
-	alias calculateRelative: if obsShift -> calculationBase exists then obsShift -> calculationBase else ObservationPeriodDatesEnum -> Standard
-	alias adjustedCalculationPeriod: ComputeCalculationPeriod(calculationPeriod, priorCalculationPeriod, calculateRelative, resetDates)
+    // work out the calculation period for which the rate will actually be computed (might be the prior period or based on resetDates)
+    alias calculateRelative:
+        if obsShift -> calculationBase exists
+        then obsShift -> calculationBase
+        else ObservationPeriodDatesEnum -> Standard
+    alias adjustedCalculationPeriod:
+        ComputeCalculationPeriod(
+                calculationPeriod,
+                priorCalculationPeriod,
+                calculateRelative,
+                resetDates
+            )
 
-	// generate the (shifted) observation period and then the observation dates
-	alias observationPeriod: DetermineObservationPeriod(adjustedCalculationPeriod, calculationParams)
-	alias observationDates: GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
+    // generate the (shifted) observation period and then the observation dates
+    alias observationPeriod:
+        DetermineObservationPeriod(adjustedCalculationPeriod, calculationParams)
+    alias observationDates:
+        GenerateObservationDates(observationPeriod, businessDays, lockoutDays)
 
-	// record the results
-	add results -> observationDates: observationDates
-    add results -> weights: GenerateWeightings(calculationParams, results -> observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+    // record the results
+    add results -> observationDates: observationDates
+    add results -> weights:
+        GenerateWeightings(
+                calculationParams,
+                results -> observationDates,
+                observationPeriod,
+                adjustedCalculationPeriod,
+                lockoutDays
+            )
 
 // possibly record some other intermediate results to aid debugging/understanding?
 func ComputeCalculationPeriod: <"Determine the calculation period to use for computing the calculated rate (it may not be the same as the normal calculation period, for instance if the rate is set in advance.">
-	inputs:
-		calculationPeriod CalculationPeriodBase (1..1) <"The current calculation period for which the rate is neede.">
-		priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior actual or deemed calculation period, if neede.">
-		calculateRelativeTo	ObservationPeriodDatesEnum (0..1) <"How the calculation is done with respect to the base calculation perio.">
-		resetDates ResetDates (0..1) <"The resetDates structure, if needed, e.g. for fallback rate.">
-	output:
-		result CalculationPeriodBase (1..1) <"The calculation period over which the calculated rate should be calculate.">
+    [codeImplementation]
+    inputs:
+        calculationPeriod CalculationPeriodBase (1..1) <"The current calculation period for which the rate is neede.">
+        priorCalculationPeriod CalculationPeriodBase (0..1) <"The prior actual or deemed calculation period, if neede.">
+        calculateRelativeTo ObservationPeriodDatesEnum (0..1) <"How the calculation is done with respect to the base calculation perio.">
+        resetDates ResetDates (0..1) <"The resetDates structure, if needed, e.g. for fallback rate.">
+    output:
+        result CalculationPeriodBase (1..1) <"The calculation period over which the calculated rate should be calculate.">
 
 func ComputeCalculationPeriod(calculateRelativeTo: ObservationPeriodDatesEnum -> SetInAdvance):
-	set result: priorCalculationPeriod
+    set result: priorCalculationPeriod
 
 func ComputeCalculationPeriod(calculateRelativeTo: ObservationPeriodDatesEnum -> Standard):
-	set result: calculationPeriod
+    set result: calculationPeriod
 
 func ComputeCalculationPeriod(calculateRelativeTo: ObservationPeriodDatesEnum -> FixingDate):
-	// TODO : this should use the code in Evaluate Term Rate to do the offset calculation (needs refactoring)
-	alias resetRelativeTo: resetDates -> resetRelativeTo
-	alias isStart: resetRelativeTo = ResetRelativeToEnum -> CalculationPeriodStartDate
-	alias calcPd: if (isStart) then priorCalculationPeriod else calculationPeriod
-	alias fixingOffsetDays: resetDates -> fixingDates -> periodMultiplier
-	alias businessCenters: GetAllBusinessCenters(resetDates -> resetDatesAdjustments -> businessCenters)
-	alias endDate: AddBusinessDays(calcPd -> adjustedEndDate, fixingOffsetDays, businessCenters)
-	alias startDate: AddBusinessDays(calcPd -> adjustedStartDate, fixingOffsetDays, businessCenters)
-	set result -> adjustedEndDate: endDate
-	set result -> adjustedStartDate: startDate
+    // TODO : this should use the code in Evaluate Term Rate to do the offset calculation (needs refactoring)
+    alias resetRelativeTo: resetDates -> resetRelativeTo
+    alias isStart: resetRelativeTo = ResetRelativeToEnum -> CalculationPeriodStartDate
+    alias calcPd:
+        if (isStart)
+        then priorCalculationPeriod
+        else calculationPeriod
+    alias fixingOffsetDays: resetDates -> fixingDates -> periodMultiplier
+    alias businessCenters:
+        GetAllBusinessCenters(resetDates -> resetDatesAdjustments -> businessCenters)
+    alias endDate:
+        AddBusinessDays(calcPd -> adjustedEndDate, fixingOffsetDays, businessCenters)
+    alias startDate:
+        AddBusinessDays(calcPd -> adjustedStartDate, fixingOffsetDays, businessCenters)
+    set result -> adjustedEndDate: endDate
+    set result -> adjustedStartDate: startDate
 
 func DetermineObservationPeriod: <"Determine any applicable offsets/shifts for the period for observing an index, and then generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shift.">
-	inputs:
-		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
-		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-	output:
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+    inputs:
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
+        calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+    output:
+        observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
 
-	// convenience alias to categorize the shift types and calculate the business days to use
-	alias obsShift: calculationParams -> observationShiftCalculation
-	alias lookback: calculationParams -> lookbackCalculation
-	alias businessDays: calculationParams -> applicableBusinessDays
-	alias additionalBusinessDays: obsShift -> additionalBusinessDays
-	alias allBusinessDays: 
+    // convenience alias to categorize the shift types and calculate the business days to use
+    alias obsShift: calculationParams -> observationShiftCalculation
+    alias lookback: calculationParams -> lookbackCalculation
+    alias businessDays: calculationParams -> applicableBusinessDays
+    alias additionalBusinessDays: obsShift -> additionalBusinessDays
+    alias allBusinessDays:
         [businessDays, additionalBusinessDays]
-	        extract GetAllBusinessCenters( item )
+            extract GetAllBusinessCenters(item)
             then flatten
 
-	// determine the shift amount
-	alias shift: if (obsShift exists) then obsShift -> offsetDays else if lookback exists then lookback -> offsetDays else 0 // shift amount
-    // default to 5 days if not specified (this is the default value from the 2021 Definitions)
-	alias shiftDefaulted: if shift exists then shift else 5
+    // determine the shift amount
+    alias shift:
+        if (obsShift exists)
+        then obsShift -> offsetDays
+        else if lookback exists
+        then lookback -> offsetDays
+        else 0 // shift amount
+        // default to 5 days if not specified (this is the default value from the 2021 Definitions)
+    alias shiftDefaulted: if shift exists then shift else 5
 
     // calculate and return the shifted observation period
-	set observationPeriod: GenerateObservationPeriod(adjustedCalculationPeriod, allBusinessDays, shiftDefaulted)
+    set observationPeriod:
+        GenerateObservationPeriod(
+                adjustedCalculationPeriod,
+                allBusinessDays,
+                shiftDefaulted
+            )
 
 func GenerateObservationPeriod: <"Generate the date range to be used for observing the index, based on the calculation period, plus any applicable offsets/shifts.">
-	inputs:
-		calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being compute.">
-		businessCenters BusinessCenterEnum (0..*) <"The business centers to be used for shifting.">
-		shiftDays int (0..1) <"The amount of any shift.">
-	output:
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+    inputs:
+        calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being compute.">
+        businessCenters BusinessCenterEnum (0..*) <"The business centers to be used for shifting.">
+        shiftDays int (0..1) <"The amount of any shift.">
+    output:
+        observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
 
-	// calculate the starting and ending dates
-	alias calcStart: calculationPeriod -> adjustedStartDate
-	alias calcEnd: calculationPeriod -> adjustedEndDate
-	alias obsStart: AddBusinessDays(calcStart, -1 * shiftDays, businessCenters)
-	alias obsEnd: AddBusinessDays(calcEnd, -1 * shiftDays, businessCenters)
+    // calculate the starting and ending dates
+    alias calcStart: calculationPeriod -> adjustedStartDate
+    alias calcEnd: calculationPeriod -> adjustedEndDate
+    alias obsStart: AddBusinessDays(calcStart, -1 * shiftDays, businessCenters)
+    alias obsEnd: AddBusinessDays(calcEnd, -1 * shiftDays, businessCenters)
 
-	// record results
-	set observationPeriod -> adjustedStartDate: obsStart
-	set observationPeriod -> adjustedEndDate: obsEnd
+    // record results
+    set observationPeriod -> adjustedStartDate: obsStart
+    set observationPeriod -> adjustedEndDate: obsEnd
 
 func GenerateObservationDates: <"Generate the list of observation dates given an observation period.">
-	inputs:
-		observationPeriod CalculationPeriodBase (1..1) <"The given observation period.">
-		businessCenters BusinessCenterEnum (0..*) <"The observation date.">
-		lockoutDays int (0..1) <"The number of lockout date.">
-	output:
-		observationDates date (0..*) <"The resulting list of observation date.">
+    inputs:
+        observationPeriod CalculationPeriodBase (1..1) <"The given observation period.">
+        businessCenters BusinessCenterEnum (0..*) <"The observation date.">
+        lockoutDays int (0..1) <"The number of lockout date.">
+    output:
+        observationDates date (0..*) <"The resulting list of observation date.">
 
-	// work out the final date of the observations  - we skip observing on the last day of the observation period
-	alias days: 1 + (if (lockoutDays exists) then lockoutDays else 0)
-	alias endDate: AddBusinessDays(observationPeriod -> adjustedEndDate, -1 * days, businessCenters)
+    // work out the final date of the observations  - we skip observing on the last day of the observation period
+    alias days: 1 + (if (lockoutDays exists) then lockoutDays else 0)
+    alias endDate:
+        AddBusinessDays(observationPeriod -> adjustedEndDate, -1 * days, businessCenters)
 
-	// create the list of observation dates - all business days between the start and end dates
-	add observationDates: GenerateDateList(observationPeriod -> adjustedStartDate, endDate, businessCenters)
+    // create the list of observation dates - all business days between the start and end dates
+    add observationDates:
+        GenerateDateList(observationPeriod -> adjustedStartDate, endDate, businessCenters)
 
 func GenerateWeightings: <"Determine the weighting dates and the corresponding weights to be used for weighting observation.">
-	inputs:
-		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		observationDates date (0..*)
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
-		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
-		lockoutDays int (1..1) <"The number of lockout day.">
-	output:
-		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
+    inputs:
+        calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+        observationDates date (0..*)
+        observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
+        lockoutDays int (1..1) <"The number of lockout day.">
+    output:
+        weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
 
-	alias weightingDates: DetermineWeightingDates(calculationParams, observationDates, observationPeriod, adjustedCalculationPeriod, lockoutDays)
+    alias weightingDates:
+        DetermineWeightingDates(
+                calculationParams,
+                observationDates,
+                observationPeriod,
+                adjustedCalculationPeriod,
+                lockoutDays
+            )
 
-	set weights:  GenerateWeights(weightingDates)
+    set weights: GenerateWeights(weightingDates)
 
 func DetermineWeightingDates: <"Determine the dates to be used for weighting observation.">
-	inputs:
-		calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		observationDates date (0..*)
-		observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
-		adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
-		lockoutDays int (1..1) <"The number of lockout day.">
-	output:
-		weightingDates date (0..*)
+    inputs:
+        calculationParams FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+        observationDates date (0..*)
+        observationPeriod CalculationPeriodBase (1..1) <"The resulting observation period.">
+        adjustedCalculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the rate is being computed, after any adjustment.">
+        lockoutDays int (1..1) <"The number of lockout day.">
+    output:
+        weightingDates date (0..*)
 
-	// set up some convenience aliases
-	alias obsShift: calculationParams -> observationShiftCalculation
-	alias lookback: calculationParams -> lookbackCalculation
-	alias businessCenters: GetAllBusinessCenters(calculationParams -> applicableBusinessDays)
+    // set up some convenience aliases
+    alias obsShift: calculationParams -> observationShiftCalculation
+    alias lookback: calculationParams -> lookbackCalculation
+    alias businessCenters:
+        GetAllBusinessCenters(calculationParams -> applicableBusinessDays)
 
-	// work out the date list for calculating weights
-	alias baseWeightingDates: if obsShift exists then observationDates else GenerateObservationDates(adjustedCalculationPeriod, businessCenters, lockoutDays)
-	alias wtPeriod: if (lookback exists) then adjustedCalculationPeriod else observationPeriod
-	alias weightingDatesAll: AppendDateToList(baseWeightingDates, wtPeriod -> adjustedEndDate) // including final date to compute weight
-
-	add weightingDates: weightingDatesAll
+    // work out the date list for calculating weights
+    alias baseWeightingDates:
+        if obsShift exists
+        then observationDates
+        else GenerateObservationDates(
+                adjustedCalculationPeriod,
+                businessCenters,
+                lockoutDays
+            )
+    alias wtPeriod:
+        if (lookback exists)
+        then adjustedCalculationPeriod
+        else observationPeriod
+    alias weightingDatesAll:
+        AppendDateToList(baseWeightingDates, wtPeriod -> adjustedEndDate) // including final date to compute weight
+    add weightingDates: weightingDatesAll
 
 func ProcessObservations: <"Apply daily observation parameters to rate observation.  These are discussed in the 2021 ISDA Definitions, section 7.2.3 and 7.2.4.">
-	inputs:
-		calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
-		rawObservations number (0..*)
-	output:
-		processedObservations number (0..*)
+    inputs:
+        calculationParameters FloatingRateCalculationParameters (1..1) <"Floating rate definition for the calculated rate.">
+        rawObservations number (0..*)
+    output:
+        processedObservations number (0..*)
 
-	// set up convenience aliases
-	alias params: calculationParameters -> observationParameters
-	alias cap: if params exists then params -> observationCapRate
-	alias floor: if params exists then params -> observationFloorRate
+    // set up convenience aliases
+    alias params: calculationParameters -> observationParameters
+    alias cap: if params exists then params -> observationCapRate
+    alias floor: if params exists then params -> observationFloorRate
 
-	// apply the daily cap and floor rates using vector math operations
-	alias cappedObservations: if cap exists then VectorScalarOperation( ArithmeticOperationEnum -> Min, rawObservations, cap ) else rawObservations
-	alias flooredObservations: if floor exists then VectorScalarOperation( ArithmeticOperationEnum -> Max, cappedObservations, floor ) else cappedObservations
+    // apply the daily cap and floor rates using vector math operations
+    alias cappedObservations:
+        if cap exists
+        then VectorScalarOperation(ArithmeticOperationEnum -> Min, rawObservations, cap)
+        else rawObservations
+    alias flooredObservations:
+        if floor exists
+        then VectorScalarOperation(
+                    ArithmeticOperationEnum -> Max,
+                    cappedObservations,
+                    floor
+                )
+        else cappedObservations
 
-	add processedObservations: flooredObservations
+    add processedObservations: flooredObservations
 
 func GenerateWeights: <"Recursively creates a list of weights based on the date difference between successive days.">
-	inputs:
-		weightingDates date (0..*) <"A list of dates for which weightings are require.">
-	output:
-		weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
+    inputs:
+        weightingDates date (0..*) <"A list of dates for which weightings are require.">
+    output:
+        weights number (0..*) <"A vector of weights, typically numbers between 1 and 3.">
 
-	alias active: weightingDates count > 1 // do we still have more than one date in the list?
-	alias refDate: weightingDates last // find the last date in the supplied list of dates
-	alias remainingDates: PopOffDateList(weightingDates) // determine the prior list of dates, i.e. omitting the last in the list
-	alias prevDate: remainingDates last // find the second to last date in the supplied list of dates
-	alias diff: DateDifference(prevDate, refDate) // the weight is the date difference between the supplied ref date and the last one in the list
-	alias remainingWeights: GenerateWeights(remainingDates) // recursively generate weights for earlier part of the list
-
-	// if we have >= 1 in the list, add the date difference to the list of weights from the prior part of the list, else return nothing
-	add weights: if active then AppendToVector(remainingWeights, diff * 1.0) // else null (empty list)
+    alias active: weightingDates count > 1 // do we still have more than one date in the list?
+    alias refDate: weightingDates last // find the last date in the supplied list of dates
+    alias remainingDates: PopOffDateList(weightingDates) // determine the prior list of dates, i.e. omitting the last in the list
+    alias prevDate: remainingDates last // find the second to last date in the supplied list of dates
+    alias diff: DateDifference(prevDate, refDate) // the weight is the date difference between the supplied ref date and the last one in the list
+    alias remainingWeights: GenerateWeights(remainingDates) // recursively generate weights for earlier part of the list
+    // if we have >= 1 in the list, add the date difference to the list of weights from the prior part of the list, else return nothing
+    add weights:
+        if active then AppendToVector(remainingWeights, diff * 1.0) // else null (empty list)
 
 // -----------------------------------------------
 //
 // Calculated rate formula processing (compounding or averaging)
 //
 // -----------------------------------------------
-
 func ApplyCompoundingFormula: <"Implements the compounding formula:   Product of ( 1 + (rate * weight) / basis), then backs out the final rate. This is used to support section 7.3 of the 2021 ISDA Definitions.">
-	inputs:
-		observations number (0..*) <"A vector of observation value.">
-		weights number (0..*) <"A vector of weights (should be same size as observations, 1 weight per observation.">
-		yearFrac number (1..1) <"Year fraction of a single day (i.e. 1/basis.">
-	output:
-		results CalculatedRateDetails (1..1) <"Details of the compounding calculation.">
+    inputs:
+        observations number (0..*) <"A vector of observation value.">
+        weights number (0..*) <"A vector of weights (should be same size as observations, 1 weight per observation.">
+        yearFrac number (1..1) <"Year fraction of a single day (i.e. 1/basis.">
+    output:
+        results CalculatedRateDetails (1..1) <"Details of the compounding calculation.">
 
-	// weight the observations
-	alias weightedObservations: VectorOperation(ArithmeticOperationEnum -> Multiply, observations, weights)
+    // weight the observations
+    alias weightedObservations:
+        VectorOperation(ArithmeticOperationEnum -> Multiply, observations, weights)
 
-	// scale the weighted observations based on the basis
-	alias scaledAndWeightedObservations: VectorScalarOperation(ArithmeticOperationEnum -> Multiply, weightedObservations, yearFrac)
+    // scale the weighted observations based on the basis
+    alias scaledAndWeightedObservations:
+        VectorScalarOperation(
+                ArithmeticOperationEnum -> Multiply,
+                weightedObservations,
+                yearFrac
+            )
 
-	// compute series of growth factors by adding 1 to the scaled and weighted observations
-	alias growthFactors: VectorScalarOperation(ArithmeticOperationEnum -> Add, scaledAndWeightedObservations, 1.0)
+    // compute series of growth factors by adding 1 to the scaled and weighted observations
+    alias growthFactors:
+        VectorScalarOperation(
+                ArithmeticOperationEnum -> Add,
+                scaledAndWeightedObservations,
+                1.0
+            )
 
-	// compute a growth curve by successively applying the growth factors
-	alias growthCurve: VectorGrowthOperation(1.0, growthFactors)
+    // compute a growth curve by successively applying the growth factors
+    alias growthCurve: VectorGrowthOperation(1.0, growthFactors)
 
-	// find the final value of the growth curve (the product of all the growth factors times)
-	alias finalValue: growthCurve last
+    // find the final value of the growth curve (the product of all the growth factors times)
+    alias finalValue: growthCurve last
 
-	// find the values to scale by to compute the rate
-	alias totalWeight: weights sum
-	alias overallYearFrac: totalWeight * yearFrac
+    // find the values to scale by to compute the rate
+    alias totalWeight: weights sum
+    alias overallYearFrac: totalWeight * yearFrac
 
-	// compute the final calculated rate
-	alias calculatedRate: (finalValue - 1) / overallYearFrac
+    // compute the final calculated rate
+    alias calculatedRate: (finalValue - 1) / overallYearFrac
 
-	// record results
-	set results -> aggregateValue: finalValue
-	set results -> aggregateWeight: totalWeight
-	set results -> calculatedRate: calculatedRate
-	add results -> compoundedGrowth: growthCurve
-	add results -> growthFactor: growthFactors
-	add results -> weightedRates: weightedObservations
+    // record results
+    set results -> aggregateValue: finalValue
+    set results -> aggregateWeight: totalWeight
+    set results -> calculatedRate: calculatedRate
+    add results -> compoundedGrowth: growthCurve
+    add results -> growthFactor: growthFactors
+    add results -> weightedRates: weightedObservations
 
 func ApplyAveragingFormula: <"Implements the weighted arithmetic averaging formula.  Sums the weighted rates and divides by the total weight.  This is used to support section 7.4 of the 2021 ISDA Definitions.">
-	inputs:
-		observations number (0..*) <"a vector of observation value.">
-		weights number (0..*) <"a vector of weights (should be same size as observations, 1 weight per observation.">
-	output:
-		results CalculatedRateDetails (1..1) <"Details of the averaging calculation.">
+    inputs:
+        observations number (0..*) <"a vector of observation value.">
+        weights number (0..*) <"a vector of weights (should be same size as observations, 1 weight per observation.">
+    output:
+        results CalculatedRateDetails (1..1) <"Details of the averaging calculation.">
 
-	// weight the observations
-	alias weightedObservations: VectorOperation(ArithmeticOperationEnum -> Multiply, observations, weights)
+    // weight the observations
+    alias weightedObservations:
+        VectorOperation(ArithmeticOperationEnum -> Multiply, observations, weights)
 
-	// sum the weighted observations
-	alias totalWeightedObservations: weightedObservations sum
+    // sum the weighted observations
+    alias totalWeightedObservations: weightedObservations sum
 
-	// sum the weights
-	alias totalWeight: weights sum
+    // sum the weights
+    alias totalWeight: weights sum
 
-	// compute the final calculated rate
-	alias calculatedRate: totalWeightedObservations / totalWeight
+    // compute the final calculated rate
+    alias calculatedRate: totalWeightedObservations / totalWeight
 
-	// record results
-	set results -> aggregateValue: totalWeightedObservations
-	set results -> aggregateWeight: totalWeight
-	set results -> calculatedRate: calculatedRate
-	add results -> weightedRates: weightedObservations
+    // record results
+    set results -> aggregateValue: totalWeightedObservations
+    set results -> aggregateWeight: totalWeight
+    set results -> calculatedRate: calculatedRate
+    add results -> weightedRates: weightedObservations
+
+// =====================================================================
+//
+// Index value lookup (observation) functions
+//
+// these functions allow retrieval of the value of an index on a date or set of dates
+//
+// ======================================================================
+func IndexValueObservation: <"Retrieve the values of the supplied index on the specified observation date.">
+    [codeImplementation]
+    // data provider - implementation provides observed value from data source
+    inputs:
+        observationDate date (1..1)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValue number (1..1)
+
+func IndexValueObservationMultiple: <"Retrieve the values of the supplied index on the specified observation dates.">
+    inputs:
+        observationDate date (0..*)
+        interestRateIndex InterestRateIndex (1..1)
+    output:
+        observedValues number (0..*)
+
+    add observedValues:
+        observationDate extract IndexValueObservation(item, interestRateIndex)

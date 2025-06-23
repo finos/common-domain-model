@@ -2,26 +2,26 @@ namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, c
 version "${project.version}"
 
 enum AveragingWeightingMethodEnum: <"The enumerated values to specify the method of calculation to be used when averaging rates. Per ISDA 2000 Definitions, Section 6.2. Certain Definitions Relating to Floating Amounts.">
-	Unweighted <"The arithmetic mean of the relevant rates for each reset date.">
-	Weighted <"The arithmetic mean of the relevant rates in effect for each day in a calculation period calculated by multiplying each relevant rate by the number of days such relevant rate is in effect, determining the sum of such products and dividing such sum by the number of days in the calculation period.">
+    Unweighted <"The arithmetic mean of the relevant rates for each reset date.">
+    Weighted <"The arithmetic mean of the relevant rates in effect for each day in a calculation period calculated by multiplying each relevant rate by the number of days such relevant rate is in effect, determining the sum of such products and dividing such sum by the number of days in the calculation period.">
 
 enum AveragingCalculationMethodEnum: <"Specifies enumerations for the type of averaging calculation.">
-   Arithmetic <"Refers to the calculation of an average by taking the sum of observations divided by the count of observations.">
-   Geometric <"Refers to the calculation of an average by taking the nth root of the product of n observations.">
-   Harmonic <"Refers to the calculation of an average by taking the reciprocal of the arithmetic mean of the reciprocals of the observations.">
+    Arithmetic <"Refers to the calculation of an average by taking the sum of observations divided by the count of observations.">
+    Geometric <"Refers to the calculation of an average by taking the nth root of the product of n observations.">
+    Harmonic <"Refers to the calculation of an average by taking the reciprocal of the arithmetic mean of the reciprocals of the observations.">
 
-enum RoundingDirectionEnum: <"The enumerated values to specify the rounding direction and precision to be used in the rounding of a rate.">
-	Up <"A fractional number will be rounded up to the specified number of decimal places (the precision). For example, 5.21 and 5.25 rounded up to 1 decimal place are 5.3 and 5.3 respectively.">
-	Down <"A fractional number will be rounded down to the specified number of decimal places (the precision). For example, 5.29 and 5.25 rounded down to 1 decimal place are 5.2 and 5.2 respectively.">
-	Nearest <"A fractional number will be rounded either up or down to the specified number of decimal places (the precision) depending on its value. For example, 5.24 would be rounded down to 5.2 and 5.25 would be rounded up to 5.3 if a precision of 1 decimal place were specified.">
+enum RoundingDirectionEnum: <"The enumerated values to specify the rounding direction and precision to be used in the rounding of a number.  Used by function cdm.base.math.RoundToPrecision.">
+    Up <"A fractional number will be rounded up to the specified number of decimal places (the precision). For example, 5.21 and 5.25 rounded up to 1 decimal place are 5.3 and 5.3 respectively.">
+    Down <"A fractional number will be rounded down to the specified number of decimal places (the precision). For example, 5.29 and 5.25 rounded down to 1 decimal place are 5.2 and 5.2 respectively.">
+    Nearest <"A fractional number will be rounded either up or down to the specified number of decimal places (the precision) depending on its value. For example, 5.24 would be rounded down to 5.2 and 5.25 would be rounded up to 5.3 if a precision of 1 decimal place were specified.">
 
-enum RoundingModeEnum:
-	Down
-	Up
+enum RoundingModeEnum: <"The enumerated values to specify the rounding direction when rounding of a number to nearest.  Used by function cdm.base.math.RoundToNearest.">
+    Down <"A number will be rounded down to the specified nearest number. For example, 529 rounded down to the nearest 10 is 520.">
+    Up <"A number will be rounded up to the specified nearest number. For example, 521 rounded up to the nearest 10 is 530.">
 
 enum QuantifierEnum: <"Represents the enumerated values to specify a logical quantification, i.e. either All or Any.">
-	All <"Specifies that the condition in the scope of the quantifier is true of every member of the domain i.e. every one of the elements in scope.">
-	Any <"Specifies that the condition in the scope of the quantifier is true of at least one member of the domain i.e. one or more of the elements in scope.">
+    All <"Specifies that the condition in the scope of the quantifier is true of every member of the domain i.e. every one of the elements in scope.">
+    Any <"Specifies that the condition in the scope of the quantifier is true of at least one member of the domain i.e. one or more of the elements in scope.">
 
 enum CompareOp:
     GreaterThan
@@ -62,6 +62,7 @@ enum CapacityUnitEnum: <"Provides enumerated values for capacity units, generall
     ISOMBTU <"Denotes a Thousand ISO British Thermal Unit as a standard unit.">
     ISOMMBTU <"Denotes a Million ISO British Thermal Unit as a standard unit.">
     ISOTHM <"Denotes an ISO Thermal Unit as a standard unit.">
+    J <"Denotes a Joule as a standard unit.">
     KG <"Denotes a Kilogram as a standard unit.">
     KL <"Denotes a Kilolitre as a standard unit.">
     KW <"Denotes a Kilowatt as a standard unit.">
@@ -98,19 +99,19 @@ enum CapacityUnitEnum: <"Provides enumerated values for capacity units, generall
     USTHM <"Denotes a US Thermal Unit as a standard unit.">
 
 enum WeatherUnitEnum: <"Provides enumerated values for weather units, generally used in the context of defining quantities for commodities.">
-	CDD <"Denotes Cooling Degree Days as a standard unit.">
-	CPD <"Denotes Critical Precipitation Day as a standard unit.">
-	HDD <"Heating Degree Day as a standard unit.">
+    CDD <"Denotes Cooling Degree Days as a standard unit.">
+    CPD <"Denotes Critical Precipitation Day as a standard unit.">
+    HDD <"Heating Degree Day as a standard unit.">
 
 enum FinancialUnitEnum: <"Provides enumerated values for financial units, generally used in the context of defining quantities for securities.">
-	Contract <"Denotes financial contracts, such as listed futures and options.">
-	ContractualProduct <"Denotes a Contractual Product as defined in the CDM.  This unit type would be used when the price applies to the whole product, for example, in the case of a premium expressed as a cash amount.">
-	IndexUnit <"Denotes a price expressed in index points, e.g. for a stock index.">
-	LogNormalVolatility <"Denotes a log normal volatility, expressed in %/month, where the percentage is represented as a decimal. For example, 0.15 means a log-normal volatility of 15% per month.">
-	Share <"Denotes the number of units of financial stock shares.">
-	ValuePerDay <"Denotes a value (expressed in currency units) for a one day change in a valuation date, which is typically used for expressing sensitivity to the passage of time, also known as theta risk, or carry, or other names.">
-	ValuePerPercent <"Denotes a value (expressed in currency units) per percent change in the underlying rate which is typically used for expressing sensitivity to volatility changes, also known as vega risk.">
-	Weight <"Denotes a quantity (expressed as a decimal value) represented the weight of a component in a basket.">
+    Contract <"Denotes financial contracts, such as listed futures and options.">
+    ContractualProduct <"Denotes a Contractual Product as defined in the CDM.  This unit type would be used when the price applies to the whole product, for example, in the case of a premium expressed as a cash amount.">
+    IndexUnit <"Denotes a price expressed in index points, e.g. for a stock index.">
+    LogNormalVolatility <"Denotes a log normal volatility, expressed in %/month, where the percentage is represented as a decimal. For example, 0.15 means a log-normal volatility of 15% per month.">
+    Share <"Denotes the number of units of financial stock shares.">
+    ValuePerDay <"Denotes a value (expressed in currency units) for a one day change in a valuation date, which is typically used for expressing sensitivity to the passage of time, also known as theta risk, or carry, or other names.">
+    ValuePerPercent <"Denotes a value (expressed in currency units) per percent change in the underlying rate which is typically used for expressing sensitivity to volatility changes, also known as vega risk.">
+    Weight <"Denotes a quantity (expressed as a decimal value) represented the weight of a component in a basket.">
 
 enum ArithmeticOperationEnum: <"An arithmetic operator that can be passed to a function">
     Add <"Addition of 2 values">
@@ -121,6 +122,6 @@ enum ArithmeticOperationEnum: <"An arithmetic operator that can be passed to a f
     Min <"Minimum of 2 values">
 
 enum QuantityChangeDirectionEnum: <"Specifies whether a quantity change is an increase, a decrease or a replacement, whereby the quantity is always specified as a positive number.">
-	Increase <"When the quantity should go up by the specified amount.">
-	Decrease <"When the quantity should go down by the specified amount.">
-	Replace <"When the quantity should be replaced by the specified amount.">
+    Increase <"When the quantity should go up by the specified amount.">
+    Decrease <"When the quantity should go down by the specified amount.">
+    Replace <"When the quantity should be replaced by the specified amount.">

@@ -41,11 +41,6 @@ class DtccIngestion9ServiceTest extends IngestionTest<WorkflowStep> {
 	}
 
 	@Override
-	protected void assertExpectations(Expectation expectation, IngestionReport<WorkflowStep> ingested) throws JsonProcessingException {
-
-	}
-
-	@Override
 	protected Class<WorkflowStep> getClazz() {
 		return WorkflowStep.class;
 	}

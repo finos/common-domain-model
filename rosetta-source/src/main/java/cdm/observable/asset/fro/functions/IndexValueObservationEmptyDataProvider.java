@@ -1,6 +1,7 @@
 package cdm.observable.asset.fro.functions;
 
-import cdm.observable.asset.FloatingRateOption;
+import cdm.observable.asset.InterestRateIndex;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import com.rosetta.model.lib.records.Date;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ import java.math.BigDecimal;
  */
 public class IndexValueObservationEmptyDataProvider extends IndexValueObservation {
 	@Override
-	protected BigDecimal doEvaluate(Date observationDate, FloatingRateOption floatingRateOption) {
+	protected BigDecimal doEvaluate(Date observationDate, InterestRateIndex index) {
 		throw new UnsupportedOperationException("IndexValueObservation not implemented");
 	}
 }

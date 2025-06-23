@@ -5,283 +5,336 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.datetime.daycount.*
 import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
-import cdm.base.staticdata.asset.common.*
-
-import cdm.observable.asset.*
-import cdm.product.common.settlement.*
 import cdm.event.common.*
-
+import cdm.observable.asset.*
 import cdm.product.asset.FloatingRateBase
+import cdm.product.common.settlement.*
 
 type Collateral: <"A type for defining the obligations of the counterparty subject to credit support requirements.">
-
-	independentAmount IndependentAmount (0..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
+    [metadata key]
+    independentAmount IndependentAmount (0..1) <"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. ('with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero').">
     portfolioIdentifier Identifier (0..*) <"A list of identifiers pointing to the collateral portfolios which contain the collateral which covers a trade.">
     collateralPortfolio CollateralPortfolio (0..*) <"The collateral portfolios which contain the collateral which covers a trade. (NB: this can be provided by reference to a global key for each CollateralPortfolio object)">
-    	[metadata reference]
-	collateralProvisions CollateralProvisions (0..1) <"specifies the collateral provisions of the product.">
+        [metadata reference]
+    collateralProvisions CollateralProvisions (0..1) <"specifies the collateral provisions of the product.">
 
-	condition CollateralExists: <"Collateral must represent either a simple independent amount or full collateral portfolio.">
-		independentAmount exists or collateralPortfolio exists
+    condition CollateralExists: <"Collateral must represent either a simple independent amount or full collateral portfolio.">
+        independentAmount exists or collateralPortfolio exists
 
-	condition CollateralProvisions: <"When a collateral portfolio is provided, collateral provisions must exists that govern this collateral.">
-		if collateralPortfolio exists then collateralProvisions exists
+    condition CollateralProvisions: <"When a collateral portfolio is provided, collateral provisions must exists that govern this collateral.">
+        if collateralPortfolio exists then collateralProvisions exists
 
-	condition Collateralchoice:
-		optional choice independentAmount, portfolioIdentifier, collateralPortfolio
+    condition Collateralchoice:
+        optional choice independentAmount, portfolioIdentifier, collateralPortfolio
 
 type CollateralProvisions: <"Contains collateral attributes which can also inherit information from a GMRA">
 
     collateralType CollateralTypeEnum (1..1) <"Enumerates the collateral types which are accepted by the Seller.">
-		[docReference ICMA GMRA namingConvention "marginType"]
-    eligibleCollateral EligibleCollateralSpecification (0..*) <"The eligible collateral as specified in relation to the transaction.">
+        [docReference ICMA GMRA namingConvention "marginType"]
+    eligibleCollateral EligibleCollateralCriteria (0..*) <"The eligible collateral as specified in relation to the transaction.">
     substitutionProvisions SubstitutionProvisions (0..1) <"The provisions for collateral substitutions such as how many and when they are allowed.">
 
 type SubstitutionProvisions: <"Defines collateral substitution provisions such as how many and with how much notice are substitutions allowed.">
 
-	numberOfSubstitutionsAllowed int (0..1) <"Specifies if 1 or more substitutions are allowed.">
- 	noticeDeadlinePeriod Period (0..1) <"Defines the min period for notify of a substitution.">
- 	noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
+    numberOfSubstitutionsAllowed int (0..1) <"Specifies if 1 or more substitutions are allowed.">
+    noticeDeadlinePeriod Period (0..1) <"Defines the min period for notify of a substitution.">
+    noticeDeadlineDateTime zonedDateTime (0..1) <"A specific date and time for the notice deadline">
 
 type IndependentAmount extends PartyReferencePayerReceiver: <"A class specifying the Independent Amount as the combination of a payer/receiver, a payment amount, a payment date and an associated payment calculation rule.">
 
-	paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
+    paymentDetail PaymentDetail (1..*) <"An attribute that specifies a payment as the combination of a payment amount, a payment date and an associated payment calculation rule.">
 
-type AgencyRatingCriteria: <"Represents a class to specify multiple credit notations alongside a conditional 'any' or 'all' qualifier.">
+type AgencyRatingCriteria: <"Represents a class to specify a credit notation.">
 
-	qualifier QuantifierEnum (1..1) <"Indicates whether all or any agency ratings apply.">
-	creditNotation CreditNotation (1..*) <"Indicates the agency rating criteria specified for the asset or issuer.">
-	mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
-	referenceAgency CreditRatingAgencyEnum (0..1) <"identifies the dominant reference agency if there is a missmatch and several reference agencies exsist.">
-	boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
+    creditNotation CreditNotation (1..1) <"Indicates the agency rating criteria specified for the asset or issuer.">
+    mismatchResolution CreditNotationMismatchResolutionEnum (0..1) <"Indicator for options to be used if several agency ratings (>1) are specified and its necessary to identify specific charateristics. i.e (lowest or highest).">
+    referenceAgency CreditRatingAgencyEnum (0..1) <"identifies the dominant reference agency if there is a missmatch and several reference agencies exsist.">
+    boundary CreditNotationBoundaryEnum (0..1) <"Indicates the boundary of a credit agency rating i.e minimum or maximum.">
 
-	condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
-		if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
-		then referenceAgency exists
+    condition ReferenceAgency: <"If the mismatch resolution is ReferenceAgency, ensure that the reference agency is specified.">
+        if mismatchResolution = CreditNotationMismatchResolutionEnum -> ReferenceAgency
+        then referenceAgency exists
 
 type CollateralValuationTreatment: <"Specification of the valuation treatment for the specified collateral.">
 
-	haircutPercentage number (0..1) <"Specifies a haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005.">
-		[docReference ICMA GMRA namingConvention "Haircut"
-			provision "As defined in GMRA paragraph 2(xx)(B). The haircut for the relevant Securities, if any, as agreed by the parties from time to time, being a discount from the Market Value of the Securities."]
-		[docReference ICMA ERCCBestPractice namingConvention "Haircut"
-			provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology Haircut: An agreed percentage discount applied to the Market Value of collateral to fix the Purchase Price on the Purchase Date of a repo. A haircut is expressed as the percentage difference between the initial Market Value and the Purchase Price. "]
-	marginPercentage number (0..1) <"Specifies a percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04.">
-		[docReference ICMA GMRA namingConvention "Margin Ratio"
-			provision "As defined in GMRA paragraph 2(bb). Margin Ratio, with respect to a Transaction, the Market Value of the Purchased Securities at the time when the Transaction was entered into divided by the Purchase Price (and so that, where a Transaction relates to Securities of different descriptions and the Purchase Price is apportioned by the parties among Purchased Securities of each such description, a separate Margin Ratio shall apply in respect of Securities of each such description), or such other proportion as the parties may agree with respect to that Transaction;"]
-		[docReference ICMA ERCCBestPractice namingConvention "Margin Ratio"
-			provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology: Initial margin: An agreed premium applied to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It is also applied each day during the term of a repo, as part of the process of Margin Maintenance, to the Repurchase Price on that day to calculate the Market Value of collateral required subsequently in order to maintain adequate collateralisation. Under the GMRA, if there is a material difference between (1) the Repurchase Price of a repo plus any initial margin and (2) the current Market Value of collateral, that repo has a Transaction Exposure. This will go into the calculation of Net Exposure, which determines if either party has the right to call for Margin Maintenance. An initial margin can be expressed either as (1) the Market Value as a percentage of the Purchase Price or (2) a ratio of the two amounts. In the GMRA, an initial margin is called a Margin Ratio and is defined as a ratio but the market tends to quote a percentage. A percentage initial margin of 100% or ratio of one means there is no initial margin. See Guide 3.2"]
-	fxHaircutPercentage number (0..1) <"Specifies an FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
-	additionalHaircutPercentage number (0..1) <"Specifies a percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
+    haircutPercentage number (0..1) <"Specifies a haircut percentage to be applied to the value of asset and used as a discount factor to the value of the collateral asset,expressed as a percentage in decimal terms. As an example a 0.5% haircut would be represented as a decimal number 0.005.">
+        [docReference ICMA GMRA namingConvention "Haircut"
+            provision "As defined in GMRA paragraph 2(xx)(B). The haircut for the relevant Securities, if any, as agreed by the parties from time to time, being a discount from the Market Value of the Securities."]
+        [docReference ICMA ERCCBestPractice namingConvention "Haircut"
+            provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology Haircut: An agreed percentage discount applied to the Market Value of collateral to fix the Purchase Price on the Purchase Date of a repo. A haircut is expressed as the percentage difference between the initial Market Value and the Purchase Price. "]
+    marginPercentage number (0..1) <"Specifies a percentage value of transaction needing to be posted as collateral expressed as a valuation. As an example a 104% requirement would be represented as a decimal number 1.04.">
+        [docReference ICMA GMRA namingConvention "Margin Ratio"
+            provision "As defined in GMRA paragraph 2(bb). Margin Ratio, with respect to a Transaction, the Market Value of the Purchased Securities at the time when the Transaction was entered into divided by the Purchase Price (and so that, where a Transaction relates to Securities of different descriptions and the Purchase Price is apportioned by the parties among Purchased Securities of each such description, a separate Margin Ratio shall apply in respect of Securities of each such description), or such other proportion as the parties may agree with respect to that Transaction;"]
+        [docReference ICMA ERCCBestPractice namingConvention "Margin Ratio"
+            provision "ERCC Guide 3.1: Initial margins and Haircuts are alternative ways to risk-adjust the value of collateral sold in a repurchase transaction in order to try to anticipate the loss of value that may be experienced if the collateral has to be liquidated following an event of default by the counterparty. Both amounts are therefore used to fix the expected liquidation value of collateral. Annex II  Glossary of repo terminology: Initial margin: An agreed premium applied to the Purchase Price of a repo to determine the required Market Value of the collateral to be delivered on the Purchase Date. It is also applied each day during the term of a repo, as part of the process of Margin Maintenance, to the Repurchase Price on that day to calculate the Market Value of collateral required subsequently in order to maintain adequate collateralisation. Under the GMRA, if there is a material difference between (1) the Repurchase Price of a repo plus any initial margin and (2) the current Market Value of collateral, that repo has a Transaction Exposure. This will go into the calculation of Net Exposure, which determines if either party has the right to call for Margin Maintenance. An initial margin can be expressed either as (1) the Market Value as a percentage of the Purchase Price or (2) a ratio of the two amounts. In the GMRA, an initial margin is called a Margin Ratio and is defined as a ratio but the market tends to quote a percentage. A percentage initial margin of 100% or ratio of one means there is no initial margin. See Guide 3.2"]
+    fxHaircutPercentage number (0..1) <"Specifies an FX haircut applied to a specific asset which is agreed between the parties (for example, if pledgor eligible collateral is not denominated in the termination currency or under other specified cases in collateral support documents both for initial margin and variation margin).The percentage value is expressed as the discount haircut to the value of the collateral- as an example an 8% FX haircut would be expressed as 0.08.">
+    additionalHaircutPercentage number (0..1) <"Specifies a percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05. ">
 
-	condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be greater than or equal to 0 and less than 1.">
-		if haircutPercentage exists
-		then haircutPercentage >= 0 and haircutPercentage < 1
+    condition HaircutPercentage: <"A data rule to validate that if a Valuation Percentage is specified it should be greater than or equal to 0 and less than 1.">
+        if haircutPercentage exists
+        then haircutPercentage >= 0 and haircutPercentage < 1
 
-	condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
-		if marginPercentage exists
-		then marginPercentage >= 1
+    condition MarginPercentage: <"A data rule to validate that if a Margin Percentage is specified it should be greater than 1.">
+        if marginPercentage exists then marginPercentage >= 1
 
-	condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and less than 1.">
-		if fxHaircutPercentage exists
-		then fxHaircutPercentage > 0 and fxHaircutPercentage < 1
+    condition FxHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and less than 1.">
+        if fxHaircutPercentage exists
+        then fxHaircutPercentage > 0 and fxHaircutPercentage < 1
 
-	condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and  less than 1.">
-		if additionalHaircutPercentage exists
-		then additionalHaircutPercentage > 0 and additionalHaircutPercentage < 1
+    condition AdditionalHaircutPercentage: <"A data rule to validate that if an FX Haircut Percentage is specified it should be between 0 and  less than 1.">
+        if additionalHaircutPercentage exists
+        then additionalHaircutPercentage > 0 and additionalHaircutPercentage < 1
 
-	condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
-		required choice haircutPercentage, marginPercentage
-
+    condition HaircutPercentageOrMarginPercentage: <"Choice rule requiring that either a haircut percentage or margin percentage is specified.">
+        required choice haircutPercentage, marginPercentage
 
 type EligibleCollateralSpecification: <"Represents a set of criteria used to specify eligible collateral.">
-	[rootType]
-	[metadata key]
+    [rootType]
+    [metadata key]
 
-	identifier Identifier (0..*) <"Specifies the identifier(s) to uniquely identify eligible collateral or a set of eligible collateral, such as a schedule or equivalant for an identity issuer.">
-	criteria EligibleCollateralCriteria (1..*) <"Represents a set of criteria used to specify eligible collateral.">
+    identifier Identifier (0..*) <"Specifies the identifier(s) to uniquely identify eligible collateral or a set of eligible collateral, such as a schedule or equivalant for an identity issuer.">
+    party Party (0..2) <"The parties associated with the specification.">
+    counterparty Counterparty (0..2) <"Specification of the roles of the counterparties to the specification.">
+    criteria EligibleCollateralCriteria (1..*) <"Represents a set of criteria used to specify eligible collateral.">
+    partyRole PartyRole (0..*) <"Specifies the role(s) that each of the party(s) is playing in the context of the specification, eg Payor or Receiver.">
 
-type CollateralCriteriaBase: <"Represents a set of criteria used to specify and desribe collateral.">
+type CollateralCriteriaBase: <"Represents a set of criteria used to specify and describe collateral.">
 
-	issuer IssuerCriteria (0..*) <"Represents a filter based criterai related to the issuer.">
-	asset AssetCriteria (0..*) <"Represents a filter based on the criteria realted to the asset.">
+    collateralCriteria CollateralCriteria (0..1) <"The specific criteria that applies. It can be created using AND, OR and NOT logic, and both asset and issuer characteristics.">
+    appliesTo CounterpartyRoleEnum (0..2) <"Specifies which of the two counterparties the criteria applies to (either one or both counterparties). This attribute is optional, in case the applicable party is already specified elsewhere within a party election.">
+    restrictTo CollateralMarginTypeEnum (0..1) <"Restrict the criteria to only apply to a specific type of margin, ie IM or VM.">
+    ratingPriorityResolution RatingPriorityResolutionEnum (0..1) <"Denotes which Criteria has priority if more than one agency rating applies.">
 
 type EligibleCollateralCriteria extends CollateralCriteriaBase: <"Represents a set of criteria used to specify eligible collateral.">
+    override collateralCriteria CollateralCriteria (1..1) <"The specific criteria in an Eligible Collateral Schedule. This is a mandatory attribute of an ECS so an override is required to enforce the cardinality.">
+    treatment CollateralTreatment (1..1) <"Identifies the treatment of specified collateral, e.g., haircuts,holding limits or exclusions.">
 
-	treatment CollateralTreatment (1..1) <"Identifies the treatment of specified collateral, e.g., haircuts,holding limits or exclusions.">
+    condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
+        then CriteriaMatchesAssetType(collateralCriteria, Debt)
+                or (treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Debt
+                            )) all = True
 
-	condition ConcentrationLimitTypeIssueOSAmountDebtOnly: <"Specifies a condition that concentration limit type 'IssueOutstandingAmount' is restricted to be used only if the asset type is described as 'Security' and 'Debt'.">
-	 	if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> IssueOutstandingAmount
-		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Debt or
-			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Debt
+    condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
+        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+                or (treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Equity
+                            )) all = True
 
-	condition ConcentrationLimitTypeMarketCapEquityOnly: <"Specifies a condition that concentration limit type 'MarketCapitalisation' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
-		if treatment -> concentrationLimit -> concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity or
-			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity
-
-	condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
-		if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
-		then asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity or
-			treatment -> concentrationLimit -> concentrationLimitCriteria -> asset -> collateralAssetType -> securityType all = SecurityTypeEnum -> Equity
+    condition AverageTradingVolumeEquityOnly: <"Specifies a condition that concentration limit 'AverageTradingVolume' is restricted to be used only if the asset type is described as 'Security' and 'Equity'.">
+        if treatment -> concentrationLimit -> concentrationLimitCriteria -> averageTradingVolume exists
+        then CriteriaMatchesAssetType(collateralCriteria, Equity)
+                or (treatment -> concentrationLimit
+                    extract
+                        CriteriaMatchesAssetType(
+                                item -> concentrationLimitCriteria -> collateralCriteria,
+                                Equity
+                            )) all = True
 
 type CollateralTreatment: <"Specifies the treatment terms for the eligible collateral criteria specified.">
 
-	valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
-		[docReference ICMA GMRA namingConvention "marginRatio"]
-	concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
-	isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria.">
+    valuationTreatment CollateralValuationTreatment (0..1) <"Specification of the valuation treatment for the specified collateral.">
+        [docReference ICMA GMRA namingConvention "marginRatio"]
+    concentrationLimit ConcentrationLimit (0..*) <"Specification of concentration limits applicable to the collateral criteria.">
+    isIncluded boolean (1..1) <"A boolean attribute to specify whether collateral critieria are inclusion (True) or exclusion (False) criteria.">
 
 type ConcentrationLimit: <"Represents a class to describe concentration limits that may be applicable to eligible collateral criteria.">
 
-	concentrationLimitCriteria ConcentrationLimitCriteria (0..*) <"Specifies a set of criteria to describe the assets that the concentration limits apply to.">
-	valueLimit MoneyRange (0..1) <"Specifies the value of collateral limit represented as a range.">
-	percentageLimit NumberRange (0..1) <"Specifies the perecentage of collateral limit represented as a decimal number - example 25% is 0.25.">
+    concentrationLimitCriteria ConcentrationLimitCriteria (0..1) <"Specifies a set of criteria to describe the assets that the concentration limits apply to.">
+    valueLimit MoneyRange (0..1) <"Specifies the value of collateral limit represented as a range.">
+    percentageLimit NumberRange (0..1) <"Specifies the perecentage of collateral limit represented as a decimal number - example 25% is 0.25.">
 
-	condition ConcentrationLimitValueChoice: <"Either a value or percentage concentration limit must be specified.">
+    condition ConcentrationLimitValueChoice: <"Either a value or percentage concentration limit must be specified.">
         required choice valueLimit, percentageLimit
 
-	condition PercentageConcentrationLimit: <"concentration limit must be described as a percentage.">
-		if concentrationLimitCriteria -> concentrationLimitType only-element = ConcentrationLimitTypeEnum -> MarketCapitalisation
-		then percentageLimit exists
+    condition PercentageConcentrationLimit: <"concentration limit must be described as a percentage.">
+        if concentrationLimitCriteria -> concentrationLimitType = ConcentrationLimitTypeEnum -> MarketCapitalisation
+        then percentageLimit exists
 
 type ConcentrationLimitCriteria extends CollateralCriteriaBase: <"Respresents a class to describe a set of criteria to describe specific assets that the concentration limits apply to.">
 
     concentrationLimitType ConcentrationLimitTypeEnum (0..1) <"Specifies the type of concentration limit to be applied.">
-	averageTradingVolume AverageTradingVolume (0..1) <"Specifies an average trading volume on an exchange in relation to Equity products.">
+    averageTradingVolume AverageTradingVolume (0..1) <"Specifies an average trading volume on an exchange in relation to Equity products.">
 
     condition ConcentrationLimitTypeChoice: <"Either a limit type or limit criteria must be specified.">
-            required choice concentrationLimitType, issuer, asset, averageTradingVolume
+        required choice concentrationLimitType, averageTradingVolume, collateralCriteria
 
 type AverageTradingVolume: <"Represents the average trading volume of an Equity product upon an exchange or set of exchanges.">
 
-	period Period (1..1) <"Represents the period of the equities average trading volume on the exchange/s.">
-	methodology AverageTradingVolumeMethodologyEnum (1..1) <"Indicates the type of equity average trading volume being stated (single) the highest amount on one exchange, or (consolidated) volumes across multiple exchanges.">
+    period Period (1..1) <"Represents the period of the equities average trading volume on the exchange/s.">
+    methodology AverageTradingVolumeMethodologyEnum (1..1) <"Indicates the type of equity average trading volume being stated (single) the highest amount on one exchange, or (consolidated) volumes across multiple exchanges.">
 
-type IssuerCriteria: <"Represents a criteria used to specify eligible collateral issuers.">
+type IssuerCountryOfOrigin:
+    issuerCountryOfOrigin ISOCountryCodeEnum (1..1) <"Represents a filter on the issuing entity country of origin based on the ISO Standard 3166, which is the same as filtering by eligible Sovereigns.">
 
-	issuerType CollateralIssuerType (0..*) <"Represents a filter based on the type of entity issuing the asset.">
-	issuerCountryOfOrigin string (0..*) <"Represents a filter based on the issuing entity country of origin, which is the same as filtering by eligible Sovereigns.">
-		[metadata scheme]
-	issuerName LegalEntity (0..*) <"Specifies the issuing entity name or LEI.">
-	issuerAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
-	sovereignAgencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk of the country of the issuer.">
-	counterpartyOwnIssuePermitted boolean (0..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+type AssetCountryOfOrigin:
+    assetCountryOfOrigin ISOCountryCodeEnum (1..1) <"Represents a filter on the asset country of origin based on the ISO Standard 3166.">
 
-type AssetCriteria: <"Represents a set of criteria used to specify eligible collateral assets.">
+type IssuerName:
+    issuerName LegalEntity (1..1) <"Specifies the issuing entity name or LEI.">
 
-	collateralAssetType AssetType (0..*) <"Represents a filter based on the asset product type.">
-	assetCountryOfOrigin string (0..*) <"Represents a filter based on the asset country of origin.">
-		[metadata scheme]
-	denominatedCurrency string (0..*) <"Represents a filter based on the underlying asset denominated currency.">
-		[metadata scheme]
-	agencyRating AgencyRatingCriteria (0..*) <"Represents an agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
-	maturityType MaturityTypeEnum (0..1) <"Specifies whether the maturity range is the remaining or original maturity.">
-	maturityRange PeriodRange (0..1) <"Represents a filter based on the underlying asset maturity.">
-	productIdentifier ProductIdentifier (0..*) <"Represents a filter based on specific instrument identifiers (e.g. specific ISINs, CUSIPs etc).">
-	collateralTaxonomy CollateralTaxonomy (0..*) <"Specifies the collateral taxonomy,which is composed of a taxonomy value and a taxonomy source.">
-	domesticCurrencyIssued boolean (0..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
-	listing ListingType (0..1) <"Specifies the exchange, index or sector specific to listing of a security.">
+type IssuerAgencyRating:
+    issuerAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk and creditors claim in event of default associated with asset issuer.">
 
-    condition AssetCriteriaChoice: <"If any are specified, only one of AssetType, ProductTaxonomy or ProductIdentifer should exist.">
-		optional choice collateralAssetType, collateralTaxonomy, productIdentifier
+type SovereignAgencyRating:
+    sovereignAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk of the country of the issuer.">
 
-type ListingType: <"Specifies a filter based on an underlying corporate financial official listing defined at a stock exchange.">
-	exchange string (0..1) <"Represents a filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
-		[metadata scheme]
-	sector string (0..1) <"Represents a filter based on an industry sector defined under a system for classifying industry types such as Global Industry Classification Standard (GICS) and North American Industry Classification System (NAICS)">
-		[metadata scheme]
-	index Index (0..1) <"Represents a filter based on an index that measures a stock market, or a subset of a stock market.">
+type AssetAgencyRating:
+    assetAgencyRating AgencyRatingCriteria (1..1) <"Represents an agency rating based on default risk and creditors claim in event of default associated with specific instrument.">
 
-type EligibleCollateralSpecificationInstruction:
-    [rootType]
+type AssetMaturity:
+    maturityType MaturityTypeEnum (1..1) <"Specifies whether the maturity range is the remaining or original maturity.">
+    maturityRange PeriodRange (1..1) <"Represents a filter based on the underlying asset maturity.">
 
-    common EligibleCollateralCriteria (1..1)
-    variable EligibleCollateralCriteria (1..*)
+type ListingExchange: <"Specifies a filter based on a stock exchange.">
+    exchange string (1..*) <"Represents a filter based on the Primary Stock Exchange facilitating the listing of companies, exchange of Stocks, Exchange traded Derivatives, Bonds, and other Securities expressed in ISO standard 10383.">
+        [metadata scheme]
+
+type ListingSector: <"Specifies a filter based on an industry sector.">
+    sector string (1..*) <"Represents a filter based on an industry sector defined under a system for classifying industry types such as Global Industry Classification Standard (GICS) and North American Industry Classification System (NAICS)">
+        [metadata scheme]
+
+type DomesticCurrencyIssued:
+    domesticCurrencyIssued boolean (1..1) <"Identifies that the Security must be denominated in the domestic currency of the issuer.">
+
+type CounterpartyOwnIssuePermitted:
+    counterpartyOwnIssuePermitted boolean (1..1) <"Represents a filter based on whether it is permitted for the underlying asset to be issued by the posting entity or part of their corporate family.">
+
+choice CollateralCriteria: <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
+    AllCriteria <"Enables two or more Collateral Criteria to be combined using AND logic.">
+    AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
+    NegativeCriteria <"Enables a single Collateral Criteria to be excluded using NOT logic.">
+    CollateralIssuerType <"Criteria is the type of entity issuing the asset.">
+    AssetType <"Criteria is the asset type of the collateral.">
+    IssuerCountryOfOrigin <"Criteria is the issuing entity country of origin.">
+    AssetCountryOfOrigin <"Criteria is the collateral asset country of origin.">
+    CurrencyCodeEnum <"Criteria is the denominated currency of the collateral.">
+    IssuerName <"Criteria is a specific named issuer entity.">
+    IssuerAgencyRating <"Criteria is the agency rating(s) of the issuer.">
+    SovereignAgencyRating <"Criteria is the agency rating(s) of the country of the issuer.">
+    AssetAgencyRating <"Criteria is the agency rating(s) of the collateral asset.">
+    AssetMaturity <"Criteria is the maturity characteristics of the collateral asset.">
+    SpecificAsset <"Criteria is a specifically identified asset">
+    CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
+    ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
+    ListingSector <"Criteria is the industry sector of the collateral asset.">
+    Index <"Criteria is that the collateral is a constituent of a specific index.">
+    CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
+    DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
+
+type AllCriteria: <"Used to combine two or more Collateral Criteria using AND logic.">
+    allCriteria CollateralCriteria (2..*)
+
+type AnyCriteria: <"Used to combine two or more Collateral Criteria using OR logic.">
+    anyCriteria CollateralCriteria (2..*)
+
+type NegativeCriteria: <"Used to apply a NOT logic condition to a single Collateral Criteria.">
+    negativeCriteria CollateralCriteria (1..1)
 
 // collateral interest calculation parameters
-
 type DistributionAndInterestPayment: <"A class to specify the Distributions and Interest Payment provisions applicable to the collateral agreement.">
-	interestParameters CollateralInterestParameters(0..*)  <"Represents the interest parameters for the various currencies, margin types, posting parties.">
+    interestParameters CollateralInterestParameters (0..*) <"Represents the interest parameters for the various currencies, margin types, posting parties.">
 
 type CollateralInterestParameters: <"Represents the floating interest calculation and distribution parameters for a single currency.">
-    postingParty CounterpartyRoleEnum(0..1) <"Represents the party to which these parameters apply (the applicable party).  In other words, if the parameters are different depending on which party is posting/holding the collateral, for which party to the Collateral Agreement (Party 1 or Party 2) that is posting the collateral do these parameters apply?">
+    postingParty CounterpartyRoleEnum (0..1) <"Represents the party to which these parameters apply (the applicable party).  In other words, if the parameters are different depending on which party is posting/holding the collateral, for which party to the Collateral Agreement (Party 1 or Party 2) that is posting the collateral do these parameters apply?">
     marginType CollateralMarginTypeEnum (0..1) <"Specifies the type of margin for which interest is being calculated, if the parameters are different depending on type of margin (initial or variation).">
-    currency string(0..1) <"Specifies the currency for which the parameters are captured.">
-    interestCalculationParameters CollateralInterestCalculationParameters(0..1) <"Represents the basic interest calculation parameters.">
-    interestCalculationFrequency  CalculationFrequency(0..1) <"Represents how often and when interest is calculated.">
-    interestHandlingParameters CollateralInterestHandlingParameters(0..1)  <"Represents the parameters describing how and when interest transfer occurs.">
+    currency string (0..1) <"Specifies the currency for which the parameters are captured.">
+    interestCalculationParameters CollateralInterestCalculationParameters (0..1) <"Represents the basic interest calculation parameters.">
+    interestCalculationFrequency CalculationFrequency (0..1) <"Represents how often and when interest is calculated.">
+    interestHandlingParameters CollateralInterestHandlingParameters (0..1) <"Represents the parameters describing how and when interest transfer occurs.">
 
 type CollateralInterestCalculationParameters: <"Represents parameters for calculating the amount the floating interest calculation, e.g.  for a single currency or defaults for all currencies.">
-    fixedRate number(0..1) <"Specifies the applicable fixed rate  if used.">
+    fixedRate number (0..1) <"Specifies the applicable fixed rate  if used.">
     floatingRate CollateralAgreementFloatingRate (0..1) <"Specifies the floating interest rate to be used.">
-    inBaseCurrency boolean(1..1) <"If True, specifies that the interest transfers should be converted to base currency equivalent, or if False specifies that the transfer should be in the currency of the collateral.">
-    compoundingType CompoundingTypeEnum(0..1) <"Specifies the type of compounding to be applied (None, Business, Calendar).">
-    compoundingBusinessCenter BusinessCenterEnum(0..*) <"Specifies the applicable business centers for compounding.">
-    dayCountFraction DayCountFractionEnum(1..1) <"Specifies the day count fraction to use for that currency.">
-    rounding Rounding(0..1) <"Specifies the rounding rules for settling in that currency.">
-    roundingFrequency RoundingFrequencyEnum(0..1) <"Specifies when/how often is rounding applied?">
-    withholdingTaxRate number(0..1) <"Specifies the withholding tax rate if a withholding tax is applicable.">
+    inBaseCurrency boolean (1..1) <"If True, specifies that the interest transfers should be converted to base currency equivalent, or if False specifies that the transfer should be in the currency of the collateral.">
+    compoundingType CompoundingTypeEnum (0..1) <"Specifies the type of compounding to be applied (None, Business, Calendar).">
+    compoundingBusinessCenter BusinessCenterEnum (0..*) <"Specifies the applicable business centers for compounding.">
+    dayCountFraction DayCountFractionEnum (1..1) <"Specifies the day count fraction to use for that currency.">
+    rounding Rounding (0..1) <"Specifies the rounding rules for settling in that currency.">
+    roundingFrequency RoundingFrequencyEnum (0..1) <"Specifies when/how often is rounding applied?">
+    withholdingTaxRate number (0..1) <"Specifies the withholding tax rate if a withholding tax is applicable.">
 
-    condition  InterestRate: required choice fixedRate, floatingRate
-    condition DCF:  dayCountFraction = DayCountFractionEnum->ACT_360 or dayCountFraction = DayCountFractionEnum->ACT_365_FIXED
-    condition CompoundingBC1:  if compoundingType = CompoundingTypeEnum->Business then compoundingBusinessCenter exists
-    condition CompoundingBC2:  if compoundingType <> CompoundingTypeEnum->Business then compoundingBusinessCenter is absent
+    condition InterestRate:
+        required choice fixedRate, floatingRate
 
+    condition DCF:
+        dayCountFraction = DayCountFractionEnum -> ACT_360
+            or dayCountFraction = DayCountFractionEnum -> ACT_365_FIXED
+
+    condition CompoundingBC1:
+        if compoundingType = CompoundingTypeEnum -> Business
+        then compoundingBusinessCenter exists
+
+    condition CompoundingBC2:
+        if compoundingType <> CompoundingTypeEnum -> Business
+        then compoundingBusinessCenter is absent
 
 type CollateralAgreementFloatingRate extends FloatingRateBase: <"Represents the parameters needed to calculate the floating rate paid on collateral holdings.">
     negativeInterest boolean (1..1) <"Specifies how negative rates should be applied.  If rates go negative, should the payment be reversed (true) or zeroed out (false)?">
-    compressibleSpread boolean( 1..1) <"Specifies how spreads should be applied in a low/negative rate environment.  If true, spread is applied only if rate is positive.">
+    compressibleSpread boolean (1..1) <"Specifies how spreads should be applied in a low/negative rate environment.  If true, spread is applied only if rate is positive.">
 
-    /*  Following is a table that shows how to apply the negativeInterest and compressibleSpread indicators
-    Abbreviations:   
-    PP : Posting party
-    HP : Holding Party
-	Rate : index rate prior to application of any spread
-	Spread : amount of spread added to the rate
+/*  Following is a table that shows how to apply the negativeInterest and compressibleSpread indicators
+ * Abbreviations:   
+ * PP : Posting party
+ * HP : Holding Party
+ * 	Rate : index rate prior to application of any spread
+ * 	Spread : amount of spread added to the rate
 
-                Negative Interest / Compressible Spread
-Rate    Spread  TRUE/TRUE       FALSE/FALSE     TRUE/FALSE      FALSE/TRUE
- 1.00    0.50   HP Pays 1.5     HP Pays 1.5     HP Pays 1.5     HP Pays 1.5 
- 1.00    (0.50) HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
- 1.00    (1.00) No Payment      No Payment      No Payment      No Payment  
- 1.00    (1.25) PP Pays 0.25    No Payment      PP Pays 0.25    No Payment  
- -       0.50   HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
- -       (0.50) PP Pays 0.5     No Payment      PP Pays 0.5     No Payment  
- (1.00)  0.50   PP Pays 1.0     No Payment      PP Pays 0.5     No Payment  
- (1.00)  (0.50) PP Pays 1.0     No Payment      PP Pays 1.5     No Payment  
- (1.00)  (1.00) PP Pays 1.0     No Payment      PP Pays 2.0     No Payment  
- (1.00)  1.00   PP Pays 1.0     No Payment      No Payment      No Payment  
- (1.00)  1.25   PP Pays 1.0     HP Pays 0.25    HP Pays 0.25    No Payment  
-    */
-
+ *             Negative Interest / Compressible Spread
+ * Rate    Spread  TRUE/TRUE       FALSE/FALSE     TRUE/FALSE      FALSE/TRUE
+ *  1.00    0.50   HP Pays 1.5     HP Pays 1.5     HP Pays 1.5     HP Pays 1.5 
+ *  1.00    (0.50) HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ *  1.00    (1.00) No Payment      No Payment      No Payment      No Payment  
+ *  1.00    (1.25) PP Pays 0.25    No Payment      PP Pays 0.25    No Payment  
+ *  -       0.50   HP Pays 0.5     HP Pays 0.5     HP Pays 0.5     HP Pays 0.5 
+ *  -       (0.50) PP Pays 0.5     No Payment      PP Pays 0.5     No Payment  
+ *  (1.00)  0.50   PP Pays 1.0     No Payment      PP Pays 0.5     No Payment  
+ *  (1.00)  (0.50) PP Pays 1.0     No Payment      PP Pays 1.5     No Payment  
+ *  (1.00)  (1.00) PP Pays 1.0     No Payment      PP Pays 2.0     No Payment  
+ *  (1.00)  1.00   PP Pays 1.0     No Payment      No Payment      No Payment  
+ *  (1.00)  1.25   PP Pays 1.0     HP Pays 0.25    HP Pays 0.25    No Payment  
+ */
 type CollateralInterestHandlingParameters: <"Represents parameters that describe how calculated interest amounts are handled, i.e. are they transferred/distributed, or is the collateral balance adjusted, is netting done, and any other special handling.">
     interestPaymentHandling CollateralInterestHandlingEnum (1..1) <"Specifies how the collateral interest is to be handled.">
-    paymentBusinessCenter BusinessCenterEnum(0..*) <"Specifies applicable business centers for payments.">
-    netPostedAndHeldInterest boolean(1..1) <"Indicates whether to net Held and Posted Interest Payments (i.e. whether interest payable for a period can be netted with interest receivable).">
+    paymentBusinessCenter BusinessCenterEnum (0..*) <"Specifies applicable business centers for payments.">
+    netPostedAndHeldInterest boolean (1..1) <"Indicates whether to net Held and Posted Interest Payments (i.e. whether interest payable for a period can be netted with interest receivable).">
     netInterestWithMarginCalls boolean (1..1) <"Indicates whether the interest amount may be offset against any margin call deliver or return amounts?   (aka 'net payments' indicator).">
-    includeAccrualInMarginCalc boolean(1..1) <"Indicates whether or not to include the open interest accrual in the margin calculation.">
-    accrueInterestOnUnsettledInterest boolean(0..1) <"Indicates whether interest accruing on unsettled interest amount is included (continues to be accrued) in the following period.">
-    onFullReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a full return of collateral occurs.">
-    onPartialReturn boolean(1..1) <"Indicates the option that accrued interest should be calculated and distributed when a partial return collateral occurs.">
+    includeAccrualInMarginCalc boolean (1..1) <"Indicates whether or not to include the open interest accrual in the margin calculation.">
+    accrueInterestOnUnsettledInterest boolean (0..1) <"Indicates whether interest accruing on unsettled interest amount is included (continues to be accrued) in the following period.">
+    onFullReturn boolean (1..1) <"Indicates the option that accrued interest should be calculated and distributed when a full return of collateral occurs.">
+    onPartialReturn boolean (1..1) <"Indicates the option that accrued interest should be calculated and distributed when a partial return collateral occurs.">
     interestAmountApplication InterestAmountApplication (0..1) <"The application of Interest Amount with respect to the Delivery Amount and the Return Amount.">
-    interestRolloverLimit NumberBound(0..1) <"Specifies the level below which the interest will be rolled over.">
-    writeoffLimit NumberBound(0..1) <"Specifies the level below which the interest will be written off; if omitted write-off is not applicable.">
+    interestRolloverLimit NumberBound (0..1) <"Specifies the level below which the interest will be rolled over.">
+    writeoffLimit NumberBound (0..1) <"Specifies the level below which the interest will be written off; if omitted write-off is not applicable.">
     alternativeToInterestAmount AlternativeToInterestAmountEnum (0..1) <"Specifies the alternative to interest amounts.">
     alternativeProvision string (0..1) <"Specifies an alternative to interest amount, when the alternative provision clause is specified.">
-    cutoffTime time(0..1)  <"Specifies the time of day that interest needs to be confirmed by.">
-    notification CollateralInterestNotification(0..1) <"Specifies the terms describing notification requirements.">
+    cutoffTime time (0..1) <"Specifies the time of day that interest needs to be confirmed by.">
+    notification CollateralInterestNotification (0..1) <"Specifies the terms describing notification requirements.">
 
-    condition  Alternative: if alternativeToInterestAmount = AlternativeToInterestAmountEnum->Other then alternativeProvision exists 
-    condition Alternative2: if alternativeToInterestAmount <> AlternativeToInterestAmountEnum->Other then alternativeProvision is absent
+    condition Alternative:
+        if alternativeToInterestAmount = AlternativeToInterestAmountEnum -> Other
+        then alternativeProvision exists
+
+    condition Alternative2:
+        if alternativeToInterestAmount <> AlternativeToInterestAmountEnum -> Other
+        then alternativeProvision is absent
 
 type CollateralInterestNotification: <"Represents the parameters describing when notifications should be made for required collateral interest transfers.">
-    trigger string(1..1)   <"Specifies what triggers notification (should be enum) Interest Statement Frequency, Period End Date.">
-    offset number(1..1) <"Specifies the number of days before (negative) or after (positive) the trigger event.">
-    notificationTime time(1..1) <"Specifies the time of day that the notification should occur.">
-    notificationDayType DayTypeEnum(1..1) <"The type of days on which notification should occur.">
+    trigger string (1..1) <"Specifies what triggers notification (should be enum) Interest Statement Frequency, Period End Date.">
+    offset number (1..1) <"Specifies the number of days before (negative) or after (positive) the trigger event.">
+    notificationTime time (1..1) <"Specifies the time of day that the notification should occur.">
+    notificationDayType DayTypeEnum (1..1) <"The type of days on which notification should occur.">
 
 type InterestAmountApplication: <"A class to specify the application of Interest Amount with respect to the Delivery Amount and the Return Amount.">
 
@@ -301,7 +354,7 @@ type DeliveryAmount: <"A class to specify the application of Interest Amount wit
     standardElection DeliveryAmountElectionEnum (0..1) <"The standard election as specified by an enumeration.">
     customElection string (0..1) <"The custom election that might be specified by the parties to the agreement.">
 
-    condition: one-of
+    condition:
+        one-of
 
-
-
+type SpecificAsset extends Asset: <"A single, specifically identified Asset chosen from the Asset data type">

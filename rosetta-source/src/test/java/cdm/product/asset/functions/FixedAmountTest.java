@@ -12,7 +12,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.schedule.RateSchedule;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -74,7 +74,7 @@ class FixedAmountTest extends AbstractFunctionTest {
                                         .build())
                                 .build())
                         .build())
-                .setRateSpecification(RateSpecification.builder().setFixedRate(FixedRateSpecification.builder()
+                .setRateSpecification(RateSpecification.builder().setFixedRateSpecification(FixedRateSpecification.builder()
                         .setRateSchedule(RateSchedule.builder().setPriceValue(PriceSchedule.builder().setValue(price)))))
                 .build();
 

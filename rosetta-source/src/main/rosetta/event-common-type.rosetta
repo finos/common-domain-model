@@ -2,565 +2,606 @@ namespace cdm.event.common : <"Business event concepts: primitives, contract sta
 version "${project.version}"
 
 import cdm.base.*
-import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.party.*
+import cdm.base.datetime.daycount.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.asset.rates.*
 import cdm.base.staticdata.identifier.*
-
+import cdm.base.staticdata.party.*
+import cdm.event.position.*
+import cdm.event.workflow.*
+import cdm.legaldocumentation.common.*
 import cdm.observable.asset.*
 import cdm.observable.event.*
-
-import cdm.product.common.*
 import cdm.product.asset.*
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-
-
-import cdm.legaldocumentation.common.*
 import cdm.product.collateral.*
-
-import cdm.event.workflow.*
-import cdm.event.position.*
-
-type Confirmation: <"A class to specify a trade confirmation.">
-
-	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
-	party Party (1..*) <"The parties associated with the trade.">
-	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
-	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
-	status ConfirmationStatusEnum (1..1)
-
-	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security confirmation, both buyer and seller party roles must exist.">
-		if lineage -> tradeReference -> tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
-
-type Affirmation: <"A class to specify a trade affirmation.">
-
-	identifier Identifier (1..*) <"The identifier(s) associated with the trade and resulting confirmation.">
-	party Party (1..*) <"The parties associated with the trade.">
-	partyRole PartyRole (1..*) <"The role(s) that party(ies) may have in relation to the trade">
-	lineage Lineage (0..1) <"The lineage attribute provides a linkage to previous lifecycle events and associated data.">
-	status AffirmationStatusEnum (1..1)
-
-	condition BothBuyerAndSellerPartyRolesMustExist: <"For an security affirmation, both buyer and seller party roles must exist.">
-		if lineage -> tradeReference -> tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> Buyer or partyRole -> role contains PartyRoleEnum -> Seller
+import cdm.product.common.*
+import cdm.product.common.settlement.*
+import cdm.product.qualification.*
+import cdm.product.template.*
 
 type ContractFormationInstruction: <"Specifies instructions to create a fully formed contract, with optional legal agreements.">
-	legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
-	condition ExecutedAgreements: <"The full formation of a contract can only be completed with executed legal agreements.">
-		if legalAgreement exists then legalAgreement-> agreementDate exists
+    legalAgreement LegalAgreement (0..*) <"Optional legal agreements associated to the contract being formed, for instance a master agreement.">
+    condition ExecutedAgreements: <"The full formation of a contract can only be completed with executed legal agreements.">
+        if legalAgreement exists
+        then legalAgreement -> agreementDate exists
 
 type Instruction: <"Instruction to a function that will be used to perform a business event">
-	[rootType]
-  	primitiveInstruction PrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call primitive event functions.">
-	before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
-		[metadata reference]
+    [rootType]
+    primitiveInstruction PrimitiveInstruction (0..1) <"Specifies the primitive instructions that will be used to call primitive event functions.">
+    before TradeState (0..1) <"Specifies the trade state that will be acted on by the primitive event functions.">
+        [metadata reference]
 
-	condition ExclusiveSplitPrimitive: <"A split primitive is exclusive and cannot be combined with other primitives. Instead, the primitive instructions to be applied to each branch of the split must be specified as breakdowns in the split instruction itself.">
-		if primitiveInstruction -> split exists then primitiveInstruction -> split only exists
+    condition ExclusiveSplitPrimitive: <"A split primitive is exclusive and cannot be combined with other primitives. Instead, the primitive instructions to be applied to each branch of the split must be specified as breakdowns in the split instruction itself.">
+        if primitiveInstruction -> split exists
+        then primitiveInstruction -> split only exists
 
-	condition NewTrade: <"There must be no before trade state if the primitive instructions contain an execution, and vice versa. An instruction only handles 1 trade at a time.">
-		( if primitiveInstruction -> execution exists then before is absent ) and
-		( if before is absent then primitiveInstruction -> execution exists )
+    condition NewTrade: <"There must be no before trade state if the primitive instructions contain an execution, and vice versa. An instruction only handles 1 trade at a time.">
+        (if primitiveInstruction -> execution exists then before is absent)
+            and (if before is absent then primitiveInstruction -> execution exists)
 
 type PrimitiveInstruction: <"A Primitive Instruction describes the inputs required to pass into the corresponding PrimitiveEvent function.">
-	contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
-	execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
-	exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
-	partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
-	quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
-	reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
-	split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
-	termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
-	transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
+    contractFormation ContractFormationInstruction (0..1) <"Specifies instructions describing an contract formation primitive event.">
+    execution ExecutionInstruction (0..1) <"Specifies instructions describing an execution primitive event.">
+    exercise ExerciseInstruction (0..1) <"Specifies instructions describing an exercise primitive event.">
+    partyChange PartyChangeInstruction (0..1) <"Specifies instructions describing a party change primitive event.">
+    quantityChange QuantityChangeInstruction (0..1) <"Specifies instructions describing an quantity change primitive event.">
+    reset ResetInstruction (0..1) <"Specifies instructions describing a reset event.">
+    split SplitInstruction (0..1) <"Specifies instructions to split a trade into multiple branches.">
+    termsChange TermsChangeInstruction (0..1) <"Specifies instructions describing a terms change primitive event.">
+    transfer TransferInstruction (0..1) <"Specifies instructions describing a transfer primitive event.">
     indexTransition IndexTransitionInstruction (0..1) <"Specifies inputs needed to process a Index Transition business event.">
     stockSplit StockSplitInstruction (0..1) <"Specifies inputs needed to process a Stock Split business event.">
-	observation ObservationInstruction (0..1) <"Specifies inputs needed to process an observation.">
+    observation ObservationInstruction (0..1) <"Specifies inputs needed to process an observation.">
+    valuation ValuationInstruction (0..1) <"Specifies inputs needed to process an update of a valuation.">
 
 type BusinessEvent extends EventInstruction: <"A business event represents a life cycle event of a trade. The combination of the state changes results in a qualifiable life cycle event. An example of a Business Event is a PartialTermination which is a defined by a quantity change primitive event.">
-	[metadata key]
-	[rootType]
-	
-	eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
+    [metadata key]
+    [rootType]
+
+    eventQualifier string (0..1) <"The CDM event qualifier, which corresponds to the outcome of the isEvent qualification logic which qualifies the lifecycle event as a function of its features (e.g. PartialTermination, ClearingSubmission, Novation, ...).">
     after TradeState (0..*) <"Specifies the after trade state(s) created.">
 
     condition EventDate:
         eventDate exists
 
+type CounterpartyPositionBusinessEvent: <"A business event represents a life cycle event of a position. The combination of the state changes results in a qualifiable life cycle event.">
+    intent PositionEventIntentEnum (1..1) <"The intent attribute is meant to be specified when the event qualification cannot be programmatically inferred from the event features. As a result it is only associated with those primitives that can give way to such ambiguity, the quantityChange being one of those.">
+    corporateActionIntent CorporateActionTypeEnum (0..1) <"The intent of a corporate action on the position.">
+    eventDate date (0..1) <"Specifies the date on which the event is taking place. This date is equal to the trade date in the case of a simple execution.  However it can be different from the trade date, for example in the case of a partial termination.">
+    effectiveDate date (0..1) <"The date on which the event contractually takes effect, when different from the event date.">
+    packageInformation IdentifiedList (0..1) <"Specifies the package information in case the business event represents several trades executed as a package (hence this attribute is optional). The package information is only instantiated once at the business event level to preserve referential integrity, whereas individual trades make reference to it to identify that they are part of a package.">
+    after CounterpartyPositionState (0..*) <"Specifies the after position state(s) created.">
+
 type ObservationInstruction: <"Specifies inputs needed to process an observation.">
-	observationEvent ObservationEvent (1..1) <"Contains all information related to an observation.">
+    observationEvent ObservationEvent (1..1) <"Contains all information related to an observation.">
+
+type ValuationInstruction: <"Specifies inputs needed to process a valuation.">
+    valuation Valuation (1..*) <"Contains all information related to a valuation.">
+    replace boolean (1..1) <"Specifies whether the previous valuation tracks in the valuation history are removed (True) or kept (False).">
 
 type ExecutionInstruction: <"Specifies instructions for execution of a transaction, consisting of a product, price, quantity, parties, trade identifier, execution details, and settlement terms.">
-	product Product (1..1) <"Defines the financial product to be executed and contract formed.">
-	priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate), quantities (e.g. currency amount, no. shares) and settlement terms (e.g. initial fee, broker fee, up-front cds payment or option premium settlement) associated with the constituents of the transacted product.">
-	counterparty  Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
-	ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
-	parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
-	partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
-	executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
-	tradeDate date (1..1) <"Denotes the trade/execution date.">
-	    [metadata id]
-	tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
+    product NonTransferableProduct (1..1) <"Defines the financial product to be executed and contract formed.">
+    priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate), quantities (e.g. currency amount, no. shares) and settlement terms (e.g. initial fee, broker fee, up-front cds payment or option premium settlement) associated with the constituents of the transacted product.">
+    counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
+    ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
+    parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
+    partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+    executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
+    tradeDate date (1..1) <"Denotes the trade/execution date.">
         [metadata id]
-	tradeIdentifier TradeIdentifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
-	collateral Collateral (0..1) <"Detail the collateral requirement anticipated with the transaction.">
+    tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
+        [metadata id]
+    tradeIdentifier TradeIdentifier (1..*) <"Denotes one or more identifiers associated with the transaction.">
+    collateral Collateral (0..1) <"Detail the collateral requirement anticipated with the transaction.">
+    lotIdentifier Identifier (0..1) <"Lot Identifier associated with the transaction.">
 
 type ExerciseInstruction: <"Specifies the information required to communicate the choices made by the exercising party, in a financial product endowing the party with at least one option.">
 
-	exerciseQuantity PrimitiveInstruction (1..1) <"Contains instructions for exercising the option including a quantity change, and optionally a transfer.">
-	exerciseOption OptionPayout (0..1) <"Specifies the Option Payout being exercised on the trade.">
-		[metadata reference]
-	exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
-	exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
-	replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
-	
+    exerciseQuantity PrimitiveInstruction (1..1) <"Contains instructions for exercising the option including a quantity change, and optionally a transfer.">
+    exerciseOption OptionPayout (0..1) <"Specifies the Option Payout being exercised on the trade.">
+        [metadata reference]
+    exerciseDate AdjustableOrAdjustedDate (0..1) <"Specifies the date on which an option contained within the financial product would be exercised. The date may be omitted if the contractual product allows for only a single date of exercise (European exercise).">
+    exerciseTime BusinessCenterTime (0..1) <"Specifies the time at which an option contained within the financial product woulld be exercised. The time may be omitted if the contractual product allows for only a single time of exercise (European exercise). ">
+    replacementTradeIdentifier TradeIdentifier (0..*) <"Specifies the trade identifier to apply to the replacement trade for physical exercise.">
+
 type ResetInstruction: <"Defines the information needed to create a Reset Business Event. ">
- 	payout Payout (1..1)
- 		[metadata reference]
-	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
-	resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
+    payout Payout (1..*)
+        [metadata reference]
+    rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
+    resetDate date (1..1) <"Specifies the date on which the reset is occuring.">
 
 type CalculateTransferInstruction: <"Defines the tradeState or payout on which to create a Transfer along with all necessary resets.">
-	tradeState TradeState (1..1)
-	payout Payout (1..1)
- 		[metadata reference]
- 	resets Reset (0..*)
-	payerReceiver PayerReceiver (0..1)
-	quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
-	date date (0..1)
+    tradeState TradeState (1..1)
+    payout Payout (1..1)
+        [metadata reference]
+    resets Reset (0..*)
+    payerReceiver PayerReceiver (0..1)
+    quantity Quantity (0..1) <"Specifies quantity amount returned if not the full amount from the TradeState, e.g. partial return">
+    date date (0..1)
 
 type TransferInstruction: <"Defines the payout on which to create a Transfer along with all necessary resets.">
- 	transferState TransferState (0..*) <"Specifies the terms and state of a transfers.">
+    transferState TransferState (0..*) <"Specifies the terms and state of a transfers.">
 
 type QuantityChangeInstruction: <"Instructions required to create a Quantity Change Primitive Event, which can be either an increase, a decrease or a replacement. An increase adds a new trade lot to the original trade, whereas a decrease subtracts from an existing trade lot's quantity. A replacement updates the quantity of an existing trade lot to the new value.">
-	change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
-	direction QuantityChangeDirectionEnum (1..1) <"Direction of the quantity change specified as either an increase, decrease or replacement.">
-	lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed(in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
+    change PriceQuantity (1..*) <"Quantity by which the trade is being increased, decreased or replaced, and the price at which such quantity change is agreed. The quantity change should always be specified as a positive number, with the direction (increase/decrease/replacement) being specified by the direction enumeration. A fee can also be associated to the quantity change by specifying a Price component of type CashPrice, including the corresponding settlement date and direction.">
+    direction QuantityChangeDirectionEnum (1..1) <"Direction of the quantity change specified as either an increase, decrease or replacement.">
+    lotIdentifier Identifier (0..*) <"Identifier for the new lot (in case of increase) or for the existing lot to be changed(in case of decrease or replacement). This optional attribute is mandatory in case of a decrease or replacement if the initial trade state contains multiple trade lots.">
 
 type IndexTransitionInstruction: <"Defines the information needed to create a Index Transition Business Event.">
-	priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
-	effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
-	cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
+    priceQuantity PriceQuantity (1..*) <"Specifies both new floating rate index and spread adjustment for each leg to be updated.  The spread adjustment accounts for the difference between the old floating rate index relative to the new one. This spread amount is added to the existing spread to determine the new spread, which is applied from the specified effective date forward. In the case of the IBOR Fallback Rate Adjustments, the adjustment spread (also known as the Fallback Adjustment) accounts for two distinctions: i) the fact that the replacement Risk-Free Rate is an overnight rate while IBORs have term structures (e.g., 1, 3, 6-month LIBOR); and (ii) the historical spread differential between IBORs and their term equivalent Overnight Risk-Free Rate compounded rates.">
+    effectiveDate date (1..1) <"Specifies the effective date of the index transition event. This is first date on which the floating rate calculation will use the new floating rate index and adjusted spread in the floating rate calculation.">
+    cashTransfer Transfer (0..1) <"Specifies the cash transfer that can optionally be tied to an index transition event.">
 
-	condition PriceQuantity:
-		priceQuantity -> price -> priceType contains PriceTypeEnum -> InterestRate
-		and priceQuantity -> observable -> rateOption exists
-		and priceQuantity -> quantity is absent
+    condition PriceQuantity:
+        priceQuantity -> price -> priceType contains PriceTypeEnum -> InterestRate
+            and priceQuantity -> observable -> Index -> InterestRateIndex exists
+            and priceQuantity -> quantity is absent
 
 type TermsChangeInstruction: <"Specifies instructions for terms change consisting of the new transaction terms, and the renegotiation fee.">
-	product Product (0..1) <"product to be changed">
-	ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
-	adjustment NotionalAdjustmentEnum (0..1)
+    product NonTransferableProduct (0..1) <"product to be changed">
+    ancillaryParty AncillaryParty (0..*) <"ancillary party to be changed">
+    adjustment NotionalAdjustmentEnum (0..1)
 
-	condition AtLeastOneOf: (product exists or ancillaryParty exists or adjustment exists)
+    condition AtLeastOneOf:
+        (product exists or ancillaryParty exists or adjustment exists)
 
 type SplitInstruction: <"Specifies instructions for a split, consisting of a breakdown of instructions to be applied to each branch of the split. This instruction can be used to duplicate a trade, as in a clearing scenario, or to split a trade into smaller quantities (in which case each breakdown instruction needs to include a quantity change), as in an allocation.">
-	// Should cardinality be (2..*)?
-	breakdown PrimitiveInstruction (1..*) <"Each split breakdown specifies the set of primitive instructions to be applied to a single branch of that split. N split breakdowns result in N output trades, which include the original trade. Instructions for how to handle the original trade (e.g. if it must be closed) must be specified in one of the breakdowns.">
+    // Should cardinality be (2..*)?
+    breakdown PrimitiveInstruction (1..*) <"Each split breakdown specifies the set of primitive instructions to be applied to a single branch of that split. N split breakdowns result in N output trades, which include the original trade. Instructions for how to handle the original trade (e.g. if it must be closed) must be specified in one of the breakdowns.">
 
 type PartyChangeInstruction: <"Specifies instruction to change the party on a trade. This primitive instruction is used in a number of scenarios including: clearing, allocation and novation. The instrution must include a trade identifier, because a change of party effectively results in a different trade.">
-	counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
-	ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
-	partyRole PartyRole (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
+    counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
+    ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
+    partyRole PartyRole (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
     tradeId TradeIdentifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
-	[metadata key]
-	[rootType]
-	trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
-	state State (0..1) <"Represents the State of the Trade through its life-cycle.">
-	resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
-	transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
-	observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
+    [metadata key]
+    [rootType]
+    trade Trade (1..1) <"Represents the Trade that has been effected by a business or life-cycle event.">
+    state State (0..1) <"Represents the State of the Trade through its life-cycle.">
+    resetHistory Reset (0..*) <"Represents the updated Trade attributes which can change as the result of a reset event. Only the changed values are captured, leaving the remaining data attributes empty. See Create_Reset function for further details on how TradeState is used in the Reset event. The TradeState data type is used to maintain backwards compatibility with the current Reset mechanism.">
+    transferHistory TransferState (0..*) <"Represents the updated Trade attributes which can change as the result of a transfer event.">
+    observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
+    valuationHistory Valuation (0..*)
+
+type CounterpartyPositionState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each PositionState specifies where a Position is in its life-cycle. PositionState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
+    [metadata key]
+    [rootType]
+    counterpartyPosition CounterpartyPosition (1..1) <"Represents the Position that has been effected by a business or life-cycle event.">
+    state State (0..1) <"Represents the State of the Position through its life-cycle.">
+    observationHistory ObservationEvent (0..*) <"Represents the observed events related to a particular product or process, such as credit events or corporate actions.">
     valuationHistory Valuation (0..*)
 
 type ObservationEvent: <"Specifies the necessary information to create any observation event.">
-	creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
-	corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
+    creditEvent CreditEvent (0..1) <"Specifies the necessary information to create a credit event.">
+    corporateAction CorporateAction (0..1) <"Specifies the necessary information to create a corporate action.">
 
-	condition: one-of
+    condition:
+        one-of
 
 type Reset: <"Defines the reset value or fixing value produced in cashflow calculations, during the life-cycle of a financial instrument. The reset process defined in Create_Reset function joins product definition details with observations to compute the reset value.">
-	[metadata key]
-	resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
-	resetDate date (1..1) <"Specifies the date on which the reset occurred.">
-	rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
-	observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
-		[metadata reference]
-	averagingMethodology AveragingCalculation (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
+    [metadata key]
+    resetValue Price (1..1) <"Specifies the reset or fixing value. The fixing value could be a cash price, interest rate, or other value.">
+    resetDate date (1..1) <"Specifies the date on which the reset occurred.">
+    rateRecordDate date (0..1) <"Specifies the 'Rate Record Day' for a Fallback rate.  Fallback rate fixing processes typically set the fixing rate in arrears, i.e., the Fallback Rate corresponding to a Rate Record Date is set at the end of the interest accural period.  When this applies, Reset->resetDate occurs at the end of the interest period, and the Reset->rateRecordDate occurs near the start of the interest period.  The Reset->rateRecordDate and Reset->observations->observationIdentifier->observationDate will differ if a Fallback rate is unavailable on the Rate Record Date, and the latest previous available rate is used as the observation.">
+    observations Observation (1..*) <"Represents an audit of the observations used to produce the reset value. If multiple observations were necessary to produce the reset value, the aggregation method should be defined on the payout.">
+        [metadata reference]
+    averagingMethodology AveragingCalculation (0..1) <"Identifies the aggregation method to use in the case where multiple observations are used to compute the reset value and the method is not defined in a payout.">
 
-	condition AveragingMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
-		if observations count > 1 then averagingMethodology exists
+    condition AveragingMethodologyExists: <"Ensures an averaging method is defined when more than one observation is used to compute the reset.">
+        if observations count > 1 then averagingMethodology exists
 
 type State: <"Defines the state of a trade at a point in the Trade's life cycle. Trades have many state dimensions, all of which are represented here. For example, states useful for position keeping are represented alongside those needed for regulatory reporting.">
-	closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
-	positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
+    closedState ClosedState (0..1) <"Represents the qualification of what led to the trade's closure alongside the dates on which this closure took effect.">
+    positionState PositionStatusEnum (0..1) <"Identifies the state of the position, to distinguish if just executed, formed, already settled, closed, etc.">
 
-	condition ClosedStateExists: <"When the position state is identified as closed, the closed state must also be specified.">
-	    if positionState = PositionStatusEnum -> Closed then
-		    closedState exists
+    condition ClosedStateExists: <"When the position state is identified as closed, the closed state must also be specified.">
+        if positionState = PositionStatusEnum -> Closed
+        then closedState exists
 
 type TransferState: <"Defines the fundamental financial information associated with a Transfer event. Each TransferState specifies where a Transfer is in its life-cycle. TransferState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
-	[metadata key]
-	[rootType]
-	transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
-	transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
+    [metadata key]
+    [rootType]
+    transfer Transfer (1..1) <"Represents the Transfer that has been effected by a business or life-cycle event.">
+    transferStatus TransferStatusEnum (0..1) <"Represents the State of the Transfer through its life-cycle.">
 
-type Transfer extends TransferBase: <"Defines the movement of cash, securities or commodities between two parties on a date.">
-	settlementOrigin SettlementOrigin (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-	resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
-	transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
+type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash, securities or commodities) between two parties on a date.">
+    identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
+        [metadata scheme]
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
+    settlementOrigin Payout (0..1) <"Represents the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
+        [metadata reference]
+    resetOrigin Reset (0..1) <"Represents the reset and observation values that were used to determine the transfer amount.">
+    transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
 type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
-	priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
-	scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
+    scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
 
-	condition: one-of
+    condition:
+        one-of
 
 type ScheduledTransfer:
-	transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
-	corporateActionTransferType CorporateActionTypeEnum (0..1)
+    transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    corporateActionTransferType CorporateActionTypeEnum (0..1)
 
-	condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-		if transferType = ScheduledTransferEnum -> CorporateAction then corporateActionTransferType exists
-
-type SettlementOrigin: <"Defines the origin to the transfer as a reference for lineage purposes, whether it originated from trade level settlement terms or from payment terms on an economic payout.">
-
-	commodityPayout CommodityPayout (0..1) <"Represents a reference to an Commodity Payout.">
-	    [metadata reference]
-	creditDefaultPayout CreditDefaultPayout (0..1) <"Represents a reference to a Credit Default Payout.">
-	    [metadata reference]
-	forwardPayout ForwardPayout (0..1) <"Represents a reference to a Forward Payout.">
-	    [metadata reference]
-	interestRatePayout InterestRatePayout (0..1) <"Represents a reference to an Interest Rate Payout.">
-		[metadata reference]
-	optionPayout OptionPayout (0..1) <"Represents a reference to an Option Payout.">
-		[metadata reference]
-	assetPayout AssetPayout (0..1) <"Represents a reference to an Asset Payout.">
-    	[metadata reference]
-	settlementTerms SettlementTerms (0..1) <"Represents a reference to settlement terms, which may have been specified at execution.">
-		[metadata reference]
-	performancePayout PerformancePayout (0..1) <"Represents a reference to a Performance Payout.">
-		[metadata reference]
-	fixedPricePayout FixedPricePayout (0..1) <"Represents a reference to a Fixed Price Payout">
-		[metadata reference]
-
-	condition: one-of	
+    condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
+        if transferType = ScheduledTransferEnum -> CorporateAction
+        then corporateActionTransferType exists
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
-	identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">	
+    identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a trade identifier may be party-specific, in which case it may not correspond to any established classification.">
+
+type PositionIdentifier extends Identifier: <"Defines a position identifier as a special case of the generic identifier type, that also includes the position identifier class.">
+    identifierType TradeIdentifierTypeEnum (0..1) <"The enumerated classification of the identifier. Optional as a position identifier may be party-specific, in which case it may not correspond to any established classification.">
 
 type Valuation: <"Defines the value of an investment, asset, or security">
     amount Money (1..1) <"Current value of the outstanding contract">
     timestamp zonedDateTime (1..1) <"Date and time of the last valuation marked to market, provided by the central counterparty (CCP) or calculated using the current or last available market price of the inputs.">
     method ValuationTypeEnum (0..1) <"Method used for the valuation of the transaction by the valuation party.">
     source ValuationSourceEnum (0..1) <"Source of the valuation of the transaction by the valuation party.">
+    scope ValuationScopeEnum (1..1) <" Defines the scope of the valuation, what it applies to e.g. the collateral or the trade">
     delta number (0..1) <"The ratio of the change in the price of a derivative transaction to the change in the price of the underlying. This field is applicable only to options and swaptions.">
+    valuationTiming PriceTimingEnum (0..1) <"Denotes when the valuation was sourced during a business day.">
+    priceComponent Price (0..1) <"Denotes the price used to compute the valuation.">
 
     condition ValuationType: <"The below condition ensures one and only one of the two attributes: 'Valuation Method' or 'Valuation Source' is allowed. Valuation of a trade or a portfolio is either internally calculated (via M2Market or M2Model methods) or supplied from an external source (e.g Central Counterparty's Valuation). Valuation cannot be based upon internal calculations and external source at the same time.">
         required choice method, source
 
-type Trade: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
-	[metadata key]
+type Trade extends TradableProduct: <"Defines the output of a financial transaction between parties - a Business Event. A Trade impacts the financial position (i.e. the balance sheet) of involved parties.">
+    [metadata key]
 		[docReference ICMA GMRA namingConvention "Transaction"
 			provision "As defined in the GMRA, paragraph 1(a) and 1(b) Referring to the agreement between Buyer and Seller in which a Seller agrees to sell Securities against the payment of the purchase price by Buyer to Seller, with a simultaneous agreement by Buyer to sell to Seller Equivalent Securities at a future date. May be a Repurchase Transaction or Buy/Sell Back Transaction."]
-	tradeIdentifier TradeIdentifier (1..*) <"Represents the identifier(s) that uniquely identify a trade for an identity issuer. A trade can include multiple identifiers, for example a trade that is reportable to both the CFTC and ESMA, and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
-	tradeDate date (1..1) <"Specifies the date which the trade was agreed.">
+    tradeIdentifier TradeIdentifier (1..*) <"Represents the identifier(s) that uniquely identify a trade for an identity issuer. A trade can include multiple identifiers, for example a trade that is reportable to both the CFTC and ESMA, and then has an associated USI (Unique Swap Identifier) UTI (Unique Trade Identifier).">
+    tradeDate date (1..1) <"Specifies the date which the trade was agreed.">
         [metadata id]
-	tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
+    tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
         [metadata id]
-	tradableProduct TradableProduct (1..1) <"Represents the financial instrument The corresponding FpML construct is the product abstract element and the associated substitution group.">
-	party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent.">
-	partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
-	executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
-	contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
+    party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent.">
+    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
+    executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
+    contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
     clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
         [deprecated]
     collateral Collateral (0..1) <"Represents the collateral obligations of a party.">
-	account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
-	    [deprecated]
-	
-	// condition SecurityPartyRole: <"When the executed product is a security, both ExecutingEntity and Counterparty party roles must exist.">
-	// 	if tradableProduct -> product -> security exists
-	// 	then partyRole -> role contains PartyRoleEnum -> ExecutingEntity and partyRole -> role contains PartyRoleEnum -> Counterparty
+    account Account (0..*) <"Represents a party's granular account information, which may be used in subsequent internal processing.">
+        [deprecated]
 
-	condition SecurityPartyRoleBuyerSeller: <"When the executed product is a security, both buyer and seller party roles must exist.">
-		if tradableProduct -> product -> security exists
-		then partyRole -> role contains PartyRoleEnum -> Buyer and partyRole -> role contains PartyRoleEnum -> Seller
+    condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
+        if SettlementPayoutOnlyExists(product -> economicTerms -> payout)
+        then partyRole -> role contains PartyRoleEnum -> Buyer
+                and partyRole -> role contains PartyRoleEnum -> Seller
+                and tradeLot -> priceQuantity -> price exists
 
-	condition SecurityPrice: <"When the executed product is a security, the price must be specified.">
-		if tradableProduct -> product -> security exists
-		then tradableProduct -> tradeLot -> priceQuantity -> price exists
+    condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
+        if executionDetails -> packageReference exists
+        then executionDetails -> packageReference -> componentId -> assignedIdentifier contains tradeIdentifier -> assignedIdentifier
 
-	condition SettlementTerms: <"When the executed product is a security, the settlement terms must be specified.">
-		if tradableProduct -> product -> security exists
-		then tradableProduct -> tradeLot only-element -> priceQuantity -> settlementTerms exists
+    condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
+        if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSubordinated exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notContingent exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> assignableLoan exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> transferable exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notBearer exists)
+                and (product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability exists)
 
-	condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
-		if executionDetails -> packageReference exists
-		then executionDetails -> packageReference -> componentId -> assignedIdentifier contains tradeIdentifier -> assignedIdentifier
+    condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
+        if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notSubordinated exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance exists)
+                and (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability exists
+                    or product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability exists)
 
-	condition DeliverableObligationsPhysicalSettlementMatrix: <"The below set of credit deliverable obligation provisions are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Credit Derivatives Physical Settlement Matrix doesn't governs the terms of the contract.">
-		if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSubordinated exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> specifiedCurrency exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notSovereignLender exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticCurrency exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticLaw exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notContingent exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notDomesticIssuance exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> assignableLoan exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> consentRequiredLoan exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> transferable exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> maximumMaturity exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> notBearer exists
-			)
-			and (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> fullFaithAndCreditObLiability exists
-                or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> generalFundObligationLiability exists
-                or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> revenueObligationLiability exists
-			)
+    condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
+        if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention exists)
 
-	condition ObligationsPhysicalSettlementMatrix: <"The below set of obligation of the reference entity are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions cannot be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in case the case where an auction could not take place because of, say, liquidity considerations.">
-		if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
-		then ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSubordinated exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notSovereignLender exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticLaw exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notDomesticIssuance exists
-			)
-			and ( tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> fullFaithAndCreditObLiability exists
-                or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> generalFundObligationLiability exists
-                or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> revenueObligationLiability exists
-			)
+    condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
+        if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
-	condition CreditEventsPhysicalSettlementMatrix: <"The below set of credit events are specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that those provisions can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-		if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType is absent)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> bankruptcy exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationDefault exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> obligationAcceleration exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> repudiationMoratorium exists
-                and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> governmentalIntervention exists
-			)
+    condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists)
 
-	condition RestructuringPhysicalSettlementMatrix: <"The below multiple holder obligation restructuring provisions is specified as optional boolean in FpML and the CDM because they would be specified as part of the Physical Settlement Matrix when such document governs the contract terms. As a result, this data rule specifies that this provision can only be omitted if the Physical Settlement Matrix governs the terms of the contract. This data rule also applies to cash settled contracts because those could still end-up being physically settled, in the case where an auction could not take place because of, say, liquidity considerations.">
-		if (contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix -> matrixType all <> MatrixTypeEnum -> CreditDerivativesPhysicalSettlementMatrix
-			or contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualMatrix -> matrixType is absent)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
+    condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists)
 
-	condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ( (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
-			or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> interestShortfallReimbursement exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> principalShortfallReimbursement exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists
-        )
+    condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+                        and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
+                    or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
+        then (product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> writedown exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown exists)
 
-	condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
-			or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> failureToPayPrincipal exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> writedown exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists
-        )
+    condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
+        if partyRole -> role contains PartyRoleEnum -> HedgingParty
+        then FilterPartyRole(partyRole, PartyRoleEnum -> HedgingParty) count <= 2
 
-	condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-		if ((tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = SecurityTypeEnum -> Debt
-				and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtClass any = DebtClassEnum -> AssetBacked)
-			or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents exists
-		then (tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayPrincipal exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> failureToPayInterest exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> distressedRatingsDowngrade exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> maturityExtension exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> writedown exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown exists
-        )
+    condition DeterminingParty: <"FpML specifies that there cannot be more than 2 determining parties.">
+        if partyRole -> role contains PartyRoleEnum -> DeterminingParty
+        then FilterPartyRole(partyRole, PartyRoleEnum -> DeterminingParty) count <= 2
 
-	condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
-		if partyRole -> role contains PartyRoleEnum -> HedgingParty
-		then FilterPartyRole( partyRole, PartyRoleEnum -> HedgingParty ) count <= 2
+    condition BarrierDerterminationAgent: <"FpML specifies that there cannot be more than 1 barrier determination agent.">
+        if partyRole -> role contains PartyRoleEnum -> BarrierDeterminationAgent
+        then FilterPartyRole(partyRole, PartyRoleEnum -> BarrierDeterminationAgent) count <= 1
 
-	condition DeterminingParty: <"FpML specifies that there cannot be more than 2 determining parties.">
-		if partyRole -> role contains PartyRoleEnum -> DeterminingParty
-		then FilterPartyRole( partyRole, PartyRoleEnum -> DeterminingParty ) count <= 2
+    condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
+        if clearedDate exists then clearedDate >= tradeDate
 
-	condition BarrierDerterminationAgent: <"FpML specifies that there cannot be more than 1 barrier determination agent.">
-		if partyRole -> role contains PartyRoleEnum -> BarrierDeterminationAgent
-		then FilterPartyRole( partyRole, PartyRoleEnum -> BarrierDeterminationAgent ) count <= 1
+    condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
+        if product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
-	condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
-		if clearedDate exists
-		then clearedDate >= tradeDate
+    condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> InterestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists or tradeDate < product -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
 
-	condition FpML_cd_1: <"FpML validation rule cd-1 - If referenceInformation exists, tradeDate must be before effectiveDate/unadjustedDate.">
-		if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> unadjustedDate
-			or tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+    condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
 
-	condition FpML_cd_7: <"FpML validation rule cd-7 - If condition LongForm is true, then effectiveDate/dateAdjustments exists.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> calculationPeriodDates -> effectiveDate -> adjustableDate -> dateAdjustments exists
-			or tradeDate < tradableProduct -> product -> contractualProduct -> economicTerms -> effectiveDate -> adjustableDate -> adjustedDate
+    condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
 
-	condition FpML_cd_8: <"FpML validation rule cd-8 - If condition LongForm is true, and if scheduledTerminationDate exists then scheduledTerminationDate/dateAdjustments exists.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> terminationDate -> adjustableDate -> dateAdjustments exists
+    condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999CreditDerivatives
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> substitution is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
 
-	condition FpML_cd_11: <"FpML validation rule cd-11 - If condition LongForm is true, and if condition ISDA2003 is true, then allGuarantees must exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees exists
+    condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003CreditDerivatives
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
 
-	condition FpML_cd_19: <"FpML validation rule cd-19 - If the condition ISDA1999Credit is true, then the following elements must not exist: protectionTerms/creditEvents/creditEventNotice/businessCenter, protectionTerms/creditEvents/restructuring/multipleHolderObligation, protectionTerms/creditEvents/restructuring/multipleCreditEventNotices, generalTerms/referenceInformation/allGuarantees, generalTerms/indexReferenceInformation, generalTerms/substitution, generalTerms/modifiedEquityDelivery.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA1999Credit
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice -> businessCenter is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleCreditEventNotices is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation -> allGuarantees is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> indexReferenceInformation is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> substitution is absent
-            and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> modifiedEquityDelivery is absent
+    condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> cashSettlementTerms exists
+                or product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
 
-	condition FpML_cd_20: <"FpML validation rule cd-20 - If the condition ISDA2003 is true, then protectionTerms/obligations/notContingent must not exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification-> agreementName -> contractualDefinitionsType any = ContractualDefinitionsEnum -> ISDA2003Credit
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations -> notContingent is absent
+    condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> obligations exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referencePrice exists
 
-	condition FpML_cd_23: <"FpML validation rule cd-23 - If the condition LongForm is true, then cashSettlementTerms or physicalSettlementTerms must exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> cashSettlementTerms exists
-		    or tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
+    condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
+        then product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> settlementCurrency exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> physicalSettlementPeriod exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> escrow exists
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> accruedInterest exists
 
-	condition FpML_cd_24: <"FpML validation rule cd-24 - If the condition LongForm is true, then the following elements must exist: protectionTerms/creditEvents/creditEventNotice, protectionTerms/obligations, generalTerms/referenceInformation/referencePrice.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> creditEvents -> creditEventNotice exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> protectionTerms -> obligations exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout ->generalTerms -> referenceInformation -> referencePrice exists
+    condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
+        if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
+                and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
+                and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation exists
+                and product -> economicTerms -> payout -> InterestRatePayout -> priceQuantity exists
+                and tradeLot -> priceQuantity -> quantity -> value exists
+        then product -> economicTerms -> payout -> InterestRatePayout -> dayCountFraction exists
 
-	condition FpML_cd_25: <"FpML validation rule cd-25 - If the condition LongForm is true, and if physicalSettlementTerms exists, then physicalSettlementTerms must contain settlementCurrency, physicalSettlementPeriod, escrow and deliverableObligations/accruedInterest.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> settlementCurrency exists
-		    and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> physicalSettlementPeriod exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> escrow exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> settlementTerms -> physicalSettlementTerms -> deliverableObligations -> accruedInterest exists
+    condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
+        if product -> economicTerms -> payout -> InterestRatePayout exists
+        then FpmlIrd8(item, account) = True
 
-	condition FpML_cd_32: <"FpML validation rule cd-32 - If condition LongForm is true, and if fixedAmountCalculation/calculationAmount exists, then fixedAmountCalculation/dayCountFraction must exist.">
-		if contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> masterConfirmationType is absent
-		    and contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualMatrix is absent
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> creditDefaultPayout -> generalTerms -> referenceInformation exists
-			and tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> priceQuantity exists
-			and tradableProduct -> tradeLot -> priceQuantity -> quantity -> value exists
-		then tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout -> dayCountFraction exists
+    condition ExtraordinaryEvents: <"Extraordinary events provisions must be associated with an equity payout or an equity option payout.">
+        if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents exists
+        then (product -> economicTerms -> payout -> PerformancePayout -> returnTerms -> priceReturnTerms exists
+                    or product -> economicTerms -> payout -> OptionPayout exists)
+                and Qualify_AssetClass_Equity(product -> economicTerms)
 
-	condition FpML_ird_8: <"FpML validation rule ird-8 - If the same party is specified as the payer and receiver, then different accounts must be specified.">
-        if tradableProduct -> product -> contractualProduct -> economicTerms -> payout -> interestRatePayout exists then
-            FpmlIrd8( tradableProduct, account ) = True
+    condition DisruptionEventsDeterminingParty:
+        if contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
+        then ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+                and if ancillaryParty -> role contains AncillaryRoleEnum -> DisruptionEventsDeterminingParty
+                    then contractDetails -> documentation -> agreementTerms -> agreement -> transactionAdditionalTerms -> equityAdditionalTerms -> extraordinaryEvents -> additionalDisruptionEvents -> determiningParty exists
 
 type ExecutionDetails: <"Defines specific attributes that relate to trade executions.">
-	[metadata key]
+    [metadata key]
 
-	executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
-	executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
-	packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
-		
-	condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
-		if executionType = ExecutionTypeEnum -> Electronic
-		then executionVenue exists
+    executionType ExecutionTypeEnum (1..1) <"Identifies the type of execution, e.g. via voice, electronically...">
+    executionVenue LegalEntity (0..1) <"Represents the venue on which a trade was executed.">
+    packageReference IdentifiedList (0..1) <"A reference to the package linking the trade with other trades, in case the trade was executed as part of a package (hence this attribute is optional).">
+
+    condition ExecutionVenue: <"When the execution type is set to 'Electronically', the execution venue must be specified.">
+        if executionType = ExecutionTypeEnum -> Electronic
+        then executionVenue exists
 
 type ContractDetails: <"Defines specific attributes that relate to contractual details of trades.">
-	[metadata key]
-	documentation LegalAgreement (0..*) <"Represents the legal document(s) that governs a trade and associated contractual product terms, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
-	governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
-		[metadata scheme]
-	condition ExecutedAgreement: <"Contract details can only only point to  executed legal agreements.">
-		if documentation exists then documentation-> agreementDate exists
+    [metadata key]
+    documentation LegalAgreement (0..*) <"Represents the legal document(s) that governs a trade and associated contractual product terms, either as a reference to such documents when specified as part of the CDM, or through identification of some of the key terms of those documents, such as the type of document, the document identifier, the publisher, the document vintage and the agreement date.">
+    governingLaw GoverningLawEnum (0..1) <"Represents the law governing the trade and associated contractual product terms.">
+        [metadata scheme]
+
+    condition ExecutedAgreement: <"Contract details can only only point to  executed legal agreements.">
+        if documentation exists
+        then documentation -> agreementDate exists
 
 type Lineage: <"A class to provide lineage information across lifecycle events through a pointer or set of pointers into the event(s), contract(s) and, possibly, payout components that the event is dependent on or relates to. As an example, if an contractFormation event is corrected, the correction event will have a lineage into the initial event, which takes the form of a globalKey into that initial contract formation event. Two referencing mechanisms are provided as part of the CDM: either the globalKey, which corresponds to the hash value of the CDM class which is referred to, or a reference qualifier which is meant to provide support for the ingestion of xml documents with id/href mechanisms. The CDM recommends the use of the globalKey and provides a default implementation which is accessible in the generated code through org.isda.cdm.globalKey.GlobalKeyHashCalculator. If implementers want to use an alternative hashing mechanism, the API in which they need to plug it is com.rosetta.model.lib.HashFunction.">
     tradeReference Trade (0..*)
         [metadata reference]
-	eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
-		[metadata reference]
-	portfolioStateReference PortfolioState (0..*) <"The reference to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
-		[metadata reference]
+    eventReference WorkflowStep (0..*) <"The reference to the instantiation of an Event object, either through a globalKey or an xml-derived id/href mechanism. The definition associated to the Lineage class provides more details with respect to those referencing approaches, their expected usage and available implementation.">
+        [metadata reference]
+    portfolioStateReference PortfolioState (0..*) <"The reference to the previous state of a Portfolio, in a chain of Events leading up to a build of that Portfolio as the holding of Product(s) in specific Quantity(ies). As part of the PortfolioState object, a pointer to the previous PortfolioState is provided through a Lineage object, together with pointer(s) to the Event or set of Events leading up to the current (new) state.">
+        [metadata reference]
 
 type StockSplitInstruction: <"Data required to perform a stock split business event.">
 
-	adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
-	effectiveDate date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
+    adjustmentRatio number (1..1) <"The number that denotes the cumulative quantity of post-split shares issued to shareholders versus the quantity of pre-split shares previously issued to shareholders.  This number will be multiplied by existing shares in an equity derivative contract or other positions to determine the post-split number of shares.  With regard to any reference to price, the pre-split reference price will be divided by this number to determine the post-split reference price.">
+    effectiveDate date (1..1) <"The effective date of the stock split, also known as the ex-date. This is the date on which the additional shares are paid to the shareholders, or in the case of a reverse stock split, the number shares held by each shareholder is proportionally reduced.  Equity derivative transactions can be amended in firms' internal systems on such date.   In most markets, the listed stock price is reduced (or increased for a reverse stock split) to account for the split on the same date, but in some markets the price adjustment occurs on a later date.  In either case, equity derivative transactions should be amended on the date that the stocks are paid to the shareholders (or consolidated).">
 
 type CreditEvent: <"Specifies the relevant data regarding a credit event.">
-	creditEventType CreditEventTypeEnum (1..1) <"The type of credit event taking place.">
-	eventDeterminationDate date (1..1) <"The date in which the credit event is determined by the Credit Derivatives Determinations Comitee.">
-	auctionDate date (0..1) <"The date on which the auction is scheduled to occur.">
-	finalPrice Price (0..1) <"The final price resulting from the auction.">
-	recoveryPercent number (0..1) <"The percentage of the original value of the asset affected by the credit event that can be recovered.">
-	publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
-	referenceInformation ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
+    creditEventType CreditEventTypeEnum (1..1) <"The type of credit event taking place.">
+    eventDeterminationDate date (1..1) <"The date in which the credit event is determined by the Credit Derivatives Determinations Comitee.">
+    auctionDate date (0..1) <"The date on which the auction is scheduled to occur.">
+    finalPrice Price (0..1) <"The final price resulting from the auction.">
+    recoveryPercent number (0..1) <"The percentage of the original value of the asset affected by the credit event that can be recovered.">
+    publiclyAvailableInformation Resource (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred.">
+    referenceInformation ReferenceInformation (1..1) <"The reference entity, part of a credit basket, impacted by the credit event.">
 
 type CorporateAction: <"Specifies the relevant data regarding a corporate action">
-	corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
-	exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
-	payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
-	underlier Product (1..1) <"The entity impacted by the corporate action.">
+    corporateActionType CorporateActionTypeEnum (1..1) <"The type of corporate action taking place.">
+    exDate date (1..1) <"The date on which the corporate action is known to have taken place.">
+    payDate date (1..1) <"The date on which resulting from the corporate action are delivered.">
+    recordDate date (0..1) <"The date on which the account phyical balance and related underlier ownership is recorded by the custodian.">
+    announcementDate date (0..1) <"The date on which the corporate action is announced by the issuer.">
+    underlier Underlier (1..1) <"The underlier impacted by the corporate action.">
+    adjustmentFactor AdjustmentFactor (0..1) <"Specifies any additional details e.g. further descriptions depending on the particular type of Corporate Action, adjustmentFactor, calculations">
+    informationSource InformationSource (0..1) <"A class defining the source of data used in an Observation for any purposes. The data is either sourced from a Provider, or from a Party.">
+    dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+    bespokeEventDescription string (0..1) <"Corporate action triggered by the occurrence of an event which description is seperatly agreed between the parties and/or described in any referenced agreement (for instance bespoke term described in any string type objects present in most root attributes of Agreement type).">
 
-type TransferBase:
+    condition DividendObservation: <"Price type is restricted to record observations of dividends.">
+        if dividendObservation exists
+        then dividendObservation -> priceType = PriceTypeEnum -> Dividend
 
-	identifier Identifier (0..*) <"Represents a unique reference to the transfer.">
-		[metadata scheme]
-	quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred.">
-	observable Observable (0..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-	payerReceiver PartyReferencePayerReceiver (1..1) <"Represents the parties to the transfer and their role.">
-	settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+    condition CorporateActionTypeBespoke: <"When Enum value does not corresponds to standard terms, then bespoke description must be populated.">
+        if corporateActionType = CorporateActionTypeEnum -> BespokeEvent
+        then bespokeEventDescription exists
 
-	condition FinancialUnitExists:
-		if observable exists
-		then quantity -> unit -> financialUnit exists
+    condition: <"If intent is to record dividend observation per se with no relation to an adjustment (typically when such observation is made, looking forward dividend passthrough payments) then no adjustment is expected, and vice-versa. For the avoidance of doubts, in the case dividend terms are involved in the calculation or the occurrence of an adjustment calculation, then such information shall be defined at such proper level i.e. precisely as an attribute of the adjustmentFactorCalculation.">
+        optional choice adjustmentFactor, dividendObservation
+
+type AdjustmentFactor: <"Describes the terms involved for adjusting the price of the underlier impacted by a Corporate Action.">
+
+    value number (1..1) <"The multipler value applied to the price of the underlier impacted by a Corporate Action.">
+    calculationTerms AdjustmentFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+
+type AdjustmentFactorCalculationTerms: <"Describes the input terms involved in the calculation of the adjustment factor applied to the price of the underlier impacted by a Corporate Action.">
+    shareForShareRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of shares after the event and 'N' is the number of shares prior to the event. ">
+    shareForRightsRatio number (0..1) <"Multiple value, say 'M/N' where 'M' is the number of rights after the event, and 'N' of shares prior to the event. ">
+    rightsSubscriptionPrice Price (0..1) <"The price to pay per each right.">
+    dividendRatio number (0..1) <"Multipler value (e.g. 85 %, etc.) to calculate net dividend amount, given gross amount before taking into account the relevant fiscal features.">
+    spinOff SpinOff (0..1) <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
+    merger Merger (0..1) <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Spin Off corporate action, as well as the respective price observation for each.">
+    accrualFactor AccrualFactor (0..1) <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to last fixing and applying accruals for each remaining underlier price fixing date required i.e. for each, adjustedPrice = lastFixingPrice x (1 + accrualRate x DCF).">
+    lastFixingPriceBeforeAdjustment Price (0..1) <"The last fixing price of the Underlier affected by the CorporateAction, before any adjustment with regards to the CorporateAction.">
+    dividendObservation PriceSchedule (0..1) <"To record observations of dividends.">
+    bespokeCalculationFormula string (0..1) <"To describe the formula used to calculate the Adjustment Factor."> // temporary place holder -> plan is to re-use BespokePayoutFormula type designed by Structured Product WG
+    condition SpinOffOrMergerOrAccrual:
+        optional choice spinOff, merger, accrualFactor
+
+    condition DividendObservation: <"Price type is restricted to record observations of dividends.">
+        if dividendObservation exists
+        then dividendObservation -> priceType = PriceTypeEnum -> Dividend
+
+    condition ShareRatio:
+        optional choice shareForShareRatio, shareForRightsRatio
+
+type AccrualFactor: <"The accrual rate and related terms, to adjust the price of an underlier impacted by a Corporate Action when economic impact consists in freezing the underlier price to the last fixing then applying accruals per each remaining underlier price fixing date required i.e. for each fixing date, adjustedPrice = lastFixingPrice x accrualFactor, where: accrualFactor = (1 + accrualRateValue x DCF).">
+    value PriceSchedule (1..1) <"The rate to be applied to the last fixing price, for price accrual calculation purposes. DatedValue may be used for the purpose of representing Price series if such calculation is required for multiple dates.">
+        [metadata location]
+    calculationTerms AccrualFactorCalculationTerms (0..1) <"Describes the input terms involved in the calculation of the accrual factor.">
+
+    condition AccrualPriceIsRate:
+        value -> priceType = PriceTypeEnum -> InterestRate
+
+type AccrualFactorCalculationTerms: <"Describes the input terms involved in the calculation of the accrual factor. Optionnally, long and short stub interpolation rates can be specified.">
+    tenorTillMaturity number (1..1) <"The duration between last fixing date and the payment date of accruals, calculated in accordance with the appropriate DayCountFraction.">
+    dayCountFraction DayCountFractionEnum (1..1) <"The enumerated values to specify the day count fraction.">
+    interpolationTerms StubValue (0..1) <"Describes the rate, tenor, period duration for the short and long stubs, when the accrualRate optionnaly results from an interpolation method.">
+
+type SpinOff: <"Defines the underlier for both the Parent Company and the Child Compagny involved in Spin Off corporate action, as well as th respective price observation for each.">
+    parentSecurity Security (1..1) <"Defines the underlier for the Parent Company involved in Spin Off corporate action.">
+    parentSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Parent Company.">
+    childSecurity Security (1..1) <"Defines the underlier for the Child Company involved in Spin Off corporate action.">
+    childSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Child Company.">
+
+    condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
+        parentSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+            and childSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+
+type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Merger corporate action, as well as th respective price observation for each.">
+    purchaserSecurity Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
+    purchaserSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Purchaser Company.">
+    acquiredSecurity Security (1..1) <"Defines the underlier for the Acquired Company involved in Merger corporate action.">
+    acquiredSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
+
+    condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
+        purchaserSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+            and acquiredSecurity -> instrumentType = InstrumentTypeEnum -> Equity
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
-	alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
-
-	clearingParty Party (1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
-	party1 Party (1..1) <"First party facing the CCP if it is clearing for its own account.">
-	party2 Party (1..1) <"Second party facing the CCP if it is clearing for its own account.">
-
-	clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
-	clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
-	isOpenOffer boolean (0..1) <"Open Offer">
+    alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
+    clearingParty Party (1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
+    party1 Party (1..1) <"First party facing the CCP if it is clearing for its own account.">
+    party2 Party (1..1) <"Second party facing the CCP if it is clearing for its own account.">
+    clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
+    clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
+    isOpenOffer boolean (0..1) <"Open Offer">
 
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
-	[deprecated]
-	[metadata key]
+    [deprecated]
+    [metadata key]
 
-	adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">
-	adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
-	adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
-	adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
+    adjustedExerciseDate date (1..1) <"The date on which the option exercise takes place. This date should already be adjusted for any applicable business day convention.">
+    adjustedRelevantSwapEffectiveDate date (1..1) <"The effective date of the underlying swap associated with a given exercise date. This date should already be adjusted for any applicable business day convention.">
+    adjustedCashSettlementValuationDate date (0..1) <"The date by which the cash settlement amount must be agreed. This date should already be adjusted for any applicable business day convention.">
+    adjustedCashSettlementPaymentDate date (0..1) <"The date on which the cash settlement amount is paid. This date should already be adjusted for any applicable business day convention.">
+    adjustedExerciseFeePaymentDate date (0..1) <"The date on which the exercise fee amount is paid. This date should already be adjusted for any applicable business day convention.">
 
 type ReturnInstruction: <"Specifies the information required to create the return of a Security Finance Transaction.">
     quantity Quantity (1..*) <"Specifies the quantity of shares and cash to be returned in a partial return event.">
@@ -578,10 +619,10 @@ type SecurityLendingInvoice: <"Specifies the information required for inclusion 
 type BillingInstruction: <"Specifies the instructions for creation of a Security Lending billing invoice.">
     sendingParty Party (1..1) <"The party issuing the invoice">
     receivingParty Party (1..1) <"The party receiving the invoice">
-	billingStartDate date (1..1) <"The starting date of the period described by this invoice">
-   	billingEndDate date (1..1) <"The ending date of the period described by this invoice">
-   	billingRecordInstruction BillingRecordInstruction (1..*) <"Instructions for creating the billing records contained within the invoice">
-   	billingSummary BillingSummaryInstruction (0..*) <"The billing summaries contained within the invoice">
+    billingStartDate date (1..1) <"The starting date of the period described by this invoice">
+    billingEndDate date (1..1) <"The ending date of the period described by this invoice">
+    billingRecordInstruction BillingRecordInstruction (1..*) <"Instructions for creating the billing records contained within the invoice">
+    billingSummary BillingSummaryInstruction (0..*) <"The billing summaries contained within the invoice">
 
 type BillingRecordInstruction: <"Specifies the instructions for creation of a billing record.">
     tradeState TradeState (1..1) <"The trade for the individual billing record.">
@@ -608,113 +649,118 @@ type BillingSummary: <"Specifies individual summaries within a billing invoice."
 
     condition GrandTotal:
         if summaryAmountType = RecordAmountTypeEnum -> GrandTotal
-            then summaryTransfer exists
-            and summaryTransfer -> payerReceiver is absent
+        then summaryTransfer exists and summaryTransfer -> payerReceiver is absent
 
     condition ParentTotal:
         if summaryAmountType = RecordAmountTypeEnum -> ParentTotal
-            then summaryTransfer -> payerReceiver exists
-            and summaryTransfer->payerReceiver->payerAccountReference is absent
-            and summaryTransfer->payerReceiver->receiverAccountReference is absent
+        then summaryTransfer -> payerReceiver exists
+                and summaryTransfer -> payerReceiver -> payerAccountReference is absent
+                and summaryTransfer -> payerReceiver -> receiverAccountReference is absent
 
     condition AccountTotal:
         if summaryAmountType = RecordAmountTypeEnum -> AccountTotal
-            then summaryTransfer->payerReceiver->payerAccountReference exists
-            and summaryTransfer->payerReceiver->receiverAccountReference exists
+        then summaryTransfer -> payerReceiver -> payerAccountReference exists
+                and summaryTransfer -> payerReceiver -> receiverAccountReference exists
 
 type TradePricingReport: <"The attributes that are specific for consensus based pricing reporting.">
-   trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
-   pricingTime TimeZone (1..1) <"The regional exchange close time for the underlying contract,including time zone, at which the trades should be priced. This provides an indication for which regional snapshot should be used for pricing primarily for Global markets where there are multiple regional close times.">
-   discountingIndex FloatingRateIndexEnum (0..1) <"It specifies the interest payable on collateral delivered under a CSA covering the trade.">
-
+    trade Trade (1..1) <"Represents the cosensus based pricing parameters on a trade basis.">
+    pricingTime TimeZone (1..1) <"The regional exchange close time for the underlying contract,including time zone, at which the trades should be priced. This provides an indication for which regional snapshot should be used for pricing primarily for Global markets where there are multiple regional close times.">
+    discountingIndex FloatingRateIndexEnum (0..1) <"It specifies the interest payable on collateral delivered under a CSA covering the trade.">
 
 type MarginCallBase: <"Represents common attributes required for Issuance and Response to a Margin Call action as a result of a demand for delivery or return of collateral determined under a legal agreement such as a credit support document or equivalent.">
-	instructionType MarginCallInstructionType (1..1) <"Identifies the enumeration values to specify the call notification type, direction, specific action type.">
-	party Party (0..*) <"Represents the parties to the margin call. The cardinality is optional to address the case where both parties of the event are specified and a third party if applicable.">
-	partyRole PartyRole (0..*) <"Represents the role each specified party takes in the margin call. further to the principal roles, payer and receiver.">
-	clearingBroker Party (0..1) <"Indicates the name of the Clearing Broker FCM/DCM.">
-	callIdentifier Identifier (0..1) <"Represents a unique Identifier for a margin call message, that can be referenced throughout all points of the process.">
-	callAgreementType AgreementName (1..1) <"Specifies the legal agreement type the margin call is generated from and governed by.">
-	agreementMinimumTransferAmount Money (0..1)<"Specifies the collateral legal agreement minimum transfer amount in base currency.">
-	agreementThreshold Money (0..1) <"Specifies the collateral legal agreement threshold amount in base currency.">
-	agreementRounding Money (0..1) <"Specifies the collateral legal agreement rounding in base currency.">
-	regMarginType RegMarginTypeEnum (1..1) <"Identifies margin type and if related regulatory mandate">
-	regIMRole RegIMRoleEnum (0..1) <"Indicates the role of the party in an regulatory initial margin call instruction (i.e Pledgor party or Secured party).">
-	baseCurrencyExposure MarginCallExposure (0..1) <"Represents the current mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency), to be referenced in a margin call.">
-	collateralPortfolio CollateralPortfolio (0..1) <"Represents attributes to define the details of collateral assets within a collateral portfolio to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account recorded by the principal as held or posted.">
-		[metadata reference]
-	independentAmountBalance CollateralBalance (0..1) <"Represents additional credit support amount over and above mark to market value.">
+    instructionType MarginCallInstructionType (1..1) <"Identifies the enumeration values to specify the call notification type, direction, specific action type.">
+    party Party (0..*) <"Represents the parties to the margin call. The cardinality is optional to address the case where both parties of the event are specified and a third party if applicable.">
+    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the margin call. further to the principal roles, payer and receiver.">
+    clearingBroker Party (0..1) <"Indicates the name of the Clearing Broker FCM/DCM.">
+    callIdentifier Identifier (0..1) <"Represents a unique Identifier for a margin call message, that can be referenced throughout all points of the process.">
+    callAgreementType AgreementName (1..1) <"Specifies the legal agreement type the margin call is generated from and governed by.">
+    agreementMinimumTransferAmount Money (0..1) <"Specifies the collateral legal agreement minimum transfer amount in base currency.">
+    agreementThreshold Money (0..1) <"Specifies the collateral legal agreement threshold amount in base currency.">
+    agreementRounding Money (0..1) <"Specifies the collateral legal agreement rounding in base currency.">
+    regMarginType RegMarginTypeEnum (1..1) <"Identifies margin type and if related regulatory mandate">
+    regIMRole RegIMRoleEnum (0..1) <"Indicates the role of the party in an regulatory initial margin call instruction (i.e Pledgor party or Secured party).">
+    baseCurrencyExposure MarginCallExposure (0..1) <"Represents the current mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency), to be referenced in a margin call.">
+    collateralPortfolio CollateralPortfolio (0..1) <"Represents attributes to define the details of collateral assets within a collateral portfolio to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account recorded by the principal as held or posted.">
+        [metadata reference]
+    independentAmountBalance CollateralBalance (0..1) <"Represents additional credit support amount over and above mark to market value.">
 
-	condition RegIMRoleIMOnly: <"Specifies a condition to ensure that RegIMRole (Pledgor or Secured Party)is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
-		if regIMRole exists
-			then regMarginType = RegMarginTypeEnum -> RegIM
+    condition RegIMRoleIMOnly: <"Specifies a condition to ensure that RegIMRole (Pledgor or Secured Party)is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
+        if regIMRole exists
+        then regMarginType = RegMarginTypeEnum -> RegIM
 
 type Exposure: <"Represents the current mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
-	tradePortfolio PortfolioState (1..1) <"Represents a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state.">
-		[metadata reference]
-	aggregateValue Money (1..1) <"Represents the aggregate value of the portfolio in base currency.">
-	calculationDateTime zonedDateTime (0..1) <"Indicates the date when the exposure is calculated if different from valuation date.">
-	valuationDateTime zonedDateTime (1..1) <"Indicates the valuation date of the exposure underlying the calculation.">
-	// possible function/instructions needed for calculation of portfolio and aggregating to a base currency value//
-
+    tradePortfolio PortfolioState (1..1) <"Represents a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state.">
+        [metadata reference]
+    aggregateValue Money (1..1) <"Represents the aggregate value of the portfolio in base currency.">
+    calculationDateTime zonedDateTime (0..1) <"Indicates the date when the exposure is calculated if different from valuation date.">
+    valuationDateTime zonedDateTime (1..1) <"Indicates the valuation date of the exposure underlying the calculation.">
+// possible function/instructions needed for calculation of portfolio and aggregating to a base currency value//
 type MarginCallExposure extends MarginCallBase: <"Represents attributes required for mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
-	overallExposure Exposure (1..1) <"Represents the whole overall mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
-	simmIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from ISDA SIMM calculation.">
-	scheduleGridIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from schedule or Grid calculation."> 
+    overallExposure Exposure (1..1) <"Represents the whole overall mark to market value or IM calculation value of the trade portfolio as recorded by the principle (in base currency).">
+    simmIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from ISDA SIMM calculation.">
+    scheduleGridIMExposure Exposure (0..1) <"Represents Initial Margin (IM) exposure derived from schedule or Grid calculation.">
 
-	condition OverallExposureSumOfSimmAndScheduleIM: <"Represents a condition to ensure that if Simm IM exposure and Schedule/Grid IM exposure are specified the sum value must equate to overall exposure amount.">
-		if simmIMExposure exists and scheduleGridIMExposure exists
-			then (overallExposure -> aggregateValue -> value = simmIMExposure -> aggregateValue -> value + scheduleGridIMExposure -> aggregateValue -> value) 
-				and (overallExposure -> aggregateValue -> unit -> currency = simmIMExposure -> aggregateValue -> unit -> currency) 
-				and (overallExposure -> aggregateValue -> unit -> currency = scheduleGridIMExposure -> aggregateValue -> unit -> currency)
+    condition OverallExposureSumOfSimmAndScheduleIM: <"Represents a condition to ensure that if Simm IM exposure and Schedule/Grid IM exposure are specified the sum value must equate to overall exposure amount.">
+        if simmIMExposure exists and scheduleGridIMExposure exists
+        then (overallExposure -> aggregateValue -> value = simmIMExposure -> aggregateValue -> value + scheduleGridIMExposure -> aggregateValue -> value)
+                and (overallExposure -> aggregateValue -> unit -> currency = simmIMExposure -> aggregateValue -> unit -> currency)
+                and (overallExposure -> aggregateValue -> unit -> currency = scheduleGridIMExposure -> aggregateValue -> unit -> currency)
 
-	condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
-		if simmIMExposure exists and scheduleGridIMExposure exists
-			then regMarginType = RegMarginTypeEnum -> RegIM
+    condition ExposureSimmAndScheduleIMOnly: <"Specifies a condition to ensure that if margin exposure is defined as Simm IM and Schedule/Grid IM Exposure this is only applicable if the Reg margin type is defined as RegIM (Regulatory Initial Margin).">
+        if simmIMExposure exists and scheduleGridIMExposure exists
+        then regMarginType = RegMarginTypeEnum -> RegIM
 
 type CollateralBalance: <"Represents common attributes to define a collateral balance recorded by the principal as held or posted.">
-	collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
-	haircutIndicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
-	amountBaseCurrency Money (1..1) <"Specifies the collateral balance amount in base currency determined within a collateral legal agreement, or defined for reporting purposes.">
-	payerReceiver PartyReferencePayerReceiver (1..1) <"Specifies each of the parties in the collateral balance and its perspective with regards to the direction of the collateral balance, posted or received.">
+    collateralBalanceStatus CollateralStatusEnum (0..1) <"Defines the collateral balance breakdown of settlement status.">
+    haircutIndicator HaircutIndicatorEnum (0..1) <"Indicates if the collateral balance amount is based on pre or post haircut, if a haircut is associated with the collateral asset">
+    amountBaseCurrency Money (1..1) <"Specifies the collateral balance amount in base currency determined within a collateral legal agreement, or defined for reporting purposes.">
+    payerReceiver PartyReferencePayerReceiver (1..1) <"Specifies each of the parties in the collateral balance and its perspective with regards to the direction of the collateral balance, posted or received.">
 
 type CollateralPortfolio: <"Represents common attributes to define the details of collateral assets, to be used in margin call messaging and contribute to collateral balances e.g securities in a collateral account.">
-	[metadata key]
-	[rootType]
-	portfolioIdentifier Identifier (0..1) <"Specifies a unique identifier for a set of collateral positions in a portfolio.">
-	collateralPosition CollateralPosition (0..*) <"Specifies the individual components of the collateral positions in the collateral portfolio.">
-	collateralBalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
-	legalAgreement LegalAgreement (0..1) <" The specification of a legal agreement between two parties governing the collateral relationship such as Credit Support Agreement or Collateral Transfer Agreement etc. (NB: this can be provided by reference to a global key for each LegalAgreement object).">
-     [metadata reference]
+    [metadata key]
+    [rootType]
+    portfolioIdentifier Identifier (0..1) <"Specifies a unique identifier for a set of collateral positions in a portfolio.">
+    collateralPosition CollateralPosition (0..*) <"Specifies the individual components of the collateral positions in the collateral portfolio.">
+    collateralBalance CollateralBalance (0..*) <"Represents the populated or calculated collateral aggregate balance amount for the collateral portfolio.">
+    legalAgreement LegalAgreement (0..1) <" The specification of a legal agreement between two parties governing the collateral relationship such as Credit Support Agreement or Collateral Transfer Agreement etc. (NB: this can be provided by reference to a global key for each LegalAgreement object).">
+        [metadata reference]
 
 type CollateralPosition extends Position: <"Specifies the individual components of collateral positions.">
-	
-	treatment CollateralTreatment (0..1) <"Specifies if there is any treatment to be applied to collateral, such as percentage discount which will impact collateral value.">
-	collateralPositionStatus CollateralStatusEnum (0..1) <"Indicates the collateral positions settlement status.">
 
-	condition CollateralPositionStatusSettledOrInTransitOnly : <"Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.">
-		if collateralPositionStatus exists
-			then collateralPositionStatus = CollateralStatusEnum -> SettledAmount or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount 
+    treatment CollateralTreatment (0..1) <"Specifies if there is any treatment to be applied to collateral, such as percentage discount which will impact collateral value.">
+    collateralPositionStatus CollateralStatusEnum (0..1) <"Indicates the collateral positions settlement status.">
+
+    condition CollateralPositionStatusSettledOrInTransitOnly: <"Represents a condition to ensure that if a status is defined for a collateral position you must only indicate 'Settled Amount' or 'In Transit' amount from the available enumerations.">
+        if collateralPositionStatus exists
+        then collateralPositionStatus = CollateralStatusEnum -> SettledAmount
+                or collateralPositionStatus = CollateralStatusEnum -> InTransitAmount
 
 type MarginCallIssuance extends MarginCallBase: <"Represents common attributes required for a Margin Call Issuance under a legal agreement such as a credit support document or equivalent.">
     callAmountInBaseCurrency Money (1..1) <"Specifies the amount of margin being called for which accounts for margin calculation inclusive of exposure, independent amount,threshold,collateral balance, MTA, rounding increments (in base currency detailed in supporting collateral agreement).">
-	recallNonCashCollateralDescription EligibleCollateralCriteria (0..*) <"Specifies the details to describe or identify non-cash collateral eligible assets for recall purposes.">
+    recallNonCashCollateralDescription EligibleCollateralCriteria (0..*) <"Specifies the details to describe or identify non-cash collateral eligible assets for recall purposes.">
 
 type MarginCallInstructionType: <"Represents enumeration values to specify the call notification type, direction, specific action type.">
     callType CallTypeEnum (1..1) <"Indicates the status of the call message type, such as expected call, notification of a call or an actionable margin call.">
-	visibilityIndicator boolean (0..1) <"Indicates the choice if the call instruction is visible or not to the other party.">
+    visibilityIndicator boolean (0..1) <"Indicates the choice if the call instruction is visible or not to the other party.">
 
-	condition CallTypeExpectedVisibility: <"Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.">
-        if callType = CallTypeEnum -> ExpectedCall 
+    condition CallTypeExpectedVisibility: <"Represents a condition to ensure that a visibility indicator is specifies then the call type must be an expected call.">
+        if callType = CallTypeEnum -> ExpectedCall
         then visibilityIndicator exists
 
 type MarginCallResponseAction: <"Specifies the margin call action details, including collateral to be moved and its direction.">
-	
-	collateralPositionComponent CollateralPosition (1..*) <"Specifies the collateral to be moved and its direction.">
-    marginCallAction MarginCallActionEnum (1..1) <"Specifies the margin call action details, specified as either Delivery or Return.">   
+
+    collateralPositionComponent CollateralPosition (1..*) <"Specifies the collateral to be moved and its direction.">
+    marginCallAction MarginCallActionEnum (1..1) <"Specifies the margin call action details, specified as either Delivery or Return.">
 
 type MarginCallResponse extends MarginCallBase: <"Represents common attributes required for a Margin Call Response under a legal agreement such as a credit support document or equivalent.">
-	
-	marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
-	marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
-	agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
+
+    marginCallResponseAction MarginCallResponseAction (1..*) <"Specifies the margin call action details, including collateral to be moved and direction.">
+    marginResponseType MarginCallResponseTypeEnum (1..1) <"Indicates the response type, such as, is the margin call response a 'full' 'part' agreement or 'dispute'.">
+    agreedAmountBaseCurrency Money (1..1) <"Indicates the amount that posting entity agrees to remit in response to margin call (in base currency).">
+
+type ClosedState: <" A class to qualify the closed state of an execution or a contract through the combination or a state (e.g. terminated, novated) and a set of dates: activity date, effective date and, when relevant, last payment date.">
+
+    state ClosedStateEnum (1..1) <"The qualification of what gave way to the contract or execution closure, e.g. allocation, termination, ...">
+    activityDate date (1..1) <"The activity date on which the closing state took place, i.e. either the event date of the closing event (e.g. option exercise, contract early termination) or the contractual termination date.">
+    effectiveDate date (0..1) <"The date on which the closing event contractually takes effect, when different from the activity date. When an explicit event effective date attribute is associated with the closing event, it will be that date. In the case of a cancellation event, it will be the date on which the cancelled event took place.">
+    lastPaymentDate date (0..1) <"The date associated with the last payment in relation to the artefact (e.g. contract) to which this closed state applies. As an example, in the case of an early termination event, it would be the settlement date of the associated fee, if applicable.">

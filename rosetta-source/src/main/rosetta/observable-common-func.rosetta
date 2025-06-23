@@ -1,43 +1,45 @@
 namespace cdm.observable.common
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
-
 import cdm.observable.asset.*
 
 func ResolveTimeZoneFromTimeType: <"Defines inputs and outputs needed to derive the time and time-zone for a product identifier">
-	inputs:
-		productIdentifier ProductIdentifier (1..1)
-		timeType TimeTypeEnum (1..1)
-		determinationMethod DeterminationMethodEnum (1..1)
-
-	output:
-		time TimeZone (1..1)
+    [codeImplementation]
+    inputs:
+        assetIdentifier AssetIdentifier (1..1)
+        timeType TimeTypeEnum (1..1)
+        determinationMethod DeterminationMethodEnum (1..1)
+    output:
+        time TimeZone (1..1)
 
 func CashPriceQuantityNoOfUnitsTriangulation: <"Data rule to check the relationship between cash price, notional and number of units.">
-	inputs:
-		quantity NonNegativeQuantitySchedule (0..*)
-		price PriceSchedule (0..*)
-		
-	output:
-		success boolean (1..1)
+    inputs:
+        quantity NonNegativeQuantitySchedule (0..*)
+        price PriceSchedule (0..*)
+    output:
+        success boolean (1..1)
 
-	alias notional:
-		FilterQuantityByCurrencyExists( quantity )
-		    extract value
+    alias notional:
+        FilterQuantityByCurrencyExists(quantity)
+            extract value
             then distinct
-		    then only-element
-
-	alias noOfUnits:
-		FilterQuantityByFinancialUnit( quantity, FinancialUnitEnum -> Share )
-		    extract value
             then only-element
 
-	alias cashPrice:
-		price -> value only-element
+    alias noOfUnits:
+        FilterQuantityByFinancialUnit(quantity, FinancialUnitEnum -> Share)
+            extract value
+            then only-element
 
-	set success:
-		if cashPrice exists and noOfUnits exists and notional exists
-		then cashPrice * noOfUnits = notional
+    alias cashPrice:
+        price
+            filter priceType = PriceTypeEnum -> AssetPrice
+            then extract value
+            then only-element
+
+    set success:
+        if cashPrice exists and noOfUnits exists and notional exists
+        then cashPrice * noOfUnits = notional
+        else True

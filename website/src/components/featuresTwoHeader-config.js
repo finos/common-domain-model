@@ -6,8 +6,9 @@ export const featuresTwoHeader = [
         description: (
             <>
             <br />
-            <span style={{ fontSize: '1.25em' }}>The Common Domain Model is an open standard project hosted under FINOS, the <a href="https://community.finos.org/docs/governance/standards-projects/">Fintech Open Source Foundation</a>, starting in February 2023.
-            The standard is developed through the <a href="https://community.finos.org/docs/governance/#open-standard-projects">Community Specification</a> open governance process, and underlying code assets are released under the <a href="https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md">Community Specification License 1.0</a>.</span>
+            <span style={{ fontSize: '1.25em' }}> The Common Domain Model (CDM) is a standardized, machine-readable, and machine-executable model that represents financial products, trades in those products, and the lifecycle events of those trades.</span>
+
+            <span style={{ fontSize: '1.25em' }}> The standard is developed through the <a href="https://community.finos.org/docs/governance/#open-standard-projects">Community Specification</a> open governance process, and underlying code assets are released under the <a href="https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md">Community Specification License 1.0</a>.</span>
             <hr />
             </>
         ),
@@ -17,7 +18,7 @@ export const featuresTwoHeader = [
         description: (
             <>
             <br />
-            <span style={{ fontSize: '1.25em' }}>The CDM project offers a unique opportunity for members to collaborate and drive industry standards forward in a transparent and inclusive manner.</span>
+            <span style={{ fontSize: '1.25em' }}>Development of the Common Domain Model in the financial industry promotes transparency, efficiency, and innovation, and can bring significant benefits to market participants and regulators.</span>
             </>
         ),
     },

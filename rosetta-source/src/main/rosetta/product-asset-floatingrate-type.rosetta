@@ -2,10 +2,8 @@ namespace cdm.product.asset.floatingrate : <"Product-related, asset class-specif
 version "${project.version}"
 
 import cdm.base.math.*
-
 import cdm.observable.asset.*
 import cdm.observable.asset.calculatedrate.*
-
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 
@@ -16,35 +14,34 @@ import cdm.product.common.schedule.*
 // these types are used to hold detailed results from floating amount calculations
 //
 // ======================================================================
-
 type FloatingAmountCalculationDetails: <"Type for reporting the detailed results of calculating a cash flow for a calculation period.  This is enhanced relative to the FpML-based cashflows structure to allow more information to be returned about daily compounded rates.">
-	calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating calculation was performed.">
-	calculationPeriodNotionalAmount Money (1..1) <"The notional in effect during the calculation period.">
-	floatingRate FloatingRateSettingDetails (0..1) <"The details of the floating rate setting.  (If it is a calculated rate, details of that calculation will be inside that.">
-	processingDetails FloatingRateProcessingDetails (0..1) <"Details fo the floating rate treatment after the rate is observed or calculated.  This will include details of things like multipliers, spreads, caps and floors, and the raw and treated rates.">
-	appliedRate number (1..1) <"The rate that was actually applied, after all calculations and treatments.">
-	yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
-	calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
-	spreadExclusiveCalculatedAMount number (1..1) <"The amount of the cash flow excluding any spread, for subsequent processing.">
+    calculationPeriod CalculationPeriodBase (1..1) <"The calculation period for which the floating calculation was performed.">
+    calculationPeriodNotionalAmount Money (1..1) <"The notional in effect during the calculation period.">
+    floatingRate FloatingRateSettingDetails (0..1) <"The details of the floating rate setting.  (If it is a calculated rate, details of that calculation will be inside that.">
+    processingDetails FloatingRateProcessingDetails (0..1) <"Details fo the floating rate treatment after the rate is observed or calculated.  This will include details of things like multipliers, spreads, caps and floors, and the raw and treated rates.">
+    appliedRate number (1..1) <"The rate that was actually applied, after all calculations and treatments.">
+    yearFraction number (1..1) <"The fraction of a year that this calculation represents, according to the day count fraction method.">
+    calculatedAmount number (1..1) <"The amount of the cash flow that was computed, including any spreads and other processing.">
+    spreadExclusiveCalculatedAMount number (1..1) <"The amount of the cash flow excluding any spread, for subsequent processing.">
 
 type FloatingRateSettingDetails: <"Type for reporting the raw (untreated) observed or calculated rate for a calculation period.  If this is a calculated rate, it allows details of the observations and the resulting rate to be returned.">
-	calculationDetails CalculatedRateDetails (0..1) <"Calculated rate details (observation dates, values, and weights).">
-	observationDate date (0..1) <"The day upon which the rate was observed (for term rates).">
-	resetDate date (0..1) <"The day for which the rate is needed (e.g. period beginning or end date).">
-	floatingRate number (1..1) <"The resulting rate that was observed or calculated.">
+    calculationDetails CalculatedRateDetails (0..1) <"Calculated rate details (observation dates, values, and weights).">
+    observationDate date (0..1) <"The day upon which the rate was observed (for term rates).">
+    resetDate date (0..1) <"The day for which the rate is needed (e.g. period beginning or end date).">
+    floatingRate number (1..1) <"The resulting rate that was observed or calculated.">
 
 type FloatingRateProcessingDetails: <"Type for reporting the details of the rate treatment.  This could potentially be replaced by the existing FloatingRateDefinition type , but this is slightly more detailed.">
-	rawRate number (1..1) <"The raw or untreated rate, prior to any of the rate treatments.">
-	processingParameters FloatingRateProcessingParameters (0..1)
-	processedRate number (1..1) <"The value of the rate after processing.">
-	spreadExclusiveRate number (1..1) <"The value of the processed rate without the spread applied, for subsequent compounding, etc.">
+    rawRate number (1..1) <"The raw or untreated rate, prior to any of the rate treatments.">
+    processingParameters FloatingRateProcessingParameters (0..1)
+    processedRate number (1..1) <"The value of the rate after processing.">
+    spreadExclusiveRate number (1..1) <"The value of the processed rate without the spread applied, for subsequent compounding, etc.">
 
 type FloatingRateProcessingParameters: <"Type to hold the processing parameters that should be or were used to calculate a floating amount.  These parameters can vary over a schedule so this type holds the acutal values applicable to this calculation.">
-	initialRate Price (0..1) <"The rate to be applied for the initial period.">
-	multiplier number (0..1) <"floating rate multiplier.">
-	spread number (0..1) <"spread to be added to the floating rate.">
-	treatment RateTreatmentEnum (0..1) <"US rate treatment (Bond Equivalent Yield or Money Market Yield, if applicable.">
-	capRate number (0..1) <"capt to be applied to the floating rate.">
-	floorRate number (0..1) <"floor to be applied to the floating rate.">
-	rounding Rounding (0..1) <"THe final rate rounding to be applied.">
-	negativeTreatment NegativeInterestRateTreatmentEnum (0..1) <"How to handle negative interest rates.">
+    initialRate Price (0..1) <"The rate to be applied for the initial period.">
+    multiplier number (0..1) <"floating rate multiplier.">
+    spread number (0..1) <"spread to be added to the floating rate.">
+    treatment RateTreatmentEnum (0..1) <"US rate treatment (Bond Equivalent Yield or Money Market Yield, if applicable.">
+    capRate number (0..1) <"capt to be applied to the floating rate.">
+    floorRate number (0..1) <"floor to be applied to the floating rate.">
+    rounding Rounding (0..1) <"THe final rate rounding to be applied.">
+    negativeTreatment NegativeInterestRateTreatmentEnum (0..1) <"How to handle negative interest rates.">

@@ -2,137 +2,167 @@ namespace cdm.base.datetime: <"Basic date and time concepts: relative date, date
 version "${project.version}"
 
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
-	inputs: time BusinessCenterTime (1..1)
-	output: result TimeZone (1..1)
+    [codeImplementation]
+    inputs:
+        time BusinessCenterTime (1..1)
+    output:
+        result TimeZone (1..1)
 
 func ResolveAdjustableDate:
-	inputs: adjustableOrRelativeDate AdjustableOrRelativeDate (1..1)
-	output: adjustedDate date (0..1)
+    [codeImplementation]
+    inputs:
+        adjustableOrRelativeDate AdjustableOrRelativeDate (1..1)
+    output:
+        adjustedDate date (0..1)
 
 func ResolveAdjustableDates:
-	inputs: adjustableRelativeOrPeriodicDates AdjustableRelativeOrPeriodicDates (1..1)
-	output: adjustedDates date (0..*)
+    [codeImplementation]
+    inputs:
+        adjustableRelativeOrPeriodicDates AdjustableRelativeOrPeriodicDates (1..1)
+    output:
+        adjustedDates date (0..*)
 
-func ToDateTime:
-	inputs: date date (1..1)
-	output: datetime zonedDateTime (1..1)
+func ToDateTime: <"Creates a ZonedDateTime from the provided Date, and defaults the time to 00:00:00 and timezone to UTC.">
+    inputs:
+        date date (0..1)
+    output:
+        zonedDateTime zonedDateTime (0..1)
+
+    set zonedDateTime:
+        zonedDateTime {
+            date: date,
+            time: ToTime(0, 0, 0),
+            timezone: "Z" // UTC
+        }
+
+func ToTime: <"Implemented by Java function.">
+    [codeImplementation]
+    inputs:
+        hours int (1..1)
+        minutes int (1..1)
+        seconds int (1..1)
+    output:
+        time time (1..1)
 
 func ConvertToAdjustableOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrRelativeDate">
-	inputs:
-		adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
+    inputs:
+        adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
+    output:
+        adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
 
-	output:
-		adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
+    alias relativeDate: adjustableOrAdjustedOrRelativeDate -> relativeDate
 
-	alias relativeDate:
-		adjustableOrAdjustedOrRelativeDate -> relativeDate
+    set adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
+        adjustableOrAdjustedOrRelativeDate -> adjustedDate
 
-	set adjustableOrRelativeDate -> adjustableDate -> adjustedDate:
-		adjustableOrAdjustedOrRelativeDate -> adjustedDate
+    set adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
+        adjustableOrAdjustedOrRelativeDate -> unadjustedDate
 
-	set adjustableOrRelativeDate -> adjustableDate -> unadjustedDate:
-		adjustableOrAdjustedOrRelativeDate -> unadjustedDate
+    set adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
+        adjustableOrAdjustedOrRelativeDate -> dateAdjustments
 
-	set adjustableOrRelativeDate -> adjustableDate -> dateAdjustments:
-		adjustableOrAdjustedOrRelativeDate -> dateAdjustments
+    set adjustableOrRelativeDate -> relativeDate -> adjustedDate:
+        if relativeDate exists then relativeDate -> adjustedDate
 
-	set adjustableOrRelativeDate -> relativeDate -> adjustedDate:
-		if relativeDate exists then relativeDate -> adjustedDate
+    set adjustableOrRelativeDate -> relativeDate -> businessCenters:
+        if relativeDate exists then relativeDate -> businessCenters
 
-	set adjustableOrRelativeDate -> relativeDate -> businessCenters:
-		if relativeDate exists then relativeDate -> businessCenters
+    set adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
+        if relativeDate exists
+        then relativeDate -> businessDayConvention
 
-	set adjustableOrRelativeDate -> relativeDate -> businessDayConvention:
-		if relativeDate exists then relativeDate -> businessDayConvention
+    set adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
+        if relativeDate exists then relativeDate -> dateRelativeTo
 
-	set adjustableOrRelativeDate -> relativeDate -> dateRelativeTo:
-		if relativeDate exists then relativeDate -> dateRelativeTo
+    set adjustableOrRelativeDate -> relativeDate -> dayType:
+        if relativeDate exists then relativeDate -> dayType
 
-	set adjustableOrRelativeDate -> relativeDate -> dayType:
-		if relativeDate exists then relativeDate -> dayType
+    set adjustableOrRelativeDate -> relativeDate -> period:
+        if relativeDate exists then relativeDate -> period
 
-	set adjustableOrRelativeDate -> relativeDate -> period:
-		if relativeDate exists then relativeDate -> period
-
-	set adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
-		if relativeDate exists then relativeDate -> periodMultiplier
+    set adjustableOrRelativeDate -> relativeDate -> periodMultiplier:
+        if relativeDate exists then relativeDate -> periodMultiplier
 
 func ConvertToAdjustableOrAdjustedOrRelativeDate: <"Utility function to convert from AdjustableOrAdjustedOrRelativeDate to AdjustableOrAdjustedOrRelativeDate">
     inputs:
         adjustableOrRelativeDate AdjustableOrRelativeDate (0..1)
-
     output:
         adjustableOrAdjustedOrRelativeDate AdjustableOrAdjustedOrRelativeDate (0..1)
 
-	alias relativeDate:
-		adjustableOrRelativeDate -> relativeDate
+    alias relativeDate: adjustableOrRelativeDate -> relativeDate
 
-	set adjustableOrAdjustedOrRelativeDate -> adjustedDate:
-		adjustableOrRelativeDate -> adjustableDate -> adjustedDate
+    set adjustableOrAdjustedOrRelativeDate -> adjustedDate:
+        adjustableOrRelativeDate -> adjustableDate -> adjustedDate
 
-	set adjustableOrAdjustedOrRelativeDate -> unadjustedDate:
-		adjustableOrRelativeDate -> adjustableDate -> unadjustedDate
+    set adjustableOrAdjustedOrRelativeDate -> unadjustedDate:
+        adjustableOrRelativeDate -> adjustableDate -> unadjustedDate
 
-	set adjustableOrAdjustedOrRelativeDate -> dateAdjustments:
-		adjustableOrRelativeDate -> adjustableDate -> dateAdjustments
+    set adjustableOrAdjustedOrRelativeDate -> dateAdjustments:
+        adjustableOrRelativeDate -> adjustableDate -> dateAdjustments
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
-		if relativeDate exists then relativeDate -> adjustedDate
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> adjustedDate:
+        if relativeDate exists then relativeDate -> adjustedDate
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
-		if relativeDate exists then relativeDate -> businessCenters
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessCenters:
+        if relativeDate exists then relativeDate -> businessCenters
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
-		if relativeDate exists then relativeDate -> businessDayConvention
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> businessDayConvention:
+        if relativeDate exists
+        then relativeDate -> businessDayConvention
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
-		if relativeDate exists then relativeDate -> dateRelativeTo
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dateRelativeTo:
+        if relativeDate exists then relativeDate -> dateRelativeTo
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
-		if relativeDate exists then relativeDate -> dayType
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> dayType:
+        if relativeDate exists then relativeDate -> dayType
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
-		if relativeDate exists then relativeDate -> period
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> period:
+        if relativeDate exists then relativeDate -> period
 
-	set adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
-		if relativeDate exists then relativeDate -> periodMultiplier
+    set adjustableOrAdjustedOrRelativeDate -> relativeDate -> periodMultiplier:
+        if relativeDate exists then relativeDate -> periodMultiplier
 
 func Now: <"Current date time.">
-	output: now zonedDateTime (1..1)
+    [codeImplementation]
+    output:
+        now zonedDateTime (1..1)
 
 func Today: <"Current date.">
-	output: today date (1..1)
+    [codeImplementation]
+    output:
+        today date (1..1)
 
 func GetAllBusinessCenters: <"Returns a merged list of BusinessCenterEnums for the supplied BusinessCenters.">
-	inputs:
-		businessCenters BusinessCenters (1..1)
-	output:
-		businessCenterEnums BusinessCenterEnum (0..*)
+    inputs:
+        businessCenters BusinessCenters (1..1)
+    output:
+        businessCenterEnums BusinessCenterEnum (0..*)
 
     add businessCenterEnums: <"Get list of BusinessCenterEnum.">
         businessCenters -> businessCenter
 
     add businessCenterEnums: <"Get list of BusinessCenterEnum from referenced BusinessCenters.">
-        if businessCenters -> businessCentersReference exists then
-            GetAllBusinessCenters( businessCenters -> businessCentersReference )
+        if businessCenters -> businessCentersReference exists
+        then GetAllBusinessCenters(businessCenters -> businessCentersReference)
 
     set businessCenterEnums: <"Remove any duplicates from the list.">
         businessCenterEnums distinct
 
 func BusinessCenterHolidaysMultiple: <"Returns a merged list of holidays for the supplied business centers.">
-	inputs:
-		businessCenters BusinessCenterEnum (0..*) <"The business centers for which the holiday list is required.">
-	output:
-		holidayDates date (0..*) <"The combined list of holidays in all of the supplied business centers.">
+    inputs:
+        businessCenters BusinessCenterEnum (0..*) <"The business centers for which the holiday list is required.">
+    output:
+        holidayDates date (0..*) <"The combined list of holidays in all of the supplied business centers.">
 
     add holidayDates:
         businessCenters
-            extract BusinessCenterHolidays( item )
+            extract BusinessCenterHolidays(item)
             then flatten
             then distinct
             then sort
 
 func BusinessCenterHolidays:
+    [codeImplementation]
     // data provider - implementation provides dates from data source
     inputs:
         businessCenter BusinessCenterEnum (1..1)
@@ -140,117 +170,179 @@ func BusinessCenterHolidays:
         holidayDates date (0..*)
 
 func DayOfWeek: <"Returns the day of week corresponding to the supplied date.">
-	inputs:
-		date date (1..1) <"The date for which the weekday is needed.">
-	output:
-		dayOfWeek DayOfWeekEnum (1..1) <"The day of the week as an enumerated value.">
+    [codeImplementation]
+    inputs:
+        date date (1..1) <"The date for which the weekday is needed.">
+    output:
+        dayOfWeek DayOfWeekEnum (1..1) <"The day of the week as an enumerated value.">
 
 func AddDays: <"Adds the specified number of calendar days to the supplied date.  A negative number will generate a date before the supplied date.">
-	inputs:
-		inputDate date (1..1) <"The base date for the calculation.">
-		numDays int (1..1) <"The number of days to add.">
-	output:
-		resultDate date (1..1) <"The date shifted by the specified number of days.">
+    [codeImplementation]
+    inputs:
+        inputDate date (1..1) <"The base date for the calculation.">
+        numDays int (1..1) <"The number of days to add.">
+    output:
+        resultDate date (1..1) <"The date shifted by the specified number of days.">
 
 func DateDifference: <"Subtracts the two supplied dates to return the number of calendar days between them.  A negative number implies first is after second.">
-	inputs:
-		firstDate date (1..1) <"The earlier date.">
-		secondDate date (1..1) <"The later date.">
-	output:
-		difference int (1..1) <"The number of calendar days second date is after firstDate. Negative means secondDate is before firstDate.">
+    [codeImplementation]
+    inputs:
+        firstDate date (1..1) <"The earlier date.">
+        secondDate date (1..1) <"The later date.">
+    output:
+        difference int (1..1) <"The number of calendar days second date is after firstDate. Negative means secondDate is before firstDate.">
 
 func LeapYearDateDifference: <"Subtracts the two supplied dates to return the number of leap year calendar days between them. A negative number implies firstDate is after secondDate.">
-	inputs:
-		firstDate date (1..1) <"The left side of the subtraction.">
-		secondDate date (1..1) <"The right side of the subtraction.">
-	output:
-		difference int (1..1) <"The number of leap year calendar days secondDate is after firstDate. Negative means secondDate is before firstDate.">
+    [codeImplementation]
+    inputs:
+        firstDate date (1..1) <"The left side of the subtraction.">
+        secondDate date (1..1) <"The right side of the subtraction.">
+    output:
+        difference int (1..1) <"The number of leap year calendar days secondDate is after firstDate. Negative means secondDate is before firstDate.">
+
+func DateDifferenceYears: <"Computes the difference in years between two dates. A negative number implies firstDate is after secondDate.">
+    inputs:
+        firstDate date (1..1) <"The earlier date.">
+        secondDate date (1..1) <"The later date.">
+    output:
+        difference number (1..1)
+
+    alias totalDays: DateDifference(firstDate, secondDate)
+
+    alias leapYearDays: LeapYearDateDifference(firstDate, secondDate)
+
+    alias nonLeapYearDays: totalDays - leapYearDays
+
+    set difference: (nonLeapYearDays / 365.0) + (leapYearDays / 366.0)
 
 func AppendDateToList: <"Add a date to a list of dates.">
-	inputs:
-		origDates date (0..*) <"List of dates.">
-		newDate date (1..1) <"Date to add to the list.">
-	output:
-		newList date (0..*) <"The newly increased list.">
+    inputs:
+        origDates date (0..*) <"List of dates.">
+        newDate date (1..1) <"Date to add to the list.">
+    output:
+        newList date (0..*) <"The newly increased list.">
 
-	set newList: origDates
-	add newList: newDate
+    set newList: origDates
+    add newList: newDate
 
 func PopOffDateList: <"Remove last element from a list of dates.">
-	inputs:
-		dates date (0..*) <"List of dates.">
-	output:
-		newList date (0..*) <"The newly created list, omitting the last element of the original list.">
+    [codeImplementation]
+    inputs:
+        dates date (0..*) <"List of dates.">
+    output:
+        newList date (0..*) <"The newly created list, omitting the last element of the original list.">
 
 func IsWeekend: <"returns whether the supplied date is a weekend. This assumes a 5 day week with Saturday and Sunday as holidays. A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.">
-	inputs:
-		date date (1..1) <"The date for which the weekday is needed">
-		businessCenters BusinessCenterEnum (0..*) <"Not needed for the current implementation so ignored, but kept for future extensibility">
-	output:
-		isWeekend boolean (1..1)
+    inputs:
+        date date (1..1) <"The date for which the weekday is needed">
+        businessCenters BusinessCenterEnum (0..*) <"Not needed for the current implementation so ignored, but kept for future extensibility">
+    output:
+        isWeekend boolean (1..1)
 
-	alias dayOfWeek: DayOfWeek(date) // determine the day of the week
-	// output whether the date is on a weekend by comparing against SAT or SUN
-	set isWeekend: dayOfWeek = DayOfWeekEnum -> SAT or dayOfWeek = DayOfWeekEnum -> SUN
+    alias dayOfWeek: DayOfWeek(date) // determine the day of the week
+    // output whether the date is on a weekend by comparing against SAT or SUN
+    set isWeekend: dayOfWeek = DayOfWeekEnum -> SAT or dayOfWeek = DayOfWeekEnum -> SUN
 
 func IsHoliday: <"Returns whether a day is a holiday for the specified business centers">
-	inputs:
-		checkDate date (1..1) <"The date being tested">
-		businessCenters BusinessCenterEnum (0..*) <"The business centers for which the test is required">
-	output:
-		isHoliday boolean (1..1) <"true if the supplied date is a holiday">
+    inputs:
+        checkDate date (1..1) <"The date being tested">
+        businessCenters BusinessCenterEnum (0..*) <"The business centers for which the test is required">
+    output:
+        isHoliday boolean (1..1) <"true if the supplied date is a holiday">
 
-	// get the combined list of holidays for the supplied business centers
-	alias holidays: BusinessCenterHolidaysMultiple( businessCenters )
-	
-	// check if the supplied date is contained in the holiday list
-	set isHoliday: holidays contains checkDate
+    // get the combined list of holidays for the supplied business centers
+    alias holidays: BusinessCenterHolidaysMultiple(businessCenters)
+
+    // check if the supplied date is contained in the holiday list
+    set isHoliday: holidays contains checkDate
 
 func IsBusinessDay: <"returns an indicator of whether the supplied date is a good business date given the supplied business centers. True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday">
-	inputs:
-		date date (1..1) <"The date for which we want to determine whether it's a good business day">
-		businessCenters BusinessCenterEnum (0..*) <"The list of business centers to use">
-	output:
-		isGoodBusinessDay boolean (1..1) <"True if a good business day, false if a weekend or holiday">
+    inputs:
+        date date (1..1) <"The date for which we want to determine whether it's a good business day">
+        businessCenters BusinessCenterEnum (0..*) <"The list of business centers to use">
+    output:
+        isGoodBusinessDay boolean (1..1) <"True if a good business day, false if a weekend or holiday">
 
-	// determine if a weekend or holiday
-	alias weekend: IsWeekend(date, businessCenters)
-	alias holiday: IsHoliday(date, businessCenters)
-	// return whether it's a good business day
-	set isGoodBusinessDay: if weekend then False else if holiday then False else True
+    // determine if a weekend or holiday
+    alias weekend: IsWeekend(date, businessCenters)
+    alias holiday: IsHoliday(date, businessCenters)
+    // return whether it's a good business day
+    set isGoodBusinessDay:
+        if weekend then False else if holiday then False else True
 
 func AddBusinessDays: <"Returns a good business date that has been offset by the given number of business days given the supplied business centers. A negative value implies an earlier date (before the supplied originalDate), and a positive value a later date (after the supplied date).">
-	inputs:
-		originalDate date (1..1) <"date to be shifted. If not a good business day, a supplied shift of 0 will shift it to the next business day">
-		offsetBusinessDays int (1..1) <"number of business days to shift the original date">
-		businessCenters BusinessCenterEnum (0..*) <"business centers to use in the shifting">
-	output:
-		shiftedDate date (1..1)
+    inputs:
+        originalDate date (1..1) <"date to be shifted. If not a good business day, a supplied shift of 0 will shift it to the next business day">
+        offsetBusinessDays int (1..1) <"number of business days to shift the original date">
+        businessCenters BusinessCenterEnum (0..*) <"business centers to use in the shifting">
+    output:
+        shiftedDate date (1..1)
 
-	alias isGoodBusinessDay: IsBusinessDay(originalDate, businessCenters) // check if a good business day
-	alias shift: if offsetBusinessDays < 0 then -1 else 1 // determine the direction of shifting, earlier or later
-	// calculate the new offset: if we're at a good business day, reduce by one, else keep it
-	alias shiftedByOne: AddDays(originalDate, shift) // add/subtract one calendar day
-	alias isShiftedGood: IsBusinessDay(shiftedByOne, businessCenters)
-	alias newShift: if isShiftedGood then shift else 0
-	alias newOffset: if offsetBusinessDays = 0 then 0 else offsetBusinessDays - newShift
-	alias done: offsetBusinessDays = 0 and isGoodBusinessDay = True // we're done if the offsetBusinessDays is 0 and it's a good business day
-	// calculate the shifted date: if we're done, return the supplied date, else recursively try after having shifted by one day (recursion because iteration isn't supported by the Rosetta DSL)
-	alias newDate: if done then originalDate else AddBusinessDays(shiftedByOne, newOffset, businessCenters)
-	set shiftedDate: newDate
+    alias isGoodBusinessDay: IsBusinessDay(originalDate, businessCenters) // check if a good business day
+    alias shift: if offsetBusinessDays < 0 then -1 else 1 // determine the direction of shifting, earlier or later
+    // calculate the new offset: if we're at a good business day, reduce by one, else keep it
+    alias shiftedByOne: AddDays(originalDate, shift) // add/subtract one calendar day
+    alias isShiftedGood: IsBusinessDay(shiftedByOne, businessCenters)
+    alias newShift: if isShiftedGood then shift else 0
+    alias newOffset:
+        if offsetBusinessDays = 0
+        then 0
+        else offsetBusinessDays - newShift
+    alias done: offsetBusinessDays = 0 and isGoodBusinessDay = True // we're done if the offsetBusinessDays is 0 and it's a good business day
+    // calculate the shifted date: if we're done, return the supplied date, else recursively try after having shifted by one day (recursion because iteration isn't supported by the Rosetta DSL)
+    alias newDate:
+        if done
+        then originalDate
+        else AddBusinessDays(shiftedByOne, newOffset, businessCenters)
+    set shiftedDate: newDate
 
 func GenerateDateList: <"Creates a list of good business days starting from the startDate and going to the end date, inclusive, omitting any days that are weekends or holidays according to the supplied business centers.">
     inputs:
-		startDate date (1..1) <"Start of the date range to be generated.">
-		endDate date (1..1) <"End of the date range to be generated">
-		businessCenters BusinessCenterEnum (0..*) <"Business centers to be used to generate the list of good business days">
-	output:
-		dateList date (0..*) <"Resulting list of good business days.">
+        startDate date (1..1) <"Start of the date range to be generated.">
+        endDate date (1..1) <"End of the date range to be generated">
+        businessCenters BusinessCenterEnum (0..*) <"Business centers to be used to generate the list of good business days">
+    output:
+        dateList date (0..*) <"Resulting list of good business days.">
 
-	alias active: startDate <= endDate // do we have anything to do? Nothing to do if start date is after end date
-	alias isGoodBusinessDay: IsBusinessDay(endDate, businessCenters) // is endDate a good business day?
-	alias priorDate: AddBusinessDays (endDate, -1, businessCenters) // find the previous good business day before the endDate
-	alias priorList: GenerateDateList (startDate, priorDate, businessCenters) // recursively find the list of dates from the start to the prior business day
-	// add the current end date to the previous list if it is a good business day (the test handles the case when the first supplied end date is not a business day)
-	alias newList: if isGoodBusinessDay then AppendDateToList(priorList, endDate) else priorList
-	add dateList: if active then newList
+    alias active: startDate <= endDate // do we have anything to do? Nothing to do if start date is after end date
+    alias isGoodBusinessDay: IsBusinessDay(endDate, businessCenters) // is endDate a good business day?
+    alias priorDate: AddBusinessDays(endDate, -1, businessCenters) // find the previous good business day before the endDate
+    alias priorList: GenerateDateList(startDate, priorDate, businessCenters) // recursively find the list of dates from the start to the prior business day
+    // add the current end date to the previous list if it is a good business day (the test handles the case when the first supplied end date is not a business day)
+    alias newList:
+        if isGoodBusinessDay
+        then AppendDateToList(priorList, endDate)
+        else priorList
+    add dateList: if active then newList
+
+func AdjustableOrAdjustedOrRelativeDateResolution: <"Prioritization of unadjustedDate over adjustedDate.">
+    inputs:
+        adjustableDate AdjustableOrAdjustedOrRelativeDate (1..1)
+    output:
+        date date (0..1)
+    set date:
+        if adjustableDate -> unadjustedDate exists
+        then adjustableDate -> unadjustedDate
+        else adjustableDate -> adjustedDate
+
+func AdjustableDateResolution: <"Prioritization of unadjustedDate over adjustedDate.">
+    inputs:
+        adjustableDate AdjustableDate (1..1)
+    output:
+        date date (0..1)
+
+    set date:
+        if adjustableDate -> unadjustedDate exists
+        then adjustableDate -> unadjustedDate
+        else adjustableDate -> adjustedDate
+
+func AdjustableDatesResolution: <"Prioritization of unadjustedDate over adjustedDate.">
+    inputs:
+        adjustableDates AdjustableDates (1..1)
+    output:
+        date date (0..*)
+
+    add date:
+        if adjustableDates -> unadjustedDate exists
+        then adjustableDates -> unadjustedDate
+        else adjustableDates -> adjustedDate

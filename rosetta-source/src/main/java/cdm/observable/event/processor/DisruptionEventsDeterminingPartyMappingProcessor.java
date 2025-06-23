@@ -2,7 +2,7 @@ package cdm.observable.event.processor;
 
 import cdm.base.staticdata.party.AncillaryRoleEnum;
 import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
-import cdm.observable.event.AdditionalDisruptionEvents;
+import cdm.legaldocumentation.transaction.AdditionalDisruptionEvents;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;

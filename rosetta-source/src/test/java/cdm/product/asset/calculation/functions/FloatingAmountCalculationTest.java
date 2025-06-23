@@ -3,8 +3,8 @@ package cdm.product.asset.calculation.functions;
 import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
-import cdm.observable.asset.FloatingRateOption;
-import cdm.observable.asset.fro.functions.IndexValueObservation;
+import cdm.observable.asset.InterestRateIndex;
+import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
 import cdm.product.asset.RateSpecification;
 import cdm.product.asset.floatingrate.FloatingAmountCalculationDetails;
@@ -14,7 +14,7 @@ import cdm.product.common.schedule.CalculationPeriodDates;
 import cdm.product.common.schedule.ResetDates;
 import cdm.product.common.schedule.functions.CalculationPeriod;
 import com.google.inject.Binder;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
         assertEquals(expectedAmount, result.getCalculatedAmount().doubleValue(), 0.00001);
     }
 
-    private InterestRatePayout initInterestPayout(FloatingRateOption fro, DayCountFractionEnum dcf) {
+    private InterestRatePayout initInterestPayout(InterestRateIndex fro, DayCountFractionEnum dcf) {
         ResetDates resetDates = initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
@@ -82,7 +82,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                 .setResetDates(resetDates)
                 .setPriceQuantity(GetNotionalAmountTest.initNotionalSchedule())
                 .setRateSpecification(RateSpecification.builder()
-                        .setFloatingRate(initFloatingRate(fro)).build())
+                        .setFloatingRateSpecification(initFloatingRate(fro)).build())
                 .setDayCountFractionValue(DayCountFractionEnum.ACT_360)
                 .build();
     }

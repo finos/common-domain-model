@@ -2,35 +2,21 @@ namespace cdm.product.common.settlement : <"Common product settlement concepts: 
 version "${project.version}"
 
 import cdm.base.math.*
-
 import cdm.observable.asset.*
 
 func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
-	inputs:
-		priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
-		amount number (1..1) <"The new amount.">
-	output:
-		updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+    [codeImplementation]
+    inputs:
+        priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+        amount number (1..1) <"The new amount.">
+    output:
+        updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
 
 func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
-	inputs:
-		priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
-		change PriceQuantity (1..*)
-		direction QuantityChangeDirectionEnum (1..1)
-	output:
-		updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
-
-	condition DirectionNotIncrease: direction <> QuantityChangeDirectionEnum -> Increase
-
-func RateOptionObservableCondition: <"Implementation for PriceQuantity.RateOptionObservable condition.">
+    [codeImplementation]
     inputs:
-        pq PriceQuantity (1..1)
+        priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
+        change PriceQuantity (1..*)
+        direction QuantityChangeDirectionEnum (1..1)
     output:
-        valid boolean (0..1)
-
-    set valid:
-        if pq -> observable -> rateOption exists and pq -> price exists
-        then
-            pq -> price
-            extract [ priceType = PriceTypeEnum -> InterestRate and arithmeticOperator exists ]
-            all = True
+        updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">

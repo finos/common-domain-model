@@ -2,14 +2,14 @@ namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, c
 version "${project.version}"
 
 func CompareNumbers:
-	inputs:
+    inputs:
         n1 number (1..1)
         op CompareOp (1..1)
         n2 number (1..1)
-	output:
+    output:
         result boolean (1..1)
 
-	set result:
+    set result:
         if op = CompareOp -> GreaterThan
         then n1 > n2 = True
         else if op = CompareOp -> GreaterThanOrEquals
@@ -23,50 +23,63 @@ func CompareNumbers:
         else False
 
 func Abs: <"Returns the absolute value of a number. If the argument is not negative, the argument is returned. If the argument is negative, the negation of the argument is returned.">
-	inputs:
-	    arg number (1..1)
-	output:
-	    result number (1..1)
-	set result:
-	    if arg < 0 then -1 * arg else arg
+    inputs:
+        arg number (1..1)
+    output:
+        result number (1..1)
+    set result: if arg < 0 then -1 * arg else arg
 
 func Max: <"Returns the greater number of two supplied numbers.">
-	inputs:
-		a number (1..1)
-		b number (1..1)
-	output:
-		result number (1..1)
-	set result:
-		if a > b then a else b
+    inputs:
+        a number (1..1)
+        b number (1..1)
+    output:
+        result number (1..1)
+    set result: if a > b then a else b
 
 func Min: <"Returns the lesser number of two supplied numbers.">
-	inputs:
-		a number (1..1)
-		b number (1..1)
-	output:
-		result number (1..1)
-	set result:
-		if a > b then b else a
+    inputs:
+        a number (1..1)
+        b number (1..1)
+    output:
+        result number (1..1)
+    set result: if a > b then b else a
 
-func RoundToNearest:
-	inputs:
-		value number (1..1)
-		nearest number (1..1)
-		roundingMode RoundingModeEnum (1..1)
-	output:
-		roundedValue number (1..1)
-	condition PositiveNearest:
-		nearest > 0
+func RoundToNearest: <"Round a number to the supplied nearest, using the supplied rounding mode.">
+    [codeImplementation]
+    inputs:
+        value number (1..1) <"The original (unrounded) number.">
+        nearest number (1..1) <"The nearest number to round to.">
+        roundingMode RoundingModeEnum (1..1) <"The method of rounding (up to nearest/down to nearest).">
+    output:
+        roundedValue number (1..1)
+    condition PositiveNearest:
+        nearest > 0
 
-func RoundToPrecision: <"Round a rate to the supplied precision, using the supplied rounding direction">
-	inputs:
-		value number (1..1) <"The original (unrounded) number.">
-		precision int (1..1) <"The number of decimal digits of precision.">
-		roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
-	output:
-		roundedValue number (1..1) <"The value to the desired precision">
-	condition NonNegativePrecision:
-		precision >= 0
+func RoundToPrecision: <"Round a number to the supplied precision, using the supplied rounding direction.">
+    [codeImplementation]
+    inputs:
+        value number (1..1) <"The original (unrounded) number.">
+        precision int (1..1) <"The number of decimal digits of precision.">
+        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
+        removeTrailingZeros boolean (1..1) <"Flag to specify whether to strip trailing zeros.">
+    output:
+        roundedValue number (1..1) <"The value to the desired precision">
+
+    condition NonNegativePrecision: <"The number of decimal digits of precision should be greater than or equal to zero.">
+        precision >= 0
+
+func RoundToSignificantFigures: <"Round a number to the supplied significant figures, using the supplied rounding direction.">
+    [codeImplementation]
+    inputs:
+        value number (1..1) <"The original (unrounded) number.">
+        significantFigures int (1..1) <"The number of significant figures.">
+        roundingMode RoundingDirectionEnum (1..1) <"The method of rounding (up/down/nearest).">
+    output:
+        roundedValue number (1..1) <"The value to the desired number of significant figures.">
+
+    condition NonZeroSignificantFigures: <"The number of significant figures should be greater than zero.">
+        significantFigures > 0
 
 func CompareQuantityByUnitOfAmount:
     inputs:
@@ -78,12 +91,12 @@ func CompareQuantityByUnitOfAmount:
         result boolean (1..1)
 
     set result:
-        FilterQuantity( quantity1, unitOfAmount )
+        FilterQuantity(quantity1, unitOfAmount)
             extract q1 [
-                FilterQuantity( quantity2, unitOfAmount )
-                    extract q2 [ CompareNumbers( q1 -> value, op, q2 -> value ) ]
-            ] then flatten
-            all = True
+                FilterQuantity(quantity2, unitOfAmount)
+                    extract q2 [ CompareNumbers(q1 -> value, op, q2 -> value) ]
+            ]
+            then flatten all = True
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
@@ -92,9 +105,7 @@ func FilterQuantity: <"Filter list of quantities based on unit type.">
     output:
         filteredQuantities Quantity (0..*)
 
-    add filteredQuantities:
-        quantities
-            filter item -> unit = unit
+    add filteredQuantities: quantities filter item -> unit = unit
 
 func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     inputs:
@@ -103,9 +114,7 @@ func FilterQuantityByCurrency: <"Filter list of quantities based on unit type.">
     output:
         filteredQuantities QuantitySchedule (0..*)
 
-    add filteredQuantities:
-        quantities
-            filter item -> unit -> currency = currency
+    add filteredQuantities: quantities filter item -> unit -> currency = currency
 
 func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit type.">
     inputs:
@@ -113,9 +122,7 @@ func FilterQuantityByCurrencyExists: <"Filter list of quantities based on unit t
     output:
         filteredQuantities QuantitySchedule (0..*)
 
-    add filteredQuantities:
-        quantities
-            filter item -> unit -> currency exists
+    add filteredQuantities: quantities filter item -> unit -> currency exists
 
 func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit type.">
     inputs:
@@ -124,14 +131,12 @@ func FilterQuantityByFinancialUnit: <"Filter list of quantities based on unit ty
     output:
         filteredQuantities QuantitySchedule (0..*)
 
-    add filteredQuantities:
-        quantities
-            filter item -> unit -> financialUnit = financialUnit
+    add filteredQuantities: quantities filter item -> unit -> financialUnit = financialUnit
 
 func AppendToVector: <"Append a single value to a vector (list of numbers).">
     inputs:
-    	vector number (0..*) <"Input vector.">
-    	value number (1..1) <"Value to add to the vector.">
+        vector number (0..*) <"Input vector.">
+        value number (1..1) <"Value to add to the vector.">
     output:
         resultVector number (0..*) <"Resulting vector.">
 
@@ -139,55 +144,52 @@ func AppendToVector: <"Append a single value to a vector (list of numbers).">
     add resultVector: value
 
 func VectorOperation: <"Generates a result vector by applying the supplied arithmetic operation to each element of the supplied left and right vectors in turn.  i.e. result[n] = left[n] <op> right[n], where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
+    [codeImplementation]
     inputs:
-		arithmeticOp ArithmeticOperationEnum (1..1) <"Vector operator.">
-		left number (0..*) <"Left vector.">
-		right number (0..*) <"Right vector.">
-	output:
-	    result number (0..*) <"Result vector.">
+        arithmeticOp ArithmeticOperationEnum (1..1) <"Vector operator.">
+        left number (0..*) <"Left vector.">
+        right number (0..*) <"Right vector.">
+    output:
+        result number (0..*) <"Result vector.">
 
 func VectorScalarOperation: <"Generates a result vector by applying the supplied arithmetic operation and scalar right value to each element of the supplied left vector in turn. i.e. result[n] = left[n] <op> right, where <op> is the arithmetic operation defined by ArithmeticOperationEnum.">
-	inputs:
-		arithmeticOp ArithmeticOperationEnum (1..1) <"Arithmetic operator to be applied.">
-		left number (0..*) <"Left vector.">
-		right number (0..1) <"Scalar number - a single value to be applied to all elements of vector.">
-	output:
-	    result number (0..*) <"Result vector.">
+    inputs:
+        arithmeticOp ArithmeticOperationEnum (1..1) <"Arithmetic operator to be applied.">
+        left number (0..*) <"Left vector.">
+        right number (0..1) <"Scalar number - a single value to be applied to all elements of vector.">
+    output:
+        result number (0..*) <"Result vector.">
 
-    alias rightOrDefault:
-        if right exists then
-            right
-        else 0.0
+    alias rightOrDefault: if right exists then right else 0.0
 
-	add result:
-        left
-            extract ArithmeticOperation(item, arithmeticOp, rightOrDefault)
+    add result: left extract ArithmeticOperation(item, arithmeticOp, rightOrDefault)
 
 func VectorGrowthOperation: <"Generates a result vector by starting with the supplied base value (typically 1), and then multiplying it in turn by each growth factor, which is typically a number just above 1. For instance, a growth factor of 1.1 reprsents a 10% increase, and 0.9 a 10% decrease. The results will show the successive results of applying the successive growth factors, with the first value of the list being the supplied baseValue, and final value of the results list being the product of all of the supplied values.  i.e. result[1] = baseValue * factor[1], result[n] = result[n-1] * factor[n]. The resulting list will have the one more element than the supplied list of factors.">
+    [codeImplementation]
     inputs:
-		baseValue number (1..1) <"Original value, typically 1.0.">
-		factor number (0..*) <"Vector of growth factors, which are all typically slightly greater than 1.0.">
+        baseValue number (1..1) <"Original value, typically 1.0.">
+        factor number (0..*) <"Vector of growth factors, which are all typically slightly greater than 1.0.">
     output:
         result number (0..*) <"Result vector, showing all of the interim growth values">
 
 func ArithmeticOperation:
-	inputs:
+    inputs:
         n1 number (1..1)
         op ArithmeticOperationEnum (1..1)
         n2 number (1..1)
-	output:
+    output:
         result number (1..1)
 
-	set result:
-        if op = ArithmeticOperationEnum -> Add then
-            n1 + n2
-        else if op = ArithmeticOperationEnum -> Subtract then
-            n1 - n2
-        else if op = ArithmeticOperationEnum -> Multiply then
-            n1 * n2
-        else if op = ArithmeticOperationEnum -> Divide then
-            n1 / n2
-        else if op = ArithmeticOperationEnum -> Max then
-            Max( n1, n2 )
-        else if op = ArithmeticOperationEnum -> Min then
-            Min( n1, n2 )
+    set result:
+        if op = ArithmeticOperationEnum -> Add
+        then n1 + n2
+        else if op = ArithmeticOperationEnum -> Subtract
+        then n1 - n2
+        else if op = ArithmeticOperationEnum -> Multiply
+        then n1 * n2
+        else if op = ArithmeticOperationEnum -> Divide
+        then n1 / n2
+        else if op = ArithmeticOperationEnum -> Max
+        then Max(n1, n2)
+        else if op = ArithmeticOperationEnum -> Min
+        then Min(n1, n2)

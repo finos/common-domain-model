@@ -1,19 +1,18 @@
 namespace cdm.mapping.ore
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
-import cdm.base.staticdata.party.*
+import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
-
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
-
 import cdm.observable.asset.*
-
 import cdm.product.asset.*
-import cdm.product.template.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
+import cdm.product.template.*
+import cdm.product.collateral.*
+import cdm.legaldocumentation.csa.*
 
 synonym source ORE
 
@@ -27,105 +26,118 @@ synonym source ORE_1_0_39 extends ORE
         + tradeIdentifier
         + party
             [value "Envelope" path "Trade"]
-        + tradableProduct
+        + product
+            [value "SwapData" path "Trade"]
+        + tradeLot
+            [value "Trade"]
+        + counterparty
             [value "Trade" mapper "ORECounterparty"]
         + party
             [value "Envelope" path "Trade"]
 
-	TradeLot:
-		+ priceQuantity
-			[value "LegData" path "SwapData"]
+    TradeLot:
+        + priceQuantity
+            [value "LegData" path "SwapData"]
 
-	Counterparty:
-		+ partyReference
-			[value "Envelope"]
-		+ role
-			[set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> tradableProduct -> counterparty]
+    Counterparty:
+        + partyReference
+            [value "Envelope"]
+        + role
+            [set to CounterpartyRoleEnum -> Party2 when rosettaPath = TradeState -> trade -> counterparty]
 
-	 PriceSchedule:
+    PriceSchedule:
         + value
             [value "Rate"]
             [value "Spread"]
         + priceType
- 			[set to PriceTypeEnum->InterestRate when path = "Rates"]
- 			[set to PriceTypeEnum->InterestRate when path = "Spreads"]
- 		+ arithmeticOperator
- 			[set to ArithmeticOperationEnum->Add when path = "Spreads"]
-	
-	PriceQuantity:
+            [set to PriceTypeEnum -> InterestRate when path = "Rates"]
+            [set to PriceTypeEnum -> InterestRate when path = "Spreads"]
+        + arithmeticOperator
+            [set to ArithmeticOperationEnum -> Add when path = "Spreads"]
+
+    PriceQuantity:
         + price
             [value "Rates" path "FixedLegData" mapper "OrePrice"]
             [value "Spreads" path "FloatingLegData" mapper "OrePrice"]
-		+ observable
+        + observable
             [value "FloatingLegData"]
         + quantity
             [value "Notionals" mapper "OreQuantity"]
 
-	
-	PartyIdentifier:
-		+ identifier
-			[value "CounterParty" maps 2]
-			[value "party_id" path "AdditionalFields"]
+    PartyIdentifier:
+        + identifier
+            [value "CounterParty" maps 2]
+            [value "party_id" path "AdditionalFields"]
 
-	QuantitySchedule:
-		+ value
-			[value "Notional"]
-		+ multiplier
-		    [value "ignore"]
-		+ datedValue
-			[value "step"]
+    QuantitySchedule:
+        + value
+            [value "Notional"]
+        + multiplier
+            [value "ignore"]
+        + datedValue
+            [value "step"]
 
-	Product:
-		+ contractualProduct
-			[value "SwapData"]
+    Payout:
+        + InterestRatePayout
+            [value "LegData"]
+            [value "LegData"]
+        + CreditDefaultPayout
+            [value "ignore"]
+        + OptionPayout
+            [value "ignore"]
+        + CommodityPayout
+            [value "ignore"]
+        + SettlementPayout
+            [value "ignore"]
+        + FixedPricePayout
+            [value "ignore"]
+        + PerformancePayout
+            [value "ignore"]
+        + AssetPayout
+            [value "ignore"]
 
-	Payout:
-		+ interestRatePayout
-			[value "LegData"]
-			[value "LegData"]
-
-	InterestRatePayout:
-	    + priceQuantity
-	        [value "Notionals"]
-		+ calculationPeriodDates
-			[value "Rules" path "ScheduleData"]
-		+ paymentDates
-			[value "Rules" path "ScheduleData"]
+    InterestRatePayout:
+        + priceQuantity
+            [value "Notionals"]
+        + calculationPeriodDates
+            [value "Rules" path "ScheduleData"]
+        + paymentDates
+            [value "Rules" path "ScheduleData"]
         + principalPayment
             [value "ignore"]
-		+ cashflowRepresentation
-		    [value "ignore"]
-		+ stubPeriod
-		    [value "ignore"]
+        + cashflowRepresentation
+            [value "ignore"]
+        + stubPeriod
+            [value "ignore"]
 
-	Frequency:
-		+ periodMultiplier
-			[value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
-		+ period
-			[value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
+    Frequency:
+        + periodMultiplier
+            [value "Tenor" maps 2 pattern "([0-9]*).*" "$1"]
+        + period
+            [value "Tenor" maps 2 pattern "[0-9]*(.*)" "$1"]
 
-	CalculationPeriodDates:
-		+ effectiveDate
-			[hint "StartDate"]
+    CalculationPeriodDates:
+        + effectiveDate
+            [hint "StartDate"]
 
-	AdjustableOrRelativeDate:
-		+ adjustableDate
+    AdjustableOrRelativeDate:
+        + adjustableDate
 
-	AdjustableDate:
-		+ unadjustedDate
-			[value "StartDate"]
+    AdjustableDate:
+        + unadjustedDate
+            [value "StartDate"]
 
-	FloatingRateOption:
-		+ floatingRateIndex
-			[value "Index" maps 2]
+    FloatingRateIndex:
+        + floatingRateIndex
+            [value "Index" maps 2]
 
-	RateSpecification:
-		+ fixedRate
-			[value "FixedLegData"]
-		+ floatingRate
-			[value "FloatingLegData"]
-		+ inflationRate
-		    [value "ignore"]
+    RateSpecification:
+        + FixedRateSpecification
+            [value "FixedLegData"]
+        + FloatingRateSpecification
+            [value "FloatingLegData"]
+        + InflationRateSpecification
+            [value "ignore"]
 
     FixedRateSpecification:
         + rateSchedule
@@ -140,43 +152,55 @@ synonym source ORE_1_0_39 extends ORE
             [meta "Rate"]
             [meta "Spread"]
 
-	ResolvablePriceQuantity:
-		+ quantitySchedule
-			[meta "Notional"]
-		+ resolvedQuantity
-			[value "ignore"]
-		+ priceSchedule
-			[value "ignore"]
-    
-	UnitType:
-		+ currency
-			[value "Currency"]
+    ResolvablePriceQuantity:
+        + quantitySchedule
+            [meta "Notional"]
+        + resolvedQuantity
+            [value "ignore"]
+        + priceSchedule
+            [value "ignore"]
+
+    UnitType:
+        + currency
+            [value "Currency"]
 
     PrincipalPaymentSchedule:
-		+ initialPrincipalPayment
+        + initialPrincipalPayment
             [value "ignore"]
-		+ intermediatePrincipalPayment
+        + intermediatePrincipalPayment
             [value "ignore"]
-		+ finalPrincipalPayment
+        + finalPrincipalPayment
             [value "ignore"]
-    
+
     SettlementTerms:
-    	+ settlementProvision
-		[value "ignore"]
+        + settlementProvision
+            [value "ignore"]
+
+    Basket:
+        + basketConstituent
+            [value "ignore"]
+
+    CollateralProvisions:
+        + eligibleCollateral
+            [value "ignore"]
+
+    PostingObligationsElection:
+        + eligibleCollateral
+           [value "ignore"]
 
     enums
 
-	FloatingRateIndexEnum:
-		+ EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
-			[value "EUR-EURIBOR-6M"]
+    FloatingRateIndexEnum:
+        + EUR_6M_EURIBOR_SWAP_CME_vs_LCH_ICAP
+            [value "EUR-EURIBOR-6M"]
 
-	PeriodEnum:
-		+ D
-			[value "D"]
-		+ W
-			[value "W"]
-		+ M
-			[value "M"]
-		+ Y
-			[value "Y"]
+    PeriodEnum:
+        + D
+            [value "D"]
+        + W
+            [value "W"]
+        + M
+            [value "M"]
+        + Y
+            [value "Y"]
 }

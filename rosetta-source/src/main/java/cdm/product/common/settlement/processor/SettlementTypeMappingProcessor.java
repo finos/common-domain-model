@@ -21,7 +21,7 @@ public class SettlementTypeMappingProcessor extends MappingProcessor {
 
     public SettlementTypeMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
-        this.settlementTypeHelper = new SettlementTypeHelper();
+        this.settlementTypeHelper = new SettlementTypeHelper(context.getMappings());
     }
 
     @Override

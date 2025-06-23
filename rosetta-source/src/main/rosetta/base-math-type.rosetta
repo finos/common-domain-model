@@ -1,114 +1,114 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
-import cdm.observable.asset.*
 import cdm.base.datetime.*
+import cdm.observable.asset.*
 
 type UnitType: <"Defines the unit to be used for price, quantity, or other purposes">
-	capacityUnit CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
-	weatherUnit WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
-	financialUnit FinancialUnitEnum (0..1) <"Provides an enumerated value for financial units, generally used in the context of defining quantities for securities.">
-	currency string (0..1) <"Defines the currency to be used as a unit for a price, quantity, or other purpose.">
-		[metadata scheme]
+    capacityUnit CapacityUnitEnum (0..1) <"Provides an enumerated value for a capacity unit, generally used in the context of defining quantities for commodities.">
+    weatherUnit WeatherUnitEnum (0..1) <"Provides an enumerated values for a weather unit, generally used in the context of defining quantities for commodities.">
+    financialUnit FinancialUnitEnum (0..1) <"Provides an enumerated value for financial units, generally used in the context of defining quantities for securities.">
+    currency string (0..1) <"Defines the currency to be used as a unit for a price, quantity, or other purpose.">
+        [metadata scheme]
 
-	condition UnitType: <"Requires that a unit type must be set.">
-		one-of
+    condition UnitType: <"Requires that a unit type must be set.">
+        one-of
 
 type MeasureBase: <"Provides an abstract type to define a measure as a number associated to a unit. This type is abstract because all its attributes are optional. The types that extend it can specify further existence constraints.">
-	
-	value number (0..1) <"Specifies the value of the measure as a number. Optional because in a measure vector or schedule, this single value may be omitted.">
-	unit UnitType (0..1) <"Qualifies the unit by which the amount is measured. Optional because a measure may be unit-less (e.g. when representing a ratio between amounts in the same unit).">
+
+    value number (0..1) <"Specifies the value of the measure as a number. Optional because in a measure vector or schedule, this single value may be omitted.">
+    unit UnitType (0..1) <"Qualifies the unit by which the amount is measured. Optional because a measure may be unit-less (e.g. when representing a ratio between amounts in the same unit).">
 
 type Measure extends MeasureBase: <"Defines a concrete measure as a number associated to a unit. It extends MeasureBase by requiring the value attribute to be present. A measure may be unit-less so the unit attribute is still optional.">
 
-	condition ValueExists: <"The value attribute must be present in a concrete measure.">
-		value exists
+    condition ValueExists: <"The value attribute must be present in a concrete measure.">
+        value exists
 
 type MeasureSchedule extends MeasureBase: <"A set of measures, all in the same unit, where the values are defined through a schedule of steps. The initial value may be defined either as part of the steps, or using the single amount attribute.">
-	datedValue DatedValue (0..*) <"A schedule of step date and value pairs. On each step date the associated step value becomes effective. The step dates are used to order the steps by ascending order. This attribute is optional so the data type may be used to define a schedule with a single value.">
+    datedValue DatedValue (0..*) <"A schedule of step date and value pairs. On each step date the associated step value becomes effective. The step dates are used to order the steps by ascending order. This attribute is optional so the data type may be used to define a schedule with a single value.">
 
-	condition ValueExists: <"A schedule may be specified as a single value or as a set of date-value pairs. Both attributes may be specified, in which case the single amount number is the initial value.">
-		value exists or datedValue exists
+    condition ValueExists: <"A schedule may be specified as a single value or as a set of date-value pairs. Both attributes may be specified, in which case the single amount number is the initial value.">
+        value exists or datedValue exists
 
 type QuantitySchedule extends MeasureSchedule: <"Specifies a quantity schedule to be associated to a financial product to represent a trade amount. This data type extends MeasureSchedule with several unit or multiplier attributes that are used to define financial quantities. This data type is generically based on a schedule and can also be used to represent a quantity as a single value.">
 
-	multiplier Measure (0..1) <"Defines an optional number that the quantity should be multiplied by to derive a total quantity. This number is associated to a unit. For example in the case of the Coal (API2) CIF ARA (ARGUS-McCloskey) Futures Contract on the CME, where the unit would be contracts, the multiplier value would 1,000 and the mulitiplier unit would be 1,000 MT (Metric Tons).">
-	frequency Frequency (0..1) <"Defines the frequency to be used when defining a quantity. For example a quantity may be specified as a number of barrels of oil per day, which needs multiplying by the number of days in the relevant period to get the total quantity as a number of barrels.">
+    multiplier Measure (0..1) <"Defines an optional number that the quantity should be multiplied by to derive a total quantity. This number is associated to a unit. For example in the case of the Coal (API2) CIF ARA (ARGUS-McCloskey) Futures Contract on the CME, where the unit would be contracts, the multiplier value would 1,000 and the mulitiplier unit would be 1,000 MT (Metric Tons).">
+    frequency Frequency (0..1) <"Defines the frequency to be used when defining a quantity. For example a quantity may be specified as a number of barrels of oil per day, which needs multiplying by the number of days in the relevant period to get the total quantity as a number of barrels.">
 
-	condition Quantity_multiplier: <"Requires that the multiplier must be positive.">
-	    if multiplier exists then multiplier -> value >= 0.0
-	condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for any quantity.">
-    	unit exists
+    condition Quantity_multiplier: <"Requires that the multiplier must be positive.">
+        if multiplier exists then multiplier -> value >= 0.0
+
+    condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for any quantity.">
+        unit exists
 
 type Quantity extends QuantitySchedule: <"Specifies a quantity as a single value to be associated to a financial product, for example a transfer amount resulting from a trade. This data type extends QuantitySchedule and requires that only the single amount value exists.">
-	
-	condition AmountOnlyExists: <"The amount must exist when the quantity represents a single value, and the steps must be absent.">
-		value exists and datedValue is absent
-	
+
+    condition AmountOnlyExists: <"The amount must exist when the quantity represents a single value, and the steps must be absent.">
+        value exists and datedValue is absent
+
 type NonNegativeQuantity extends Quantity: <"Specifies a quantity as a non-negative number, which condition is enforced through a data rule that only applies to the extending class.">
-	
-	condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
-		value >= 0.0
+
+    condition NonNegativeQuantity_amount: <"For a non-negative quantity, the amount attribute must be positive.">
+        value >= 0.0
 
 type NonNegativeStep: <"A class defining a step date and non-negative step value pair. This step definitions are used to define varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[metadata key]
+    [metadata key]
 
-	stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
-	stepValue number (1..1) <"The non-negative rate or amount which becomes effective on the associated stepDate. A rate of 5% would be represented as 0.05.">
+    stepDate date (1..1) <"The date on which the associated stepValue becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
+    stepValue number (1..1) <"The non-negative rate or amount which becomes effective on the associated stepDate. A rate of 5% would be represented as 0.05.">
 
-	condition StepValue: <"FpML specified stepValue as a NonNegativeDecimal.">
-		stepValue >= 0.0
+    condition StepValue: <"FpML specified stepValue as a NonNegativeDecimal.">
+        stepValue >= 0.0
 
 type NonNegativeQuantitySchedule extends QuantitySchedule:
-	
-	condition NonNegativeQuantity_amount: <"For a non-negative quantity, all amount attribute must be positive.">
-		if value exists then value >= 0.0 and
-		if datedValue exists then datedValue -> value all >= 0.0
+
+    condition NonNegativeQuantity_amount: <"For a non-negative quantity, all amount attribute must be positive.">
+        if value exists
+        then value >= 0.0 and if datedValue exists
+                then datedValue -> value all >= 0.0
 
 type Rounding: <"Defines rounding rules and precision to be used in the rounding of a number.">
 
-	roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">
-	precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places when the number is evaluated in decimal form (not percentage), e.g. 0.09876543 rounded to the nearest 5 decimal places is  0.0987654.">
+    roundingDirection RoundingDirectionEnum (1..1) <"Specifies the rounding rounding rule as up, down, or nearest.">
+    precision int (0..1) <"Specifies the rounding precision in terms of a number of decimal places when the number is evaluated in decimal form (not percentage), e.g. 0.09876543 rounded to the nearest 5 decimal places is  0.0987654.">
 
 type Schedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
 
-	value number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">
-	datedValue DatedValue (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
+    value number (1..1) <"The initial rate or amount, as the case may be. An initial rate of 5% would be represented as 0.05.">
+    datedValue DatedValue (0..*) <"The schedule of step date and value pairs. On each step date the associated step value becomes effective. A list of steps may be ordered in the document by ascending step date. An FpML document containing an unordered list of steps is still regarded as a conformant document.">
 
 type DatedValue: <"Defines a date and value pair. This definition is used for varying rate or amount schedules, e.g. a notional amortisation or a step-up coupon schedule.">
-	[metadata key]
+    [metadata key]
 
-	date date (1..1) <"The date on which the associated step value becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
-	value number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
+    date date (1..1) <"The date on which the associated step value becomes effective. This day may be subject to adjustment in accordance with a business day convention.">
+    value number (1..1) <"The rate of amount which becomes effective on the associated step date. A rate of 5% would be represented as 0.05.">
 
 type NumberRange: <"The number range defined as either a lower and upper number bound, or both.">
 
-	lowerBound NumberBound (0..1) <"The lower bound of a number range, e.g. greater than or equal to 5.">
-	upperBound NumberBound (0..1) <"The upper bound of a number range, e.g. less than 10.">
+    lowerBound NumberBound (0..1) <"The lower bound of a number range, e.g. greater than or equal to 5.">
+    upperBound NumberBound (0..1) <"The upper bound of a number range, e.g. less than 10.">
 
-	condition AtLeastOneOf:
-	    lowerBound exists or upperBound exists
+    condition AtLeastOneOf:
+        lowerBound exists or upperBound exists
 
 type NumberBound: <"The number bound is defined as a number and whether the bound is inclusive.">
 
-	number number (1..1) <"The number to be used as the bound, e.g. 5.">
-	inclusive boolean (1..1) <"Whether the number bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
+    number number (1..1) <"The number to be used as the bound, e.g. 5.">
+    inclusive boolean (1..1) <"Whether the number bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
 
 type MoneyRange: <"The money range defined as either a lower and upper money bound, or both.">
 
-	lowerBound MoneyBound (0..1) <"The lower bound of a money range, e.g. greater than or equal to 1,000 USD.">
-	upperBound MoneyBound (0..1) <"The upper bound of a money range, e.g. less than 10,000 USD.">
+    lowerBound MoneyBound (0..1) <"The lower bound of a money range, e.g. greater than or equal to 1,000 USD.">
+    upperBound MoneyBound (0..1) <"The upper bound of a money range, e.g. less than 10,000 USD.">
 
-	condition AtLeastOneOf:
-	    lowerBound exists or upperBound exists
+    condition AtLeastOneOf:
+        lowerBound exists or upperBound exists
 
 type MoneyBound: <"The money bound is defined as a money amount and whether the bound is inclusive.">
 
-	money Money (1..1) <"The money amount to be used as the bound, e.g. 1,000 USD.">
-	inclusive boolean (1..1) <"Whether the money amount bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
+    money Money (1..1) <"The money amount to be used as the bound, e.g. 1,000 USD.">
+    inclusive boolean (1..1) <"Whether the money amount bound is inclusive, e.g. for a lower bound, false would indicate greater than, whereas true would indicate greater than or equal to.">
 
 type AveragingCalculationMethod: <"Defines the ways in which multiple values can be aggregated into a single value.">
-	isWeighted boolean (1..1) <"Identifies whether the average values will be weighted or unweighted.">
-	calculationMethod AveragingCalculationMethodEnum (1..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">
-
-
+    isWeighted boolean (1..1) <"Identifies whether the average values will be weighted or unweighted.">
+    calculationMethod AveragingCalculationMethodEnum (1..1) <"Identifies which of the Pythagorean means is being used to compute an average value.">

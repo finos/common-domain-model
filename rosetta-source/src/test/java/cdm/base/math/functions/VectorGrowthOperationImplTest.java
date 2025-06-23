@@ -1,6 +1,6 @@
 package cdm.base.math.functions;
 
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class VectorGrowthOperationImplTest extends AbstractFunctionTest {
 
 	@Inject
-	private final VectorGrowthOperation vectorGrowthOp = new VectorGrowthOperationImpl();
+	private VectorGrowthOperation vectorGrowthOp;
 
 	@Test
 	void shouldApplyOperation() {

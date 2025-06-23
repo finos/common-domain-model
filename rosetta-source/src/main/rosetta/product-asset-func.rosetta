@@ -3,113 +3,111 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
-
 import cdm.event.common.*
-
 import cdm.observable.asset.*
-
-import cdm.product.template.*
 import cdm.product.asset.calculation.*
 import cdm.product.common.schedule.*
+import cdm.product.template.*
 
 func FixedAmount: <"2006 ISDA Definition Article 5 Section 5.1. Calculation of a Fixed Amount: The Fixed Amount payable by a party on a Payment Date will be: (a) if an amount is specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, that amount; or (b) if an amount is not specified for the Swap Transaction as the Fixed Amount payable by that party for that Payment Date or for the related Calculation Period, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Fixed Amount = Calculation Amount × Fixed Rate × Day Count Fraction.">
-		[calculation]
-	inputs:
-		interestRatePayout InterestRatePayout (1..1) <"description of the interest rate payout">
-		notional number (0..1) <"The notional quantity to use">
-		date date (0..1) <"The date to use to obtain the calculation period">
-		calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
-	output:
-		fixedAmount number (1..1)
+    [calculation]
+    inputs:
+        interestRatePayout InterestRatePayout (1..1) <"description of the interest rate payout">
+        notional number (0..1) <"The notional quantity to use">
+        date date (0..1) <"The date to use to obtain the calculation period">
+        calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
+    output:
+        fixedAmount number (1..1)
 
     alias calculationPeriod:
-		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+        if calculationPeriodData exists
+        then calculationPeriodData
+        else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
 
-	alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)
+    alias calcPeriodBase: Create_CalculationPeriodBase(calculationPeriod)
 
-	alias fixedAmountCalc :FixedAmountCalculation(interestRatePayout, calcPeriodBase, notional)
+    alias fixedAmountCalc:
+        FixedAmountCalculation(interestRatePayout, calcPeriodBase, notional)
 
-	set fixedAmount : fixedAmountCalc -> calculatedAmount
-
+    set fixedAmount: fixedAmountCalc -> calculatedAmount
 
 func FloatingAmount: <"2006 ISDA Definition Article 6 Section 6.1. Calculation of a Floating Amount: Subject to the provisions of Section 6.4 (Negative Interest Rates), the Floating Amount payable by a party on a Payment Date will be: (a) if Compounding is not specified for the Swap Transaction or that party, an amount calculated on a formula basis for that Payment Date or for the related Calculation Period as follows: Floating Amount = Calculation Amount × Floating Rate + Spread × Floating Rate Day Count Fraction (b) if 'Compounding' is specified to be applicable to the Swap Transaction or that party and 'Flat Compounding' is not specified, an amount equal to the sum of the Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period; or (c) if 'Flat Compounding' is specified to be applicable to the Swap Transaction or that party, an amount equal to the sum of the Basic Compounding Period Amounts for each of the Compounding Periods in the related Calculation Period plus the sum of the Additional Compounding Period Amounts for each such Compounding Period.">
-	[calculation]
-	inputs:
-		interestRatePayout InterestRatePayout (1..1) <"full description of the interest rate payout">
-		rate number  (0..1) <"the floating rate to use; if omitted it is retrieved/calculated based on the interest rate payout and floating index ">
-		notional number (0..1) <"the notional; if omitted it is obtained from the payout">
-		date date (0..1) <"The date to use to obtain the calculation period">
-		calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
-	output:
-	    floatingAmount number (1..1)
+    [calculation]
+    inputs:
+        interestRatePayout InterestRatePayout (1..1) <"full description of the interest rate payout">
+        rate number (0..1) <"the floating rate to use; if omitted it is retrieved/calculated based on the interest rate payout and floating index ">
+        notional number (0..1) <"the notional; if omitted it is obtained from the payout">
+        date date (0..1) <"The date to use to obtain the calculation period">
+        calculationPeriodData CalculationPeriodData (0..1) <"full details of the calculation period">
+    output:
+        floatingAmount number (1..1)
 
     alias calculationPeriod:
-		if calculationPeriodData exists then calculationPeriodData else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
-	alias calcPeriodBase : Create_CalculationPeriodBase(calculationPeriod)
-	alias floatingCalc : FloatingAmountCalculation(interestRatePayout, calcPeriodBase, False, notional, rate)
+        if calculationPeriodData exists
+        then calculationPeriodData
+        else CalculationPeriod(interestRatePayout -> calculationPeriodDates, date)
+    alias calcPeriodBase: Create_CalculationPeriodBase(calculationPeriod)
+    alias floatingCalc:
+        FloatingAmountCalculation(interestRatePayout, calcPeriodBase, False, notional, rate)
 
-	set floatingAmount : floatingCalc -> calculatedAmount
+    set floatingAmount: floatingCalc -> calculatedAmount
 
 /* DayCountFraction has been removed and replaced by YearFraction in base-datetime-daycount-func */
-
 func ResolveRateIndex: <"The function to specify that the floating rate index enumeration will be expressed as a number once the rate is observed.">
-	inputs: index FloatingRateIndexEnum (1..1)
-	output: rate number (1..1)
+    [codeImplementation]
+    inputs:
+        index FloatingRateIndexEnum (1..1)
+    output:
+        rate number (1..1)
 
 func ResolvePerformancePeriodStartPrice: <"Resolves the price from the end of the previous period. If first period, then take the initial price.">
-	inputs:
-		performancePayout PerformancePayout (1..1)
-		price PriceSchedule (0..*)
-		observable Observable (0..1)
-		adjustedDate date (1..1)
-	output:
-		startPrice PriceSchedule (1..1)
+    inputs:
+        performancePayout PerformancePayout (1..1)
+        price PriceSchedule (0..*)
+        observable Observable (0..1)
+        adjustedDate date (1..1)
+    output:
+        startPrice PriceSchedule (1..1)
 
-	alias priceReturnTerms:
-		performancePayout -> returnTerms -> priceReturnTerms
+    alias adjustedValuationDates:
+        AdjustedValuationDates(performancePayout -> valuationDates)
 
-	alias adjustedValuationDates:
-		AdjustedValuationDates( performancePayout -> valuationDates )
-
-	set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
-		if adjustedDate < adjustedValuationDates first then
-		    priceReturnTerms -> valuationPriceInitial
-		else
-		    ResolveEquityInitialPrice( price )
+    set startPrice: <"The initial price is taken from the original contract when Resetting for the first time i.e. when the number of updated contracts is one.">
+        if adjustedDate < adjustedValuationDates first
+        then performancePayout -> initialValuationPrice only-element
+        else ResolveEquityInitialPrice(price)
 
 func ResolveEquityInitialPrice: <"To be replaced by full resolve price function implementation.">
-	inputs:
-		price PriceSchedule (0..*)
-	output:
-		initialPrice PriceSchedule (0..1)
+    inputs:
+        price PriceSchedule (0..*)
+    output:
+        initialPrice PriceSchedule (0..1)
 
-	set initialPrice:
-	    price
-	        filter perUnitOf -> financialUnit = FinancialUnitEnum -> Share
-			then extract Price {
-                value: item -> value,
-                unit: item -> unit,
-                perUnitOf: item -> perUnitOf,
-                priceType: item -> priceType,
-                priceExpression: item -> priceExpression,
-                composite: item -> composite,
-                arithmeticOperator: item -> arithmeticOperator,
-                cashPrice: item -> cashPrice,
-                datedValue: empty
-            }
-	        then only-element
+    set initialPrice:
+        price
+            filter perUnitOf -> financialUnit = FinancialUnitEnum -> Share
+            then extract
+                Price {
+                    value: item -> value,
+                    unit: item -> unit,
+                    perUnitOf: item -> perUnitOf,
+                    priceType: item -> priceType,
+                    priceExpression: item -> priceExpression,
+                    composite: item -> composite,
+                    arithmeticOperator: item -> arithmeticOperator,
+                    cashPrice: item -> cashPrice,
+                    datedValue: empty
+                }
+            then only-element
 
 func DividendCashSettlementAmount: <"Based on the following legal text: means, in respect of a Dividend Period and the related Dividend Cash Settlement Date, an amount in the Settlement Currency determined by the Calculation Agent for such Dividend Period to which the Dividend Cash Settlement Amount relates, pursuant to the following formula: Dividend Cash Settlement Amount = Record Amount × Number Of Securities.">
+    inputs:
+        numberOfSecurities number (1..1)
+        declaredDividend number (1..1)
+    output:
+        dividendCashSettlementAmount number (1..1)
 
-	inputs:
-		numberOfSecurities number (1..1)
-		declaredDividend number (1..1)
-
-	output:
-		dividendCashSettlementAmount number (1..1)
-
-	set dividendCashSettlementAmount:
-		declaredDividend * numberOfSecurities
+    set dividendCashSettlementAmount: declaredDividend * numberOfSecurities
 
 func ExtractFixedLeg: <"Extract interest rate payout containing fix rate specification.">
     inputs:
@@ -119,5 +117,5 @@ func ExtractFixedLeg: <"Extract interest rate payout containing fix rate specifi
 
     set fixedRatePayout:
         interestRatePayouts
-            filter rateSpecification -> fixedRate exists
+            filter rateSpecification -> FixedRateSpecification exists
             then only-element

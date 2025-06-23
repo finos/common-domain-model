@@ -1,326 +1,318 @@
 namespace cdm.product.common.schedule : <"Common product schedule concepts: calculation period, reset, fixing and payment dates, stub, notional schedule, roll convention.">
 version "${project.version}"
 
-import cdm.base.math.*
 import cdm.base.datetime.*
-
+import cdm.base.math.*
 import cdm.observable.asset.*
-import cdm.observable.event.*
 import cdm.observable.common.*
-
+import cdm.observable.event.*
 import cdm.product.asset.*
-import cdm.product.common.settlement.*
 
 type CalculationPeriodData:
-	startDate date (1..1)
-	endDate date (1..1)
-	daysInPeriod int (1..1)
-	daysInLeapYearPeriod int (1..1)
-	isFirstPeriod boolean (1..1)
-	isLastPeriod boolean (1..1)
+    startDate date (1..1)
+    endDate date (1..1)
+    daysInPeriod int (1..1)
+    daysInLeapYearPeriod int (1..1)
+    isFirstPeriod boolean (1..1)
+    isLastPeriod boolean (1..1)
 
 type StubPeriod: <" A class defining how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
 
-	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
+    calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
+        [metadata reference]
+    initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
+    finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 
 type CalculationPeriodBase: <"The calculation period adjusted start and end dates, which are the baseline arguments needed to compute an interest accrual calculation.">
-	[metadata key]
+    [metadata key]
 
-	adjustedStartDate date (0..1) <"The calculation period start date, adjusted according to any relevant business day convention.">
-	adjustedEndDate date (0..1) <"The calculation period end date, adjusted according to any relevant business day convention.">
+    adjustedStartDate date (0..1) <"The calculation period start date, adjusted according to any relevant business day convention.">
+    adjustedEndDate date (0..1) <"The calculation period end date, adjusted according to any relevant business day convention.">
 
 type CalculationPeriod extends CalculationPeriodBase: <"A data defining:  the parameters used in the calculation of a fixed or floating rate calculation period amount. This data forms:  part of cashflows representation of a swap stream.">
 
-	unadjustedStartDate date (0..1) <"The calculation start date, unadjusted.">
-	unadjustedEndDate date (0..1) <"The calculation end date, unadjusted.">
-	calculationPeriodNumberOfDays int (0..1 ) <"The number of days from the adjusted effective / start date to the adjusted termination / end date calculated in accordance with the applicable day count fraction.">
-	notionalAmount number (0..1) <"The amount that a cashflow will accrue interest on.">
-	fxLinkedNotionalAmount FxLinkedNotionalAmount (0..1) <"The amount that a cashflow will accrue interest on. This is the calculated amount of the FX linked - i.e. the other currency notional amount multiplied by the appropriate FX spot rate.">
-	floatingRateDefinition FloatingRateDefinition (0..1) <"The floating rate reset information for the calculation period.">
-	fixedRate number (0..1) <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.">
-	dayCountYearFraction number (0..1) <"The year fraction value of the calculation period, result of applying the ISDA rules for day count fraction defined in the ISDA Annex.">
-	forecastAmount Money (0..1) <"The amount representing the forecast of the accrued value of the calculation period. An intermediate value used to generate the forecastPaymentAmount in the PaymentCalculationPeriod.">
-	forecastRate number (0..1) <"A value representing the forecast rate used to calculate the forecast future value of the accrual period. This is a calculated rate determined based on averaging the rates in the rateObservation elements, and incorporates all of the rate treatment and averaging rules. A value of 1% should be represented as 0.01.">
+    unadjustedStartDate date (0..1) <"The calculation start date, unadjusted.">
+    unadjustedEndDate date (0..1) <"The calculation end date, unadjusted.">
+    calculationPeriodNumberOfDays int (0..1) <"The number of days from the adjusted effective / start date to the adjusted termination / end date calculated in accordance with the applicable day count fraction.">
+    notionalAmount number (0..1) <"The amount that a cashflow will accrue interest on.">
+    fxLinkedNotionalAmount FxLinkedNotionalAmount (0..1) <"The amount that a cashflow will accrue interest on. This is the calculated amount of the FX linked - i.e. the other currency notional amount multiplied by the appropriate FX spot rate.">
+    floatingRateDefinition FloatingRateDefinition (0..1) <"The floating rate reset information for the calculation period.">
+    fixedRate number (0..1) <"The calculation period fixed rate. A per annum rate, expressed as a decimal. A fixed rate of 5% would be represented as 0.05.">
+    dayCountYearFraction number (0..1) <"The year fraction value of the calculation period, result of applying the ISDA rules for day count fraction defined in the ISDA Annex.">
+    forecastAmount Money (0..1) <"The amount representing the forecast of the accrued value of the calculation period. An intermediate value used to generate the forecastPaymentAmount in the PaymentCalculationPeriod.">
+    forecastRate number (0..1) <"A value representing the forecast rate used to calculate the forecast future value of the accrual period. This is a calculated rate determined based on averaging the rates in the rateObservation elements, and incorporates all of the rate treatment and averaging rules. A value of 1% should be represented as 0.01.">
 
-	condition NotionalChoice: <"condition to represent an FpML choice construct.">
-		required choice notionalAmount, fxLinkedNotionalAmount
+    condition NotionalChoice: <"condition to represent an FpML choice construct.">
+        required choice notionalAmount, fxLinkedNotionalAmount
 
-	condition RateChoice: <"condition to represent an FpML choice construct.">
-		required choice floatingRateDefinition, fixedRate
+    condition RateChoice: <"condition to represent an FpML choice construct.">
+        required choice floatingRateDefinition, fixedRate
 
-	condition StartDateChoice: <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
-		required choice adjustedStartDate, unadjustedStartDate
+    condition StartDateChoice: <"FpML validation rule ird-30 - Context: CalculationPeriod (complex type). unadjustedStartDate exists or adjustedStartDate exists.">
+        required choice adjustedStartDate, unadjustedStartDate
 
-	condition EndDateChoice: <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
-		required choice adjustedEndDate, unadjustedEndDate
+    condition EndDateChoice: <"FpML validation rule ird-31 - Context: CalculationPeriod (complex type). unadjustedEndDate exists or adjustedEndDate exists.">
+        required choice adjustedEndDate, unadjustedEndDate
 
 type CalculationPeriodDates: <"A data for:  defining the parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
-	[metadata key]
+    [metadata key]
 
-	effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
-	terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
-	calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
-	firstPeriodStartDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
-	firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-	firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-	lastRegularPeriodEndDate date (0..1) <"The end date of the regular part of the calculation period schedule. It must only be specified if there is a final stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
-	stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">
-	calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
+    effectiveDate AdjustableOrRelativeDate (0..1) <"The first day of the terms of the trade. This day may be subject to adjustment in accordance with a business day convention.">
+    terminationDate AdjustableOrRelativeDate (0..1) <"The last day of the terms of the trade. This date may be subject to adjustments in accordance with the business day convention. It can also be specified in relation to another scheduled date (e.g. the last payment date).">
+    calculationPeriodDatesAdjustments BusinessDayAdjustments (0..1) <"The specification of the business day convention and financial business centers used for adjusting any calculation period date if it would otherwise fall on a day that is not a business day in the specified business center.">
+    firstPeriodStartDate AdjustableOrRelativeDate (0..1) <"The start date of the calculation period. FpML specifies that for interest rate swaps this date must only be specified if it is not equal to the effective date. It is always specified in the case of equity swaps and credit default swaps with periodic payments. This date may be subject to adjustment in accordance with a business day convention.">
+    firstRegularPeriodStartDate date (0..1) <"The start date of the regular part of the calculation period schedule. It must only be specified if there is an initial stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+    firstCompoundingPeriodEndDate date (0..1) <"The end date of the initial compounding period when compounding is applicable. It must only be specified when the compoundingMethod element is present and not equal to a value of None. This date may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+    lastRegularPeriodEndDate date (0..1) <"The end date of the regular part of the calculation period schedule. It must only be specified if there is a final stub calculation period. This day may be subject to adjustment in accordance with any adjustments specified in calculationPeriodDatesAdjustments.">
+    stubPeriodType StubPeriodTypeEnum (0..1) <"Method to allocate any irregular period remaining after regular periods have been allocated between the effective and termination date.">
+    calculationPeriodFrequency CalculationPeriodFrequency (0..1) <"The frequency at which calculation period end dates occur with the regular part of the calculation period schedule and their roll date convention.">
 
-	condition FpML_ird_16: <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if firstRegularPeriodStartDate exists
-		then terminationDate -> adjustableDate -> unadjustedDate > firstRegularPeriodStartDate
+    condition FpML_ird_16: <"FpML validation rule ird-16 - If firstRegularPeriodStartDate exists within any element of type CalculationPeriodDates, then terminationDate/unadjustedDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
+        if firstRegularPeriodStartDate exists
+        then terminationDate -> adjustableDate -> unadjustedDate > firstRegularPeriodStartDate
 
-	condition FpML_ird_17: <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
-		if lastRegularPeriodEndDate exists
-		then terminationDate -> adjustableDate -> unadjustedDate > lastRegularPeriodEndDate
+    condition FpML_ird_17: <"FpML validation rule ird-17 - If lastRegularPeriodEndDate exists, then terminationDate/unadjustedDate must be after lastRegularPeriodEndDate. This data rule applies within a given interest rate payout component.">
+        if lastRegularPeriodEndDate exists
+        then terminationDate -> adjustableDate -> unadjustedDate > lastRegularPeriodEndDate
 
-	condition FpML_ird_18: <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if firstRegularPeriodStartDate exists
-			and lastRegularPeriodEndDate exists
-		then lastRegularPeriodEndDate > firstRegularPeriodStartDate
+    condition FpML_ird_18: <"FpML validation rule ird-18 - If firstRegularPeriodStartDate exists, and if lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
+        if firstRegularPeriodStartDate exists and lastRegularPeriodEndDate exists
+        then lastRegularPeriodEndDate > firstRegularPeriodStartDate
 
-	condition FpML_ird_20: <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
-		if lastRegularPeriodEndDate exists
-		then lastRegularPeriodEndDate > effectiveDate -> adjustableDate -> unadjustedDate
+    condition FpML_ird_20: <"FpML validation rule ird-20 - If lastRegularPeriodEndDate exists, then lastRegularPeriodEndDate must be after effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
+        if lastRegularPeriodEndDate exists
+        then lastRegularPeriodEndDate > effectiveDate -> adjustableDate -> unadjustedDate
 
-	condition FpML_ird_21: <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
-		if firstPeriodStartDate exists and effectiveDate exists
-		then firstPeriodStartDate -> adjustableDate -> unadjustedDate < effectiveDate -> adjustableDate -> unadjustedDate
+    condition FpML_ird_21: <"FpML validation rule ird-21 - If firstPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before effectiveDate/unadjustedDate. This data rule applies within a given interest rate payout component.">
+        if firstPeriodStartDate exists and effectiveDate exists
+        then firstPeriodStartDate -> adjustableDate -> unadjustedDate < effectiveDate -> adjustableDate -> unadjustedDate
 
-	condition FpML_ird_22: <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
-		if firstPeriodStartDate exists and firstRegularPeriodStartDate exists
-		then firstPeriodStartDate -> adjustableDate -> unadjustedDate < firstRegularPeriodStartDate
+    condition FpML_ird_22: <"FpML validation rule ird-22 - If firstPeriodStartDate exists, and if firstRegularPeriodStartDate exists, then firstPeriodStartDate/unadjustedDate must be before firstRegularPeriodStartDate. This data rule applies within a given interest rate payout component.">
+        if firstPeriodStartDate exists and firstRegularPeriodStartDate exists
+        then firstPeriodStartDate -> adjustableDate -> unadjustedDate < firstRegularPeriodStartDate
 
 type DateRelativeToCalculationPeriodDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
-	calculationPeriodDatesReference CalculationPeriodDates (1..*) <"A set of href pointers to calculation period dates defined somewhere else in the document.">
-		[metadata reference]
+    calculationPeriodDatesReference CalculationPeriodDates (1..*) <"A set of href pointers to calculation period dates defined somewhere else in the document.">
+        [metadata reference]
 
 type DateRelativeToValuationDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
-	valuationDatesReference PerformanceValuationDates (1..*) <"A set of href pointers to valuation period dates defined somewhere else in the document.">
-		[metadata reference]
+    valuationDatesReference PerformanceValuationDates (1..*) <"A set of href pointers to valuation period dates defined somewhere else in the document.">
+        [metadata reference]
 
 type DateRelativeToPaymentDates: <"A data to:  provide the ability to point to multiple payment nodes in the document through the unbounded paymentDatesReference.">
 
-	paymentDatesReference PaymentDates (1..*) <"A set of href pointers to payment dates defined somewhere else in the document.">
-		[metadata reference]
+    paymentDatesReference PaymentDates (1..*) <"A set of href pointers to payment dates defined somewhere else in the document.">
+        [metadata reference]
 
 type FxLinkedNotionalAmount: <"A data to:  describe the cashflow representation for FX linked notionals.">
 
-	resetDate date (0..1) <"The reset date.">
-	adjustedFxSpotFixingDate date (0..1) <"The date on which the FX spot rate is observed. This date should already be adjusted for any applicable business day convention.">
-	observedFxSpotRate number (0..1) <"The actual observed FX spot rate.">
-	notionalAmount number (0..1) <"The calculation period notional amount.">
+    resetDate date (0..1) <"The reset date.">
+    adjustedFxSpotFixingDate date (0..1) <"The date on which the FX spot rate is observed. This date should already be adjusted for any applicable business day convention.">
+    observedFxSpotRate number (0..1) <"The actual observed FX spot rate.">
+    notionalAmount number (0..1) <"The calculation period notional amount.">
 
 type FxLinkedNotionalSchedule: <"A data to:  describe a notional schedule where each notional that applies to a calculation period is calculated with reference to a notional amount or notional amount schedule in a different currency by means of a spot currency exchange rate which is normally observed at the beginning of each period.">
 
-	varyingNotionalCurrency string (1..1) <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
-	varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">
-	fxSpotRateSource FxSpotRateSource (1..1) <"The information source and time at which the spot currency exchange rate will be observed.">
-	fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
-	varyingNotionalInterimExchangePaymentDates RelativeDateOffset (1..1) <"The dates on which interim exchanges of notional are paid. Interim exchanges will arise as a result of changes in the spot currency exchange amount or changes in the constant notional schedule (e.g. amortisation).">
+    varyingNotionalCurrency string (1..1) <"The currency of the varying notional amount, i.e. the notional amount being determined periodically based on observation of a spot currency exchange rate. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+        [metadata scheme]
+    varyingNotionalFixingDates RelativeDateOffset (1..1) <"The dates on which spot currency exchange rates are observed for purposes of determining the varying notional currency amount that will apply to a calculation period.">
+    fxSpotRateSource FxSpotRateSource (1..1) <"The information source and time at which the spot currency exchange rate will be observed.">
+    fixingTime BusinessCenterTime (0..1) <"The time at which the spot currency exchange rate will be observed. It is specified as a time in a business day calendar location, e.g. 11:00am London time.">
+    varyingNotionalInterimExchangePaymentDates RelativeDateOffset (1..1) <"The dates on which interim exchanges of notional are paid. Interim exchanges will arise as a result of changes in the spot currency exchange amount or changes in the constant notional schedule (e.g. amortisation).">
 
 type PaymentCalculationPeriod: <"A data defining:  the adjusted payment date and associated calculation period parameters required to calculate the actual or projected payment amount. This data forms:  part of the cashflow representation of a swap stream.">
-	[metadata key]
+    [metadata key]
 
-	unadjustedPaymentDate date (0..1) <"The unadjusted payment date.">
-	adjustedPaymentDate date (0..1) <"The adjusted payment date. This date should already be adjusted for any applicable business day convention. This component is not intended for use in trade confirmation but may be specified to allow the fee structure to also serve as a cashflow type component.">
-	calculationPeriod CalculationPeriod (1..*) <"The parameters used in the calculation of a fixed or floating rate calculation period amount. A list of calculation period elements may be ordered in the document by ascending start date. An FpML document which contains an unordered list of calculation periods is still regarded as a conformant document.">
-	fixedPaymentAmount Money (0..1) <"A known fixed payment amount.">
-	discountFactor number (0..1) <"A decimal value representing the discount factor used to calculate the present value of cash flow.">
-	forecastPaymentAmount Money (0..1) <"A monetary amount representing the forecast of the future value of the payment.">
-	presentValueAmount Money (0..1) <"A monetary amount representing the present value of the forecast payment.">
+    unadjustedPaymentDate date (0..1) <"The unadjusted payment date.">
+    adjustedPaymentDate date (0..1) <"The adjusted payment date. This date should already be adjusted for any applicable business day convention. This component is not intended for use in trade confirmation but may be specified to allow the fee structure to also serve as a cashflow type component.">
+    calculationPeriod CalculationPeriod (1..*) <"The parameters used in the calculation of a fixed or floating rate calculation period amount. A list of calculation period elements may be ordered in the document by ascending start date. An FpML document which contains an unordered list of calculation periods is still regarded as a conformant document.">
+    fixedPaymentAmount Money (0..1) <"A known fixed payment amount.">
+    discountFactor number (0..1) <"A decimal value representing the discount factor used to calculate the present value of cash flow.">
+    forecastPaymentAmount Money (0..1) <"A monetary amount representing the forecast of the future value of the payment.">
+    presentValueAmount Money (0..1) <"A monetary amount representing the present value of the forecast payment.">
 
-	condition CalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
-		if calculationPeriod -> calculationPeriodNumberOfDays exists
-		then calculationPeriod -> calculationPeriodNumberOfDays all >= 0
+    condition CalculationPeriodNumberOfDays: <"FpML specifies calculationPeriodNumberOfDays as a positive integer.">
+        if calculationPeriod -> calculationPeriodNumberOfDays exists
+        then calculationPeriod -> calculationPeriodNumberOfDays all >= 0
 
-	condition PaymentCalculationPeriodChoice: <"condition to represent an FpML choice construct.">
-		required choice calculationPeriod, fixedPaymentAmount
+    condition PaymentCalculationPeriodChoice: <"condition to represent an FpML choice construct.">
+        required choice calculationPeriod, fixedPaymentAmount
 
-	condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
-		unadjustedPaymentDate exists
-			or adjustedPaymentDate exists
+    condition FpML_ird_34: <"FpML validation rule ird-34 - Either unadjustedPaymentDate or adjustedPaymentDate must exist.">
+        unadjustedPaymentDate exists or adjustedPaymentDate exists
 
 type RateSchedule: <"A class defining a schedule of rates or amounts in terms of an initial value and then a series of step date and value pairs. On each step date the rate or amount changes to the new step value. The series of step date and value pairs are optional. If not specified, this implies that the initial value remains unchanged over time.">
-	price PriceSchedule (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
-	    [metadata address "pointsTo"=PriceQuantity->price]
+    price PriceSchedule (1..1) <"The initial rate. An initial rate of 5% would be represented as 0.05.">
+        [metadata address "pointsTo"=PriceQuantity->price]
 
 type ObservationDates: <"Describes date details for a set of observation dates in parametric or non-parametric form.">
-   observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
-   periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
-   parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
+    observationSchedule ObservationSchedule (0..1) <"Specifies a schedule of dates (non-parametric) on which market observations take place, and allows for the optional definition of weights where applicable.  When no weight is specified, then weight of each date is assumed to be 1.0">
+    periodicSchedule PeriodicDates (0..1) <"Specifies the date range and frequency on which market observations take place.  Weights can be assigned to dates in the schedule by assigning the weight and corresponding observationReference in the observationSchedule.">
+    parametricDates ParametricDates (0..1) <"Specifies parametric terms to determine which days within a given calculation period the price would be observed. Typically associated with Commodities. ">
 
 type ObservationSchedule: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
-	observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation.">
-	dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
+    observationDate ObservationDate (0..*) <"Specifies an adjusted or unadjusted date for a market observation.">
+    dateAdjustments BusinessDayAdjustments (0..1) <"The business day convention and financial business centers used for adjusting the date if it would otherwise fall on a day that is not a business date in the specified business centers.">
 
-	condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
-		 if observationDate -> adjustedDate is absent then
-			observationDate -> unadjustedDate exists and dateAdjustments exists
+    condition AdjustedDate: <"FpML specifies a choice between adjustedDate and [unadjustedDate (required), dateAdjutsments (required), adjustedDate (optional)].">
+        if observationDate -> adjustedDate is absent
+        then observationDate -> unadjustedDate exists and dateAdjustments exists
 
 type ObservationDate: <"Specifies a single date on which market observations take place and specifies optional associated weighting.">
-	[metadata key]
-	unadjustedDate date (0..1 ) <"A date subject to adjustment.">
-	adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
-	weight number (0..1) <"Specifies the degree of importance of the observation.">
-	observationReference string (0..1) <"Specifies an identification key for the market observation. This attribute can be used as a reference to assign weights to a series of dates defined in a parametricSchedule.">
+    [metadata key]
+    unadjustedDate date (0..1) <"A date subject to adjustment.">
+    adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
+    weight number (0..1) <"Specifies the degree of importance of the observation.">
+    observationReference string (0..1) <"Specifies an identification key for the market observation. This attribute can be used as a reference to assign weights to a series of dates defined in a parametricSchedule.">
 
-	condition ObservationDate: <"Either an unadjusted date or an adjusted date needs to be specified.">
-		required choice unadjustedDate, adjustedDate
+    condition ObservationDate: <"Either an unadjusted date or an adjusted date needs to be specified.">
+        required choice unadjustedDate, adjustedDate
 
 type ObservationTerms: <"Class containing terms that are associated with observing a price/benchmark/index across either single or multiple observations. ">
 
-	pricingTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
-	pricingTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
-	informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
-	precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
-	calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
-	observable Observable (0..1) <"Specifies the object to be observed for a price, it could be an asset or a reference.">
-	observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
-	numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
+    observationTime BusinessCenterTime (0..1) <"Defines time in respect to a business calendar location that the price/benchmark/index is observed">
+    observationTimeType TimeTypeEnum (0..1) <"The enumerated values to specify points in the day when option exercise and valuation can occur.">
+    informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
+    precision Rounding (0..1) <"Defines rounding rules and precision to be used in the rounding of observations.">
+    calculationPeriodDates CalculationPeriodDates (0..1) <"Defines parameters used to generate the calculation period dates schedule, including the specification of any initial or final stub calculation periods. A calculation period schedule consists of an optional initial stub calculation period, one or more regular calculation periods and an optional final stub calculation period. In the absence of any initial or final stub calculation periods, the regular part of the calculation period schedule is assumed to be between the effective date and the termination date. No implicit stubs are allowed, i.e. stubs must be explicitly specified using an appropriate combination of firstPeriodStartDate, firstRegularPeriodStartDate and lastRegularPeriodEndDate.">
+    observationDates ObservationDates (1..1) <"Describes date details for a set of observation dates in parametric or non-parametric form.">
+    numberOfObservationDates int (0..1) <"The number of observation dates between observation start date and observation end date.">
 
-	condition PricingTime: <"Checks that a pricing time is specified either explicitly (through the pricing time) or implicitly (through a pricing time type different to Specific Time). If Specific Time is defined as pricing time type (i.e. no implicit time value), the condition checks that an explicit pricing time is provided.">
-		if pricingTimeType = TimeTypeEnum -> SpecificTime then pricingTime exists
+    condition ObservationTime: <"Checks that an observation time is specified either explicitly (through the observation time) or implicitly (through a observation time type different to Specific Time). If Specific Time is defined as observation time type (i.e. no implicit time value), the condition checks that an explicit observation time is provided.">
+        if observationTimeType = TimeTypeEnum -> SpecificTime
+        then observationTime exists
 
 type ParametricDates: <"Defines rules for the dates on which the price will be determined.">
-	dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
-	dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
-	dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
-	dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
-	lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
-	businessCenters BusinessCenters (1..1) <"The enumerated values to specify the business centers.">
+    dayType DayTypeEnum (1..1) <"Denotes the enumerated values to specify the day type classification used in counting the number of days between two dates.">
+    dayDistribution DayDistributionEnum (0..1) <"Denotes the method by which the pricing days are distributed across the pricing period.">
+    dayOfWeek DayOfWeekEnum (0..7) <"Indicates the days of the week on which the price will be determined.">
+    dayFrequency number (0..1) <"Defines the occurrence of the dayOfWeek within the pricing period on which pricing will take place, e.g. the 3rd Friday within each Calculation Period. If omitted, every dayOfWeek will be a pricing day.">
+    lag Lag (0..1) <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
+    businessCenters BusinessCenters (1..1) <"The enumerated values to specify the business centers.">
 
-	condition ParametricDatesChoice:
-		required choice dayDistribution, dayOfWeek
+    condition ParametricDatesChoice:
+        required choice dayDistribution, dayOfWeek
 
-	condition DayOfWeekMethod:
-		if dayOfWeek exists
-		then dayFrequency exists
+    condition DayOfWeekMethod:
+        if dayOfWeek exists then dayFrequency exists
 
 type Lag: <"The pricing period per calculation period if the pricing days do not wholly fall within the respective calculation period.">
-   lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
-   firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
+    lagDuration Offset (1..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
+    firstObservationDateOffset Offset (0..1) <"Defines the offset of the series of pricing dates relative to the calculation period.">
 
 type ResetDates: <"A data defining:  the parameters used to generate the reset dates schedule and associated fixing dates. The reset dates are the dates on which the new index value (which is observed on the fixing date) is applied for each period and on which the interest rate hence begins to accrue.">
-	[metadata key]
+    [metadata key]
 
-	calculationPeriodDatesReference CalculationPeriodDates (0..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date. If the reset frequency is specified as daily this element must not be included.">
-	initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">
-	fixingDates RelativeDateOffset (0..1) <"The fixing dates are the dates on which the index values are observed. The fixing dates are specified by reference to the reset date through business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction.">
-	finalFixingDate AdjustableDate (0..1) <"This attribute is not part of the FpML ResetDate, and has been added as part of the CDM to support the credit derivatives final fixing date.">
-	rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">
-	resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">
-	resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">
+    calculationPeriodDatesReference CalculationPeriodDates (0..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
+        [metadata reference]
+    resetRelativeTo ResetRelativeToEnum (0..1) <"Specifies whether the reset dates are determined with respect to each adjusted calculation period start date or adjusted calculation period end date. If the reset frequency is specified as daily this element must not be included.">
+    initialFixingDate InitialFixingDate (0..1) <"The initial fixing date.">
+    fixingDates RelativeDateOffset (0..1) <"The fixing dates are the dates on which the index values are observed. The fixing dates are specified by reference to the reset date through business days offset and an associated set of financial business centers. Normally these offset calculation rules will be those specified in the ISDA definition for the relevant floating rate index (ISDA's Floating Rate Option). However, non-standard offset calculation rules may apply for a trade if mutually agreed by the principal parties to the transaction.">
+    finalFixingDate AdjustableDate (0..1) <"This attribute is not part of the FpML ResetDate, and has been added as part of the CDM to support the credit derivatives final fixing date.">
+    rateCutOffDaysOffset Offset (0..1) <"Specifies the number of business days before the period end date when the rate cut-off date is assumed to apply. The financial business centers associated with determining the rate cut-off date are those specified in the reset dates adjustments. The rate cut-off number of days must be a negative integer (a value of zero would imply no rate cut off applies in which case the rateCutOffDaysOffset element should not be included). The relevant rate for each reset date in the period from, and including, a rate cut-off date to, but excluding, the next applicable period end date (or, in the case of the last calculation period, the termination date) will (solely for purposes of calculating the floating amount payable on the next applicable payment date) be deemed to be the relevant rate in effect on that rate cut-off date. For example, if rate cut-off days for a daily averaging deal is -2 business days, then the refix rate applied on (period end date - 2 days) will also be applied as the reset on (period end date - 1 day), i.e. the actual number of reset dates remains the same but from the rate cut-off date until the period end date, the same refix rate is applied. Note that in the case of several calculation periods contributing to a single payment, the rate cut-off is assumed only to apply to the final calculation period contributing to that payment. The day type associated with the offset must imply a business days offset.">
+    resetFrequency ResetFrequency (0..1) <"The frequency at which the reset dates occur. In the case of a weekly reset frequency, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency then this implies that more than one reset is established for each calculation period and some form of rate averaging is applicable.">
+    resetDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the reset date if it would otherwise fall on a day that is not a business day in the specified business center.">
 
-	condition RateCutOffDaysOffset: <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
-		if rateCutOffDaysOffset exists
-		then rateCutOffDaysOffset -> periodMultiplier < 0
+    condition RateCutOffDaysOffset: <"FpML specifies that the rate cut-off number of days must be a negative integer with a value of zero would implying that no rate cut off applies, in which case the rateCutOffDaysOffset element should not be included.">
+        if rateCutOffDaysOffset exists
+        then rateCutOffDaysOffset -> periodMultiplier < 0
 
-	condition WeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the first part of the assertion.">
-		if resetFrequency -> period = PeriodExtendedEnum -> W
-		then resetFrequency -> weeklyRollConvention exists
+    condition WeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the first part of the assertion.">
+        if resetFrequency -> period = PeriodExtendedEnum -> W
+        then resetFrequency -> weeklyRollConvention exists
 
-	condition NonWeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the latter part of the assertion.">
-		if resetFrequency -> period <> PeriodExtendedEnum -> W
-		then resetFrequency -> weeklyRollConvention is absent
+    condition NonWeeklyPeriod: <"FpML specifies that the weeklyRollConvention must be specified as part of the reset frequency if and only if the reset frequency is defined as weekly. This data rule is focused on the latter part of the assertion.">
+        if resetFrequency -> period <> PeriodExtendedEnum -> W
+        then resetFrequency -> weeklyRollConvention is absent
 
 type StubCalculationPeriodAmount: <"A data defining:  how the initial or final stub calculation period amounts is calculated. For example, the rate to be applied to the initial or final stub calculation period may be the linear interpolation of two different tenors for the floating rate index specified in the calculation period amount component, e.g. A two month stub period may used the linear interpolation of a one month and three month floating rate. The different rate tenors would be specified in this component. Note that a maximum of two rate tenors can be specified. If a stub period uses a single index tenor and this is the same as that specified in the calculation period amount component then the initial stub or final stub component, as the case may be, must not be included.">
-	
-	calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
-		[metadata reference]
-	initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
-	finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
+
+    calculationPeriodDatesReference CalculationPeriodDates (1..1) <"A pointer style reference to the associated calculation period dates component defined elsewhere in the document.">
+        [metadata reference]
+    initialStub StubValue (0..1) <"Specifies how the initial stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
+    finalStub StubValue (0..1) <"Specifies how the final stub amount is calculated. A single floating rate tenor different to that used for the regular part of the calculation periods schedule may be specified, or two floating tenors may be specified. If two floating rate tenors are specified then Linear Interpolation (in accordance with the 2000 ISDA Definitions, Section 8.3. Interpolation) is assumed to apply. Alternatively, an actual known stub rate or stub amount may be specified.">
 
 type AveragingObservationList: <"An unordered list of weighted averaging observations.">
 
-	averagingObservation WeightedAveragingObservation (1..*) <"A single weighted averaging observation.">
+    averagingObservation WeightedAveragingObservation (1..*) <"A single weighted averaging observation.">
 
 type AveragingPeriod: <"Period over which an average value is taken.">
 
-	schedule AveragingSchedule (0..*) <"A schedule for generating averaging observation dates.">
-	averagingDateTimes DateTimeList (0..1) <"An unweighted list of averaging observation date and times.">
-	averagingObservations AveragingObservationList (0..1) <"A weighted list of averaging observation date and times.">
-	marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">
-		[metadata scheme]
+    schedule AveragingSchedule (0..*) <"A schedule for generating averaging observation dates.">
+    averagingDateTimes DateTimeList (0..1) <"An unweighted list of averaging observation date and times.">
+    averagingObservations AveragingObservationList (0..1) <"A weighted list of averaging observation date and times.">
+    marketDisruption MarketDisruptionEnum (0..1) <"The market disruption event as defined by ISDA 2002 Definitions.">
+        [metadata scheme]
 
-	condition AveragingPeriodChoice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
-		optional choice averagingDateTimes, averagingObservations
+    condition AveragingPeriodChoice: <" Choice rule to represent an FpML choice construct between unweighted and weighted averaging date and times.">
+        optional choice averagingDateTimes, averagingObservations
 
 type WeightedAveragingObservation: <"A single weighted averaging observation.">
 
-	dateTime zonedDateTime (0..1) <"Observation date time, which should be used when literal observation dates are required. The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
-	observationNumber int (0..1) <"Observation number, which should be unique, within a series generated by a date schedule.">
-	weight number (1..1) <"Observation weight, which is used as a multiplier for the observation value.">
+    dateTime zonedDateTime (0..1) <"Observation date time, which should be used when literal observation dates are required. The CDM specifies that the zoned date time is to be expressed in accordance with ISO 8601, either as UTC as an offset to UTC.">
+    observationNumber int (0..1) <"Observation number, which should be unique, within a series generated by a date schedule.">
+    weight number (1..1) <"Observation weight, which is used as a multiplier for the observation value.">
 
-	condition WeightedAveragingObservationChoice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
-		required choice dateTime, observationNumber
+    condition WeightedAveragingObservationChoice: <" Choice rule to represent an FpML choice construct between date times for literal date values, and observation numbers for schedule generated observations.">
+        required choice dateTime, observationNumber
 
-	condition PositiveObservationNumber: <" FpML specifies observationNumber as a positive integer.">
-		if observationNumber exists
-		then observationNumber >= 0
+    condition PositiveObservationNumber: <" FpML specifies observationNumber as a positive integer.">
+        if observationNumber exists then observationNumber >= 0
 
-	condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
-		weight >= 0.0
+    condition PositiveWeight: <" FpML specifies observationNumber as a non-negative decimal.">
+        weight >= 0.0
 
 type AmountSchedule extends Schedule: <"A class to specify a currency amount or a currency amount schedule.">
 
-	currency string (1..*) <"The currency in which the amount schedule is denominated. The currency is specified outside of the actual schedule in order to be applied uniformly to it. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
-		[metadata scheme]
+    currency string (1..*) <"The currency in which the amount schedule is denominated. The currency is specified outside of the actual schedule in order to be applied uniformly to it. The list of valid currencies is not presently positioned as an enumeration as part of the CDM because that scope is limited to the values specified by ISDA and FpML. As a result, implementers have to make reference to the relevant standard, such as the ISO 4217 standard for currency codes.">
+        [metadata scheme]
 
 type InitialFixingDate: <"A CDM class which purpose is to specify the initial fixing date either alongside the FpML interest rate specification as an offset of another date, or alongside the credit derivative specification as an unadjusted date.">
 
-	relativeDateOffset RelativeDateOffset (0..1)
-	initialFixingDate date (0..1)
+    relativeDateOffset RelativeDateOffset (0..1)
+    initialFixingDate date (0..1)
 
-	condition: one-of
+    condition:
+        one-of
 
 type PaymentDates: <"Specifies the parameters to generate the payment date schedule, either through a parametric representation or by reference to specified dates.">
-	[metadata key]
+    [metadata key]
 
-	paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">
-	firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">
-	lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
-	paymentDateSchedule PaymentDateSchedule (0..1) <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
-	payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date or end date, each reset date, valuation date or the last pricing date. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI and equity swaps.">
-	paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">
-	paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the payment date if it would otherwise fall on a day that is not a business day in the specified business center.">
+    paymentFrequency Frequency (0..1) <"The frequency at which regular payment dates occur. If the payment frequency is equal to the frequency defined in the calculation period dates component then one calculation period contributes to each payment amount. If the payment frequency is less frequent than the frequency defined in the calculation period dates component then more than one calculation period will contribute to the payment amount. A payment frequency more frequent than the calculation period frequency or one that is not a multiple of the calculation period frequency is invalid. If the payment frequency is of value T (term), the period is defined by the effectiveDate and the terminationDate.">
+    firstPaymentDate date (0..1) <"The first unadjusted payment date. This day may be subject to adjustment in accordance with any business day convention specified in paymentDatesAdjustments. This element must only be included if there is an initial stub. This date will normally correspond to an unadjusted calculation period start or end date. This is true even if early or delayed payment is specified to be applicable since the actual first payment date will be the specified number of days before or after the applicable adjusted calculation period start or end date with the resulting payment date then being adjusted in accordance with any business day convention specified in paymentDatesAdjustments.">
+    lastRegularPaymentDate date (0..1) <"The last regular payment date when specified as a date, as in the FpML interest rate construct. FpML specifies that this date may be subject to adjustment in accordance with any business day convention specified in the paymentDatesAdjustments attribute.">
+    paymentDateSchedule PaymentDateSchedule (0..1) <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
+    payRelativeTo PayRelativeToEnum (0..1) <"Specifies whether the payments occur relative to each adjusted calculation period start date or end date, each reset date, valuation date or the last pricing date. Calculation period start date means relative to the start of the first calculation period contributing to a given payment. Similarly, calculation period end date means the end of the last calculation period contributing to a given payment. The valuation date is applicable for Brazilian-CDI and equity swaps.">
+    paymentDaysOffset Offset (0..1) <"If early payment or delayed payment is required, specifies the number of days offset that the payment occurs relative to what would otherwise be the unadjusted payment date. The offset can be specified in terms of either calendar or business days. Even in the case of a calendar days offset, the resulting payment date, adjusted for the specified calendar days offset, will still be adjusted in accordance with the specified payment dates adjustments. This element should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero. An early payment would be indicated by a negative periodMultiplier element value and a delayed payment (or payment lag) would be indicated by a positive periodMultiplier element value.">
+    paymentDatesAdjustments BusinessDayAdjustments (0..1) <"The definition of the business day convention and financial business centers used for adjusting the payment date if it would otherwise fall on a day that is not a business day in the specified business center.">
 
-	condition FpML_ird_35_cd_31: <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
-		if firstPaymentDate exists
-			and lastRegularPaymentDate exists
-		then firstPaymentDate < lastRegularPaymentDate
+    condition FpML_ird_35_cd_31: <"FpML validation rule ird-35 & cd-31- If firstPaymentDate exists, and if lastRegularPaymentDate exists, then firstPaymentDate must be before lastRegularPaymentDate.">
+        if firstPaymentDate exists and lastRegularPaymentDate exists
+        then firstPaymentDate < lastRegularPaymentDate
 
-	condition NonZeroPeriodMultiplier: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
-		if paymentDaysOffset exists
-		then paymentDaysOffset -> periodMultiplier <> 0
+    condition NonZeroPeriodMultiplier: <"FpML specifies that paymentDaysOffset should only be included if early or delayed payment is applicable, i.e. if the periodMultiplier element value is not equal to zero.">
+        if paymentDaysOffset exists
+        then paymentDaysOffset -> periodMultiplier <> 0
 
 type PaymentDateSchedule: <"The payment dates when specified as relative to a set of dates specified somewhere else in the instance document/transaction, e.g. the valuation dates as typically the case for equity swaps, or when specified as a calculation period schedule.">
 
-	interimPaymentDates AdjustableRelativeOrPeriodicDates (0..*)
-	finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
+    interimPaymentDates AdjustableRelativeOrPeriodicDates (0..*)
+    finalPaymentDate AdjustableOrRelativeDate (0..1) <"The last payment when specified as an adjustable or relative date, as in the FpML total return construct.">
 
 type ResetFrequency extends Frequency: <"A class defining the reset frequency. In the case of a weekly reset, also specifies the day of the week that the reset occurs. If the reset frequency is greater than the calculation period frequency the this implies that more or more reset dates is established for each calculation period and some form of rate averaging is applicable. The specific averaging method of calculation is specified in FloatingRateCalculation. In case the reset frequency is of value T (term), the period is defined by the swap/swapStream/calculationPerioDates/effectiveDate and the swap/swapStream/calculationPerioDates/terminationDate.">
 
-	weeklyRollConvention WeeklyRollConventionEnum (0..1) <"The day of the week on which a weekly reset date occurs. This element must be included if the reset frequency is defined as weekly and not otherwise.">
+    weeklyRollConvention WeeklyRollConventionEnum (0..1) <"The day of the week on which a weekly reset date occurs. This element must be included if the reset frequency is defined as weekly and not otherwise.">
 
-	condition FpML_ird_49: <"FpML validation rule ird-49 - WeeklyRollConvention should exist if and only if the period is 'W'.">
-		if weeklyRollConvention exists
-		then period = PeriodExtendedEnum -> W
+    condition FpML_ird_49: <"FpML validation rule ird-49 - WeeklyRollConvention should exist if and only if the period is 'W'.">
+        if weeklyRollConvention exists
+        then period = PeriodExtendedEnum -> W
 
 type FinalCalculationPeriodDateAdjustment: <"A data to:  define business date convention adjustment to final payment period per leg.">
 
-	relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
-		[metadata reference]
-	swapStreamReference InterestRatePayout (1..1) <"Reference to the leg, where date adjustments may apply.">
-		[metadata reference]
-	businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">
-
+    relevantUnderlyingDateReference AdjustableOrRelativeDates (1..1) <"Reference to the unadjusted cancellation effective dates.">
+        [metadata reference]
+    swapStreamReference InterestRatePayout (1..1) <"Reference to the leg, where date adjustments may apply.">
+        [metadata reference]
+    businessDayConvention BusinessDayConventionEnum (1..1) <"Override business date convention. This takes precedence over leg level information.">

@@ -1,6 +1,9 @@
 package cdm.product.template.processor;
 
-import cdm.product.common.settlement.processor.PriceQuantityHelper;
+import cdm.base.staticdata.asset.common.AssetClassEnum;
+import cdm.base.staticdata.asset.common.AssetIdTypeEnum;
+import cdm.observable.asset.FloatingRateIndex;
+import cdm.observable.asset.processor.PriceQuantityHelper;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -12,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static cdm.product.common.settlement.PriceQuantity.PriceQuantityBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 import static cdm.product.template.processor.FraHelper.getDummyFloatingLegPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.filterMappings;
 import static com.rosetta.model.lib.meta.Reference.ReferenceBuilder;
@@ -23,6 +26,7 @@ import static com.rosetta.util.CollectionUtils.emptyIfNull;
  *
  * FpML synonyms map the input FpML onto a single PriceQuantity, then this mapper splits it into a fixed and floating PriceQuantity instances.
  */
+@SuppressWarnings("unused")
 public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 
 	public FraPriceQuantitySplitterMappingProcessor(RosettaPath path, List<Path> synonymPaths, MappingContext context) {
@@ -48,6 +52,18 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 
 	private void updateFloatingLeg(Path synonymPath, PriceQuantityBuilder floatingLegPriceQuantity) {
 		floatingLegPriceQuantity.getPrice().clear();
+		
+		FloatingRateIndex.FloatingRateIndexBuilder floatingRateIndexBuilder = floatingLegPriceQuantity
+				.getOrCreateObservable()
+				.getOrCreateValue()
+				.getOrCreateIndex()
+				.getOrCreateInterestRateIndex()
+				.getOrCreateValue()
+				.getOrCreateFloatingRateIndex();
+		emptyIfNull(floatingRateIndexBuilder.getIdentifier())
+				.forEach(b -> b.setIdentifierType(AssetIdTypeEnum.OTHER));
+		floatingRateIndexBuilder
+				.setAssetClass(AssetClassEnum.INTEREST_RATE);
 
 		getNonReferenceMapping(synonymPath.addElement("notional").addElement("amount"))
 				.ifPresent(this::updateFloatingLegQuantity);
@@ -57,10 +73,11 @@ public class FraPriceQuantitySplitterMappingProcessor extends MappingProcessor {
 	}
 
 	private Optional<Mapping> getNonReferenceMapping(Path synonymPath) {
-		return filterMappings(getContext().getMappings(), synonymPath).stream()
+		return filterMappings(getMappings(), synonymPath).stream()
 				.filter(m -> !(m.getRosettaValue() instanceof ReferenceBuilder))
 				.filter(m -> Arrays.stream(m.getRosettaPath().getPathNames()).anyMatch("tradeLot"::equals))
 				.filter(m -> m.getXmlValue() != null)
+				.filter(m -> m.getRosettaValue() != null)
 				.findFirst();
 	}
 

@@ -4,185 +4,121 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
-
 import cdm.observable.asset.*
 import cdm.observable.common.*
 
-type AdditionalDisruptionEvents: <"A type for defining the Additional Disruption Events.">
-
-	changeInLaw boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Change in Law | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Change In Law | If true, then change in law is applicable.">
-	failureToDeliver boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Failure to Deliver | Where the underlying is shares and the transaction is physically settled, then, if true, a failure to deliver the shares on the settlement date will not be an event of default for the purposes of the master agreement.">
-	insolvencyFiling boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Insolvency Filing | If true, then insolvency filing is applicable.">
-	hedgingDisruption boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Hedging Disruption | If true, then hedging disruption is applicable.">
-	increasedCostOfHedging boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Hedging | If true, then increased cost of hedging is applicable.">
-	foreignOwnershipEvent boolean (0..1) <"If true, then foreign ownership event is applicable.">
-	lossOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Loss of Stock Borrow | If true, then loss of stock borrow is applicable.">
-	maximumStockLoanRate number (0..1) <"Specifies the maximum stock loan rate for Loss of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	increasedCostOfStockBorrow boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Increased Cost of Stock Borrow | If true, then increased cost of stock borrow is applicable.">
-	initialStockLoanRate number (0..1) <"Specifies the initial stock loan rate for Increased Cost of Stock Borrow. A percentage of 5% is represented as 0.05.">
-	determiningParty AncillaryRoleEnum (0..1) <"Specifies the party which determines additional disruption events.">
-
-	condition MaximumStockLoanRate: <" FpML specifies the maximumStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if maximumStockLoanRate exists then
-		    maximumStockLoanRate >= 0 and maximumStockLoanRate <= 1
-
-	condition InitialStockLoanRate: <" FpML specifies the initialStockLoanRate as a RestrictedPercentage, meaning that its value is comprised between 0 and 1.">
-		if initialStockLoanRate exists then
-		    initialStockLoanRate >= 0 and initialStockLoanRate <= 1
-
-	condition DisruptionEventsDeterminingParty:
-		if determiningParty exists then
-		    determiningParty = AncillaryRoleEnum -> DisruptionEventsDeterminingParty
-
-type ExtraordinaryEvents: <"Where the underlying is shares, defines market events affecting the issuer of those shares that may require the terms of the transaction to be adjusted.">
-
-	mergerEvents EquityCorporateEvents (0..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event shall occur if a Merger occurs and the Merger Date is on or before the final Equity Valuation Date | Occurs when the underlying ceases to exist following a merger between the Issuer and another company.">
-	tenderOfferEvents EquityCorporateEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Tender Offers | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Tender Offer Event">
-	compositionOfCombinedConsideration boolean (0..1) <"2002 ISDA Equity Derivatives Definitions: Composition of Combined Consideration | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Combined Consideration | If present and true, then composition of combined consideration is applicable.">
-	indexAdjustmentEvents IndexAdjustmentEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Adjustments to Indices | ">
-	additionalDisruptionEvents AdditionalDisruptionEvents (0..1) <"2002 ISDA Equity Derivatives Definitions: Additional Disruption Events | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Additional Disruption Events means each Additional Disruption Event specified in the Confirmation Side Letter. For the avoidance of doubt, each Additional Disruption Event shall be an Extraordinary Event.">
-	failureToDeliver boolean (0..1) <"If true, failure to deliver is applicable.">
-	representations Representations (0..1)
-	nationalizationOrInsolvency NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Nationalization and Insolvency | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Nationalization shall occur if all the Securities or all or substantially all the assets of an Issuer are nationalized, expropriated or are otherwise required to be transferred to any governmental agency, authority, entity or instrumentality thereof. Insolvency Filing means as defined in the Confirmation Side Letter.">
-	delisting NationalizationOrInsolvencyOrDelistingEventEnum (0..1) <"2002 ISDA Equity Derivatives Definitions: Delisting | 2018 ISDA CDM Equity Confirmation for Security Equity Swap: Delisting means Delisting (Broad Relisting) or Delisting (Narrow Relisting), as specified in the Relationship Supplement.">
-
-	condition ExtraordinaryEventsChoice: <"condition to represent an FpML choice construct.">
-		required choice additionalDisruptionEvents, failureToDeliver
-
-type IndexAdjustmentEvents: <"Defines the specification of the consequences of Index Events as defined by the 2002 ISDA Equity Derivatives Definitions.">
-
-	indexModification IndexEventConsequenceEnum (1..1) <"Consequence of index modification.">
-	indexCancellation IndexEventConsequenceEnum (1..1) <"Consequence of index cancellation.">
-	indexDisruption IndexEventConsequenceEnum (1..1) <"Consequence of index disruption.">
-
 type Trigger: <"Trigger point at which feature is effective.">
 
-	level number (0..1) <"The trigger level.">
-	levelPercentage number (0..1) <"The trigger level percentage.">
-	creditEvents CreditEvents (0..1)
-	creditEventsReference CreditEvents (0..1)
-		[metadata reference]
-	triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">
-	triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
+    level PriceSchedule (0..2) <"The trigger level.">
+    creditEvents CreditEvents (0..1)
+    creditEventsReference CreditEvents (0..1)
+        [metadata reference]
+    triggerType TriggerTypeEnum (0..1) <"The Triggering condition.">
+    triggerTimeType TriggerTimeTypeEnum (0..1) <"The valuation time type of knock condition.">
 
-	condition Choice1: <" Choice rule to represent an FpML choice construct.">
-		required choice level, levelPercentage , creditEvents , creditEventsReference
+    condition Choice1: <" Choice rule to represent an FpML choice construct.">
+        required choice level, creditEvents , creditEventsReference
 
 type TriggerEvent: <"Observation point for trigger.">
 
-	schedule AveragingSchedule (0..*) <"A derivative schedule.">
-	triggerDates DateList (0..1) <"The trigger Dates.">
-	trigger Trigger (1..1) <"The trigger level">
-	featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">
-
-type EquityCorporateEvents: <"A class for defining the merger events and their treatment.">
-
-	shareForShare ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-S) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of new shares.">
-
-	shareForOther ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-O) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Other Consideration. | The consideration paid for the original shares following the Merger Event consists wholly of cash/securities other than new shares.">
-	shareForCombined ShareExtraordinaryEventEnum (1..1) <"2018 ISDA CDM Equity Confirmation for Security Equity Swap: Merger Event (S-F-C) shall occur if a Merger Event occurs and the consideration for the relevant Security consists solely of Combined Consideration. | The consideration paid for the original shares following the Merger Event consists of both cash/securities and new shares.">
-
-type Representations:
-
-	nonReliance boolean (1..1) <"If true, then non reliance is applicable.">
-	agreementsRegardingHedging boolean (1..1) <"If true, then agreements regarding hedging are applicable.">
-	indexDisclaimer boolean (0..1) <"If present and true, then index disclaimer is applicable.">
-	additionalAcknowledgements boolean (0..1) <"If true, then additional acknowledgements are applicable.">
+    schedule AveragingSchedule (0..*) <"A derivative schedule.">
+    triggerDates DateList (0..1) <"The trigger Dates.">
+    trigger Trigger (1..1) <"The trigger level">
+    featurePayment FeaturePayment (0..1) <"The feature payment, i.e. the payment made following trigger occurrence.">
 
 type CreditEvents: <"A class to specify the applicable Credit Events that would trigger a settlement, as specified in the related Confirmation and defined in the ISDA 2014 Credit Definition article IV section 4.1.">
-	[metadata key]
+    [metadata key]
 
-	bankruptcy boolean (0..1) <"A credit event. The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as 'technically' a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">
-	failureToPay FailureToPay (0..1) <"A credit event. This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">
-	failureToPayPrincipal boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
-	failureToPayInterest boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.">
-	obligationDefault boolean (0..1) <"A credit event. One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.">
-	obligationAcceleration boolean (0..1) <"A credit event. One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.">
-	repudiationMoratorium boolean (0..1) <"A credit event. The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.">
-	restructuring Restructuring (0..1) <"A credit event. A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.">
-	governmentalIntervention boolean (0..1) <"A credit event. A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.">
-	distressedRatingsDowngrade boolean (0..1) <"A credit event. Results from the fact that the rating of the reference obligation is down-graded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.">
-	maturityExtension boolean (0..1) <"A credit event. Results from the fact that the underlier fails to make principal payments as expected.">
-	writedown boolean (0..1) <"A credit event. Results from the fact that the underlier writes down its outstanding principal amount.">
-	impliedWritedown boolean (0..1) <"A credit event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
-	defaultRequirement Money (0..1) <"In relation to certain credit events, serves as a threshold for Obligation Acceleration, Obligation Default, Repudiation/Moratorium and Restructuring. Market standard is USD 10,000,000 (JPY 1,000,000,000 for all Japanese Yen trades). This is applied on an aggregate or total basis across all Obligations of the Reference Entity. Used to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Default Requirement.">
-	creditEventNotice CreditEventNotice (0..1) <"A specified condition to settlement. An irrevocable written or verbal notice that describes a credit event that has occurred. The notice is sent from the notifying party (either the buyer or the seller) to the counterparty. It provides information relevant to determining that a credit event has occurred. This is typically accompanied by Publicly Available Information. ISDA 2003 Term: Credit Event Notice.">
+    bankruptcy boolean (0..1) <"A credit event. The reference entity has been dissolved or has become insolvent. It also covers events that may be a precursor to insolvency such as instigation of bankruptcy or insolvency proceedings. Sovereign trades are not subject to Bankruptcy as 'technically' a Sovereign cannot become bankrupt. ISDA 2003 Term: Bankruptcy.">
+    failureToPay FailureToPay (0..1) <"A credit event. This credit event triggers, after the expiration of any applicable grace period, if the reference entity fails to make due payments in an aggregate amount of not less than the payment requirement on one or more obligations (e.g. a missed coupon payment). ISDA 2003 Term: Failure to Pay.">
+    failureToPayPrincipal boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected principal amount or the payment of an actual principal amount that is less than the expected principal amount. ISDA 2003 Term: Failure to Pay Principal.">
+    failureToPayInterest boolean (0..1) <"A credit event. Corresponds to the failure by the Reference Entity to pay an expected interest amount or the payment of an actual interest amount that is less than the expected interest amount. ISDA 2003 Term: Failure to Pay Interest.">
+    obligationDefault boolean (0..1) <"A credit event. One or more of the obligations have become capable of being declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay. ISDA 2003 Term: Obligation Default.">
+    obligationAcceleration boolean (0..1) <"A credit event. One or more of the obligations have been declared due and payable before they would otherwise have been due and payable as a result of, or on the basis of, the occurrence of a default, event of default or other similar condition or event other than failure to pay (preferred by the market over Obligation Default, because more definitive and encompasses the definition of Obligation Default - this is more favorable to the Seller). Subject to the default requirement amount. ISDA 2003 Term: Obligation Acceleration.">
+    repudiationMoratorium boolean (0..1) <"A credit event. The reference entity, or a governmental authority, either refuses to recognise or challenges the validity of one or more obligations of the reference entity, or imposes a moratorium thereby postponing payments on one or more of the obligations of the reference entity. Subject to the default requirement amount. ISDA 2003 Term: Repudiation/Moratorium.">
+    restructuring Restructuring (0..1) <"A credit event. A restructuring is an event that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2003 Term: Restructuring.">
+    governmentalIntervention boolean (0..1) <"A credit event. A governmental intervention is an event resulting from an action by a governmental authority that materially impacts the reference entity's obligations, such as an interest rate reduction, principal reduction, deferral of interest or principal, change in priority ranking, or change in currency or composition of payment. ISDA 2014 Term: Governmental Intervention.">
+    distressedRatingsDowngrade boolean (0..1) <"A credit event. Results from the fact that the rating of the reference obligation is down-graded to a distressed rating level. From a usage standpoint, this credit event is typically not applicable in case of RMBS trades.">
+    maturityExtension boolean (0..1) <"A credit event. Results from the fact that the underlier fails to make principal payments as expected.">
+    writedown boolean (0..1) <"A credit event. Results from the fact that the underlier writes down its outstanding principal amount.">
+    impliedWritedown boolean (0..1) <"A credit event. Results from the fact that losses occur to the underlying instruments that do not result in reductions of the outstanding principal of the reference obligation.">
+    defaultRequirement Money (0..1) <"In relation to certain credit events, serves as a threshold for Obligation Acceleration, Obligation Default, Repudiation/Moratorium and Restructuring. Market standard is USD 10,000,000 (JPY 1,000,000,000 for all Japanese Yen trades). This is applied on an aggregate or total basis across all Obligations of the Reference Entity. Used to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Default Requirement.">
+    creditEventNotice CreditEventNotice (0..1) <"A specified condition to settlement. An irrevocable written or verbal notice that describes a credit event that has occurred. The notice is sent from the notifying party (either the buyer or the seller) to the counterparty. It provides information relevant to determining that a credit event has occurred. This is typically accompanied by Publicly Available Information. ISDA 2003 Term: Credit Event Notice.">
 
 type CreditEventNotice:
 
-	notifyingParty CounterpartyRoleEnum (1..2) <"The notifying party is the party that notifies the other party when a credit event has occurred by means of a credit event notice. If more than one party is referenced as being the notifying party then either party may notify the other of a credit event occurring. ISDA 2003 Term: Notifying Party.">
-	businessCenter BusinessCenterEnum (0..1) <"Inclusion of this business center element implies that Greenwich Mean Time in Section 3.3 of the 2003 ISDA Credit Derivatives Definitions is replaced by the local time of the city indicated by the businessCenter element value.">
-	publiclyAvailableInformation PubliclyAvailableInformation (0..1) <"A specified condition to settlement. Publicly available information means information that reasonably confirms any of the facts relevant to determining that a credit event or potential repudiation/moratorium, as applicable, has occurred. The ISDA defined list (2003) is the market standard and is considered comprehensive, and a minimum of two differing public sources must have published the relevant information, to declare a Credit Event. ISDA 2003 Term: Notice of Publicly Available Information Applicable.">
+    notifyingParty CounterpartyRoleEnum (1..2) <"The notifying party is the party that notifies the other party when a credit event has occurred by means of a credit event notice. If more than one party is referenced as being the notifying party then either party may notify the other of a credit event occurring. ISDA 2003 Term: Notifying Party.">
+    businessCenter BusinessCenterEnum (0..1) <"Inclusion of this business center element implies that Greenwich Mean Time in Section 3.3 of the 2003 ISDA Credit Derivatives Definitions is replaced by the local time of the city indicated by the businessCenter element value.">
+    publiclyAvailableInformation PubliclyAvailableInformation (0..1) <"A specified condition to settlement. Publicly available information means information that reasonably confirms any of the facts relevant to determining that a credit event or potential repudiation/moratorium, as applicable, has occurred. The ISDA defined list (2003) is the market standard and is considered comprehensive, and a minimum of two differing public sources must have published the relevant information, to declare a Credit Event. ISDA 2003 Term: Notice of Publicly Available Information Applicable.">
 
 type FailureToPay:
 
-	applicable boolean (1..1) <"Indicates whether the failure to pay provision is applicable.">
-	gracePeriodExtension GracePeriodExtension (0..1) <"If this element is specified, indicates whether or not a grace period extension is applicable. ISDA 2003 Term: Grace Period Extension Applicable.">
-	paymentRequirement Money (0..1) <"Specifies a threshold for the failure to pay credit event. Market standard is USD 1,000,000 (JPY 100,000,000 for Japanese Yen trades) or its equivalent in the relevant obligation currency. This is applied on an aggregate basis across all Obligations of the Reference Entity. Intended to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Payment Requirement">
+    applicable boolean (1..1) <"Indicates whether the failure to pay provision is applicable.">
+    gracePeriodExtension GracePeriodExtension (0..1) <"If this element is specified, indicates whether or not a grace period extension is applicable. ISDA 2003 Term: Grace Period Extension Applicable.">
+    paymentRequirement Money (0..1) <"Specifies a threshold for the failure to pay credit event. Market standard is USD 1,000,000 (JPY 100,000,000 for Japanese Yen trades) or its equivalent in the relevant obligation currency. This is applied on an aggregate basis across all Obligations of the Reference Entity. Intended to prevent technical/operational errors from triggering credit events. ISDA 2003 Term: Payment Requirement">
 
 type GracePeriodExtension:
 
-	applicable boolean (1..1) <"Indicates whether the grace period extension provision is applicable.">
-	gracePeriod Offset (0..1) <"The number of calendar or business days after any due date that the reference entity has to fulfil its obligations before a failure to pay credit event is deemed to have occurred. ISDA 2003 Term: Grace Period.">
+    applicable boolean (1..1) <"Indicates whether the grace period extension provision is applicable.">
+    gracePeriod Offset (0..1) <"The number of calendar or business days after any due date that the reference entity has to fulfil its obligations before a failure to pay credit event is deemed to have occurred. ISDA 2003 Term: Grace Period.">
 
 type PubliclyAvailableInformation:
 
-	standardPublicSources boolean (0..1) <"If this element is specified and set to 'true', indicates that ISDA defined Standard Public Sources are applicable.">
-	publicSource string (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred. ISDA 2003 Term: Public Source.">
-	specifiedNumber int (0..1) <"The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.">
-	condition SourceChoice: <" FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
-		required choice standardPublicSources, publicSource
+    standardPublicSources boolean (0..1) <"If this element is specified and set to 'true', indicates that ISDA defined Standard Public Sources are applicable.">
+    publicSource string (0..*) <"A public information source, e.g. a particular newspaper or electronic news service, that may publish relevant information used in the determination of whether or not a credit event has occurred. ISDA 2003 Term: Public Source.">
+    specifiedNumber int (0..1) <"The minimum number of the specified public information sources that must publish information that reasonably confirms that a credit event has occurred. The market convention is two. ISDA 2003 Term: Specified Number.">
+    condition SourceChoice: <" FpML validation rule cd-36 - Context: PubliclyAvailableInformation (complex type). Either standardPublicSources or at least one publicSource element must exist.">
+        required choice standardPublicSources, publicSource
 
-	condition PositiveSpecifiedNumber: <" FpML specifies specifiedNumber as a positiveInteger.">
-		if specifiedNumber exists
-		then specifiedNumber >= 0
+    condition PositiveSpecifiedNumber: <" FpML specifies specifiedNumber as a positiveInteger.">
+        if specifiedNumber exists then specifiedNumber >= 0
 
 type Restructuring:
 
-	applicable boolean (1..1) <"Indicates whether the restructuring provision is applicable.">
-	restructuringType RestructuringEnum (0..1) <"Specifies the type of restructuring that is applicable.">
-		[metadata scheme]
-	multipleHolderObligation boolean (0..1) <"In relation to a restructuring credit event, unless multiple holder obligation is not specified restructurings are limited to multiple holder obligations. A multiple holder obligation means an obligation that is held by more than three holders that are not affiliates of each other and where at least two thirds of the holders must agree to the event that constitutes the restructuring credit event. ISDA 2003 Term: Multiple Holder Obligation.">
-	multipleCreditEventNotices boolean (0..1) <"Presence of this element and value set to 'true' indicates that Section 3.9 of the 2003 Credit Derivatives Definitions shall apply. Absence of this element indicates that Section 3.9 shall not apply. NOTE: Not allowed under ISDA Credit 1999.">
-	
+    applicable boolean (1..1) <"Indicates whether the restructuring provision is applicable.">
+    restructuringType RestructuringEnum (0..1) <"Specifies the type of restructuring that is applicable.">
+        [metadata scheme]
+    multipleHolderObligation boolean (0..1) <"In relation to a restructuring credit event, unless multiple holder obligation is not specified restructurings are limited to multiple holder obligations. A multiple holder obligation means an obligation that is held by more than three holders that are not affiliates of each other and where at least two thirds of the holders must agree to the event that constitutes the restructuring credit event. ISDA 2003 Term: Multiple Holder Obligation.">
+    multipleCreditEventNotices boolean (0..1) <"Presence of this element and value set to 'true' indicates that Section 3.9 of the 2003 Credit Derivatives Definitions shall apply. Absence of this element indicates that Section 3.9 shall not apply. NOTE: Not allowed under ISDA Credit 1999.">
+
 type FeaturePayment: <"Payment made following trigger occurrence.">
-	[metadata key]
+    [metadata key]
 
-	payerReceiver PartyReferencePayerReceiver (1..1) <"This attribute doesn't exist as part of the FpML construct, which makes use of the PayerReceiver.model group.">
-	levelPercentage number (0..1) <"The trigger level percentage.">
-	amount number (0..1)	<"The monetary quantity in currency units.">
-	time TimeTypeEnum (0..1) <"The feature payment time.">
-	currency string (0..1) <"The currency in which an amount is denominated.">
-		[metadata scheme]
-	paymentDate AdjustableOrRelativeDate (0..1) <"The feature payment date.">
-	
-	condition FeaturePaymentChoice: <" Choice rule to represent an FpML choice construct.">
-		required choice levelPercentage, amount
+    payerReceiver PartyReferencePayerReceiver (1..1) <"This attribute doesn't exist as part of the FpML construct, which makes use of the PayerReceiver.model group.">
+    levelPercentage number (0..1) <"The trigger level percentage.">
+    amount number (0..1) <"The monetary quantity in currency units.">
+    time TimeTypeEnum (0..1) <"The feature payment time.">
+    currency string (0..1) <"The currency in which an amount is denominated.">
+        [metadata scheme]
+    paymentDate AdjustableOrRelativeDate (0..1) <"The feature payment date.">
 
-	condition Amount: <" The amount attribute is specified in FpML as non-negative decimal.">
-		if amount exists
-		then amount >= 0.0
+    condition FeaturePaymentChoice: <" Choice rule to represent an FpML choice construct.">
+        required choice levelPercentage, amount
+
+    condition Amount: <" The amount attribute is specified in FpML as non-negative decimal.">
+        if amount exists then amount >= 0.0
 
 type Observation: <"Defines a single, numerical value that was observed in the marketplace. Observations of market data are made independently to business events or trade life-cycle events, so data instances of Observation can be created independently of any other model type, hence it is annotated as a root type. Observations will be broadly reused in many situations, so references to Observation are supported via the 'key' annotation.">
-	[rootType]
-	[metadata key]
-	observedValue Price (1..1) <"Specifies the observed value as a number.">
-	observationIdentifier ObservationIdentifier (1..1) <"Represents the observation was made i.e. how to uniquely identify the observed value among the population of all available market data.">
+    [rootType]
+    [metadata key]
+    observedValue Price (1..1) <"Specifies the observed value as a number.">
+    observationIdentifier ObservationIdentifier (1..1) <"Represents the observation was made i.e. how to uniquely identify the observed value among the population of all available market data.">
 
-type ObservationIdentifier:	<"Defines the parameters needed to uniquely identify a piece of data among the population of all available market data.">
-	observable Observable (1..1) <"Represents the asset or rate to which the observation relates.">
-	observationDate date (1..1) <"Specifies the date value to use when resolving the market data.">
-	observationTime TimeZone (0..1) <"Represents the time and time-zone.">
-	informationSource InformationSource (0..1) <"Represents where the market data published and should be observed.">
-	determinationMethodology DeterminationMethodology (0..1) <"Specifies the method according to which an amount or a date is determined.">
-	
+type ObservationIdentifier: <"Defines the parameters needed to uniquely identify a piece of data among the population of all available market data.">
+    observable Observable (1..1) <"Represents the asset or rate to which the observation relates.">
+    observationDate date (1..1) <"Specifies the date value to use when resolving the market data.">
+    observationTime TimeZone (0..1) <"Represents the time and time-zone.">
+    informationSource InformationSource (0..1) <"Represents where the market data published and should be observed.">
+    determinationMethodology DeterminationMethodology (0..1) <"Specifies the method according to which an amount or a date is determined.">
+
 type DeterminationMethodology: <"Specifies the method according to which an amount or a date is determined.">
-	determinationMethod DeterminationMethodEnum (0..1) <"Represents a more granular dimention of observation. Typically relevent for resolving a unique equity price, which can be expressed as trade-weighted or volume-weighted averages.">
-	averagingMethod AveragingCalculationMethodEnum (0..1) <"Specifies enumerations for the type of averaging calculation.">
+    determinationMethod DeterminationMethodEnum (0..1) <"Represents a more granular dimention of observation. Typically relevent for resolving a unique equity price, which can be expressed as trade-weighted or volume-weighted averages.">
+    averagingMethod AveragingCalculationMethodEnum (0..1) <"Specifies enumerations for the type of averaging calculation.">
 
 func ResolveObservation: <"Specifies the interface that should be used by implementors to resolve a single observation when provided many, applying the averaging method, if one is provided.">
-	inputs:
-		identifiers ObservationIdentifier (1..*)
-		averagingMethod AveragingCalculationMethod (0..1)
-	output:
-		observation Observation (1..1)
+    [codeImplementation]
+    inputs:
+        identifiers ObservationIdentifier (1..*)
+        averagingMethod AveragingCalculationMethod (0..1)
+    output:
+        observation Observation (1..1)

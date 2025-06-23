@@ -1,16 +1,12 @@
 namespace cdm.mapping.cme
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
 import cdm.base.staticdata.identifier.*
-
-import cdm.product.asset.*
-
-
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
 import cdm.event.workflow.*
-
 import cdm.mapping.fpml.confirmation.workflowstep.*
+import cdm.product.asset.*
 
 synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 {
@@ -22,8 +18,8 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
         + timestamp
             [value "timestamps" path "clearingConfirmed->trade->tradeHeader"]
             [value "header" path "clearingConfirmed"]
-		+ creditLimitInformation
-		    [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
+        + creditLimitInformation
+            [value "creditLimitInformation" path "clearingConfirmed->trade->tradeHeader"]
 
     EventInstruction:
         + eventDate
@@ -31,75 +27,74 @@ synonym source CME_ClearedConfirm_1_17 extends CME_BASE
 
     MessageInformation:
         - sentBy
-		+ sentBy
-			[value "sentBy" meta "messageAddressScheme"]
-		- sentTo
-		+ sentTo
-			[value "sendTo" meta "messageAddressScheme"]
+        + sentBy
+            [value "sentBy" meta "messageAddressScheme"]
+        - sentTo
+        + sentTo
+            [value "sendTo" meta "messageAddressScheme"]
 
-	EventTimestamp:
-		+ dateTime
-			[value "creationTimestamp"]
-			[value "expiryTimestamp"]
-			[value "submittedForClearing"]
-		+ qualification
-			[set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
-			[set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
-			[set to EventTimestampQualificationEnum -> clearingReceiptDateTime when "submittedForClearing" exists]
+    EventTimestamp:
+        + dateTime
+            [value "creationTimestamp"]
+            [value "expiryTimestamp"]
+            [value "submittedForClearing"]
+        + qualification
+            [set to EventTimestampQualificationEnum -> eventCreationDateTime when "creationTimestamp" exists]
+            [set to EventTimestampQualificationEnum -> eventExpirationDateTime when "expiryTimestamp" exists]
+            [set to EventTimestampQualificationEnum -> clearingReceiptDateTime when "submittedForClearing" exists]
 
-	WorkflowState:
-		+ workflowStatus
-			[value "status" path "clearingConfirmed->trade->tradeHeader"]
+    WorkflowState:
+        + workflowStatus
+            [value "status" path "clearingConfirmed->trade->tradeHeader"]
 
-	LimitApplicableExtended:
-		+ limitLevel
-			[value "level" meta "creditLimitLevelScheme"]
-		+ limitAmount
-			[value "limitAmount"]
-		+ limitImpactDueToTrade
-			[value "limitImpactDueToTrade"]
+    LimitApplicableExtended:
+        + limitLevel
+            [value "level" meta "creditLimitLevelScheme"]
+        + limitAmount
+            [value "limitAmount"]
+        + limitImpactDueToTrade
+            [value "limitImpactDueToTrade"]
 
-	CreditLimitInformation:
-		+ limitApplicable
-			[value "limitApplicable"]
+    CreditLimitInformation:
+        + limitApplicable
+            [value "limitApplicable"]
 
-	Trade:
-		+ tradeIdentifier
-			[value "universalSwapIdentifier" path "tradeHeader"]
+    Trade:
+        + tradeIdentifier
+            [value "universalSwapIdentifier" path "tradeHeader"]
 
     AssignedIdentifier:
-		+ identifier
-			[value "tradeId" meta "tradeIdScheme"]
-			[value "usi" meta "usiScheme"]
+        + identifier
+            [value "tradeId" meta "tradeIdScheme"]
+            [value "usi" meta "usiScheme"]
 
     enums
 
-	// CategoryEnum:
-	// 	+ Customer
-	// 		[value "CUST"]
-	// 	+ Principal
-	// 		[value "HOUS"]
+    // CategoryEnum:
+    // + Customer
+    // [value "CUST"]
+    // + Principal
+    // [value "HOUS"]
+    WorkflowStatusEnum:
+        + Accepted
+            [value "Accepted"]
+        + Amended
+            [value "AMENDED"]
+        + Cleared
+            [value "CLEARED"]
+        + Rejected
+            [value "Rejected"]
+        + Terminated
+            [value "TERMINATED"]
 
-	WorkflowStatusEnum:
-		+ Accepted
-			[value "Accepted"]
-		+ Amended
-			[value "AMENDED"]
-		+ Cleared
-			[value "CLEARED"]
-		+ Rejected
-			[value "Rejected"]
-		+ Terminated
-			[value "TERMINATED"]
-
-	PartyRoleEnum:
-		+ DataSubmitter
-			[value "InputSource"]
+    PartyRoleEnum:
+        + DataSubmitter
+            [value "InputSource"]
 }
 
 synonym source CME_SubmissionIRS_1_0 extends CME_BASE
 {
-	WorkflowStep:
+    WorkflowStep:
         + proposedEvent
             [value "TrdCaptRpt"]
             [value "FpML" path "TrdCaptRpt->Instrmt->SecXML"]
@@ -108,51 +103,51 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
         + messageInformation
             [value "TrdCaptRpt"]
 
-	EventTimestamp:
-		+ dateTime
-			[value "TxnTm" path "TrdCaptRpt"]
-			[value "Snt" path "TrdCaptRpt->Hdr"]
-			[value "TS" path "TrdCaptRpt->TrdRegTS"]
-		+ qualification
-			[set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
-			[set to EventTimestampQualificationEnum -> eventSentDateTime when path= "TrdCaptRpt->Hdr->Snt"]
-			[set to EventTimestampQualificationEnum -> executionDateTime when path= "TrdCaptRpt->TrdRegTS->TS" and "TrdCaptRpt->TrdRegTS->Typ" = 1]
+    EventTimestamp:
+        + dateTime
+            [value "TxnTm" path "TrdCaptRpt"]
+            [value "Snt" path "TrdCaptRpt->Hdr"]
+            [value "TS" path "TrdCaptRpt->TrdRegTS"]
+        + qualification
+            [set to EventTimestampQualificationEnum -> transactionCreationDateTime when path = "TrdCaptRpt->TxnTm"]
+            [set to EventTimestampQualificationEnum -> eventSentDateTime when path = "TrdCaptRpt->Hdr->Snt"]
+            [set to EventTimestampQualificationEnum -> executionDateTime when path = "TrdCaptRpt->TrdRegTS->TS"]
 
-	WorkflowState:
-		+ workflowStatus
-			[value "RptTyp" path "TrdCaptRpt"]
-		+ partyCustomisedWorkflow
-			[value "RptSide" path "TrdCaptRpt"]
+    WorkflowState:
+        + workflowStatus
+            [value "RptTyp" path "TrdCaptRpt"]
+        + partyCustomisedWorkflow
+            [value "RptSide" path "TrdCaptRpt"]
 
-	MessageInformation:
-		+ sentBy
-			[value "SSub" path "Hdr"]
-		+ sentTo
-			[value "TID" path "Hdr"]
+    MessageInformation:
+        + sentBy
+            [value "SSub" path "Hdr"]
+        + sentTo
+            [value "TID" path "Hdr"]
 
-	PartyCustomisedWorkflow:
-		+ partyName
-			[value "ID" path "Pty"]
+    PartyCustomisedWorkflow:
+        + partyName
+            [value "ID" path "Pty"]
 
-	CustomisedWorkflow:
-		+ itemName
-			[set to "ClientOrderId" when path = "ClOrdID"]
-			[set to "TradeOriginationSystem" when path = "InptSrc"]
-			[set to "OriginatingTradeId" when path = "OrigTrdID"]
-			[set to "ExecutionTime" when path = "TrdRegTS->TS" and "TrdRegTS->Typ" = "1"]
-			[set to "PartyType" when path = "Pty->R"]
-			[set to "PartyIdentifier" when path = "Pty->Src"]
-		+ itemValue
-			[value "ClOrdID"]
-			[value "InptSrc"]
-			[value "OrigTrdID"]
-			[value "TS" path "TrdRegTS"]
-			[set to "Customer Account" when "Pty->R" = "24"]
-			[set to "Custom" when "Pty->Src" = "D"]
+    CustomisedWorkflow:
+        + itemName
+            [set to "ClientOrderId" when path = "ClOrdID"]
+            [set to "TradeOriginationSystem" when path = "InptSrc"]
+            [set to "OriginatingTradeId" when path = "OrigTrdID"]
+            [set to "ExecutionTime" when path = "TrdRegTS->TS"]
+            [set to "PartyType" when path = "Pty->R"]
+            [set to "PartyIdentifier" when path = "Pty->Src"]
+        + itemValue
+            [value "ClOrdID"]
+            [value "InptSrc"]
+            [value "OrigTrdID"]
+            [value "TS" path "TrdRegTS"]
+            [set to "Customer Account" when "Pty->R" = "24"]
+            [set to "Custom" when "Pty->Src" = "D"]
 
-	AssignedIdentifier:
-		+ identifier
-			[value "RptID" path "TrdCaptRpt"]
+    AssignedIdentifier:
+        + identifier
+            [value "RptID" path "TrdCaptRpt"]
 
     TradeState:
         [meta "id" path "trade"]
@@ -162,72 +157,71 @@ synonym source CME_SubmissionIRS_1_0 extends CME_BASE
             [hint "party"]
             [hint "account"]
 
-	ExecutionDetails:
-		+ executionType
-			[value "VenuTyp"]
-		+ executionVenue
-		    [value "Hdr"]
+    ExecutionDetails:
+        + executionType
+            [value "VenuTyp"]
+        + executionVenue
+            [value "Hdr"]
 
-	PartyReferencePayerReceiver:
-    	- payerPartyReference
-		+ payerPartyReference
-			[value "payerPartyReference" mapper "TradeSideToParty"]
-			[value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
-		- receiverPartyReference
-		+ receiverPartyReference
-			[value "receiverPartyReference" mapper "TradeSideToParty"]
-			[value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
+    PartyReferencePayerReceiver:
+        - payerPartyReference
+        + payerPartyReference
+            [value "payerPartyReference" mapper "TradeSideToParty"]
+            [value "buyerPartyReference" maps 2 mapper "TradeSideToParty"]
+        - receiverPartyReference
+        + receiverPartyReference
+            [value "receiverPartyReference" mapper "TradeSideToParty"]
+            [value "sellerPartyReference" maps 2 mapper "TradeSideToParty"]
 
-	LegalEntity:
-		+ name
-			[value "SID"]
+    LegalEntity:
+        + name
+            [value "SID"]
 
-	Party:
-		+ name
-			[value "SID" path "Hdr"]
+    Party:
+        + name
+            [value "SID" path "Hdr"]
 
     enums
 
-	ExecutionTypeEnum:
-	    - Electronic
-		+ Electronic
-			[value "E"]
-		+ OffFacility
-			[value "O"]
+    ExecutionTypeEnum:
+        - Electronic
+        + Electronic
+            [value "E"]
+        + OffFacility
+            [value "O"]
 
-	ActionEnum:
-		+ New
-			[value "0"]
-		+ Correct
-			[value "2"]
-		+ Cancel
-			[value "1"]
+    ActionEnum:
+        + New
+            [value "0"]
+        + Correct
+            [value "2"]
+        + Cancel
+            [value "1"]
 
-	WorkflowStatusEnum:
-		+ Cancelled
-			[value "2"]
-		+ Pending
-			[value "101"]
-		+ Rejected
-			[value "1"]
-		+ Submitted
-			[value "0"]
+    WorkflowStatusEnum:
+        + Cancelled
+            [value "2"]
+        + Pending
+            [value "101"]
+        + Rejected
+            [value "1"]
+        + Submitted
+            [value "0"]
 }
 
 synonym source CME_BASE extends FpML_5_Confirmation_To_WorkflowStep
 {
-	InterestShortFall:
-		+ rateSource
-			[value "rateSource" meta "floatingRateIndexScheme"]
+    InterestShortFall:
+        + rateSource
+            [value "rateSource" meta "floatingRateIndexScheme"]
 
-	enums
+    enums
 
-	LimitLevelEnum:
-		+ Account
-			[value "ACCT"]
-		+ Customer
-			[value "CUST"]
-		+ House
-			[value "HOUS"]
+    LimitLevelEnum:
+        + Account
+            [value "ACCT"]
+        + Customer
+            [value "CUST"]
+        + House
+            [value "HOUS"]
 }
-

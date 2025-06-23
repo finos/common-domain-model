@@ -5,46 +5,46 @@ import cdm.base.datetime.*
 import cdm.base.staticdata.asset.rates.*
 
 type FloatingRateCalculationParameters: <"Defines the structures needed to represent the calculation parameters for daily averaged and compounded modular rates as defined in the 2021 ISDA Definitions in Section 7. This type is used to represent modular computed rates in interestRatePayouts.">
-	calculationMethod CalculationMethodEnum (1..1)  <"calculation type (averaging or compounding).">
-	observationShiftCalculation ObservationShiftCalculation (0..1) <"any obervation shift parameters if applicable.">
-	lookbackCalculation OffsetCalculation (0..1) <"any lookback  parameters if applicable.">
-	lockoutCalculation OffsetCalculation (0..1) <"any lockout  parameters if applicable.">
-	applicableBusinessDays BusinessCenters (0..1) <"the business days that are applicable for the calculation.">
-	observationParameters ObservationParameters (0..1) <" any applicable observation parameters, such as daily caps or floors.">
+    calculationMethod CalculationMethodEnum (1..1) <"calculation type (averaging or compounding).">
+    observationShiftCalculation ObservationShiftCalculation (0..1) <"any obervation shift parameters if applicable.">
+    lookbackCalculation OffsetCalculation (0..1) <"any lookback  parameters if applicable.">
+    lockoutCalculation OffsetCalculation (0..1) <"any lockout  parameters if applicable.">
+    applicableBusinessDays BusinessCenters (0..1) <"the business days that are applicable for the calculation.">
+    observationParameters ObservationParameters (0..1) <" any applicable observation parameters, such as daily caps or floors.">
 
 type FallbackRateParameters: <"Defines the structure needed to represent fallback rate parameters. This type is used to represent modular computed rates in interestRatePayouts.">
-	floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index that is used as the basis of the fallback rate.">
-	effectiveDate date (0..1) <"The date the fallback rate takes effect.">
-	calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
-	spreadAdjustment number (0..1) <"The economic spread applied to the underlying fallback rate to replicate the original risky rate.">
+    floatingRateIndex FloatingRateIndexEnum (1..1) <"The floating rate index that is used as the basis of the fallback rate.">
+    effectiveDate date (0..1) <"The date the fallback rate takes effect.">
+    calculationParameters FloatingRateCalculationParameters (0..1) <"Support for modular calculated rates, such such as lockout compound calculations.">
+    spreadAdjustment number (0..1) <"The economic spread applied to the underlying fallback rate to replicate the original risky rate.">
 
 type OffsetCalculation: <"Defines business day shifts for daily componded or averaged rates.  This type is used for lookback and lockout rates. This type is used to represent modular computed rates in interestRatePayouts.">
-	offsetDays int (0..1) <"The number of business days offset.">
+    offsetDays int (0..1) <"The number of business days offset.">
 
 type ObservationShiftCalculation: <"Parameters to describe the observation shift for a daily compounded or averaged floating rate. This type is used to represent modular computed rates in interestRatePayouts.">
-	offsetDays int (0..1) <"The number of days of observation shift.">
-	calculationBase ObservationPeriodDatesEnum (0..1) <"Whether the rate is calculated in advance, in arrears, or relative to a reset date.">
-	additionalBusinessDays BusinessCenters (0..1) <"Any additional business days that be applicable.">
+    offsetDays int (0..1) <"The number of days of observation shift.">
+    calculationBase ObservationPeriodDatesEnum (0..1) <"Whether the rate is calculated in advance, in arrears, or relative to a reset date.">
+    additionalBusinessDays BusinessCenters (0..1) <"Any additional business days that be applicable.">
 
 type ObservationParameters: <"Parameters on daily observed computed rates, specifically daily caps and floors. This type is used to represent modular computed rates in interestRatePayouts.">
-	observationCapRate number (0..1) <"A daily observation cap rate.">
-	observationFloorRate number (0..1) <"A daily observation floor rate.">
+    observationCapRate number (0..1) <"A daily observation cap rate.">
+    observationFloorRate number (0..1) <"A daily observation floor rate.">
 
 type CalculatedRateDetails: <"Type for reporting details of calculated rates, including the observations that went into the final reported rate.">
-	observations CalculatedRateObservations (0..1) <"The observation dates and weights for each observation date.">
-	weightedRates number (0..*) <"The weighted value of each observation.">
-	growthFactor number (0..*) <"The daily growth factors, showing the weighted rates divided by the day count basis plus one, giving how much the value grows for each step in the calculation.">
-	compoundedGrowth number (0..*) <"The compounding curve, showing how the initial value grew during the calculation period.">
-	aggregateValue number (0..1) <"The total sum or product of all the individual terms that went into the calculated rate.">
-	aggregateWeight number (0..1) <"The total weight of all the terms that went into the calculated rate.">
-	calculatedRate number (0..1) <"The resulting calculated weight.">
+    observations CalculatedRateObservations (0..1) <"The observation dates and weights for each observation date.">
+    weightedRates number (0..*) <"The weighted value of each observation.">
+    growthFactor number (0..*) <"The daily growth factors, showing the weighted rates divided by the day count basis plus one, giving how much the value grows for each step in the calculation.">
+    compoundedGrowth number (0..*) <"The compounding curve, showing how the initial value grew during the calculation period.">
+    aggregateValue number (0..1) <"The total sum or product of all the individual terms that went into the calculated rate.">
+    aggregateWeight number (0..1) <"The total weight of all the terms that went into the calculated rate.">
+    calculatedRate number (0..1) <"The resulting calculated weight.">
 
 type CalculatedRateObservations: <"Type for reporting observations that went into the final reported rate.">
-	observationDates date (0..*) <"The observation date upon which the rate is observed.">
-	weights number (0..*) <"The corresponding weight for each date.">
-	observedRates number (0..*) <"The value observed for that date">
-	processedRates number (0..*) <"The value after any processing, such as application of caps or floors.">
+    observationDates date (0..*) <"The observation date upon which the rate is observed.">
+    weights number (0..*) <"The corresponding weight for each date.">
+    observedRates number (0..*) <"The value observed for that date">
+    processedRates number (0..*) <"The value after any processing, such as application of caps or floors.">
 
 type CalculatedRateObservationDatesAndWeights: <"Type for reporting the observations dates and the corresponding weights going into a daily calculated rate">
-	observationDates date (0..*) <"The observation date upon which the rate is observed.">
-	weights number (0..*) <"The corresponding weight for each date.">
+    observationDates date (0..*) <"The observation date upon which the rate is observed.">
+    weights number (0..*) <"The corresponding weight for each date.">

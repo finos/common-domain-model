@@ -25,7 +25,7 @@ public class CalculationAgentPartyMappingProcessor extends MappingProcessor {
 	private static final RosettaPath OPTIONAL_EARLY_TERMINATION_SUB_PATH = RosettaPath.valueOf("optionalEarlyTermination");
 	private static final RosettaPath MANDATORY_EARLY_TERMINATION_SUB_PATH = RosettaPath.valueOf("mandatoryEarlyTermination");
 	private static final RosettaPath FALLBACK_REFERENCE_PRICE_SUB_PATH = RosettaPath.valueOf("fallbackReferencePrice");
-	private static final RosettaPath ECONOMIC_TERMS_ENDS_WITH = RosettaPath.valueOf("product.contractualProduct.economicTerms");
+	private static final RosettaPath ECONOMIC_TERMS_ENDS_WITH = RosettaPath.valueOf("economicTerms");
 
 	public CalculationAgentPartyMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
 		super(modelPath, synonymPaths, context);

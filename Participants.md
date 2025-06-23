@@ -2,17 +2,31 @@
 Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have committed to the [Community Specification Contributor License Agreement](LICENSE.md).
 
 ## Participants
-- Ron Kaim, CFX Consulting, Date of enrollment: May/03/2023
-- 
--
--  
-- 
-- 
-- 
--  
-- 
-- 
-- 
+- Ron Kaim, CFX Consulting, Date of enrollment: 3rd May 2023
+- Chris Rayner, ISLA, Date of enrollment: 11th Oct 2023
+- David Shone, ISDA, Date of enrollment: 11th Oct 2023
+- Tom Healey, ICMA,  Date of enrollment: 16th Oct 2023
+- Gabriel Callsen, ICMA,  Date of enrollment: 16th Oct 2023
+- Adrian Dale, ISLA, Date of enrollment: 7th Mar 2024
+- Marc Gratacos, TradeHeader, Date of enrollment: 15th Mar 2023
+- Leo Labeis, REGnosys, Date of enrollment: 8th Mar 2024
+- Minesh Patel, REGnosys, Date of enrollment: 8th Mar 2024
+- Hugo Hills, REGnosys, Date of enrollment: 8th Mar 2024
+- Daniel Schwartz, FT Advisory, Date of enrollment: 8th Mar 2024 
+- Plamen Neykov, CLOUDRISK Limited, Date of enrollment: 8th Mar 2024 
+- Manuel Martos, TradeHeader, Date of enrollment: 8th Mar 2024
+- Roger Guitart, TradeHeader, Date of enrollment: 8th Mar 2024
+- Manuel Carrera, TradeHeader, Date of enrollment: 8th Mar 2024
+- Jan Baserba, TradeHeader, Date of enrollment: 8th Mar 2024
+- Adrian Hutusoru, Fragmos Chain, Date of enrollment: 9th Mar 2024
+- Daniel Ivanier, Fragmos Chain, Date of enrollment: 9th Mar 2024
+- Jean-Baptiste Ziade, Fragmos Chain, Date of enrollment: 9th Mar 2024
+- Eleonora Acuna, ISDA, Date of enrollment: 11th Mar 2024
+- Vernon Alden-Smith ISDA, Date of enrolement 13th Mar 2024
+- Brian Lynn, Global Electronic Markets, Date of enrolement: 17 May 2024
+- Vassil Verguilov, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
+- Dimo Rezashki, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
+- Jason Polis, ISDA, Date of enrollment: 14 Mar 2025
 
 
 ## How to enroll as a participant
@@ -22,7 +36,7 @@ _:question:Please email help@finos.org if you encounter issues or have questions
 
 **Step 1. Go to  the [participants](#participants) file** and make sure you are signed into your {GitHub} account
 
-**Step 2. Click on the :pen: icon at the top right of the the [participants](#participants) file**
+**Step 2. Click on the :pen: icon at the top right of the [participants](#participants) file**
     
 [<img src="https://user-images.githubusercontent.com/51138318/151390328-00e6ac68-6069-493e-b536-d329fa9cc51e.png" width="500">](https://user-images.githubusercontent.com/51138318/151390328-00e6ac68-6069-493e-b536-d329fa9cc51e.png)
     

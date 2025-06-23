@@ -21,7 +21,7 @@ import static com.regnosys.rosetta.common.translation.Path.PathElement;
  *
  * In FpML, account references are positioned in PayerReceiver and BuyerSeller, both inside the Product.
  * In CDM, the Product is agnostic to parties and accounts so the account mappings from removed from the Product, and the accounts are
- * associated to the party by mapping attribute Contract.accounts.partyReference.
+ * associated to the party by mapping attribute Trade.accounts.partyReference.
  */
 @SuppressWarnings("unused")
 public class AccountPartyReferenceMappingProcessor extends MappingProcessor {

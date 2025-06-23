@@ -3,17 +3,14 @@ version "${project.version}"
 
 import cdm.base.math.*
 import cdm.base.staticdata.identifier.*
-
-import cdm.observable.asset.*
-
-import cdm.product.common.settlement.*
-import cdm.mapping.fpml.confirmation.tradestate.*
-import cdm.event.workflow.*
 import cdm.event.common.*
+import cdm.event.workflow.*
+import cdm.mapping.fpml.confirmation.tradestate.*
+import cdm.observable.asset.*
 
 synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_To_TradeState
 {
-   WorkflowStep:
+    WorkflowStep:
         + businessEvent
             [value "ignore"]
         + approval
@@ -29,9 +26,11 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
         + eventIdentifier
             [value "header"]
             [value "eventIdentifier" path "tradingEvent"]
+            [value "tradeHeader" path "trade"]
         + action
             [set to ActionEnum -> New when "isCorrection" = False]
             [set to ActionEnum -> Correct when "isCorrection" = True]
+            [set to ActionEnum -> Cancel when "withdrawal->reason" = "RaisedInError"]
         + party
             [value "ignore"]
         + account
@@ -41,15 +40,35 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
         + creditLimitInformation
             [value "ignore"]
 
+    WorkflowState:
+        + workflowStatus
+            [set to WorkflowStatusEnum -> Cleared when "originatingEvent" = "Clearing"]
+
     EventInstruction:
         + intent
             [value "terminatingEvent"]
+            // originatingEvent is mapped here as several "set to" mappings as a workaround for the fact that "set to" mappings take precedence over
+            // "value" mappings. Since "originatingEvent" always appears with one or more of the other mapped elements (typically "trade"), a "value" mapping
+            // would never be processed.
             [set to EventIntentEnum -> Allocation when "intentToAllocate" = True]
+            [set to EventIntentEnum -> Allocation when "originatingEvent" = "Allocation"]
+            [set to EventIntentEnum -> Allocation when "terminatingEvent" = "Allocation"]
+            [set to EventIntentEnum -> Allocation when /*"originatingEvent" = "Trade" and */ "trade->tradeHeader->partyTradeInformation->allocationStatus" = "PostAllocation"] // not working
             [set to EventIntentEnum -> Clearing when "intentToClear" = True]
-            [set to EventIntentEnum -> ContractFormation when "trade" exists]
+            [set to EventIntentEnum -> Compression when "originatingEvent" = "Netting"]
+            [set to EventIntentEnum -> Compression when "originatingEvent" = "PortfolioCompression"]
+            [set to EventIntentEnum -> Compression when "terminatingEvent" = "Netting"]
+            [set to EventIntentEnum -> Compression when "terminatingEvent" = "PortfolioCompression"]
+            [set to EventIntentEnum -> ContractTermsAmendment when "amendment" exists]
+            [set to EventIntentEnum -> CreditEvent when "originatingEvent" = "CreditEvent"]
             [set to EventIntentEnum -> Novation when "novation" exists]
+            [set to EventIntentEnum -> Novation when "originatingEvent" = "Novation"]
             [set to EventIntentEnum -> OptionExercise when "optionExercise" exists]
-		
+            [set to EventIntentEnum -> OptionExercise when "originatingEvent" = "Exercise"]
+            [set to EventIntentEnum -> PortfolioRebalancing when "originatingEvent" = "PortfolioRebalancing"]
+            [set to EventIntentEnum -> ContractFormation when "originatingEvent" = "ForwardAgainstFixing"]
+            [set to EventIntentEnum -> ContractFormation when "originatingEvent" = "Trade"]
+            [set to EventIntentEnum -> ContractFormation when "trade" exists]
         + instruction
             [merge "termination"]
             [merge "amendment"]
@@ -59,22 +78,27 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [merge "account"]
             [merge "quote"]
             [merge "optionExercise"]
+            [merge "withdrawal"]
         + eventDate
-            // [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "amendment" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "termination" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "executionDateTime" path "trade->tradeHeader->partyTradeInformation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "tradeDate" path "rebooking->trade->tradeHeader" maps 2]
             [value "agreementDate" path "amendment" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "agreementDate" path "amendment" maps 2]
             [value "agreementDate" path "termination" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "agreementDate" path "termination" maps 2]
-            [value "novationDate" path "novation" maps 2]           
-            // [value "executionDateTime" path "novation" maps 2 dateFormat "yyyy-MM-dd'T'HH:mm:ssz"]
+            [value "novationDate" path "novation" maps 2]
             [value "novationTradeDate" path "novation" maps 2]
             [value "exerciseDate" path "optionExercise"]
         + effectiveDate
-            [value "effectiveDate" path "tradingEvent"]
+            [value "effectiveDate" path "tradingEvent" maps 2]
             [value "effectiveDate" path "termination" maps 2 dateFormat "yyyy-MM-ddz"]
             [value "effectiveDate" path "termination" maps 2]
             [value "effectiveDate" path "amendment" maps 2]
             [value "effectiveDate" path "novation" maps 2]
+            [value "novationDate" path "novation" maps 2]
+            [value "effectiveDate" path "withdrawal" maps 2]
         + packageInformation
             [value "ignore"] // not modelled in FpML
 
@@ -83,8 +107,9 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "termination"]
             [value "novation"]
             [value "amendment"]
-            [hint "trade", "party", "account", "quote"]
+            [hint "trade" , "party" , "account" , "quote"]
             [value "optionExercise"]
+            [value "withdrawal"]
 
     PrimitiveInstruction:
         + contractFormation
@@ -135,14 +160,13 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
     TransferExpression:
         + priceTransfer
             [value "paymentType"]
-            [set to FeeTypeEnum->Termination when path = "termination->payment"]
-            [set to FeeTypeEnum->Renegotiation when path = "amendment->payment"]
+            [set to FeeTypeEnum -> Termination when path = "termination->payment"]
+            [set to FeeTypeEnum -> Renegotiation when path = "amendment->payment"]
 
     PriceQuantity:
         + quantity
             [value "outstandingNotionalAmount"]
             [value "outstandingNotionalAmount" path "sizeChange"]
-
 
     Price:
         + value
@@ -159,12 +183,14 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "executionDateTime" path "termination"]
             [value "submittedForClearing" path "trade->tradeHeader->partyTradeInformation->timestamps"]
             [value "cleared" path "trade->tradeHeader->partyTradeInformation->timestamps"]
+            [value "confirmed" path "trade->tradeHeader->partyTradeInformation->timestamps"]
         + qualification
             [set to EventTimestampQualificationEnum -> eventCreationDateTime when path = "header->creationTimestamp"]
             [set to EventTimestampQualificationEnum -> clearingReceiptDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->submittedForClearing"]
             [set to EventTimestampQualificationEnum -> clearingDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->cleared"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "trade->tradeHeader->partyTradeInformation->executionDateTime"]
             [set to EventTimestampQualificationEnum -> executionDateTime when path = "termination"]
+            [set to EventTimestampQualificationEnum -> confirmationDateTime when path = "trade->tradeHeader->partyTradeInformation->timestamps->confirmed"]
 
     MessageInformation:
         + messageId
@@ -191,29 +217,29 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "oldTrade" mapper "Party"]
             [value "feeTrade" mapper "Party"]
             [value "newTrade" mapper "Party"]
-            [hint "party", "account", "quote"]
+            [hint "party" , "account" , "quote"]
         + transferHistory
             // premium
-            [value "bondOption" path "feeTrade", "bondOption" path "originalTrade", "bondOption" path "newTrade", "bondOption" path "oldTrade"]
-            [value "swaption" path "feeTrade", "swaption" path "originalTrade", "swaption" path "newTrade", "swaption" path "oldTrade"]
-            [value "fxOption" path "feeTrade", "fxOption" path "originalTrade", "fxOption" path "newTrade", "fxOption" path "oldTrade"]
-            [value "fxDigitalOption" path "feeTrade", "fxDigitalOption" path "originalTrade", "fxDigitalOption" path "newTrade", "fxDigitalOption" path "oldTrade"]
-            [value "creditDefaultSwapOption" path "feeTrade", "creditDefaultSwapOption" path "originalTrade", "creditDefaultSwapOption" path "newTrade", "creditDefaultSwapOption" path "oldTrade"]
-            [value "commodityOption" path "feeTrade", "commodityOption" path "originalTrade", "commodityOption" path "newTrade", "commodityOption" path "oldTrade"]
-            [value "commodityBasketOption" path "feeTrade", "commodityBasketOption" path "originalTrade", "commodityBasketOption" path "newTrade", "commodityBasketOption" path "oldTrade"]
-            [value "capFloor" path "feeTrade", "capFloor" path "originalTrade", "capFloor" path "newTrade", "capFloor" path "trade", "capFloor" path "oldTrade"]
+            [value "bondOption" path "feeTrade" , "bondOption" path "originalTrade" , "bondOption" path "newTrade" , "bondOption" path "oldTrade"]
+            [value "swaption" path "feeTrade" , "swaption" path "originalTrade" , "swaption" path "newTrade" , "swaption" path "oldTrade"]
+            [value "fxOption" path "feeTrade" , "fxOption" path "originalTrade" , "fxOption" path "newTrade" , "fxOption" path "oldTrade"]
+            [value "fxDigitalOption" path "feeTrade" , "fxDigitalOption" path "originalTrade" , "fxDigitalOption" path "newTrade" , "fxDigitalOption" path "oldTrade"]
+            [value "creditDefaultSwapOption" path "feeTrade" , "creditDefaultSwapOption" path "originalTrade" , "creditDefaultSwapOption" path "newTrade" , "creditDefaultSwapOption" path "oldTrade"]
+            [value "commodityOption" path "feeTrade" , "commodityOption" path "originalTrade" , "commodityOption" path "newTrade" , "commodityOption" path "oldTrade"]
+            [value "commodityBasketOption" path "feeTrade" , "commodityBasketOption" path "originalTrade" , "commodityBasketOption" path "newTrade" , "commodityBasketOption" path "oldTrade"]
+            [value "capFloor" path "feeTrade" , "capFloor" path "originalTrade" , "capFloor" path "newTrade" , "capFloor" path "trade" , "capFloor" path "oldTrade"]
             // equityPremium
-            [value "equityOption" path "feeTrade", "equityOption" path "originalTrade", "equityOption" path "newTrade", "equityOption" path "oldTrade"]
-            [value "brokerEquityOption" path "feeTrade", "brokerEquityOption" path "originalTrade", "brokerEquityOption" path "newTrade", "brokerEquityOption" path "oldTrade"]
-            [value "dividendSwapOptionTransactionSupplement" path "feeTrade", "dividendSwapOptionTransactionSupplement" path "originalTrade", "dividendSwapOptionTransactionSupplement" path "newTrade", "dividendSwapOptionTransactionSupplement" path "oldTrade"]
-            [value "equityOptionTransactionSupplement" path "feeTrade", "equityOptionTransactionSupplement" path "originalTrade", "equityOptionTransactionSupplement" path "newTrade", "equityOptionTransactionSupplement" path "oldTrade"]
-            [value "varianceOptionTransactionSupplement" path "feeTrade", "varianceOptionTransactionSupplement" path "originalTrade", "varianceOptionTransactionSupplement" path "newTrade", "varianceOptionTransactionSupplement" path "oldTrade"]
+            [value "equityOption" path "feeTrade" , "equityOption" path "originalTrade" , "equityOption" path "newTrade" , "equityOption" path "oldTrade"]
+            [value "brokerEquityOption" path "feeTrade" , "brokerEquityOption" path "originalTrade" , "brokerEquityOption" path "newTrade" , "brokerEquityOption" path "oldTrade"]
+            [value "dividendSwapOptionTransactionSupplement" path "feeTrade" , "dividendSwapOptionTransactionSupplement" path "originalTrade" , "dividendSwapOptionTransactionSupplement" path "newTrade" , "dividendSwapOptionTransactionSupplement" path "oldTrade"]
+            [value "equityOptionTransactionSupplement" path "feeTrade" , "equityOptionTransactionSupplement" path "originalTrade" , "equityOptionTransactionSupplement" path "newTrade" , "equityOptionTransactionSupplement" path "oldTrade"]
+            [value "varianceOptionTransactionSupplement" path "feeTrade" , "varianceOptionTransactionSupplement" path "originalTrade" , "varianceOptionTransactionSupplement" path "newTrade" , "varianceOptionTransactionSupplement" path "oldTrade"]
             // initialPayment / singlePayment
-            [value "feeLeg" path "feeTrade->creditDefaultSwap", "feeLeg" path "originalTrade->creditDefaultSwap", "feeLeg" path "newTrade->creditDefaultSwap", "feeLeg" path "oldTrade->creditDefaultSwap"]
+            [value "feeLeg" path "feeTrade->creditDefaultSwap" , "feeLeg" path "originalTrade->creditDefaultSwap" , "feeLeg" path "newTrade->creditDefaultSwap" , "feeLeg" path "oldTrade->creditDefaultSwap"]
             // additionalPayment
-            [value "swap" path "feeTrade", "swap" path "originalTrade", "swap" path "newTrade", "swap" path "oldTrade"]
+            [value "swap" path "feeTrade" , "swap" path "originalTrade" , "swap" path "newTrade" , "swap" path "oldTrade"]
             // otherPartyPayment
-            [value "feeTrade", "originalTrade", "newTrade", "oldTrade"]
+            [value "feeTrade" , "originalTrade" , "newTrade" , "oldTrade"]
 
     ContractDetails:
         - documentation
@@ -234,7 +260,7 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
     ArithmeticOperationEnum:
         + Add
             [value "PackageSpread"]
-    
+
     EventIntentEnum:
         + Novation
             [value "Novation"]
@@ -247,10 +273,12 @@ synonym source FpML_5_Confirmation_To_WorkflowStep extends FpML_5_Confirmation_T
             [value "Allocation"]
         + CreditEvent
             [value "CreditEvent"]
+        + PortfolioRebalancing
+            [value "PortfolioRebalancing"]
 
     FeeTypeEnum:
         + BrokerageCommission
-			[value "BrokerageCommission"]
+            [value "BrokerageCommission"]
         + Novation
             [value "Novation Fee"]
         + Termination
