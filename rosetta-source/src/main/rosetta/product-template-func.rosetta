@@ -155,7 +155,7 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
             receiver: payout -> payerReceiver -> payer
         }
 
-    alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
+   alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
         Cashflow {
             quantity: NonNegativeQuantity {
                 value: priceLegAmount,
@@ -171,6 +171,16 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
                         identifier: priceLegCurrency,
                         identifierType: CurrencyCode
                     },
+                    party: Party {
+                            partyId: PartyIdentifier {
+                                identifier: payout -> underlier -> Observable -> Asset -> Instrument -> Security -> party -> partyId -> identifier only-element,
+                                ...
+                            },
+                            ...
+                    },
+                    assetType: AssetType {
+                        assetType: AssetTypeEnum->Cash,
+                        ...},
                     ...
                 },
                 ...
