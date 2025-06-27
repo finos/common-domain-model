@@ -74,12 +74,12 @@
 
     <properties>
         <gpg.keyname>configured-by-release-profile</gpg.keyname>
+        <gpg.passphrase>configured-by-release-profile</gpg.passphrase>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.enforced.version>[21,22)</java.enforced.version>
         <!-- release version is overridden in rosetta-source -->
         <maven.compiler.release>11</maven.compiler.release>
-
-        <gpg.passphrase>configured-by-release-profile</gpg.passphrase>
         <rosetta.bundle.version>11.68.3</rosetta.bundle.version>
         <rosetta.code-gen.version>${rosetta.bundle.version}</rosetta.code-gen.version>
         <rosetta.dsl.version>9.56.0</rosetta.dsl.version>
@@ -124,12 +124,43 @@
 
     <profiles>
         <profile>
-            <id>gpg</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                    <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                                    <passphraseEnvName>${gpg.passphrase}</passphraseEnvName>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>none</phase> <!-- Disable this execution -->
+                            </execution>
+                            <execution>
+                                <id>default</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -247,42 +278,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven-resources-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                            <configuration>
-                                <keyname>${gpg.keyname}</keyname>
-                                <passphraseServerId>${gpg.keyname}</passphraseServerId>
-                                <passphraseEnvName>${gpg.passphrase}</passphraseEnvName>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <phase>none</phase> <!-- Disable this execution -->
-                        </execution>
-                        <execution>
-                            <id>default</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
