@@ -42,7 +42,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,release,excel,json-schema"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   SnapshotProperties:
@@ -55,7 +55,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel,json-schema"
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
       - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   Build:
@@ -67,7 +67,7 @@ steps:
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
 
   FailBuildPipeline:
     stage: 'build'
@@ -242,7 +242,7 @@ steps:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
       - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P gpg
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
   DeployPython:
     stage: 'build'
