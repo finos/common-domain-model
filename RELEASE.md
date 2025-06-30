@@ -1,4 +1,4 @@
-# _Infrastructure - CDM Artifacts published to Maven Central OOSH_
+# _Infrastructure - CDM Artifacts published to Maven Central `central.sonatype.com`_
 
 _Background_
 
