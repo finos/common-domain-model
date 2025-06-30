@@ -22,4 +22,4 @@ The following FpML Mapping has been updated:
 
 _Review directions_
 
-Changes can be reviewed in PR: [#3820](https://github.com/finos/common-domain-model/pull/3820)
+Changes can be reviewed in PR: [#3827](https://github.com/finos/common-domain-model/pull/3827)
