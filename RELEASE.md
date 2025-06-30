@@ -2,7 +2,7 @@
 
 _Background_
 
-Asian options were not supported in CDM. The FpML mappings were pointing to the Asian type, which, however, was an orphan type and not referenced anywhere in the model.
+Asian options were previously not covered in the model. The FpML mappings were pointing to the Asian type, which, however, was an orphan type and not referenced anywhere in the model.
 
 To address this, it has been proposed to create a new `AveragingFeature` type that encapsulates `AveragingCalculation` and incorporates the attributes mapped from FpML. This new type is now referenced within `OptionFeature`.
 
@@ -20,6 +20,6 @@ The following FpML Mapping has been updated:
 
 -`AveragingFeature` (formerly called `Asian`)
 
-_Review directions_
+_Review Directions_
 
 Changes can be reviewed in PR: [#3827](https://github.com/finos/common-domain-model/pull/3827)
