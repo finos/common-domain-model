@@ -8,7 +8,7 @@ import cdm.product.asset.InterestRatePayout;
 import cdm.product.common.schedule.CalculationPeriod;
 import cdm.product.common.schedule.CalculationPeriodBase;
 import cdm.product.common.settlement.ResolvablePriceQuantity;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
