@@ -1,6 +1,6 @@
 package org.finos.cdm.example.functions;
 
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.finos.cdm.example.AbstractExampleTest;
 import org.junit.jupiter.api.Test;
 
