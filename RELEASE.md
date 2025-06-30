@@ -2,7 +2,7 @@
 
 _Background_
 
-Maven Central is migrating from OSS to central.sonatype.com, requiring updates to artifact release procedures. Key changes include using the maven-release-plugin and addressing authentication issues for deploying snapshots and releases. 
+Maven Central is migrating from OSS to central.sonatype.com, requiring updates to artifact release procedures. 
 
 _What is being released?_
 
