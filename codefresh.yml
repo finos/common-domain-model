@@ -93,18 +93,6 @@ steps:
         shell: bash
         commands:
           - daml build -o target/cdm-daml-${{RELEASE_NAME}}.dar
-      BuildScala:
-        stage: 'build'
-        title: Scala build
-        fail_fast: false
-        image: mozilla/sbt:8u292_1.5.7
-        working_directory: ./rosetta-source/target/classes/cdm/scala
-        shell: bash
-        commands:
-          - sbt compile
-          - sbt package
-          - sbt doc
-          - sbt packageDoc packageSrc
       BuildCSharp8:
         stage: 'build'
         title: CSharp8 build
@@ -158,22 +146,6 @@ steps:
       - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-daml ${{RELEASE_NAME}} tar.gz
       - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-daml-${{RELEASE_NAME}}.pom
-
-  DeployScala:
-    stage: 'build'
-    title: Scala deploy
-    fail_fast: false
-    image: maven:3.9.9-eclipse-temurin-21-alpine
-    working_directory: ./rosetta-source/
-    shell: bash
-    commands:
-      - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/scala/target/scala-2.12
-      - mv cdm-scala_2.12-0.0.0.snapshot.jar cdm-scala-${{RELEASE_NAME}}.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
-      - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
-      - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
 
   DeployCSharp8:
     stage: 'build'
