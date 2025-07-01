@@ -1,28 +1,28 @@
-# _Standardized Schedule - Fix in the duration extraction_
+# _Event Qualification functions - Move Event Qualification functions from cdm.event.common:func to cdm.event.qualification:func_
 
 _Background_
 
-Up until now, durationInYears (attribute of the Standard Schedule) was noted as optional but the function that extracted it contained a post condition that implicitly required it to be mandatory, breaking the extraction of the schedule for Commodity, Equity and FX products. We are relaxing the post condition to fix this issue.
+Event Qualification Functions should all be in the `cdm.event.qualification:func` namespace. It was found that a number of this type of function were actually present in the `cdm.event.common:func` namespace. These functions have thus been moved into the correct namespace.
 
 _What is being released?_
 
-- Modifying the post-contition in the function `StandardizedScheduleDuration`, to allow for the duration to not be extracted (as it is the case for Commodity, Equity and FX products).
+The functions that have been moved from `cdm.event.common:func` to cdm.event.qualification:func are as follows:
+
+- Qualify_Repurchase
+- Qualify_Roll
+- Qualify_Cancellation
+- Qualify_PairOff
+- Qualify_Shaping
+- Qualify_PartialDelivery
+- Qualify_Reprice
+- Qualify_Adjustment
+- Qualify_Substitution
+- Qualify_OnDemandPayment
+
+- No code changes were made to any of the functions.
+
+Previously the functions in `cdm.event.qualification:func` namespace were in alphabetical order. This order has lapsed a little over the last few versions so as part of this PR I have reordered all the functions to be back in alphabetical order.
 
 _Review directions_
 
-Changes can be reviewed in PR: [#3820](https://github.com/finos/common-domain-model/pull/3820)
-
-# _Enhancement of Valuation functionality - Addition of new scope attribute to Valuation._
-
-_Background_
-
-Mark To Markets on securities lending trades update the value of the collateral used against the trade. To support this the existing Valuation processing needs to be able to define whether the valuation is of the collateral or of the trade itself.
-
-_What is being released?_
-
-1. New ValuationScopeEnum
-2. New Valuation -> scope attribute using the new enum
-
-_Review directions_
-
-Changes can be reviewed in PR: [#3815](https://github.com/finos/common-domain-model/pull/3815)
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3851
