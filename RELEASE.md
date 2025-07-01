@@ -1,8 +1,13 @@
-# _Infrastructure - CDM Artifacts published to Maven Central `central.sonatype.com`_
+# _Infrastructure - Migrating CDM Artifacts  publishing from `oss.sonatype.org` to `central.sonatype.com`_
 
 _Background_
 
-Maven Central is migrating from OSS to central.sonatype.com, requiring updates to artifact release procedures.
+The Maven Central infrastructure is undergoing a major migration, from [oss.sonatype.org]() to [central.sonatype.com](), which forces FINOS to make some changes to all project releases process ahead of June 30th.
+
+This affects CDM and all it's dependencies that publish their artifacts into Maven Central.
+
+Further information is provided by Sonatype:
+https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
 
 _What is being released?_
 
