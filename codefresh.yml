@@ -43,7 +43,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,release,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://central.sonatype.com -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   SnapshotProperties:
     stage: 'setup'
@@ -56,7 +56,7 @@ steps:
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
+      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://central.sonatype.com/repository/maven-snapshots/ -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
 
   Build:
     stage: 'build'
@@ -157,7 +157,7 @@ steps:
       - cd target
       - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-daml ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-daml-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-daml-${{RELEASE_NAME}}.pom
 
   DeployScala:
     stage: 'build'
@@ -173,7 +173,7 @@ steps:
       - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
       - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
 
   DeployCSharp8:
     stage: 'build'
@@ -187,7 +187,7 @@ steps:
       - cd target/classes/cdm/csharp8/NetStandard.2.1
       - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp8 ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp8-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp8-${{RELEASE_NAME}}.pom
 
   DeployCSharp9:
     stage: 'build'
@@ -201,7 +201,7 @@ steps:
       - cd target/classes/cdm/csharp9/Net.5.0
       - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp9 ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp9-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp9-${{RELEASE_NAME}}.pom
 
   DeployTypeScript:
     stage: 'build'
@@ -215,7 +215,7 @@ steps:
       - cd target/classes/cdm
       - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-typescript ${{RELEASE_NAME}} zip
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-typescript-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-typescript-${{RELEASE_NAME}}.pom
 
   DeployGo:
     stage: 'build'
@@ -229,7 +229,7 @@ steps:
       - cd target/classes/cdm
       - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-golang ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-golang-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-golang-${{RELEASE_NAME}}.pom
 
   DeployKotlin:
     stage: 'build'
@@ -257,7 +257,7 @@ steps:
       - cd target/classes/cdm/python
       - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
       - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
 
   DeployExcel:
     stage: 'build'
@@ -273,7 +273,7 @@ steps:
       - base64 -d encoded.model.xlsx > cdm-excel-${{RELEASE_NAME}}.xlsx
       - rm encoded.model.xlsx
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} xlsx
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.xlsx  -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.xlsx  -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
 
   DeployJsonSchema:
     stage: 'build'
@@ -287,7 +287,7 @@ steps:
       - cd src/generated
       - tar -cvzf cdm-json-schema-${{RELEASE_NAME}}.zip jsonschema
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-json-schema ${{RELEASE_NAME}} zip
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-json-schema-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-json-schema -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-json-schema-${{RELEASE_NAME}}.pom
+      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.7:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-json-schema-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-json-schema -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-json-schema-${{RELEASE_NAME}}.pom
 
   FailDeployPipeline:
     stage: 'finalise'
@@ -297,17 +297,14 @@ steps:
       condition:
         any:
           damlBuildFailure: steps.BuildDaml.result == 'failure'
-          scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
           cSharp9BuildFailure: steps.BuildCSharp9.result == 'failure'
           pythonBuildFailure: steps.BuildPython.result == 'failure'
           damlDeployFailure: steps.DeployDaml.result == 'failure'
-          scalaDeployFailure: steps.DeployScala.result == 'failure'
           typeScriptDeployFailure: steps.DeployTypeScript.result == 'failure'
           cSharp8DeployFailure: steps.DeployCSharp8.result == 'failure'
           cSharp9DeployFailure: steps.DeployCSharp9.result == 'failure'
           goDeployFailure: steps.DeployGo.result == 'failure'
-          kotlinDeployFailure: steps.DeployKotlin.result == 'failure'
           pythonDeployFailure: steps.DeployPython.result == 'failure'
           excelDeployFailure: steps.DeployExcel.result == 'failure'
           jsonSchemaDeployFailure: steps.DeployJsonSchema.result == 'failure'
