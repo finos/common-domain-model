@@ -6,7 +6,7 @@ Maven Central is migrating from OSS to central.sonatype.com, requiring updates t
 
 _What is being released?_
 
-Changes has been applied to release process to build and deploy to the central.sonatype.com 
+Changes have been applied to release process to build and deploy to central.sonatype.com 
 
 _Review Directions
 
