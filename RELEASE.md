@@ -1,4 +1,4 @@
-# _Model update to support Asian Options in CDM 7 - Model update to support Asian Options in CDM 7_
+# _Model update to support Asian Options_
 
 _Background_
 
