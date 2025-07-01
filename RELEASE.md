@@ -1,4 +1,4 @@
-# _Infrastructure - CDM Artifacts published to Maven Central `central.sonatype.com`_
+# _Infrastructure - Migrating CDM Artifacts  publishing from `oss.sonatype.org` to `central.sonatype.com`_
 
 _Background_
 
