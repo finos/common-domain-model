@@ -1,12 +1,12 @@
-# _Event Qualification functions - Move Event Qualification functions from cdm.event.common:func to cdm.event.qualification:func_
+# _Event Model - Qualification Functions Relocated_
 
 _Background_
 
-Event Qualification Functions should all be in the `cdm.event.qualification:func` namespace. It was found that a number of this type of function were actually present in the `cdm.event.common:func` namespace. These functions have thus been moved into the correct namespace.
+Event Qualification Functions belong in the `cdm.event.qualification:func` namespace. Several functions of this type were instead identified in the `cdm.event.common:func` namespace. These functions need to be relocated to the correct namespace.
 
 _What is being released?_
 
-The functions that have been moved from `cdm.event.common:func` to cdm.event.qualification:func are as follows:
+The following functions are moving from `cdm.event.common:func` to cdm.event.qualification:func:
 
 - Qualify_Repurchase
 - Qualify_Roll
@@ -19,10 +19,10 @@ The functions that have been moved from `cdm.event.common:func` to cdm.event.qua
 - Qualify_Substitution
 - Qualify_OnDemandPayment
 
-- No code changes were made to any of the functions.
+No code changes were made to any of the functions.
 
-Previously the functions in `cdm.event.qualification:func` namespace were in alphabetical order. This order has lapsed a little over the last few versions so as part of this PR I have reordered all the functions to be back in alphabetical order.
+Previously the functions in `cdm.event.qualification:func` namespace were in alphabetical order. This order has lapsed over the last few versions so as part of this update the functions have been reordered in alphabetical order.
 
-_Review directions_
+_Review Directions_
 
 Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3851
