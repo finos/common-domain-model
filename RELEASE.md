@@ -15,4 +15,4 @@ _Review Directions
 
 No changes to model.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3833
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3867
