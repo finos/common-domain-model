@@ -1,25 +1,25 @@
 # Community Specification Governance Policy 1.0
 
-This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each Working Group must adhere to the requirements in this document.
+This document provides the governance policy for specifications and other documents developed using the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) process in a repository (each a “Working Group”). Each [Working Group](docs/working-groups.md) must adhere to the requirements in this document.
 
-The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org/docs/contribution).
+The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org).
 
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.
+* 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.  More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
 
 * 1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the [CDM maintainers via email](https://lists.finos.org/g/cdm-maintainers). If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
   
-* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the Community Specification License. Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
+* 1.3. Participants. “Participants” are those that have made Contributions to the Working Group subject to the [Community Specification License](LICENSE.md). Participants are automatically abiding by the IP policy of the standard by just participating in a meeting or by actively "enrolling" in the standard.
 
 * 1.4. Discussion Groups. The Working Group may form one or more "Discussion Groups" to organize collaboration around a particular aspect of a specification. Discussion Groups are for discussion only -- Approval of all portions of a specification is subject to the consensus-based decision making process.
 
 
 ## 2. Decision Making
 
-* 2.1. Consensus-Based Decision Making. Working Groups make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
+* 2.1. Consensus-Based Decision Making. [Working Groups](docs/working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
 
 * 2.2. Appeal Process. Decisions may be appealed via a pull request or an issue, and that appeal will be considered by the Maintainer in good faith, who will respond in writing within a reasonable time.
 
@@ -63,7 +63,7 @@ The attached deck summarizes the governance guidelines discussed below.
 
 [CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
-The Steering Working Group has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
 ### 6.1 Objectives of defining major releases
 
@@ -218,44 +218,5 @@ Pull requests shall be tagged in GitHub as described in discussion [#2789](https
 
 ## 9.0 Release Build Approval Guidelines
 
-This section covers scheduling of minor, development, and patch releases, and approvals for all builds and releases.
+The [Maintenance and Release](docs/maintenance-and-release.md) page covers scheduling of minor, development, patch releases, and approvals for all builds and releases.
 
-## 9.1 Development Release Scheduling and Approvals
-* Development releases may be scheduled by the maintainers to optimize development resources, based on the queue of approved PRs
-  * There is no particular desired/expected release frequency; releases may be cut as soon as there is an approved PR, or several PRs may be consolidated into a single release at the convenience of the maintainers and dev staff
-  * *Rationale:*  Development releases are expected to change in functionality, and getting changes out as quickly as practical is usually desirable.
-  * Each development release shall require the approval of one maintainer once all the PRs are approved, and the test cases all pass successfully.
-* Development releases shall be reported in brief to the CRWG and the SWG
-
-## 9.2 Major Production Release Build & Release Approvals
-
-* Major production releases will be scheduled by the SWG as described above
-  * *(TODO:  insert a diagram of the promotion process)*
-* Each major production release shall require the approval of two maintainers after the following are complete:
-  * The scope of the major production release is finalized and ratified by the SWG
-  * All approved PRs for the major production release are complete
-  * The SWG reviews the final list of enhancements in the release and signs off on releasing the development version into production
-
-## 9.3 Minor Production Release Scheduling and Approvals
-
-* Minor production releases may be scheduled by the maintainers based on the queue of approved PRs
-* Minor production releases to introduce enhancements should be combined  to minimize the number of production releases, targeting minor production releases to be issued around four weeks or so as long as there is a queue of approved PRs.  (This frequency can be increased in times of urgent need for new functionality).
-  * *Rationale:*   Minimizing the number of production releases will help with supportability, by reducing the number of releases that end users wishing to remain current need to consider, and reducing communications overhead.
-* Each minor production release shall require the approval of two maintainers.
-* Minor production releases shall be reported in brief to the CRWG and the SWG, 
-* A roadmap of anticipated minor production releases shall be reported by the maintainers to the CRWG based on PRs that are in process.
-
-## 9.4  Production Patch Release Scheduling and Approvals
-
-* Production patch releases to correct defects without releasing new functionality may be scheduled by the maintainers based on the presence of approved defect correction PRs, or other non-functional PRs (e.g. security remediations).
-* Production patch releases require the approval of one maintainer
-* Production patch releases shall be reported to the CRWG.
-
- ## 9.5 Summary of Release Approval Requirements
-
-| Type of Release      | Approval Requirement |  Notes                                        |
-| ---------------------| -------------------- |  -------------------------------------------  |
-| Major Release (6.0.0)| 2 maintainers        | Scheduling via SWG; Include analysis of the changes from last major release as part of the approval  |
-| Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
-| Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
-| Development Release (6.0.0-dev.13)| 1 maintainer         | Scheduling is up to the maintainer            |

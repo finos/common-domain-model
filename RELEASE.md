@@ -1,15 +1,28 @@
-# _Infrastructure - Dependency Update_
+# _Standardized Schedule - Fix in the duration extraction_
+
+_Background_
+
+Up until now, durationInYears (attribute of the Standard Schedule) was noted as optional but the function that extracted it contained a post condition that implicitly required it to be mandatory, breaking the extraction of the schedule for Commodity, Equity and FX products. We are relaxing the post condition to fix this issue.
 
 _What is being released?_
 
-This release updates the `DSL` dependencies.
+- Modifying the post-contition in the function `StandardizedScheduleDuration`, to allow for the duration to not be extracted (as it is the case for Commodity, Equity and FX products).
 
-Version updates include:
-- DSL 9.55.0: no relevant changes for the CDM. See DSL release notes: [DSL 9.55.0](https://github.com/finos/rune-dsl/releases/tag/9.55.0)
-- DSL 9.56.0: infrastructure optimization for Rosetta. See DSL release notes: [DSL 9.56.0](https://github.com/finos/rune-dsl/releases/tag/9.56.0)
+_Review directions_
 
-_Review Directions_
+Changes can be reviewed in PR: [#3820](https://github.com/finos/common-domain-model/pull/3820)
 
-There are no changes to the test expectations.
+# _Enhancement of Valuation functionality - Addition of new scope attribute to Valuation._
 
-The changes can be reviewed in PR: [#3788](https://github.com/finos/common-domain-model/pull/3788) 
+_Background_
+
+Mark To Markets on securities lending trades update the value of the collateral used against the trade. To support this the existing Valuation processing needs to be able to define whether the valuation is of the collateral or of the trade itself.
+
+_What is being released?_
+
+1. New ValuationScopeEnum
+2. New Valuation -> scope attribute using the new enum
+
+_Review directions_
+
+Changes can be reviewed in PR: [#3815](https://github.com/finos/common-domain-model/pull/3815)
