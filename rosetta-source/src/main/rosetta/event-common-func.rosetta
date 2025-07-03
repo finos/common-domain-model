@@ -2292,6 +2292,12 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
             ...
         }
 
+    alias payerIdentifier:
+                 ExtractCounterpartyByRole(
+                        tradeState -> trade -> counterparty,
+                        interestRatePayout -> payerReceiver -> payer
+                    ) -> partyReference -> partyId -> identifier  only-element
+
     alias transfer: <"A fully structured Transfer or the following need to be provided to create a cashflow.">
         Transfer {
             quantity: NonNegativeQuantity {
@@ -2305,10 +2311,18 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
                         identifier: interestAmount -> unit -> currency,
                         identifierType: CurrencyCode
                     },
-                    ...
-                },
-                ...
-            },
+                    party: Party {
+                            partyId: PartyIdentifier {
+                                identifier: payerIdentifier,
+                                ...
+                            },
+                            ...
+                    },
+                    assetType: AssetType {
+                        assetType: AssetTypeEnum->Cash,
+                    ...},
+                ...},
+            ...},
             settlementDate: settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payerReceiver,
             transferExpression: TransferExpression {
