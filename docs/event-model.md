@@ -68,7 +68,7 @@ four main components:
 The below diagram illustrates the relationship between these components.
 Each of them is described in the next four sections.
 
-![](img/event-model-overview.png)
+![](/img/event-model-overview.png)
 
 ## Trade Events
 
@@ -152,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](product-model.md#TradableProduct) section of the
+[`tradable-product`](/docs/product-model#TradableProduct) section of the
 documentation.
 
 ---
@@ -310,7 +310,7 @@ type Transfer extends AssetFlowBase:
     transferExpression TransferExpression (1..1)
 ```
 
-## Primitive Events
+## Primitive Events {#primitive-event}
 
 ### Primitive Operator
 
@@ -407,7 +407,7 @@ allows to compose primitive operators. Primitive operators can be
 chained by applying a composite primitive instruction to a single trade
 state, as represented in the diagram below.
 
-![](img/composing-primitive-operators.png)
+![](/img/composing-primitive-operators.png)
 
 ---
 **Note:**
@@ -779,7 +779,7 @@ that involves multiple before trades being downsized or terminated and
 new trades being created between multiple parties, all of which must
 happen concurrently.
 
-### Event Qualification
+### Event Qualification {#event-qualification-section}
 
 **The CDM qualifies lifecycle events as a function of their primitive
 components** rather than explicitly declaring the event type. The CDM

@@ -1,9 +1,6 @@
 ---
 title: Get Involved
 ---
-## How to Contribute 
-A detailed contributions guide is available [here](contributions.md).
-To be redirected to the page providing an overview of the CDM, please click [here](cdm-overview.md). 
 
 ## Interact with the CDM community
 

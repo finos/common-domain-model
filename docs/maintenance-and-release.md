@@ -158,7 +158,6 @@ This section covers scheduling of minor, development, and patch releases, and ap
 ## Major Production Release Build & Release Approvals
 
 * Major production releases will be scheduled by the SWG as described above
-  * *(TODO:  insert a diagram of the promotion process)*
 * Each major production release shall require the approval of two maintainers after the following are complete:
   * The scope of the major production release is finalized and ratified by the SWG
   * All approved PRs for the major production release are complete

@@ -190,7 +190,3 @@ components belong to, and those CDM layers are organised from inner- to
 outer-most. 
 
 Please refer to our [Namespaces](namespace.md) page for more information. 
-
-![](/img/namespaces.png)
-
-
