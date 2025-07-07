@@ -1,15 +1,18 @@
-# _Infrastructure - Dependency Update_
+# _Infrastructure - Release Process updates following Maven Central Migration_
+
+_Background_
+
+The Maven Central infrastructure is undergoing a major migration, from `oss.sonatype.org` to `central.sonatype.com`. This impacts the release process for all projects hosting artifacts using Maven Central.
+
+Further information is provided by Sonatype:
+https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
 
 _What is being released?_
 
-This release updates the `DSL` dependencies.
-
-Version updates include:
-- DSL 9.55.0: no relevant changes for the CDM. See DSL release notes: [DSL 9.55.0](https://github.com/finos/rune-dsl/releases/tag/9.55.0)
-- DSL 9.56.0: infrastructure optimization for Rosetta. See DSL release notes: [DSL 9.56.0](https://github.com/finos/rune-dsl/releases/tag/9.56.0)
+The release process has been updated to build and deploy to `central.sonatype.com` instead of `oss.sonatype.org`.
 
 _Review Directions_
 
-There are no changes to the test expectations.
+No changes made to model.
 
-The changes can be reviewed in PR: [#3788](https://github.com/finos/common-domain-model/pull/3788) 
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3830
