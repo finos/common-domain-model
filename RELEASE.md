@@ -1,4 +1,4 @@
-# _Model update to support Asian Options_
+# _Integration of AveragingFeature into OptionFeature to Support Asian Options_
 
 _Background_
 
@@ -15,6 +15,7 @@ The following type has been added to the model:
 The following type has been updated:
 
 - `OptionFeature`
+- `OptionPayout` 
 
 The following FpML Mapping has been updated:
 
