@@ -1,28 +1,45 @@
-# _Standardized Schedule - Fix in the duration extraction_
+# _Product Model - AveragingFeature to Support Asian Options_
 
 _Background_
 
-Up until now, durationInYears (attribute of the Standard Schedule) was noted as optional but the function that extracted it contained a post condition that implicitly required it to be mandatory, breaking the extraction of the schedule for Commodity, Equity and FX products. We are relaxing the post condition to fix this issue.
+Asian options were previously not covered in the model. The FpML mappings were pointing to the Asian type, which, however, was an orphan type and not referenced anywhere in the model.
+
+To address this, it has been proposed to create a new `AveragingFeature` type that encapsulates `AveragingCalculation` and incorporates the attributes mapped from FpML. This new type is now referenced within `OptionFeature`.
 
 _What is being released?_
 
-- Modifying the post-contition in the function `StandardizedScheduleDuration`, to allow for the duration to not be extracted (as it is the case for Commodity, Equity and FX products).
+The following type has been added to the model:
 
-_Review directions_
+- `AveragingFeature`
 
-Changes can be reviewed in PR: [#3820](https://github.com/finos/common-domain-model/pull/3820)
+The following type has been updated:
 
-# _Enhancement of Valuation functionality - Addition of new scope attribute to Valuation._
+- `OptionFeature`
+- `OptionPayout` 
+
+The following FpML Mapping has been updated:
+
+- `AveragingFeature` (formerly called `Asian`)
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#3827](https://github.com/finos/common-domain-model/pull/3827)
+
+# _Infrastructure - Release Process updates following Maven Central Migration_
 
 _Background_
 
-Mark To Markets on securities lending trades update the value of the collateral used against the trade. To support this the existing Valuation processing needs to be able to define whether the valuation is of the collateral or of the trade itself.
+The Maven Central infrastructure is undergoing a major migration, from `oss.sonatype.org` to `central.sonatype.com`. This impacts the release process for all projects hosting artifacts using Maven Central.
+
+Further information is provided by Sonatype:
+https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
 
 _What is being released?_
 
-1. New ValuationScopeEnum
-2. New Valuation -> scope attribute using the new enum
+The release process has been updated to build and deploy to `central.sonatype.com` instead of `oss.sonatype.org`.
 
-_Review directions_
+_Review Directions_
 
-Changes can be reviewed in PR: [#3815](https://github.com/finos/common-domain-model/pull/3815)
+No changes made to model.
+
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3830
