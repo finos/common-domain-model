@@ -19,7 +19,7 @@ The following type has been updated:
 
 The following FpML Mapping has been updated:
 
--`AveragingFeature` (formerly called `Asian`)
+- `AveragingFeature` (formerly called `Asian`)
 
 _Review Directions_
 
