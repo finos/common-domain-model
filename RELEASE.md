@@ -1,4 +1,4 @@
-# _Integration of AveragingFeature into OptionFeature to Support Asian Options_
+# _Product Model - Integration of AveragingFeature into OptionFeature to Support Asian Options_
 
 _Background_
 
