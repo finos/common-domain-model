@@ -837,6 +837,17 @@
     </profiles>
 
     <build>
+        <!-- CodeList resource lifecycle - Ensure only CodeList JSON files are copied to target/classes/ -->
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <excludes>
+                    <exclude>org/isda/codelist/xml/**</exclude>
+                    <!--<exclude>org/isda/codelist/*.xsl</exclude>-->
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -907,6 +918,17 @@
                             <mainClass>org.isda.cdm.documentation.DocumentationCodeValidator</mainClass>
                         </configuration>
                     </execution>
+                    <!-- CodeList resource lifecycle - Run Transformer before copying CodeList JSON files -->
+                    <execution>
+                        <id>transform-codelist-xml-to-json</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.isda.cdm.codelist.CodeListTransformer</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -949,6 +971,30 @@
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                    <!-- CodeList resource lifecycle - Ensure only CodeList JSON files are copied to target/classes/ -->
+                    <execution>
+                        <id>copy-json-codelist-resources</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources/org/isda/codelist</directory>
+                                    <includes>
+                                        <include>json/*.json</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>xml/**</exclude>
+                                        <exclude>*.xsl</exclude>
+                                    </excludes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.outputDirectory}/org/isda/codelist</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -1108,6 +1154,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!-- org.isda.CodeListTransformer dependency -->
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>10.6</version> <!-- Adjust as needed -->
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
