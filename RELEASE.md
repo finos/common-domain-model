@@ -1,3 +1,13 @@
+# _CDM Distribution - Python Code Generation_
+
+_What is being released?_
+
+Cfter upgrade to xtext incremental builds were running with value true and resulted in Pyton build not generating same number enums.
+
+Configuration changes have been made to set `incrementalXtextBuild` to false
+
+The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3862
+
 # _Event Model - Qualification Functions Relocated_
 
 _Background_
