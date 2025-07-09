@@ -17,7 +17,7 @@ _What is being released?_
 
 _Review directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3883
+Changes can be reviewed in PR: [3883](https://github.com/finos/common-domain-model/pull/3883)
 
 # _Event Model - Qualification Functions Relocated_
 
