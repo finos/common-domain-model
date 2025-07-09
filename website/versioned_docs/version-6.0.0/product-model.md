@@ -43,12 +43,16 @@ Each of the choice values are defined as data types within the model and each al
 `AssetBase`:
 
 ``` Haskell
-type AssetBase: 
-    identifier AssetIdentifier (1..*) 
-    taxonomy Taxonomy (0..*) 
-    isExchangeListed boolean (0..1) 
-    exchange LegalEntity (0..1)  
-    relatedExchange LegalEntity (0..*) 
+type AssetBase:
+    identifier AssetIdentifier (1..*)
+    taxonomy Taxonomy (0..*)
+    isExchangeListed boolean (0..1)
+    exchange LegalEntity (0..1)
+    relatedExchange LegalEntity (0..*)
+    party Party (0..*)
+    partyRole AssetPartyRole (0..*)
+    assetAncillaryParty AncillaryParty (0..*)
+    assetType AssetType (1..1)
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
