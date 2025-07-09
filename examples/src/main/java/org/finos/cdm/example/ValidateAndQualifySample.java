@@ -1,7 +1,7 @@
 package org.finos.cdm.example;
 
 import cdm.event.common.TradeState;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.finos.cdm.example.util.AbstractExample;
 import org.finos.cdm.example.util.ResourcesUtils;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;

@@ -3,7 +3,7 @@ package org.finos.cdm.example.functions;
 import cdm.base.math.NonNegativeQuantity;
 import cdm.product.asset.functions.FixedAmount;
 import cdm.product.asset.functions.FloatingAmount;
-import com.google.inject.Inject;
+import jakarta.inject.Inject;
 import org.finos.cdm.example.util.AbstractExample;
 import org.finos.cdm.example.InterestRatePayoutCreation;
 import com.rosetta.model.lib.records.Date;
