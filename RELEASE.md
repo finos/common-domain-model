@@ -1,3 +1,22 @@
+# _Instrument - Adding DepositoryReceipt to InstrumentTypeEnum and creating DepositoryReceipt enum_
+
+_Background_
+
+Depository receipts are not currently in CDM but are used in collateral schedules. Collateral in particular would benefit from the addition of DR to the criteria, and this issue proposes its addition to the security type under as a type of equity.
+
+Depositary Receipts can be of types American, Global, and Indian
+
+_What is being released?_
+
+- Created a new type `EquityType` with 2 attributes: `EquityTypeEnum` and `DepositoryReceiptTypeEnum`
+- Create a new enum: `DepositoryReceiptTypeEnum`
+- Add `DepositoryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
+- Add a condition that `DepositoryReceiptEnum` is absent if DepositoryReceipt is not selected as the equity type
+
+_Review directions_
+
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3882
+
 # _Product Model - AveragingFeature to Support Asian Options_
 
 _Background_
