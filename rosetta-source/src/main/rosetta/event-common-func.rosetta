@@ -1394,26 +1394,6 @@ func Create_Return: <"Defines the process of partially or fully returning a Secu
 
     set returnEvent -> eventDate: returnDate
 
-func Qualify_Repurchase: <"The qualification of a repurchase event from the fact that (i) a quantityChange instruction exists, (ii) an assetPayout exists, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Terminated, and (v) the intent of the event is 'Repurchase'.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    set is_event:
-        businessEvent -> intent = EventIntentEnum -> Repurchase
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
-            and (businessEvent -> instruction count = 1
-                and businessEvent -> instruction
-                    only-element
-                    extract
-                        (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
-            and QuantityDecreasedToZero(
-                    businessEvent -> instruction -> before,
-                    businessEvent -> after
-                ) = True
-            and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
-
 func ResolveRepurchaseTransferInstruction: <"Resolves an instruction for settlement of a Repurchase Event">
     inputs:
         tradeState TradeState (1..1)
@@ -1514,29 +1494,6 @@ func Create_RollTermChangeInstruction: <"Creates the relevant terms change primi
     set termsChangeInstruction -> product -> economicTerms -> terminationDate:
         terminationDate
 
-func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a single existing trade, (ii) entering into a new trade with the same details as the old trade, except for the effective and termination date where the effective date. The roll qualification does not make any assumption on the resulting quantity which may change compared to the original trade (it may only be partially rolled). The price is also likely different as market conditions may have evolved.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeEconomicterms:
-        businessEvent -> instruction only-element -> before -> trade -> product -> economicTerms
-    alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
-
-    set is_event:
-        // The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
-        beforeEconomicterms exists
-            and openEconomicTerms exists
-            and closedTradeState count = 1
-            and openEconomicTerms -> payout = beforeEconomicterms -> payout
-            and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
-            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
-            and openEconomicTerms -> terminationDate <> beforeEconomicterms -> terminationDate
-
 func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive instruction for an on-demand rate change event. A rate change consists in closing the original trade and opening a new one with the same details as the original one, but with a new rate (price) and effective date. The business event logic checks that there is only 1 rate price in the original trade to be updated.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be modified with new rate.">
@@ -1619,69 +1576,6 @@ func Create_OnDemandRateChangeTermsChangeInstruction: <"Creates a terms change i
     set termsChangeInstruction -> product -> economicTerms -> effectiveDate: <"Updates the contractual product's effective date to be the new effective date.">
         effectiveDate
 
-func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change event from the fact that the only primitive is the reset.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeTrade: businessEvent -> instruction only-element -> before -> trade
-    alias beforeProduct: beforeTrade -> product
-    alias beforeEconomicterms: beforeProduct -> economicTerms
-    alias openTrade: FilterOpenTradeStates(businessEvent -> after) only-element -> trade
-    alias openEconomicTerms: openTrade -> product -> economicTerms
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
-
-    alias beforePriceQuantityRateOnly: <"The rate value before. There must be 1 and only 1.">
-        beforeTrade -> tradeLot only-element -> priceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then extract value
-
-    alias openPriceQuantityRateOnly: <"The rate value after. There must be 1 and only 1, and it must be different from the rate before.">
-        openTrade -> tradeLot only-element -> priceQuantity
-            extract price
-            then flatten
-            then filter priceType = PriceTypeEnum -> InterestRate
-            then extract value
-
-    alias beforePriceQuantityNoRate: <"The price and quantity attributes before, excluding any rate price.">
-        beforeTrade -> tradeLot only-element -> priceQuantity
-            extract
-                PriceQuantity {
-                    price: price
-                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
-                    quantity: quantity,
-                    observable: observable,
-                    ...
-                }
-
-    alias openPriceQuantityNoRate: <"The price and quantity attributes after, excluding any rate price. They must be equal to the price and quantity before, excluding any rate price">
-        openTrade -> tradeLot only-element -> priceQuantity
-            extract
-                PriceQuantity {
-                    price: price
-                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
-                    quantity: quantity,
-                    observable: observable,
-                    ...
-                }
-
-    set is_event:
-        // The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
-        beforeEconomicterms exists
-            and openEconomicTerms exists
-            and closedTradeState count = 1
-            and // openEconomicTerms -> payout = beforeEconomicterms -> payout and
-            openEconomicTerms -> collateral = beforeEconomicterms -> collateral
-            and beforePriceQuantityRateOnly count = 1
-            and openPriceQuantityRateOnly count = 1
-            and beforePriceQuantityRateOnly only-element
-                <> openPriceQuantityRateOnly only-element
-            and beforePriceQuantityNoRate = openPriceQuantityNoRate
-
 func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction for early cancellation.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be rolled.">
@@ -1719,29 +1613,6 @@ func Create_CancellationTermChangeInstruction: <"Create a terms change instructi
     set termsChangeInstruction -> product: product
     set termsChangeInstruction -> product -> economicTerms -> terminationDate:
         cancellationDate
-
-func Qualify_Cancellation: <"Qualification of an cancellation event.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias closedEconomicTerms:
-        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
-    alias openEconomicTerms:
-        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
-
-    set is_event:
-        businessEvent -> instruction -> before count = 1
-            and closedEconomicTerms exists
-            and openEconomicTerms exists
-                // and openEconomicTerms -> payout = closedEconomicTerms -> payout
-                // and openEconomicTerms -> collateral = closedEconomicTerms -> collateral
-            and (if openEconomicTerms -> terminationDate exists
-                        and closedEconomicTerms -> terminationDate exists
-                then openEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate < closedEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
-                else openEconomicTerms -> terminationDate exists)
 
 func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a set of trades based on a pair reference. A package component is created based on that pair reference and the list of identifiers for the underlying trades. That package component is then added onto the execution details of every underlying trade. The existing trades are not terminated.">
     inputs:
@@ -1781,36 +1652,6 @@ func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a se
                         },
                         ...
         }}
-
-func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of the existing trades are maintained, except for their execution details which are updated to include a package component. This package component must be unique across all trades.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias openTradeState: FilterOpenTradeStates(businessEvent -> after)
-
-    alias newTradeInstruction: <"New trade instructions, that contain only an execution primitive and (optionally) a contract formation primitive.">
-        businessEvent -> instruction
-            filter NewTradeInstructionOnlyExists(item -> primitiveInstruction)
-
-    alias packageRef: <"Package details on the new trades.">
-        openTradeState -> trade -> executionDetails -> packageReference
-
-    set is_event:
-        // The first condition asserts that there are only new executions
-        newTradeInstruction count = businessEvent -> instruction count
-                // All the trade details (except the execution instructions) are unchanged
-                // and openTradeNoExecutionDetails = beforeTradeNoExecutionDetails
-            and openTradeState -> trade -> product = newTradeInstruction -> before -> trade -> product
-            and openTradeState -> trade -> tradeLot = newTradeInstruction -> before -> trade -> tradeLot
-            and openTradeState -> trade -> counterparty = newTradeInstruction -> before -> trade -> counterparty
-            and openTradeState -> trade -> ancillaryParty = newTradeInstruction -> before -> trade -> ancillaryParty
-            and openTradeState -> trade -> adjustment = newTradeInstruction -> before -> trade -> adjustment
-                // All open trades are associated to a package, and that package is the same across all trades
-            and packageRef count = openTradeState count
-            and packageRef distinct count = 1
 
 func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade based on shaped quantities and a package ID. The original trade is closed and split into (smaller) shaped trades based on a set of trade lots containing the shaped quantities and an identifier for each shaped trade. A package component is created based on the package ID and the list of identifiers for the shaped trades. That package component is then added onto the execution details of every shaped trade.">
     inputs:
@@ -1859,38 +1700,6 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
                     ...
                 }
 
-func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias instruction: businessEvent -> instruction only-element
-    alias beforeTradeState: instruction -> before
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after) only-element
-    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
-
-    alias packageRef: <"Package details on the new trades.">
-        openTradeStates -> trade -> executionDetails -> packageReference
-    alias openTradeNoExecutionDetails: <"List of open trades with no execution details on, for comparison.">
-        openTradeStates extract TradeNoExecutionDetails(item -> trade)
-
-    set is_event:
-        // There is a single before trade with a split instruction, resulting in a single closed trade and multiple open trades
-        beforeTradeState exists
-            and closedTradeState exists
-            and openTradeStates count > 1
-            and instruction -> primitiveInstruction -> split only exists
-                // Open trade counterparties should match before trade counterparties
-            and openTradeStates
-                extract [
-                    item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
-                ] all = True
-                // All open trades are associated to a package, and that package is the same across all trades
-            and packageRef count = openTradeNoExecutionDetails count
-            and packageRef distinct count = 1
-
 func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruction for partial delivery of a repo transaction at settlement.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be closed.">
@@ -1912,41 +1721,6 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
                 ...
             }
         ]
-
-func Qualify_PartialDelivery: <"Qualification of a partial delivery which constitutes a change in quantity and open with the remaining quantity and termination date.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
-
-    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
-
-    alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
-
-    alias beforeTrade: ExtractBeforeTrade(businessEvent)
-
-    alias afterTrade: ExtractAfterTrade(businessEvent)
-
-    alias beforeTradeCollateralQuantity:
-        ExtractTradeCollateralQuantity(beforeTrade) only-element
-
-    alias afterTradeCollateralQuantity:
-        ExtractTradeCollateralQuantity(afterTrade) only-element
-
-    set is_event:
-        beforeEconomicterms exists
-            and openEconomicTerms exists
-            and openTrades count = 1
-            and closedTradeState count = 1
-            and openEconomicTerms -> payout -> InterestRatePayout = beforeEconomicterms -> payout -> InterestRatePayout
-            and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
-            and beforeTradeCollateralQuantity > afterTradeCollateralQuantity
-            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
-            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> effectiveDate
 
 func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions for a repricing that alters the cash amount of the trade. Transaction value and variation margin are processed separately as are transfers of cash and securities.">
     inputs:
@@ -2084,89 +1858,6 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
                 ...
             }
         ]
-
-func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
-    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
-
-    alias beforeTrade: ExtractBeforeTrade(businessEvent)
-
-    alias afterTrade: ExtractAfterTrade(businessEvent)
-
-    alias beforeTradePurchasePrice: ExtractTradePurchasePrice(beforeTrade)
-
-    alias afterTradePurchasePrice: ExtractTradePurchasePrice(afterTrade)
-
-    alias beforeTradeCollateralQuantity: ExtractTradeCollateralQuantity(beforeTrade)
-
-    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade)
-
-    alias beforeTradeCollateralPrice: ExtractTradeCollateralPrice(beforeTrade)
-
-    alias afterTradeCollateralPrice: ExtractTradeCollateralPrice(afterTrade)
-
-    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
-
-    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
-
-    set is_event:
-        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
-            and openTrades count = 1
-            and closedTradeState count = 1
-            and beforeTradePurchasePrice exists
-            and afterTradePurchasePrice exists
-            and afterTradePurchasePrice <> beforeTradePurchasePrice
-            and beforeTradeCollateralQuantity = afterTradeCollateralQuantity
-            and beforeTradeCollateralPrice <> afterTradeCollateralPrice
-            and beforeEconomicterms exists
-            and openEconomicTerms exists
-            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
-
-func Qualify_Adjustment: <"This qualification function is used to qualify adjustment of the collateral amount when a transaction is repriced.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeTrade: ExtractBeforeTrade(businessEvent)
-
-    alias afterTrade: ExtractAfterTrade(businessEvent)
-
-    alias beforeTradePurchasePrice: ExtractTradePurchasePrice(beforeTrade)
-
-    alias afterTradePurchasePrice: ExtractTradePurchasePrice(afterTrade)
-
-    alias beforeTradeCollateralQuantity: ExtractTradeCollateralQuantity(beforeTrade)
-
-    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade)
-
-    alias beforeTradeCollateralPrice: ExtractTradeCollateralPrice(beforeTrade)
-
-    alias afterTradeCollateralPrice: ExtractTradeCollateralPrice(afterTrade)
-
-    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
-
-    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
-
-    set is_event:
-        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
-            and openEconomicTerms -> payout = beforeEconomicterms -> payout
-            and beforeTradePurchasePrice exists
-            and afterTradePurchasePrice exists
-            and afterTradePurchasePrice = beforeTradePurchasePrice
-            and beforeTradeCollateralQuantity <> afterTradeCollateralQuantity
-            and beforeTradeCollateralPrice <> afterTradeCollateralPrice
-            and beforeEconomicterms exists
-            and openEconomicTerms exists
-            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
-            and openEconomicTerms -> effectiveDate <> beforeEconomicterms -> effectiveDate
 
 func Create_SubstitutionPrimitiveInstruction: <"Creates the primitive instructions for a substitution of collateral by replacing the assetpayout of the trade.">
     inputs:
@@ -2354,25 +2045,6 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
             ...
         }
 
-func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias instruction: businessEvent -> instruction only-element
-    alias afterTradeStates: FilterOpenTradeStates(businessEvent -> after)
-    alias transfer:
-        businessEvent -> instruction -> primitiveInstruction -> transfer -> transferState -> transfer
-
-    set is_event:
-        businessEvent -> instruction count = 1
-            and businessEvent -> after count = 1
-            and afterTradeStates count = 1
-            and instruction -> primitiveInstruction -> transfer only exists
-            and transfer -> transferExpression -> scheduledTransfer -> transferType all = NetInterest
-
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be termintaed.">
@@ -2402,7 +2074,6 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
             lotIdentifier: empty
         }
 
-// End of ICMA - Phase 2 Contribution
 func Create_BusinessEvent: <"Creates a business event from instructions containing primitive instructions and optionally a trade state.">
     [creation BusinessEvent]
     inputs:
