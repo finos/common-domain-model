@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-After upgrade to xtext incremental builds were running with value true and resulted in Pyton build not generating same number enums.
+This fixes [Issues-3829](https://github.com/finos/common-domain-model/issues/3829) After upgrade to xtext incremental builds were running with value true and resulted in Pyton build not generating same number enums files.
 
 Configuration changes have been made to set `incrementalXtextBuild` to false
 
