@@ -714,7 +714,7 @@ adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -781,7 +781,7 @@ we recommend labelling the pull request with the user story label, i.e.
 ---
 **Note:**
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
+under [the CDM licence](/./LICENSE.md).
 
 ---
 
