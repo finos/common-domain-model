@@ -670,7 +670,7 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
