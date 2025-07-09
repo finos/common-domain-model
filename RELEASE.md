@@ -15,7 +15,7 @@ _What is being released?_
 
 _Review directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3882
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3883
 
 # _Product Model - AveragingFeature to Support Asian Options_
 
