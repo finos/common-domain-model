@@ -48,11 +48,21 @@ type AssetBase:
     taxonomy Taxonomy (0..*)
     isExchangeListed boolean (0..1)
     exchange LegalEntity (0..1)
+        [deprecated]
     relatedExchange LegalEntity (0..*)
+        [deprecated]
     party Party (0..*)
     partyRole AssetPartyRole (0..*)
     assetAncillaryParty AncillaryParty (0..*)
     assetType AssetType (1..1)
+
+    condition Issuer:
+        if assetType -> assetType any = AssetTypeEnum -> Security
+            then partyRole -> role any = AssetPartyRoleEnum -> Issuer
+
+    condition LenderBorrower:
+        if assetType -> assetType = AssetTypeEnum -> Loan
+            then partyRole -> role any = AssetPartyRoleEnum -> Lender or partyRole -> role any = AssetPartyRoleEnum -> Borrower
 ```
 
 The data types are designed to carry the minimal amount of information that is needed to uniquely identify the asset
@@ -272,6 +282,7 @@ It can be used as the underlier of a basic Payout that describes the buying and 
 ``` Haskell
 type TransferableProduct extends Asset:
     economicTerms EconomicTerms (1..1)
+    productParty Counterparty (0..1)
 ```
 
 Because `TransferableProduct` extends `Asset`, it inherits its `identifier` and `taxonomy` attributes from it.
