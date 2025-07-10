@@ -114,10 +114,6 @@ cat > pom.xml <<EOF
                                 <goals>
                                     <goal>publish</goal>
                                 </goals>
-                                <configuration>
-                                    <autoPublish>false</autoPublish>
-                                    <waitUntil>VALIDATED</waitUntil>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
