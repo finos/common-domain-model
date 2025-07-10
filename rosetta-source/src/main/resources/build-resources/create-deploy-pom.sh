@@ -97,6 +97,16 @@ cat > pom.xml <<EOF
                                             <file>\${project.basedir}/${ARTIFACT_ID}-\${project.version}.${PACKAGING}</file>
                                             <type>${PACKAGING}</type>
                                         </artifact>
+                                        <artifact>
+                                            <file>\${project.basedir}/${ARTIFACT_ID}-\${project.version}-sources.jar</file>
+                                            <type>jar</type>
+                                            <classifier>sources</classifier>
+                                        </artifact>
+                                        <artifact>
+                                            <file>\${project.basedir}/${ARTIFACT_ID}-\${project.version}-javadoc.jar</file>
+                                            <type>jar</type>
+                                            <classifier>javadoc</classifier>
+                                        </artifact>
                                     </artifacts>
                                 </configuration>
                             </execution>
@@ -117,47 +127,43 @@ cat > pom.xml <<EOF
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 EOF
 
 if [ "$ARTIFACT_ID" == "cdm-scala" ]; then
 cat >> pom.xml <<'EOF'
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
 EOF
 fi
 
 cat >> pom.xml <<EOF
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 EOF
