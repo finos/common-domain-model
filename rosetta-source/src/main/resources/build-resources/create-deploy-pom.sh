@@ -20,7 +20,7 @@ cat > pom.xml <<EOF
     <parent>
         <artifactId>cdm-parent</artifactId>
         <groupId>org.finos.cdm</groupId>
-        <version>0.0.0.master-SNAPSHOT</version>
+        <version>${VERSION}</version>
     </parent>
 
     <url>https://www.finos.org/common-domain-model</url>
