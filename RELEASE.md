@@ -1,10 +1,12 @@
-# _CDM Distribution - Python Code Generation_
+# _CDM Distribution - Python Code Generation flag update_
+
+_Background_
+
+This fixes [Issues-3829](https://github.com/finos/common-domain-model/issues/3829) After upgrade to using xtext, the incremental builds were running with value `true`. This resulted in the Python build not generating same number enums as 5xx builds.
 
 _What is being released?_
 
-This fixes [Issues-3829](https://github.com/finos/common-domain-model/issues/3829) After upgrade to xtext incremental builds were running with value true and resulted in Pyton build not generating same number enums files as 5xx builds.
-
-Configuration changes have been made to set `incrementalXtextBuild` to false 
+Configuration changes have been made to set `incrementalXtextBuild` to `false`
 
 The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3863
 
