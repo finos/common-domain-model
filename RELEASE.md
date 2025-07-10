@@ -1,14 +1,14 @@
-# _Spelling mistake within a type and synonym - notionaReference has been changed to notionalReference_
+# _Product Model & Mapping - Renamed type and synonym: notionalReference_
 
 _Background_
 
-`notionaReference` was incorrectly spelled and should be `notionalReference` for both type and synonym.
+A typo was identified which affects both type and synonym for what should be `notionalReference`.
 
 _What is being released?_
 
-Change in spelling
+The type and synonym have been renamed to correct the typo.
 
-_Review directions_
+_Review Directions_
 
 Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3873
 
