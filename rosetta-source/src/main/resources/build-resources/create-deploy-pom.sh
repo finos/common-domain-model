@@ -17,11 +17,11 @@ cat > pom.xml <<EOF
 
     <name>${ARTIFACT_ID}</name>
 
-    <parent>
-        <artifactId>cdm-parent</artifactId>
-        <groupId>org.finos.cdm</groupId>
-        <version>${VERSION}</version>
-    </parent>
+     <parent>
+         <groupId>org.finos</groupId>
+         <artifactId>finos</artifactId>
+         <version>7</version>
+     </parent>
 
     <url>https://www.finos.org/common-domain-model</url>
 

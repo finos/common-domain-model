@@ -54,9 +54,9 @@ def main():
     <name>$ARTIFACT_ID</name>
 
     <parent>
-        <artifactId>cdm-parent</artifactId>
-        <groupId>org.finos.cdm</groupId>
-        <version>$RELEASE_NAME</version>
+        <groupId>org.finos</groupId>
+        <artifactId>finos</artifactId>
+        <version>7</version>
     </parent>
 
     <url>https://www.finos.org/common-domain-model</url>
