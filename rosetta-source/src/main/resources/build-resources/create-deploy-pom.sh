@@ -3,20 +3,25 @@ ARTIFACT_ID=$1
 RELEASE_NAME=$2
 PACKAGING=$3
 
-FILENAME=${ARTIFACT_ID}-${RELEASE_NAME}.pom
 GROUP_ID=org.finos.cdm
 VERSION=${RELEASE_NAME}
 
-cat > ${FILENAME} <<EOF
+cat > pom.xml <<EOF
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>${GROUP_ID}</groupId>
     <artifactId>${ARTIFACT_ID}</artifactId>
     <version>${VERSION}</version>
-    <packaging>${PACKAGING}</packaging>
+    <packaging>pom</packaging>
 
     <name>${ARTIFACT_ID}</name>
+
+    <parent>
+        <artifactId>cdm-parent</artifactId>
+        <groupId>org.finos.cdm</groupId>
+        <version>0.0.0.master-SNAPSHOT</version>
+    </parent>
 
     <url>https://www.finos.org/common-domain-model</url>
 
@@ -69,5 +74,56 @@ cat > ${FILENAME} <<EOF
             </roles>
         </developer>
     </developers>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>\${project.basedir}/${ARTIFACT_ID}-\${project.version}.${PACKAGING}</file>
+                                            <type>${PACKAGING}</type>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
+                        <executions>
+                            <execution>
+                                <id>publish-release</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>publish</goal>
+                                </goals>
+                                <configuration>
+                                    <autoPublish>false</autoPublish>
+                                    <waitUntil>VALIDATED</waitUntil>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 EOF
