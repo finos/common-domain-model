@@ -2,15 +2,15 @@
 
 _Background_
 
-The attribute `notionaReference` was identified which affects both type and synonym which should be rename `notionalReference`.
+A typo was identified which affects both type and synonym for what should be `notionalReference`.
 
 _What is being released?_
 
-The attribute `notionaReference` has been renamed to `notionalReference` this effects PartialExercise.
+The type and synonym have been renamed to correct the typo.
 
 _Backward-incompatible_
 
-This change is backwards incompatible due a attribute name being rename
+This change is backwards incompatible due an attribute name being rename
 
 _Review Directions_
 
