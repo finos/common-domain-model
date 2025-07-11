@@ -4,15 +4,17 @@ import os.path
 
 def main():
     # build parameters from the command line arguments
-    params_dict = {'ARTIFACT_ID': sys.argv[1],
-                   'RELEASE_NAME': sys.argv[2],
-                   'PACKAGING':sys.argv[3],
-                   'GROUP_ID': 'org.finos.cdm'}
+    params_dict = {
+        'ARTIFACT_ID': sys.argv[1],
+        'RELEASE_NAME': sys.argv[2],
+        'PACKAGING': sys.argv[3],
+        'GROUP_ID': 'org.finos.cdm'
+    }
+
     # add in additional developers if any
-    if (len (sys.argv) > 4 and os.path.isfile(sys.argv[4])) :
-        developers_file = open(sys.argv[4], 'r') 
-        params_dict['DEVELOPERS'] = developers_file.read ()
-        developers_file.close()
+    if len(sys.argv) > 4 and os.path.isfile(sys.argv[4]):
+        with open(sys.argv[4], 'r') as developers_file:
+            params_dict['DEVELOPERS'] = developers_file.read()
     else:
         params_dict['DEVELOPERS'] = '''        <developer>
             <id>minesh-s-patel</id>
@@ -47,9 +49,15 @@ def main():
     <groupId>$GROUP_ID</groupId>
     <artifactId>$ARTIFACT_ID</artifactId>
     <version>$RELEASE_NAME</version>
-    <packaging>$PACKAGING</packaging>
+    <packaging>pom</packaging>
 
     <name>$ARTIFACT_ID</name>
+
+    <parent>
+        <groupId>org.finos</groupId>
+        <artifactId>finos</artifactId>
+        <version>7</version>
+    </parent>
 
     <url>https://www.finos.org/common-domain-model</url>
 
@@ -77,12 +85,58 @@ def main():
     <developers>
 $DEVELOPERS
     </developers>
-</project>
-'''
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.3.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-artifacts</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>attach-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <artifacts>
+                                        <artifact>
+                                            <file>${project.basedir}/$ARTIFACT_ID-${project.version}.$PACKAGING</file>
+                                            <type>$PACKAGING</type>
+                                        </artifact>
+                                    </artifacts>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
+                        <executions>
+                            <execution>
+                                <id>publish-release</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>publish</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>'''
+
     deploy_pom_text = Template(deploy_pom_text).safe_substitute(params_dict)
-    deploy_pom_file = open(params_dict['ARTIFACT_ID'] + '-' + params_dict['RELEASE_NAME']+ '.pom', "w")
-    deploy_pom_file.write(deploy_pom_text)
-    deploy_pom_file.close()
+    with open('pom.xml', "w") as deploy_pom_file:
+        deploy_pom_file.write(deploy_pom_text)
 
 if __name__ == "__main__":
     main()
