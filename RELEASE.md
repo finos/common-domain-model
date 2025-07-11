@@ -2,9 +2,9 @@
 
 _Background_
 
-Depository receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depository Receipts to collateral criteria, and this contribution adds them to the security type as a type of equity.
+Depository receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depository Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
 
-Due to the current Security structure, the `equityType` attribute must be remodelled to allow for the addition of Depository Receipts.
+Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depository Receipts.
 
 Depository Receipts can be of types American, European, Global, and Indian.
 
