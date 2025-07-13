@@ -1,0 +1,513 @@
+namespace cdm.ingest.fpml.confirmation.product.returnswap: <"FpML ReturnSwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+import fpml.confirmation.custom.*
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.settlement.*
+
+func MapReturnSwapCounterpartyList:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlReturnSwap -> returnSwapLeg first -> payerReceiverModel
+            )
+
+func MapReturnSwapAncillaryPartyList:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapReturnSwapNonTransferableProduct:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlReturnSwap -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlReturnSwap -> productModel),
+            economicTerms: MapReturnSwapEconomicTerms(fpmlReturnSwap, cdmCounterpartyList)
+        }
+
+func MapReturnSwapEconomicTerms:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                    fpmlReturnSwap -> returnSwapLeg -> effectiveDate first
+                ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                    fpmlReturnSwap -> returnSwapLeg -> terminationDate first
+                ),
+            payout: fpmlReturnSwap -> returnSwapLeg
+                extract MapReturnSwapLegToPayout(item, cdmCounterpartyList),
+            ...
+        }
+
+func MapReturnSwapLegToPayout:
+    inputs:
+        fpmlDirectionalLeg fpml.DirectionalLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        ToLegChoice(fpmlDirectionalLeg)
+            switch
+        InterestLeg then MapInterestLegToInterestRatePayout(
+                    item,
+                    cdmCounterpartyList
+                ),
+        ReturnLeg then MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+        default empty
+
+func MapInterestLegToInterestRatePayout:
+    inputs:
+        fpmlInterestLeg fpml.InterestLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias rateChoice:
+        ToRateChoice(fpmlInterestLeg -> interestCalculation -> floatingRateCalculation)
+
+    set payout:
+        Payout {
+            InterestRatePayout: InterestRatePayout {
+                payerReceiver: MapPayerReceiver(
+                        fpmlInterestLeg -> payerReceiverModel,
+                        cdmCounterpartyList
+                    ),
+                priceQuantity: MapResolvablePriceQuantity(
+                        fpmlInterestLeg -> notional,
+                        empty,
+                        fpmlInterestLeg
+                    ),
+                rateSpecification: RateSpecification {
+                    FixedRateSpecification: FixedRateSpecification {
+                        rateSchedule: RateSchedule {
+                            price: MapFixedRateToPriceScheduleWithAddress(
+                                    fpmlInterestLeg -> interestCalculation -> fixedRate,
+                                    fpmlInterestLeg
+                                )
+                    }},
+                    FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
+                        then MapFloatingRateSpecification(
+                                rateChoice -> FloatingRateCalculation,
+                                fpmlInterestLeg
+                            ),
+                    InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
+                        then MapInflationRateSpecification(
+                                rateChoice -> InflationRateCalculation,
+                                fpmlInterestLeg
+                            )
+                },
+                dayCountFraction: MapDayCountFractionEnum(
+                        fpmlInterestLeg -> interestCalculation -> dayCountFraction -> value
+                    ),
+                calculationPeriodDates: MapInterestLegCalculationPeriodDates(
+                        fpmlInterestLeg -> interestLegCalculationPeriodDates
+                    ),
+                compoundingMethod: fpmlInterestLeg -> interestCalculation -> compounding -> compoundingMethod to-enum CompoundingMethodEnum,
+                paymentDates: MapInterestLegPaymentDates(
+                        fpmlInterestLeg -> interestLegCalculationPeriodDates -> interestLegPaymentDates
+                    ),
+                stubPeriod: MapStubPeriod(fpmlInterestLeg -> stubCalculationPeriod),
+                resetDates: MapInterestLegResetDates(
+                        fpmlInterestLeg -> interestLegCalculationPeriodDates -> interestLegResetDates
+                    ),
+                ...
+            },
+            ...
+        }
+
+func MapResolvablePriceQuantity:
+    inputs:
+        fpmlReturnSwapNotional fpml.ReturnSwapNotional (0..1)
+        fpmlReset boolean (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        resolvablePriceQuantity ResolvablePriceQuantity (0..1)
+
+    set resolvablePriceQuantity:
+        ResolvablePriceQuantity {
+            quantitySchedule: MapNotionalAmountToQuantityWithAddress(
+                    fpmlReturnSwapNotional -> notionalAmount -> amount,
+                    fpmlLeg
+                ),
+            quantityReference: MapResolvablePriceQuantityReference(
+                    fpmlReturnSwapNotional -> relativeNotionalAmount -> href
+                ),
+            reset: fpmlReset,
+            ...
+        }
+            with-meta {
+                key: fpmlReturnSwapNotional -> notionalAmount -> id
+            }
+
+func MapInterestLegCalculationPeriodDates:
+    inputs:
+        fpmlInterestLegCalculationPeriodDates fpml.InterestLegCalculationPeriodDates (0..1)
+    output:
+        calculationPeriodDates CalculationPeriodDates (0..1)
+
+    set calculationPeriodDates:
+        CalculationPeriodDates {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                    fpmlInterestLegCalculationPeriodDates -> effectiveDate
+                ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                    fpmlInterestLegCalculationPeriodDates -> terminationDate
+                ),
+            ...
+        }
+    set calculationPeriodDates -> key: fpmlInterestLegCalculationPeriodDates -> id
+
+func MapStubPeriod:
+    inputs:
+        fpmlStubCalculationPeriod fpml.StubCalculationPeriod (0..1)
+    output:
+        stubPeriod StubPeriod (0..1)
+
+    set stubPeriod:
+        StubPeriod {
+            calculationPeriodDatesReference: empty,
+            finalStub: MapStubValue(fpmlStubCalculationPeriod -> finalStub),
+            initialStub: MapStubValue(
+                    fpmlStubCalculationPeriod -> stubCalculationPeriodSequence -> initialStub
+                )
+        }
+
+func MapInterestLegPaymentDates:
+    inputs:
+        fpmlAdjustableRelativeOrPeriodicDates2 fpml.AdjustableRelativeOrPeriodicDates2 (0..1)
+    output:
+        paymentDates PaymentDates (0..1)
+
+    set paymentDates:
+        PaymentDates {
+            paymentDateSchedule: PaymentDateSchedule {
+                interimPaymentDates: MapAdjustableRelativeOrPeriodicDates2(
+                        fpmlAdjustableRelativeOrPeriodicDates2
+                    ),
+                ...
+            },
+            ...
+        }
+            with-meta {
+                key: fpmlAdjustableRelativeOrPeriodicDates2 -> id
+            }
+
+func MapInterestLegResetDates:
+    inputs:
+        fpmlInterestLegResetDates fpml.InterestLegResetDates (0..1)
+    output:
+        resetDates ResetDates (0..1)
+
+    set resetDates:
+        ResetDates {
+            resetRelativeTo: MapResetRelativeToEnum(
+                    fpmlInterestLegResetDates -> resetRelativeTo to-string
+                ),
+            initialFixingDate: InitialFixingDate {
+                relativeDateOffset: MapRelativeDateOffset(
+                        fpmlInterestLegResetDates -> initialFixingDate
+                    ),
+                ...
+            },
+            fixingDates: MapRelativeDateOffset(
+                    fpmlInterestLegResetDates -> fixingDates -> relativeDate
+                ),
+            resetFrequency: MapResetFrequency(fpmlInterestLegResetDates -> resetFrequency),
+            ...
+        }
+    set resetDates -> calculationPeriodDatesReference -> reference:
+        fpmlInterestLegResetDates -> calculationPeriodDatesReference -> href
+
+func MapReturnLegToPerformancePayout:
+    inputs:
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            PerformancePayout: PerformancePayout {
+                payerReceiver: MapPayerReceiver(
+                        fpmlReturnLeg -> payerReceiverModel,
+                        cdmCounterpartyList
+                    ),
+                paymentDates: PaymentDates {
+                    paymentDateSchedule: MapPaymentDateSchedule(
+                            fpmlReturnLeg -> rateOfReturn -> paymentDates
+                        ),
+                    ...
+                },
+                valuationDates: MapValuationDates(fpmlReturnLeg -> rateOfReturn),
+                priceQuantity: MapResolvablePriceQuantity(
+                        fpmlReturnLeg -> notional,
+                        fpmlReturnLeg -> rateOfReturn -> notionalReset,
+                        fpmlReturnLeg
+                    ),
+                settlementTerms: MapOptionSettlementModelToSettlementTerms(
+                        fpmlReturnLeg -> optionSettlementModel
+                    ),
+                underlier: Underlier {
+                    Observable: MapUnderlyerToObservableWithAddress(
+                            fpmlReturnLeg -> underlyer
+                        ),
+                    ...
+                },
+                fxFeature: fpmlReturnLeg -> fxFeature extract MapFxFeature,
+                returnTerms: ReturnTerms {
+                    priceReturnTerms: PriceReturnTerms {
+                        returnType: MapReturnTypeEnum(
+                                fpmlReturnLeg -> return -> returnType to-string
+                            ),
+                        ...
+                    },
+                    dividendReturnTerms: MapDividendReturnTerms(
+                            fpmlReturnLeg -> underlyer -> singleUnderlyer -> dividendPayout,
+                            fpmlReturnLeg -> return -> dividendConditions,
+                            fpmlReturnLeg -> rateOfReturn -> valuationPriceFinal -> valuationRules
+                        ),
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapPaymentDateSchedule:
+    inputs:
+        fpmlReturnSwapPaymentDates fpml.ReturnSwapPaymentDates (0..1)
+    output:
+        paymentDateSchedule PaymentDateSchedule (0..1)
+
+    set paymentDateSchedule:
+        PaymentDateSchedule {
+            interimPaymentDates: MapAdjustableOrRelativeDatesToAdjustableRelativeOrPeriodicDates(
+                    fpmlReturnSwapPaymentDates -> paymentDatesInterim
+                ),
+            finalPaymentDate: MapAdjustableOrRelativeDate(
+                    fpmlReturnSwapPaymentDates -> paymentDateFinal
+                )
+        }
+
+func MapValuationDates:
+    inputs:
+        fpmlReturnLegValuation fpml.ReturnLegValuation (0..1)
+    output:
+        valuationDates ValuationDates (0..1)
+
+    set valuationDates:
+        ValuationDates {
+            interimValuationDate: MapPerformanceValuationDates(
+                    fpmlReturnLegValuation -> valuationPriceInterim -> priceSequence -> determinationMethod,
+                    fpmlReturnLegValuation -> valuationPriceInterim -> valuationRules
+                ),
+            finalValuationDate: MapPerformanceValuationDates(
+                    fpmlReturnLegValuation -> valuationPriceFinal -> priceSequence -> determinationMethod,
+                    fpmlReturnLegValuation -> valuationPriceFinal -> valuationRules
+                ),
+            ...
+        }
+
+func MapDividendReturnTerms:
+    inputs:
+        fpmlDividendPayout fpml.DividendPayout (0..1)
+        fpmlDividendConditions fpml.DividendConditions (0..1)
+        fpmlEquityValuation fpml.EquityValuation (0..1)
+    output:
+        dividendReturnTerms DividendReturnTerms (0..1)
+
+    set dividendReturnTerms:
+        DividendReturnTerms {
+            dividendPayoutRatio: DividendPayoutRatio {
+                totalRatio: fpmlDividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
+                ...
+            },
+            dividendReinvestment: fpmlDividendConditions -> dividendReinvestment,
+            dividendEntitlement: MapDividendEntitlementEnum(
+                    fpmlDividendConditions -> dividendEntitlement to-string
+                ),
+            excessDividendAmount: MapDividendAmountTypeEnum(
+                    fpmlDividendConditions -> excessDividendAmount to-string
+                ),
+            dividendCurrency: MapDividendCurrency(
+                    fpmlDividendConditions -> currencyAndDeterminationMethodModel
+                ),
+            dividendPeriod: DividendPeriod {
+                startDate: MapDateReferenceToDividendPaymentDate(
+                        fpmlDividendConditions -> dividendConditionsSequence -> dividendPeriodEffectiveDate
+                    ),
+                endDate: MapDateReferenceToDividendPaymentDate(
+                        fpmlDividendConditions -> dividendConditionsSequence -> dividendPeriodEndDate
+                    ),
+                dividendPaymentDate: MapDividendPaymentDate(
+                        fpmlDividendConditions -> dividendPaymentDate
+                    ),
+                dateAdjustments: empty,
+                ...
+            },
+            ...
+        }
+
+func MapDividendCurrency:
+    inputs:
+        fpmlCurrencyAndDeterminationMethodModel fpml.CurrencyAndDeterminationMethodModel (0..1)
+    output:
+        dividendCurrency DividendCurrency (0..1)
+
+    set dividendCurrency:
+        DividendCurrency {
+            currency: MapCurrency(fpmlCurrencyAndDeterminationMethodModel -> currency),
+            determinationMethod: fpmlCurrencyAndDeterminationMethodModel -> determinationMethod -> value to-enum DeterminationMethodEnum,
+            currencyReference: MapCurrencyReference(
+                    fpmlCurrencyAndDeterminationMethodModel -> currencyReference
+                )
+        }
+
+func MapReturnSwapPriceQuantityList:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        fpmlReturnSwap -> returnSwapLeg
+            extract
+                ToLegChoice switch
+           InterestLeg then MapInterestLegToPriceQuantity,
+           ReturnLeg then MapReturnLegToPriceQuantity,
+           default empty
+
+func MapInterestLegToPriceQuantity:
+    inputs:
+        fpmlInterestLeg fpml.InterestLeg (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapInterestCalculationToPriceListWithLocation(
+                    fpmlInterestLeg -> interestCalculation,
+                    fpmlInterestLeg
+                ),
+            quantity: MapNotionalAmountToQuantityWithLocation(
+                    fpmlInterestLeg -> notional -> notionalAmount -> amount,
+                    empty,
+                    fpmlInterestLeg -> notional -> notionalAmount -> currency,
+                    fpmlInterestLeg
+                ),
+            observable: MapRateOptionToObservableWithLocation(
+                    fpmlInterestLeg -> interestCalculation -> floatingRateCalculation,
+                    fpmlInterestLeg
+                ),
+            ...
+        }
+
+func MapInterestCalculationToPriceListWithLocation:
+    inputs:
+        fpmlInterestCalculation fpml.InterestCalculation (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        priceSchedules PriceSchedule (0..*)
+            [metadata location]
+
+    alias fpmlRate: fpmlInterestCalculation -> floatingRateCalculation
+
+    alias fpmlCurrency: empty // TODO
+    add priceSchedules:
+        MapFixedRateToPriceScheduleWithLocation(
+                fpmlInterestCalculation -> fixedRate,
+                empty,
+                fpmlCurrency,
+                fpmlLeg
+            )
+
+    add priceSchedules:
+        MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
+
+func MapNotionalAmountToQuantityList:
+    inputs:
+        fpmlNotionalAmount fpml.NotionalAmount (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..*)
+            [metadata location]
+
+    add nonNegativeQuantitySchedules:
+        MapNotionalAmountToQuantityWithLocation(
+                fpmlNotionalAmount -> amount,
+                empty,
+                fpmlNotionalAmount -> currency,
+                fpmlLeg
+            )
+
+func MapReturnLegToPriceQuantity:
+    inputs:
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    alias notionalAmount: fpmlReturnLeg -> notional -> notionalAmount
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapNetPriceToPriceListWithLocation(
+                    fpmlReturnLeg -> rateOfReturn -> initialPrice,
+                    fpmlReturnLeg
+                ),
+            quantity: MapNotionalAmountToQuantityWithLocation(
+                    fpmlReturnLeg -> notional -> notionalAmount -> amount,
+                    empty,
+                    fpmlReturnLeg -> notional -> notionalAmount -> currency,
+                    fpmlReturnLeg
+                ),
+            observable: MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer),
+            ...
+        }
+
+func MapReturnSwapAccountPartyReference:
+    inputs:
+        fpmlReturnSwap fpml.ReturnSwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapPayerReceiverToAccountPartyReference(
+                fpmlAccount,
+                fpmlReturnSwap -> returnSwapLeg -> payerReceiverModel
+            )

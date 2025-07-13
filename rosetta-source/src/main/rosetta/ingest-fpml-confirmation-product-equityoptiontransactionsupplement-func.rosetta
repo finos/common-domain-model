@@ -1,0 +1,154 @@
+namespace cdm.ingest.fpml.confirmation.product.equityoptiontransactionsupplement: <"FpML EquityOptionTransactionSupplement product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+
+func MapEquityOptionTransactionSupplementCounterpartyList:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(
+                fpmlEquityOptionTransactionSupplement -> buyerSellerModel
+            )
+
+func MapEquityOptionTransactionSupplementAncillaryPartyList:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapEquityOptionTransactionSupplementNonTransferableProduct:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(
+                    fpmlEquityOptionTransactionSupplement -> productModel
+                ),
+            taxonomy: MapProductTaxonomyList(
+                    fpmlEquityOptionTransactionSupplement -> productModel
+                ),
+            economicTerms: MapEquityOptionTransactionSupplementEconomicTerms(
+                    fpmlEquityOptionTransactionSupplement,
+                    cdmCounterpartyList
+                )
+        }
+
+func MapEquityOptionTransactionSupplementEconomicTerms:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapEquityOptionTransactionSupplementPayout(
+                    fpmlEquityOptionTransactionSupplement,
+                    cdmCounterpartyList
+                ),
+            ...
+        }
+
+func MapEquityOptionTransactionSupplementPayout:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            OptionPayout: OptionPayout {
+                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                        fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                priceQuantity: ResolvablePriceQuantity {
+                    quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                            fpmlEquityOptionTransactionSupplement,
+                            fpmlEquityOptionTransactionSupplement -> numberOfOptions
+                        ),
+                    ...
+                },
+                settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                        fpmlEquityOptionTransactionSupplement -> equityExercise
+                    ),
+                buyerSeller: MapBuyerSeller(
+                        fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                underlier: Underlier {
+                    Observable: MapUnderlyerToObservableWithAddress(
+                            fpmlEquityOptionTransactionSupplement -> underlyer
+                        ),
+                    ...
+                },
+                optionType: fpmlEquityOptionTransactionSupplement -> optionType to-enum OptionTypeEnum,
+                exerciseTerms: MapExerciseTerms(
+                        GetFpmlEquityExercise(
+                                fpmlEquityOptionTransactionSupplement -> equityExercise
+                            ),
+                        empty,
+                        fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                strike: MapOptionStrikePrice(
+                        fpmlEquityOptionTransactionSupplement -> strike -> strikePrice,
+                        fpmlEquityOptionTransactionSupplement -> strike -> equityStrikeSequence -> strikePercentage,
+                        fpmlEquityOptionTransactionSupplement -> strike -> currency
+                    ),
+                ...
+            },
+            ...
+        }
+
+func MapEquityOptionTransactionSupplementPriceQuantityList:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: MapEquityDerivativeBaseQuantityListWithLocation(
+                    fpmlEquityOptionTransactionSupplement,
+                    fpmlEquityOptionTransactionSupplement -> numberOfOptions,
+                    fpmlEquityOptionTransactionSupplement -> optionEntitlement
+                ),
+            observable: MapUnderlyerToObservableWithLocation(
+                    fpmlEquityOptionTransactionSupplement -> underlyer
+                ),
+            ...
+        }
+
+func MapEquityOptionTransactionSupplementAccountPartyReference:
+    inputs:
+        fpmlEquityOptionTransactionSupplement fpml.EquityOptionTransactionSupplement (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlEquityOptionTransactionSupplement -> buyerSellerModel
+            )

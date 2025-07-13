@@ -1,0 +1,137 @@
+namespace cdm.ingest.fpml.confirmation.product.commodityswaption: <"FpML CommoditySwaption product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.commodityswap.*
+
+func MapCommoditySwaptionCounterpartyList:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(fpmlCommoditySwaption -> buyerSellerModel)
+
+func MapCommoditySwaptionAncillaryPartyList:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapCommoditySwaptionNonTransferableProduct:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlCommoditySwaption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlCommoditySwaption -> productModel),
+            economicTerms: MapCommoditySwaptionEconomicTerms(
+                    fpmlCommoditySwaption,
+                    cdmCounterpartyList
+                )
+        }
+
+func MapCommoditySwaptionEconomicTerms:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapCommoditySwaptionPayout(fpmlCommoditySwaption, cdmCounterpartyList),
+            ...
+        }
+
+func MapCommoditySwaptionPayout:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            OptionPayout: OptionPayout {
+                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                        fpmlCommoditySwaption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                settlementTerms: empty,
+                buyerSeller: MapBuyerSeller(
+                        fpmlCommoditySwaption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                underlier: Underlier {
+                    Product: Product {
+                        NonTransferableProduct: MapUnderlierNonTransferableProduct(
+                                fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel,
+                                cdmCounterpartyList
+                            ),
+                        ...
+                    },
+                    ...
+                },
+                optionType: empty,
+                exerciseTerms: MapExerciseTerms(
+                        GetFpmlCommodityPhysicalExercise(
+                                fpmlCommoditySwaption -> physicalExercise
+                            ),
+                        empty,
+                        fpmlCommoditySwaption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                strike: empty,
+                ...
+            },
+            ...
+        }
+
+func MapUnderlierNonTransferableProduct:
+    inputs:
+        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (1..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            economicTerms: MapCommoditySwapEconomicTerms(
+                    fpmlCommoditySwapDetailsModel,
+                    cdmCounterpartyList
+                ),
+            ...
+        }
+
+func MapCommoditySwaptionPriceQuantityList:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+func MapCommoditySwaptionAccountPartyReference:
+    inputs:
+        fpmlCommoditySwaption fpml.CommoditySwaption (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlCommoditySwaption -> buyerSellerModel
+            )

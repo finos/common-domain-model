@@ -1,0 +1,204 @@
+namespace cdm.ingest.fpml.confirmation.message
+version "${project.version}"
+
+import cdm.event.common.*
+import cdm.event.workflow.*
+
+import fpml.confirmation.* as fpml
+import fpml.confirmation.custom.*
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.tradestate.*
+import cdm.ingest.fpml.confirmation.workflowstep.*
+
+func Ingest_FpmlConfirmationToTradeState:
+    [ingest XML]
+    inputs:
+        fpmlDocument fpml.Document (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias documentChoice: ToDocumentChoice(fpmlDocument)
+
+    set tradeState:
+        documentChoice switch
+        ConfirmationAgreed then MapConfirmationAgreedToTradeState,
+        DataDocument then MapDataDocumentToTradeState,
+        ExecutionNotification then MapExecutionNotificationToTradeState,
+        RequestClearing then MapRequestClearingToTradeState,
+        RequestConfirmation then MapRequestConfirmationToTradeState,
+        default empty
+
+func Ingest_FpmlConfirmationToWorkflowStep:
+    [ingest XML]
+    inputs:
+        fpmlDocument fpml.Document (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias documentChoice: ToDocumentChoice(fpmlDocument)
+
+    set workflowStep:
+        documentChoice switch
+        ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
+        ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
+        ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
+        ExecutionNotification then MapExecutionNotificationToWorkflowStep,
+        RequestClearing then MapRequestClearingToWorkflowStep,
+        TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
+        default empty
+
+func MapConfirmationAgreedToTradeState:
+    inputs:
+        fpmlConfirmationAgreed fpml.ConfirmationAgreed (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlConfirmationAgreed -> tradingEventsBaseModel,
+                fpmlConfirmationAgreed -> postTradeEventsBaseModel,
+                fpmlConfirmationAgreed -> changeEventsBaseModel
+            )
+
+    set tradeState:
+        MapTradeState(fpmlTrade, fpmlConfirmationAgreed -> partiesAndAccountsModel)
+
+func MapDataDocumentToTradeState:
+    inputs:
+        fpmlDataDocument fpml.DataDocument (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    set tradeState:
+        MapTradeState(
+                fpmlDataDocument -> trade only-element,
+                fpmlDataDocument -> partiesAndAccountsModel
+            )
+
+func MapExecutionNotificationToTradeState:
+    inputs:
+        fpmlExecutionNotification fpml.ExecutionNotification (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(fpmlExecutionNotification -> tradingEventsBaseModel, empty, empty)
+
+    set tradeState:
+        MapTradeState(fpmlTrade, fpmlExecutionNotification -> partiesAndAccountsModel)
+
+func MapRequestClearingToTradeState:
+    inputs:
+        fpmlRequestClearing fpml.RequestClearing (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestClearing -> tradingEventsModel -> tradingEventsBaseModel,
+                empty,
+                empty
+            )
+
+    set tradeState: MapTradeState(fpmlTrade, fpmlRequestClearing -> partiesAndAccountsModel)
+
+func MapRequestConfirmationToTradeState:
+    inputs:
+        fpmlRequestConfirmation fpml.RequestConfirmation (0..1)
+    output:
+        tradeState TradeState (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestConfirmation -> tradingAndPostTradeEventsModel -> tradingEventsBaseModel,
+                fpmlRequestConfirmation -> tradingAndPostTradeEventsModel -> postTradeEventsBaseModel,
+                empty
+            )
+
+    set tradeState:
+        MapTradeState(fpmlTrade, fpmlRequestConfirmation -> partiesAndAccountsModel)
+
+func MapClearingConfirmedToWorkflowStep:
+    inputs:
+        fpmlClearingConfirmed fpml.ClearingConfirmed (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlClearingConfirmed -> change -> trade,
+                fpmlClearingConfirmed -> partiesAndAccountsModel
+            )
+
+func MapExecutionAdviceToWorkflowStep:
+    inputs:
+        fpmlExecutionAdvice fpml.ExecutionAdvice (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionAdvice -> tradingEventsBaseModel,
+                fpmlExecutionAdvice -> postTradeEventsBaseModel,
+                fpmlExecutionAdvice -> changeEventsBaseModel
+            )
+
+    set workflowStep:
+        MapWorkflowStep(fpmlTrade, fpmlExecutionAdvice -> partiesAndAccountsModel)
+
+func MapExecutionAdviceRetractedToWorkflowStep:
+    inputs:
+        fpmlExecutionAdviceRetracted fpml.ExecutionAdviceRetracted (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlExecutionAdviceRetracted -> tradingEventsBaseModel,
+                fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel,
+                fpmlExecutionAdviceRetracted -> changeEventsBaseModel
+            )
+
+    set workflowStep:
+        MapWorkflowStep(fpmlTrade, fpmlExecutionAdviceRetracted -> partiesAndAccountsModel)
+
+func MapExecutionNotificationToWorkflowStep:
+    inputs:
+        fpmlExecutionNotification fpml.ExecutionNotification (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(fpmlExecutionNotification -> tradingEventsBaseModel, empty, empty)
+
+    set workflowStep:
+        MapWorkflowStep(fpmlTrade, fpmlExecutionNotification -> partiesAndAccountsModel)
+
+func MapRequestClearingToWorkflowStep:
+    inputs:
+        fpmlRequestClearing fpml.RequestClearing (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    alias fpmlTrade:
+        GetFpmlTrade(
+                fpmlRequestClearing -> tradingEventsModel -> tradingEventsBaseModel,
+                empty,
+                empty
+            )
+
+    set workflowStep:
+        MapWorkflowStep(fpmlTrade, fpmlRequestClearing -> partiesAndAccountsModel)
+
+func MapTradeChangeAdviceToWorkflowStep:
+    inputs:
+        fpmlTradeChangeAdvice fpml.TradeChangeAdvice (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    set workflowStep:
+        MapWorkflowStep(
+                fpmlTradeChangeAdvice -> change -> trade,
+                fpmlTradeChangeAdvice -> partiesAndAccountsModel
+            )

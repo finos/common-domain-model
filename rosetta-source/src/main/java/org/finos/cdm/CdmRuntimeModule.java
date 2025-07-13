@@ -2,6 +2,9 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.ingest.fpml.confirmation.common.functions.StringContains;
+import cdm.ingest.fpml.confirmation.common.functions.StringContainsImpl;
+import cdm.ingest.fpml.confirmation.pricequantity.functions.*;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
@@ -12,10 +15,15 @@ import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
+import com.regnosys.rosetta.RosettaStandaloneSetup;
 import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.regnosys.rosetta.translate.datamodel.json.CreateiQJsonSchemaParser;
 import com.regnosys.rosetta.translate.datamodel.json.JsonSchemaParser;
+import com.regnosys.runefpml.RuneFpmlRuntimeModule;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
@@ -70,6 +78,20 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
+		// Ingest
+		install(new RuneFpmlRuntimeModule());
+		bind(StringContains.class).to(StringContainsImpl.class);
+		bind(CreatePriceWithLocation.class).to(CreatePriceWithLocationImpl.class);
+		bind(CreatePriceWithAddress.class).to(CreatePriceWithAddressImpl.class);
+		bind(CreateQuantityWithLocation.class).to(CreateQuantityWithLocationImpl.class);
+		bind(CreateQuantityWithAddress.class).to(CreateQuantityWithAddressImpl.class);
+		bind(CreateObservableWithLocation.class).to(CreateObservableWithLocationImpl.class);
+		bind(CreateObservableWithAddress.class).to(CreateObservableWithAddressImpl.class);
+		bind(CreateBasketConstituentWithLocation.class).to(CreateBasketConstituentWithLocationImpl.class);
+		bind(CreateInterestRateIndexWithLocation.class).to(CreateInterestRateIndexWithLocationImpl.class);
+		bind(CreateInterestRateIndexWithAddress.class).to(CreateInterestRateIndexWithAddressImpl.class);
+		bind(KeyValue.class).to(KeyValueImpl.class);
+		bind(AssetKeyValue.class).to(AssetKeyValueImpl.class);
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
@@ -177,5 +199,4 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
 	}
-
 }
