@@ -417,7 +417,7 @@ one-off branch in the source-control repository. Please refer to the
 1. Fork it (https://github.com/finos/common-domain-model)
 1. Create your feature branch (`git checkout -b feature/my-new-feature`)
 1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
-1. Read our [contribution guidelines](contributions.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+1. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 1. Commit your changes (`git commit -am 'My New Feature'`)
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
