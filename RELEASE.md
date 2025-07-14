@@ -10,7 +10,7 @@ The type and synonym have been renamed to correct the typo.
 
 _Backward-incompatible_
 
-This change is backwards incompatible due an attribute name being rename
+This change is backwards incompatible due both the both type and synonym being rename
 
 _Review Directions_
 
