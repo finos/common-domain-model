@@ -1,12 +1,18 @@
-# _CDM Distribution - Python Code Generation flag update_
+# _Product Model & Mapping - Renamed type and synonym: notionalReference_
 
 _Background_
 
-After an upgrade to using xtext, the incremental builds were running with value `true`. This resulted in the Python build not generating the expected number of enum files, as detailed in [Issue 3829](https://github.com/finos/common-domain-model/issues/3829).
+A typo was identified which affects both type and synonym for what should be `notionalReference`.
 
 _What is being released?_
 
-Configuration changes have been made to set `incrementalXtextBuild` to `false` to ensure enum files are generated as expected.
+The type and synonym have been renamed to correct the typo.
 
-The changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3862
+_Backward Compatibility_
+
+This change is backward-incompatible due to both type and synonym being renamed.
+
+_Review Directions_
+
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3873
 
