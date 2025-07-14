@@ -8,9 +8,9 @@ _What is being released?_
 
 The type and synonym have been renamed to correct the typo.
 
-_Backward-incompatible_
+_Backward Compatibility_
 
-This change is backwards incompatible due both the both type and synonym being rename
+This change is backward-incompatible due to both type and synonym being renamed.
 
 _Review Directions_
 
