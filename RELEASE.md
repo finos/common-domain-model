@@ -1,19 +1,19 @@
-# _Collateral Model - Adding DepositoryReceipt to EquityTypeEnum and creating DepositoryReceipt enum_
+# _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
 
 _Background_
 
-Depository receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depository Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
+Depositary receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depositary Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
 
-Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depository Receipts.
+Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depositary Receipts.
 
-Depository Receipts can be of types American, European, Global, and Indian.
+Depositary Receipts can be of types American, European, Global, and Indian.
 
 _What is being released?_
 
-- Created a new type `EquityType` with two attributes: `EquityTypeEnum` and `DepositoryReceiptTypeEnum`
-- Created a new enum: `DepositoryReceiptTypeEnum`
-- Added `DepositoryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
-- Added a condition that `DepositoryReceiptEnum` is absent if `DepositoryReceipt` is not selected as the equity type
+- Created a new type `EquityType` with two attributes: `EquityTypeEnum` and `DepositaryReceiptTypeEnum`
+- Created a new enum: `DepositaryReceiptTypeEnum`
+- Added `DepositaryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
+- Added a condition that `DepositaryReceiptEnum` is absent if `DepositaryReceipt` is not selected as the equity type
 
 _Review Directions_
 
