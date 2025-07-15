@@ -13,10 +13,104 @@ func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantit
         updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
 
 func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
-    [codeImplementation]
     inputs:
         priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
         change PriceQuantity (1..*)
         direction QuantityChangeDirectionEnum (1..1)
     output:
         updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
+
+    add updatedPriceQuantity:
+        priceQuantity
+            extract
+                UpdatePriceQuantityAmountForEachMatchingQuantity(item, change, direction)
+
+func UpdatePriceQuantityAmountForEachMatchingQuantity:
+    inputs:
+        priceQuantity PriceQuantity (0..1)
+        change PriceQuantity (0..*)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        updatedPriceQuantity PriceQuantity (0..1)
+            [metadata location]
+
+    set updatedPriceQuantity:
+        PriceQuantity {
+            price: priceQuantity -> price
+                extract
+                    UpdatePriceAmountForEachMatchingQuantity(
+                            item,
+                            change -> price,
+                            direction
+                        ),
+            quantity: priceQuantity -> quantity
+                extract
+                    UpdateQuantityAmountForEachMatchingQuantity(
+                            item,
+                            change -> quantity,
+                            direction
+                        ),
+            observable: priceQuantity -> observable,
+            effectiveDate: priceQuantity -> effectiveDate
+        }
+
+func UpdatePriceAmountForEachMatchingQuantity:
+    inputs:
+        price PriceSchedule (0..1)
+            [metadata location]
+        change PriceSchedule (0..*)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        updatedPrice PriceSchedule (0..1)
+            [metadata location]
+
+    alias changedAmount:
+        change
+            filter UnitTypeEquals(item -> unit, price -> unit)
+            then first
+            then extract UpdateAmount(price -> value, value, direction)
+
+    set updatedPrice: price
+    set updatedPrice -> value: changedAmount default price -> value
+
+func UpdateQuantityAmountForEachMatchingQuantity:
+    inputs:
+        quantity NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+        change NonNegativeQuantitySchedule (0..*)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        updatedQuantity NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+
+    alias changedAmount:
+        change
+            filter UnitTypeEquals(item -> unit, quantity -> unit)
+            then first
+            then extract UpdateAmount(quantity -> value, value, direction)
+
+    set updatedQuantity: quantity
+    set updatedQuantity -> value: changedAmount default quantity -> value
+
+func UpdateAmount:
+    inputs:
+        oldAmount number (0..1)
+        changeAmount number (0..1)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        newAmount number (0..1)
+
+    set newAmount:
+        direction switch
+        Increase then oldAmount + changeAmount,
+        Decrease then oldAmount - changeAmount,
+        Replace then changeAmount
+
+func UnitTypeEquals:
+    inputs:
+        u1 UnitType (0..1)
+        u2 UnitType (0..1)
+    output:
+        result boolean (1..1)
+
+    set result: u1 = u2
