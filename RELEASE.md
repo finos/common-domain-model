@@ -1,20 +1,17 @@
-# _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
+# _Taxonomy type - Commodity classifications - Extended `Taxonomy` type with two conditions_
 
 _Background_
 
-Depositary receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depositary Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
-
-Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depositary Receipts.
-
-Depositary Receipts can be of types American, European, Global, and Indian.
+To enhance `Taxonomy` type to support commodity classifications properly. If a taxonomy has more than one level (i.e. has more than one classification element), the different classifications should be ordered hierarchically, as this is the structure of existing commodity classifications.
 
 _What is being released?_
 
-- Created a new type `EquityType` with two attributes: `EquityTypeEnum` and `DepositaryReceiptTypeEnum`
-- Created a new enum: `DepositaryReceiptTypeEnum`
-- Added `DepositaryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
-- Added a condition that `DepositaryReceiptEnum` is absent if `DepositaryReceipt` is not selected as the equity type
+Extended Taxonomy type with two conditions
+
+- OrdinalExists
+- SequentialOrdinals 
+  Update `taxonomy` mapping
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3883](https://github.com/finos/common-domain-model/pull/3883)
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3881
