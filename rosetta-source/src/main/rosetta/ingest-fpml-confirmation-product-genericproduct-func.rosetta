@@ -1,0 +1,91 @@
+namespace cdm.ingest.fpml.confirmation.product.genericproduct: <"FpML GenericProduct product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+
+func MapGenericProductCounterpartyList:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+func MapGenericProductAncillaryPartyList:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapGenericProductNonTransferableProduct:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlGenericProduct -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
+            economicTerms: MapGenericProductEconomicTerms(
+                    fpmlGenericProduct,
+                    cdmCounterpartyList
+                )
+        }
+
+func MapGenericProductEconomicTerms:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: empty, // MapAdjustableOrRelativeDate(fpmlTrade, fpmlPartiesAndAccountsModel),
+            terminationDate: empty, // MapAdjustableOrRelativeDate(fpmlTrade, fpmlPartiesAndAccountsModel),
+            dateAdjustments: empty, // MapBusinessDayAdjustments(fpmlTrade, fpmlPartiesAndAccountsModel),
+            payout: MapGenericProductPayout(fpmlGenericProduct, cdmCounterpartyList),
+            terminationProvision: empty, // MapTerminationProvision(fpmlTrade, fpmlPartiesAndAccountsModel),
+            nonStandardisedTerms: empty,
+            collateral: empty, // MapCollateral(fpmlTrade, fpmlPartiesAndAccountsModel),
+            ...
+        }
+
+func MapGenericProductPayout:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            ...
+        }
+
+func MapGenericProductPriceQuantityList:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+func MapGenericProductAccountPartyReference:
+    inputs:
+        fpmlGenericProduct fpml.GenericProduct (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlGenericProduct -> buyerSellerModel
+            )

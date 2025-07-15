@@ -1,0 +1,310 @@
+namespace cdm.ingest.fpml.confirmation.product.fra: <"FpML Fra product mapping functions.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.datetime.daycount.*
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+
+func MapFraCounterpartyList:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList: MapBuyerSellerModelToCounterpartyList(fpmlFra -> buyerSellerModel)
+
+func MapFraAncillaryPartyList:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapFraNonTransferableProduct:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlFra -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFra -> productModel),
+            economicTerms: MapFraEconomicTerms(fpmlFra, cdmCounterpartyList)
+        }
+
+func MapFraEconomicTerms:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapFraPayoutList(fpmlFra, cdmCounterpartyList),
+            ...
+        }
+
+func MapFraPayoutList:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payoutList Payout (0..2)
+
+    alias floatingPayerReceiver:
+        MapSellerAsPayerAndBuyerAsReceiver(fpmlFra -> buyerSellerModel, cdmCounterpartyList)
+
+    alias dayCountFraction: MapDayCountFractionEnum(fpmlFra -> dayCountFraction -> value)
+
+    alias calculationPeriodDates: MapFraCalculationPeriodDates(fpmlFra)
+
+    alias paymentDate: MapAdjustableDate(fpmlFra -> paymentDate)
+
+    alias discountingMethod: MapFraDiscountingMethod(fpmlFra -> fraDiscounting)
+
+    add payoutList:
+        MapFraToFixedInterestRatePayout(
+                fpmlFra,
+                floatingPayerReceiver,
+                dayCountFraction,
+                calculationPeriodDates,
+                paymentDate,
+                discountingMethod
+            )
+
+    add payoutList:
+        MapFraToFloatingInterestRatePayout(
+                fpmlFra,
+                floatingPayerReceiver,
+                dayCountFraction,
+                calculationPeriodDates,
+                paymentDate,
+                discountingMethod
+            )
+
+func MapFraToFixedInterestRatePayout:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        floatingPayerReceiver PayerReceiver (0..1)
+        dayCountFraction DayCountFractionEnum (0..1)
+        calculationPeriodDates CalculationPeriodDates (0..1)
+        paymentDate AdjustableDate (0..1)
+        discountingMethod DiscountingMethod (0..1)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            InterestRatePayout: InterestRatePayout {
+                // flip payerReceiver for the fixed leg
+                payerReceiver: FlipPayerAndReceiver(floatingPayerReceiver),
+                priceQuantity: ResolvablePriceQuantity {
+                    quantitySchedule: CreateQuantityWithAddress(
+                            KeyValue("quantity", empty, FixedLeg)
+                        ),
+                    ...
+                },
+                rateSpecification: RateSpecification {
+                    FixedRateSpecification: FixedRateSpecification {
+                        rateSchedule: RateSchedule {
+                            price: CreatePriceWithAddress(
+                                    KeyValue("price", empty, FixedLeg)
+                                )
+                    }},
+                    ...
+                },
+                calculationPeriodDates: calculationPeriodDates,
+                dayCountFraction: dayCountFraction,
+                paymentDates: PaymentDates {
+                    paymentFrequency: fpmlFra -> indexTenor
+                        first
+                        extract
+                            Frequency {
+                                periodMultiplier: periodMultiplier,
+                                period: MapPeriodExtendedEnum(period to-string),
+                            },
+                    ...
+                },
+                paymentDate: paymentDate,
+                discountingMethod: discountingMethod,
+                ...
+            },
+            ...
+        }
+
+func MapFraToFloatingInterestRatePayout:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        floatingPayerReceiver PayerReceiver (0..1)
+        dayCountFraction DayCountFractionEnum (0..1)
+        calculationPeriodDates CalculationPeriodDates (0..1)
+        paymentDate AdjustableDate (0..1)
+        discountingMethod DiscountingMethod (0..1)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            InterestRatePayout: InterestRatePayout {
+                payerReceiver: floatingPayerReceiver,
+                priceQuantity: ResolvablePriceQuantity {
+                    quantitySchedule: CreateQuantityWithAddress(
+                            KeyValue("quantity", empty, FloatingLeg)
+                        ),
+                    ...
+                },
+                rateSpecification: RateSpecification {
+                    FloatingRateSpecification: FloatingRateSpecification {
+                        rateOption: MapFloatingRateIndexToRateOptionWithAddress(
+                                fpmlFra -> floatingRateIndex,
+                                fpmlFra -> indexTenor first,
+                                FloatingLeg
+                            ),
+                        ...
+                    },
+                    ...
+                },
+                dayCountFraction: dayCountFraction,
+                calculationPeriodDates: calculationPeriodDates,
+                paymentDate: paymentDate,
+                resetDates: MapFraResetDates(fpmlFra -> fixingDateOffset),
+                discountingMethod: discountingMethod,
+                ...
+            },
+            ...
+        }
+
+func MapFraCalculationPeriodDates:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        calculationPeriodDates CalculationPeriodDates (0..1)
+
+    set calculationPeriodDates:
+        CalculationPeriodDates {
+            effectiveDate: MapAdjustedDateToAdjustableOrRelativeDate(
+                    fpmlFra -> adjustedEffectiveDate -> value -> date,
+                    fpmlFra -> adjustedEffectiveDate -> id
+                ),
+            terminationDate: MapAdjustedDateToAdjustableOrRelativeDate(
+                    fpmlFra -> adjustedTerminationDate -> date,
+                    empty
+                ),
+            ...
+        }
+
+func MapFraResetDates:
+    inputs:
+        fpmlRelativeDateOffset fpml.RelativeDateOffset (0..1)
+    output:
+        resetDates ResetDates (0..1)
+
+    set resetDates:
+        ResetDates {
+            fixingDates: MapRelativeDateOffset(fpmlRelativeDateOffset),
+            ...
+        }
+
+func MapFraDiscountingMethod:
+    inputs:
+        fpmlFraDiscounting fpml.FraDiscountingEnum (0..1)
+    output:
+        discountingMethod DiscountingMethod (0..1)
+
+    set discountingMethod:
+        DiscountingMethod {
+            discountingType: MapDiscountingTypeEnum(fpmlFraDiscounting to-string),
+            ...
+        }
+
+func MapFraPriceQuantityList:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList: MapFraFixedLegPriceQuantity(fpmlFra)
+
+    add priceQuantityList: MapFraFloatingLegPriceQuantity(fpmlFra)
+
+func MapFraFixedLegPriceQuantity:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapFixedRateToPriceScheduleWithLocation(
+                    fpmlFra -> fixedRate -> value,
+                    empty,
+                    fpmlFra -> notional -> currency,
+                    FixedLeg
+                ),
+            quantity: CreateQuantityWithLocation(
+                    MapMoneyToQuantity(fpmlFra -> notional),
+                    KeyValue("quantity", empty, FixedLeg)
+                ),
+            ...
+        }
+
+func MapFraFloatingLegPriceQuantity:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+    set priceQuantity:
+        PriceQuantity {
+            quantity: CreateQuantityWithLocation(
+                    MapMoneyToQuantity(fpmlFra -> notional),
+                    KeyValue("quantity", empty, FloatingLeg)
+                ),
+            observable: MapFloatingRateIndexToRateOptionObservableWithLocation(
+                    fpmlFra -> floatingRateIndex,
+                    fpmlFra -> indexTenor first,
+                    FloatingLeg
+                ),
+            ...
+        }
+
+func MapFraAccountPartyReference:
+    inputs:
+        fpmlFra fpml.Fra (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(fpmlAccount, fpmlFra -> buyerSellerModel)
+
+func FixedLeg:
+    output:
+        fixedLeg fpml.Leg (1..1)
+    set fixedLeg:
+        fpml.Leg {
+            id: "fixedLeg"
+        }
+
+func FloatingLeg:
+    output:
+        floatingLeg fpml.Leg (1..1)
+    set floatingLeg:
+        fpml.Leg {
+            id: "floatingLeg"
+        }

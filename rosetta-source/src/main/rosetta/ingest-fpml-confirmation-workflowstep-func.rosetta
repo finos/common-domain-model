@@ -1,0 +1,32 @@
+namespace cdm.ingest.fpml.confirmation.workflowstep: <"FpML type mapping functions.">
+version "${project.version}"
+
+import cdm.event.common.*
+import cdm.event.workflow.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.tradestate.*
+
+func MapWorkflowStep:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+    output:
+        workflowStep WorkflowStep (0..1)
+
+    set workflowStep:
+        WorkflowStep {
+            proposedEvent: EventInstruction {
+                instruction: [
+                    Instruction {
+                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel),
+                        ...
+                    }
+                ],
+                ...
+            },
+            timestamp: empty,
+            eventIdentifier: empty,
+            ...
+        }

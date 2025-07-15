@@ -1,0 +1,243 @@
+namespace cdm.ingest.fpml.confirmation.product.fxoption: <"FpML FxOption product mapping functions.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+
+func MapFxOptionCounterpartyList:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(fpmlFxOption -> buyerSellerModel)
+
+func MapFxOptionAncillaryPartyList:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapFxOptionNonTransferableProduct:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlFxOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFxOption -> productModel),
+            economicTerms: MapFxOptionEconomicTerms(fpmlFxOption, cdmCounterpartyList)
+        }
+
+func MapFxOptionEconomicTerms:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(fpmlFxOption -> effectiveDate),
+            payout: MapFxOptionPayout(fpmlFxOption, cdmCounterpartyList),
+            ...
+        }
+
+func MapFxOptionPayout:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias exchangeCurrency: GetExchangedCurrencyAmount(fpmlFxOption) -> currency
+
+    set payout:
+        Payout {
+            OptionPayout: OptionPayout {
+                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                        fpmlFxOption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                priceQuantity: ResolvablePriceQuantity {
+                    quantitySchedule: MapFxOptionQuantityWithAddress(fpmlFxOption),
+                    ...
+                },
+                settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
+                buyerSeller: MapBuyerSeller(
+                        fpmlFxOption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                observationTerms: MapObservationTerms(fpmlFxOption -> features),
+                underlier: Underlier {
+                    Observable: MapCurrencyToObservableCashWithAddress(
+                            exchangeCurrency,
+                            empty
+                        ),
+                    ...
+                },
+                optionType: MapPutCallEnum(
+                        fpmlFxOption -> strike -> strikeQuoteBasis to-string
+                    )
+                    to-enum OptionTypeEnum,
+                exerciseTerms: MapExerciseTerms(
+                        GetFpmlFxExercise(fpmlFxOption),
+                        fpmlFxOption -> exerciseProcedure,
+                        fpmlFxOption -> buyerSellerModel,
+                        cdmCounterpartyList
+                    ),
+                strike: MapFxOptionStrikePrice(fpmlFxOption),
+                ...
+            },
+            ...
+        }
+
+func MapObservationTerms:
+    inputs:
+        fpmlFeatures fpml.FxOptionFeatures (0..1)
+    output:
+        observationTerms ObservationTerms (0..1)
+
+    set observationTerms:
+        fpmlFeatures -> fxOptionFeaturesSequence -> asian
+            then extract
+                ObservationTerms {
+                    observationTime: MapBusinessCenterTime(fixingTime),
+                    informationSource: FxSpotRateSource {
+                        primarySource: MapInformationSource(primaryRateSource),
+                        ...
+                    },
+                    observationDates: MapObservationDates(
+                            fxAsianFeatureSequence -> observationSchedule
+                        ),
+                    ...
+                }
+
+func MapObservationDates:
+    inputs:
+        fpmlObservationSchedule fpml.FxAverageRateObservationSchedule (0..1)
+    output:
+        observationSchedule ObservationDates (0..1)
+    set observationSchedule:
+        ObservationDates {
+            periodicSchedule: PeriodicDates {
+                startDate: AdjustableOrRelativeDate {
+                    adjustableDate: AdjustableDate {
+                        unadjustedDate: fpmlObservationSchedule -> startDate -> date,
+                        ...
+                    },
+                    ...
+                },
+                endDate: AdjustableOrRelativeDate {
+                    adjustableDate: AdjustableDate {
+                        unadjustedDate: fpmlObservationSchedule -> endDate -> date,
+                        ...
+                    },
+                    ...
+                },
+                periodFrequency: MapCalculationPeriodFrequency(
+                        fpmlObservationSchedule -> calculationPeriodFrequency
+                    ),
+                ...
+            },
+            ...
+        }
+
+func GetExchangedCurrencyAmount:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        nonNegativeMoney fpml.NonNegativeMoney (0..1)
+    set nonNegativeMoney:
+        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+        then fpmlFxOption -> putCurrencyAmount
+        else fpmlFxOption -> callCurrencyAmount
+
+func MapFxOptionStrikePrice:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        strike OptionStrike (0..1)
+
+    alias priceUnits:
+        UnitType {
+            currency: MapCurrency(
+                    if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+                    then fpmlFxOption -> callCurrencyAmount -> currency
+                    else fpmlFxOption -> putCurrencyAmount -> currency
+                ),
+            ...
+        }
+
+    alias perUnitOf:
+        UnitType {
+            currency: MapCurrency(
+                    if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+                    then fpmlFxOption -> putCurrencyAmount -> currency
+                    else fpmlFxOption -> callCurrencyAmount -> currency
+                ),
+            ...
+        }
+
+    set strike:
+        OptionStrike {
+            strikePrice: Price {
+                value: fpmlFxOption -> strike -> rate,
+                unit: priceUnits,
+                perUnitOf: perUnitOf,
+                priceType: ExchangeRate,
+                composite: PriceComposite {
+                    baseValue: fpmlFxOption -> spotRate,
+                    operand: empty,
+                    arithmeticOperator: empty,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapFxOptionPriceQuantityList:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    alias exchangeCurrency: GetExchangedCurrencyAmount(fpmlFxOption) -> currency
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: MapFxOptionToQuantityListWithLocation(fpmlFxOption),
+            observable: MapCurrencyToObservableCashWithLocation(exchangeCurrency, empty),
+            ...
+        }
+
+func MapFxOptionAccountPartyReference:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(fpmlAccount, fpmlFxOption -> buyerSellerModel)
