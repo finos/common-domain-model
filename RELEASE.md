@@ -2,8 +2,6 @@
 
 _Background_
 
-Depositary receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depositary Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
-
 This release contains enhancements to the Eligible Collateral representation based upon the work undertaken in 2024 by ISLA to support collateral schedules used for securities lending in the CDM.
 
 _What is being released?_
