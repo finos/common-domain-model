@@ -15,7 +15,7 @@ There are two enumerated lists being enhanced:
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3898](https://github.com/finos/common-domain-model/pull/3898)
+Changes can be reviewed in PR: [3912](https://github.com/finos/common-domain-model/pull/3912)
 
 # _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
 
