@@ -13,7 +13,7 @@ There are no changes to model or test expectations.  The allocated memory config
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3900](https://github.com/finos/common-domain-model/pull/3901)
+The changes can be reviewed in PR: [#3901](https://github.com/finos/common-domain-model/pull/3901)
 
 
 # _Infrastructure - Release Process updates following Maven Central Migration_
