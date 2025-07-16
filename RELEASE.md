@@ -1,15 +1,17 @@
-# _Collateral Model - New options to the EquityTypeEnum and ConcentrationLimitType Enum_
+# _Collateral Model - Updates to EquityTypeEnum and ConcentrationLimitTypeEnum_
 
 _Background_
 
-This release contains enhancements to the Eligible Collateral representation based upon the work undertaken in 2024 by ISLA to support collateral schedules used for securities lending in the CDM.
+In 2024, ISLA began development to support collateral schedules for securities lending within the Common Domain Model.
 
 _What is being released?_
 
+This release contains enhancements to the Eligible Collateral representation based upon this work, with new options made available in existing enumerated lists.
+
 There are two enumerated lists being enhanced:
 
-1. Added a new `ConvertiblePreference` item to the `EquityTypeEnum`
-2. Added a new `OutstandingBalance` item to the `ConcentrationLimitTypeEnum`
+1. Added option `ConvertiblePreference` to `EquityTypeEnum`
+2. Added option `OutstandingBalance` to `ConcentrationLimitTypeEnum`
 
 _Review Directions_
 
