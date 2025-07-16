@@ -1,3 +1,22 @@
+# _Collateral Model - Updates to EquityTypeEnum and ConcentrationLimitTypeEnum_
+
+_Background_
+
+In 2024, ISLA began development to support collateral schedules for securities lending within the Common Domain Model.
+
+_What is being released?_
+
+This release contains enhancements to the Eligible Collateral representation based upon this work, with new options made available in existing enumerated lists.
+
+There are two enumerated lists being enhanced:
+
+1. Added option `ConvertiblePreference` to `EquityTypeEnum`
+2. Added option `OutstandingBalance` to `ConcentrationLimitTypeEnum`
+
+_Review Directions_
+
+Changes can be reviewed in PR: [3912](https://github.com/finos/common-domain-model/pull/3912)
+
 # _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
 
 _Background_
