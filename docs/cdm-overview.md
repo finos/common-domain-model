@@ -64,12 +64,12 @@ documentation.
 
 ## Governance
 
-The CDM [governance framework](dev-guidelines#governance) regulates
+The CDM [governance framework](/./GOVERNANCE.md) regulates
 the development of the CDM in open source.
 
 ## Scope
 
-The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
+The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes.
 
 ## CDM 2025 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
@@ -100,9 +100,9 @@ The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rune DSL and contained into a set of *.rosetta* files
-    organised as *namespaces*. The primary dimensions of the model are
+    organised as [namespaces](namespace.md). The primary dimensions of the model are
     listed below and further described in the
-    [common-domain-model](/docs/common-domain-model) of the
+    [common-domain-model](common-domain-model.md) of the
     documentation.
     -   Product
     -   Event
@@ -112,7 +112,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rune DSL using [available code
-    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
+    generators](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -153,7 +153,7 @@ share code generators into any other languages.
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/). The documentation also describes the
+the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---
