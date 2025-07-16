@@ -34,9 +34,9 @@ func UpdatePriceQuantityAmountForEachMatchingQuantity: <"Updates any price or qu
         updatedPriceQuantity PriceQuantity (0..1)
             [metadata location]
 
-    alias filteredChange: <"Filter the change PriceQuantity list to match on Observable.">
+    alias filteredChange: <"Find the match change PriceQuantity.">
         FilterChangePriceQuantity(priceQuantity, change)
-
+        
     set updatedPriceQuantity: <"Update the price and quantity with the change amounts.">
         PriceQuantity {
             price: priceQuantity -> price
@@ -64,14 +64,17 @@ func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match 
     output:
         filteredChange PriceQuantity (0..*)
 
-    alias changeWithMatchingObservable:
-         change
-            filter
-                (item -> observable is absent and priceQuantity -> observable is absent) 
-                or item -> observable = priceQuantity -> observable
+    //alias changeWithMatchingObservable: // TODO uncomment to support matching on PriceQuantity observable
+        //  change
+        //     filter
+        //         // match on observable is absent
+        //         (item -> observable is absent and priceQuantity -> observable is absent) 
+        //         // or, match on observable
+        //         or item -> observable = priceQuantity -> observable
 
     add filteredChange:
-        changeWithMatchingObservable default change
+        //changeWithMatchingObservable default change
+        change
 
 func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the PriceSchedule list if the unit of amount matches.">
     inputs:
