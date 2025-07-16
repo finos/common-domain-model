@@ -17,23 +17,18 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
-    exchange LegalEntity (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
-        [deprecated]
-    relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
-        [deprecated]
     party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
-    partyRole AssetPartyRole (0..*) <"The role of the payer specific to the asset type, i.e. bond, equity">
-    assetAncillaryParty Party (0..*) <"Other ancillary parties linked to the asset but independent of the trade, i.e. transfer agent, registrar">
+    assetPartyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity">
     assetAncillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
 
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
-        if assetType -> assetType any = AssetTypeEnum -> Security
-            then partyRole -> role any = AssetPartyRoleEnum -> Issuer
+        if assetType -> assetType = Security
+            then assetPartyRole -> role = Issuer
 
     condition LenderBorrower: <"If the asset type is a security then the role must be issuer.">
-        if assetType -> assetType = AssetTypeEnum -> Loan
-            then partyRole -> role any = AssetPartyRoleEnum -> Lender or partyRole -> role any = AssetPartyRoleEnum -> Borrower
+        if assetType -> assetType = Loan
+            then assetPartyRole -> role =  Lender or assetPartyRole -> role = Borrower
 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
@@ -111,9 +106,6 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
         taxonomy is absent
-
-    condition NoExchange: <"Cash cannot be a listed Asset.">
-        exchange is absent and isExchangeListed is absent
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">

@@ -21,7 +21,19 @@ import cdm.product.qualification.*
 
 type TransferableProduct extends Asset: <"A TransferableProduct is a type of financial product which can be held or transferred, represented as an Asset with the addition of specific EconomicTerms.">
     economicTerms EconomicTerms (1..1) <"The price forming features, including payouts and provisions.">
-    productParty Counterparty (0..1) <"Overrides the parties on the trade to indentify the party with the obligation to pay dividends or coupons, e.g issuer.">
+    productPartyRole CounterpartyRoleEnum (1..1) <"Overrides the parties on the trade to indentify the party with the obligation to pay dividends or coupons, e.g issuer.">
+
+    condition NoCashParty:
+       if Cash exists
+            then Cash -> party is absent
+            and Cash -> assetPartyRole -> role is absent
+       else if Commodity exists
+            then Commodity -> party is absent
+            and Commodity -> assetPartyRole -> role is absent
+       else
+          Instrument ->> party exists and Instrument ->> assetPartyRole -> role exists
+          or
+          DigitalAsset -> party exists and DigitalAsset -> assetPartyRole -> role exists
 
 type EconomicTerms: <" This class represents the full set of price-forming features associated with a contractual product: the payout component, the notional/quantity, the effective and termination date and the date adjustment provisions when applying uniformily across the payout components. This class also includes the legal provisions which have valuation implications: cancelable provision, extendible provision, early termination provision and extraordinary events specification.">
 
