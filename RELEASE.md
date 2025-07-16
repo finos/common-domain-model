@@ -1,4 +1,4 @@
-# _Collateral Eligibility Enumerations - New options to the EquityTypeEnum and ConcentrationLimitType Enum_
+# _Collateral Model - New options to the EquityTypeEnum and ConcentrationLimitType Enum_
 
 _Background_
 
