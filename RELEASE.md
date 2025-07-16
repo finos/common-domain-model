@@ -13,7 +13,7 @@ There are no changes to model or test expectations.  The allocated memory config
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3900](https://github.com/finos/common-domain-model/pull/3902)
+The changes can be reviewed in PR: [#3902](https://github.com/finos/common-domain-model/pull/3902)
 
 
 # _CDM Distribution - Python Code Generation flag update_
