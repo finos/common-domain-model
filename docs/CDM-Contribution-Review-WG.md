@@ -14,6 +14,9 @@ The CDM Contribution Review Working Group (CRWG) plays a crucial role in the CDM
 - Triage and facilitates long-dated PRs and Issues.
 - Meets fortnightly, with sub-groups as required.
 
+## 2024 Roadmap
+![](/website/static/img/crwg-roadmap.png)
+
 ## Meetings
 
 **Join us on the First and Third Tuesday at 10 AM EST (3 PM GMT).** Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
