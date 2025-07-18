@@ -4,7 +4,7 @@ title: Maintainers
 
 ## Maintainers
 
-This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](governance.md/#roles) within the CDM community.
+This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different within the CDM community.
 
 **Appointment of CDM Maintainers:**
 
