@@ -21,6 +21,13 @@ A list of Maintainers along with their type will be kept visible within the gove
 
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
 
+The [maintenance and release](maintenance-and-release.md) page provides further detail on maintainers' responsibilities. 
+
+## Maintainers Approval Process 
+![](../.github/Approval-Process.png)
+
+Click [here](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) to view the pull request approval guidelines. 
+
 ## FINOS CDM Project Maintainers
 
 FINOS Common Domain Model is maintained by FINOS members and the wider open source in finance community. 
