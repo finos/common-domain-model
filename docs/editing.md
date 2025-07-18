@@ -73,14 +73,14 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#translate).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -91,7 +91,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the [namespace-documentation](namespace.md) section for more details.
+Please refer to the [namespace documentation](namespace.md) section for more details.
 
 ### Descriptions
 
@@ -184,7 +184,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content of release notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
