@@ -192,7 +192,7 @@ guidance on editing release notes.
 ### Review checklist
 
 Before starting to review a contribution, the CDM Maintainer should go
-through the [review checklist](maintenance-and-release.md).
+through the [review checklist](maintenance-and-release.md/#downstream-dependencies).
 
 
 
