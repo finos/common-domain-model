@@ -1,74 +1,41 @@
-# _Event Model - Qualification Functions Relocated_
-
-_Background_
-
-Event Qualification Functions belong in the `cdm.event.qualification:func` namespace. Several functions of this type were instead identified in the `cdm.event.common:func` namespace. These functions need to be relocated to the correct namespace.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-The following functions are moving from `cdm.event.common:func` to cdm.event.qualification:func:
+This release updates the `DSL` dependency.
 
-- Qualify_Repurchase
-- Qualify_Roll
-- Qualify_Cancellation
-- Qualify_PairOff
-- Qualify_Shaping
-- Qualify_PartialDelivery
-- Qualify_Reprice
-- Qualify_Adjustment
-- Qualify_Substitution
-- Qualify_OnDemandPayment
+Version updates include:
+- `DSL` 9.57.0 Measure and log build statistics, see DSL release notes: [DSL 9.57.0](https://github.com/finos/rune-dsl/releases/tag/9.57.0)
+- `DSL` 9.58.0 Change detection fixes and performance improvements, see DSL release notes: [DSL 9.58.0](https://github.com/finos/rune-dsl/releases/tag/9.58.0)
+- `DSL` 9.58.1 Patch Validator class for backward compatibility, see DSL release notes: [DSL 9.58.1](https://github.com/finos/rune-dsl/releases/tag/9.58.1)
+- `DSL` 9.59.0 Continued migrating to Xtend and fixed null pointer issues in generated function code and type alias condition code, see DSL release notes: [DSL 9.59.0](https://github.com/finos/rune-dsl/releases/tag/9.59.0)
+- `DSL` 9.60.0 Migration to Maven Central, see DSL release notes: [DSL 9.60.0](https://github.com/finos/rune-dsl/releases/tag/9.60.0)
+- `DSL` 9.61.0 Fixed issues with type coercion and location setting, added support for using ^type, class, result, and package as attribute names, and improved the with-meta operation to work with empty arguments, see DSL release notes: [DSL 9.61.0](https://github.com/finos/rune-dsl/releases/tag/9.61.0)
 
-No code changes were made to any of the functions.
 
-Previously the functions in `cdm.event.qualification:func` namespace were in alphabetical order. This order has lapsed over the last few versions so as part of this update the functions have been reordered in alphabetical order.
+There are no changes to model or test expectations.  The allocated memory configured to run the tests has been increased to prevent failures when running tests.
 
 _Review Directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3851
+The changes can be reviewed in PR: [#3900](https://github.com/finos/common-domain-model/pull/3900)
 
-# _Product Model - AveragingFeature to Support Asian Options_
+# _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
 
 _Background_
 
-Asian options were previously not covered in the model. The FpML mappings were pointing to the Asian type, which, however, was an orphan type and not referenced anywhere in the model.
+Depositary receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depositary Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
 
-To address this, it has been proposed to create a new `AveragingFeature` type that encapsulates `AveragingCalculation` and incorporates the attributes mapped from FpML. This new type is now referenced within `OptionFeature`.
+Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depositary Receipts.
 
-_What is being released?_
-
-The following type has been added to the model:
-
-- `AveragingFeature`
-
-The following type has been updated:
-
-- `OptionFeature`
-- `OptionPayout` 
-
-The following FpML Mapping has been updated:
-
-- `AveragingFeature` (formerly called `Asian`)
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#3827](https://github.com/finos/common-domain-model/pull/3827)
-
-# _Infrastructure - Release Process updates following Maven Central Migration_
-
-_Background_
-
-The Maven Central infrastructure is undergoing a major migration, from `oss.sonatype.org` to `central.sonatype.com`. This impacts the release process for all projects hosting artifacts using Maven Central.
-
-Further information is provided by Sonatype:
-https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
+Depositary Receipts can be of types American, European, Global, and Indian.
 
 _What is being released?_
 
-The release process has been updated to build and deploy to `central.sonatype.com` instead of `oss.sonatype.org`.
+- Created a new type `EquityType` with two attributes: `EquityTypeEnum` and `DepositaryReceiptTypeEnum`
+- Created a new enum: `DepositaryReceiptTypeEnum`
+- Added `DepositaryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
+- Added a condition that `DepositaryReceiptEnum` is absent if `DepositaryReceipt` is not selected as the equity type
 
 _Review Directions_
 
-No changes made to model.
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3830
+Changes can be reviewed in PR: [3883](https://github.com/finos/common-domain-model/pull/3883)
