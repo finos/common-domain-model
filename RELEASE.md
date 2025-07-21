@@ -1,4 +1,4 @@
-# _Product Model - Taxonomy type, Commodity classification_
+# _Product Model - Taxonomy type: Commodity classification_
 
 _Background_
 
