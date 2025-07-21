@@ -10,7 +10,8 @@ Extended Taxonomy type with two conditions
 
 - OrdinalExists
 - SequentialOrdinals 
-- Update `taxonomy` mapping
+
+Update `taxonomy` mapping
 
 _Review Directions_
 
