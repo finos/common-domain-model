@@ -6,14 +6,14 @@ To enhance `Taxonomy` type to support commodity classifications properly. If a t
 
 _What is being released?_
 
-Extended Taxonomy type with two conditions
+1. Extended Taxonomy type with two conditions
 
 - OrdinalExists
 - SequentialOrdinals
 
-Removed func DifferentOrdinalsCondition 
+2. Removed func DifferentOrdinalsCondition 
 
-Update `taxonomy` mapping
+3. Update `taxonomy` mapping
 
 _Review Directions_
 
