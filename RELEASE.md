@@ -1,45 +1,41 @@
-# _Product Model - AveragingFeature to Support Asian Options_
-
-_Background_
-
-Asian options were previously not covered in the model. The FpML mappings were pointing to the Asian type, which, however, was an orphan type and not referenced anywhere in the model.
-
-To address this, it has been proposed to create a new `AveragingFeature` type that encapsulates `AveragingCalculation` and incorporates the attributes mapped from FpML. This new type is now referenced within `OptionFeature`.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-The following type has been added to the model:
+This release updates the `DSL` dependency.
 
-- `AveragingFeature`
+Version updates include:
+- `DSL` 9.57.0 Measure and log build statistics, see DSL release notes: [DSL 9.57.0](https://github.com/finos/rune-dsl/releases/tag/9.57.0)
+- `DSL` 9.58.0 Change detection fixes and performance improvements, see DSL release notes: [DSL 9.58.0](https://github.com/finos/rune-dsl/releases/tag/9.58.0)
+- `DSL` 9.58.1 Patch Validator class for backward compatibility, see DSL release notes: [DSL 9.58.1](https://github.com/finos/rune-dsl/releases/tag/9.58.1)
+- `DSL` 9.59.0 Continued migrating to Xtend and fixed null pointer issues in generated function code and type alias condition code, see DSL release notes: [DSL 9.59.0](https://github.com/finos/rune-dsl/releases/tag/9.59.0)
+- `DSL` 9.60.0 Migration to Maven Central, see DSL release notes: [DSL 9.60.0](https://github.com/finos/rune-dsl/releases/tag/9.60.0)
+- `DSL` 9.61.0 Fixed issues with type coercion and location setting, added support for using ^type, class, result, and package as attribute names, and improved the with-meta operation to work with empty arguments, see DSL release notes: [DSL 9.61.0](https://github.com/finos/rune-dsl/releases/tag/9.61.0)
 
-The following type has been updated:
 
-- `OptionFeature`
-- `OptionPayout` 
-
-The following FpML Mapping has been updated:
-
-- `AveragingFeature` (formerly called `Asian`)
+There are no changes to model or test expectations.  The allocated memory configured to run the tests has been increased to prevent failures when running tests.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#3827](https://github.com/finos/common-domain-model/pull/3827)
+The changes can be reviewed in PR: [#3900](https://github.com/finos/common-domain-model/pull/3900)
 
-# _Infrastructure - Release Process updates following Maven Central Migration_
+# _Collateral Model - Adding DepositaryReceipt to EquityTypeEnum and creating DepositaryReceipt enum_
 
 _Background_
 
-The Maven Central infrastructure is undergoing a major migration, from `oss.sonatype.org` to `central.sonatype.com`. This impacts the release process for all projects hosting artifacts using Maven Central.
+Depositary receipts are not currently in CDM but are used in collateral schedules. The Collateral Model would benefit from the addition of Depositary Receipts to collateral criteria, and this contribution adds them to the `Security` type as a type of equity.
 
-Further information is provided by Sonatype:
-https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
+Due to the current `Security` structure, the `equityType` attribute must be remodelled to allow for the addition of Depositary Receipts.
+
+Depositary Receipts can be of types American, European, Global, and Indian.
 
 _What is being released?_
 
-The release process has been updated to build and deploy to `central.sonatype.com` instead of `oss.sonatype.org`.
+- Created a new type `EquityType` with two attributes: `EquityTypeEnum` and `DepositaryReceiptTypeEnum`
+- Created a new enum: `DepositaryReceiptTypeEnum`
+- Added `DepositaryReceipt` to `EquityTypeEnum` (Enum already contains Ordinary & NonConvertiblePreference)
+- Added a condition that `DepositaryReceiptEnum` is absent if `DepositaryReceipt` is not selected as the equity type
 
 _Review Directions_
 
-No changes made to model.
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3830
+Changes can be reviewed in PR: [3883](https://github.com/finos/common-domain-model/pull/3883)
