@@ -9,7 +9,9 @@ _What is being released?_
 Extended Taxonomy type with two conditions
 
 - OrdinalExists
-- SequentialOrdinals 
+- SequentialOrdinals
+
+Removed func DifferentOrdinalsCondition 
 
 Update `taxonomy` mapping
 
