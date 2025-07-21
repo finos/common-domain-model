@@ -205,7 +205,7 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
-    equityType EquityTypeEnum (0..1) <"Identifies the type of equity.">
+    equityType EquityType (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
     condition DebtSubType:
@@ -219,6 +219,14 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     condition FundSubType:
         if instrumentType <> InstrumentTypeEnum -> Fund
         then fundType is absent
+        
+type EquityType:
+    equityType EquityTypeEnum (0..1)
+    depositaryReceipt DepositaryReceiptTypeEnum (0..1)
+
+    condition DepositaryReceiptSubType:
+        if equityType <> EquityTypeEnum -> DepositaryReceipt
+        then depositaryReceipt is absent
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
@@ -278,7 +286,7 @@ type AssetType: <"Represents a class to allow specification of the asset product
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
     securityType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
-    equityType EquityTypeEnum (0..1) <"Represents a filter based on the type of equity.">
+    equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
     otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 
