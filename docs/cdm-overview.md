@@ -46,6 +46,14 @@ For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
 at <cdm@lists.finos.org>.
 
+## Model Overview 
+The key models defined in the CDM are listed below. Click each one to learn more. 
+- [Product model](product-model.md) -  describes a thing (e.g. contract or instrument) that is used to transfer financial risk between two parties.
+- [Event model](event-model.md) - provides data structures to represent the lifecycle events of financial transactions.
+- [Process model](process-model.md) - lays the foundation for the standardisation, automation and inter-operability of industry processes.
+- [Reference data model](reference-data-model.md) – describes underlying business entities such as parties, legal entities, floating rate indexes, and so on that needed to model the in-scope products, events, legal agreements and function components.
+- [Use cases](use-cases.md) – business process areas in the financial ecosystem that the CDM supports.
+
 ## Design Principles
 
 To support the objectives described above, the CDM is built according to a set of
@@ -88,7 +96,7 @@ CDM components diagram below:
 -   The Rune DSL (on the left, in *grey*)
 -   CDM Applications (on the right, in *blue*)
 
-![](/img/cdm-components-diagram.png)
+![](img/cdm-components-diagram.png)
 
 ## FINOS CDM Distribution
 
@@ -100,10 +108,9 @@ The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rune DSL and contained into a set of *.rosetta* files
-    organised as *namespaces*. The primary dimensions of the model are
+    organised as [*namespaces*](namespace.md). The primary dimensions of the model are
     listed below and further described in the
-    [common-domain-model](/docs/common-domain-model) of the
-    documentation.
+    [above](cdm-overview.md/#Model-Overview).
     -   Product
     -   Event
     -   Legal Agreement

@@ -77,9 +77,7 @@ the development of the CDM in open source.
 
 ## Scope
 
-The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
-
-There are no patents involved in the CDM.
+The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
 ## CDM 2025 Roadmap
 Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
@@ -98,7 +96,7 @@ CDM components diagram below:
 -   The Rune DSL (on the left, in *grey*)
 -   CDM Applications (on the right, in *blue*)
 
-![](/img/cdm-components-diagram.png)
+![](img/cdm-components-diagram.png)
 
 ## FINOS CDM Distribution
 
@@ -110,10 +108,9 @@ The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rune DSL and contained into a set of *.rosetta* files
-    organised as *namespaces*. The primary dimensions of the model are
+    organised as [*namespaces*](namespace.md). The primary dimensions of the model are
     listed below and further described in the
-    [common-domain-model](/docs/common-domain-model) of the
-    documentation.
+    [above](cdm-overview.md/#Model-Overview).
     -   Product
     -   Event
     -   Legal Agreement
