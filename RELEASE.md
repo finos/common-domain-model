@@ -1,4 +1,4 @@
-# _Commodity classifications - Extended `Taxonomy` type with two conditions and mapping update_
+# _Product Model - Taxonomy type Commodity classification_
 
 _Background_
 
