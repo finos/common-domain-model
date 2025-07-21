@@ -7,9 +7,8 @@ To enhance `Taxonomy` type to support commodity classifications properly. If a t
 _What is being released?_
 
 1. Extended Taxonomy type with two conditions
-
-- OrdinalExists
-- SequentialOrdinals
+  - OrdinalExists
+  - SequentialOrdinals
 
 2. Removed func DifferentOrdinalsCondition 
 
