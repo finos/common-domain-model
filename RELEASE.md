@@ -2,17 +2,17 @@
 
 _Background_
 
-To enhance `Taxonomy` type to support commodity classifications properly. If a taxonomy has more than one level (i.e. has more than one classification element), the different classifications should be ordered hierarchically, as this is the structure of existing commodity classifications.
+If a taxonomy has more than one level (i.e. has more than one classification element), the different classifications should be ordered hierarchically, and sequentially, as this is the structure of existing commodity classifications. To do so, this Release enhance `Taxonomy` type adding two new conditions.
 
 _What is being released?_
 
-1. Extended Taxonomy type with two conditions
+Extended Taxonomy type with two conditions
   - OrdinalExists
   - SequentialOrdinals
 
-2. Removed func DifferentOrdinalsCondition 
+Removed func DifferentOrdinalsCondition 
 
-3. Update `taxonomy` mapping
+Update `taxonomy` mapping
 
 _Review Directions_
 
