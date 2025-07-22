@@ -381,15 +381,6 @@ are explicitly identified in the agreement templates, including the potential
 values for each election (e.g. an election from a list of options or a specific 
 type of information such as an amount, date or city). 
 
-Due to the domain and document specific nature of election provisions, the
-clauses and applicable values are currently not included in the CDM. However, 
-there are extensions to the CDM available that can provide declarative types for
-specific documents.
-
-For example, the ISDA Foundations model - which is available to all ISDA members
-upon request - can be used to represent the ISDA Credit Support Annexes. To gain
-access to ISDA Foundations please send an email to: <cdminfo@isda.org>
-
 ## Master Agreement Schedule
 
 Legal documentation is required to describe the contract between parties on 
