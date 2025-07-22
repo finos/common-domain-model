@@ -186,4 +186,5 @@ This section covers scheduling of minor, development, and patch releases, and ap
 | Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
 | Development Release (6.0.0-dev.13)| 1 maintainer         | Scheduling is up to the maintainer            |
 
-![](/website/static/img/CDM–Build-Release-Process.png)
+![](/img/CDM-Build-Release-Process.png)
+
