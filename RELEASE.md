@@ -21,7 +21,7 @@ This is achieved with the following changes:
 
 _Backward-incompatible changes_
 
-This releases is tightening validation conditions, so existing `Taxonomy` instances that would have appeared valid may no longer be.
+This release is tightening validation conditions, so existing `Taxonomy` instances that would have appeared valid may no longer be.
 
 It also removes a function (`DifferentOrdinalsCondition`), but that function was previously only used in a validation condition that no longer uses it.
 
