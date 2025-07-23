@@ -55,7 +55,7 @@ There is a balance between moving too quickly (and creating many changes, potent
 * Ideally the SWG will establish plans for upcoming major releases for at least the following 9-12 months
   * *Rationale:*  this provides transparency for the users and potential users of CDM (supporting adoption)
     
-* Major release schedules shall be published on the CDM GitHub repository once approved by the SWG 
+* Major release schedules shall be published on the CDM GitHub repository once approved by the SWG (in https://github.com/finos/common-domain-model/blob/master/ROADMAP.md)
   * *Rationale:* as above
 
 ##  Detailed Guidelines – Changes vs.  Major Versions
