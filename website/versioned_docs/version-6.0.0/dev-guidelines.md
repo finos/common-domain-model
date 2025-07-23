@@ -465,7 +465,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](e#content-of-release-notes) for further
+[content-of-release-notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 
