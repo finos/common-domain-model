@@ -423,14 +423,14 @@ one-off branch in the source-control repository. Please refer to the
 ### Contributing via GitHub
 
 1. Fork it (https://github.com/finos/common-domain-model)
-1. Create your feature branch (`git checkout -b feature/my-new-feature`)
-1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
-1. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
-1. Commit your changes (`git commit -am 'My New Feature'`)
-1. Push to the branch (`git push origin feature/my-new-feature`)
-1. Create a new Pull Request
+2. Create your feature branch (`git checkout -b feature/my-new-feature`)
+3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
+4. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+5. Commit your changes (`git commit -am 'My New Feature'`)
+6. Push to the branch (`git push origin feature/my-new-feature`)
+7. Create a new Pull Request
 
-
+![](/img/Approval-Process.png)
 ---
 **Note:**
 It is not yet possible to contribute updated test expectations,
