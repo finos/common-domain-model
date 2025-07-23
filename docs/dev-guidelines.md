@@ -9,11 +9,11 @@ The CDM Development Guidelines are defined by the Steering Working Group. The fu
 
 
 ### Roles
-The CSL specifies three different contribution roles for each specific [Working Group](working-groups.md):
+The CSL specifies three different contribution roles for each specific [working group](working-groups.md):
 
 * [Maintainers](maintainers.md) - those who drive consensus within the working group
 * Editors - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [participants](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
 
 ## CDM Design Principles
