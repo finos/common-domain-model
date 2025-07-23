@@ -125,8 +125,7 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and the governance page. 
-    
+-   Review the [design principles](/docs/cdm-overview#design-principles) and the governance page. 
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
@@ -188,6 +187,15 @@ set of regression tests.
 Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
 mapping syntax.
 
+### Namespace
+
+All model components should be positioned appropriately in the existing
+namespace hierarchy. If the proposed contribution includes changes to
+the namespace hierarchy, those changes should be justified and
+documented. Any new namespace should have an associated description, and
+be imported where required.
+
+Please refer to the [namespace](namespace.md) section for more details.
 
 ### Contributing
 
@@ -209,7 +217,7 @@ we recommend labelling the pull request with the user story label, i.e.
 ---
 **Note:**
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
+under the CDM licence.
 
 ---
 
@@ -246,7 +254,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content of release notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
