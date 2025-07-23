@@ -13,7 +13,7 @@ The CSL specifies three different contribution roles for each specific [Working 
 
 * [Maintainers](maintainers.md) - those who drive consensus within the working group
 * Editors - those who codify ideas into a formal specification
-* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants.md](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
+* Participants - anyone who provides contributions to the project under a signed CSL CLA. A great way to sign the CLA is to open a Pull Request to add your name to the [Participants](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/participants.md) file. 
 
 
 ---
@@ -126,14 +126,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and
+-   Review the [design principles](/docs/cdm-overview#design-principles) and
     [governance](/docs/cdm-overview#governance)
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-[agile-development-approach](development-approach.md) and follows these steps: 
+[agile development approach](development-approach.md) and follows these steps: 
 
 -   **Define use case**. Identify and document one or more use cases
     with details (e.g. a sample trade).
@@ -263,7 +263,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content of release notes](#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
