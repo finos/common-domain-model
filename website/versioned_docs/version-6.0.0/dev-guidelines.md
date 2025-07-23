@@ -124,7 +124,7 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and the governance page. 
+-   Review the [design principles](/docs/cdm-overview#design-principles) and the governance page. 
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
