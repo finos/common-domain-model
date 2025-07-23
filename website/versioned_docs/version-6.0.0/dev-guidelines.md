@@ -33,7 +33,7 @@ new version. The CDM release history is available in the [Release
 Section](https://github.com/finos/common-domain-model/releases) of the CDM documentation.
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
-Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md).
+Information on semantic versioning, backwards compatibility and version availability can be found [here](versioning.md).
 
 
 ## Backward Compatibility
@@ -263,7 +263,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content-of-release-notes](documentation-style-guide.md#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
