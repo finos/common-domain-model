@@ -2,7 +2,7 @@
 
 _Background_
 
-This release contains enhancements to the Eligible Collateral representation to provide additional support for collateral schedules used for securities lending purposes
+This release contains enhancements to the Eligible Collateral representation to provide additional support for collateral schedules used for securities lending purposes.
 
 _What is being released?_
 
