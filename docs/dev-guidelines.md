@@ -18,7 +18,7 @@ The CSL specifies three different contribution roles for each specific [Working 
 
 ## CDM Design Principles
 
-Contributions to the CDM have to comply with the set of [design principles](design-principles.md] that include the following concepts:
+Contributions to the CDM have to comply with the set of [design principles](design-principles.md) that include the following concepts:
 
 * **Normalisation** through abstraction of common components
 * **Composability** where objects are composed and qualified from the bottom up
