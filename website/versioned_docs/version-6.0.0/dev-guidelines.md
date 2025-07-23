@@ -21,7 +21,7 @@ Contributions to the CDM have to comply with the set of [design principles](desi
 * **Composability** where objects are composed and qualified from the bottom up
 * **Mapping** to existing industry messaging formats
 * **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers \
+* **Modularisation** into logical layers, using namespace organisation
 
 
 ## Version Management
@@ -161,7 +161,7 @@ CDM.
 
 ## Editing the model
 
-Please refer to the [Editing](editing.md) section which covers editing the model in more detail.
+Please refer to the [editing](editing.md) section which covers editing the model in more detail.
 
 
 ### Testing
@@ -177,14 +177,14 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
