@@ -141,14 +141,14 @@ process.
 Before you start modelling, please make sure you have gone through the
 following pre-modelling checklist:
 
--   Review the [design-principles](/docs/cdm-overview#design-principles) and the governance page. 
+-   Review the [design principles](/docs/cdm-overview#design-principles) and the governance page. 
     
 -   Review the [Rosetta Starter Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/0-welcome-to-rosetta) or equivalent in your chosen
     modelling platform.
 
 In addition, for large model changes or changes to core data types, it
 is recommended that the Contributor reviews the
-[agile-development-approach](development-approach.md) and follows
+[agile development approach](development-approach.md) and follows
 these steps:
 
 -   **Define use case**. Identify and document one or more use cases
@@ -294,7 +294,7 @@ through the following review checklist:
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-[downstream-dependencies](#downstream-dependencies) section for more
+[downstream dependencies](#downstream-dependencies) section for more
 details.
 
 ---
