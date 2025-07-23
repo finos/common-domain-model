@@ -37,7 +37,7 @@ new version. The CDM release history is available in the [Release
 Section](https://github.com/finos/common-domain-model/releases) of the CDM documentation.
 
 ![](/img/CDM–Semantic-Versioning-Refresher.png)
-Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md).
+Information on semantic versioning, backwards compatibility and version availability can be found [here.](versioning.md)
 
 
 ## Backward Compatibility
@@ -178,7 +178,7 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
@@ -201,8 +201,8 @@ Please refer to the Please refer to the [namespace](namespace.md) section for mo
 ### Descriptions
 
 All model components (e.g. types, attributes, conditions, functions
-etc.) should be specified with descriptions in accordance with the [CDM
-Documentation Style Guide](#documentation-style-guide).
+etc.) should be specified with descriptions in accordance with the [
+Documentation Style Guide](documentation-style-guide.md).
 
 
 ### Contributing
@@ -431,12 +431,12 @@ one-off branch in the source-control repository. Please refer to the
 ### Contributing via GitHub
 
 1. Fork it (https://github.com/finos/common-domain-model)
-1. Create your feature branch (`git checkout -b feature/my-new-feature`)
-1. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
-1. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
-1. Commit your changes (`git commit -am 'My New Feature'`)
-1. Push to the branch (`git push origin feature/my-new-feature`)
-1. Create a new Pull Request
+2. Create your feature branch (`git checkout -b feature/my-new-feature`)
+3. Make a change - _hint_ you can make changes to Rosetta files directly on your desktop using the [Rosetta VS Code plugin](https://github.com/REGnosys/rosetta-dsl/tree/master/rosetta-ide/vscode)
+4. Read our contribution guidelines and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+5. Commit your changes (`git commit -am 'My New Feature'`)
+6. Push to the branch (`git push origin feature/my-new-feature`)
+7. Create a new Pull Request
 
 ![](/img/Approval-Process.png)
 ---
