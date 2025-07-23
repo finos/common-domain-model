@@ -430,7 +430,6 @@ one-off branch in the source-control repository. Please refer to the
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
 
-![](../.github/Approval-Process.png)
 
 ---
 **Note:**
