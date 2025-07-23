@@ -201,8 +201,8 @@ Please refer to the [namespace](namespace.md) section for more details.
 ### Descriptions
 
 All model components (e.g. types, attributes, conditions, functions
-etc.) should be specified with descriptions in accordance with the [CDM
-Documentation Style Guide](#documentation-style-guide).
+etc.) should be specified with descriptions in accordance with the [
+Documentation Style Guide](documentation-style-guide.md).
 
 
 
@@ -263,7 +263,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](documentation-style-guide.md#content-of-release-notes) for further
+[content-of-release-notes](documentation-style-guide#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -390,7 +390,7 @@ The following release checklist should be verified before deploying a
 new model:
 
 -   Update the CDM version number, using the [semantic
-    versioning](#semantic-versioning) format
+    versioning](versioning#semantic-versioning) format
 -   Build release candidate, and test
 -   Build documentation website release candidate, and test
 -   Deploy release candidate and notify channels if need be
