@@ -438,6 +438,7 @@ one-off branch in the source-control repository. Please refer to the
 1. Push to the branch (`git push origin feature/my-new-feature`)
 1. Create a new Pull Request
 
+![](/img/Approval-Process.png)
 ---
 **Note:**
 It is not yet possible to contribute updated test expectations,
