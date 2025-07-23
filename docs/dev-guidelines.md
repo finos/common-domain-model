@@ -781,7 +781,7 @@ we recommend labelling the pull request with the user story label, i.e.
 ---
 **Note:**
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](/LICENSE.md).
+under the CDM licence.
 
 ---
 
