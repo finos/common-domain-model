@@ -517,20 +517,13 @@ type ElectiveAmountElection: <"A class to specify the party elective amounts whi
         if electiveAmount is absent
         then amount exists or customElection exists
 
-type EligibilityToHoldCollateral: <"Specifies the conditions under which a party and its custodian(s) are entitled to hold collateral.">
+type EligibilityToHoldCollateral: <"A class to specify the conditions under which a party and its custodian(s) are entitled to hold collateral.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause " (h)(i)" name "Eligibility to Hold Posted Collateral (VM) Custodians (VM)"]
-    custodianEligibility boolean (1..1) <"Specifies whether the party's custodian is eligible to hold the other party's posted collateral. If 'True' then the custodian is eligible to hold the Posted Collateral given that the specified criteria are met.">
-    initialCustodian LegalEntity (0..1) <"Election to specify the initial custodian.">
-        [docReference ISDA CSA_VM_2016]
-    criteria EligibilityToHoldCollateralCriteria (0..1) <"A logical container to hold a defined set of related data. In this case the collation of criteria required by the party and it's custodian to Hold the other party's Posted Collateral.">
-    eligibleCountry string (0..*) <"The restrictions that might be required by a party and it's custodian in terms of country(ies) where the other party's collateral can be held.">
-    [metadata scheme]
-    custodianCondition string (0..1) <"Specifies any additional conditions relevant to the Custodian of the respective parties as set out in the Holding and Using Posted Collateral clause.">
 
-    condition Custodian: <"A condition to ensure that if a Custodian is eligible to hold collateral, the Initial Custodian must be specified.">
-    if custodianEligibility = True
-    then initialCustodian exists
-    else initialCustodian is absent and custodianCondition is absent
+    partyTerms HoldingPostedCollateralEnum (1..*) <"The condition(s) required by a party from the other party to hold its posted collateral.">
+    custodianTerms CustodianTerms (0..1) <"The restrictions that might be required by a party from the other party's custodian agent to hold its posted collateral.">
+    eligibleCountry string (0..*) <"The restrictions that might be required by a party from the other party in terms of country(ies) where collateral can be held.">
+    [metadata scheme]
 
 type EnforcementEvent: <"A class to specify Enforcement Events specific to Security Agreements">
 
@@ -1354,40 +1347,6 @@ type CreditSupportProviderElection: <"The party election of Credit Support Provi
     condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
         if creditSupportProviderTerms = CreditSupportProviderTermsEnum -> Specified
         then creditSupportProvider exists
-
-choice EligibilityToHoldCollateralCriteria: <"Defines a set of Criteria required by the party and it's custodian to hold the other party's Posted Collateral.">
-    AllEligibilityToHoldCollateralCriteria <"Enables two or more Criteria to be combined using AND logic.">
-    AnyEligibilityToHoldCollateralCriteria <"Enables two or more Criteria to be combined using OR logic.">
-    RatingAgencyValue <"A logical container designed to define a combination of Rating Agency, minimum Rating Value and Rating Type.">
-    AmountOfNetCapital <"The minimum amount of net capital to be entitled to hold Posted Collateral.">
-    
-type AllEligibilityToHoldCollateralCriteria: <"Used to combine two or more Criteria using AND logic.">
-    allCriteria EligibilityToHoldCollateralCriteria (2..*)
-
-type AnyEligibilityToHoldCollateralCriteria: <"Used to combine two or more Criteria using OR logic.">
-    anyCriteria EligibilityToHoldCollateralCriteria (2..*)
-
-type AmountOfNetCapital: <"The amount of net capital.">   
-    amountOfNetCapital Money (0..1) <"The amount of net capital.">
-
-choice RatingAgencyValue: <"Defines a combination of Rating Agency, associated Rating Value and Rating Type.">
-    AllRatingAgencyValueType <"Enables two or more Ratings to be combined using AND logic.">
-    AnyRatingAgencyValueType <"Enables two or more Ratings to be combined using OR logic.">
-    RatingAgencyValueType <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
-    
-type AllRatingAgencyValueType: <"Used to combine two or more Ratings using AND logic.">
-    allRating RatingAgencyValue (2..*)
-
-type AnyRatingAgencyValueType: <"Used to combine two or more Ratings using OR logic.">
-    anyRating RatingAgencyValue (2..*)
-
-type RatingAgencyValueType extends RatingAndAgency: <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
-    ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
-
-    condition AgencyValueType:<"A condition to ensure that either all or no rating based information is provided.">
-    (agency exists and rating exists and ratingType exists)
-    or
-    (agency is absent and rating is absent and ratingType is absent)
    
 type SpecifiedCondition: <"Specifies events elected by the parties, that if triggered, can temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral.">
         [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)"]
