@@ -142,7 +142,7 @@ Security has a set of additional attributes, as shown below:
 ``` Haskell
 type Security extends InstrumentBase: 
     debtType DebtType (0..1)
-    equityType EquityTypeEnum (0..1) 
+    equityType EquityType (0..1) 
     fundType FundProductTypeEnum (0..1)
 
     condition DebtSubType:

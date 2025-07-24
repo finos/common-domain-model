@@ -384,7 +384,7 @@ type of information such as an amount, date or city).
 ## Master Agreement Schedule
 
 Legal documentation is required to describe the contract between parties on 
-every transaction. The structures under the `MasterAgreementSchedule` have been
+every transaction. Specific master agreement types are available under the master namespace, and include the standard terms of ISDA, ISLA, and ICMA Master Agreements. The structures under the `MasterAgreementSchedule` have been
 created to be domain agnostic, and generic enough to describe any industry 
 standard or bespoke master agreement.
 
