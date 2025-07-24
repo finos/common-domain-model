@@ -77,6 +77,8 @@ various versions available would be as follows:
 
 Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Maintenance and Release Guidelines](maintenance-and-release.md/#Release-Build-Approval-Guidelines)
 
+Click [here](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) to view the current planned release timeline.
+
 ---
 **Note:**
 The above example is for illustration only and not indicative of
