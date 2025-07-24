@@ -201,7 +201,7 @@ through the [review checklist](maintenance-and-release.md/#review-checklist).
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-[downstream dependencies](maintenance-and-release.md) section for more details.
+[downstream dependencies](maintenance-and-release.md/#downstream-dependencies) section for more details.
 
 ---
 
