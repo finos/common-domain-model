@@ -104,11 +104,17 @@ type ContactInformation: <"A class to specify contact information associated wit
 
 type LegalEntity: <"A class to specify a legal entity, with a required name and an optional entity identifier (such as the LEI).">
     [metadata key]
+    identifier EntityIdentifier (0..*) <"A legal entity identifier (e.g. RED entity code).">
+    name string (0..1) <"The legal entity name.">
+        [metadata scheme]
+    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s) or person (s), it should be associated with those.">
+    
+    condition IdentifierOrNameExists: <"The name or at least one identifier element must exist.">
+        identifier exists or name exists
 
-    entityId string (0..*) <"A legal entity identifier (e.g. RED entity code).">
-        [metadata scheme]
-    name string (1..1) <"The legal entity name.">
-        [metadata scheme]
+type Organisation extends LegalEntity:
+    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
+    account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
 
 type NaturalPerson: <"A class to represent the attributes that are specific to a natural person.">
     [metadata key]
@@ -138,18 +144,24 @@ type NaturalPersonRole: <"A class to specify the role(s) that natural person(s) 
         [metadata scheme]
 
 type Party: <"A class to specify a party, without a qualification as to whether this party is a legal entity or a natural person, although the model provides the ability to associate a person (or set of persons) to a party, which use case would imply that such party would be a legal entity (even if not formally specified as such). ">
-    [metadata key]
-
-    partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
-    name string (0..1) <"The party name.">
-        [metadata scheme]
-    businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
     person NaturalPerson (0..*) <"The person(s) who might be associated with the party as part of the execution, contract or legal document.">
     personRole NaturalPersonRole (0..*) <"The role of the person(s) ">
-    account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
-    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s) or person (s), it should be associated with those.">
+    organisation Organisation (0..1)
+
+    condition PersonOrOrganisationOrBoth:
+        person exists or organisation exists
+
+    condition OrganisationID:
+        if organisation exists then organisation -> identifier exists
+    
+type EntityIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+    [metadata key]
+    identifier string (1..1) <"Provides an identifier associated with a party. The identifier is unique within the public source specified in the source attribute.">
+        [metadata scheme]
+    identifierType EntityIdentifierTypeEnum (0..1) <"Defines the source of the identifier.">
 
 type PartyIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
+    [deprecated]
     [metadata key]
     identifier string (1..1) <"Provides an identifier associated with a party. The identifier is unique within the public source specified in the source attribute.">
         [metadata scheme]
