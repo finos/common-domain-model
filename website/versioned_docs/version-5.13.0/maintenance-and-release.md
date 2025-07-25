@@ -179,3 +179,5 @@ This section covers scheduling of minor, development, and patch releases, and ap
 | Minor Release (6.1.0)| 2 maintainers        | Scheduling is up to the maintainers, but aim to keep to around every 4 weeks and no more than fortnightly       |
 | Patch Release (6.1.1)| 1 maintainer         | Scheduling is up to the maintainer            |
 | Development Release (6.0.0-dev.13)| 1 maintainer         | Scheduling is up to the maintainer            |
+
+![](/img/CDM–Build-Release-Process.png)

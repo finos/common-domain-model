@@ -21,6 +21,13 @@ A list of Maintainers along with their type will be kept visible within the gove
 
 Proposals for an entity to be given maintainership status or to have maintainership rescinded should be made at a Steering Group, with final approval or rejection at the following Steering Group to ensure fair notice for all. Proposals should be sent to the Steering Group chair to add to the agenda.
 
+The [maintenance and release](maintenance-and-release.md) page provides further detail on maintainers' responsibilities. 
+
+## Maintainers Approval Process 
+![image](/img/Approval-Process.png)
+
+Click [here](change-control-guidelines.md/#pr-approval-process) to view the pull request approval guidelines. 
+
 ## FINOS CDM Project Maintainers
 
 FINOS Common Domain Model is maintained by FINOS members and the wider open source in finance community. 
@@ -31,9 +38,8 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           
 | Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Vernon Alden-Smith   | ISDA           | OrgRep                                      | valdensmith          | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| David Shone          | ISDA           | OrgRep                                      | dshoneisda           |
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 
