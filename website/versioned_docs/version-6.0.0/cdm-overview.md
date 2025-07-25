@@ -72,8 +72,7 @@ documentation.
 
 ## Governance
 
-The CDM [governance framework](dev-guidelines#governance) regulates
-the development of the CDM in open source.
+The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates the development of the CDM in open source.
 
 ## Scope
 
