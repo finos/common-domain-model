@@ -1337,15 +1337,12 @@ type AllRatingAgencyValueType: <"Used to combine two or more Ratings using AND l
 type AnyRatingAgencyValueType: <"Used to combine two or more Ratings using OR logic.">
     anyRating RatingAgencyValue (2..*)
 
-type RatingAgencyValueType extends RatingAndAgency: <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
+type RatingAgencyValueType extends CreditNotation: <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
     ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
 
     condition AgencyValueType:<"A condition to ensure that either all or no rating based information is provided.">
-    (agency exists and rating exists and ratingType exists)
-    or
-    (agency is absent and rating is absent and ratingType is absent)
-
-type RatingAndAgency: <"Allows a grouping of Rating agencies and Rating values.">
-    agency CreditRatingAgencyEnum (1..1) <"The name of the Rating Agency.">
-    rating string (1..1) <"The value assigned to the rating.">
-    [metadata scheme]
+        ((agency exists and notation exists and ratingType exists)
+        or
+        (agency is absent and notation is absent and ratingType is absent))
+        and 
+        (scale is absent and debt is absent and outlook is absent and creditWatch is absent)
