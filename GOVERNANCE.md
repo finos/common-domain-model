@@ -1,14 +1,30 @@
 # Community Specification Governance Policy 1.0
 
-This document provides the governance policy for specifications and other documents developed using the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) process in a repository (each a “Working Group”). Each [Working Group](docs/working-groups.md) must adhere to the requirements in this document.
+The Common Domain Model is an open standard project hosted under FINOS, the [Fintech Open Source Foundation](https://community.finos.org/docs/governance/Standards-Projects), starting in February 2023.
 
-The first few sections cover general FINOS community guidelines. Specific rules, guidance, ways of working, and working group structures can be found on the [CDM website](https://cdm.finos.org).
+The standard is developed through the [Community Specification](https://community.finos.org/docs/governance/#open-standard-projects) open governance process, and underlying code assets are released under the [Community Specification License 1.0](https://github.com/finos/standards-project-blueprint/blob/master/governance-documents/4._License.md). For versions before 4.0.0 and other license details, check [Notice.md](https://github.com/finos/common-domain-model/blob/master/NOTICE.md).
+
+For more information on discussions and announcements subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
+
+A proposal can be defined at a conceptual level or a logical level (i.e.
+in code). In each case, the proposal must be developed in line with the
+CDM [design principles](design-principles.md) and
+[agile development approach](development-approach.md) and submitted
+to FINOS staff and the Architecture & Review Committee for approval. In
+some instances, the proposal may not be immediately approved but may be
+assigned to an existing or new Working Group for the purpose of
+reviewing, revising or extending the proposal.
+
+Once approved, the amendment will be scheduled to be merged with the
+CDM's main code branch by the CDM Maintainers.
+
+This document provides the governance policy for specifications and other documents developed using the Community Specification process in a repository (each a “Working Group”). Each [Working Group](working-groups.md) must adhere to the requirements.
 
 ## 1. Roles
 
 Each Working Group may include the following roles. Additional roles may be adopted and documented by the Working Group.
 
-* 1.1. Maintainer. “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.  More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
+* 1.1. [Maintainer](maintainers.md). “Maintainers” are responsible for organizing activities around developing, maintaining, and updating the specification(s) developed by the Working Group. Maintainers are also responsible for determining consensus and coordinating appeals. Each Working Group will designate one or more Maintainers for that Working Group. A Working Group may select a new or additional Maintainer(s) upon Approval of the Working Group Participants.  More information about the appointment of a CDM Maintainer can be found [here](docs/maintainers.md).
 
 * 1.2. Editor. “Editors” help to alleviate the workload of maintainers, key contributors are granted Editor status. As Editors, they have the authority to label Pull Requests and issues. Presently, individuals from TradeHeader, Fragmos Chain, and FT Advisory hold Editor status. If you are affiliated with these organizations and are not yet designated as an Editor, please reach out to the [CDM maintainers via email](https://lists.finos.org/g/cdm-maintainers). If you belong to a different organization and wish to become a contributor, you can submit a proposal to the maintainers outlining your request for Editor status. Upon review, further steps will be communicated to facilitate your inclusion as an Editor.
   
@@ -19,7 +35,7 @@ Each Working Group may include the following roles. Additional roles may be adop
 
 ## 2. Decision Making
 
-* 2.1. Consensus-Based Decision Making. [Working Groups](docs/working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. Rather, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
+* 2.1. Consensus-Based Decision Making. [Working Groups](docs/working-groups.md) make decisions through a consensus process (“Approval” or “Approved”). While the agreement of all Participants is preferred, it is not required for consensus. An individual's [role](working-groups.md) will determine the extent of their decision making abilities. For example, the Maintainer will determine consensus based on their good faith consideration of a number of factors, including the dominant view of the Working Group Participants and nature of support and objections. The Maintainer will document evidence of consensus in accordance with these requirements.
 
 * 2.2. Appeal Process. Decisions may be appealed via a pull request or an issue, and that appeal will be considered by the Maintainer in good faith, who will respond in writing within a reasonable time.
 
@@ -63,77 +79,13 @@ The attached deck summarizes the governance guidelines discussed below.
 
 [CDM Release Guidelines Task Force Summary - July 15 2024  (1).pdf](https://github.com/user-attachments/files/16550591/CDM.Release.Guidelines.Task.Force.Summary.-.July.15.2024.1.pdf)
 
-The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content.  This section discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
+The [Steering Working Group](docs/CDM-Steering-WG.md) has the role of defining major releases of CDM and shaping their content. The [major release scheduling guidelines](major-release-scheduling-guidelines.md) page  discusses the objectives for defining major releases and guidelines that the Steering Working Group (SWG) must follow in scheduling major releases.
 
-### 6.1 Objectives of defining major releases
 
-* To identify and communicate to users of CDM when changes will happen that could affect them in a profound way, e.g.
-  - Changes to existing functionality that may create challenges for upgrading [testing]
-  - Changes to technology architecture that may create challenges for upgrading
-  - Introduction of major new functionality that may affect how users use CDM going forward
-* To help developers of CDM understand the roadmap for the most critical changes to the CDM, so they can better plan their work
-* To promote planned and new CDM capabilities to encourage adoption
-  
-### 6.2 Objectives of defining guidelines for scheduling and approving major releases
-
-* To ensure that major releases are planned, scheduled, and approved in a predictable, consistent, and transparent way
-  - Ensure smoother development
-  - Reduce conflict
-* To ensure that we follow industry best-practices for evolving software.
-  
-### 6.3 Overall Principles for Scheduling Major Releases
-
-* Major releases shall be planned ahead of time and these plans reviewed and approved by the SWG  so that consumers of CDM are aware of the planned changes and can plan for those changes.
-There is a balance between moving too quickly (and creating many changes, potentially discouraging adoption) and moving too slowly (and not addressing major issues in a timely fashion).  The SWG will be tasked with assessing and maintaining that balance and communicating its decisions.  That balance is likely to change over time as the CDM software matures; likely major release frequency will slow down in the future.
-* Part of the role of the guidelines will be to help the CDM SWG to resist pressure to create too many major releases.  However, the guidelines need to provide the SWG with enough flexibility to address major challenges relatively quickly and flexibly when required.
-  * Defining the guidelines is important to implement the above objective
-    
-### 6.4 Detailed Guidelines – Scheduling Major Releases
-
-* No major release will be planned/scheduled  (decision and content) without formal approval at a meeting of the SWG
-  * *Rationale:*  Designation of a major release is an important decision that requires transparency and control
- 
-* The intention is that major releases shall be planned and reviewed at the SWG at least 3 months ahead of the anticipated release date.  
-  * *Rationale:*  Giving the community advance warning of major changes will help CDM users plan for how they will use CDM and avoid major surprises.  It will also help CDM developers plan their own changes
-    
-* It is anticipated that for at least the next several years (say 4-5) at least one major release will be planned each year.
-  * *Rationale:* we anticipate that there will be an accumulation of desired changes that cannot be accommodated within a minor release and we wish to ensure that these can be addressed without undue delay
-    
-* Any addition to the scope/contents of (or technical change to) a planned major release requires SWG approval
-  * *Rationale:*   similar to the above guideline on scheduling major releases
-    
-* If planned scope items for a major release are not available in time for the planned release date, the SWG will need to decide whether to slip the release date or drop the item, based on industry priorities
-  
-* These guidelines can be overridden in exceptional circumstances by a formal vote of the SWG.
-  * *Rationale:*  Sometimes unanticipated issues will come up and we need the ability to move quickly in these cases. However, there should be an explicit decision process when breaking a guideline.
-    
-* These guidelines can be amended by the SWG following a formal review process
-
-### 6.5 Detailed Guidelines – Long Term Planning and Outreach
-
-* Ideally the SWG will establish plans for upcoming major releases for at least the following 9-12 months
-  * *Rationale:*  this provides transparency for the users and potential users of CDM (supporting adoption)
-    
-* Major release schedules shall be published on the CDM GitHub repository once approved by the SWG (in https://github.com/finos/common-domain-model/blob/master/ROADMAP.md)
-  * *Rationale:* as above
-
-### 6.6 Detailed Guidelines – Changes vs.  Major Versions
-
-* Breaking changes (as defined in the change control guidelines) can only be implemented in a major version
-  - *Rationale:* this is required to ensure that within a single major version there is stability across minor versions.
-    
-* Changes (PRs) will be categorized into those that can only be done in major releases (because they contain breaking changes) and others.  PRs requiring a major release shall only be approved for major releases.
-  - *Rationale:* this is necessary to ensure that the meaning of major releases is enforced
-    
-* Even in a new major version, changes that are contrary to the change control guidelines will not be approved unless the SWG executes an exception process.
-  - *Rationale:* this is required to ensure that CDM provides stability across major versions, in terms of functionality that is supported
-
-* When a major version includes breaking changes, the SWG will endeavour to ensure that appropriate migration guides and transition plans are in place
-  - *Rationale:*  this is to support CDM users in migrating to new versions of CDM
 
 ## 7.0 Change Control Guidelines
 
-This section discusses how changes to the CDM are controlled within and between releases, in particular:
+The [change control guidelines](change-control-guidelines.md) discusses how changes to the CDM are controlled within and between releases, in particular:
 
 * Principles
   * What we are trying to achieve with the change control guidelines; 
@@ -144,73 +96,7 @@ This section discusses how changes to the CDM are controlled within and between 
   * How we want to ensure that the rules are evaluated and enforced during development
   * This includes development processes (e.g. review and approval) as well as automated tooling (e.g. regression test cases)
 
-## 7.1 Change Control Principles
 
-* We are trying to ensure rapid, smooth, and predictable evolution of the model by controlling when and how breaking changes are introduced
-  * We want to allow changes where needed, with defined process to make those changes, to meet evolved and improved understanding of the business and technical requirements.
-  * We want to give ourselves some freedom to make changes more easily when there are newly introduced components/structures that may not be fully mature, but we don’t want to spend a lot of effort on planning for that. We will do this using the pull request approval guidelines for bug fixes, giving some scope for correcting recently introduced changes.
-* Prohibiting breaking changes within a major version should allow users to upgrade to minor versions more quickly and easily, and plan for when to implement larger changes
-  * By  limiting and control the amount of change to key business models and technology structures,  CDM users can have confidence that functionality they develop using CDM will continue to work with new versions of CDM with minimal effort, at least for a defined period of time
-
-## 7.2 Change Control Rules
-
-* Unless explicitly indicated otherwise, components of CDM (such as data types and functions) will be under change control once released into production.
-* Within multiple minor releases of a single major release, the following will not be changed:
-  * Within business objects, any object that is valid in version M.N should be representable and valid in version M.N+1 .
-    * For example, existing data fields may not be changed in type, reduced in cardinality, or removed, and new mandatory data fields may not be added.
-    * Change to the name of any model element (e.g. types, attributes, enums, functions or reporting rules) is prohibited
-    * Change to the DSL that results in any existing expression becoming invalid is prohibited
-    * All validations that pass in version M.N should also pass in version M.N+1
-  * Function signatures may not be changed in such a way as to invalidate previous callers (e.g addition of new mandatory parameters, or removal/change of existing parameters.)
-    * Change to the DSL that results in change to any of the generated code's public interfaces is prohibited
-  * Test cases that passed in a prior version shall continue to work.
-  * We allow some minor exceptions to these rules for newly introduced functionality that may not be fully formed, as part of the PR process for defect corrections
-  * Functionality shall not be removed between major versions without advance notice
-
-
-Please note that full, bidirectional interoperability between minor versions is not required.  If an application uses functionality in version M.N, it does not need to fully interoperate with version M.N-1, assuming that the older version does not include that functionality.  However, if an application uses functionality found in version M.N, it should be able to interoperate with version M.N+1.
-
-## 7.3 Change Control Evaluation and Enforcement
-
-* Designers and contributors to CDM are responsible for being aware of and following the change control guidelines.  This includes flagging pull requests when they involve breaking changes to controlled objects.
-  * Backward incompatible changes shall be documented and include a migration guide (remap from old structures and functions to the new)
-* Reviewers will be responsible for assessing (“double checking”) whether any changes may violate the change control guidelines, and flag questionable changes for further review.  
-  * Part of the role of the Contribution Review Working Group (CRWG) and of the maintainers is to enforce these guidelines for any change.
-* There will be a set of regression test cases developed for each supported major version.  Subsequent CDM minor and major versions will be tested against these test cases and a report prepared indicating which cases succeed and fail, and this will be compared against the guidelines.  For example:
-  * CDM version 6.2 will be tested against the 6.1 test cases; all should succeed, unless included in the exception/noncontrolled list.
-  * CDM version 6.0 will be tested against the latest 5.x test cases; the list of failures should be compared against the approved scope of change for 6.0.  (NB: performing this test might involve making some technical changes to the 5.0 test cases to work with the 6.0 technical architecture if that has changed, but the functionality should not otherwise be changed.)
-
-
-
-## 8.0 Pull Request Classification and Approval Guidelines
-
-This section discusses how pull requests will be classified, reviewed, and approved.
-
-## 8.1 PR Classification
-
-Pull requests shall be classified into one of the following complexity categories:
-* Model change - bug fix – change to existing logic (without major redesign) to cause it to implement the original intended behaviour and design; generally used to address an oversight in a previous contribution.   
-  * *Backward compatibility:*  For defect corrections to production versions, the defect correction shall generally be backward-compatible with the existing design unless the existing design is newly introduced and so severely compromised that it cannot function unless something is changed.
-* Model change - Enhancement – new functionality or change to existing functionality required to meet a new business requirement.  
-  * *Backward compatibility:*  If the change includes backward-incompatible changes, this shall be flagged as such and the change shall be targeted for a development version.
-* Technical change.  This is used to cover a variety of cases that don't affect the model itself, including updates to dependencies, mapping changes, test cases, etc.
-
-Pull requests shall be tagged in GitHub as described in discussion [#2789](https://github.com/finos/common-domain-model/discussions/2789) to implement the approval process.
-
-
-
-## 8.2 Summary of PR approval requirements
-
-* PRs shall be classified into Model defect corrections (bug fixes to correct existing functionality) vs. Model enhancements (new designs or capabilities) vs. technical.
-* There shall be an indication of whether a PR includes any backward-incompatible changes.
-* Approval has to be by a separate person from the submitter (This is enforced by GitHub; maintainers shall not attempt to circumvent this control.)
-
-
-| Type of PR          | Backward Compatible |  Backward Incompatible                        |
-| --------------------| --------------------|  ---------------------------------------------|
-| Model - Bug fix     |1 maintainer – separate from the submitter, preferably from a separate organization | 2 maintainers; must have been reviewed by the CRWG,; if for a production version, SWG must approve; only used for recently introduced functionality  |
-| Model - Enhancement | 2 maintainers; must have been approved by a WG or the CRWG | 2 maintainers; must be on roadmap or approved by SWG; must have been approved by a WG or the CRWG; must go into a dev version; at least one maintainer must be from a separate organization   |
-| Technical - e.g. dependency update, change to mapping, reference data, documentation, changes to samples…. | At least one;  additional review up to the maintainer’s discretion – e.g. might need to consult the Technology Architecture Working Group (TAWG) | Must be approved by the TAWG; must go into a dev version |
 
 
 
