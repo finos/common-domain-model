@@ -40,7 +40,7 @@ public class FloatingRateTestHelper {
                                 .setPeriodMultiplier(3).build()));
     }
 
-    public static ResetDates initResetDates(BusinessCenterEnum bc, int freq, int offsetDays, boolean inAdvance) {
+    public static ResetDates initResetDates(String bc, int freq, int offsetDays, boolean inAdvance) {
         BusinessCenters myBC = BusinessCenters.builder()
                 .addBusinessCenterValue(bc).build();
         return ResetDates.builder()
