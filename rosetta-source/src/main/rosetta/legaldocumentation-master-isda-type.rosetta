@@ -20,6 +20,10 @@ type MasterAgreement extends MasterAgreementBase: <"The set of elections that de
     creditSupportDocument CreditSupportDocument (1..1) <"Identification of party specific Credit Support Documents applicable to the document.">
     creditSupportProvider CreditSupportProvider (1..1) <"Identification of party specific Credit Support Providers applicable to the document.">
     specifiedEntities SpecifiedEntities (4..4) <"A provision that allows each party to specify its Specified Entities for certain Events of Default and Termination Events.">
+    creditEventUponMerger CreditEventUponMerger (1..1) <"The specification of whether Credit Event Upon Merger is applicable to either party.">
+    governingLaw GoverningLaw (1..1) <"The specification of the governing law of the ISDA Master Agreement.">
+    additionalTerminationEvent AdditionalTerminationEvent (1..1) <"The specification of whether additional termination events apply to either party, and if so, what they are.">
+    calculationAgent IsdaCalculationAgent (1..1) <"The specifications are appointing a Calculation Agent for the ISDA Master Agreement.">
 
 type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termination provision applicable to a Master Agreement.">
     [docReference ISDA ISDA_MA_1998 section "6(a)"]
@@ -39,6 +43,14 @@ type AutomaticEarlyTermination: <"A class to specify the Automatic Early Termina
 type AutomaticEarlyTerminationElection: <"A class to specify the party elections specific to the Automatic Early Termination Clause.">
     party Party (1..1) <"The party for which the Automatic Early Termination provisions are being specified.">
     isApplicable boolean (1..1) <"A boolean election to specify whether the Automatic Early Termination provisions of Section 6(a) are applicable (True) or not applicable (False).">
+
+type CreditEventUponMerger: <"A class to specify the Credit Event Upon merger provision applicable to a Master Agreement.">
+    partyElection CreditEventUponMergerElection (0..2) <"The party election specific to the Credit Event Upon Merger clause.">
+
+type CreditEventUponMergerElection: <"A class to specify if Credit Event Upon Merger applies to either party, and specify elections specific to the Credit Even Upon Merger Clause.">
+    party CounterpartyRoleEnum (1..1) <"The party for which the provisions are being specified.">
+    isApplicable boolean (1..1) <"A boolean election to specify whether Credit Even Upon Merger are applicable to the repsective party (True) or not (False).">
+    materiallyWeakerReferencesCreditRating boolean (1..1) <"A boolean election to specify whether the definition of 'Materially Weaker' references a credit rating.">
 
 type TerminationCurrency: <"Specifies how the Termination Currency for the agreement will be determined.">
     statedTerminationCurrency TerminationCurrencySelection (0..1) <"Allows for specific Termination Currency(ies) and a fallback Termination Currency to be selected.">
@@ -85,3 +97,85 @@ type SpecifiedEntity: <"The party specific election of Specified Entities for th
     condition OtherSpecifiedEntity: <"A validation rule to ensure that non standard Specified Entity terms are provided when required.">
         if specifiedEntityTerms = SpecifiedEntityTermsEnum -> OtherSpecifiedEntity
         then otherSpecifiedEntityTerms exists
+
+type GoverningLaw: <"A represenation of the governing law of the ISDA master agreement.">
+    governingLaw IsdaMasterGoverningLawEnum (1..1) <"Selection from the enumerated list of governing laws specified.">
+    governingLawIfOther string (0..1) <"Specifies the governing law if the choice on the enumerated list is 'Other'.">
+
+    condition GoverningLaw: <"A validation rule to ensure that if a value from the Governing Law Enum is selected, governingLawIfOther is omitted.">
+        if governingLaw <> IsdaMasterGoverningLawEnum -> OTHER
+        then governingLawIfOther is absent
+
+    condition GoverningLaw: <"A validation rule to ensure that if the value from the Governing Law Enum is 'OTHER', governingLawIfOther exists.">
+        if governingLaw = IsdaMasterGoverningLawEnum -> OTHER
+        then governingLawIfOther exists
+
+type AdditionalTerminationEventElection: <"An party specific election to determine whether Additional Early Termination Events apply, and if so what they are.">
+    party CounterpartyRoleEnum (1..1) <"The elective party.,">
+    isApplicable boolean (1..1) <"A boolean to reperesent whether Additional Termination events apply (True) or not (False).">
+    furtherDetails string (0..1) <"Further Details on the Additional Termination Events that apply to the party.">
+
+type AdditionalTerminationEvent: <"Elections to determine if Additional Termination Events apply to either party, and if so, what they are.">
+    partyElection AdditionalTerminationEventElection (2..2) <"The party election specifc to Additional Termination Events clause(s).">
+
+type IsdaCalculationAgentElection: <"An election to determine who the Calculation Agent is for various events in an ISDA Master Agreement.">
+    isApplicable boolean (1..1) <"Whether a Calculation Agent election is applicable for the event.">
+    agent IsdaMasterCalculationAgent (0..1) <"The determined Calculation Agent for the event.">
+    agentIfOther string (0..1) <"Thespecified Calculation Agent if identified as other from the enumerated list.">
+
+    condition IsdaCalculationAgentElection: <"A validation rule to determine that if isApplicable true then an agent is defined.">
+        if isApplicable
+        then agent exists
+
+    condition IsdaCalculationAgentElection: <"A validation rule to determine if agent is defined as 'Other' then the agentIfOther exists.">
+        if agent = IsdaMasterCalculationAgent -> Other
+        then agentIfOther exists
+
+    condition IsdaCalculationAgentElection: <"A validation rule to determine if agent is defined and not 'Other', then the agentIfOther is omitted.">
+        if agent <> IsdaMasterCalculationAgent -> Other
+        then agentIfOther is absent
+
+type SubstitueCalculationAgentElection: <"An election to determine the characteristics around a subsitution Calculation Agent.">
+    methodologyForSubstitutionExists boolean (1..1) <"A boolean to represent if the metholodgy exists for appointing a substitute Calculation Agent (True), or not (False).">
+    subtituteCalculationAgentIndependent boolean (0..1) <"A boolean to represent that if a substitute Calculation Agent can be appointed, whether they should be independent (True) or not (False).">
+    substituteCalculationAgentAppointedBy SubstituteCalculationAgentAppointer (0..1) <"A representation of who appoints the substitute Calculation Agent.">
+    substituteCalculationAgentAppointedByIfOther string (0..1) <"A representation of who appoints the substitute Calculation Agent if 'Other' or 'Third Party'.">
+    costOfSubstituteCalculationAgentBoreBy PayeeOfSubstituteCalculationAgent (0..1) <"A representation of who bears the cost of the substitute calculation agent.">
+    costOfSubstituteCalculationAgentBoreByIfOther string (0..1) <"A representation of who bears the cost of the substitute calculation agent if 'Other'.">
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine that if methodology exists, then the relevant details are included.">
+        if methodologyForSubstitutionExists
+        then subtituteCalculationAgentIndependent exists
+            and substituteCalculationAgentAppointedBy exists
+            and costOfSubstituteCalculationAgentBoreBy exists
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine that if methodology does not exists, then the relevant details are omitted.">
+        if methodologyForSubstitutionExists = False
+        then subtituteCalculationAgentIndependent is absent
+            and substituteCalculationAgentAppointedBy is absent
+            and substituteCalculationAgentAppointedByIfOther is absent
+            and costOfSubstituteCalculationAgentBoreBy is absent
+            and costOfSubstituteCalculationAgentBoreByIfOther is absent
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine if appointed by is defined as 'Other' then the substituteCalculationAgentAppointedByIfOther exists.">
+        if substituteCalculationAgentAppointedBy = SubstituteCalculationAgentAppointer -> Other
+        then substituteCalculationAgentAppointedByIfOther exists
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine if appointed by is defined and not 'Other', then the substituteCalculationAgentAppointedByIfOther is omitted.">
+        if substituteCalculationAgentAppointedBy <> SubstituteCalculationAgentAppointer -> Other
+        then substituteCalculationAgentAppointedByIfOther is absent
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined as 'Other' then the costOfSubstituteCalculationAgentBoreByIfOther exists.">
+        if costOfSubstituteCalculationAgentBoreBy = PayeeOfSubstituteCalculationAgent -> Other
+        then costOfSubstituteCalculationAgentBoreByIfOther exists
+
+    condition SubstitueCalculationAgentElection: <"A validation rule to determine if the cost bore by is defined and not 'Other', then the costOfSubstituteCalculationAgentBoreByIfOther is omitted.">
+        if costOfSubstituteCalculationAgentBoreBy <> PayeeOfSubstituteCalculationAgent -> Other
+        then costOfSubstituteCalculationAgentBoreByIfOther is absent
+
+type IsdaCalculationAgent: <"The set of elections to define and categorise the Calculation Agent for the ISDA master agreement.">
+    eventOfDefault IsdaCalculationAgentElection (1..1) <"Capturing the Calculation Agent in the Event of Default.">
+    terminationEvent IsdaCalculationAgentElection (1..1) <"Capturing the Calculation Agent for a Termination Event.">
+    noEvent IsdaCalculationAgentElection (1..1) <"Capturing the default Calculation Agent when no Event of Default or Termination Event occurs.">
+    substituteCalculationAgent SubstitueCalculationAgentElection (1..1) <"Capturing the details regarding appointing a substitute Calculation Agent.">
+    otherComments string (0..1) <"Optional string to capture further information regarding the Calculation Agent.">
