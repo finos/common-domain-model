@@ -11,6 +11,16 @@ unrelated model changes that may occur. The partitioning is visible to
 users in Rosetta Core by toggling the Namespace view in the left hand
 panel, and in the generated code files.
 
+Namespaces have many benefits:
+-   Accelerated understanding of the model by allowing users to easily
+    see a high-level view of the model and easily find, select, and
+    study specific areas of interest
+-   Faster and easier to find data types and functions for
+    referencing/use in new components
+-   Allowing for partial adoption of areas of interest in the model
+-   Smaller upgrades representing new versions limited to the name
+    spaces that are impacted
+
 # Model Artifacts
 
 Model artifacts are organised into a directory hierarchy that is exposed
