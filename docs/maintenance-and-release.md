@@ -137,6 +137,7 @@ new model:
 -   (Currently done at a later stage) Update the latest CDM version
     available in Rosetta
 
+![](/img/CDM–Build-Release-Process.png)
 ---
 **Note:**
 When the release process is handled through Rosetta Deploy, the
