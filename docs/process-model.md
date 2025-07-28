@@ -660,7 +660,7 @@ func Create_SecurityLendingInvoice:
 ## Lifecycle Event Process
 
 While the lifecycle event model described in the
-[event-model-section](/docs/event-model) provides a
+[event-model-section](event-model.md) provides a
 standardised data representation of those events using the concept of
 *primitive event* components, the CDM must further specify the
 processing of those events to ensure standardised implementations across
@@ -672,7 +672,7 @@ In particular, the CDM must ensure that:
 -   The lifecycle event process model constructs valid CDM event
     objects.
 -   The constructed events qualify according to the qualification logic
-    described in the [event-qualification-section](/docs/event-model#event-qualification-section).
+    described in the [event-qualification-section](event-model.md#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
     trade's lifecycle sequence.
 
