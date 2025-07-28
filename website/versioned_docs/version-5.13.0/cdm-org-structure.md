@@ -4,7 +4,7 @@ title: CDM Organisational Structure
 
 ## CDM Organisational Structure
 
-The below diagram illustrates the organization of the CDM working groups.
+The below diagram illustrates the organization of the CDM Working Groups.
 
 ![image](/img/CDM-Structure-2025.png)
 
