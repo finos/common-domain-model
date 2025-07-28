@@ -12,7 +12,7 @@ Maintainers are designated as either Organisational Representatives (OrgRep) or 
 
 A list of Maintainers along with their type will be kept visible within the governance documentation provided on the repo and mini-site.
 
-* Additional Maintainers may be proposed by Participants. Proposed new Private individuals or new organisations will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
+* Additional Maintainers may be proposed by [Participants](https://github.com/finos/common-domain-model/blob/master/Participants.md). Proposed new Private individuals or new organisations will be approved via consensus of the Participants and with agreement of existing Maintainers, and should meet the following criteria:
 
  * Proven experience in data modelling and/or software development in financial markets.
  * In-depth understanding and proven track record of contribution to the CDM, as well as other data standards (such as ISO) and messaging protocols (such as FIX, FpML or Swift).Private individuals and Organisations may choose to rescind their maintainership at will but must notify the other maintainers. Any entity who has chosen to rescind their maintainership, but then at a later time would like to re-join the maintainer team, is subject to the voting process outlined above. Additionally any OrgRep who has been replaced by their organisation, but wishes to remain a maintainer as a Private Individual will also need to go through the voting process. For the voting purposes, each Organization will have one vote.
