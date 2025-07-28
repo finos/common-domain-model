@@ -110,7 +110,7 @@ The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rune DSL and contained into a set of *.rosetta* files
-    organised as *namespaces*. The primary dimensions of the model are
+    organised as [namespaces](namespace.md). The primary dimensions of the model are
     listed below and further described in the
     [common-domain-model](/docs/common-domain-model) of the
     documentation.
