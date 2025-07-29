@@ -4,15 +4,18 @@ title: CDM Steering Working Group
 
 ## Overview
 
-This working group serves as the driving force behind the strategic direction and technical aspects of the CDM. We are responsible for establishing technical and modeling guidelines, setting and revising the project’s strategic roadmap, and vetting proposed changes. Additionally, we approve or establish additional working groups to address specific needs within the CDM ecosystem.
+The Steering Working Group serves as the driving force behind the strategic direction and technical aspects of the CDM. It is responsible for developing the technical and modelling guidelines, setting and revising the project’s strategic roadmap, and for vetting proposed changes. The CDM Steering Working Group may approve or establish additional working groups. 
+
 
 ### Responsibilities:
 
-- Define and monitor the overall roadmap, setting annual priorities.
+- Define and monitor the overall [roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md), setting annual priorities in line with the [development approach](development-approach.md). Guidelines for how to complete this can be found in the [major release scheduling guidelines](major-release-scheduling-guidelines.md) page.
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
-- Approve new FINOS Working Groups (WGs).
+- Approve new FINOS [Working Groups](cdm-org-structure.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
-- Provide final release approval.
+- Provide final [release](maintenance-and-release.md) approval.
+- The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
+
 
 ## Meetings
 
@@ -27,3 +30,4 @@ To subscribe to the [Steering Working Group mailing list](https://lists.finos.or
 
 To view meeting notes and agendas, view our [current](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aopen+) and [past](https://github.com/finos/common-domain-model/issues?q=is%3Aissue+%22CDM+Steering+Working+Group+-+%22+is%3Aclosed) GitHub Meeting Issues. 
 
+Click [here](working-groups.md) to return back to the Working Groups home page.
