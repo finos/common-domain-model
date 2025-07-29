@@ -4,7 +4,7 @@ title: Maintainers
 
 ## Maintainers
 
-This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different roles within the CDM community.
+This page provides detailed information about the CDM maintainers. A CDM maintainer is one of the different [roles](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md#1-roles) within the CDM community.
 
 **Appointment of CDM Maintainers:**
 
