@@ -36,7 +36,7 @@ information.
 The model is represented in the Rosetta DSL syntax. All syntax warnings
 and errors must be resolved to have a valid model before contributing
 any changes. For further guidance about features of the syntax, please
-refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component).
+refer to the [Rosetta DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/).
 
 In Rosetta Design, that syntax is automatically checked live as the user
 edits the model, as described in the [Rosetta Design Content Assist
@@ -73,14 +73,14 @@ data points, validation and qualification results.
 
 When using Rosetta to edit the model, contributors are invited to test
 their model changes live against the Test Pack using the Rosetta
-Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rosetta-products/3-rosetta-translate/).
+Translate application, referring to the [Rosetta Translate Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#translate).
 When editing existing model components, the corresponding synonyms
 should be updated to maintain or improve existing mapping levels. When
 adding new model components, new sample data and corresponding synonym
 mappings should also be provided so the new use-case can be added to the
 set of regression tests.
 
-Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component) for details about the synonym
+Please refer to the [Mapping Guide](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component) for details about the synonym
 mapping syntax.
 
 ### Namespace
@@ -91,7 +91,7 @@ the namespace hierarchy, those changes should be justified and
 documented. Any new namespace should have an associated description, and
 be imported where required.
 
-Please refer to the [namespace-documentation](namespace.md) section for more details.
+Please refer to the [namespace documentation](namespace.md) section for more details.
 
 ### Descriptions
 
@@ -147,7 +147,7 @@ we recommend labelling the pull request with the user story label, i.e.
 ---
 **Note:**
 All contributions are submitted as candidate changes to be incorporated
-under [the CDM licence](https://portal.cdm.rosetta-technology.io/#/terms-isda).
+under the CDM licence.
 
 ---
 
@@ -184,7 +184,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](#content-of-release-notes) for further
+[content of release notes](dev-guidelines.md/#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -192,7 +192,7 @@ guidance on editing release notes.
 ### Review checklist
 
 Before starting to review a contribution, the CDM Maintainer should go
-through the [review checklist](maintenance-and-release.md).
+through the [review checklist](maintenance-and-release.md/#review-checklist).
 
 
 
@@ -201,7 +201,7 @@ through the [review checklist](maintenance-and-release.md).
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-[downstream dependencies](maintenance-and-release.md) section for more details.
+[downstream dependencies](maintenance-and-release.md/#downstream-dependencies) section for more details.
 
 ---
 
