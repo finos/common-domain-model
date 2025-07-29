@@ -1,7 +1,6 @@
 package cdm.legaldocumentation.csa.processor;
 
-import cdm.base.datetime.BusinessCenterEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
+//import cdm.base.datetime.BusinessCenterEnum;
 import cdm.legaldocumentation.csa.CalculationDateLocation;
 import cdm.legaldocumentation.csa.CalculationDateLocationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -40,10 +39,11 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 		setValueAndUpdateMappings(synonymPath.addElement(party + selectLocationSynonymValue),
 				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
-		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
-				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
-						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
-						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
+		//TH Sprint 2025-12: requires review when generation is completed
+//		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
+//				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
+//						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
+//						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				value -> calculationDateLocationElectionBuilder.setCustomLocation(removeHtml(value)));
