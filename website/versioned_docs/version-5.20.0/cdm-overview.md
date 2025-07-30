@@ -73,8 +73,11 @@ documentation.
 ## Governance
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates the development of the CDM in open source.
 =======
+=======
+>>>>>>> Stashed changes
 The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates
 the development of the CDM in open source.
 >>>>>>> Stashed changes
