@@ -72,7 +72,12 @@ documentation.
 
 ## Governance
 
+<<<<<<< Updated upstream
 The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates the development of the CDM in open source.
+=======
+The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates
+the development of the CDM in open source.
+>>>>>>> Stashed changes
 
 ## Scope
 
@@ -83,7 +88,7 @@ Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to
 ![](/img/cdm-roadmap-2025-2.png)
 ![](/img/cdm-roadmap-2025-1.png)
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
 # CDM Components
@@ -118,7 +123,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rune DSL using [available code
-    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
+    generators](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -159,7 +164,7 @@ share code generators into any other languages.
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/). The documentation also describes the
+the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---
