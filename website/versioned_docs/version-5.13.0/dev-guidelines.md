@@ -201,8 +201,7 @@ Please refer to the Please refer to the [namespace](namespace.md) section for mo
 ### Descriptions
 
 All model components (e.g. types, attributes, conditions, functions
-etc.) should be specified with descriptions in accordance with the [
-Documentation Style Guide](documentation-style-guide.md).
+etc.) should be specified with descriptions in accordance with the [documentation style guide](documentation-style-guide.md).
 
 
 ### Contributing
