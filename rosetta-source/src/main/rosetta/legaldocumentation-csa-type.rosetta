@@ -599,7 +599,7 @@ type HoldingAndUsingPostedCollateralElection: <"A class to specify the parties' 
     [docReference ISDA CSA_VM_2016 paragraph "13" clause " (h)" name "Holding and Using Posted Collateral (VM)"]
     party CounterpartyRoleEnum (1..1) <"The elective party.">
     eligibilityToHoldCollateral EligibilityToHoldCollateral (1..1) <"The specification of the conditions under which a party and its custodian(s) are entitled to hold posted collateral.">
-    useOfPostedCollateral boolean (1..1) <"Specifies whether the party to the agreement has the right to rehypothecate the collateral held (True).">
+    useOfPostedCollateral boolean (1..1) <"Specifies whether the party to the agreement has the right to rehypothecate the collateral held. 'True' if the party has the right.">
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(h)(ii)" name "Use of Posted Collateral (VM)"]
 
 type IneligibleCreditSupport: <"A class to specify the parties to which the provisions of the Credit Support Annex for Variation Margin will apply to.">
@@ -1310,11 +1310,10 @@ type EligibilityToHoldCollateral: <"Specifies the conditions under which a party
     then initialCustodian exists
     else initialCustodian is absent and custodianCondition is absent
 
-
 choice EligibilityToHoldCollateralCriteria: <"Defines a set of Criteria required by the party and it's custodian to hold the other party's Posted Collateral.">
     AllEligibilityToHoldCollateralCriteria <"Enables two or more Criteria to be combined using AND logic.">
     AnyEligibilityToHoldCollateralCriteria <"Enables two or more Criteria to be combined using OR logic.">
-    RatingAgencyValue <"A logical container designed to define a combination of Rating Agency, minimum Rating Value and Rating Type.">
+    RatingAgencyValueType <"A logical container designed to define a combination of Rating Agency, minimum Rating Value and Rating Type.">
     AmountOfNetCapital <"The minimum amount of net capital to be entitled to hold Posted Collateral.">
     
 type AllEligibilityToHoldCollateralCriteria: <"Used to combine two or more Criteria using AND logic.">
@@ -1325,17 +1324,6 @@ type AnyEligibilityToHoldCollateralCriteria: <"Used to combine two or more Crite
 
 type AmountOfNetCapital: <"The amount of net capital.">   
     amountOfNetCapital Money (0..1) <"The amount of net capital.">
-
-choice RatingAgencyValue: <"Defines a combination of Rating Agency, associated Rating Value and Rating Type.">
-    AllRatingAgencyValueType <"Enables two or more Ratings to be combined using AND logic.">
-    AnyRatingAgencyValueType <"Enables two or more Ratings to be combined using OR logic.">
-    RatingAgencyValueType <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
-    
-type AllRatingAgencyValueType: <"Used to combine two or more Ratings using AND logic.">
-    allRating RatingAgencyValue (2..*)
-
-type AnyRatingAgencyValueType: <"Used to combine two or more Ratings using OR logic.">
-    anyRating RatingAgencyValue (2..*)
 
 type RatingAgencyValueType extends CreditNotation: <"A logical container designed to hold a set of related data. In this case the Rating Agency, Rating Value and Rating Type.">
     ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
