@@ -4,10 +4,49 @@ version "${project.version}"
 import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
-import cdm.legaldocumentation.common.*
 import cdm.observable.asset.*
 
 isEvent root BusinessEvent;
+
+func Qualify_Adjustment: <"This qualification function is used to qualify adjustment of the collateral amount when a transaction is repriced.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeTrade: ExtractBeforeTrade(businessEvent)
+
+    alias afterTrade: ExtractAfterTrade(businessEvent)
+
+    alias beforeTradePurchasePrice: ExtractTradePurchasePrice(beforeTrade)
+
+    alias afterTradePurchasePrice: ExtractTradePurchasePrice(afterTrade)
+
+    alias beforeTradeCollateralQuantity: ExtractTradeCollateralQuantity(beforeTrade)
+
+    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade)
+
+    alias beforeTradeCollateralPrice: ExtractTradeCollateralPrice(beforeTrade)
+
+    alias afterTradeCollateralPrice: ExtractTradeCollateralPrice(afterTrade)
+
+    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
+
+    set is_event:
+        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
+            and openEconomicTerms -> payout = beforeEconomicterms -> payout
+            and beforeTradePurchasePrice exists
+            and afterTradePurchasePrice exists
+            and afterTradePurchasePrice = beforeTradePurchasePrice
+            and beforeTradeCollateralQuantity <> afterTradeCollateralQuantity
+            and beforeTradeCollateralPrice <> afterTradeCollateralPrice
+            and beforeEconomicterms exists
+            and openEconomicTerms exists
+            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+            and openEconomicTerms -> effectiveDate <> beforeEconomicterms -> effectiveDate
 
 func Qualify_Allocation: <"The qualification of allocation event from the fact that (i) the only primitives are split and contract formation (ii) the number of split executions and the number of contract formations are equal.  Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.  Also note that it is expected that an allocation can result in a single contract.">
     [qualification BusinessEvent]
@@ -32,22 +71,28 @@ func Qualify_Allocation: <"The qualification of allocation event from the fact t
                     item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
                 ] all = True
 
-func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+func Qualify_Cancellation: <"Qualification of an cancellation event.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias transferInstructions:
-        businessEvent -> instruction -> primitiveInstruction -> transfer
-    alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
-    alias afterTransfers: businessEvent -> after -> transferHistory
+
+    alias closedEconomicTerms:
+        FilterClosedTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
+    alias openEconomicTerms:
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
+
     set is_event:
-        (businessEvent -> instruction
-                extract primitiveInstruction -> transfer only exists
-                ) all = True
-            and beforeTransfers count + transferInstructions count = afterTransfers count
-            and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
+        businessEvent -> instruction -> before count = 1
+            and closedEconomicTerms exists
+            and openEconomicTerms exists
+                // and openEconomicTerms -> payout = closedEconomicTerms -> payout
+                // and openEconomicTerms -> collateral = closedEconomicTerms -> collateral
+            and (if openEconomicTerms -> terminationDate exists
+                        and closedEconomicTerms -> terminationDate exists
+                then openEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate < closedEconomicTerms -> terminationDate -> adjustableDate -> unadjustedDate
+                else openEconomicTerms -> terminationDate exists)
 
 func Qualify_CashAndSecurityTransfer: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in the same direction.">
     [qualification BusinessEvent]
@@ -68,6 +113,23 @@ func Qualify_CashAndSecurityTransfer: <"The qualification of a security settleme
                     transfersForDate
                 )
                 only-element -> payerReceiver -> payerPartyReference
+
+func Qualify_CashTransfer: <"The qualification of a cash transfer from the fact that the only component is a cashTransfer.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias transferInstructions:
+        businessEvent -> instruction -> primitiveInstruction -> transfer
+    alias beforeTransfers: businessEvent -> instruction -> before -> transferHistory
+    alias afterTransfers: businessEvent -> after -> transferHistory
+    set is_event:
+        (businessEvent -> instruction
+                extract primitiveInstruction -> transfer only exists
+                ) all = True
+            and beforeTransfers count + transferInstructions count = afterTransfers count
+            and transferInstructions -> transferState -> transfer -> quantity -> unit -> currency exists
 
 func Qualify_ClearedTrade:
     [qualification BusinessEvent]
@@ -92,27 +154,6 @@ func Qualify_ClearedTrade:
                         and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
                 ] all = True
 
-func Qualify_OpenOfferClearedTrade:
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    alias beforeTradeState: businessEvent -> instruction -> before
-    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
-    set is_event:
-        businessEvent -> intent = EventIntentEnum -> Clearing
-            and businessEvent -> instruction count = 2
-            and businessEvent -> instruction -> primitiveInstruction -> execution exists
-            and businessEvent -> instruction -> primitiveInstruction -> contractFormation exists
-            and openTradeStates count = 2
-            and openTradeStates
-                extract [
-                    item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
-                        and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
-                        and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
-                ] all = True
-
 func Qualify_Compression: <"The qualification of a compression event from the fact that (i) the quantityChange primitive exists, and (ii) there are multiple contracts (or contract references) specified in the before state.">
     [qualification BusinessEvent]
     inputs:
@@ -122,17 +163,56 @@ func Qualify_Compression: <"The qualification of a compression event from the fa
     set is_event:
         businessEvent -> instruction -> primitiveInstruction -> execution count = 1 and businessEvent -> instruction -> primitiveInstruction -> quantityChange count > 1
 
-func Qualify_PortfolioRebalancing: <"The qualification of a portfolio rebalancing event from the fact that (i) the intent is PortfolioRebalancing, and (ii) the execution primitive exists">
+func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias primitiveInstruction:
+        businessEvent -> instruction -> primitiveInstruction only-element
+    set is_event:
+        (primitiveInstruction -> contractFormation) only exists
+            or (primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
+            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists
+            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
+            or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
+
+func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of a corporate action form the fact that a corporate action is present in either the observation or the observation history structures.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
     set is_event:
-        businessEvent -> intent = EventIntentEnum -> PortfolioRebalancing
-            and businessEvent -> instruction -> primitiveInstruction -> execution exists
+        businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> corporateAction exists
+            or businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
+            or businessEvent -> after -> observationHistory -> corporateAction exists
 
-// Pending to enhance the logic once portfolios are supported in the model
+func Qualify_CreditEventDetermined: <"The qualification of the ocurrence of a credit event determination from the fact that a credit event is present in either the observation or observation history structures.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    set is_event:
+        businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> creditEvent exists
+            or businessEvent -> instruction -> before -> observationHistory -> creditEvent exists
+            or businessEvent -> after -> observationHistory -> creditEvent exists
+
+func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias primitiveInstruction:
+        businessEvent -> instruction -> primitiveInstruction only-element
+    set is_event:
+        businessEvent -> intent is absent
+            and (primitiveInstruction -> execution only exists
+                or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
+
 func Qualify_Exercise: <"The qualification of an exercise event from the fact that (i) the only primitive is the exercise, and (ii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]
     inputs:
@@ -149,6 +229,30 @@ func Qualify_Exercise: <"The qualification of an exercise event from the fact th
                     and (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and businessEvent -> instruction -> primitiveInstruction -> execution exists))
                 or (businessEvent -> instruction count = 1
                     and businessEvent -> instruction -> primitiveInstruction -> exercise exists))
+
+func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) an assetPayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias transfer:
+        TransfersForDate(
+                businessEvent -> after -> transferHistory -> transfer,
+                businessEvent -> eventDate
+            )
+            only-element
+    set is_event:
+        (businessEvent -> intent is absent)
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
+            and (businessEvent -> instruction count = 1
+                    and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
+                or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
+            and QuantityDecreasedToZero(
+                    businessEvent -> instruction -> before,
+                    businessEvent -> after
+                ) = True
+            and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
 
 func Qualify_Increase: <"The qualification of a increase event from the fact that (i) the intent is Increase when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract increases.">
     [qualification BusinessEvent]
@@ -172,6 +276,37 @@ func Qualify_Increase: <"The qualification of a increase event from the fact tha
                         businessEvent -> after
                     ) = True or businessEvent -> instruction -> before -> trade -> tradeLot count < businessEvent -> after -> trade -> tradeLot count))
 
+func Qualify_IndexTransition: <"The qualification of an index transition event based on (i) adjustment spread applied and (ii) floating rate index changed.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias after: businessEvent -> after only-element -> trade
+
+    alias before: businessEvent -> instruction -> before -> trade
+
+    alias floatingRateIndexChanged:
+        before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex exists
+            and before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex
+
+    alias spread:
+        FilterPrice(
+                after -> tradeLot -> priceQuantity -> price,
+                PriceTypeEnum -> InterestRate,
+                [ArithmeticOperationEnum -> Add, ArithmeticOperationEnum -> Subtract],
+                empty
+            )
+
+    alias adjustmentSpreadAdded:
+        if spread exists then spread -> value <> 0 else True
+
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> IndexTransition
+            and floatingRateIndexChanged = True
+            and adjustmentSpreadAdded = True
+
 func Qualify_Novation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and a contract formation exist, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Novated, (v) the stepped-in contract has a different contract identifier than the novated contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
     [qualification BusinessEvent]
     inputs:
@@ -190,6 +325,174 @@ func Qualify_Novation: <"The qualification of a novation event from the fact tha
             and beforeTradeState -> trade -> counterparty -> partyReference = closedTradeStates only-element -> trade -> counterparty -> partyReference
             and beforeTradeState -> trade -> counterparty -> partyReference <> openTradeStates only-element -> trade -> counterparty -> partyReference
             and beforeTradeState -> trade -> tradeIdentifier <> openTradeStates -> trade -> tradeIdentifier
+
+func Qualify_OnDemandPayment: <"Qualification of a on-demand payment.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias instruction: businessEvent -> instruction only-element
+    alias afterTradeStates: FilterOpenTradeStates(businessEvent -> after)
+    alias transfer:
+        businessEvent -> instruction -> primitiveInstruction -> transfer -> transferState -> transfer
+
+    set is_event:
+        businessEvent -> instruction count = 1
+            and businessEvent -> after count = 1
+            and afterTradeStates count = 1
+            and instruction -> primitiveInstruction -> transfer only exists
+            and transfer -> transferExpression -> scheduledTransfer -> transferType all = NetInterest
+
+func Qualify_OnDemandRateChange: <"The qualification of on an-demand rate change event from the fact that the only primitive is the reset.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeTrade: businessEvent -> instruction only-element -> before -> trade
+    alias beforeProduct: beforeTrade -> product
+    alias beforeEconomicterms: beforeProduct -> economicTerms
+    alias openTrade: FilterOpenTradeStates(businessEvent -> after) only-element -> trade
+    alias openEconomicTerms: openTrade -> product -> economicTerms
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+
+    alias beforePriceQuantityRateOnly: <"The rate value before. There must be 1 and only 1.">
+        beforeTrade -> tradeLot only-element -> priceQuantity
+            extract price
+            then flatten
+            then filter priceType = PriceTypeEnum -> InterestRate
+            then extract value
+
+    alias openPriceQuantityRateOnly: <"The rate value after. There must be 1 and only 1, and it must be different from the rate before.">
+        openTrade -> tradeLot only-element -> priceQuantity
+            extract price
+            then flatten
+            then filter priceType = PriceTypeEnum -> InterestRate
+            then extract value
+
+    alias beforePriceQuantityNoRate: <"The price and quantity attributes before, excluding any rate price.">
+        beforeTrade -> tradeLot only-element -> priceQuantity
+            extract
+                PriceQuantity {
+                    price: price
+                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
+                    quantity: quantity,
+                    observable: observable,
+                    ...
+                }
+
+    alias openPriceQuantityNoRate: <"The price and quantity attributes after, excluding any rate price. They must be equal to the price and quantity before, excluding any rate price">
+        openTrade -> tradeLot only-element -> priceQuantity
+            extract
+                PriceQuantity {
+                    price: price
+                        filter p [ p -> priceType <> PriceTypeEnum -> InterestRate ],
+                    quantity: quantity,
+                    observable: observable,
+                    ...
+                }
+
+    set is_event:
+        // The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
+        beforeEconomicterms exists
+            and openEconomicTerms exists
+            and closedTradeState count = 1
+            and // openEconomicTerms -> payout = beforeEconomicterms -> payout and
+            openEconomicTerms -> collateral = beforeEconomicterms -> collateral
+            and beforePriceQuantityRateOnly count = 1
+            and openPriceQuantityRateOnly count = 1
+            and beforePriceQuantityRateOnly only-element
+                <> openPriceQuantityRateOnly only-element
+            and beforePriceQuantityNoRate = openPriceQuantityNoRate
+
+func Qualify_OpenOfferClearedTrade:
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    alias beforeTradeState: businessEvent -> instruction -> before
+    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> Clearing
+            and businessEvent -> instruction count = 2
+            and businessEvent -> instruction -> primitiveInstruction -> execution exists
+            and businessEvent -> instruction -> primitiveInstruction -> contractFormation exists
+            and openTradeStates count = 2
+            and openTradeStates
+                extract [
+                    item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
+                        and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier
+                        and item -> trade -> partyRole -> role contains PartyRoleEnum -> ClearingOrganization
+                ] all = True
+
+func Qualify_PairOff: <"Qualifies an event as a pair-off when all the details of the existing trades are maintained, except for their execution details which are updated to include a package component. This package component must be unique across all trades.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias openTradeState: FilterOpenTradeStates(businessEvent -> after)
+
+    alias newTradeInstruction: <"New trade instructions, that contain only an execution primitive and (optionally) a contract formation primitive.">
+        businessEvent -> instruction
+            filter NewTradeInstructionOnlyExists(item -> primitiveInstruction)
+
+    alias packageRef: <"Package details on the new trades.">
+        openTradeState -> trade -> executionDetails -> packageReference
+
+    set is_event:
+        // The first condition asserts that there are only new executions
+        newTradeInstruction count = businessEvent -> instruction count
+                // All the trade details (except the execution instructions) are unchanged
+                // and openTradeNoExecutionDetails = beforeTradeNoExecutionDetails
+            and openTradeState -> trade -> product = newTradeInstruction -> before -> trade -> product
+            and openTradeState -> trade -> tradeLot = newTradeInstruction -> before -> trade -> tradeLot
+            and openTradeState -> trade -> counterparty = newTradeInstruction -> before -> trade -> counterparty
+            and openTradeState -> trade -> ancillaryParty = newTradeInstruction -> before -> trade -> ancillaryParty
+            and openTradeState -> trade -> adjustment = newTradeInstruction -> before -> trade -> adjustment
+                // All open trades are associated to a package, and that package is the same across all trades
+            and packageRef count = openTradeState count
+            and packageRef distinct count = 1
+
+func Qualify_PartialDelivery: <"Qualification of a partial delivery which constitutes a change in quantity and open with the remaining quantity and termination date.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
+
+    alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+
+    alias beforeTrade: ExtractBeforeTrade(businessEvent)
+
+    alias afterTrade: ExtractAfterTrade(businessEvent)
+
+    alias beforeTradeCollateralQuantity:
+        ExtractTradeCollateralQuantity(beforeTrade) only-element
+
+    alias afterTradeCollateralQuantity:
+        ExtractTradeCollateralQuantity(afterTrade) only-element
+
+    set is_event:
+        beforeEconomicterms exists
+            and openEconomicTerms exists
+            and openTrades count = 1
+            and closedTradeState count = 1
+            and openEconomicTerms -> payout -> InterestRatePayout = beforeEconomicterms -> payout -> InterestRatePayout
+            and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
+            and beforeTradeCollateralQuantity > afterTradeCollateralQuantity
+            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> effectiveDate
 
 func Qualify_PartialNovation: <"The qualification of a novation event from the fact that (i) the intent is Novation when specified, (ii) the primitives quantityChange and contractFormation exist, (iii) the contract quantity/notional has decreased as part of the quantityChange primitive, while (iv) there is a remaining quantity/notional, (v) the stepped-in contract has a different contract identifier than the original contract, (vi) the stepped-in contract has the novation event date and the novation event effective date, and (vii) the contract counterparties have changed.">
     [qualification BusinessEvent]
@@ -237,6 +540,43 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
             and (QuantityDecreased(businessEvent -> instruction -> before only-element, businessEvent -> after) = True)
             and businessEvent -> after -> state -> closedState is absent
 
+func Qualify_PortfolioRebalancing: <"The qualification of a portfolio rebalancing event from the fact that (i) the intent is PortfolioRebalancing, and (ii) the execution primitive exists">
+    // Pending to enhance the logic once portfolios are supported in the model
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> PortfolioRebalancing
+            and businessEvent -> instruction -> primitiveInstruction -> execution exists
+
+func Qualify_Reallocation: <"The qualification of a reallocation event from the fact that (i) a quantity change primitive exists, (ii) a split primitive exists, and (iii) the intent is Reallocation.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias beforeTradeState: businessEvent -> instruction -> before only-element
+    alias closedTradeStates: FilterClosedTradeStates(businessEvent -> after)
+    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> Reallocation
+            and closedTradeStates count = 0
+            and openTradeStates count = 2
+            and businessEvent -> instruction -> primitiveInstruction -> split exists
+            and openTradeStates
+                extract [
+                    // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
+                    (item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
+                            and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier)
+                        or // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
+                        (item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
+                            and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
+                            and QuantityDecreased(beforeTradeState, [item]))
+                ] all = True
+
 func Qualify_Renegotiation: <"The qualification of a renegotiation event from the fact that (i) the intent is Renegotiation when specified, and (ii) the associated primitives instructions are the TermsChange, QuantityChange and the cash transfer.">
     [qualification BusinessEvent]
     inputs:
@@ -256,6 +596,69 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
             and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = False)
             and businessEvent -> after -> state -> closedState is absent
 
+func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+
+    alias openTrades: FilterOpenTradeStates(businessEvent -> after) -> trade
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+
+    alias beforeTrade: ExtractBeforeTrade(businessEvent)
+
+    alias afterTrade: ExtractAfterTrade(businessEvent)
+
+    alias beforeTradePurchasePrice: ExtractTradePurchasePrice(beforeTrade)
+
+    alias afterTradePurchasePrice: ExtractTradePurchasePrice(afterTrade)
+
+    alias beforeTradeCollateralQuantity: ExtractTradeCollateralQuantity(beforeTrade)
+
+    alias afterTradeCollateralQuantity: ExtractTradeCollateralQuantity(afterTrade)
+
+    alias beforeTradeCollateralPrice: ExtractTradeCollateralPrice(beforeTrade)
+
+    alias afterTradeCollateralPrice: ExtractTradeCollateralPrice(afterTrade)
+
+    alias beforeEconomicterms: ExtractBeforeEconomicTerms(businessEvent)
+
+    alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
+
+    set is_event:
+        businessEvent -> after -> trade -> product -> economicTerms -> payout -> InterestRatePayout exists
+            and openTrades count = 1
+            and closedTradeState count = 1
+            and beforeTradePurchasePrice exists
+            and afterTradePurchasePrice exists
+            and afterTradePurchasePrice <> beforeTradePurchasePrice
+            and beforeTradeCollateralQuantity = afterTradeCollateralQuantity
+            and beforeTradeCollateralPrice <> afterTradeCollateralPrice
+            and beforeEconomicterms exists
+            and openEconomicTerms exists
+            and openEconomicTerms -> terminationDate = beforeEconomicterms -> terminationDate
+
+func Qualify_Repurchase: <"The qualification of a repurchase event from the fact that (i) a quantityChange instruction exists, (ii) an assetPayout exists, (iii) the remaining quantity = 0, (iv) the closedState of the contract is Terminated, and (v) the intent of the event is 'Repurchase'.">
+    [qualification BusinessEvent]
+    inputs:
+        businessEvent BusinessEvent (1..1)
+    output:
+        is_event boolean (1..1)
+    set is_event:
+        businessEvent -> intent = EventIntentEnum -> Repurchase
+            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
+            and (businessEvent -> instruction count = 1
+                and businessEvent -> instruction
+                    only-element
+                    extract
+                        (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+            and QuantityDecreasedToZero(
+                    businessEvent -> instruction -> before,
+                    businessEvent -> after
+                ) = True
+            and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
+
 func Qualify_Reset: <"The qualification of a reset event from the fact that the only primitive is the reset.">
     [qualification BusinessEvent]
     inputs:
@@ -270,21 +673,28 @@ func Qualify_Reset: <"The qualification of a reset event from the fact that the 
             and beforeTradeState -> trade = afterTradeState -> trade
             and beforeTradeState -> resetHistory count + 1 = afterTradeState -> resetHistory count
 
-func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
+func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a single existing trade, (ii) entering into a new trade with the same details as the old trade, except for the effective and termination date where the effective date. The roll qualification does not make any assumption on the resulting quantity which may change compared to the original trade (it may only be partially rolled). The price is also likely different as market conditions may have evolved.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias transfer:
-        TransfersForDate(
-                businessEvent -> after -> transferHistory -> transfer,
-                businessEvent -> eventDate
-            )
-            only-element
+
+    alias beforeEconomicterms:
+        businessEvent -> instruction only-element -> before -> trade -> product -> economicTerms
+    alias openEconomicTerms:
+        FilterOpenTradeStates(businessEvent -> after) only-element -> trade -> product -> economicTerms
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after)
+
     set is_event:
-        transfer -> asset -> Instrument -> Security exists
-            and transfer -> quantity -> unit -> financialUnit only exists
+        // The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
+        beforeEconomicterms exists
+            and openEconomicTerms exists
+            and closedTradeState count = 1
+            and openEconomicTerms -> payout = beforeEconomicterms -> payout
+            and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
+            and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
+            and openEconomicTerms -> terminationDate <> beforeEconomicterms -> terminationDate
 
 func Qualify_SecuritySettlement: <"The qualification of a security settlement from the fact that (i) it is composed of a cashTransfer component and a securityTransfer component, and (ii) the cash and security move in opposite directions.">
     [qualification BusinessEvent]
@@ -305,14 +715,12 @@ func Qualify_SecuritySettlement: <"The qualification of a security settlement fr
                 )
                 only-element -> payerReceiver -> receiverPartyReference
 
-func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
+func Qualify_SecurityTransfer: <"The qualification of a security transfer from the fact that the only component is a securityTransfer.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias primitiveInstruction:
-        businessEvent -> instruction -> primitiveInstruction only-element
     alias transfer:
         TransfersForDate(
                 businessEvent -> after -> transferHistory -> transfer,
@@ -320,39 +728,40 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
             )
             only-element
     set is_event:
-        businessEvent -> intent is absent
-            and (primitiveInstruction -> quantityChange only exists
-                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
-            and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
-            and (businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
+        transfer -> asset -> Instrument -> Security exists
+            and transfer -> quantity -> unit -> financialUnit only exists
 
-func Qualify_Execution: <"The qualification of an execution event from the fact that the only component is an execution.">
+func Qualify_Shaping: <"The qualification of a shaping event from the fact that (i) the only primitive is a split where the original trade is closed, (ii) the parties before and after the split remain the same (by contrast with an allocation, for instance) and (iii) the split trades contain a package component in their execution details. This package ties together the resulting shapes trades' identifiers and must be the same across all shaped trades. Note that SplitPrimitive type has a condition to check that the post-split quantities sum to the pre-split quantity.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-    alias primitiveInstruction:
-        businessEvent -> instruction -> primitiveInstruction only-element
-    set is_event:
-        businessEvent -> intent is absent
-            and (primitiveInstruction -> execution only exists
-                or (primitiveInstruction -> execution, primitiveInstruction -> transfer) only exists)
 
-func Qualify_ContractFormation: <"Qualifies a business event as a contract formation from the fact that the only component is a single Contract Formation Primitive.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    alias primitiveInstruction:
-        businessEvent -> instruction -> primitiveInstruction only-element
+    alias instruction: businessEvent -> instruction only-element
+    alias beforeTradeState: instruction -> before
+    alias closedTradeState: FilterClosedTradeStates(businessEvent -> after) only-element
+    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
+
+    alias packageRef: <"Package details on the new trades.">
+        openTradeStates -> trade -> executionDetails -> packageReference
+    alias openTradeNoExecutionDetails: <"List of open trades with no execution details on, for comparison.">
+        openTradeStates extract TradeNoExecutionDetails(item -> trade)
+
     set is_event:
-        (primitiveInstruction -> contractFormation) only exists
-            or (primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
-            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation) only exists
-            or (primitiveInstruction -> execution, primitiveInstruction -> contractFormation, primitiveInstruction -> transfer) only exists
-            or (primitiveInstruction is absent and businessEvent -> intent = EventIntentEnum -> ContractFormation)
+        // There is a single before trade with a split instruction, resulting in a single closed trade and multiple open trades
+        beforeTradeState exists
+            and closedTradeState exists
+            and openTradeStates count > 1
+            and instruction -> primitiveInstruction -> split only exists
+                // Open trade counterparties should match before trade counterparties
+            and openTradeStates
+                extract [
+                    item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
+                ] all = True
+                // All open trades are associated to a package, and that package is the same across all trades
+            and packageRef count = openTradeNoExecutionDetails count
+            and packageRef distinct count = 1
 
 func Qualify_StockSplit: <"The qualification of StockSplit business event based on (i) an unchanged before/after currency amount (ii) the same adjustment ratio applied to the before/after cash price and number of units.">
     [qualification BusinessEvent]
@@ -426,43 +835,14 @@ func Qualify_StockSplit: <"The qualification of StockSplit business event based 
             and cashPriceChanged = True
             and adjustmentRatioMatches = True
 
-func Qualify_IndexTransition: <"The qualification of an index transition event based on (i) adjustment spread applied and (ii) floating rate index changed.">
+func Qualify_Termination: <"The qualification of a termination event from the fact that (i) the intent is Termination when specified, (ii) the only primitive is the quantityChange and there is only one such primitive involved, the (iii) the remaining quantity is null, and (iv) the closedState of the contract is Terminated.">
     [qualification BusinessEvent]
     inputs:
         businessEvent BusinessEvent (1..1)
     output:
         is_event boolean (1..1)
-
-    alias after: businessEvent -> after only-element -> trade
-
-    alias before: businessEvent -> instruction -> before -> trade
-
-    alias floatingRateIndexChanged:
-        before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex exists
-            and before -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex disjoint after -> tradeLot -> priceQuantity -> observable -> Index -> InterestRateIndex
-
-    alias spread:
-        FilterPrice(
-                after -> tradeLot -> priceQuantity -> price,
-                PriceTypeEnum -> InterestRate,
-                [ArithmeticOperationEnum -> Add, ArithmeticOperationEnum -> Subtract],
-                empty
-            )
-
-    alias adjustmentSpreadAdded:
-        if spread exists then spread -> value <> 0 else True
-
-    set is_event:
-        businessEvent -> intent = EventIntentEnum -> IndexTransition
-            and floatingRateIndexChanged = True
-            and adjustmentSpreadAdded = True
-
-func Qualify_FullReturn: <"The qualification of a full return event from the fact that (i) a quantityChange primitive and a transfer primitive exists, (ii) an assetPayout exists, (iii) the remaining quantity = 0, and (iv) the closedState of the contract is Terminated.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
+    alias primitiveInstruction:
+        businessEvent -> instruction -> primitiveInstruction only-element
     alias transfer:
         TransfersForDate(
                 businessEvent -> after -> transferHistory -> transfer,
@@ -470,64 +850,11 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
             )
             only-element
     set is_event:
-        (businessEvent -> intent is absent)
-            and businessEvent -> after -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
-            and (businessEvent -> instruction count = 1
-                    and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
-                or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
-            and QuantityDecreasedToZero(
-                    businessEvent -> instruction -> before,
-                    businessEvent -> after
-                ) = True
-            and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
-
-func Qualify_Reallocation: <"The qualification of a reallocation event from the fact that (i) a quantity change primitive exists, (ii) a split primitive exists, and (iii) the intent is Reallocation.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-
-    alias beforeTradeState: businessEvent -> instruction -> before only-element
-    alias closedTradeStates: FilterClosedTradeStates(businessEvent -> after)
-    alias openTradeStates: FilterOpenTradeStates(businessEvent -> after)
-    set is_event:
-        businessEvent -> intent = EventIntentEnum -> Reallocation
-            and closedTradeStates count = 0
-            and openTradeStates count = 2
-            and businessEvent -> instruction -> primitiveInstruction -> split exists
-            and openTradeStates
-                extract [
-                    // before trade counterparties should not match open after trade counterparties, and neither should trade identifiers
-                    (item -> trade -> counterparty -> partyReference <> beforeTradeState -> trade -> counterparty -> partyReference
-                            and item -> trade -> tradeIdentifier <> beforeTradeState -> trade -> tradeIdentifier)
-                        or // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
-                        (item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
-                            and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
-                            and QuantityDecreased(beforeTradeState, [item]))
-                ] all = True
-
-func Qualify_CreditEventDetermined: <"The qualification of the ocurrence of a credit event determination from the fact that a credit event is present in either the observation or observation history structures.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    set is_event:
-        businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> creditEvent exists
-            or businessEvent -> instruction -> before -> observationHistory -> creditEvent exists
-            or businessEvent -> after -> observationHistory -> creditEvent exists
-
-func Qualify_CorporateActionDetermined: <"The qualification of the ocurrence of a corporate action form the fact that a corporate action is present in either the observation or the observation history structures.">
-    [qualification BusinessEvent]
-    inputs:
-        businessEvent BusinessEvent (1..1)
-    output:
-        is_event boolean (1..1)
-    set is_event:
-        businessEvent -> instruction -> primitiveInstruction -> observation -> observationEvent -> corporateAction exists
-            or businessEvent -> instruction -> before -> observationHistory -> corporateAction exists
-            or businessEvent -> after -> observationHistory -> corporateAction exists
+        businessEvent -> intent is absent
+            and (primitiveInstruction -> quantityChange only exists
+                or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
+            and (QuantityDecreasedToZero(businessEvent -> instruction -> before, businessEvent -> after) = True)
+            and (businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 func Qualify_ValuationUpdate: <"The qualification of a valuation update from the fact that the only component is a valuation.">
     [qualification BusinessEvent]
@@ -537,3 +864,4 @@ func Qualify_ValuationUpdate: <"The qualification of a valuation update from the
         is_event boolean (1..1)
     alias instruction: businessEvent -> instruction only-element
     set is_event: instruction -> primitiveInstruction -> valuation only exists
+

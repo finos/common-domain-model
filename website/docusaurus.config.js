@@ -74,6 +74,10 @@ module.exports = {
               label: 'Technology Architecture Working Group',
               href: 'https://cdm.finos.org/docs/CDM-Technology-Architecture-WG',
             },
+             {
+              label: 'Phsyical Risk Working Group',
+              href: 'https://cdm.finos.org/docs/CDM-Physical-Risk-WG',
+            },
             {
               label: 'Tokenized Assets Working Group',
               href: 'https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG',

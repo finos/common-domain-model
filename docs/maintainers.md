@@ -23,7 +23,10 @@ Proposals for an entity to be given maintainership status or to have maintainers
 
 The [maintenance and release](maintenance-and-release.md) page provides further detail on maintainers' responsibilities. 
 
-Click [here](change-control-guidelines.md/#Pull-Request-Classification-and-Approval-Guidelines) to view the pull request approval guidelines. 
+## Maintainers Approval Process 
+![image](/img/Approval-Process.png)
+
+Click [here](change-control-guidelines.md/#pr-approval-process) to view the pull request approval guidelines. 
 
 ## FINOS CDM Project Maintainers
 
@@ -35,9 +38,8 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | -------------------- | -------------- | ------------------------------------------- | -------------------- |           
 | Gabriel Callsen      | ICMA           | OrgRep                                      | gabriel-ICMA         | 
 | Tom Healey           | ICMA           | OrgRep                                      | tomhealey-icma       | 
-| Jason Polis          | ISDA           | OrgRep                                      | JasonPolis-ISDA      | 
+| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               | 
 | Eleonora Acuna       | ISDA           | OrgRep                                      | eacunaISDA           | 
-| Tabish Ahmed         | ISDA           | OrgRep                                      | tabi5h               |
 | Lyteck Lynhiavu      | ISDA           | OrgRep                                      | llynhiavu            | 
 | Adrian Dale          | ISLA           | OrgRep                                      | ADaleISLA            | 
 | Chris Rayner         | ISLA           | OrgRep                                      | chrisisla            | 

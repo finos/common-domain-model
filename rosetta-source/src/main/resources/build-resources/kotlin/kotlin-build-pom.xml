@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.finos</groupId>
         <artifactId>finos</artifactId>
-        <version>5</version>
+        <version>7</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -68,31 +68,16 @@
 
     <properties>
         <gpg.keyname>configured-by-release-profile</gpg.keyname>
-        <repoServerHost>s01.oss.sonatype.org</repoServerHost>
-
+        <gpg.passphrase>configured-by-release-profile</gpg.passphrase>
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.4.32</kotlin.version>
+        <kotlin.version>1.9.25</kotlin.version>
         <serialization.version>1.1.0</serialization.version>
         <apache.commons.lang3.version>3.1</apache.commons.lang3.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
     </properties>
-
-    <profiles>
-        <profile>
-            <id>gpg</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
@@ -120,13 +105,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>package</phase>
+                        <phase>none</phase> <!-- Disable this execution -->
+                    </execution>
+                    <execution>
+                        <id>default</id>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -155,7 +142,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.1.0</version>
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
@@ -164,8 +150,8 @@
                                 <goal>sign</goal>
                             </goals>
                             <configuration>
-                                <keyname>${gpg.keyname}</keyname>
                                 <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                                <passphraseEnvName>${gpg.passphrase}</passphraseEnvName>
                             </configuration>
                         </execution>
                     </executions>

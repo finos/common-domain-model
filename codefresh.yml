@@ -31,6 +31,7 @@ steps:
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
       - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
+      - cf_export MVN_DEPLOY_FILE_COMMAND="mvn deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
 
   ReleaseProperties:
     stage: 'setup'
@@ -42,8 +43,7 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,gpg,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/service/local/staging/deploy/maven2 -DrepositoryId=ossrh-distro -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,full,release,excel,json-schema"
 
   SnapshotProperties:
     stage: 'setup'
@@ -55,27 +55,33 @@ steps:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
-      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,gpg,excel,json-schema"
-      - cf_export MVN_DEPLOY_FILE_FLAGS="${{MVN_BUILD_FLAGS}} ${{MVN_DEPLOY_FLAGS}} -Durl=https://s01.oss.sonatype.org/content/repositories/snapshots -DrepositoryId=ossrh -Dgpg.passphrase=${{GPG_PASSPHRASE}}" --mask
+      - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,python,release,excel,json-schema"
 
   Build:
     stage: 'build'
     title: Maven build
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
-      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P "${{MAVEN_BUILD_PROFILES}}"
+      - mvn ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P "${{MAVEN_BUILD_PROFILES}}"
+
+  FailBuildPipeline:
+    stage: 'build'
+    title: Fail pipeline if the Maven build failed
+    image: codefresh/cli
+    when:
+      condition:
+        any:
+          mvnBuildFailure: steps.Build.result == 'failure'
+    commands:
+      - exit 1
 
   BuildParallelTasks:
     stage: 'build'
     type: parallel
-    when:
-      condition:
-        all:
-          buildPassed: steps.Build.result == 'success'
     steps:
       BuildDaml:
         stage: 'build'
@@ -142,7 +148,7 @@ steps:
     stage: 'build'
     title: DAML deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -150,13 +156,13 @@ steps:
       - cd target
       - tar -cvzf cdm-daml-${{RELEASE_NAME}}.tar.gz cdm-daml-${{RELEASE_NAME}}.dar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-daml ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-daml-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-daml -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-daml-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployScala:
     stage: 'build'
     title: Scala deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -166,13 +172,13 @@ steps:
       - mv cdm-scala_2.12-0.0.0.snapshot-sources.jar cdm-scala-${{RELEASE_NAME}}-sources.jar
       - mv cdm-scala_2.12-0.0.0.snapshot-javadoc.jar cdm-scala-${{RELEASE_NAME}}-javadoc.jar
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-scala ${{RELEASE_NAME}} jar
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-scala-${{RELEASE_NAME}}.jar -DgroupId=org.finos.cdm -DartifactId=cdm-scala -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-scala-${{RELEASE_NAME}}.pom -Dsources=cdm-scala-${{RELEASE_NAME}}-sources.jar -Djavadoc=cdm-scala-${{RELEASE_NAME}}-javadoc.jar
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployCSharp8:
     stage: 'build'
     title: CSharp8 deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -180,13 +186,13 @@ steps:
       - cd target/classes/cdm/csharp8/NetStandard.2.1
       - tar -cvzf cdm-csharp8-${{RELEASE_NAME}}.tar.gz app
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp8 ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp8-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp8 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp8-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployCSharp9:
     stage: 'build'
     title: CSharp9 deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -194,13 +200,13 @@ steps:
       - cd target/classes/cdm/csharp9/Net.5.0
       - tar -cvzf cdm-csharp9-${{RELEASE_NAME}}.tar.gz app
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-csharp9 ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-csharp9-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-csharp9 -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-csharp9-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployTypeScript:
     stage: 'build'
     title: TypeScript deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -208,13 +214,13 @@ steps:
       - cd target/classes/cdm
       - tar -cvzf cdm-typescript-${{RELEASE_NAME}}.zip typescript
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-typescript ${{RELEASE_NAME}} zip
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-typescript-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-typescript -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-typescript-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployGo:
     stage: 'build'
     title: Go deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -222,40 +228,41 @@ steps:
       - cd target/classes/cdm
       - tar -cvzf cdm-golang-${{RELEASE_NAME}}.tar.gz golang
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-golang ${{RELEASE_NAME}} tar.gz
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-golang-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-golang -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-golang-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployKotlin:
     stage: 'build'
     title: Kotlin deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
       - mvn -f kotlin-build-pom.xml ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} -DallowSnapshots=true
-      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean deploy -P gpg
+      - mvn -f kotlin-build-pom.xml ${{MVN_DEPLOY_FLAGS}} ${{MVN_CLI_OPT}} clean install org.sonatype.central:central-publishing-maven-plugin:0.7.0:publish -P release
 
   DeployPython:
     stage: 'build'
     title: Python deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
+      - apk add --no-cache python3
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/python
       - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
       - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-python-${{RELEASE_NAME}}.tar.gz -DgroupId=org.finos.cdm -DartifactId=cdm-python -Dversion=${{RELEASE_NAME}} -Dpackaging=tar.gz -DpomFile=cdm-python-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployExcel:
     stage: 'build'
     title: Excel deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -265,13 +272,13 @@ steps:
       - base64 -d encoded.model.xlsx > cdm-excel-${{RELEASE_NAME}}.xlsx
       - rm encoded.model.xlsx
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-excel ${{RELEASE_NAME}} xlsx
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-excel-${{RELEASE_NAME}}.xlsx  -DgroupId=org.finos.cdm -DartifactId=cdm-excel -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-excel-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
   DeployJsonSchema:
     stage: 'build'
     title: JSON Schema deploy
     fail_fast: false
-    image: maven:3.8.2-jdk-11
+    image: maven:3.9.9-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
     commands:
@@ -279,53 +286,15 @@ steps:
       - cd src/generated
       - tar -cvzf cdm-json-schema-${{RELEASE_NAME}}.zip jsonschema
       - ${{GEN_DEPLOY_POM_SCRIPT}} cdm-json-schema ${{RELEASE_NAME}} zip
-      - mvn org.apache.maven.plugins:maven-gpg-plugin:3.1.0:sign-and-deploy-file ${{MVN_DEPLOY_FILE_FLAGS}} -Dfile=cdm-json-schema-${{RELEASE_NAME}}.zip -DgroupId=org.finos.cdm -DartifactId=cdm-json-schema -Dversion=${{RELEASE_NAME}} -DpomFile=cdm-json-schema-${{RELEASE_NAME}}.pom
+      - ${{MVN_DEPLOY_FILE_COMMAND}}
 
-  NotifySlackOnFail:
+  FailDeployPipeline:
     stage: 'finalise'
-    title: Trigger Slack dev channel notification if master build failed
-    image: codefresh/cli
-    when:
-      branch:
-        only:
-          - master
-      condition:
-        any:
-          mvnBuildFailed: steps.Build.result == 'error'
-          buildDamlFailed: steps.BuildDaml.result == 'error'
-          buildScalaFailed: steps.BuildScala.result == 'error'
-          buildCSharp8Failed: steps.BuildCSharp8.result == 'error'
-          buildCSharp9Failed: steps.BuildCSharp9.result == 'error'
-          buildPythonFailed: steps.BuildPython.result == 'error'
-          deployDamlFailed: steps.DeployDaml.result == 'error'
-          deployScalaFailed: steps.DeployScala.result == 'error'
-          deployTypeScriptFailed: steps.DeployTypeScript.result == 'error'
-          deployCSharp8Failed: steps.DeployCSharp8.result == 'error'
-          deployCSharp9Failed: steps.DeployCSharp9.result == 'error'
-          deployGoFailed: steps.DeployGo.result == 'error'
-          deployKotlinFailed: steps.DeployKotlin.result == 'error'
-          deployPythonFailed: steps.DeployPython.result == 'error'
-          deployExcelFailed: steps.DeployExcel.result == 'error'
-          deployJsonSchemaFailed: steps.DeployJsonSchema.result == 'error'
-    commands:
-      - export SAFE_COMMIT_AUTHOR='${{CF_COMMIT_AUTHOR}}'
-      - export COMMIT_AUTHOR=${SAFE_COMMIT_AUTHOR:-MissingAuthor}
-      - export SAFE_REPO_NAME='${{CF_REPO_NAME}}'
-      - export REPO_NAME=${SAFE_REPO_NAME:-NoRepo}
-      - export SAFE_COMMIT_MESSAGE='${{CF_COMMIT_MESSAGE}}'
-      - export COMMIT_MESSAGE=${SAFE_COMMIT_MESSAGE:-NoCommitMsg}
-      - echo Author is $SAFE_COMMIT_AUTHOR and commit msg is $SAFE_COMMIT_MESSAGE and repo is $SAFE_REPO_NAME
-      - echo After substitution author is $COMMIT_AUTHOR and commit msg is $COMMIT_MESSAGE and repo is $REPO_NAME
-      - codefresh run slack-notifier -v REPO_NAME="${REPO_NAME}" -v COMMIT_AUTHOR="${COMMIT_AUTHOR}" -v COMMIT_MESSAGE="${COMMIT_MESSAGE}"  --detach
-
-  FailPipeline:
-    stage: 'finalise'
-    title: Fail pipeline if the Maven build failed
+    title: Fail pipeline if the Maven deploy failed
     image: codefresh/cli
     when:
       condition:
         any:
-          mvnBuildFailure: steps.Build.result == 'failure'
           damlBuildFailure: steps.BuildDaml.result == 'failure'
           scalaBuildFailure: steps.BuildScala.result == 'failure'
           cSharp8BuildFailure: steps.BuildCSharp8.result == 'failure'
