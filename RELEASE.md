@@ -10,4 +10,4 @@ Test expectations have been updated accordingly to include required empty model 
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3944](https://github.com/finos/common-domain-model/pull/3945)
+The changes can be reviewed in PR: [#3947](https://github.com/finos/common-domain-model/pull/3947)

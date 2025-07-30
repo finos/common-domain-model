@@ -1,0 +1,155 @@
+namespace cdm.product.asset : <"Product concepts applicable to specific asset classes.">
+version "${project.version}"
+
+import cdm.base.*
+import cdm.mapping.config.*
+
+enum BankHolidayTreatmentEnum: <"Defines whether the bank holidays are treated as weekdays or weekends in terms of delivery profile in the context of commodity products, in particular those with peak or off-peak delivery profiles.">
+    AsWeekday <"Bank holidays treated as weekdays.">
+    AsWeekend <"Bank holidays treated as weekends.">
+
+enum CompoundingMethodEnum: <"The enumerated values to specify the type of compounding, e.g. flat, straight.">
+    Flat <"Flat compounding. Compounding excludes the spread. Note that the first compounding period has it's interest calculated including any spread then subsequent periods compound this at a rate excluding the spread.">
+    None <"No compounding is to be applied.">
+    Straight <"Straight compounding. Compounding includes the spread.">
+    SpreadExclusive <"Spread Exclusive compounding.">
+
+enum DayDistributionEnum: <"Denotes the method by which the pricing days are distributed across the pricing period.">
+    All
+    First
+    Last
+    Penultimate
+
+enum DiscountingTypeEnum: <"The enumerated values to specify the method of calculating discounted payment amounts. This enumerations combines the FpML DiscountingTypeEnum and FraDiscountingEnum enumerations.">
+    Standard <"As specified by the 2006 ISDA Definitions, Section 8.4. Discounting, paragraph (a).">
+    FRA <"As specified by the 2006 ISDA Definitions, Section 8.4. Discounting, paragraph (b).">
+    FRAYield <"As specified by the 2006 ISDA Definitions, Section 8.4. Discounting, paragraph (e).">
+    AFMA <"As specified by the Australian Financial Markets Association (AFMA) OTC Financial Product Conventions. This discounting method should not be used for a trade documented under a legal framework where the 2006 ISDA Definitions have been incorporated.">
+
+enum DividendAmountTypeEnum: <"The enumerated values to specify whether the dividend is paid with respect to the Dividend Period.">
+    RecordAmount <"The record date for a dividend occurs during a dividend period.">
+    ExAmount <"The ex-date for a dividend occurs during a dividend period.">
+    PaidAmount <"The payment date for a dividend occurs during a dividend period.">
+    AsSpecifiedInMasterConfirmation <"The Amount is determined as provided in the relevant Master Confirmation.">
+
+enum DividendCompositionEnum: <"The enumerated values to specify how the composition of Dividends is to be determined.">
+    EquityAmountReceiverElection <"The Equity Amount Receiver determines the composition of dividends (subject to conditions).">
+    CalculationAgentElection <"The Calculation Agent determines the composition of dividends (subject to conditions).">
+
+enum DividendDateReferenceEnum: <"The enumerated values to specify the date by reference to which the dividend will be paid.">
+    AdHocDate <"The dividend date will be specified ad-hoc by the parties, typically on the dividend ex-date.">
+    CashSettlementPaymentDate <"If 'Dividend Payment Date(s)' is specified in the Transaction Supplement as 'Cash Settlement Payment Date', then the Dividend Payment Date in respect of a Dividend Amount shall be the Cash Settlement Payment Date relating to the end of the Dividend Period during which the Shares commenced trading 'ex' the relevant dividend on the Exchange.">
+    CashSettlePaymentDateExDiv <"If 'Dividend Payment Date(s)' is specified in the Transaction Supplement as 'Cash Settlement Payment Date – Ex Dividend'', then the Dividend Payment Date in respect of a Dividend Amount shall be the Cash Settlement Payment Date relating to the end of the Dividend Period during which the Shares commenced trading 'ex' the relevant dividend on the Exchange.">
+    CashSettlePaymentDateIssuerPayment <"If 'Dividend Payment Date(s)' is specified in the Transaction Supplement as 'Cash Settlement Payment Date – Issuer Payment', then the Dividend Payment Date in respect of a Dividend Amount shall be the Cash Settlement Payment Date relating to the end of the Dividend Period during which the issuer pays the relevant dividend to a holder of record provided that in the case where the Equity Amount Payer is the party specified to be the sole Hedging Party and the Hedging Party has not received the Dividend Amount by such date, then the date falling a number of Currency Business Days as specified in the Cash Settlement Payment Date after actual receipt by the Hedging Party of the Received Ex Amount or Paid Ex Amount (as applicable).">
+    CumulativeEquityExDiv <"Total of dividends which go ex, paid on next following Equity Payment Date, which is immediately following the Dividend Period during which the Shares commence trading ex-dividend on the Exchange.">
+    CumulativeEquityPaid <"Total of paid dividends, paid on next following Equity Payment Date, which is immediately following the Dividend Period during which the dividend is paid by the Issuer to the holders of record of a Share.">
+    CumulativeEquityExDivBeforeReset <"Total of paid dividends, paid on next following Equity Payment Date, which is immediately following the Dividend Ex Date, unless the Dividend Ex Date is between the Equity Valuation and Payment Date in which case the dividend is deferred to the following Equity Payment Date">
+    CumulativeEquityPaidBeforeReset <"Total of paid dividends, paid on next following Equity Payment Date, which is immediately following the Dividend Pay Date, unless the Dividend Pay Date is between the Equity Valuation and Payment Date (not including the Valuation Date) in which case the dividend is deferred to the following Equity Payment Date">
+    CumulativeEquityPaidInclReset <"Total of paid dividends, paid on next following Equity Payment Date, which is immediately following the Dividend Pay Date, unless the Dividend Pay Date is between the Equity Valuation and Payment Date (including the Valuation Date) in which case the dividend is deferred to the following Equity Payment Date">
+    CumulativeInterestExDiv <"Total of dividends which go ex, paid on next following Interest Payment Date, which is immediately following the Dividend Period during which the Shares commence trading ex-dividend on the Exchange, or where the date on which the Shares commence trading ex-dividend is a Payment Date, such Payment Date.">
+    CumulativeInterestPaid <"Total of paid dividends, paid on next following Interest Payment Date, which is immediately following the Dividend Period during which the dividend is paid by the Issuer to the holders of record of a Share.">
+    CumulativeInterestPaidInclReset <"Total of paid dividends, paid on next following Interest Payment Date, which is immediately following the Dividend Pay Date, unless the Dividend Pay Date is between the Equity Valuation and Payment Date (including the Valuation Date) in which case the dividend is deferred to the following Interest Payment Date.">
+    CumulativeInterestPaidBeforeReset <"Total of paid dividends, paid on next following Interest Payment Date, which is immediately following the Dividend Pay Date, unless the Dividend Pay Date is between the Equity Valuation and Payment Date (not including the Valuation Date) in which case the dividend is deferred to the following Interest Payment Date.">
+    DividendPaymentDate <"Date on which the dividend will be paid by the issuer.">
+    DividendValuationDate <"In respect of each Dividend Period, the relevant Dividend Valuation Date.">
+    EquityPaymentDate <"Equity payment date of the swap.">
+    ExDate <"Date on which a holder of the security is entitled to the dividend.">
+    FloatingAmountPaymentDate <"If 'Dividend Payment Date(s)' is specified in the Transaction Supplement as 'Floating Amount Payment Date', then the Dividend Payment Date in respect of a Dividend Amount shall be the first Payment Date falling at least one Settlement Cycle after the date that the Shares have commenced trading 'ex' the relevant dividend on the Exchange.">
+    FollowingPaymentDate <"The next payment date of the swap.">
+    RecordDate <"Date on which the dividend will be recorded in the books of the paying agent.">
+    SharePayment <"If 'Dividend Payment Date(s)' is specified in the Transaction Supplement as 'Share Payment', then the Dividend Payment Date in respect of a Dividend Amount shall fall on a date on or before the date that is two (or any other number that is specified in the Transaction Supplement) Currency Business Days following the day on which the Issuer of the Shares pays the relevant dividend to holders of record of the Shares.">
+    TerminationDate <"Termination date of the swap.">
+    TradeDate <"Trade date of the swap">
+    UnwindOrEquityExDiv <"Pays a fraction of the Dividend Amount on each Unwind Trade Settlement Date which occurs after the Dividend Ex Date, until position is fully unwound OR on the next Equity Pay Date after the Dividend Pay Date. This will be whichever date comes first or a combination of both.">
+    UnwindOrEquityPaid <"Pays a fraction of the Dividend Amount on each Unwind Trade Settlement Date which occurs after the Dividend Pay Date, until position is fully unwound OR on the next Equity Pay Date after the Dividend Pay Date. This will be whichever date comes first or a combination of both.">
+    UnwindOrInterestExDiv <"Pays a fraction of the Dividend Amount on each Unwind Trade Settlement Date which occurs after the Dividend Ex Date, until position is fully unwound OR on the next Interest Pay Date after the Dividend Ex Date. This will be whichever date comes first or a combination of both.">
+    UnwindOrInterestPaid <"Pays a fraction of the Dividend Amount on each Unwind Trade Settlement Date which occurs after the Dividend Pay Date, until position is fully unwound OR on the next Interest Pay Date after the Dividend Pay Date. This will be whichever date comes first or a combination of both.">
+    UnwindExDiv <"Pays a fraction of the total on each Unwind Trade Settlement Date which occurs after the Dividend Ex Date, until trade is fully unwound.">
+    UnwindPaid <"Pays a fraction of the total on each Unwind Trade Settlement Date which occurs after the Dividend Pay Date, until trade is fully unwound.">
+
+enum DividendEntitlementEnum: <"The enumerated values to specify the date on which the receiver of the equity payout is entitled to the dividend.">
+    ExDate <"Dividend entitlement is on the dividend ex-date.">
+    RecordDate <"Dividend entitlement is on the dividend record date.">
+        [synonym FIX_5_0_SP2 value "RecordDate"]
+
+enum DividendPeriodEnum: <"2002 ISDA Equity Derivatives Definitions: First Period, Second Period |">
+    FirstPeriod <"2002 ISDA Equity Derivatives Definitions: First Period means each period from, and including, one Cash Settlement Payment Date or Settlement Date, as the case may be, to, but excluding, the next following Cash Settlement Payment Date or Settlement Date, as the case may be, except that (i) the initial Dividend Period will commence on, and include, the Clearance System Business Day that is one Settlement Cycle following the Trade Date and (ii) the final Dividend Period will end on, but exclude, the final Cash Settlement Payment Date or Settlement Date, as the case may be.">
+    SecondPeriod <"2002 ISDA Equity Derivatives Definitions: Second Period means each period from, but excluding, one Valuation Date to, and including, the next Valuation Date, except that (i) the initial Dividend Period will commence on, but exclude, the Trade Date and (ii) the final Dividend Period will end on, and include, the final Valuation Date or, in respect of a Physically-settled Forward Transaction to which Variable Obligation is not applicable, the date that is one Settlement Cycle prior to the Settlement Date.">
+
+enum IndexAnnexSourceEnum: <"The enumerated values to specify the CDX index annex source.">
+    MasterConfirmation <"As defined in the relevant form of Master Confirmation applicable to the confirmation of Dow Jones CDX indices.">
+    Publisher <"As defined in the relevant form of Master Confirmation applicable to the confirmation of Dow Jones CDX indices.">
+
+enum InterestShortfallCapEnum: <"The enumerated values to specify the interest shortfall cap, applicable to mortgage derivatives.">
+    Fixed
+    Variable
+
+enum LoadTypeEnum: <"Specifies the load type of the delivery.">
+    BaseLoad <"Base load">
+    PeakLoad <"Peak load">
+    OffPeak <"Off-peak load">
+    BlockHours <"Block Hours">
+    Shaped <"Shaped">
+    GasDay <"Gas Day">
+    Other <"Other">
+
+enum NegativeInterestRateTreatmentEnum: <"The enumerated values to specify the method of calculating payment obligations when a floating rate is negative (either due to a quoted negative floating rate or by operation of a spread that is subtracted from the floating rate).">
+    NegativeInterestRateMethod <"Negative Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4 Negative Interest Rates, paragraphs (b) and (c).">
+    ZeroInterestRateMethod <"Zero Interest Rate Method. Per 2000 ISDA Definitions, Section 6.4. Negative Interest Rates, paragraphs (d) and (e).">
+    ZeroInterestRateExcludingSpreadMethod <"Per 2021 ISDA Definitions section 6.8.6">
+
+enum NonCashDividendTreatmentEnum: <"The enumerated values to specify the treatment of Non-Cash Dividends.">
+    PotentialAdjustmentEvent <"The treatment of any non-cash dividend shall be determined in accordance with the Potential Adjustment Event provisions.">
+    CashEquivalent <"Any non-cash dividend shall be treated as a Declared Cash Equivalent Dividend.">
+
+enum RateTreatmentEnum: <"The enumerated values to specify the methods for converting rates from one basis to another.">
+    BondEquivalentYield <"Bond Equivalent Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (g).">
+    MoneyMarketYield <"Money Market Yield. Per Annex to the 2000 ISDA Definitions (June 2000 Version), Section 7.3. Certain General Definitions Relating to Floating Rate Options, paragraph (h).">
+
+enum ReturnTypeEnum: <"The enumerated values to specify the type of return associated the equity payout.">
+    Price <"Price return, i.e. excluding dividends.">
+    Total <"Total return, i.e. including dividend and price components.">
+
+enum SettledEntityMatrixSourceEnum: <"The enumerated values to specify the relevant settled entity matrix source.">
+    ConfirmationAnnex <"The Relevant Settled Entity Matrix shall be the list agreed for this purpose by the parties. The list is not included as part of the electronic confirmation.">
+    NotApplicable <"The term is not applicable.">
+    Publisher <"The Settled Entity Matrix published by the Index Publisher.">
+
+enum SpreadScheduleTypeEnum: <"The enumerated values to specify a long or short spread value.">
+    Long <"Represents a Long Spread Schedule. Spread schedules defined as 'Long' will be applied to Long Positions.">
+    Short <"Represents a Short Spread Schedule. Spread schedules defined as 'Short' will be applied to Short Positions.">
+
+enum RollSourceCalendarEnum: <"Used in conjunction with an exchange-based pricing source. Identifies a date source calendar from which the pricing dates and thus roll to the next contract will be based off (e.g. pricing is based on the NYMEX WTI First Nearby Futures Contract, if Future is chosen, the pricing will roll to the next futures contract on expiration, if ListedOption is chosen, the pricing will roll to the next futures contract on the Option expiration date which is three business days before the expiration of the NYMEX WTI futures contract.) Omitting this element will result in the default behavior expected with the pricing source described within the commodity element.">
+    ListedOption
+    Future
+
+enum CreditSeniorityEnum: <"Seniority of debt instruments comprising the index.">
+    [docReference ISDA FpML_Coding_Scheme schemeLocation "http://www.fpml.org/coding-scheme/credit-seniority"]
+
+    Other <"Other as defined under EMIR.">
+    SeniorLossAbsorbingCapacity <"Senior Loss Absorbing Capacity (RED Tier Code: SNRLAC).">
+    SeniorSec <"Senior domestic (RED Tier Code: SECDOM).">
+    SeniorUnSec <"Senior foreign (RED Tier Code: SNRFOR).">
+    SubLowerTier2 <"Subordinate, Lower Tier 2 (RED Tier Code: SUBLT2).">
+    SubTier1 <"Subordinate Tier 1 (RED Tier Code: PREFT1).">
+    SubTier3 <"Subordinate, Tier 3.">
+    SubUpperTier2 <"Subordinate, Upper Tier 2 (RED Tier Code: JRSUBUT2).">
+
+enum RealisedVarianceMethodEnum: <"The contract specifies which price must satisfy the boundary condition.  Used for variance, volatility and correlation caps and floors.">
+
+    Previous <"For a return on day T, the observed price on T-1 must be in range.">
+    Last <"For a return on day T, the observed price on T must be in range.">
+    Both <"For a return on day T, the observed prices on both T and T-1 must be in range">
+
+enum FPVFinalPriceElectionFallbackEnum: <"Specifies the fallback provisions in respect to the applicable Futures Price Valuation.">
+
+    FPVClose <"In respect of the Early Final Valuation Date, the provisions for FPV Close shall apply.">
+    FPVHedgeExecution <"In respect of the Early Final Valuation Date, the provisions for FPV Hedge Execution shall apply.">
+
+enum FinalPrincipalExchangeCalculationEnum: <"To be specified only for products that embed a redemption payment.">
+    Floored <"If Floored is set then Principal Exchange takes the form: Notional Amount * Max(1, Index Final/ Index Base).">
+    NonFloored <"If NonFloored is set then the Principal Exchange takes the form: Notional Amount * Index Final / Index Base.">
+
+enum SpreadCalculationMethodEnum: <"Method by which spread is calculated. For example on an asset swap: 'ParPar' or 'Proceeds' may be the method indicated.">
+    ParPar
+    Proceeds
