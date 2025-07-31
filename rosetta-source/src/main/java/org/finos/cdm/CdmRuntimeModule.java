@@ -6,7 +6,6 @@ import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
 import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
-import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantityImpl;
 import cdm.product.common.settlement.functions.UpdateAmountForEachQuantity;
 import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
@@ -53,7 +52,6 @@ public class CdmRuntimeModule extends AbstractModule {
 
 		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
 		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
-		bind(UpdateAmountForEachMatchingQuantity.class).to(bindUpdateAmountForEachMatchingQuantity());
 
 		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
@@ -173,9 +171,4 @@ public class CdmRuntimeModule extends AbstractModule {
 	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
 		return UpdateAmountForEachQuantityImpl.class;
 	}
-
-	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
-		return UpdateAmountForEachMatchingQuantityImpl.class;
-	}
-
 }
