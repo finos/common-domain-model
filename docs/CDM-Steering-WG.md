@@ -14,7 +14,7 @@ The Steering Working Group serves as the driving force behind the strategic dire
 - Approve new FINOS [Working Groups](working-groups.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
 - Provide final [release](maintenance-and-release.md) approval.
-- The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
+- The first Steering Group of each calendar year will include a review of existing [governance](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) measures and wording on the agenda for re-ratification.
 
 
 ## Meetings
