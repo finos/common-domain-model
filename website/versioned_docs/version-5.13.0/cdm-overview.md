@@ -8,7 +8,7 @@ title: Overview of the FINOS CDM
 
 [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
-# What is the FINOS CDM
+# What is the FINOS CDM?
 
 The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
