@@ -58,20 +58,19 @@ type Taxonomy: <"Defines the taxonomy of an object by combining a taxonomy sourc
     source TaxonomySourceEnum (0..1) <"The source of the taxonomy that defines the rules for classifying the object. The taxonomy source is taken from a enumerated list of taxonomy names. Optional as the taxonomy source may not be provided.">
     value TaxonomyValue (0..1) <"The value according to that taxonomy. Optional as it may not be possible to classify the object in that taxonomy.">
 
+    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
+        if value -> classification count > 1
+        then value -> classification -> ordinal count = value -> classification count
+
     condition DifferentOrdinals: <"Prevents several identical ordinals from being specified in the same commodity classification, since classification values for each classification layer are mutually exclusive (i.e.: only a value can exist for each layer).">
         if value -> classification -> ordinal exists
-        then DifferentOrdinalsCondition
+        then value -> classification -> ordinal count
+                = value -> classification -> ordinal distinct count
 
-// This is a work around for the following bug in the code generators https://github.com/REGnosys/rosetta-code-generators/issues/246
-func DifferentOrdinalsCondition:
-    inputs:
-        taxonomy Taxonomy (1..1)
-    output:
-        result boolean (1..1)
-    set result:
-        (taxonomy -> value
-            extract [ classification -> ordinal = classification -> ordinal distinct ]
-        = True)
+    condition SequentialOrdinals: <"Requires that, if multiple classfication elements are present, no layers are skipped (i.e.: ordinals 1,2,3 are accepted but 1,3 are not.">
+        if value -> classification count > 1
+        then value -> classification -> ordinal count
+                = value -> classification -> ordinal max
 
 type ProductTaxonomy extends Taxonomy: <"Specifies the product taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     primaryAssetClass AssetClassEnum (0..1) <"Classifies the most important risk class of the trade.">
@@ -110,10 +109,6 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
     deliveryDateReference DeliveryDateParameters (0..1) <"Specifies the parameters for identifying the relevant contract date when the commodity reference price is a futures contract.">
     description string (0..1) <"Provides additional information about the commodity underlier.">
-
-    condition OrdinalExists: <"Requires that, if multiple classification elements are present, they contain an  ordinal so that they can be sorted.">
-        if taxonomy -> value -> classification count > 1
-        then taxonomy -> value -> classification -> ordinal exists
 
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
         if taxonomy exists
