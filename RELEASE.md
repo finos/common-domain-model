@@ -2,7 +2,7 @@
 
 _Background_
 
-The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907)
+The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
 
 _What is being released?_
 
