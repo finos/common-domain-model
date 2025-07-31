@@ -12,4 +12,4 @@ _Review Directions_
 
 There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
 
-Changes can be reviewed in PR: [#3914](https://github.com/finos/common-domain-model/pull/3914)
+Changes can be reviewed in PR: [#3955](hhttps://github.com/finos/common-domain-model/pull/3955)
