@@ -1,40 +1,15 @@
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `DSL` dependency.
-
-Version updates include:
-- `DSL` 9.57.0 Measure and log build statistics, see DSL release notes: [DSL 9.57.0](https://github.com/finos/rune-dsl/releases/tag/9.57.0)
-- `DSL` 9.58.0 Change detection fixes and performance improvements, see DSL release notes: [DSL 9.58.0](https://github.com/finos/rune-dsl/releases/tag/9.58.0)
-- `DSL` 9.58.1 Patch Validator class for backward compatibility, see DSL release notes: [DSL 9.58.1](https://github.com/finos/rune-dsl/releases/tag/9.58.1)
-- `DSL` 9.59.0 Continued migrating to Xtend and fixed null pointer issues in generated function code and type alias condition code, see DSL release notes: [DSL 9.59.0](https://github.com/finos/rune-dsl/releases/tag/9.59.0)
-- `DSL` 9.60.0 Migration to Maven Central, see DSL release notes: [DSL 9.60.0](https://github.com/finos/rune-dsl/releases/tag/9.60.0)
-- `DSL` 9.61.0 Fixed issues with type coercion and location setting, added support for using ^type, class, result, and package as attribute names, and improved the with-meta operation to work with empty arguments, see DSL release notes: [DSL 9.61.0](https://github.com/finos/rune-dsl/releases/tag/9.61.0)
-
-
-There are no changes to model or test expectations.  The allocated memory configured to run the tests has been increased to prevent failures when running tests.
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#3901](https://github.com/finos/common-domain-model/pull/3901)
-
-
-# _Infrastructure - Release Process updates following Maven Central Migration_
+# *Product Model - Refactor function UpdateAmountForEachMatchingQuantity*
 
 _Background_
 
-The Maven Central infrastructure is undergoing a major migration, from `oss.sonatype.org` to `central.sonatype.com`. This impacts the release process for all projects hosting artifacts using Maven Central.
-
-Further information is provided by Sonatype:
-https://central.sonatype.org/faq/what-is-different-between-central-portal-and-legacy-ossrh/#self-service-migration
+The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
 
 _What is being released?_
 
-The release process has been updated to build and deploy to `central.sonatype.com` instead of `oss.sonatype.org`.
+Refactor function `UpdateAmountForEachMatchingQuantity` from Java into Rune.
 
 _Review Directions_
 
-No changes made to model.
+There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3833
+Changes can be reviewed in PR: [#3914](https://github.com/finos/common-domain-model/pull/3914)
