@@ -16,7 +16,7 @@ If you'd like to receive official updates, please send an email to help@finos.or
  
 ## Meetings
 
-Finally, another great way to interact with the community is to attend the [Working Groups](working-groups.md)
+Finally, another great way to interact with the community is to attend the [Working Groups](working-groups.md).
 Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
 ## Need help?
