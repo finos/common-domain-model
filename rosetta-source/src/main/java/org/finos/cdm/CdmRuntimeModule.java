@@ -2,6 +2,8 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.csv.functions.GetElement;
+import cdm.csv.functions.GetElementImpl;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
@@ -70,6 +72,7 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
+		bind(GetElement.class).to(bindGetElement());
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {
@@ -176,6 +179,10 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends UpdateAmountForEachMatchingQuantity> bindUpdateAmountForEachMatchingQuantity() {
 		return UpdateAmountForEachMatchingQuantityImpl.class;
+	}
+
+	protected Class<? extends GetElement> bindGetElement() {
+		return GetElementImpl.class;
 	}
 
 }
