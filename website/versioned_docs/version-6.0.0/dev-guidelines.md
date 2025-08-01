@@ -4,6 +4,10 @@ title: Development Guidelines
 
 This page will take you through how to contribute to the CDM, the necessary steps to take before you contribute, as well as how to edit and test your changes.
 
+## CDM Development Guidelines 
+
+The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines for how contributions are reviewed can be found [here](maintenance-and-release.md).
+
 
 ### Roles
 The CSL specifies three different contribution roles for each specific [working group](working-groups.md):
