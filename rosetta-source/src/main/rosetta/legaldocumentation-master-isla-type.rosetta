@@ -2,5 +2,61 @@ namespace cdm.legaldocumentation.master.isla
 version "${project.version}"
 
 import cdm.legaldocumentation.master.*
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
 
 type GlobalMasterSecuritiesLendingAgreement extends MasterAgreementBase: <"The set of elections that define a GMSLA.">
+    collateral Collateral (1..1) <"The definitions regarding collateral relating to the GMSLA.">
+    baseCurrency BaseCurrency (1..1) <"The definitions regarding base currency determinations relating to the GMSLA.">
+    eventsOfDefault EventsOfDefault (1..1) <"The definitions regarding any different events of default relating to the GMSLA.">
+    defaultInterest DefaultInterest (1..1) <"The definitions regarding default interest relating to the GMSLA.">
+    existingLoans ExistingLoans (0..1)  <"The definitions for existing loans and the applicability of Paragraph 27.4 (only relevant to 2010 GMSLAs).">
+    automation Automation (0..1) <"The definitions for automation and the applicability of Paragraph 27.5 (only relevant to 2010 GMSLAs).">
+
+type Collateral: <"The definitions regarding collateral relating to the GMSLA.">
+    standardDefinitionOfMarketValueUsed boolean (1..1) <"Is the standard definition of 'Market Value' used in the GMSLA?">
+    definitionOfMarketValueNonStandard string (0..1) <"If the definition of 'Market Value' is non standard, it can be specified here.">
+    paragraph5Point4Applies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does paragraph 5.4 (aggregation) apply to the GMSLA?">
+    paragraph5Point6Applies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does paragraph 5.6 (netting of obligations to deliver Collateral and redeliver Equivalent Collateral) apply to the GMSLA?">
+    paragraph6Point4Applies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does paragraph 6.4 (indemnity for failure to redeliver Equivalent Non-Cash Collateral) apply to the GMSLA?">
+    notificationTime BusinessCenterTime (1..1) <"What is the notification time of the GMSLA?">
+
+    condition StandardMarketCondition: <"A validation rule to ensure that if the standard definition of market value is not used, then the definition is provided">
+        if standardDefinitionOfMarketValueUsed
+        then definitionOfMarketValueNonStandard exists
+
+type BaseCurrency: <"The definitions regarding base currency determinations relating to the GMSLA.">
+    baseCurrency CurrencyCodeEnum (1..1) <"The base currency as defined in the GMSLA.">
+    baseCurrencyMustBeFreelyConvertible boolean (0..1) <"The base currency that is defined must be freely convertible.">
+    baseCurrencyIfOriginalNotFreelyConvertible CurrencyCodeEnum (0..1) <"If the base currency is not freely convertible, the fallback currency can be defined here.">
+    // Considered adding Validation here to specify IF baseCurrencyMustBeFreelyConvertible, then baseCurrencyIfOriginalNotFreelyConvertible should exist. However this is not strictly true, hence the validation has been omitted.
+
+type EventsOfDefaultElection: <"The specific party elections for events of default.">
+    party Party (1..1) <"The specified party">
+    automaticEarlyTerminationApplies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does automatic early termination apply to the specified party?">
+
+type EventsOfDefault: <"The definitions regarding any different events of default relating to the GMSLA.">
+    partyElection EventsOfDefaultElection (2..2) <"The specified events of default elections for the respective parties signing the GMSLA.">
+
+type DefaultInterest: <"The definitions regarding default interest relating to the GMSLA.">
+    defaultInterestForParagraph11Point7 DefaultInterestRateSpecificationEnum (1..1) <"How is the default interest rate specified for the purposes of Paragraph 11.7?">
+    defaultInterestRateAllOtherPurposes DefaultInterestRateSpecificationEnum (1..1) <"How is the default interest rate specified for all other purposes">
+    defaultInterestRateIfOther string (0..1) <"If the default interest rate is specified by a non standard mechanism, it should be explained here.">
+
+    condition DefaultInterestCondition: <"A validation rule to ensure that if either default interests are specified as 'Other', details are provided.">
+        if defaultInterestForParagraph11Point7 = DefaultInterestRateSpecificationEnum -> Other
+            or defaultInterestRateAllOtherPurposes = DefaultInterestRateSpecificationEnum -> Other
+        then defaultInterestRateIfOther exists
+
+type ExistingLoans: <"The definitions for existing loans and the applicability of Paragraph 27.4 (only relevant to 2010 GMSLAs).">
+    paragraph27Point4Applies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does paragraph 27.4 apply?">
+
+type Automation: <"The definitions for automation and the applicability of Paragraph 27.5 (only relevant to 2010 GMSLAs).">
+    paragraph27Point5Applies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does paragraph 27.5 apply?">
+
+
+
+
+
+
