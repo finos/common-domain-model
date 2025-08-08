@@ -5,9 +5,6 @@ import cdm.base.math.functions.*;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
-import cdm.product.common.settlement.functions.UpdateAmountForEachMatchingQuantity;
-import cdm.product.common.settlement.functions.UpdateAmountForEachQuantity;
-import cdm.product.common.settlement.functions.UpdateAmountForEachQuantityImpl;
 import cdm.product.template.functions.FpmlIrd8;
 import cdm.product.template.functions.FpmlIrd8Impl;
 import com.google.inject.AbstractModule;
@@ -49,9 +46,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Data providers (external data)
 		bind(BusinessCenterHolidays.class).to(bindBusinessCenterHolidays()).asEagerSingleton();
 		bind(IndexValueObservation.class).to(bindIndexValueObservation()).asEagerSingleton();
-
-		// Require DSL changes to prevent overwriting of reference metadata  (not supported in DSL)
-		bind(UpdateAmountForEachQuantity.class).to(bindUpdateAmountForEachQuantity());
 
 		// Date functions (not supported in DSL)
 		bind(Now.class).to(bindNow());
@@ -166,9 +160,5 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	protected Class<? extends Today> bindToday() {
 		return TodayImpl.class;
-	}
-
-	protected Class<? extends UpdateAmountForEachQuantity> bindUpdateAmountForEachQuantity() {
-		return UpdateAmountForEachQuantityImpl.class;
 	}
 }
