@@ -6,51 +6,38 @@ import cdm.observable.asset.*
 
 func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from the list of PriceQuantity if the unit of amount matches.">
     inputs:
-        priceQuantity PriceQuantity (1..*) <"List of PriceQuantity to update.">
+        priceQuantityList PriceQuantity (1..*) <"List of PriceQuantity to update.">
         change PriceQuantity (1..*) <"List of new PriceQuantity to use where the units match.">
         direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
     output:
         updatedPriceQuantity PriceQuantity (1..*) <"List of PriceQuantity with the price and quantity amounts updated.">
 
     add updatedPriceQuantity: <"For each PriceQuantity, update the price and quantity amounts.">
-        priceQuantity
-            extract
-                UpdatePriceQuantityAmountForEachMatchingQuantity(item, change, direction)
-
-func UpdatePriceQuantityAmountForEachMatchingQuantity: <"Updates any price or quantity from the PriceQuantity if the unit of amount matches.">
-    inputs:
-        priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
-        change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match.">
-        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
-    output:
-        updatedPriceQuantity PriceQuantity (0..1)
-            [metadata location]
-
-    alias filteredChange: <"Find the match change PriceQuantity.">
-        FilterChangePriceQuantity(priceQuantity, change)
-        
-    set updatedPriceQuantity: <"Update the price and quantity with the change amounts.">
-        PriceQuantity {
-            price: priceQuantity -> price
-                extract
-                    UpdatePriceAmountForEachMatchingQuantity(
-                            item,
-                            filteredChange -> price,
-                            direction
-                        ),
-            quantity: priceQuantity -> quantity
-                extract
-                    UpdateQuantityAmountForEachMatchingQuantity(
-                            item,
-                            filteredChange -> quantity,
-                            direction
-                        ),
-            observable: priceQuantity -> observable,
+        priceQuantityList
+            extract priceQuantity [
+                PriceQuantity {
+                    price: priceQuantity -> price
+                        extract
+                            UpdatePriceAmountForEachMatchingQuantity(
+                                    item,
+                                    change -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
+                                    direction
+                                ),
+                    quantity: priceQuantity -> quantity
+                        extract
+                            UpdateQuantityAmountForEachMatchingQuantity(
+                                    item,
+                                    change -> quantity, // FilterChangePriceQuantity(priceQuantity, change) -> quantity,
+                                    direction
+                                ),
+                    observable: priceQuantity -> observable,
             buyerSeller: priceQuantity -> buyerSeller,
             settlementTerms: priceQuantity -> settlementTerms,
-            effectiveDate: priceQuantity -> effectiveDate
-        }
+                    effectiveDate: priceQuantity -> effectiveDate
+                }
+            ]
 
+// TODO uncomment usage to support matching on PriceQuantity observable
 func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
     inputs:
         priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
@@ -58,17 +45,15 @@ func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match 
     output:
         filteredChange PriceQuantity (0..*)
 
-    //alias changeWithMatchingObservable: // TODO uncomment to support matching on PriceQuantity observable
-        //  change
-        //     filter
-        //         // match on observable is absent
-        //         (item -> observable is absent and priceQuantity -> observable is absent) 
-        //         // or, match on observable
-        //         or item -> observable = priceQuantity -> observable
-
-    add filteredChange:
-        //changeWithMatchingObservable default change
+    alias changeWithMatchingObservable:
         change
+            filter
+                // match on observable is absent
+                (item -> observable is absent and priceQuantity -> observable is absent)
+                        // or, match on observable
+                    or item -> observable = priceQuantity -> observable
+
+    add filteredChange: changeWithMatchingObservable default change
 
 func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the PriceSchedule list if the unit of amount matches.">
     inputs:
@@ -108,20 +93,6 @@ func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from th
     set updatedQuantity: quantity
     set updatedQuantity -> value: changedAmount default quantity -> value
 
-func UpdateAmount: <"Updates an amount based on the given QuantityChangeDirectionEnum.  If the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
-    inputs:
-        oldAmount number (0..1)
-        changeAmount number (0..1)
-        direction QuantityChangeDirectionEnum (1..1)
-    output:
-        newAmount number (0..1)
-
-    set newAmount:
-        direction switch
-        Increase then oldAmount + changeAmount,
-        Decrease then oldAmount - changeAmount,
-        Replace then changeAmount
-
 func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes match, except for the amount.">
     inputs:
         p1 PriceSchedule (0..1)
@@ -143,27 +114,6 @@ func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes ma
 
     set result:
         unitMatches and perUnitOfMatches and priceTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
-
-func UnitEquals: <"Compares two UnitType to check if all attributes match.">
-    inputs:
-        u1 UnitType (0..1)
-        u2 UnitType (0..1)
-    output:
-        result boolean (1..1)
-
-    set result:
-        if u1 -> currency exists
-        then StringEquals(u1 -> currency, u2 -> currency) // ignore scheme when comparing
-        else u1 = u2
-
-func StringEquals:
-    inputs:
-        s1 string (0..1)
-        s2 string (0..1)
-    output:
-        result boolean (1..1)
-
-    set result: s1 = s2
 
 func RateOptionObservableCondition: <"Implementation for PriceQuantity.RateOptionObservable condition.">
     inputs:
