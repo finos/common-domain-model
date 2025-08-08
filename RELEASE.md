@@ -1,18 +1,16 @@
-# _Product Model & Mapping - Renamed type and synonym: notionalReference_
+# _Collateral Model - Updates to EquityTypeEnum and ConcentrationLimitTypeEnum_
 
 _Background_
 
-A typo was identified which affects both type and synonym for what should be `notionalReference`.
+This release contains enhancements to the Eligible Collateral representation to provide additional support for collateral schedules used for securities lending purposes.
 
 _What is being released?_
 
-The type and synonym have been renamed to correct the typo.
+There are two enumerated lists being enhanced:
 
-_Backward Compatibility_
-
-This change is backward-incompatible due to both type and synonym being renamed.
+1. Added a new `ConvertiblePreference` item to the `EquityTypeEnum`
+2. Added a new `OutstandingBalance` item to the `ConcentrationLimitTypeEnum`
 
 _Review Directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/3873
-
+Changes can be reviewed in PR: [3912](https://github.com/finos/common-domain-model/pull/3912)
