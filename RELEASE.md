@@ -35,7 +35,7 @@ The mapping functions have been validated using the same ingestion test packs as
 
 The test packs and expectations for the FpML Confirmation Ingest functions can be found in the folder `ingest`.
 
-#### `FpML as Rune` model
+_`FpML as Rune` model_
 
 The FpML Confirmation schemas (.xsd) has been imported into a `FpML as Rune` model, where each schema type has a corresponding Rune data type.  e.g. FpML `<dataDocument>` has been imported into the model as type `fpml.confirmation.DataDocument`.
 
