@@ -41,10 +41,10 @@ The FpML Confirmation schemas (.xsd) has been imported into a `FpML as Rune` mod
 
 This model is hosted as a public Github repository, see [FpML as Rune](https://github.com/rosetta-models/rune-fpml).  `FpML as Rune` is an upstream dependency of CDM.
 
-_Backward Compatibility_
+_Backward compatibility_
 
 This release contains a new set of Rune namespaces containing ingest functions, so there are no backwards compatibility concerns.
 
-_Review Directions_
+_Review directions_
 
 Changes can be reviewed in PR: [3970](https://github.com/finos/common-domain-model/pull/3970)
