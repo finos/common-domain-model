@@ -31,6 +31,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		// upstream model dependency
+		install(new RuneFpmlRuntimeModule());
+
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(QualificationHandlerProvider.class).to(bindQualificationConfigProvider());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
@@ -75,7 +78,6 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
 		// Ingest
-		install(new RuneFpmlRuntimeModule());
 		bind(StringContains.class).to(StringContainsImpl.class);
 		bind(CreateKey.class).to(CreateKeyImpl.class);
 		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
