@@ -1,4 +1,4 @@
-# _Event Workflow - Change condition CounterpartyPositionBusinessEventOrBusinessEventChoice to accept proposedEvent_
+# _Event Workflow - Updated constraints for Event WorkflowStep condition_
 
 _Background_
 
@@ -8,6 +8,13 @@ It has been observed that proposedEvent, which specifies the required inputs for
 _What is being released?_
 
 This contribution modifies the required choice within the model. Previously, the choice was between businessEvent and counterpartyPositionBusinessEvent. It has now been updated to a required choice between proposedEvent, businessEvent, and counterpartyPositionBusinessEvent. Correspondingly, the condition name has been updated to CounterpartyPositionBusinessEventOrBusinessEventOrProposedEventChoice to reflect this expanded set of options.
+
+Impact on valid states:
+- Instances containing only businessEvent remain valid
+- Instances containing only counterpartyPositionBusinessEvent remain valid
+- A new valid state is introduced: instances containing only proposedEvent
+- Instances containing none of these three elements remain invalid (as it's still a required choice)
+- New invalid state is introduced: Instances containing more than one of these three elements are invalid
 
 Additionally, the definitions of elements within workflowStep, specifically businessEvent and proposedEvent, have been revised. It was previously assumed that a proposedEvent could coexist with a businessEvent. This assumption has been removed, and the model now enforces that only one of these elements can be present at a time, in alignment with the updated choice constraint.
 
