@@ -4,17 +4,31 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
+import cdm.product.asset.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.fxvarianceswap.*
 
 func MapFxVolatilitySwapCounterpartyList:
     inputs:
         fpmlFxVolatilitySwap fpml.FxVolatilitySwap (0..1)
     output:
         counterpartyList Counterparty (0..2)
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party1,
+                fpmlFxVolatilitySwap -> floatingLeg -> payerModel -> payerPartyReference
+            )
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party2,
+                fpmlFxVolatilitySwap -> fixedLeg -> payerModel -> payerPartyReference
+            )
 
 func MapFxVolatilitySwapAncillaryPartyList:
     inputs:
@@ -59,8 +73,45 @@ func MapFxVolatilitySwapPayout:
     output:
         payout Payout (0..1)
 
-    set payout:
-        Payout {
+    set payout: MapFxPerformanceSwapPayout(fpmlFxVolatilitySwap, MapReturnTerms(fpmlFxVolatilitySwap), cdmCounterpartyList)
+
+func MapReturnTerms:
+    inputs:
+        fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
+    output:
+        returnTerms ReturnTerms (0..1)
+
+    alias fpmlQuotedCurrencyPair: fpmlFxPerformanceSwap -> quotedCurrencyPair
+    alias fpmlQuoteBasis: fpmlFxPerformanceSwap -> quotedCurrencyPair -> quoteBasis
+
+    set returnTerms:
+        ReturnTerms {
+            volatilityReturnTerms: VolatilityReturnTerms {
+                annualizationFactor: fpmlFxPerformanceSwap -> annualizationFactor,
+                meanAdjustment: fpmlFxPerformanceSwap -> meanAdjustment,
+                volatilityStrikePrice: Price {
+                    value: fpmlFxPerformanceSwap -> fixedLeg -> fixedRate,
+                    unit: UnitType {
+                        currency: if fpmlQuoteBasis = Currency1PerCurrency2
+                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                        else if fpmlQuoteBasis = Currency2PerCurrency1
+                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                        ...
+                    },
+                    perUnitOf: UnitType {
+                        currency: if fpmlQuoteBasis = Currency1PerCurrency2
+                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                        else if fpmlQuoteBasis = Currency2PerCurrency1
+                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                        ...
+                    },
+                    priceType: InterestRate,
+                    ...
+                },
+                valuationTerms: empty, // not in original
+                expectedN: empty, // not in original
+                ...
+            },
             ...
         }
 
@@ -69,6 +120,20 @@ func MapFxVolatilitySwapPriceQuantityList:
         fpmlFxVolatilitySwap fpml.FxVolatilitySwap (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: MapNonNegativeMoneyToQuantityWithLocation(
+                    fpmlFxVolatilitySwap -> vegaNotional,
+                    "vegaNotional",
+                    empty
+                ),
+            observable: MapQuotedCurrencyPairToObservableWithLocation(
+                    fpmlFxVolatilitySwap -> quotedCurrencyPair,
+                    fpmlFxVolatilitySwap -> fixingInformationSource
+                ),
+            ...
+        }
 
 func MapFxVolatilitySwapAccountPartyReference:
     inputs:

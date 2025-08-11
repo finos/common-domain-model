@@ -5,6 +5,7 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
@@ -65,6 +66,16 @@ func MapEquityOptionPayout:
     output:
         payout Payout (0..1)
 
+    alias unit:
+        UnitType {
+            currency: MapCurrency(
+                    fpmlEquityOption -> strike -> currency default fpmlEquityOption -> equityExercise -> settlementCurrency
+                ),
+            ...
+        }
+
+    alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlEquityOption)
+
     set payout:
         Payout {
             OptionPayout: OptionPayout {
@@ -80,7 +91,8 @@ func MapEquityOptionPayout:
                     ...
                 },
                 settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlEquityOption -> equityExercise
+                        fpmlEquityOption -> equityExercise,
+                        empty
                     ),
                 buyerSeller: MapBuyerSeller(
                         fpmlEquityOption -> buyerSellerModel,
@@ -96,13 +108,15 @@ func MapEquityOptionPayout:
                 exerciseTerms: MapExerciseTerms(
                         GetFpmlEquityExercise(fpmlEquityOption -> equityExercise),
                         empty,
+                        fpmlEquityOption -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
                         fpmlEquityOption -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
                 strike: MapOptionStrikePrice(
                         fpmlEquityOption -> strike -> strikePrice,
                         fpmlEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
-                        fpmlEquityOption -> strike -> currency
+                        unit,
+                        perUnitOf
                     ),
                 ...
             },
@@ -117,6 +131,9 @@ func MapEquityOptionPriceQuantityList:
 
     add priceQuantityList:
         PriceQuantity {
+            price: MapEquityPermiumToPriceListWithLocation(
+                    fpmlEquityOption -> equityPremium
+                ),
             quantity: MapEquityDerivativeBaseQuantityListWithLocation(
                     fpmlEquityOption,
                     fpmlEquityOption -> numberOfOptions,

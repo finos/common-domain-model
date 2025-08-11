@@ -5,6 +5,7 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
@@ -65,6 +66,18 @@ func MapBrokerEquityOptionPayout:
     output:
         payout Payout (0..1)
 
+    alias unit:
+        UnitType {
+            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
+            ...
+        }
+
+    alias perUnitOf:
+        UnitType {
+            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
+            ...
+        }
+
     set payout:
         Payout {
             OptionPayout: OptionPayout {
@@ -80,7 +93,8 @@ func MapBrokerEquityOptionPayout:
                     ...
                 },
                 settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlBrokerEquityOption -> equityExercise
+                        fpmlBrokerEquityOption -> equityExercise,
+                        empty
                     ),
                 buyerSeller: MapBuyerSeller(
                         fpmlBrokerEquityOption -> buyerSellerModel,
@@ -96,13 +110,15 @@ func MapBrokerEquityOptionPayout:
                 exerciseTerms: MapExerciseTerms(
                         GetFpmlEquityExercise(fpmlBrokerEquityOption -> equityExercise),
                         empty,
+                        empty,
                         fpmlBrokerEquityOption -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
                 strike: MapOptionStrikePrice(
                         fpmlBrokerEquityOption -> strike -> strikePrice,
                         fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
-                        fpmlBrokerEquityOption -> strike -> currency
+                        unit,
+                        perUnitOf
                     ),
                 ...
             },

@@ -6,22 +6,41 @@ import cdm.event.workflow.*
 
 import fpml.confirmation.* as fpml
 
+import cdm.ingest.fpml.confirmation.legal.*
+import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.tradestate.*
+import cdm.ingest.fpml.confirmation.datetime.*
 
 func MapWorkflowStep:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        intent EventIntentEnum (0..1)
+        eventDate date (0..1)
+        effectiveDate date (0..1)
     output:
         workflowStep WorkflowStep (0..1)
+
+    alias counterpartyList: MapCounterpartyList(fpmlTrade)
 
     set workflowStep:
         WorkflowStep {
             proposedEvent: EventInstruction {
+                intent: intent,
+                eventDate: eventDate,
+                effectiveDate: effectiveDate,
                 instruction: [
                     Instruction {
-                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel),
-                        ...
+                        primitiveInstruction: PrimitiveInstruction {
+                            contractFormation: ContractFormationInstruction {
+                                legalAgreement: MapLegalAgreementList(
+                                        fpmlTrade -> documentation,
+                                        counterpartyList
+                                    )
+                            },
+                            ...
+                        },
+                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel)
                     }
                 ],
                 ...
@@ -30,3 +49,122 @@ func MapWorkflowStep:
             eventIdentifier: empty,
             ...
         }
+
+func GetIntent:
+    inputs:
+        fpmlNovation fpml.TradeNovationContent (0..1)
+        fpmlAmendment fpml.TradeAmendmentContent (0..1)
+        fpmlOriginatingEvent fpml.OriginatingEvent (0..1)
+        fpmlTerminatingEvent fpml.TerminatingEvent (0..1)
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        intent EventIntentEnum (0..1)
+
+    alias intentToAllocate:
+        (fpmlTrade -> tradeHeader -> partyTradeInformation
+            filter intentToAllocate = True
+            )
+            then exists
+    alias intentToClear:
+        (fpmlTrade -> tradeHeader -> partyTradeInformation
+            filter intentToClear = True
+            )
+            then exists
+
+    set intent:
+        if intentToAllocate
+        then Allocation
+        else if intentToClear
+        then Clearing
+        else if fpmlNovation exists
+        then Novation
+        else if fpmlAmendment exists
+        then ContractTermsAmendment
+        else if MapOriginatingEventToIntent(fpmlOriginatingEvent) exists
+        then MapOriginatingEventToIntent(fpmlOriginatingEvent)
+        else if MapTerminatingEventToIntent(fpmlTerminatingEvent) exists
+        then MapTerminatingEventToIntent(fpmlTerminatingEvent)
+        else if fpmlTrade exists
+        then ContractFormation
+
+func MapOriginatingEventToIntent:
+    inputs:
+        fpmlOriginatingEvent fpml.OriginatingEvent (0..1)
+    output:
+        intent EventIntentEnum (0..1)
+
+    alias originatingEventValue: fpmlOriginatingEvent -> value to-string
+
+    set intent:
+        originatingEventValue switch
+            "Allocation" then Allocation,
+            "Netting" then Compression,
+            "PortfolioCompression" then Compression,
+            "CreditEvent" then CreditEvent,
+            "Novation" then Novation,
+            "Exercise" then OptionExercise,
+            "PortfolioRebalancing" then PortfolioRebalancing,
+            "ForwardAgainstFixing" then ContractFormation,
+            "Trade" then ContractFormation,
+            default empty
+
+func MapTerminatingEventToIntent:
+    inputs:
+        fpmlTerminatingEvent fpml.TerminatingEvent (0..1)
+    output:
+        intent EventIntentEnum (0..1)
+
+    alias terminatingEventValue: fpmlTerminatingEvent -> value to-string
+
+    set intent:
+        terminatingEventValue switch
+            "Allocation" then Allocation,
+            "Netting" then Compression,
+            "PortfolioCompression" then Compression,
+            "PortfolioRebalancing" then PortfolioRebalancing,
+            default empty
+
+func GetEventDate:
+    inputs:
+        fpmlAmendment fpml.TradeAmendmentContent (0..1)
+        fpmlTermination fpml.TradeNotionalChange (0..1)
+        fpmlNovation fpml.TradeNovationContent (0..1)
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        eventDate date (0..1)
+
+    set eventDate:
+        if fpmlAmendment -> agreementAndEffectiveDatesModel -> agreementDate exists
+        then MapZoneDateTimeToDate(
+                    fpmlAmendment -> agreementAndEffectiveDatesModel -> agreementDate
+                )
+        else if fpmlTermination -> agreementAndEffectiveDatesModel -> agreementDate exists
+        then MapZoneDateTimeToDate(
+                    fpmlTermination -> agreementAndEffectiveDatesModel -> agreementDate
+                )
+        else if fpmlTrade -> tradeHeader -> partyTradeInformation -> executionDateTime -> value exists
+        then MapZoneDateTimeToDate(
+                    fpmlTrade -> tradeHeader -> partyTradeInformation -> executionDateTime -> value
+                        filter exists
+                        then only-element
+                )
+        else if fpmlNovation -> novationDatesModel -> novationDate exists
+        then MapZoneDateTimeToDate(fpmlNovation -> novationDatesModel -> novationDate)
+
+func GetEffectiveDate:
+    inputs:
+        fpmlAmendment fpml.TradeAmendmentContent (0..1)
+        fpmlTermination fpml.TradeNotionalChange (0..1)
+        fpmlNovation fpml.TradeNovationContent (0..1)
+    output:
+        effectiveDate date (0..1)
+
+    set effectiveDate:
+        if fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate exists
+        then MapZoneDateTimeToDate(fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate)
+        else if fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate exists
+        then MapZoneDateTimeToDate(
+                    fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate
+                )
+        else if fpmlNovation -> novationDatesModel -> novationDate exists
+        then MapZoneDateTimeToDate(fpmlNovation -> novationDatesModel -> novationDate)

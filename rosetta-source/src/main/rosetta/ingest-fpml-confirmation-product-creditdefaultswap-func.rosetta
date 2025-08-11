@@ -51,6 +51,7 @@ func MapCreditDefaultSwapAncillaryPartyList:
 func MapCreditDefaultSwapNonTransferableProduct:
     inputs:
         fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
@@ -61,6 +62,7 @@ func MapCreditDefaultSwapNonTransferableProduct:
             taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel),
             economicTerms: MapCreditDefaultSwapEconomicTerms(
                     fpmlCreditDefaultSwap,
+                    fpmlTradeHeader,
                     cdmCounterpartyList
                 )
         }
@@ -68,15 +70,16 @@ func MapCreditDefaultSwapNonTransferableProduct:
 func MapCreditDefaultSwapEconomicTerms:
     inputs:
         fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         economicTerms EconomicTerms (0..1)
 
-    alias generalTermsPayerReceiver:
-        MapSellerAsPayerAndBuyerAsReceiver(
-                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel,
-                cdmCounterpartyList
-            )
+    alias nonStandardisedTerms:
+        if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms exists
+        then if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms any = True
+            then True
+            else False
 
     set economicTerms:
         EconomicTerms {
@@ -89,20 +92,38 @@ func MapCreditDefaultSwapEconomicTerms:
             dateAdjustments: MapBusinessDayAdjustments(
                     fpmlCreditDefaultSwap -> generalTerms -> dateAdjustments
                 ),
-            payout: [
-                MapCreditDefaultSwapPayout(
-                        fpmlCreditDefaultSwap,
-                        generalTermsPayerReceiver,
-                        cdmCounterpartyList
-                    ),
-                MapFeeLegToInterestRateLegPayout(
-                        fpmlCreditDefaultSwap -> feeLeg,
-                        generalTermsPayerReceiver,
-                        cdmCounterpartyList
-                    )
-            ],
+            payout: MapCreditDefaultSwapPayoutList(fpmlCreditDefaultSwap, cdmCounterpartyList),
+            nonStandardisedTerms: nonStandardisedTerms,
             ...
         }
+
+func MapCreditDefaultSwapPayoutList:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payouts Payout (0..*)
+
+    alias generalTermsPayerReceiver:
+        MapSellerAsPayerAndBuyerAsReceiver(
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel,
+                cdmCounterpartyList
+            )
+    add payouts:
+        MapCreditDefaultSwapPayout(
+                fpmlCreditDefaultSwap,
+                generalTermsPayerReceiver,
+                cdmCounterpartyList
+            )
+
+    add payouts:
+        if fpmlCreditDefaultSwap -> feeLeg -> periodicPayment exists
+        then MapFeeLegToInterestRateLegPayout(
+                    fpmlCreditDefaultSwap -> feeLeg,
+                    fpmlCreditDefaultSwap -> protectionTerms,
+                    generalTermsPayerReceiver,
+                    cdmCounterpartyList
+                )
 
 func MapCreditDefaultSwapPayout:
     inputs:
@@ -144,6 +165,10 @@ func MapCreditDefaultSwapPayout:
                     ),
                 protectionTerms: fpmlCreditDefaultSwap -> protectionTerms
                     extract MapProtectionTerms(item, cdmCounterpartyList),
+                transactedPrice: TransactedPrice {
+                    marketFixedRate: fpmlCreditDefaultSwap -> feeLeg -> marketFixedRate,
+                    ...
+                },
                 ...
             },
             ...
@@ -427,6 +452,7 @@ func MapNotifyingPartyList:
 func MapFeeLegToInterestRateLegPayout:
     inputs:
         fpmlFeeLeg fpml.FeeLeg (0..1)
+        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
         cdmGeneralTermsPayerReceiver PayerReceiver (1..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
@@ -446,10 +472,16 @@ func MapFeeLegToInterestRateLegPayout:
             InterestRatePayout: InterestRatePayout {
                 payerReceiver: FlipPayerAndReceiver(cdmGeneralTermsPayerReceiver),
                 priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
-                            fixedAmountCalculation -> calculationAmount,
-                            floatingAmountCalculation -> calculationAmount,
-                            fpmlFeeLeg
+                    quantitySchedule: if fixedAmountCalculation -> calculationAmount exists
+                            or floatingAmountCalculation -> calculationAmount exists
+                        then MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
+                                fixedAmountCalculation -> calculationAmount,
+                                floatingAmountCalculation -> calculationAmount,
+                                fpmlFeeLeg
+                            )
+                    else MapNotionalAmountToQuantityWithAddress(
+                            fpmlProtectionTerms -> calculationAmount -> amount first,
+                            empty
                         ),
                     ...
                 },
@@ -533,7 +565,11 @@ func MapCreditDefaultSwapPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
-    add priceQuantityList: MapFeeLegToPriceQuantity(fpmlCreditDefaultSwap -> feeLeg)
+    add priceQuantityList:
+        MapFeeLegToPriceQuantity(
+                fpmlCreditDefaultSwap -> feeLeg,
+                fpmlCreditDefaultSwap -> protectionTerms
+            )
 
     add priceQuantityList:
         MapProtectionTermsToPriceQuantity(fpmlCreditDefaultSwap -> protectionTerms)
@@ -541,6 +577,7 @@ func MapCreditDefaultSwapPriceQuantityList:
 func MapFeeLegToPriceQuantity:
     inputs:
         fpmlFeeLeg fpml.FeeLeg (0..1)
+        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
     output:
         priceQuantity PriceQuantity (0..1)
 
@@ -549,6 +586,7 @@ func MapFeeLegToPriceQuantity:
             price: MapFixedOrFloatingAmountCalculationToPriceListWithLocation(
                     fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
                     fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
+                    fpmlProtectionTerms -> calculationAmount -> currency first,
                     fpmlFeeLeg
                 ),
             quantity: MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
@@ -567,6 +605,7 @@ func MapFixedOrFloatingAmountCalculationToPriceListWithLocation:
     inputs:
         fpmlFixedAmountCalculation fpml.FixedAmountCalculation (0..1)
         fpmlFloatingAmountCalculation fpml.FloatingAmountCalculation (0..1)
+        fpmlCurrency fpml.Currency (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         priceScheduleList PriceSchedule (0..*)
@@ -577,13 +616,13 @@ func MapFixedOrFloatingAmountCalculationToPriceListWithLocation:
         then MapFixedRateToPriceScheduleWithLocation(
                     fpmlFixedAmountCalculation -> fixedRate -> value,
                     empty,
-                    fpmlFixedAmountCalculation -> calculationAmount -> currency,
+                    fpmlCurrency,
                     fpmlLeg
                 )
         else if fpmlFloatingAmountCalculation -> floatingRate exists
         then MapSpreadScheduleToPriceWithLocation(
                     fpmlFloatingAmountCalculation -> floatingRate,
-                    fpmlFloatingAmountCalculation -> calculationAmount -> currency,
+                    fpmlCurrency,
                     fpmlLeg
                 )
 

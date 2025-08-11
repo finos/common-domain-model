@@ -29,6 +29,10 @@ func MapVarianceOptionTransactionSupplementAncillaryPartyList:
     output:
         ancillaryPartyList AncillaryParty (0..*)
 
+    add ancillaryPartyList:
+        fpmlVarianceOptionTransactionSupplement -> clearingInstructions -> predeterminedClearingOrganizationPartyReference
+            extract MapAncillaryParty(PredeterminedClearingOrganizationParty, href)
+
 func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     inputs:
         fpmlVarianceOptionTransactionSupplement fpml.VarianceOptionTransactionSupplement (0..1)
@@ -81,7 +85,8 @@ func MapVarianceOptionTransactionSupplementPayout:
                         cdmCounterpartyList
                     ),
                 settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlVarianceOptionTransactionSupplement -> equityExercise
+                        fpmlVarianceOptionTransactionSupplement -> equityExercise,
+                        fpmlVarianceOptionTransactionSupplement -> clearingInstructions
                     ),
                 buyerSeller: MapBuyerSeller(
                         fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
@@ -102,6 +107,7 @@ func MapVarianceOptionTransactionSupplementPayout:
                         GetFpmlEquityExercise(
                                 fpmlVarianceOptionTransactionSupplement -> equityExercise
                             ),
+                        empty,
                         empty,
                         fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
                         cdmCounterpartyList

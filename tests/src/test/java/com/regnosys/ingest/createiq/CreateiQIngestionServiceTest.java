@@ -42,7 +42,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
-@Disabled
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
 	private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";

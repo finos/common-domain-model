@@ -279,6 +279,9 @@ func MapBusinessUnit:
             contactInformation: MapContactInformation(fpmlBusinessUnit -> contactInfo),
             ...
         }
+            with-meta {
+                key: fpmlBusinessUnit -> id
+            }
 
 func MapContactInformation:
     inputs:
@@ -302,7 +305,7 @@ func MapTelephoneNumber:
 
     set cdmTelephoneNumber:
         TelephoneNumber {
-            telephoneNumberType: fpmlTelephoneNumber -> _type to-enum TelephoneTypeEnum,
+            telephoneNumberType: fpmlTelephoneNumber -> ^type to-enum TelephoneTypeEnum,
             number: fpmlTelephoneNumber -> number,
         }
 
@@ -431,23 +434,30 @@ func MapPartyRoleList:
                 }
 
     add partyRoleList:
-        fpmlTrade -> tradeHeader -> partyTradeInformation -> relatedParty
+        fpmlTrade -> tradeHeader -> partyTradeInformation
             extract MapRelatedPartyToPartyRole
+            then flatten
 
 func MapRelatedPartyToPartyRole:
     inputs:
-        fpmlRelatedParty fpml.RelatedParty (0..1)
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..1)
     output:
-        partyRole PartyRole (0..1)
+        partyRole PartyRole (0..*)
 
-    set partyRole:
-        PartyRole {
-            partyReference: MapPartyReference(
-                    fpmlRelatedParty -> partyAndAccountReferencesModel -> partyReference -> href
-                ),
-            role: fpmlRelatedParty -> role -> value to-enum PartyRoleEnum,
-            ...
-        }
+    alias relatedParties: fpmlPartyTradeInformation -> relatedParty
+
+    add partyRole:
+        relatedParties
+            extract
+                PartyRole {
+                    partyReference: MapPartyReference(
+                            partyAndAccountReferencesModel -> partyReference -> href
+                        ),
+                    role: role -> value to-enum PartyRoleEnum,
+                    ownershipPartyReference: MapPartyReference(
+                            fpmlPartyTradeInformation -> partyAndAccountReferencesModel -> partyReference -> href
+                        )
+                }
 
 func MapAccountList:
     inputs:
@@ -556,9 +566,7 @@ func MapAccount:
             accountBeneficiary: MapPartyReference(
                     fpmlAccount -> accountSequence -> accountBeneficiary -> href
                 ),
-            servicingParty: MapPartyReference(
-                    fpmlAccount -> accountSequence -> servicingParty -> href
-                )
+            servicingParty: MapPartyReference(fpmlAccount -> servicingParty -> href)
         }
             with-meta {
                 key: fpmlAccount -> id

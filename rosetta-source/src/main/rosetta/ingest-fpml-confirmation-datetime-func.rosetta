@@ -2,9 +2,9 @@ namespace cdm.ingest.fpml.confirmation.datetime
 version "${project.version}"
 
 import cdm.base.datetime.*
-import cdm.product.asset.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
+import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 
@@ -223,6 +223,22 @@ func MapAdjustableOrRelativeDates:
                         ...
                     },
             relativeDates: MapRelativeDates(fpmlAdjustableOrRelativeDates -> relativeDates)
+        }
+
+func MapAdjustable2:
+    inputs:
+        fpmlAdjustableDate2 fpml.AdjustableDate2 (0..1)
+    output:
+        adjustableDate AdjustableDate (0..1)
+
+    set adjustableDate:
+        AdjustableDate {
+            unadjustedDate: fpmlAdjustableDate2 -> unadjustedDate -> value -> date,
+            dateAdjustments: MapBusinessDayAdjustments(
+                    fpmlAdjustableDate2 -> dateAdjustments
+                ),
+            adjustedDate: fpmlAdjustableDate2 -> adjustedDate -> value -> date,
+            ...
         }
 
 func MapAdjustableRelativeOrPeriodicDates:
@@ -450,6 +466,21 @@ func MapRelativeDateOffset:
                 ),
             dateRelativeTo: MapDateReference(fpmlRelativeDateOffset -> dateRelativeTo),
             adjustedDate: fpmlRelativeDateOffset -> adjustedDate -> value -> date
+        }
+
+func MapDateOffsetToRelativeDateOffset:
+    inputs:
+        fpmlRelativeDateOffset fpml.DateOffset (0..1)
+    output:
+        relativeDateOffset RelativeDateOffset (0..1)
+
+    set relativeDateOffset:
+        RelativeDateOffset {
+            periodMultiplier: fpmlRelativeDateOffset -> periodMultiplier,
+            period: fpmlRelativeDateOffset -> period to-enum PeriodEnum,
+            dayType: fpmlRelativeDateOffset -> dayType to-enum DayTypeEnum,
+            businessDayConvention: fpmlRelativeDateOffset -> businessDayConvention to-enum BusinessDayConventionEnum,
+            ...
         }
 
 func MapRelativeDates:
@@ -957,6 +988,23 @@ func MapCommodityCalculationPeriodFrequency:
         }
             with-meta {
                 key: calculationPeriod -> id
+            }
+
+func MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy:
+    inputs:
+        fpmlCommodityCalculationPeriodsSchedule fpml.CommodityCalculationPeriodsSchedule (0..1)
+    output:
+        calculationPeriodFrequency CalculationPeriodFrequency (0..1)
+
+    set calculationPeriodFrequency:
+        CalculationPeriodFrequency {
+            periodMultiplier: fpmlCommodityCalculationPeriodsSchedule -> periodMultiplier,
+            period: fpmlCommodityCalculationPeriodsSchedule -> period to-enum PeriodExtendedEnum,
+            balanceOfFirstPeriod: fpmlCommodityCalculationPeriodsSchedule -> balanceOfFirstPeriod,
+            rollConvention: empty
+        }
+            with-meta {
+                key: fpmlCommodityCalculationPeriodsSchedule -> id
             }
 
 func MapPerformanceValuationDates:

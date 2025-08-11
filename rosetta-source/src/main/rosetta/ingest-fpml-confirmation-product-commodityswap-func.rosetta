@@ -6,6 +6,7 @@ import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
@@ -15,6 +16,7 @@ import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.ingest.fpml.confirmation.other.*
 
 func MapCommoditySwapCounterpartyList:
     inputs:
@@ -24,8 +26,8 @@ func MapCommoditySwapCounterpartyList:
 
     alias payerReceiver:
         fpmlCommoditySwap -> commoditySwapDetailsModel -> commoditySwapLeg
-        extract GetFpmlPayerReceiver
-        then first
+            extract GetFpmlPayerReceiver
+            then first
 
     add counterpartyList: MapPayerReceiverModelToCounterpartyList(payerReceiver)
 
@@ -103,8 +105,8 @@ func MapCommoditySwapLegListToPayoutList:
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter FloatingLeg exists
-           then extract
+            then filter FloatingLeg exists
+            then extract
                 MapFloatingLegToCommodityPayout(
                         fpmlCommoditySwapDetailsModel,
                         FloatingLeg,
@@ -114,22 +116,22 @@ func MapCommoditySwapLegListToPayoutList:
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter GasPhysicalLeg exists
-           then extract
+            then filter GasPhysicalLeg exists
+            then extract
                 MapGasPhysicalLegToSettlementPayout(GasPhysicalLeg, cdmCounterpartyList)
 
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter OilPhysicalLeg exists
-           then extract
+            then filter OilPhysicalLeg exists
+            then extract
                 MapOilPhysicalLegToSettlementPayout(OilPhysicalLeg, cdmCounterpartyList)
 
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter ElectricityPhysicalLeg exists
-           then extract
+            then filter ElectricityPhysicalLeg exists
+            then extract
                 MapElectricityPhysicalLegToSettlementPayout(
                         ElectricityPhysicalLeg,
                         cdmCounterpartyList
@@ -138,8 +140,8 @@ func MapCommoditySwapLegListToPayoutList:
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter EnvironmentalPhysicalLeg exists
-           then extract
+            then filter EnvironmentalPhysicalLeg exists
+            then extract
                 MapEnvironmentalPhysicalLegToSettlementPayout(
                         EnvironmentalPhysicalLeg,
                         cdmCounterpartyList
@@ -148,15 +150,15 @@ func MapCommoditySwapLegListToPayoutList:
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter CoalPhysicalLeg exists
-           then extract
+            then filter CoalPhysicalLeg exists
+            then extract
                 MapCoalPhysicalLegToSettlementPayout(CoalPhysicalLeg, cdmCounterpartyList)
 
     add payoutList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter FixedLeg exists
-           then extract MapFixedLegToFixedPricePayout(FixedLeg, cdmCounterpartyList)
+            then filter FixedLeg exists
+            then extract MapFixedLegToFixedPricePayout(FixedLeg, cdmCounterpartyList)
 
 func MapFloatingLegToCommodityPayout:
     inputs:
@@ -183,6 +185,9 @@ func MapFloatingLegToCommodityPayout:
                 settlementTerms: MapCommoditySettlementModelToSettlementTerms(
                         fpmlCommoditySwapDetailsModel
                     ),
+                averagingFeature: MapAveragingCalculation(
+                        fpmlFloatingLeg -> calculation -> averagingMethod
+                    ),
                 pricingDates: MapCommodityPriceDatesToPricingDates(
                         fpmlFloatingLeg -> calculation -> pricingDates
                     ),
@@ -198,9 +203,40 @@ func MapFloatingLegToCommodityPayout:
                         ),
                     ...
                 },
+                commodityPriceReturnTerms: CommodityPriceReturnTerms {
+                    spread: SpreadSchedule {
+                        price: MapCommoditySpreadToPriceWithAddress(
+                                fpmlFloatingLeg -> calculation -> spread,
+                                fpmlFloatingLeg
+                            ),
+                        ...
+                    },
+                    conversionFactor: fpmlFloatingLeg -> calculation -> conversionFactor,
+                    ...
+                },
                 ...
             },
             ...
+        }
+
+func MapAveragingCalculation:
+    inputs:
+        fpmlAveragingMethod fpml.AveragingMethodEnum (0..1)
+    output:
+        averagingCalculation AveragingCalculation (0..1)
+
+    set averagingCalculation:
+        AveragingCalculation {
+            averagingMethod: AveragingCalculationMethod {
+                isWeighted: if fpmlAveragingMethod = Unweighted
+                    then False
+                else if fpmlAveragingMethod = Weighted
+                then True,
+                calculationMethod: if fpmlAveragingMethod = Unweighted
+                        or fpmlAveragingMethod = Weighted
+                    then Arithmetic
+            },
+            precision: empty
         }
 
 func MapGasPhysicalLegToSettlementPayout:
@@ -218,8 +254,9 @@ func MapGasPhysicalLegToSettlementPayout:
                         cdmCounterpartyList
                     ),
                 underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            empty // fpmlGasPhysicalLeg -> commodity
+                    Observable: MapCommodityClassificationListToObservableCommodityWithAddress(
+                            fpmlGasPhysicalLeg -> commodityClassification,
+                            fpmlGasPhysicalLeg
                         ),
                     ...
                 },
@@ -243,8 +280,9 @@ func MapOilPhysicalLegToSettlementPayout:
                         cdmCounterpartyList
                     ),
                 underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            empty // fpmlOilPhysicalLeg -> commodity
+                    Observable: MapCommodityClassificationListToObservableCommodityWithAddress(
+                            fpmlOilPhysicalLeg -> commodityClassification,
+                            fpmlOilPhysicalLeg
                         ),
                     ...
                 },
@@ -268,8 +306,9 @@ func MapElectricityPhysicalLegToSettlementPayout:
                         cdmCounterpartyList
                     ),
                 underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            empty // fpmlElectricityPhysicalLeg -> commodity
+                    Observable: MapCommodityClassificationListToObservableCommodityWithAddress(
+                            fpmlElectricityPhysicalLeg -> commodityClassification,
+                            fpmlElectricityPhysicalLeg
                         ),
                     ...
                 },
@@ -293,8 +332,9 @@ func MapEnvironmentalPhysicalLegToSettlementPayout:
                         cdmCounterpartyList
                     ),
                 underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            empty // fpmlEnvironmentalPhysicalLeg -> commodity
+                    Observable: MapCommodityClassificationListToObservableCommodityWithAddress(
+                            fpmlEnvironmentalPhysicalLeg -> commodityClassification,
+                            fpmlEnvironmentalPhysicalLeg
                         ),
                     ...
                 },
@@ -318,8 +358,9 @@ func MapCoalPhysicalLegToSettlementPayout:
                         cdmCounterpartyList
                     ),
                 underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            empty // fpmlCoalPhysicalLeg -> commodity
+                    Observable: MapCommodityClassificationListToObservableCommodityWithAddress(
+                            fpmlCoalPhysicalLeg -> commodityClassification,
+                            fpmlCoalPhysicalLeg
                         ),
                     ...
                 },
@@ -375,45 +416,45 @@ func MapCommoditySwapPriceQuantityList:
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter FixedLeg exists
-           then extract MapFixedLegToPriceQuantity(FixedLeg)
+            then filter FixedLeg exists
+            then extract MapFixedLegToPriceQuantity(FixedLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter FloatingLeg exists
-           then extract MapFloatingLegToPriceQuantity(FloatingLeg)
+            then filter FloatingLeg exists
+            then extract MapFloatingLegToPriceQuantity(FloatingLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter GasPhysicalLeg exists
-           then extract MapGasPhysicalLegToPriceQuantity(GasPhysicalLeg)
+            then filter GasPhysicalLeg exists
+            then extract MapGasPhysicalLegToPriceQuantity(GasPhysicalLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter OilPhysicalLeg exists
-           then extract MapOilPhysicalLegToPriceQuantity(OilPhysicalLeg)
+            then filter OilPhysicalLeg exists
+            then extract MapOilPhysicalLegToPriceQuantity(OilPhysicalLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter ElectricityPhysicalLeg exists
-           then extract MapElectricityPhysicalLegToPriceQuantity(ElectricityPhysicalLeg)
+            then filter ElectricityPhysicalLeg exists
+            then extract MapElectricityPhysicalLegToPriceQuantity(ElectricityPhysicalLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter EnvironmentalPhysicalLeg exists
-           then extract
+            then filter EnvironmentalPhysicalLeg exists
+            then extract
                 MapEnvironmentalPhysicalLegToPriceQuantity(EnvironmentalPhysicalLeg)
 
     add priceQuantityList:
         fpmlCommoditySwapLegList
             extract ToLegChoice
-           then filter CoalPhysicalLeg exists
-           then extract MapCoalPhysicalLegToPriceQuantity(CoalPhysicalLeg)
+            then filter CoalPhysicalLeg exists
+            then extract MapCoalPhysicalLegToPriceQuantity(CoalPhysicalLeg)
 
 func MapFixedLegToPriceQuantity:
     inputs:
@@ -440,6 +481,11 @@ func MapFloatingLegToPriceQuantity:
     output:
         priceQuantity PriceQuantity (0..1)
 
+    alias priceCapacityUnit:
+        MapCapacityUnitEnum(
+                fpmlFloatingLeg -> commodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> notionalQuantity -> quantityUnit -> value
+            )
+
     set priceQuantity:
         PriceQuantity {
             quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
@@ -447,6 +493,11 @@ func MapFloatingLegToPriceQuantity:
                     fpmlFloatingLeg
                 ),
             observable: MapAssetToObservableWithLocation(fpmlFloatingLeg -> commodity),
+            price: MapCommoditySpreadToPriceWithLocation(
+                    fpmlFloatingLeg -> calculation -> spread,
+                    priceCapacityUnit,
+                    fpmlFloatingLeg
+                ),
             ...
         }
 
@@ -456,11 +507,29 @@ func MapGasPhysicalLegToPriceQuantity:
     output:
         priceQuantity PriceQuantity (0..1)
 
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapCommodityClassificationListToObservableCommodityWithLocation(
+                    fpmlGasPhysicalLeg -> commodityClassification,
+                    fpmlGasPhysicalLeg
+                ),
+            ...
+        }
+
 func MapOilPhysicalLegToPriceQuantity:
     inputs:
         fpmlOilPhysicalLeg fpml.OilPhysicalLeg (0..1)
     output:
         priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapCommodityClassificationListToObservableCommodityWithLocation(
+                    fpmlOilPhysicalLeg -> commodityClassification,
+                    fpmlOilPhysicalLeg
+                ),
+            ...
+        }
 
 func MapElectricityPhysicalLegToPriceQuantity:
     inputs:
@@ -468,17 +537,44 @@ func MapElectricityPhysicalLegToPriceQuantity:
     output:
         priceQuantity PriceQuantity (0..1)
 
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapCommodityClassificationListToObservableCommodityWithLocation(
+                    fpmlElectricityPhysicalLeg -> commodityClassification,
+                    fpmlElectricityPhysicalLeg
+                ),
+            ...
+        }
+
 func MapEnvironmentalPhysicalLegToPriceQuantity:
     inputs:
         fpmlEnvironmentalPhysicalLeg fpml.EnvironmentalPhysicalLeg (0..1)
     output:
         priceQuantity PriceQuantity (0..1)
 
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapCommodityClassificationListToObservableCommodityWithLocation(
+                    fpmlEnvironmentalPhysicalLeg -> commodityClassification,
+                    fpmlEnvironmentalPhysicalLeg
+                ),
+            ...
+        }
+
 func MapCoalPhysicalLegToPriceQuantity:
     inputs:
         fpmlCoalPhysicalLeg fpml.CoalPhysicalLeg (0..1)
     output:
         priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapCommodityClassificationListToObservableCommodityWithLocation(
+                    fpmlCoalPhysicalLeg -> commodityClassification,
+                    fpmlCoalPhysicalLeg
+                ),
+            ...
+        }
 
 func MapCommoditySwapAccountPartyReference:
     inputs:

@@ -79,7 +79,8 @@ func MapMasterAgreement:
         MapLegalAgreement(
                 fpmlMasterAgreement -> masterAgreementDate -> date,
                 cdmCounterpartyList,
-                cdmAgreementName
+                cdmAgreementName,
+                fpmlMasterAgreement -> masterAgreementVersion -> value to-int
             )
 
 func MapMasterAgreementTypeEnumWithScheme:
@@ -117,7 +118,8 @@ func MapMasterConfirmation:
         MapLegalAgreement(
                 fpmlMasterConfirmation -> masterConfirmationDate -> date,
                 cdmCounterpartyList,
-                cdmAgreementName
+                cdmAgreementName,
+                empty
             )
 
 func MapMasterConfirmationTypeEnumWithScheme:
@@ -154,7 +156,7 @@ func MapCreditSupportAgreement:
     alias cdmAgreementName:
         AgreementName {
             creditSupportAgreementType: MapCreditSupportAgreementTypeEnumWithScheme(
-                    fpmlCreditSupportAgreement -> _type
+                    fpmlCreditSupportAgreement -> ^type
                 ),
             agreementType: CreditSupportAgreement,
             ...
@@ -164,7 +166,8 @@ func MapCreditSupportAgreement:
         MapLegalAgreement(
                 fpmlCreditSupportAgreement -> date -> date,
                 cdmCounterpartyList,
-                cdmAgreementName
+                cdmAgreementName,
+                empty
             )
 
 func MapCreditSupportAgreementTypeEnumWithScheme:
@@ -200,7 +203,7 @@ func MapConfirmationLegalAgreement:
                 extract
                     ContractualTermsSupplement {
                         contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
-                                _type
+                                ^type
                             ),
                         publicationDate: publicationDate -> date
                     },
@@ -208,7 +211,8 @@ func MapConfirmationLegalAgreement:
             ...
         }
 
-    set legalAgreement: MapLegalAgreement(empty, cdmCounterpartyList, cdmAgreementName)
+    set legalAgreement:
+        MapLegalAgreement(empty, cdmCounterpartyList, cdmAgreementName, empty)
 
 func MapContractualDefinitionsEnumWithScheme:
     inputs:
@@ -260,19 +264,29 @@ func MapOtherAgreements:
         cdmCounterpartyList Counterparty (0..2)
     output:
         legalAgreement LegalAgreement (0..1)
-    set legalAgreement -> legalAgreementIdentification -> agreementName -> otherAgreement:
-        fpmlOtherAgreement -> _type -> value
-    set legalAgreement -> legalAgreementIdentification -> vintage:
-        fpmlOtherAgreement -> version -> value to-int
-    set legalAgreement -> agreementDate: fpmlOtherAgreement -> date -> date
-    set legalAgreement -> legalAgreementIdentification -> agreementName -> agreementType:
-        Other
+
+    alias agreementName:
+        AgreementName {
+            otherAgreement: fpmlOtherAgreement -> ^type -> value,
+            agreementType: Other,
+            ...
+        }
+    alias vintage: fpmlOtherAgreement -> version -> value to-int
+
+    set legalAgreement:
+        MapLegalAgreement(
+                fpmlOtherAgreement -> date -> date,
+                cdmCounterpartyList,
+                agreementName,
+                vintage
+            )
 
 func MapLegalAgreement:
     inputs:
         fpmlAgreementDate date (0..1)
         cdmCounterpartyList Counterparty (0..2)
         cdmAgreementName AgreementName (0..1)
+        cdmVintage int (0..1)
     output:
         legalAgreement LegalAgreement (0..1)
 
@@ -284,7 +298,7 @@ func MapLegalAgreement:
                 governingLaw: empty,
                 agreementName: cdmAgreementName,
                 publisher: empty,
-                vintage: empty,
+                vintage: cdmVintage,
             },
             ...
         }
@@ -305,7 +319,7 @@ func MapGoverningLaw:
         governingLawEnum GoverningLawEnum (0..1)
             [metadata scheme]
 
-    set governingLawEnum: empty
+    set governingLawEnum: fpmlGoverningLaw -> value to-enum GoverningLawEnum
 /*
  * func MapAgreementTerms:
  *     inputs:

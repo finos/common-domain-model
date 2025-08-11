@@ -4,17 +4,35 @@ version "${project.version}"
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
+import cdm.product.common.settlement.*
+import cdm.product.common.schedule.*
+import cdm.base.datetime.*
+import cdm.product.asset.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.ingest.fpml.confirmation.datetime.*
 
 func MapFxVarianceSwapCounterpartyList:
     inputs:
         fpmlFxVarianceSwap fpml.FxVarianceSwap (0..1)
     output:
         counterpartyList Counterparty (0..2)
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party1,
+                fpmlFxVarianceSwap -> floatingLeg -> payerModel -> payerPartyReference
+            )
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party2,
+                fpmlFxVarianceSwap -> fixedLeg -> payerModel -> payerPartyReference
+            )
 
 func MapFxVarianceSwapAncillaryPartyList:
     inputs:
@@ -48,19 +66,52 @@ func MapFxVarianceSwapEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
-            payout: MapFxVarianceSwapPayout(fpmlFxVarianceSwap, cdmCounterpartyList),
+            payout: MapFxPerformanceSwapPayout(fpmlFxVarianceSwap, MapReturnTerms(fpmlFxVarianceSwap), cdmCounterpartyList),
             ...
         }
 
-func MapFxVarianceSwapPayout:
+func MapFxPerformanceSwapPayout:
     inputs:
-        fpmlFxVarianceSwap fpml.FxVarianceSwap (0..1)
+        fpmlFxVarianceSwap fpml.FxPerformanceSwap (0..1)
+        returnTerms ReturnTerms (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payout Payout (0..1)
 
     set payout:
         Payout {
+            PerformancePayout: PerformancePayout {
+                payerReceiver: PayerReceiver {
+                    payer: MapCounterpartyRoleEnum(
+                            fpmlFxVarianceSwap -> floatingLeg -> payerModel -> payerPartyReference -> href,
+                            cdmCounterpartyList
+                        ),
+                    receiver: MapCounterpartyRoleEnum(
+                            fpmlFxVarianceSwap -> fixedLeg -> payerModel -> payerPartyReference -> href,
+                            cdmCounterpartyList
+                        )
+                },
+                priceQuantity: ResolvablePriceQuantity {
+                    quantitySchedule: MapNotionalAmountWithIdToQuantityWithAddress(
+                            fpmlFxVarianceSwap -> notional -> amount,
+                            "notional",
+                            empty
+                        ),
+                    ...
+                },
+                settlementTerms: MapFxPerformanceSwapToSettlementTerms(fpmlFxVarianceSwap),
+                observationTerms: MapObservationTerms(fpmlFxVarianceSwap),
+                valuationDates: MapValuationDates(fpmlFxVarianceSwap -> valuationDateOffset),
+                paymentDates: empty,
+                underlier: Underlier {
+                    Observable: MapQuotedCurrencyPairToObservableWithAddress(
+                            fpmlFxVarianceSwap -> quotedCurrencyPair
+                        ),
+                    ...
+                },
+                returnTerms: returnTerms,
+                ...
+            },
             ...
         }
 
@@ -69,6 +120,153 @@ func MapFxVarianceSwapPriceQuantityList:
         fpmlFxVarianceSwap fpml.FxVarianceSwap (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: [
+                MapNotionalAmountWithIdToQuantityWithLocation(
+                        fpmlFxVarianceSwap -> vegaNotional -> amount,
+                        empty,
+                        fpmlFxVarianceSwap -> vegaNotional -> currency,
+                        "vegaNotional",
+                        empty
+                    ),
+                MapNotionalAmountWithIdToQuantityWithLocation(
+                        fpmlFxVarianceSwap -> notional -> amount,
+                        empty,
+                        fpmlFxVarianceSwap -> notional -> currency,
+                        "notional",
+                        empty
+                    )
+            ],
+            observable: MapQuotedCurrencyPairToObservableWithLocation(
+                    fpmlFxVarianceSwap -> quotedCurrencyPair,
+                    fpmlFxVarianceSwap -> fixingInformationSource
+                ),
+            ...
+        }
+
+func MapObservationTerms:
+    inputs:
+        fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
+    output:
+        observationTerms ObservationTerms (0..1)
+
+    alias fpmlFixingInformationSource: fpmlFxPerformanceSwap -> fixingInformationSource
+
+    set observationTerms:
+        ObservationTerms {
+            observationTime: MapBusinessCenterTime(
+                    fpmlFixingInformationSource -> fixingTime
+                ),
+            informationSource: FxSpotRateSource {
+                primarySource: MapInformationSource(
+                        fpmlFixingInformationSource -> primaryRateSource
+                    ),
+                ...
+            },
+            observationDates: MapObservationDates(fpmlFxPerformanceSwap -> fixingSchedule),
+            numberOfObservationDates: fpmlFxPerformanceSwap -> numberOfReturns,
+            ...
+        }
+
+func MapObservationDates:
+    inputs:
+        fpmlFixingSchedule fpml.FxFixingScheduleSimple (0..1)
+    output:
+        observationDates ObservationDates (0..1)
+
+    set observationDates:
+        ObservationDates {
+            periodicSchedule: PeriodicDates {
+                startDate: MapUnadjustedDateToAdjustableOrRelativeDate(
+                        fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date,
+                        empty
+                    ),
+                endDate: MapUnadjustedDateToAdjustableOrRelativeDate(
+                        fpmlFixingSchedule -> endDate -> date,
+                        empty
+                    ),
+                periodDatesAdjustments: BusinessDayAdjustments {
+                    businessDayConvention: empty,
+                    businessCenters: MapBusinessCenterOrBusinessCenterReference(
+                            fpmlFixingSchedule -> businessCentersOrReferenceModel
+                    ),
+                },
+                dayType: fpmlFixingSchedule -> dayType to-enum DayTypeEnum,
+                ...
+            },
+            ...
+        }
+
+func MapValuationDates:
+    inputs:
+        fpmlFxValuationDateOffset fpml.FxValuationDateOffset (0..1)
+    output:
+        valuationDates ValuationDates (0..1)
+
+    set valuationDates:
+        ValuationDates {
+            finalValuationDate: PerformanceValuationDates {
+                valuationDates: AdjustableRelativeOrPeriodicDates {
+                    relativeDates: RelativeDates {
+                        businessDayConvention: empty,
+                        periodMultiplier: fpmlFxValuationDateOffset -> periodMultiplier,
+                        period: fpmlFxValuationDateOffset -> period to-enum PeriodEnum,
+                        dayType: fpmlFxValuationDateOffset -> dayType to-enum DayTypeEnum,
+                        businessCenters: MapBusinessCenters(
+                                fpmlFxValuationDateOffset -> businessCentersOrReferenceModel -> businessCenters
+                            ),
+                        ...
+                    },
+                    ...
+                },
+                determinationMethod: empty,
+                ...
+            },
+            ...
+        }
+
+func MapReturnTerms:
+    inputs:
+        fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
+    output:
+        returnTerms ReturnTerms (0..1)
+
+    alias fpmlQuotedCurrencyPair: fpmlFxPerformanceSwap -> quotedCurrencyPair
+    alias fpmlQuoteBasis: fpmlFxPerformanceSwap -> quotedCurrencyPair -> quoteBasis
+
+    set returnTerms:
+        ReturnTerms {
+            varianceReturnTerms: VarianceReturnTerms {
+                annualizationFactor: fpmlFxPerformanceSwap -> annualizationFactor,
+                meanAdjustment: fpmlFxPerformanceSwap -> meanAdjustment,
+                varianceStrikePrice: Price {
+                    value: fpmlFxPerformanceSwap -> fixedLeg -> fixedRate,
+                    unit: UnitType {
+                        currency: if fpmlQuoteBasis = Currency1PerCurrency2
+                            then fpmlQuotedCurrencyPair -> currency1 -> value
+                        else if fpmlQuoteBasis = Currency2PerCurrency1
+                        then fpmlQuotedCurrencyPair -> currency2 -> value,
+                        ...
+                    },
+                    perUnitOf: UnitType {
+                        currency: if fpmlQuoteBasis = Currency1PerCurrency2
+                            then fpmlQuotedCurrencyPair -> currency2 -> value
+                        else if fpmlQuoteBasis = Currency2PerCurrency1
+                        then fpmlQuotedCurrencyPair -> currency1 -> value,
+                        ...
+                    },
+                    priceType: InterestRate,
+                    ...
+                },
+                vegaNotionalAmount: MapNonNegativeMoneyToQuantity(fpmlFxPerformanceSwap -> vegaNotional),
+                valuationTerms: empty, // not in original
+                expectedN: empty, // not in original
+                ...
+            },
+            ...
+        }
 
 func MapFxVarianceSwapAccountPartyReference:
     inputs:

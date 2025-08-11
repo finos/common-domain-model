@@ -73,6 +73,22 @@ func MapTransferStateList:
                 ),
         default empty
 
+    // initialPayment and singlePayment
+    add transfer:
+        productChoice switch 
+        CreditDefaultSwap then 
+            if feeLeg -> feeLegSequence -> initialPayment exists
+            then MapInitialPaymentToTransferState(feeLeg -> feeLegSequence -> initialPayment, Upfront)
+            else if feeLeg -> feeLegSequence -> singlePayment exists 
+            then MapSinglePaymentListToTransferStateList(feeLeg -> feeLegSequence -> singlePayment, Upfront),
+        default empty
+    
+    // equityPremium
+    add transfer:
+        productChoice switch
+        EquityOption then MapEquityPremiumToTransferState(equityPremium, Premium),
+        default empty
+    
     // premium
     add transfer:
         productChoice switch
@@ -202,7 +218,7 @@ func MapNonNegativePaymentToTransferState:
                         fpmlNonNegativePayment -> payerReceiverModel
                     ),
                 settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
-                        empty,
+                        fpmlNonNegativePayment -> paymentDate -> adjustableDate -> unadjustedDate -> value -> date,
                         fpmlNonNegativePayment -> paymentDate -> adjustableDate,
                         fpmlNonNegativePayment -> paymentDate -> relativeDate
                     ),
@@ -299,6 +315,79 @@ func MapReturnSwapAdditionalPaymentToTransferState:
                 key: fpmlReturnSwapAdditionalPayment -> id
             }
 
+func MapInitialPaymentToTransferState:
+    inputs:
+        fpmlInitialPayment fpml.InitialPayment (0..1)
+        cdmFeeType FeeTypeEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlInitialPayment exists
+        then TransferState {
+            transfer: Transfer {
+                quantity: MapMoneyToTransferQuantity(fpmlInitialPayment -> paymentAmount),
+                asset: MapMoneyToTransferCashAsset(fpmlInitialPayment -> paymentAmount),
+                payerReceiver: MapPaymentToPartyReferencePayerReceiver(
+                        fpmlInitialPayment -> payerReceiverModel
+                    ),
+                settlementDate: AdjustableOrAdjustedOrRelativeDate {
+                    unadjustedDate: fpmlInitialPayment -> adjustablePaymentDate -> date,
+                    adjustedDate: fpmlInitialPayment -> adjustedPaymentDate -> date,
+                    ...
+                },
+                transferExpression: TransferExpression {
+                    priceTransfer: cdmFeeType,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+            with-meta {
+                key: fpmlInitialPayment -> id
+            }
+
+func MapSinglePaymentListToTransferStateList:
+    inputs:
+        fpmlSinglePaymentList fpml.SinglePayment (0..*)
+        cdmFeeType FeeTypeEnum (0..1)
+    output:
+        transferState TransferState (0..*)
+    add transferState:
+        fpmlSinglePaymentList extract MapSinglePaymentToTransferState(item, cdmFeeType)
+
+func MapSinglePaymentToTransferState:
+    inputs:
+        fpmlSinglePayment fpml.SinglePayment (0..1)
+        cdmFeeType FeeTypeEnum (0..1)
+    output:
+        transferState TransferState (0..1)
+
+    set transferState:
+        if fpmlSinglePayment exists
+        then TransferState {
+            transfer: Transfer {
+                quantity: MapMoneyToTransferQuantity(fpmlSinglePayment -> fixedAmount),
+                asset: MapMoneyToTransferCashAsset(fpmlSinglePayment -> fixedAmount),
+                payerReceiver: empty,
+                settlementDate: AdjustableOrAdjustedOrRelativeDate {
+                    unadjustedDate: fpmlSinglePayment -> adjustablePaymentDate -> date,
+                    adjustedDate: fpmlSinglePayment -> adjustedPaymentDate -> date,
+                    ...
+                },
+                transferExpression: TransferExpression {
+                    priceTransfer: cdmFeeType,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+            with-meta {
+                key: fpmlSinglePayment -> id
+            }
+
 func MapPremiumListToTransferStateList:
     inputs:
         fpmlPremiumList fpml.Premium (0..*)
@@ -358,7 +447,7 @@ func MapEquityPremiumToTransferState:
                         fpmlEquityPremium -> payerReceiverModel
                     ),
                 settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
-                        empty,
+                        fpmlEquityPremium -> paymentDate -> unadjustedDate -> value -> date,
                         fpmlEquityPremium -> paymentDate,
                         empty
                     ),
@@ -393,6 +482,25 @@ func MapTransferCashAsset:
                 ...
             }
 
+func MapMoneyToTransferCashAsset:
+    inputs:
+        fpmMoney fpml.Money (0..1)
+    output:
+        asset Asset (0..1)
+
+    set asset:
+        if fpmMoney exists
+        then Asset {
+                Cash: Cash {
+                    identifier: AssetIdentifier {
+                        identifier: fpmMoney -> currency -> value,
+                        identifierType: CurrencyCode
+                    },
+                    ...
+                },
+                ...
+            }
+
 func MapPaymentToPartyReferencePayerReceiver:
     inputs:
         fpmlPayerReceiverModel fpml.PayerReceiverModel (1..1)
@@ -417,6 +525,25 @@ func MapTransferQuantity:
                 currency: MapStringWithScheme(
                         fpmlPaymentAmount -> currency -> value,
                         fpmlPaymentAmount -> currency -> currencyScheme
+                    ),
+                ...
+            },
+            ...
+        }
+
+func MapMoneyToTransferQuantity:
+    inputs:
+        fpmlMoney fpml.Money (0..1)
+    output:
+        quantity NonNegativeQuantity (0..1)
+
+    set quantity:
+        NonNegativeQuantity {
+            value: fpmlMoney -> amount,
+            unit: UnitType {
+                currency: MapStringWithScheme(
+                        fpmlMoney -> currency -> value,
+                        fpmlMoney -> currency -> currencyScheme
                     ),
                 ...
             },

@@ -7,13 +7,17 @@ import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
+import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.product.common.schedule.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
 
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.other.*
 
 func GetFpmlTrade:
     inputs:
@@ -65,6 +69,15 @@ func MapCurrencyReference:
 
     set currencyReference -> reference: fpmlIdentifiedCurrencyReference -> href
 
+func MapResolvablePriceQuantityReference:
+    inputs:
+        fpmlHref string (0..1)
+    output:
+        quantityReference ResolvablePriceQuantity (0..1)
+            [metadata reference]
+
+    set quantityReference -> reference: fpmlHref
+
 func MapProductTaxonomyList:
     inputs:
         fpmlProductModel fpml.ProductModel (0..1)
@@ -112,7 +125,7 @@ func MapUnitTypeWithScheme:
 
     set unitType:
         UnitType {
-            capacityUnit: if value to-enum CapacityUnitEnum exists
+            capacityUnit: if MapCapacityUnitEnum(value) exists
                 then MapCapacityUnitWithScheme(value, scheme),
             weatherUnit: if value to-enum WeatherUnitEnum exists
                 then MapWeatherUnitWithScheme(value, scheme),
@@ -129,7 +142,7 @@ func MapCapacityUnitWithScheme:
         enumWithScheme CapacityUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum CapacityUnitEnum
+    set enumWithScheme: MapCapacityUnitEnum(value)
     set enumWithScheme -> scheme: scheme
 
 func MapWeatherUnitWithScheme:
@@ -304,6 +317,16 @@ func MapQuotedCurrencyPair:
             quoteBasis: fpmlQuotedCurrencyPair -> quoteBasis to-enum QuoteBasisEnum
         }
 
+func MapQuotedCurrencyPairWithLocation:
+    inputs:
+        fpmlQuotedCurrencyPair fpml.QuotedCurrencyPair (0..1)
+    output:
+        quotedCurrencyPair QuotedCurrencyPair (0..1)
+            [metadata location]
+
+    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair)
+    set quotedCurrencyPair -> location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair) // TODO: fix code gen issue when setting using with-meta
+
 func MapFxSpotRateSource:
     inputs:
         fpmlFxSpotRateSource fpml.FxSpotRateSource (0..1)
@@ -417,16 +440,18 @@ func MapExerciseTerms:
     inputs:
         fpmlExercise fpml.Exercise (0..1)
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
+        fpmlAutomaticExerciseIsApplicable boolean (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseTerms ExerciseTerms (1..1)
 
     alias cdmExerciseProcedure:
-        if fpmlExerciseProcedure exists
+        if fpmlExerciseProcedure exists or fpmlAutomaticExerciseIsApplicable exists
         then MapExerciseProcedure(
                     fpmlExerciseProcedure,
                     fpmlBuyerSellerModel,
+                    fpmlAutomaticExerciseIsApplicable,
                     cdmCounterpartyList
                 )
 
@@ -450,6 +475,7 @@ func MapExerciseProcedure:
     inputs:
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        fpmlAutomaticExerciseIsApplicable boolean (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseProcedure ExerciseProcedure (1..1)
@@ -473,6 +499,10 @@ func MapExerciseProcedure:
                     businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
                     ...
                 },
+                ...
+            },
+            automaticExercise: AutomaticExercise {
+                isApplicable: fpmlAutomaticExerciseIsApplicable,
                 ...
             },
             followUpConfirmation: fpmlExerciseProcedure -> followUpConfirmation,
@@ -686,11 +716,31 @@ func MapAmericanExerciseTerms:
             expirationTimeType: if fpmlAmericanExercise -> expirationTime exists
                 then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
+            multipleExercise: MapMultipleExercise(fpmlAmericanExercise -> multipleExercise),
             ...
         }
             with-meta {
                 key: fpmlAmericanExercise -> id
             }
+
+func MapMultipleExercise:
+    inputs:
+        fpmlMultipleExercise fpml.MultipleExercise (0..1)
+    output:
+        multipleExercise MultipleExercise (0..1)
+
+    set multipleExercise:
+        MultipleExercise {
+            integralMultipleAmount: fpmlMultipleExercise -> partialExerciseModel -> integralMultipleAmount,
+            minimumNumberOfOptions: fpmlMultipleExercise -> partialExerciseModel -> minimumNumberOfOptions,
+            maximumNumberOfOptions: fpmlMultipleExercise -> maximumNumberOfOptions,
+            minimumNotionalAmount: fpmlMultipleExercise -> partialExerciseModel -> minimumNotionalAmount,
+            notionalReference: empty
+                with-meta {
+                    reference: fpmlMultipleExercise -> partialExerciseModel -> notionalReference -> href first
+                },
+            ...
+        }
 
 func MapEquityAmericanExerciseTerms:
     inputs:
@@ -719,11 +769,29 @@ func MapEquityAmericanExerciseTerms:
                 ),
             expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
+            multipleExercise: MapEquityMultipleExercise(
+                    fpmlEqutiyAmericanExercise -> equityMultipleExercise
+                ),
             ...
         }
             with-meta {
                 key: fpmlEqutiyAmericanExercise -> id
             }
+
+func MapEquityMultipleExercise:
+    inputs:
+        fpmlEquityMultipleExercise fpml.EquityMultipleExercise (0..1)
+    output:
+        multipleExercise MultipleExercise (0..1)
+
+    set multipleExercise:
+        MultipleExercise {
+            integralMultipleAmount: fpmlEquityMultipleExercise -> integralMultipleExercise,
+            minimumNumberOfOptions: fpmlEquityMultipleExercise -> minimumNumberOfOptions,
+            maximumNumberOfOptions: fpmlEquityMultipleExercise -> maximumNumberOfOptions,
+            notionalReference: empty,
+            ...
+        }
 
 func MapCommodityAmericanExerciseTerms:
     inputs:
@@ -790,6 +858,54 @@ func MapFxAmericanExerciseTerms:
 
     set exerciseTerms:
         MapFxDigitalAmericanExercise(fpmlFxAmericanExercise, cdmExerciseProcedure)
+
+func GetPerUnitOfForEquityDerivativeBase:
+    inputs:
+        fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
+    output:
+        perUnitOf UnitType (0..1)
+
+    alias assetChoice:
+        ToAssetChoice(
+                fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
+
+    alias financialUnit:
+        assetChoice switch
+        Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
+        default FinancialUnitEnum -> Share
+
+    set perUnitOf:
+        UnitType {
+            financialUnit: financialUnit,
+            ...
+        }
+
+func MapAdjustableOrRelativeDateToObservationTerms:
+    inputs:
+        fpmlAdjustableOrRelativeDate fpml.AdjustableOrRelativeDate (0..1)
+    output:
+        obserrvationTerms ObservationTerms (0..1)
+
+    set obserrvationTerms:
+        if fpmlAdjustableOrRelativeDate exists
+        then ObservationTerms {
+                observationDates: ObservationDates {
+                    periodicSchedule: PeriodicDates {
+                        startDate: AdjustableOrRelativeDate {
+                            adjustableDate: MapAdjustableDate(
+                                    fpmlAdjustableOrRelativeDate -> adjustableDate
+                                ),
+                            relativeDate: MapRelativeDateOffsetToAdjustedRelativeDateOffset(
+                                    fpmlAdjustableOrRelativeDate -> relativeDate
+                                )
+                        },
+                        ...
+                    },
+                    ...
+                },
+                ...
+            }
 
 func StringContains:
     [codeImplementation]

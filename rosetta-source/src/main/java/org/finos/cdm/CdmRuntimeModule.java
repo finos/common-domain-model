@@ -77,17 +77,9 @@ public class CdmRuntimeModule extends AbstractModule {
 		// Ingest
 		install(new RuneFpmlRuntimeModule());
 		bind(StringContains.class).to(StringContainsImpl.class);
-		bind(CreatePriceWithLocation.class).to(CreatePriceWithLocationImpl.class);
-		bind(CreatePriceWithAddress.class).to(CreatePriceWithAddressImpl.class);
-		bind(CreateQuantityWithLocation.class).to(CreateQuantityWithLocationImpl.class);
-		bind(CreateQuantityWithAddress.class).to(CreateQuantityWithAddressImpl.class);
-		bind(CreateObservableWithLocation.class).to(CreateObservableWithLocationImpl.class);
-		bind(CreateObservableWithAddress.class).to(CreateObservableWithAddressImpl.class);
-		bind(CreateBasketConstituentWithLocation.class).to(CreateBasketConstituentWithLocationImpl.class);
-		bind(CreateInterestRateIndexWithLocation.class).to(CreateInterestRateIndexWithLocationImpl.class);
-		bind(CreateInterestRateIndexWithAddress.class).to(CreateInterestRateIndexWithAddressImpl.class);
-		bind(KeyValue.class).to(KeyValueImpl.class);
-		bind(AssetKeyValue.class).to(AssetKeyValueImpl.class);
+		bind(CreateKey.class).to(CreateKeyImpl.class);
+		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
+		bind(CreateKeyForQuotedCurrencyPair.class).to(CreateKeyForQuotedCurrencyPairImpl.class);
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {

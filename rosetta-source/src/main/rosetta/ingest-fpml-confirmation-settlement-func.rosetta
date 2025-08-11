@@ -84,6 +84,7 @@ func MapOptionSettlementModelToSettlementTerms:
 func MapEquityExerciseValuationSettlementToSettlementTerms:
     inputs:
         fpmlEquityExerciseValuationSettlement fpml.EquityExerciseValuationSettlement (0..1)
+        fpmlClearingInstructions fpml.SwaptionPhysicalSettlement (0..1)
     output:
         settlementTerms SettlementTerms (0..1)
 
@@ -100,6 +101,13 @@ func MapEquityExerciseValuationSettlementToSettlementTerms:
                             ),
                         ...
                     },
+            settlementCurrency: fpmlEquityExerciseValuationSettlement -> settlementCurrency -> value,
+            physicalSettlementTerms: PhysicalSettlementTerms {
+                clearedPhysicalSettlement: fpmlClearingInstructions -> clearedPhysicalSettlement,
+                predeterminedClearingOrganizationParty: if fpmlClearingInstructions -> predeterminedClearingOrganizationPartyReference -> href exists
+                    then AncillaryRoleEnum -> PredeterminedClearingOrganizationParty,
+                ...
+            },
             ...
         }
 
@@ -678,5 +686,73 @@ func MapCommoditySettlementModelToSettlementTerms:
                     fpmlCommoditySwapDetailsModel -> settlementCurrency -> value,
                     fpmlCommoditySwapDetailsModel -> settlementCurrency -> currencyScheme
                 ),
+            ...
+        }
+
+func MapFxPerformanceSwapToSettlementTerms:
+    inputs:
+        fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency exists
+                then SettlementTypeEnum -> Cash,
+            settlementCurrency: fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency -> value,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
+                    adjustedDate: MapDateWithId(
+                            fpmlFxPerformanceSwap -> settlementDate -> adjustedDate
+                        ),
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapCorrelationLegToSettlmentTerms:
+    inputs:
+        fpmlCorrelationLeg fpml.CorrelationLeg (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias fpmlOptionSettlementModel: fpmlCorrelationLeg -> optionSettlementModel
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                        empty,
+                        fpmlOptionSettlementModel -> settlementDate -> adjustableDate,
+                        fpmlOptionSettlementModel -> settlementDate -> relativeDate
+                    ),
+                ...
+            },
+            ...
+        }
+
+func MapCommodityExerciseToSettlementTerms:
+    inputs:
+        fpmlCommodityExercise fpml.CommodityExercise (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlCommodityExercise -> settlementCurrency exists
+                then Cash,
+            settlementCurrency: fpmlCommodityExercise -> settlementCurrency -> value,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
+                    relativeDate: MapDateOffsetToRelativeDateOffset(
+                            fpmlCommodityExercise -> commodityPaymentDatesModel -> relativePaymentDates -> paymentDaysOffset
+                        ),
+                    ...
+                },
+                ...
+            },
             ...
         }

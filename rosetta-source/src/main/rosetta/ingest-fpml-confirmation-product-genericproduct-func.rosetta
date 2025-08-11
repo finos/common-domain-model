@@ -1,20 +1,27 @@
 namespace cdm.ingest.fpml.confirmation.product.genericproduct: <"FpML GenericProduct product mapping functions.">
 version "${project.version}"
 
+import cdm.base.datetime.*
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
+import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.confirmation.* as fpml
 
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 
 func MapGenericProductCounterpartyList:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
     output:
         counterpartyList Counterparty (0..2)
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(fpmlGenericProduct -> buyerSellerModel)
 
 func MapGenericProductAncillaryPartyList:
     inputs:
@@ -26,6 +33,7 @@ func MapGenericProductNonTransferableProduct:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlpartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
 
@@ -35,7 +43,8 @@ func MapGenericProductNonTransferableProduct:
             taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
             economicTerms: MapGenericProductEconomicTerms(
                     fpmlGenericProduct,
-                    cdmCounterpartyList
+                    cdmCounterpartyList,
+                    fpmlpartyTradeInformation
                 )
         }
 
@@ -43,17 +52,26 @@ func MapGenericProductEconomicTerms:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlpartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
         EconomicTerms {
-            effectiveDate: empty, // MapAdjustableOrRelativeDate(fpmlTrade, fpmlPartiesAndAccountsModel),
-            terminationDate: empty, // MapAdjustableOrRelativeDate(fpmlTrade, fpmlPartiesAndAccountsModel),
+            effectiveDate: AdjustableOrRelativeDate {
+                adjustableDate: MapAdjustable2(fpmlGenericProduct -> effectiveDate),
+                ...
+            },
+            terminationDate: AdjustableOrRelativeDate {
+                adjustableDate: MapAdjustable2(fpmlGenericProduct -> terminationDate),
+                ...
+            },
             dateAdjustments: empty, // MapBusinessDayAdjustments(fpmlTrade, fpmlPartiesAndAccountsModel),
             payout: MapGenericProductPayout(fpmlGenericProduct, cdmCounterpartyList),
             terminationProvision: empty, // MapTerminationProvision(fpmlTrade, fpmlPartiesAndAccountsModel),
-            nonStandardisedTerms: empty,
+            nonStandardisedTerms: fpmlpartyTradeInformation
+                filter nonStandardTerms exists
+                then fpmlpartyTradeInformation -> nonStandardTerms only-element,
             collateral: empty, // MapCollateral(fpmlTrade, fpmlPartiesAndAccountsModel),
             ...
         }
@@ -66,15 +84,53 @@ func MapGenericProductPayout:
         payout Payout (0..1)
 
     set payout:
-        Payout {
-            ...
-        }
+        fpmlGenericProduct
+            then extract
+                Payout {
+                    SettlementPayout: SettlementPayout {
+                        payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                        priceQuantity: empty,
+                        settlementTerms: SettlementTerms {
+                            settlementType: settlementType to-enum SettlementTypeEnum,
+                            ...
+                        },
+                        underlier: empty,
+                        ...
+                    },
+                    ...
+                }
 
 func MapGenericProductPriceQuantityList:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
+    add priceQuantityList:
+        PriceQuantity {
+            price: PriceSchedule {
+                value: empty,
+                unit: UnitType {
+                    currency: fpmlGenericProduct -> notional
+                        then extract
+                            MapCurrency(
+                                    if currency exists then currency
+                                ),
+                    ...
+                },
+                priceType: AssetPrice,
+                ...
+            },
+            quantity: fpmlGenericProduct -> notional
+                then extract
+                    MapNotionalAmountToQuantityWithLocation(amount, empty, currency, empty),
+            observable: fpmlGenericProduct -> underlyer -> underlyingAsset
+                first
+                then extract MapAssetToObservableWithLocation,
+            ...
+        }
 
 func MapGenericProductAccountPartyReference:
     inputs:

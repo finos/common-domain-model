@@ -1,14 +1,12 @@
 namespace cdm.ingest.fpml.confirmation.product.varianceswap: <"FpML VarianceSwap product mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
-import cdm.base.datetime.*
 import cdm.observable.asset.*
-import cdm.product.template.*
 import cdm.product.asset.*
 import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
-import cdm.base.math.*
+import cdm.product.template.*
 
 import fpml.confirmation.* as fpml
 
@@ -59,10 +57,16 @@ func MapVarianceSwapEconomicTerms:
     output:
         economicTerms EconomicTerms (0..1)
 
+    alias fpmlEffectiveDates: fpmlVarianceSwap -> varianceLeg filter effectiveDate exists
+
     set economicTerms:
         EconomicTerms {
-            effectiveDate: MapAdjustableOrRelativeDate((fpmlVarianceSwap -> varianceLeg filter effectiveDate exists) -> effectiveDate first),
-            terminationDate: MapAdjustableOrRelativeDate((fpmlVarianceSwap -> varianceLeg filter terminationDate exists) -> terminationDate first),
+            effectiveDate: MapAdjustableOrRelativeDate(
+                    fpmlEffectiveDates -> effectiveDate first
+                ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                    (fpmlVarianceSwap -> varianceLeg filter terminationDate exists) -> terminationDate first
+                ),
             payout: fpmlVarianceSwap -> varianceLeg
                 extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
             ...
@@ -120,30 +124,6 @@ func MapVarianceLegToPerformancePayout:
             ...
         }
 
-func MapAdjustableOrRelativeDateToObservationTerms:
-    inputs:
-        fpmlAdjustableOrRelativeDate fpml.AdjustableOrRelativeDate (0..1)
-    output:
-        obserrvationTerms ObservationTerms (0..1)
-
-    set obserrvationTerms:
-        if fpmlAdjustableOrRelativeDate exists
-        then ObservationTerms {
-                observationDates: ObservationDates {
-                    periodicSchedule: PeriodicDates {
-                        startDate: AdjustableOrRelativeDate {
-                            relativeDate: MapRelativeDateOffsetToAdjustedRelativeDateOffset(
-                                    fpmlAdjustableOrRelativeDate -> relativeDate
-                                ),
-                            ...
-                        },
-                        ...
-                    },
-                    ...
-                },
-                ...
-            }
-
 func MapVarianceLegToVarianceReturnTerms:
     inputs:
         fpmlVarianceLeg fpml.VarianceLeg (0..1)
@@ -163,7 +143,7 @@ func MapVarianceLegToVarianceReturnTerms:
             dividendApplicability: DividendApplicability {
                 optionsExchangeDividends: fpmlVarianceLeg -> amount -> dividendsModel -> optionsExchangeDividends,
                 additionalDividends: fpmlVarianceLeg -> amount -> dividendsModel -> additionalDividends,
-                ...
+                allDividends: fpmlVarianceLeg -> amount -> dividendsModel -> allDividends
             },
             initialLevel: fpmlVariance -> calculationFromObservationChoice -> calculationFromObservationChoiceSequence -> initialLevel,
             varianceStrikePrice: if fpmlVariance -> varianceStrikePrice exists
@@ -179,13 +159,14 @@ func MapVarianceLegToVarianceReturnTerms:
                     upperBarrier: fpmlVariance -> boundedVariance -> upperBarrier,
                     lowerBarrier: fpmlVariance -> boundedVariance -> lowerBarrier
                 },
-                varianceCap: empty,
+                varianceCap: fpmlVariance -> varianceCap,
                 ...
             },
             vegaNotionalAmount: NonNegativeQuantitySchedule {
                 value: fpmlVariance -> vegaNotionalAmount,
                 unit: UnitType {
-                    currency: if fpmlVariance -> vegaNotionalAmount exists then fpmlVariance -> varianceAmount -> currency -> value,
+                    currency: if fpmlVariance -> vegaNotionalAmount exists
+                        then fpmlVariance -> varianceAmount -> currency -> value,
                     ...
                 },
                 ...
@@ -194,7 +175,7 @@ func MapVarianceLegToVarianceReturnTerms:
                 Asset: if fpmlAsset exists then MapAsset(fpmlAsset),
                 ...
             },
-            expectedN: empty,
+            expectedN: fpmlVariance -> expectedN,
             ...
         }
 

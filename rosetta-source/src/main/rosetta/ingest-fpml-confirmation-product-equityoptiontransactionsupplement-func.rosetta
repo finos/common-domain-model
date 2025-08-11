@@ -5,6 +5,7 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
@@ -74,6 +75,14 @@ func MapEquityOptionTransactionSupplementPayout:
     output:
         payout Payout (0..1)
 
+    alias unit:
+        UnitType {
+            currency: MapCurrency(fpmlEquityOptionTransactionSupplement -> strike -> currency),
+            ...
+        }
+
+    alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlEquityOptionTransactionSupplement)  
+
     set payout:
         Payout {
             OptionPayout: OptionPayout {
@@ -89,7 +98,8 @@ func MapEquityOptionTransactionSupplementPayout:
                     ...
                 },
                 settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlEquityOptionTransactionSupplement -> equityExercise
+                        fpmlEquityOptionTransactionSupplement -> equityExercise,
+                        empty
                     ),
                 buyerSeller: MapBuyerSeller(
                         fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
@@ -107,13 +117,15 @@ func MapEquityOptionTransactionSupplementPayout:
                                 fpmlEquityOptionTransactionSupplement -> equityExercise
                             ),
                         empty,
+                        fpmlEquityOptionTransactionSupplement -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
                         fpmlEquityOptionTransactionSupplement -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
                 strike: MapOptionStrikePrice(
                         fpmlEquityOptionTransactionSupplement -> strike -> strikePrice,
                         fpmlEquityOptionTransactionSupplement -> strike -> equityStrikeSequence -> strikePercentage,
-                        fpmlEquityOptionTransactionSupplement -> strike -> currency
+                        unit,
+                        perUnitOf
                     ),
                 ...
             },

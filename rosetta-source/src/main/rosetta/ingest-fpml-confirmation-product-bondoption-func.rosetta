@@ -5,6 +5,7 @@ import cdm.base.staticdata.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.base.math.*
 
 import fpml.confirmation.* as fpml
 
@@ -93,6 +94,7 @@ func MapBondOptionPayout:
                 exerciseTerms: MapExerciseTerms(
                         fpmlBondOption -> exercise,
                         fpmlBondOption -> exerciseProcedure,
+                        empty,
                         fpmlBondOption -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
@@ -108,12 +110,25 @@ func MapBondOptionStrikeToOptionStrike:
     output:
         optionStrikePrice OptionStrike (0..1)
 
+    alias unit:
+        UnitType {
+            currency: MapCurrency(fpmlBondOptionStrike -> price -> currency),
+            ...
+        }
+
+    alias perUnitOf:
+        UnitType {
+            currency: MapCurrency(fpmlBondOptionStrike -> price -> currency),
+            ...
+        }
+
     set optionStrikePrice:
         if fpmlBondOptionStrike -> price exists
         then MapOptionStrikePrice(
                     fpmlBondOptionStrike -> price -> strikePrice,
                     fpmlBondOptionStrike -> price -> strikePercentage,
-                    fpmlBondOptionStrike -> price -> currency
+                    unit,
+                    perUnitOf
                 )
         else MapOptionStrikeReferenceSwapCurve(fpmlBondOptionStrike -> referenceSwapCurve)
 

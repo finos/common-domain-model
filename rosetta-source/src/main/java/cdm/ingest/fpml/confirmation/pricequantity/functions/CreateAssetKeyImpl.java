@@ -5,7 +5,7 @@ import fpml.confirmation.Asset;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AssetKeyValueImpl extends AssetKeyValue {
+public class CreateAssetKeyImpl extends CreateAssetKey {
 
     @Override
     protected String doEvaluate(String keyPrefix, Asset fpmlAsset) {
