@@ -2,7 +2,7 @@
 
 _Background_
 
-As outlined in the [Implementation Update Q2 2025](https://github.com/finos/common-domain-model/issues/3364#issuecomment-2957178892), the ingest functions for FpML Confirmation to CDM will be contributed to the CDM 7-dev branch. This will enable early testing by the CDM community.
+As outlined in the [Implementation Update Q2 2025](https://github.com/finos/common-domain-model/issues/3364#issuecomment-2957178892), the ingest functions for FpML Confirmation to CDM can be contributed to the CDM 7-dev branch. This enables early testing by the CDM community.
 
 This milestone provides an opportunity to gather feedback, validate the implementation, and ensure alignment with community needs.
 
