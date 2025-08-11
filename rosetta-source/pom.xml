@@ -914,11 +914,38 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-rune-fpml-rosetta</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/parent-dependency</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.regnosys.rune-fpml</groupId>
+                                    <artifactId>rosetta-source</artifactId>
+                                    <includes>fpml/rosetta/*.rosetta</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeScope>runtime</includeScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>default-cli</id>
-                        <phase>validate</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -926,28 +953,16 @@
                             <outputDirectory>${basedir}/target/classes/cdm/rosetta</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/rosetta</directory>
+                                    <directory>${project.build.directory}/parent-dependency/fpml/rosetta</directory>
                                     <includes>
                                         <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-json-hierarchy-file</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/main/rosetta</outputDirectory>
-                            <resources>
                                 <resource>
-                                    <directory>src/generated/java</directory>
+                                    <directory>src/main/rosetta</directory>
                                     <includes>
-                                        <include>namespace-hierarchy.json</include>
+                                        <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -1076,6 +1091,10 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.regnosys.rune-fpml</groupId>
+            <artifactId>rosetta-source</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>

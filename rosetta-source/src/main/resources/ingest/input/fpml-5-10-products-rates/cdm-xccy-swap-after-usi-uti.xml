@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../../../schemas/fpml-5-10/confirmation/fpml-main-5-10.xsd"
+  xmlns="http://www.fpml.org/FpML-5/confirmation" fpmlVersion="5-10">
+  <trade>
+    <tradeHeader>
+      <!-- In the below example, the contract has both a CFTC USI and a UTI.
+        The USI issuer is identified through its NSA identifier (with the 103 prefix as the CFTC
+        identifier), while the UTI issuer is identifier through its LEI identifier.
+        One limitation is that version# cannot be associated with this construct. As a result this
+        sample fails the CDM data rule that requires a contract version.
+         -->
+      <partyTradeIdentifier>
+        <issuer issuerIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">54930084UKLVMY22DS16</issuer>
+        <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/uti">DRTY123456</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <issuer issuerIdScheme="http://www.fpml.org/coding-scheme/external/nsa/cftc">1031234567</issuer>
+        <tradeId tradeIdScheme="http://www.fpml.org/coding-scheme/external/usi">UITD7895394</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate id="tradeDate">2018-03-19</tradeDate>
+    </tradeHeader>
+    <swap>
+      <primaryAssetClass>InterestRate</primaryAssetClass>
+      <productType productTypeScheme="http://www.fpml.org/coding-scheme/external/product-classification/iso10962">SRAXCC</productType>
+      <productType productTypeScheme="http://www.dtcc.com/coding-scheme/external/product-classification/emir-contract-type">SW</productType>
+      <productId productIdScheme="http://www.dtcc.com/coding-scheme/external/GTR-Product-Id">InterestRate:CrossCurrency:Basis</productId>
+      <swapStream>
+        <payerPartyReference href="party1"/>
+        <receiverPartyReference href="party2"/>
+        <calculationPeriodDates id="d0e5304">
+          <effectiveDate>
+            <unadjustedDate>2018-03-21</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+                <businessCenter>EUTA</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2023-03-21</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+                <businessCenter>EUTA</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+            <adjustedDate>2023-03-21</adjustedDate>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+          </calculationPeriodDatesAdjustments>
+          <!-- The example provided included a firstPeriodStartDate = effectiveDate.  This element
+            has been removed because not valid. -->
+          <calculationPeriodFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+            <rollConvention>21</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="d0e5304"/>
+          <paymentFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <firstPaymentDate>2018-06-21</firstPaymentDate>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <resetDates id="d0e5651">
+          <calculationPeriodDatesReference href="d0e5304"/>
+          <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+          <fixingDates>
+            <periodMultiplier>-2</periodMultiplier>
+            <period>D</period>
+            <dayType>Business</dayType>
+            <businessDayConvention>NONE</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+            </businessCenters>
+            <dateRelativeTo href="d0e5651"/>
+          </fixingDates>
+          <resetFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </resetFrequency>
+          <resetDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+            </businessCenters>
+          </resetDatesAdjustments>
+        </resetDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <fxLinkedNotionalSchedule>
+              <constantNotionalScheduleReference href="fixed_notional_schedule"/>
+              <initialValue>1726.62</initialValue>
+              <varyingNotionalCurrency>USD</varyingNotionalCurrency>
+              <varyingNotionalFixingDates>
+                <periodMultiplier>2</periodMultiplier>
+                <period>D</period>
+                <dayType>Business</dayType>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>GBLO</businessCenter>
+                </businessCenters>
+                <dateRelativeTo href="tradeDate"/>
+              </varyingNotionalFixingDates>
+              <fxSpotRateSource>
+                <primaryRateSource>
+                  <rateSource>Telerate</rateSource>
+                  <rateSourcePage>WM Company LDN 11am Mid</rateSourcePage>
+                  <rateSourcePageHeading>USD/EUR</rateSourcePageHeading>
+                </primaryRateSource>
+                <fixingTime>
+                  <hourMinuteTime>11:00:00</hourMinuteTime>
+                  <businessCenter>GBLO</businessCenter>
+                </fixingTime>
+              </fxSpotRateSource>
+              <varyingNotionalInterimExchangePaymentDates>
+                <periodMultiplier>2</periodMultiplier>
+                <period>D</period>
+                <dayType>Business</dayType>
+                <businessDayConvention>MODFOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>GBLO</businessCenter>
+                </businessCenters>
+                <dateRelativeTo href="tradeDate"/>
+              </varyingNotionalInterimExchangePaymentDates>
+            </fxLinkedNotionalSchedule>
+            <floatingRateCalculation>
+              <floatingRateIndex floatingRateIndexScheme="http://www.fpml.org/coding-scheme/floating-rate-index">USD-LIBOR-BBA</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>3</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+              <spreadSchedule>
+                <initialValue>0.0</initialValue>
+              </spreadSchedule>
+            </floatingRateCalculation>
+            <!-- The CDF was missing from the provided example and has been added. -->
+            <dayCountFraction>ACT/360</dayCountFraction>
+            <compoundingMethod>None</compoundingMethod>
+          </calculation>
+        </calculationPeriodAmount>
+        <principalExchanges>
+          <initialExchange>false</initialExchange>
+          <finalExchange>false</finalExchange>
+          <intermediateExchange>true</intermediateExchange>
+        </principalExchanges>
+        <cashflows>
+          <cashflowsMatchParameters>false</cashflowsMatchParameters>
+        </cashflows>
+        <settlementProvision>
+          <settlementCurrency>USD</settlementCurrency>
+        </settlementProvision>
+      </swapStream>
+      <swapStream>
+        <payerPartyReference href="party2"/>
+        <receiverPartyReference href="party1"/>
+        <calculationPeriodDates id="d0e6023">
+          <effectiveDate>
+            <unadjustedDate>2018-03-21</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+                <businessCenter>EUTA</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate>
+            <unadjustedDate>2023-03-21</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>MODFOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>GBLO</businessCenter>
+                <businessCenter>USNY</businessCenter>
+                <businessCenter>EUTA</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+            <adjustedDate>2023-03-21</adjustedDate>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+          </calculationPeriodDatesAdjustments>
+          <!-- The example provided included a firstPeriodStartDate = effectiveDate.  This element
+            has been removed because not valid. -->
+          <calculationPeriodFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+            <rollConvention>21</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <calculationPeriodDatesReference href="d0e6023"/>
+          <paymentFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </paymentFrequency>
+          <firstPaymentDate>2018-06-21</firstPaymentDate>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>GBLO</businessCenter>
+              <businessCenter>USNY</businessCenter>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <resetDates id="d0e6369">
+          <calculationPeriodDatesReference href="d0e6023"/>
+          <resetRelativeTo>CalculationPeriodStartDate</resetRelativeTo>
+          <fixingDates>
+            <periodMultiplier>-2</periodMultiplier>
+            <period>D</period>
+            <dayType>Business</dayType>
+            <businessDayConvention>NONE</businessDayConvention>
+            <businessCenters>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+            <dateRelativeTo href="d0e6369"/>
+          </fixingDates>
+          <resetFrequency>
+            <periodMultiplier>3</periodMultiplier>
+            <period>M</period>
+          </resetFrequency>
+          <resetDatesAdjustments>
+            <businessDayConvention>MODFOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>EUTA</businessCenter>
+            </businessCenters>
+          </resetDatesAdjustments>
+        </resetDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule id="fixed_notional_schedule">
+              <notionalStepSchedule>
+                <initialValue>1400</initialValue>
+                <currency>EUR</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <floatingRateCalculation>
+              <floatingRateIndex floatingRateIndexScheme="http://www.fpml.org/coding-scheme/floating-rate-index">EUR-EURIBOR-Telerate</floatingRateIndex>
+              <indexTenor>
+                <periodMultiplier>3</periodMultiplier>
+                <period>M</period>
+              </indexTenor>
+              <spreadSchedule>
+                <initialValue>-0.0045</initialValue>
+              </spreadSchedule>
+            </floatingRateCalculation>
+            <!-- The CDF was missing from the provided example and has been added. -->
+            <dayCountFraction>ACT/360</dayCountFraction>
+            <compoundingMethod>None</compoundingMethod>
+          </calculation>
+        </calculationPeriodAmount>
+        <principalExchanges>
+          <initialExchange>true</initialExchange>
+          <finalExchange>true</finalExchange>
+          <intermediateExchange>true</intermediateExchange>
+        </principalExchanges>
+        <cashflows>
+          <cashflowsMatchParameters>false</cashflowsMatchParameters>
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>2018-03-21</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>-1400.00</principalExchangeAmount>
+          </principalExchange>
+          <principalExchange>
+            <adjustedPrincipalExchangeDate>2023-03-21</adjustedPrincipalExchangeDate>
+            <principalExchangeAmount>1400.00</principalExchangeAmount>
+          </principalExchange>
+        </cashflows>
+        <settlementProvision>
+          <settlementCurrency>EUR</settlementCurrency>
+        </settlementProvision>
+      </swapStream>
+      <additionalPayment id="SDB123-AB5.EUR.20180209.0">
+        <payerPartyReference href="party1"/>
+        <receiverPartyReference href="party2"/>
+        <paymentAmount>
+          <currency>EUR</currency>
+          <amount>5.00</amount>
+        </paymentAmount>
+        <paymentDate>
+          <adjustedDate>2018-02-09</adjustedDate>
+        </paymentDate>
+      </additionalPayment>
+    </swap>
+  </trade>
+  <party id="party1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">54930084UKLVMY22DS16</partyId>
+    <partyName>Party A</partyName>
+  </party>
+  <party id="party2">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">48750084UKLVTR22DS78</partyId>
+    <partyName>Party B</partyName>
+  </party>
+</dataDocument>

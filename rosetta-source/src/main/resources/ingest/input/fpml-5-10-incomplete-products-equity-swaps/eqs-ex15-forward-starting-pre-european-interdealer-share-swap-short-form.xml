@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-10-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2014-2018 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--With forward starting, the deal needs to be updated on/after the strike date to add (Initial Price) and replace with (Equity Notional) numeric values, so there are two samples for the same deal – pre and post.-->
+<!--5.0:Message type is a Root of the message-->
+<!--5.0 Messaging: changed <requestTradeConfirmation> -><requestConfirmation>-->
+<requestConfirmation xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-10" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-10.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <header>
+<!--FpML 5.0: Removed "conversationId", replaced by "conversationId"-->
+<!--conversationId conversationIdScheme="http://www.example.com/conversationId">CS/2009/09/09/32-09</conversationId-->
+    <messageId messageIdScheme="http://www.example.com/messageId">MS/2009/09/09/15-89</messageId>
+    <sentBy>PARTYABIC1</sentBy>
+    <sendTo>PARTYBBIC2</sendTo>
+    <creationTimestamp>2009-09-09T16:38:00Z</creationTimestamp>
+  </header>
+<!--5.0 Messaging: added
+                <isCorrection>
+                <correlationId>
+                <sequenceNumber>
+        -->
+  <isCorrection>false</isCorrection>
+  <correlationId correlationIdScheme="http://www.example.com/conversationId">CS/2009/09/09/32-09</correlationId>
+  <sequenceNumber>1</sequenceNumber>
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <versionedTradeId>
+          <tradeId tradeIdScheme="http://www.partyA.com/trade-id-1-0">1558488</tradeId>
+          <version>1</version>
+        </versionedTradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <versionedTradeId>
+          <tradeId tradeIdScheme="http://www.partyB.com/trade-id-1-0">8848551</tradeId>
+          <version>1</version>
+        </versionedTradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2009-09-09</tradeDate>
+    </tradeHeader>
+    <equitySwapTransactionSupplement>
+      <interestLeg id="interestLeg">
+        <payerPartyReference href="party2" />
+        <receiverPartyReference href="party1" />
+        <interestLegCalculationPeriodDates id="interestCalcPeriodDates">
+          <effectiveDate id="interestEffectiveDate">
+            <adjustableDate>
+              <unadjustedDate>2009-10-13</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>FOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+              </dateAdjustments>
+            </adjustableDate>
+          </effectiveDate>
+          <terminationDate id="interestTerminationDate">
+            <adjustableDate>
+              <unadjustedDate>2009-12-11</unadjustedDate>
+              <dateAdjustments>
+                <businessDayConvention>FOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+              </dateAdjustments>
+            </adjustableDate>
+          </terminationDate>
+          <interestLegResetDates>
+            <calculationPeriodDatesReference href="interestCalcPeriodDates" />
+            <resetFrequency>
+              <periodMultiplier>1</periodMultiplier>
+              <period>M</period>
+            </resetFrequency>
+            <fixingDates>
+              <relativeDate>
+                <periodMultiplier>-2</periodMultiplier>
+                <period>D</period>
+                <dayType>CurrencyBusiness</dayType>
+                <businessDayConvention>PRECEDING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+                <dateRelativeTo href="interestLegPaymentDates" />
+              </relativeDate>
+            </fixingDates>
+          </interestLegResetDates>
+          <interestLegPaymentDates id="interestLegPaymentDates">
+            <periodicDates>
+              <calculationStartDate>
+                <relativeDate>
+                  <periodMultiplier>0</periodMultiplier>
+                  <period>D</period>
+                  <businessDayConvention>NotApplicable</businessDayConvention>
+                  <dateRelativeTo href="interestEffectiveDate" />
+                </relativeDate>
+              </calculationStartDate>
+              <calculationEndDate>
+                <relativeDate>
+                  <periodMultiplier>0</periodMultiplier>
+                  <period>D</period>
+                  <businessDayConvention>NotApplicable</businessDayConvention>
+                  <dateRelativeTo href="interestTerminationDate" />
+                </relativeDate>
+              </calculationEndDate>
+              <calculationPeriodFrequency>
+                <periodMultiplier>1</periodMultiplier>
+                <period>M</period>
+                <rollConvention>9</rollConvention>
+              </calculationPeriodFrequency>
+              <calculationPeriodDatesAdjustments>
+                <businessDayConvention>FOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+              </calculationPeriodDatesAdjustments>
+            </periodicDates>
+          </interestLegPaymentDates>
+        </interestLegCalculationPeriodDates>
+        <notional>
+          <relativeNotionalAmount href="equityNotionalAmount" />
+        </notional>
+        <interestAmount>
+          <currencyReference href="equityPaymentCurrency" />
+          <referenceAmount>StandardISDA</referenceAmount>
+        </interestAmount>
+        <interestCalculation>
+          <floatingRateCalculation>
+            <floatingRateIndex>EUR-EURIBOR-Reuters</floatingRateIndex>
+            <indexTenor>
+              <periodMultiplier>1</periodMultiplier>
+              <period>M</period>
+            </indexTenor>
+            <spreadSchedule>
+              <initialValue>0</initialValue>
+            </spreadSchedule>
+          </floatingRateCalculation>
+          <dayCountFraction>ACT/360</dayCountFraction>
+          <interpolationMethod>LinearZeroYield</interpolationMethod>
+          <interpolationPeriod>InitialAndFinal</interpolationPeriod>
+        </interestCalculation>
+      </interestLeg>
+      <returnLeg id="returnLeg">
+        <payerPartyReference href="party1" />
+        <receiverPartyReference href="party2" />
+        <effectiveDate id="equityEffectiveDate">
+          <adjustableDate>
+            <unadjustedDate>2009-10-09</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter businessCenterScheme="http://www.example.com/exchange-holiday-calendars">GER</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </adjustableDate>
+        </effectiveDate>
+        <terminationDate>
+          <adjustableDate>
+            <unadjustedDate>2009-12-09</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter businessCenterScheme="http://www.example.com/exchange-holiday-calendars">GER</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </adjustableDate>
+        </terminationDate>
+        <strikeDate>
+          <adjustableDate>
+            <unadjustedDate>2009-10-09</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter businessCenterScheme="http://www.example.com/exchange-holiday-calendars">GER</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </adjustableDate>
+        </strikeDate>
+        <underlyer>
+          <singleUnderlyer>
+            <equity>
+              <instrumentId instrumentIdScheme="http://www.example.com/instrument-id-Reuters-RIC-1-0">BMWG.DE</instrumentId>
+              <instrumentId instrumentIdScheme="http://www.example.com/instrument-id-ISIN-1-0">DE0005190003</instrumentId>
+              <description>BMW ORD</description>
+              <currency>EUR</currency>
+              <exchangeId exchangeIdScheme="http://www.example.com/exchangeId">XETR</exchangeId>
+            </equity>
+            <openUnits>100000</openUnits>
+            <dividendPayout>
+              <dividendPayoutRatio>1</dividendPayoutRatio>
+            </dividendPayout>
+          </singleUnderlyer>
+        </underlyer>
+        <rateOfReturn>
+          <initialPrice>
+            <determinationMethod>AgreedInitialPrice</determinationMethod>
+          </initialPrice>
+          <notionalReset>true</notionalReset>
+          <valuationPriceInterim>
+            <determinationMethod>ValuationTime</determinationMethod>
+            <valuationRules>
+              <valuationDates id="interimValuationDate">
+                <periodicDates>
+                  <calculationStartDate>
+                    <relativeDate>
+                      <periodMultiplier>0</periodMultiplier>
+                      <period>D</period>
+                      <businessDayConvention>NotApplicable</businessDayConvention>
+                      <dateRelativeTo href="equityEffectiveDate" />
+                    </relativeDate>
+                  </calculationStartDate>
+                  <calculationEndDate>
+                    <relativeDate>
+                      <periodMultiplier>0</periodMultiplier>
+                      <period>D</period>
+                      <businessDayConvention>NotApplicable</businessDayConvention>
+                      <dateRelativeTo href="finalValuationDate" />
+                    </relativeDate>
+                  </calculationEndDate>
+                  <calculationPeriodFrequency>
+                    <periodMultiplier>1</periodMultiplier>
+                    <period>M</period>
+                    <rollConvention>9</rollConvention>
+                  </calculationPeriodFrequency>
+                  <calculationPeriodDatesAdjustments>
+                    <businessDayConvention>FOLLOWING</businessDayConvention>
+                    <businessCenters>
+                      <businessCenter businessCenterScheme="http://www.example.com/exchange-holiday-calendars">GER</businessCenter>
+                    </businessCenters>
+                  </calculationPeriodDatesAdjustments>
+                </periodicDates>
+              </valuationDates>
+              <valuationTimeType>AsSpecifiedInMasterConfirmation</valuationTimeType>
+            </valuationRules>
+          </valuationPriceInterim>
+          <valuationPriceFinal>
+            <determinationMethod>HedgeExecution</determinationMethod>
+            <valuationRules>
+              <valuationDate id="finalValuationDate">
+                <adjustableDate>
+                  <unadjustedDate>2009-12-09</unadjustedDate>
+                  <dateAdjustments>
+                    <businessDayConvention>FOLLOWING</businessDayConvention>
+                    <businessCenters>
+                      <businessCenter businessCenterScheme="http://www.example.com/exchange-holiday-calendars">GER</businessCenter>
+                    </businessCenters>
+                  </dateAdjustments>
+                </adjustableDate>
+              </valuationDate>
+              <valuationTimeType>AsSpecifiedInMasterConfirmation</valuationTimeType>
+            </valuationRules>
+          </valuationPriceFinal>
+          <paymentDates>
+            <paymentDatesInterim>
+              <relativeDates>
+                <periodMultiplier>2</periodMultiplier>
+                <period>D</period>
+                <dayType>CurrencyBusiness</dayType>
+                <businessDayConvention>FOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+                <dateRelativeTo href="interimValuationDate" />
+              </relativeDates>
+            </paymentDatesInterim>
+            <paymentDateFinal>
+              <relativeDate>
+                <periodMultiplier>2</periodMultiplier>
+                <period>D</period>
+                <dayType>CurrencyBusiness</dayType>
+                <businessDayConvention>FOLLOWING</businessDayConvention>
+                <businessCenters>
+                  <businessCenter>EUTA</businessCenter>
+                </businessCenters>
+                <dateRelativeTo href="finalValuationDate" />
+              </relativeDate>
+            </paymentDateFinal>
+          </paymentDates>
+        </rateOfReturn>
+        <notional id="equityNotionalAmount">
+          <determinationMethod>StrikeDateDetermination</determinationMethod>
+        </notional>
+        <amount>
+          <currency id="equityPaymentCurrency">EUR</currency>
+          <referenceAmount>StandardISDA</referenceAmount>
+          <cashSettlement>true</cashSettlement>
+        </amount>
+        <return>
+          <returnType>Total</returnType>
+          <dividendConditions>
+            <dividendPaymentDate>
+              <dividendDateReference>CashSettlementPaymentDate</dividendDateReference>
+            </dividendPaymentDate>
+            <dividendPeriod>SecondPeriod</dividendPeriod>
+            <determinationMethod>IssuerPaymentCurrency</determinationMethod>
+            <declaredCashDividendPercentage>1</declaredCashDividendPercentage>
+            <declaredCashEquivalentDividendPercentage>1</declaredCashEquivalentDividendPercentage>
+            <nonCashDividendTreatment>PotentialAdjustmentEvent</nonCashDividendTreatment>
+            <dividendComposition>EquityAmountReceiverElection</dividendComposition>
+          </dividendConditions>
+        </return>
+        <notionalAdjustments>Standard</notionalAdjustments>
+      </returnLeg>
+      <optionalEarlyTermination>true</optionalEarlyTermination>
+      <breakFeeElection>FlatFee</breakFeeElection>
+      <breakFeeRate>0.1</breakFeeRate>
+    </equitySwapTransactionSupplement>
+    <hedgingParty href="party2" />
+    <documentation>
+      <masterConfirmation>
+        <masterConfirmationType>ISDA2009EquityEuropeanInterdealer</masterConfirmationType>
+        <masterConfirmationDate>2009-09-01</masterConfirmationDate>
+        <masterConfirmationAnnexDate>2009-09-01</masterConfirmationAnnexDate>
+        <masterConfirmationAnnexType>ISDA2009EquityEuropeanInterdealerSS</masterConfirmationAnnexType>
+      </masterConfirmation>
+    </documentation>
+  </trade>
+  <party id="party1">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party A</partyId>
+    <partyName>AAA Bank</partyName>
+  </party>
+  <party id="party2">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/dummy-party-id">Party B</partyId>
+    <partyName>Mega Bank Ltd</partyName>
+  </party>
+</requestConfirmation>
