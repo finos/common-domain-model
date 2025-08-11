@@ -1,4 +1,4 @@
-# _CDM Event Workflow - Change ondition CounterpartyPositionBusinessEventOrBusinessEventChoice to accept proposedEvent_
+# _Event Workflow - Change condition CounterpartyPositionBusinessEventOrBusinessEventChoice to accept proposedEvent_
 
 _Background_
 
@@ -12,6 +12,7 @@ This contribution modifies the required choice within the model. Previously, the
 Additionally, the definitions of elements within workflowStep, specifically businessEvent and proposedEvent, have been revised. It was previously assumed that a proposedEvent could coexist with a businessEvent. This assumption has been removed, and the model now enforces that only one of these elements can be present at a time, in alignment with the updated choice constraint.
 
 The linked issue here - [3681](https://github.com/finos/common-domain-model/issues/3681)
+
 _Review Directions_
 
 Changes can be reviewed in PR: [3954](https://github.com/finos/common-domain-model/pull/3954)
