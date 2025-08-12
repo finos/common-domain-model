@@ -13,22 +13,35 @@ choice Asset: <"An Asset is defined as something that can be owned and transferr
     DigitalAsset <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
     Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
+    condition AssetPartyRole:
+        Instrument ->> party exists and Instrument ->> partyRole -> role exists
+        or
+        DigitalAsset -> party exists and DigitalAsset -> partyRole -> role exists
+
+
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
     party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
-    assetPartyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity">
-    assetAncillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
+    partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity">
+    ancillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
+
 
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
         if assetType -> assetType = Security
-            then assetPartyRole -> role = Issuer
+            then partyRole -> role = Issuer
 
-    condition LenderBorrower: <"If the asset type is a security then the role must be issuer.">
+    condition LenderBorrower: <"If the asset type is a Load then the role must be Lender.">
         if assetType -> assetType = Loan
-            then assetPartyRole -> role =  Lender or assetPartyRole -> role = Borrower
+            then partyRole -> role =  Lender
+
+   condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
+            if isExchangeListed then partyRole -> role = Exchange
+
+   condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
+            if isExchangeListed absent then ancillaryPartyRole -> role = RelatedExchange is absent
 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
@@ -107,6 +120,11 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
     condition NoTaxonomy: <"Taxonomy is not applicable for a Cash asset.">
         taxonomy is absent
 
+    condition NoCashParty:
+           if Cash exists
+                then Cash -> party is absent
+                and Cash -> partyRole -> role is absent
+
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
     priceQuoteType QuotationSideEnum (1..1) <"Describes the required quote type of the underlying price that will be observed. Example values include 'Bid, 'Ask', 'Settlement' (for a futures contract) and 'WeightedAverage' (for some published prices and indices).">
@@ -120,6 +138,11 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
         if taxonomy exists
         then (taxonomy -> source exists and taxonomy -> value exists)
+
+   condition NoCashParty:
+           if Commodity exists
+                then Commodity -> party is absent
+                and Commodity -> assetPartyRole -> role is absent
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
