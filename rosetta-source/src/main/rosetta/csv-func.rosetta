@@ -1,0 +1,55 @@
+namespace cdm.csv
+version "${project.version}"
+
+func Ingest_CsvExample:
+    [ingest JSON]
+    inputs:
+        csv SomeCsvType (1..1)
+    output:
+        someType SomeType (1..1)
+
+    set someType:
+        SomeType {
+            stringField: csv -> stringField,
+            numberField: csv -> numberField to-number,
+            listField: [csv -> listField1, csv -> listField2],
+            complexField: SomeOtherType {
+                field1: csv -> complexField_field1,
+                field2: csv -> complexField_field2
+            },
+            dateField: csv -> dateField to-date
+        }
+
+func Projection_CsvExample:
+    [projection JSON]
+    inputs:
+        someType SomeType (1..1)
+    output:
+        csv SomeCsvType (1..1)
+
+    set csv:
+        SomeCsvType {
+            stringField: someType -> stringField,
+            numberField: someType -> numberField to-string,
+            listField1: GetElement(someType -> listField, 1),
+            listField2: GetElement(someType -> listField, 2),
+            complexField_field1: someType -> complexField -> field1,
+            complexField_field2: someType -> complexField -> field2,
+            dateField: someType -> dateField to-string
+        }
+
+//Would need a Java implmentation
+func GetElement:
+    [codeImplementation]
+    inputs:
+        inputList string (1..*)
+        index number (1..1)
+    output:
+        element string (1..1)
+
+func ConcatListStrings:
+    inputs:
+        inputList string (1..*)
+    output:
+        outputElement string (1..1)
+    set outputElement: inputList join ","
