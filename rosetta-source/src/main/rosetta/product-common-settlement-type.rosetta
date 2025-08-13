@@ -19,17 +19,27 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
         [metadata scheme]
 
 type AssetFlowBase: <"Defines the basic parameters of an asset transfer, e.g. a cashflow: what (the asset), how much (the quantity) and when (the settlement date).">
-    quantity NonNegativeQuantity (1..1) <"Represents the amount of the asset to be transferred. The cashflow amount is always a positive number, as the cashflow direction is implied by the payer/receiver attribute.">
-    asset Asset (1..1) <"Represents the object that is subject to the transfer, it could be an asset or a reference.">
-    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"Represents the date on which the transfer to due.">
+    
+    deliverableQuantity NonNegativeQuantity (1..1) <"The quantity that is transferred.">
+    notionalQuantity NonNegativeQuantity (0..*) <"The notional value or nominal amount of the asset to which the transfer is relative to.">
+    price Price (0..*) <"The price of the asset to which the transfer is relative to.">
+    asset Asset (1..1) <"The asset to which the transfer is relative to.">
+    settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"The date on which the transfer to due.">
 
-    condition QuantityUnitExists: <"Aligns the type of unit and the type of asset.">
-        if asset -> Cash exists
-        then quantity -> unit -> currency exists
-        else if asset -> Commodity exists
-        then quantity -> unit -> capacityUnit exists
-        else if asset -> Instrument exists
-        then quantity -> unit -> financialUnit exists
+  condition NotionalQuantityUnitIsMoney:
+  if notionalQuantity exists 
+    then notionalQuantity -> unit -> currency exists
+
+  condition CashAsset: <"It is not permitted to deliver non-cash quantity if the asset subject to tranfer is Cash (however, it is possible to deliver cash quantity in relation to another asset type e.g. for instance when representing a cash transfer in relation to given share).">
+  if asset -> Cash exists
+    then deliverableQuantity -> unit -> currency exists
+
+  condition DeliverableQuantityUnit: <"The unit of the deliverable quantity must be consistent with the kind of asset the transfer is relative to (which does not apply to cash transfer because cash quantity may be delivered in relation to other assets then cash).">
+  if deliverableQuantity -> unit -> capacityUnit exists
+    then asset -> Commodity exists
+  else if deliverableQuantity -> unit -> financialUnit exists
+    then asset -> Instrument exists
+
 
 type Cashflow extends AssetFlowBase: <"Class to specify a cashflow, i.e. the outcome of either of computation (e.g. interest accrual) or an assessment of some sort (e.g. a fee). The cashflow can then be turned into a cash transfer, artefact to be used as the input to a payment system or the outcome of it. The associated globalKey denotes the ability to associate a hash value to the Cashflow instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     payerReceiver PayerReceiver (1..1) <"Specifies who pays / receives the cashflow, though a normalised Party1 / Party2 enumerator.">

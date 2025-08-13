@@ -104,7 +104,7 @@ func FilterCashTransfers:
     output:
         cashTransfers Transfer (0..*)
 
-    add cashTransfers: transfers filter quantity -> unit -> currency exists
+    add cashTransfers: transfers filter  deliverableQuantity -> unit -> currency exists
 
 func FilterSecurityTransfers:
     inputs:
@@ -183,8 +183,8 @@ func InterestCashSettlementAmount: <"Defines the performance calculations releva
     condition IsInterestRatePayout: <"Payout must be an InterestRatePayout.">
         payout -> InterestRatePayout exists
 
-    set interestCashSettlementAmount -> quantity -> value: performance
-    set interestCashSettlementAmount -> quantity -> unit -> currency:
+    set interestCashSettlementAmount ->  deliverableQuantity -> value: performance
+    set interestCashSettlementAmount ->  deliverableQuantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
     set interestCashSettlementAmount -> payerReceiver -> payerPartyReference:
         if performance >= 0 then payer else receiver
@@ -310,9 +310,9 @@ func EquityCashSettlementAmount: <"Represents Part 1 Section 12 of the 2018 ISDA
                 equityPerformancePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set equityCashSettlementAmount -> quantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
+    set equityCashSettlementAmount ->  deliverableQuantity -> value: <"Equity Cash Settlement Amount is defined here as Abs( Equity Performance ). Per the ISDA Definitions: Equity Performance = (Rate Of Return)  Equity Notional Amount and Equity Cash Settlement Amount = ABS(Rate Of Return)  Equity Notional Amount; so the calculation for Equity Cash Settlement Amount in the CDM is mathematically equivalent, with the added benefit that Rate of Return does not need to be recomputed, since it was already computed in the Reset Event.">
         Abs(equityPerformance)
-    set equityCashSettlementAmount -> quantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
+    set equityCashSettlementAmount ->  deliverableQuantity -> unit -> currency: <"Does not handle the cross currency case. Only works in the case of a single trade lot.">
         ResolveEquityInitialPrice(
                 tradeState -> trade -> tradeLot only-element -> priceQuantity -> price
             ) -> unit -> currency
@@ -695,7 +695,7 @@ func Create_AssetTransfer: <"Defines how Transfer that represents an exchange of
         if instruction -> quantity exists
         then instruction -> quantity -> unit -> financialUnit = FinancialUnitEnum -> Share
 
-    set transfer -> quantity:
+    set transfer ->  deliverableQuantity:
         NonNegativeQuantity {
             value: securityQuantity -> value,
             unit: securityQuantity -> unit,
@@ -820,10 +820,10 @@ func SecurityFinanceCashSettlementAmount:
         tradeState -> trade -> tradeLot -> priceQuantity -> observable -> Asset ->> identifier
             = assetPayout -> underlier ->> identifier
 
-    set cashSettlementAmount -> quantity -> value:
+    set cashSettlementAmount ->  deliverableQuantity -> value:
         securityPrice -> value * securityQuantity -> value * marginRatio
 
-    set cashSettlementAmount -> quantity -> unit -> currency:
+    set cashSettlementAmount ->  deliverableQuantity -> unit -> currency:
         securityPrice -> unit -> currency
 
     set cashSettlementAmount -> payerReceiver -> payerPartyReference:
@@ -1323,9 +1323,9 @@ func ResolveSecurityFinanceBillingAmount: <"Calculates the billing amount for a 
                 interestRatePayout -> payerReceiver -> receiver
             ) -> partyReference
 
-    set transfer -> quantity -> value: performance
+    set transfer ->  deliverableQuantity -> value: performance
 
-    set transfer -> quantity -> unit -> currency:
+    set transfer ->  deliverableQuantity -> unit -> currency:
         interestRatePayout -> priceQuantity -> quantitySchedule -> unit -> currency
 
     set transfer -> payerReceiver -> payerPartyReference:
@@ -2294,7 +2294,7 @@ func Create_OnDemandInterestPaymentPrimitiveInstruction: <"An instruction to mak
 
     alias transfer: <"A fully structured Transfer or the following need to be provided to create a cashflow.">
         Transfer {
-            quantity: NonNegativeQuantity {
+             deliverableQuantity: NonNegativeQuantity {
                 value: interestAmount -> value,
                 unit: interestAmount -> unit,
                 ...
