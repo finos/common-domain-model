@@ -87,7 +87,7 @@ func MapFxOptionPayout:
                         fpmlFxOption -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
-                observationTerms: MapObservationTerms(fpmlFxOption -> features),
+                observationTerms: MapFxOptionFeaturesToObservationTerms(fpmlFxOption -> features),
                 underlier: Underlier {
                     Observable: MapCurrencyToObservableCashWithAddress(
                             exchangeCurrency,
@@ -112,7 +112,7 @@ func MapFxOptionPayout:
             ...
         }
 
-func MapObservationTerms:
+func MapFxOptionFeaturesToObservationTerms:
     inputs:
         fpmlFeatures fpml.FxOptionFeatures (0..1)
     output:
@@ -127,13 +127,13 @@ func MapObservationTerms:
                         primarySource: MapInformationSource(primaryRateSource),
                         ...
                     },
-                    observationDates: MapObservationDates(
+                    observationDates: MapObservationScheduleToObservationDates(
                             fxAsianFeatureSequence -> observationSchedule
                         ),
                     ...
                 }
 
-func MapObservationDates:
+func MapObservationScheduleToObservationDates:
     inputs:
         fpmlObservationSchedule fpml.FxAverageRateObservationSchedule (0..1)
     output:

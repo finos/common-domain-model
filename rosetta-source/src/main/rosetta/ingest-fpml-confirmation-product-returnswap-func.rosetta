@@ -140,7 +140,7 @@ func MapInterestLegToInterestRatePayout:
                 paymentDates: MapInterestLegPaymentDates(
                         fpmlInterestLeg -> interestLegCalculationPeriodDates -> interestLegPaymentDates
                     ),
-                stubPeriod: MapStubPeriod(fpmlInterestLeg -> stubCalculationPeriod),
+                stubPeriod: MapStubCalculationPeriodToStubPeriod(fpmlInterestLeg -> stubCalculationPeriod),
                 resetDates: MapInterestLegResetDates(
                         fpmlInterestLeg -> interestLegCalculationPeriodDates -> interestLegResetDates
                     ),
@@ -191,7 +191,7 @@ func MapInterestLegCalculationPeriodDates:
         }
     set calculationPeriodDates -> key: fpmlInterestLegCalculationPeriodDates -> id
 
-func MapStubPeriod:
+func MapStubCalculationPeriodToStubPeriod:
     inputs:
         fpmlStubCalculationPeriod fpml.StubCalculationPeriod (0..1)
     output:
@@ -272,7 +272,7 @@ func MapReturnLegToPerformancePayout:
                         ),
                     ...
                 },
-                valuationDates: MapValuationDates(fpmlReturnLeg -> rateOfReturn),
+                valuationDates: MapReturnLegValuationToValuationDates(fpmlReturnLeg -> rateOfReturn),
                 priceQuantity: MapResolvablePriceQuantity(
                         fpmlReturnLeg -> notional,
                         fpmlReturnLeg -> rateOfReturn -> notionalReset,
@@ -295,7 +295,7 @@ func MapReturnLegToPerformancePayout:
                             ),
                         ...
                     },
-                    dividendReturnTerms: MapDividendReturnTerms(
+                    dividendReturnTerms: MapReturnSwapDividendReturnTerms(
                             fpmlReturnLeg -> underlyer -> singleUnderlyer -> dividendPayout,
                             fpmlReturnLeg -> return -> dividendConditions,
                             fpmlReturnLeg -> rateOfReturn -> valuationPriceFinal -> valuationRules
@@ -323,7 +323,7 @@ func MapPaymentDateSchedule:
                 )
         }
 
-func MapValuationDates:
+func MapReturnLegValuationToValuationDates:
     inputs:
         fpmlReturnLegValuation fpml.ReturnLegValuation (0..1)
     output:
@@ -342,7 +342,7 @@ func MapValuationDates:
             ...
         }
 
-func MapDividendReturnTerms:
+func MapReturnSwapDividendReturnTerms:
     inputs:
         fpmlDividendPayout fpml.DividendPayout (0..1)
         fpmlDividendConditions fpml.DividendConditions (0..1)

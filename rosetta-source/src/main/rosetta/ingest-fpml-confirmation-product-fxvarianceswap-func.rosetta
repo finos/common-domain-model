@@ -66,11 +66,11 @@ func MapFxVarianceSwapEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
-            payout: MapFxPerformanceSwapPayout(fpmlFxVarianceSwap, MapReturnTerms(fpmlFxVarianceSwap), cdmCounterpartyList),
+            payout: MapFxVarianceSwapPayout(fpmlFxVarianceSwap, MapFxPerformanceSwapToReturnTerms(fpmlFxVarianceSwap), cdmCounterpartyList),
             ...
         }
 
-func MapFxPerformanceSwapPayout:
+func MapFxVarianceSwapPayout:
     inputs:
         fpmlFxVarianceSwap fpml.FxPerformanceSwap (0..1)
         returnTerms ReturnTerms (0..1)
@@ -100,8 +100,8 @@ func MapFxPerformanceSwapPayout:
                     ...
                 },
                 settlementTerms: MapFxPerformanceSwapToSettlementTerms(fpmlFxVarianceSwap),
-                observationTerms: MapObservationTerms(fpmlFxVarianceSwap),
-                valuationDates: MapValuationDates(fpmlFxVarianceSwap -> valuationDateOffset),
+                observationTerms: MapFxPerformanceSwapToObservationTerms(fpmlFxVarianceSwap),
+                valuationDates: MapFxValuationDateOffsetToValuationDates(fpmlFxVarianceSwap -> valuationDateOffset),
                 paymentDates: empty,
                 underlier: Underlier {
                     Observable: MapQuotedCurrencyPairToObservableWithAddress(
@@ -146,7 +146,7 @@ func MapFxVarianceSwapPriceQuantityList:
             ...
         }
 
-func MapObservationTerms:
+func MapFxPerformanceSwapToObservationTerms:
     inputs:
         fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
     output:
@@ -165,12 +165,12 @@ func MapObservationTerms:
                     ),
                 ...
             },
-            observationDates: MapObservationDates(fpmlFxPerformanceSwap -> fixingSchedule),
+            observationDates: MapFxFixingScheduleToObservationDates(fpmlFxPerformanceSwap -> fixingSchedule),
             numberOfObservationDates: fpmlFxPerformanceSwap -> numberOfReturns,
             ...
         }
 
-func MapObservationDates:
+func MapFxFixingScheduleToObservationDates:
     inputs:
         fpmlFixingSchedule fpml.FxFixingScheduleSimple (0..1)
     output:
@@ -199,7 +199,7 @@ func MapObservationDates:
             ...
         }
 
-func MapValuationDates:
+func MapFxValuationDateOffsetToValuationDates:
     inputs:
         fpmlFxValuationDateOffset fpml.FxValuationDateOffset (0..1)
     output:
@@ -227,7 +227,7 @@ func MapValuationDates:
             ...
         }
 
-func MapReturnTerms:
+func MapFxPerformanceSwapToReturnTerms:
     inputs:
         fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
     output:
