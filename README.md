@@ -2,7 +2,7 @@
 
 # Common Domain Model (CDM)
 
-> [!TIP]
+> &#128161; Tip<br> 
 > Visit the [CDM Documentation website](https://cdm.finos.org/) for a complete description of the features and capabilities of the Common Domain Model.
 
 The FINOS Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source.
@@ -28,11 +28,8 @@ Contributions to the CDM have to comply with the following set of design princip
 * **Composability** where objects are composed and qualified from the bottom up
 * **Mapping** to existing industry messaging formats
 * **Embedded logic** to represent industry processes
-* **Modularisation** into logical layers \
+* **Modularisation** into logical layers 
 
-## CDM development guidelines 
-
-The CDM Development Guidelines are defined by the Steering Working Group. The full set of CDM development guidelines can be found [here](https://cdm.finos.org/docs/contribution).
 
 ## Getting involved 
 
@@ -42,7 +39,7 @@ Ways to interact with the CDM community:
 * **Email**: If you'd like to receive official updates, please send an email to help@finos.org. You can join the CDM mailing list by sending an email to [cdm+subscribe@lists.finos.org](mailto:cdm+subscribe@lists.finos.org). 
 * **Meetings**: Finally, another great way to interact with the community is to attend the Working Groups.  Email help@finos.org to be added to the meeting invites directly, or find the meeting in the [FINOS Community Calendar](https://calendar.google.com/calendar/embed?src=finos.org_fac8mo1rfc6ehscg0d80fi8jig%40group.calendar.google.com). 
 
-> [!TIP]
+> &#128161; Tip<br>
 > **Need help?**  Email help@finos.org. if you need help getting started in the CDM Community or if you encounter technical difficulties accessing repositories, mailing lists or meetings. 
 
 ## Roadmap
@@ -54,12 +51,12 @@ Ways to interact with the CDM community:
 
 ## Contributing
 
-> [!IMPORTANT]
+> &#10071; Important<br>
 > If you wish to add a new feature, make a change to the model, or fix a defect, you should start by raising an Issue in GitHub.  To implement changes in the CDM repository resolving an issue, you shoud raise a Pull Request.  
 
 Please read our [development guidelines](https://cdm.finos.org/docs/dev-guidelines), [contribution guidelines](CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct). See guidelines for the licensing agreement [here](https://github.com/finos/common-domain-model/blob/master/.github/CONTRIBUTING.md).  
 
-> [!NOTE]
+> &#8505; Note<br>
 > Commits and pull requests to FINOS repositories will only be accepted from those contributors with an active, executed Individual Contributor License Agreement (ICLA) with FINOS, OR who are covered under an existing and active Corporate Contribution License Agreement (CCLA) executed with FINOS. Commits from individuals not covered under an ICLA or CCLA will be flagged and blocked by the Linux Foundation EasyCLA tool. Please note that some CCLAs require individuals/employees to be explicitly named on the CCLA. Need an ICLA? Unsure if you are covered under an existing CCLA? Email help@finos.org.
 
 ### Contribution Governance
@@ -70,7 +67,7 @@ The CDM Governance process defines the roles of the Maintainers and Working Grou
 
 ### Pull Requests via Rosetta
 
-> [!TIP]
+> &#128161; Tip<br>
 > The [Rosetta Design](https://rosetta-technology.io/design) application can be used to contribute to the CDM without setting up any development environment. 
 
 Steps:
@@ -110,6 +107,8 @@ The following Working Groups are currently active in this project:
 * [CDM Contribution Review Working Group](https://cdm.finos.org/docs/CDM-Contribution-Review-WG)
 * [CDM Collateral Working Group](https://cdm.finos.org/docs/CDM-Collateral-WG)
 * [CDM Technology Architecture Working Group](https://cdm.finos.org/docs/CDM-Technology-Architecture-WG)
+* [CDM Physical Risk Working Group](https://cdm.finos.org/docs/CDM-Physical-Risk-WG)
+* [CDM Tokenized Assets Working Group](https://cdm.finos.org/docs/CDM-Tokenized-Assets-WG)
 * [CDM Derivatives Working Group](https://cdm.finos.org/docs/CDM-Derivatives-WG) - previously known as Derivatives Products and Business Events Working Group
 * [ISLA CDM Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
 * [ISLA CDM Trading Working Group (Securities Lending)](https://www.islaemea.org/working-groups/)
@@ -177,6 +176,7 @@ The following are the FINOS CDM maintainers and the firms they represent.
 | Hugo Hills           | Regnosys       | OrgRep                                      | hugohills-regnosys   | 
 | Manuel Martos        | TradeHeader    | OrgRep                                      | manel-martos         | 
 | Marc Gratacos        | TradeHeader    | OrgRep                                      | mgratacos            | 
+| Nicholas Moger       | JPMorgan Chase & Co.|  OrgRep                                | nicholas-moger         | 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). **You can do so by first subscribing at [cdm-maintainers+subscribe@lists.finos.org](mailto:cdm-maintainers+subscribe@lists.finos.org) and posting at [cdm-maintainers@lists.finos.org](mailto:cdm-maintainers@lists.finos.org) .**
 

@@ -129,6 +129,10 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
+    condition AsianOptionChoice: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
+        (if strike -> averagingStrikeFeature exists then feature -> averagingFeature is absent)
+            and (if feature -> averagingFeature exists then strike -> averagingStrikeFeature is absent)
+
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
                 and underlier -> Product ->> economicTerms -> payout -> InterestRatePayout exists
@@ -595,8 +599,8 @@ type OptionalEarlyTerminationAdjustedDates: <"A data defining:  the adjusted dat
 
     earlyTerminationEvent EarlyTerminationEvent (1..*) <"The adjusted dates associated with an individual early termination date.">
 
-type Asian: <"As per ISDA 2002 Definitions.">
-
+type AveragingFeature: <"As per ISDA 2002 Definitions.">
+    averagingCalculation AveragingCalculation (1..1) <"Defines parameters for use in cases when a valuation or other term is based on an average of market observations.">
     averagingInOut AveragingInOutEnum (1..1)
     strikeFactor number (0..1) <"The factor of strike.">
     averagingPeriodIn AveragingPeriod (0..1) <"The averaging in period.">
@@ -646,7 +650,7 @@ type OptionFeature: <"Defines additional optional features that can be included 
 
     fxFeature FxFeature (0..*) <"Describes a quanto or composite FX feature.">
     strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
-    averagingFeature AveragingCalculation (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
+    averagingFeature AveragingFeature (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
     barrier Barrier (0..1) <"Specifies a barrier feature.">
     knock Knock (0..1) <"Specifies a knock in or knock out feature.">
     passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
@@ -820,7 +824,7 @@ type MultipleExercise extends PartialExercise: <"A class defining multiple exerc
 
 type PartialExercise: <"A class defining partial exercise. As defined in the 2000 ISDA Definitions, Section 12.3 Partial Exercise, the buyer of the option may exercise all or less than all the notional amount of the underlying swap but may not be less than the minimum notional amount (if specified) and must be an integral multiple of the integral multiple amount if specified.">
 
-    notionaReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">
+    notionalReference Money (1..1) <"A pointer style reference to the associated notional schedule defined elsewhere in the document. This element has been made optional as part of its integration in the OptionBaseExtended, because not required for the options on securities.">
         [metadata reference]
     integralMultipleAmount number (0..1) <"A notional amount which restricts the amount of notional that can be exercised when partial exercise or multiple exercise is applicable. The integral multiple amount defines a lower limit of notional that can be exercised and also defines a unit multiple of notional that can be exercised, i.e. only integer multiples of this amount can be exercised.">
     minimumNotionalAmount number (0..1) <"The minimum notional amount that can be exercised on a given exercise date. See multipleExercise.">
