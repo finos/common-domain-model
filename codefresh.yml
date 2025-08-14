@@ -30,7 +30,7 @@ steps:
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
       - cf_export GPG_IMPORT_COMMAND="cat <(echo -e '${{GPG_PRIVATE_KEY}}') | gpg --batch --import" --mask
       - cf_export GEN_DEPLOY_POM_SCRIPT="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.sh"
-      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/create-deploy-pom.py"
+      - cf_export GEN_DEPLOY_POM_PY="${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/create-deploy-pom.py"
       - cf_export MVN_DEPLOY_FILE_COMMAND="mvn deploy -Prelease -Dcheckstyle.skip=true -Dmaven.deploy.skip=true -s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml"
 
   ReleaseProperties:
@@ -130,19 +130,12 @@ steps:
         stage: 'build'
         title: Python build
         fail_fast: false
-        image: python:3.10-alpine
+        image: maven:3.9.9-eclipse-temurin-21-alpine
         working_directory: ./
-        shell: sh
+        shell: bash
         commands:
-          - export PYTHONDONTWRITEBYTECODE=1
-          - python3 -m pip install pydantic
-          - python3 -m pip install jsonpickle
-          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/runtime/rosetta_runtime-2.1.0-py3-none-any.whl
-          - |-
-            python3 -m pip wheel --no-deps --only-binary :all: --wheel-dir ./rosetta-source/target/classes/cdm/python ./rosetta-source/target/classes/cdm/python
-          - python3 -m pip install ./rosetta-source/target/classes/cdm/python/python_cdm-*-py3-none-any.whl
-          - python3 -m pip install pytest
-#          - pytest -p no:cacheprovider ./cdm-python/test/
+          - apk add --no-cache python3 py3-pip wget curl bash
+          - rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh
           
   DeployDaml:
     stage: 'build'
@@ -253,8 +246,8 @@ steps:
     commands:
       - apk add --no-cache python3
       - bash -c "${{GPG_IMPORT_COMMAND}}"
-      - cd target/classes/cdm/python
-      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl runtime/rosetta_runtime-*-py3-none-any.whl
+      - cd target/cdm-python
+      - tar -cvzf cdm-python-${{RELEASE_NAME}}.tar.gz python_cdm-*-py3-none-any.whl rune_runtime-*-py3-none-any.whl
       - python3 ${{GEN_DEPLOY_POM_PY}} cdm-python ${{RELEASE_NAME}} tar.gz ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/rosetta-source/src/main/resources/build-resources/python/python-developer.txt
       - ${{MVN_DEPLOY_FILE_COMMAND}}
 
