@@ -21,4 +21,4 @@ This release differs from the process of generating other language versions of C
 4. Run tests
 5. If successful, package the generated Python and releasing the Python package along with the most recently released runtime
 
-The changes can be reviewed in PR: [#xxxx](https://github.com/finos/common-domain-model/pull/xxxx)
+The changes can be reviewed in PR: [#xxxx](https://github.com/finos/common-domain-model/pull/3975)
