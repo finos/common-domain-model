@@ -1,15 +1,20 @@
-# *Product Model - Refactor function UpdateAmountForEachMatchingQuantity*
+# *Legal Documentation - Addition of clause Holding and Using Posted Collateral*
 
 _Background_
 
-The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards.
+
+This contribution of the clause for Holding and Using Posted Collateral enhances the model and contributes a structures for the following Legacy CSAs - ISDA 1995 English Law CSA, 1994 New York Law CSA, 1995 English Law CSD
 
 _What is being released?_
 
-Refactor function `UpdateAmountForEachMatchingQuantity` from Java into Rune.
+Contribution of the last pending clause for the Legacy ISDA CSA/CSD Documents from the Legal Agreement Working Group.
+
+- `EligibilityToHoldCollateral`
+  - Restructuring the EligibilityToHoldCollateral type to more accurately represent the document and allow for criteria to be grouped using AND or OR logic.
 
 _Review Directions_
 
-There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
-
-Changes can be reviewed in PR: [#3914](https://github.com/finos/common-domain-model/pull/3914)
+Changes can be reviewed in PR: [#3978](https://github.com/finos/common-domain-model/pull/3978)
