@@ -11,16 +11,16 @@ export ROSETTA_CODE_GEN_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.ver
 echo "rosetta.code-gen.version: ${ROSETTA_CODE_GEN_VERSION}"
 
 # Find the latest release tag that matches the DSL version (x.y.z.n)
-REPO="finos/rune-python-generator"
 DSL_VERSION="${ROSETTA_CODE_GEN_VERSION}"
+GENERATOR_REPO="finos/rune-python-generator"
 
-echo "Looking for latest generator release matching DSL version: ${DSL_VERSION}"
+echo "Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
 
 set +o pipefail
-echo "REPO: ${REPO}"
+echo "GENERATOR_REPO: ${GENERATOR_REPO}"
 echo "DSL_VERSION: ${DSL_VERSION}"
 echo "Fetching tags from GitHub API..."
-RAW_TAGS=$(curl -s "https://api.github.com/repos/${REPO}/tags?per_page=100")
+RAW_TAGS=$(curl -s "https://api.github.com/GENERATOR_REPOs/${GENERATOR_REPO}/tags?per_page=100")
 if [[ -z "${RAW_TAGS}" ]]; then
   echo "ERROR: No response from GitHub API"
   exit 1
@@ -47,7 +47,7 @@ fi
 echo "Latest matching generator tag: ${LATEST_TAG}"
 
 GENERATOR_JAR="python-${LATEST_TAG}.jar"
-GENERATOR_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
+GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
 echo "Attempting to download ${GENERATOR_URL}"
 
 if ! wget -q --spider "${GENERATOR_URL}"; then
@@ -68,7 +68,7 @@ python3 -m pip install --upgrade pip
 cd "${PYTHON_TARGET}"
 
 # Download the latest rune-python-runtime wheel from GitHub releases
-export RUNTIME_WHEEL_URL=$(curl -s https://api.github.com/repos/finos/rune-python-runtime/releases/latest | grep browser_download_url | grep whl | cut -d '"' -f 4)
+export RUNTIME_WHEEL_URL=$(curl -s https://api.github.com/GENERATOR_REPOs/finos/rune-python-runtime/releases/latest | grep browser_download_url | grep whl | cut -d '"' -f 4)
 export RUNTIME_WHEEL_NAME=$(basename "${RUNTIME_WHEEL_URL}")
 echo "Downloading latest runtime wheel: ${RUNTIME_WHEEL_NAME}"
 wget -O "${RUNTIME_WHEEL_NAME}" "${RUNTIME_WHEEL_URL}" || { echo "Failed to download runtime wheel"; exit 1; }
