@@ -3,6 +3,7 @@ set -euo pipefail
 set -x
 IFS=$'\n\t'
 
+export PROJECT_ROOT=$(pwd)
 export CDM_ROSETTA="rosetta-source/src/main/rosetta"
 export PYTHON_TARGET="rosetta-source/target/cdm-python"
 
@@ -86,4 +87,4 @@ python3 -m pip install "${WHEEL_FILE}"
 python3 -m pip install pytest
 
 # Run unit tests (output will be visible in Docker logs)
-pytest -p no:cacheprovider /mnt/common-domain-model/cdm-python/test/
+pytest -p no:cacheprovider ${PROJECT_ROOT}/cdm-python/test/
