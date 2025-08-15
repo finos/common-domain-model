@@ -21,7 +21,7 @@ set +o pipefail
 echo "GENERATOR_REPO: ${GENERATOR_REPO}"
 echo "DSL_VERSION: ${DSL_VERSION}"
 echo "Fetching tags from GitHub API..."
-RAW_TAGS=$(curl -s "https://api.github.com/GENERATOR_REPOs/${GENERATOR_REPO}/tags?per_page=100")
+RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
 if [[ -z "${RAW_TAGS}" ]]; then
   echo "ERROR: No response from GitHub API"
   exit 1
@@ -69,7 +69,7 @@ python3 -m pip install --upgrade pip
 cd "${PYTHON_TARGET}"
 
 # Download the latest rune-python-runtime wheel from GitHub releases
-export RUNTIME_WHEEL_URL=$(curl -s https://api.github.com/GENERATOR_REPOs/finos/rune-python-runtime/releases/latest | grep browser_download_url | grep whl | cut -d '"' -f 4)
+export RUNTIME_WHEEL_URL=$(curl -s https://api.github.com/repos/finos/rune-python-runtime/releases/latest | grep browser_download_url | grep whl | cut -d '"' -f 4)
 export RUNTIME_WHEEL_NAME=$(basename "${RUNTIME_WHEEL_URL}")
 echo "Downloading latest runtime wheel: ${RUNTIME_WHEEL_NAME}"
 wget -O "${RUNTIME_WHEEL_NAME}" "${RUNTIME_WHEEL_URL}" || { echo "Failed to download runtime wheel"; exit 1; }
