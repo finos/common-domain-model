@@ -9,12 +9,12 @@ The Steering Working Group serves as the driving force behind the strategic dire
 
 ### Responsibilities:
 
-- Define and monitor the overall roadmap, setting annual priorities.
+- Define and monitor the overall [roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md), setting annual priorities in line with the [development approach](development-approach.md). Guidelines for how to complete this can be found in the [major release scheduling guidelines](major-release-scheduling-guidelines.md) page.
 - Decide on support for resourcing initiatives proposed by other working groups (TAWG, CRWG, or DWGs).
-- Approve new FINOS [Working Groups](cdm-org-structure.md).
+- Approve new FINOS [Working Groups](working-groups.md).
 - Determine matters of Governance & Operating Model for FINOS CDM WGs.
 - Provide final [release](maintenance-and-release.md) approval.
-- The first Steering Group of each calendar year will include a review of existing [governance](governance.md) measures and wording on the agenda for re-ratification.
+- The first Steering Group of each calendar year will include a review of existing [governance](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) measures and wording on the agenda for re-ratification.
 
 
 ## Meetings
