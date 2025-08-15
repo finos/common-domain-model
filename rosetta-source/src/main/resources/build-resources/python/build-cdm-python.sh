@@ -14,7 +14,6 @@ echo "rosetta.code-gen.version: ${ROSETTA_CODE_GEN_VERSION}"
 DSL_VERSION="${ROSETTA_CODE_GEN_VERSION}"
 GENERATOR_REPO="finos/rune-python-generator"
 echo "GENERATOR_REPO: ${GENERATOR_REPO}"
-
 echo "Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
 
 set +o pipefail
