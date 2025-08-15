@@ -4,19 +4,111 @@ version "${project.version}"
 import cdm.base.math.*
 import cdm.observable.asset.*
 
-func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
-    [codeImplementation]
+func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from the list of PriceQuantity if the unit of amount matches.">
     inputs:
-        priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
-        amount number (1..1) <"The new amount.">
+        priceQuantityList PriceQuantity (1..*) <"List of PriceQuantity to update.">
+        change PriceQuantity (1..*) <"List of new PriceQuantity to use where the units match.">
+        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
     output:
-        updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
+        updatedPriceQuantity PriceQuantity (1..*) <"List of PriceQuantity with the price and quantity amounts updated.">
 
-func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
-    [codeImplementation]
+    add updatedPriceQuantity: <"For each PriceQuantity, update the price and quantity amounts.">
+        priceQuantityList
+            extract priceQuantity [
+                PriceQuantity {
+                    price: priceQuantity -> price
+                        extract
+                            UpdatePriceAmountForEachMatchingQuantity(
+                                    item,
+                                    change -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
+                                    direction
+                                ),
+                    quantity: priceQuantity -> quantity
+                        extract
+                            UpdateQuantityAmountForEachMatchingQuantity(
+                                    item,
+                                    change -> quantity, // FilterChangePriceQuantity(priceQuantity, change) -> quantity,
+                                    direction
+                                ),
+                    observable: priceQuantity -> observable,
+                    effectiveDate: priceQuantity -> effectiveDate
+                }
+            ]
+
+// TODO uncomment usage to support matching on PriceQuantity observable
+func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
     inputs:
-        priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
-        change PriceQuantity (1..*)
-        direction QuantityChangeDirectionEnum (1..1)
+        priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
+        change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match.">
     output:
-        updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">
+        filteredChange PriceQuantity (0..*)
+
+    alias changeWithMatchingObservable:
+        change
+            filter
+                // match on observable is absent
+                (item -> observable is absent and priceQuantity -> observable is absent)
+                        // or, match on observable
+                    or item -> observable = priceQuantity -> observable
+
+    add filteredChange: changeWithMatchingObservable default change
+
+func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the PriceSchedule list if the unit of amount matches.">
+    inputs:
+        price PriceSchedule (0..1) <"List of PriceSchedule to update.">
+            [metadata location]
+        change PriceSchedule (0..*) <"List of new PriceSchedule to use where the units match.">
+        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
+    output:
+        updatedPrice PriceSchedule (0..1)
+            [metadata location]
+
+    alias changedAmount:
+        change
+            filter PriceUnitEquals(item, price)
+            then first
+            then extract UpdateAmount(price -> value, value, direction)
+
+    set updatedPrice: price
+    set updatedPrice -> value: changedAmount default price -> value
+
+func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from the NonNegativeQuantitySchedule list if the unit of amount matches.">
+    inputs:
+        quantity NonNegativeQuantitySchedule (0..1) <"List of NonNegativeQuantitySchedule to update.">
+            [metadata location]
+        change NonNegativeQuantitySchedule (0..*) <"List of new NonNegativeQuantitySchedule to use where the units match.">
+        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
+    output:
+        updatedQuantity NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+
+    alias changedAmount:
+        change
+            filter UnitEquals(item -> unit, quantity -> unit)
+            then first
+            then extract UpdateAmount(quantity -> value, value, direction)
+
+    set updatedQuantity: quantity
+    set updatedQuantity -> value: changedAmount default quantity -> value
+
+func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes match, except for the amount.">
+    inputs:
+        p1 PriceSchedule (0..1)
+        p2 PriceSchedule (0..1)
+    output:
+        result boolean (1..1)
+
+    alias unitMatches: UnitEquals(p1 -> unit, p2 -> unit)
+    alias perUnitOfMatches: UnitEquals(p1 -> perUnitOf, p2 -> perUnitOf)
+    alias priceTypeMatches:
+        (p1 -> priceType is absent and p2 -> priceType is absent)
+            or p1 -> priceType = p2 -> priceType
+    alias priceExpressionMatches:
+        (p1 -> priceExpression is absent and p2 -> priceExpression is absent)
+            or p1 -> priceExpression = p2 -> priceExpression
+    alias arithmeticOperatorMatches:
+        (p1 -> arithmeticOperator is absent and p2 -> arithmeticOperator is absent)
+            or p1 -> arithmeticOperator = p2 -> arithmeticOperator
+
+    set result:
+        unitMatches and perUnitOfMatches and priceTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
