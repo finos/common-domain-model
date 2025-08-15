@@ -14,12 +14,7 @@ echo "rosetta.code-gen.version: ${ROSETTA_CODE_GEN_VERSION}"
 # Find the latest release tag that matches the DSL version (x.y.z.n)
 DSL_VERSION="${ROSETTA_CODE_GEN_VERSION}"
 GENERATOR_REPO="finos/rune-python-generator"
-echo "GENERATOR_REPO: ${GENERATOR_REPO}"
 echo "Looking for latest generator release matching DSL version: ${DSL_VERSION} in ${GENERATOR_REPO}"
-
-set +o pipefail
-echo "GENERATOR_REPO: ${GENERATOR_REPO}"
-echo "DSL_VERSION: ${DSL_VERSION}"
 echo "Fetching tags from GitHub API..."
 RAW_TAGS=$(curl -s "https://api.github.com/repos/${GENERATOR_REPO}/tags?per_page=100")
 if [[ -z "${RAW_TAGS}" ]]; then
@@ -27,25 +22,19 @@ if [[ -z "${RAW_TAGS}" ]]; then
   exit 1
 fi
 
-echo "Raw tags output:"
-echo "${RAW_TAGS}"
-
 LATEST_TAG=$(echo "${RAW_TAGS}" \
   | grep '"name":' \
   | cut -d '"' -f 4 \
   | grep -E "^${DSL_VERSION}\.[0-9]+$" \
   | sort -t. -k4 -n \
   | tail -n 1) || true
-set -o pipefail
 
-echo "LATEST_TAG is: ${LATEST_TAG}"
+echo "Latest matching generator tag: ${LATEST_TAG}"
 
 if [[ -z "${LATEST_TAG}" ]]; then
   echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
   exit 1
 fi
-
-echo "Latest matching generator tag: ${LATEST_TAG}"
 
 GENERATOR_JAR="python-${LATEST_TAG}.jar"
 GENERATOR_URL="https://github.com/${GENERATOR_REPO}/releases/download/${LATEST_TAG}/${GENERATOR_JAR}"
