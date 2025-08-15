@@ -5,7 +5,7 @@ IFS=$'\n\t'
 
 export PROJECT_ROOT=$(pwd)
 export CDM_ROSETTA="rosetta-source/src/main/rosetta"
-export PYTHON_TARGET="rosetta-source/target/cdm-python"
+export PYTHON_TARGET="rosetta-source/src/generated/python"
 
 # Extract and set ROSETTA_CODE_GEN_VERSION to the rosetta.dsl.version in the parent POM
 export ROSETTA_CODE_GEN_VERSION=$(mvn help:evaluate -Dexpression=rosetta.dsl.version -q -DforceStdout)
