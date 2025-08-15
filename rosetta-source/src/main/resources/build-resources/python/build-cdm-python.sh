@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+set -x
 IFS=$'\n\t'
 
 export CDM_ROSETTA="rosetta-source/src/main/rosetta"
@@ -15,12 +16,28 @@ DSL_VERSION="${ROSETTA_CODE_GEN_VERSION}"
 
 echo "Looking for latest generator release matching DSL version: ${DSL_VERSION}"
 
-LATEST_TAG=$(curl -s "https://api.github.com/repos/${REPO}/tags?per_page=100" \
+set +o pipefail
+echo "REPO: ${REPO}"
+echo "DSL_VERSION: ${DSL_VERSION}"
+echo "Fetching tags from GitHub API..."
+RAW_TAGS=$(curl -s "https://api.github.com/repos/${REPO}/tags?per_page=100")
+if [[ -z "${RAW_TAGS}" ]]; then
+  echo "ERROR: No response from GitHub API"
+  exit 1
+fi
+
+echo "Raw tags output:"
+echo "${RAW_TAGS}"
+
+LATEST_TAG=$(echo "${RAW_TAGS}" \
   | grep '"name":' \
   | cut -d '"' -f 4 \
   | grep -E "^${DSL_VERSION}\.[0-9]+$" \
   | sort -t. -k4 -n \
-  | tail -n 1)
+  | tail -n 1) || true
+set -o pipefail
+
+echo "LATEST_TAG is: ${LATEST_TAG}"
 
 if [[ -z "${LATEST_TAG}" ]]; then
   echo "ERROR: No generator release found for DSL version ${DSL_VERSION}"
