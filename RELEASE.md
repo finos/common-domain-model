@@ -1,15 +1,38 @@
-# *Product Model - Refactor function UpdateAmountForEachMatchingQuantity*
+# *Legal Agreement - Additional clauses for Legacy CSA*
 
 _Background_
 
-The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
 
 _What is being released?_
 
-Refactor function `UpdateAmountForEachMatchingQuantity` from Java into Rune.
+3 new clauses
+
+- Specified Condition
+- Independent Amount
+- Other Eligible Support
+
+These new clauses require the creation of the following enums:
+
+- `CSASpecifiedConditionEnum`
+- `AdditionalTerminationEventEnum`
+- `RatedPartyEnum`
+- `IndependentAmountCompareEnum` extends `CreditNotationMismatchResolutionEnum` and adds a new value 'compare'
+
+Updating clauses that exist within the model
+
+- `CollateralTransferAgreementElections`
+  - `finalReturns` added as an attribute
+- `HoldingAndUsingPostedCollateral`
+  - `additionalLanguage` added as an attribute
+- `CreditSupportObligations`
+  - `legacyIndependentAmount` added as an attribute
+- `eligibleCreditSupport` added as a type and attribute
+
+Further updates to descriptions and addition of docReferences are also being contributed.
 
 _Review Directions_
 
-There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
-
-Changes can be reviewed in PR: [#3914](https://github.com/finos/common-domain-model/pull/3914)
+Changes can be reviewed in PR: [#3979](https://github.com/finos/common-domain-model/pull/3979)
