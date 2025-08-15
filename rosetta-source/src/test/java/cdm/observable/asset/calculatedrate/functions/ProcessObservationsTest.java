@@ -2,7 +2,7 @@ package cdm.observable.asset.calculatedrate.functions;
 
 import cdm.observable.asset.calculatedrate.FloatingRateCalculationParameters;
 import cdm.observable.asset.calculatedrate.ObservationParameters;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 

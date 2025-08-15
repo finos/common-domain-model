@@ -103,6 +103,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -681,6 +682,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -815,6 +817,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -865,6 +868,30 @@
                                 </fileset>
                             </filesets>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle-for-deprecated-guice.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <sourceDirectories>
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                        <sourceDirectory>src/test/java</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>Check style</id>
+                        <!-- This needs to run /after/ xtend (test) source
+                        generation is done. -->
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

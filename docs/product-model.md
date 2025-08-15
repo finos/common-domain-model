@@ -18,7 +18,7 @@ of one or more assets in the future - for instance, but not exclusively, future 
 when that asset is cash. These future transfers may be contingent on the future value
 or performance of that asset or other, as in the case of options.
 
-### Asset  {#asset}
+### Asset  
 
 :::tip Definition: Asset
 
@@ -142,7 +142,7 @@ Security has a set of additional attributes, as shown below:
 ``` Haskell
 type Security extends InstrumentBase: 
     debtType DebtType (0..1)
-    equityType EquityTypeEnum (0..1) 
+    equityType EquityType (0..1) 
     fundType FundProductTypeEnum (0..1)
 
     condition DebtSubType:
@@ -796,7 +796,7 @@ one for an upfront fee. By comparison, the purchase or sale of a
 security or listed derivative would typically have a single
 `PriceQuantity` instance in the trade lot.
 
-## PriceQuantity {#price-quantity}
+## PriceQuantity
 
 The price and quantity attributes of a trade, or of a leg of a trade in
 the case of composite products, are part of a data type called

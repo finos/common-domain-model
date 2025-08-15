@@ -1,47 +1,15 @@
-
-# _Legal Agreement Model - Final cleanup of CDM after ISDA Foundations migration_
-
-_Background_
-
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-All ISDA legal IP has been scrubbed from components and hidden behind a `docReference` tag, with the path to legal definitions & descriptions clearly identified and listed. A new legaldocumentation structure is also in place for ISDA Master Agreement components.
-
-_What is being released?_
-
-Following the migration of all ISDA Foundations components, this task will 'clean up' the model where new namespaces or types have been added.
-
-- `EquitySwapMasterConfirmation2018` and its related components are moved to the transaction namespace
-- `BrokerConfirmation` and related enums are moved to `legaldocumentation.transaction`
-- `Agreement` is moved to `legaldocumentation.common`
-- `legaldocumentation.contract` namespace now empty and has been deleted
-- Re-included some descriptions (without any Legal IP) that were wrongly removed from ISDA Foundations
-- Scrubbed all remaining reference to ISDA legal documentation from `legaldocumentation.transaction.type` and replace with `docReference`
-
-_Review directions_
-
-Changes can be reviewed in PR: [#3694](https://github.com/finos/common-domain-model/pull/3694)
-
-# *Legal Agreement Model - Migration of ISDA Master Agreement terms from ISDA Foundations project to CDM*
+# *Product Model - Refactor function UpdateAmountForEachMatchingQuantity*
 
 _Background_
 
-The ISDA Foundations project is a model extension built on top of the CDM that contains legal IP (contained in legal documentation references) only available to ISDA members. Additions or updates to the ISDA Foundations project can cause it to go out of sync with the CDM.
-
-Following the completion of a new structure under `legaldocumentation` and the addition of `docReference` tags to hide ISDA legal definitions, Master Agreement components are ready for migration.
+The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
 
 _What is being released?_
 
-This release migrates the following components relating to an ISDA Master Agreement to the new ISDA namespace under the legaldocumentation structure within CDM.
-- `Master Agreement`
-- `AutomaticEarlyTermination`
-- `AutomaticEarlyTerminationElection`
-- `TerminationCurrency`
-- `TerminationCurrencySelection`
-- `PartyOptionTerminationCurrency`
-- `SpecifiedEntities`
-- `SpecifiedEntity`
+Refactor function `UpdateAmountForEachMatchingQuantity` from Java into Rune.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3679](https://github.com/finos/common-domain-model/pull/3679)
+There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
+
+Changes can be reviewed in PR: [#3914](https://github.com/finos/common-domain-model/pull/3914)

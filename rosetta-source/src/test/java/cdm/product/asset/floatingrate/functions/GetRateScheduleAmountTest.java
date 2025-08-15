@@ -6,7 +6,7 @@ import cdm.base.math.UnitType;
 import cdm.observable.asset.PriceSchedule;
 import cdm.observable.asset.PriceTypeEnum;
 import cdm.product.common.schedule.RateSchedule;
-import com.google.inject.Inject;
+import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
