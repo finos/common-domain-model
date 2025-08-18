@@ -1,4 +1,4 @@
-# *Legal Agreement - Additional clauses for Legacy CSA*
+# *Legal Agreement Model - Additional clauses for Legacy CSA*
 
 _Background_
 
@@ -8,7 +8,7 @@ These clauses are foundational to collateral mechanics and counterparty obligati
 
 _What is being released?_
 
-3 new clauses
+Three new clauses:
 
 - Specified Condition
 - Independent Amount
@@ -21,7 +21,7 @@ These new clauses require the creation of the following enums:
 - `RatedPartyEnum`
 - `IndependentAmountCompareEnum` extends `CreditNotationMismatchResolutionEnum` and adds a new value 'compare'
 
-Updating clauses that exist within the model
+Updating clauses that exist within the model:
 
 - `CollateralTransferAgreementElections`
   - `finalReturns` added as an attribute
