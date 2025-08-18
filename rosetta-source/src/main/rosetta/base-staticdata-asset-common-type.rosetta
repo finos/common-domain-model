@@ -13,18 +13,13 @@ choice Asset: <"An Asset is defined as something that can be owned and transferr
     DigitalAsset <"An Asset that exists only in digital form, eg Bitcoin or Ethereum; excludes the digital representation of other Assets.">
     Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
-    condition AssetPartyRole:
-        Instrument ->> party exists and Instrument ->> partyRole -> role exists
-        or
-        DigitalAsset -> party exists and DigitalAsset -> partyRole -> role exists
-
 
 type AssetBase: <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
     party Party (0..*) <"The party with the obligation to pay dividends, coupons, or other payouts to the asset holder.">
-    partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity">
+    partyRole AssetPartyRole (0..1) <"The role of the payer specific to the asset type, i.e. bond, equity.">
     ancillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
 
@@ -37,11 +32,11 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
         if assetType -> assetType = Loan
             then partyRole -> role =  Lender
 
-   condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
+    condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
             if isExchangeListed then partyRole -> role = Exchange
 
-   condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
-            if isExchangeListed absent then ancillaryPartyRole -> role = RelatedExchange is absent
+    condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
+            if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
@@ -121,9 +116,7 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
         taxonomy is absent
 
     condition NoCashParty:
-           if Cash exists
-                then Cash -> party is absent
-                and Cash -> partyRole -> role is absent
+                party is absent and partyRole -> role is absent
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -140,9 +133,7 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
         then (taxonomy -> source exists and taxonomy -> value exists)
 
    condition NoCashParty:
-           if Commodity exists
-                then Commodity -> party is absent
-                and Commodity -> assetPartyRole -> role is absent
+                party is absent and partyRole -> role is absent
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -175,6 +166,9 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
         optional choice capacityUnit, weatherUnit
 
 type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
+
+     condition AssetPartyRole:
+        party exists and partyRole -> role exists
 
 type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23. Optional as this can be uniquely identified in the identifier.">
@@ -244,6 +238,9 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     condition FundSubType:
         if instrumentType <> InstrumentTypeEnum -> Fund
         then fundType is absent
+
+    condition PartyRole: <"If the asset type is a security then the role must be issuer.">
+                partyRole -> role = Issuer
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
