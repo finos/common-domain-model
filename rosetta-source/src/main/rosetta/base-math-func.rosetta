@@ -98,6 +98,41 @@ func CompareQuantityByUnitOfAmount:
             ]
             then flatten all = True
 
+func UnitEquals: <"Compares two UnitType to check if all attributes match.">
+    inputs:
+        u1 UnitType (0..1)
+        u2 UnitType (0..1)
+    output:
+        result boolean (1..1)
+
+    set result:
+        if u1 -> currency exists
+        then StringEquals(u1 -> currency, u2 -> currency) // ignore scheme when comparing
+        else u1 = u2
+
+func StringEquals: <"Used by UnitEquals to compare two strings while ignoring the scheme.">
+    inputs:
+        s1 string (0..1)
+        s2 string (0..1)
+    output:
+        result boolean (1..1)
+
+    set result: s1 = s2
+
+func UpdateAmount: <"Updates an amount based on the given QuantityChangeDirectionEnum.  If the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
+    inputs:
+        oldAmount number (0..1)
+        changeAmount number (0..1)
+        direction QuantityChangeDirectionEnum (1..1)
+    output:
+        newAmount number (0..1)
+
+    set newAmount:
+        direction switch
+        Increase then oldAmount + changeAmount,
+        Decrease then oldAmount - changeAmount,
+        Replace then changeAmount
+
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
