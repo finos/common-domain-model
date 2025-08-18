@@ -3,7 +3,7 @@
 _Background_
 
 The condition CounterPartyPositionBusinessEventOrBusinessEventChoice appears to be designed to ensure that counterpartyPositionBusinessEvent and businessEvent are not both present simultaneously. However, its current structure - as a required choice - needs selecting one of these elements each time WorkflowStep is used.
-It has been observed that proposedEvent, which specifies the required inputs for a transition before a business event is fully formed, does not include either counterpartyPositionBusinessEvent or businessEvent. While these fields are not necessary at this stage, their mandatory status results in a validation issue when neither is provided. Further details on the background context can be found in Issue [3681](https://github.com/finos/common-domain-model/issues/3681)
+It has been observed that proposedEvent, which specifies the required inputs for a transition before a business event is fully formed, does not include either counterpartyPositionBusinessEvent or businessEvent. While these fields are not necessary at this stage, their mandatory status results in a validation issue when neither is provided. Further details on the background context can be found in Issue [3681](https://github.com/finos/common-domain-model/issues/3681).
 
 _What is being released?_
 
