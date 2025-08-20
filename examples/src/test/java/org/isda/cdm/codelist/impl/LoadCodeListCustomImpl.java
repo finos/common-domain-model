@@ -15,8 +15,6 @@ public class LoadCodeListCustomImpl extends LoadCodeList {
 
     private static final Logger logger = LoggerFactory.getLogger(LoadCodeListCustomImpl.class);
 
-    //public static Map<String, Set<String>> myCodeListSubsets = ValidateCodeListCustomImpl.myCodeListSubsets;
-
     public static Map<String, Set<String>> myCodeListSubsets;
 
     /**

@@ -1,6 +1,6 @@
 package cdm.product.asset.floatingrate.functions;
 
-//import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.FloatingRate;

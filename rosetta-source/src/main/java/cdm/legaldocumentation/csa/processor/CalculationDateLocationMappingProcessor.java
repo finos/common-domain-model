@@ -1,6 +1,5 @@
 package cdm.legaldocumentation.csa.processor;
 
-//import cdm.base.datetime.BusinessCenterEnum;
 import cdm.legaldocumentation.csa.CalculationDateLocation;
 import cdm.legaldocumentation.csa.CalculationDateLocationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -8,6 +7,7 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.processor.CreateiQMappingProcessorUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +39,9 @@ public class CalculationDateLocationMappingProcessor extends MappingProcessor {
 		setValueAndUpdateMappings(synonymPath.addElement(party + selectLocationSynonymValue),
 				(value) -> calculationDateLocationElectionBuilder.setParty(toCounterpartyRoleEnum(party)));
 
-		//TH Sprint 2025-12: requires review when generation is completed
-//		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
-//				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
-//						.map(enumValue -> FieldWithMetaBusinessCenterEnum.builder().setValue(enumValue).build())
-//						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenter));
+		//TH Sprint 2025-12: CDM Reference Data update. Requires further review.
+		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
+				value -> calculationDateLocationElectionBuilder.setBusinessCenter(CreateiQMappingProcessorUtils.toFieldWithMetaString(value)));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				value -> calculationDateLocationElectionBuilder.setCustomLocation(removeHtml(value)));

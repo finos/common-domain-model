@@ -134,21 +134,21 @@ func Today: <"Current date.">
     output:
         today date (1..1)
 
-func GetAllBusinessCenters: <"Returns a merged list of BusinessCenterEnums for the supplied BusinessCenters.">
+func GetAllBusinessCenters: <"Returns a merged list of BusinessCenter codes for the supplied BusinessCenters.">
     inputs:
         businessCenters BusinessCenters (1..1)
     output:
-        businessCenterEnums BusinessCenter (0..*)
+        businessCenterCodes BusinessCenter (0..*)
 
-    add businessCenterEnums: <"Get list of BusinessCenterEnum.">
+    add businessCenterCodes: <"Get list of BusinessCenter.">
         businessCenters -> businessCenter
 
-    add businessCenterEnums: <"Get list of BusinessCenterEnum from referenced BusinessCenters.">
+    add businessCenterCodes: <"Get list of BusinessCenter from referenced BusinessCenters.">
         if businessCenters -> businessCentersReference exists
         then GetAllBusinessCenters(businessCenters -> businessCentersReference)
 
-    set businessCenterEnums: <"Remove any duplicates from the list.">
-        businessCenterEnums distinct
+    set businessCenterCodes: <"Remove any duplicates from the list.">
+        businessCenterCodes distinct
 
 func BusinessCenterHolidaysMultiple: <"Returns a merged list of holidays for the supplied business centers.">
     inputs:

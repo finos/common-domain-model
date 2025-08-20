@@ -1,6 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-//import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.staticdata.asset.rates.FloatingRateIndexEnum;
 import cdm.observable.asset.FloatingRateIndex;

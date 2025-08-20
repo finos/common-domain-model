@@ -101,7 +101,7 @@ final class FpMLCodingSchemeTests {
      *
      * @throws IOException If an error occurs while reading the JSON file.
      */
-    @Disabled
+    //@Disabled
     @Test
     void mustValidateCodesInTradeStateSample() throws IOException {
         // Load the sample JSON file containing a trade state definition

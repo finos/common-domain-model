@@ -1,6 +1,6 @@
 package cdm.observable.asset.calculatedrate.functions;
 
-//import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.base.datetime.BusinessCenters;
 import cdm.observable.asset.calculatedrate.*;
 import cdm.product.common.schedule.CalculationPeriodBase;
