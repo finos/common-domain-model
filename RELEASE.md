@@ -1,23 +1,38 @@
-# _Event Workflow - Updated constraints for Event WorkflowStep condition_
+# *Legal Agreement Model - Additional clauses for Legacy CSA*
 
 _Background_
 
-The condition CounterPartyPositionBusinessEventOrBusinessEventChoice appears to be designed to ensure that counterpartyPositionBusinessEvent and businessEvent are not both present simultaneously. However, its current structure - as a required choice - needs selecting one of these elements each time WorkflowStep is used.
-It has been observed that proposedEvent, which specifies the required inputs for a transition before a business event is fully formed, does not include either counterpartyPositionBusinessEvent or businessEvent. While these fields are not necessary at this stage, their mandatory status results in a validation issue when neither is provided. Further details on the background context can be found in Issue [3681](https://github.com/finos/common-domain-model/issues/3681).
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
 
 _What is being released?_
 
-This contribution modifies the required choice within the model. Previously, the choice was between businessEvent and counterpartyPositionBusinessEvent. It has now been updated to a required choice between proposedEvent, businessEvent, and counterpartyPositionBusinessEvent. Correspondingly, the condition name has been updated to CounterpartyPositionBusinessEventOrBusinessEventOrProposedEventChoice to reflect this expanded set of options.
+Three new clauses:
 
-Impact on valid states:
-- Instances containing only businessEvent remain valid
-- Instances containing only counterpartyPositionBusinessEvent remain valid
-- A new valid state is introduced: instances containing only proposedEvent
-- Instances containing none of these three elements remain invalid (as it's still a required choice)
-- New invalid state is introduced: Instances containing more than one of these three elements are invalid
+- Specified Condition
+- Independent Amount
+- Other Eligible Support
 
-Additionally, the definitions of elements within workflowStep, specifically businessEvent and proposedEvent, have been revised. It was previously assumed that a proposedEvent could coexist with a businessEvent. This assumption has been removed, and the model now enforces that only one of these elements can be present at a time, in alignment with the updated choice constraint.
+These new clauses require the creation of the following enums:
+
+- `CSASpecifiedConditionEnum`
+- `AdditionalTerminationEventEnum`
+- `RatedPartyEnum`
+- `IndependentAmountCompareEnum` extends `CreditNotationMismatchResolutionEnum` and adds a new value 'compare'
+
+Updating clauses that exist within the model:
+
+- `CollateralTransferAgreementElections`
+  - `finalReturns` added as an attribute
+- `HoldingAndUsingPostedCollateral`
+  - `additionalLanguage` added as an attribute
+- `CreditSupportObligations`
+  - `legacyIndependentAmount` added as an attribute
+- `eligibleCreditSupport` added as a type and attribute
+
+Further updates to descriptions and addition of docReferences are also being contributed.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [3954](https://github.com/finos/common-domain-model/pull/3954)
+Changes can be reviewed in PR: [#3979](https://github.com/finos/common-domain-model/pull/3979)
