@@ -1,4 +1,4 @@
-# *Legal Documentation - Consolidation of enums & creation of new types for Legacy CSA*
+# *Legal Documentation - New types & consolidation of enums for Legacy CSA*
 
 _Background_
 
@@ -13,6 +13,6 @@ _What is being released?_
 - Relabelled `otherEligibleSupport` to `otherEligibleSupportIM` in `CreditSupportObligations` createIQ synonym mapping 
 - Changed type of `demandsAndNotices` attribute from `ContactElection`  to `DemandsAndNotices` type in `CreditSupportAgreementElections` & `CollateralTransferAgreementElections`
  
-- _Review Directions_
+_Review Directions_
 
 Changes can be reviewed in PR: [#3976](https://github.com/finos/common-domain-model/pull/3976)
