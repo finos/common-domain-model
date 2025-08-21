@@ -78,6 +78,7 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
     otherCSA string (0..1) <"A clause detailing the prescence of another collateralisation arrangement within the Master Agreement between the parties to this Collateral Arrangement.">
     legacyAdditionalRepresentations string (0..1) <"Details of any Additional Representations given by the relevant parties in relation to the collateral arrangement.">
     value CollateralValueMethod (0..1) <"Details how particular types of collateral are valued (other than in respect of a default).">
+    finalReturns FinalReturns (1..1) <"A clause providing that final return collateral is to be provided without consideration of any Minimum Transfer Amount and collateral haircut.">
 
 type CollateralTransferAgreementElections: <"The set of elections which specify a Collateral Transfer Agreement.">
     regime Regime (1..1) <"The Regime Table provision , which determines the regulatory regime(s) applicable to each of the parties to the agreement.">
@@ -349,6 +350,8 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(f)" name " Conditions Precedent"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(e)" name " Conditions Precedent"]
     [docReference ISDA CSA_VM_2016 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies"]
+    [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
+    [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
     conditionsPrecedentElection ExceptionEnum (0..1) <"The election to specify whether the standard Conditions Precedent apply.">
     customProvision string (0..1) <"The custom provisions that might be specified by the parties to the agreement for the purpose of overwriting the default Condition Precedent provision specified in the CSA.">
         [docReference ISDA CSA_IM_2016 paragraph "4" clause "(a)"]
@@ -362,6 +365,9 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(f)(ii)"]
         [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(e)(ii)"]
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
+    specifiedCondition SpecifiedCondition (0..1) <"Specifies events elected by the parties, that if triggered, can temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral.">
+        [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
 
     condition CustomProvision: <"When a Custom Provision is specified then the Conditions Precedent Election should be absent.">
         if customProvision exists
@@ -459,7 +465,6 @@ type CustodianRiskElection: <"A class to specify the Custodian Risk.">
 
 type CustodianTerms: <"A class to specify the requirements applicable to the custodian with respect to the holding of posted collateral.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause " (h)(i)" name "Eligibility to Hold Posted Collateral (VM) Custodians (VM)"]
-
     minimumAssets Money (0..1) <"The minimal level of assets requirement with respect to the custody agent.">
     minimumRating CreditNotation (0..1) <"The minimal rating requirement with respect to the custody agent.">
     initialDesignation LegalEntity (0..1) <"Election to specify the initial custodian.">
@@ -499,7 +504,6 @@ type DisputeResolution: <"A class to specify the election terms under which a pa
     legacyValue LegacyResolutionValue (0..1) <"Methodology for resolving disputes in respect of the determination of the value of collateral.">
 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
-
     party CounterpartyRoleEnum (1..1) <"The elective party.">
     electiveAmount ElectiveAmountEnum (0..1) <"Specifies an enumerated election to express the elective amount.">
     amount Money (0..1) <"The elective amount when expressed as a currency amount. The associated PartyElectiveAmount_amount data rule enforces that the currency amount is actually greater than 0.">
@@ -515,7 +519,7 @@ type EligibilityToHoldCollateral: <"A class to specify the conditions under whic
     partyTerms HoldingPostedCollateralEnum (1..*) <"The condition(s) required by a party from the other party to hold its posted collateral.">
     custodianTerms CustodianTerms (0..1) <"The restrictions that might be required by a party from the other party's custodian agent to hold its posted collateral.">
     eligibleCountry string (0..*) <"The restrictions that might be required by a party from the other party in terms of country(ies) where collateral can be held.">
-        [metadata scheme]
+    [metadata scheme]
 
 type EnforcementEvent: <"A class to specify Enforcement Events specific to Security Agreements.">
 
@@ -599,18 +603,22 @@ type GeneralSimmElections: <"A class to specify the ISDA SIMM as the Method for 
     simmCalculationCurrency SimmCalculationCurrency (1..1) <"The SIMM Calculation Currency, as specified for each of the parties to the CSA Initial Margin.">
         [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(ee)(3)"]
 
-type HoldingAndUsingPostedCollateral: <"A class to specify the elections for the holding and using of posted collateral.">
+type HoldingAndUsingPostedCollateral: <"Specifies the conditions that need to be satisfied before the Secured Party or Custodian acting on its behalf can hold and use posted collateral.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause " (h)" name "Holding and Using Posted Collateral (VM)"]
-
+    [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(g)"]
+    [docReference ISDA CSD_English_1995 paragraph "13" clause "(h)"]
     partyElection HoldingAndUsingPostedCollateralElection (2..2) <"The parties' elections for the holding and using of posted collateral.">
+    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
-type HoldingAndUsingPostedCollateralElection: <"A class to specify the parties' elections related to the holding and using of posted collateral.">
+type HoldingAndUsingPostedCollateralElection: <"Specifies the parties' elections related to the holding and using of posted collateral.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause " (h)" name "Holding and Using Posted Collateral (VM)"]
-
-    party CounterpartyRoleEnum (1..1) <"The elective party.">
+    [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(g)"]
+    [docReference ISDA CSD_English_1995 paragraph "13" clause "(h)"]
+    party CounterpartyRoleEnum (1..1) <"The party to which the elections apply.">
     eligibilityToHoldCollateral EligibilityToHoldCollateral (1..1) <"The specification of the conditions under which a party and its custodian(s) are entitled to hold posted collateral.">
-    useOfPostedCollateral boolean (1..1) <"Specifies whether the party to the agreement has the right to rehypothecate the collateral held (True).">
+    useOfPostedCollateral boolean (1..1) <"Indicates whether the party has the right to reuse, rehypothecate, or otherwise make use of the posted collateral. 'True' if the party has the right,'False' if the party does not have the right.">
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(h)(ii)" name "Use of Posted Collateral (VM)"]
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(g)(ii)"]
 
 type IneligibleCreditSupport: <"A class to specify the parties to which the provisions of the Credit Support Annex for Variation Margin will apply to.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause "(c)(iii)" name "Legally Ineligible Credit Support (VM)"]
@@ -737,15 +745,14 @@ type PartyAgreementIdentifier: <"A class defining a legal agreement identifier i
         [metadata scheme]
 
 type PostingObligations: <"A class to specify the collateral posting obligations of the security provider or security providers as specified in the corresponding agreement.">
-    [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(ii)" name ""]
+    [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(ii)"]
     securityProvider string (1..1) <"The security provider party(ies) to which the posting obligations apply to, which can be either one of the parties to the legal agreement, or both of those.">
     partyElection PostingObligationsElection (1..2) <"The specification of the collateral posting obligations for the security provider party(ies).">
         [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(ii)"]
 
-type PostingObligationsElection: <"A class to specify the collateral posting obligations for the security provider party(ies).">
+type PostingObligationsElection: <"Specifies the collateral posting obligations for the security provider party(ies).">
     [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(ii)"]
-
-    party CounterpartyRoleEnum (1..1) <"The elective party.">
+    party CounterpartyRoleEnum (1..1) <"Specifies the party providing the security.">
     asPermitted boolean (1..1) <"If set to True, the Control Agreement is a Credit Support Document with respect to the party(ies).">
         [docReference ISDA CSA_IM_2016 paragraph "6" clause "(e)"]
     eligibleCollateral EligibleCollateralCriteria (0..*) <"The eligible collateral as specified in relation to the pledgor/chargor/obligor(s) posting obligation.">
@@ -991,11 +998,12 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(d)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(c) " name "Credit Support Obligations"]
-
     deliveryAmount string (0..1) <"Delivery Amount (VM) has the meaning specified in Paragraph 3(a), unless otherwise specified here.">
     returnAmount string (0..1) <"Return Amount (VM) has the meaning specified in Paragraph 3(a), unless otherwise specified here.">
     marginApproach MarginApproach (0..1) <"The selection of Margin Approach applicable to the agreement.">
     otherEligibleSupportIM string (0..1) <"The Other Eligible Support election. If not specified, this election is deemed as not applicable.">
+    [docReference ISDA CSA_IM_NewYork_2016]
+    [docReference ISDA CSA_IM_NewYork_2018]
     threshold Threshold (1..1) <"The amount of net exposure that a party is willing to bear in relation to the other party before it requires asking for collateral.">
         [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c )(vi)(A)" name "Threshold"]
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(d)(vi)(A)" name "Threshold"]
@@ -1026,6 +1034,29 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
     legacyReturnAmount LegacyReturnAmount (1..1) <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be recalled to it as a Return Amount.">
     creditSupportAmount CreditSupportAmount (1..1) <"The total amount one counterparty must deliver to the other at any time: the combination of the Exposure to that party and the net Independent Amounts it must post, minus any agreed Threshold.">
     collateralTransferTiming CollateralTransferTiming (0..1) <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
+    legacyIndependentAmount LegacyIndependentAmount (0..1) <"Specifies the additional amount of collateral that is required to be delivered by a party irrespective of the mark-to-market exposure under the related Transactions. It may take the form of a fixed amount or may be determined using ratings.">
+        [docReference ISDA CSA_NewYork_1994]
+        [docReference ISDA CSA_English_1995]
+        [docReference ISDA CSD_English_1995]
+        [docReference ISDA CSA_VM_English_2016]
+        [docReference ISDA CSA_VM_NewYork_2016]
+    eligibleCreditSupport EligibleCreditSupport (1..1) <"Specification of the Eligible Collateral or Credit Support applicable to the Agreement.">
+        [docReference ISDA CSA_NewYork_1994]
+        [docReference ISDA CSA_English_1995]
+        [docReference ISDA CSD_English_1995]
+        [docReference ISDA CSA_VM_English_2016]
+        [docReference ISDA CSA_VM_NewYork_2016]
+
+type EligibleCreditSupport: <"Specifies the collateral posting obligations of the security provider or security providers as specified in the corresponding agreement">
+    partyElection EligibleCollateralElection (1..2) <"The specification of the collateral posting obligations for the security provider party(ies)">
+
+type EligibleCollateralElection extends PostingObligationsElection: <"Specifies the collateral posting obligations for the security provider party(ies).">
+    otherEligibleSupport string (1..1) <"Specifies the Other Eligible Support conditions. If not specified, this election is deemed as not applicable.">
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(b)(iii)"]
+        [docReference ISDA CSD_English_1995 paragraph "13" clause "(c)(iii)"]
+        [docReference ISDA CSA_VM_NewYork_2016]
+        [docReference ISDA CSA_IM_NewYork_2018]
+        [docReference ISDA CSA_IM_NewYork_2016]
 
 type SecurityInterestForObligations: <"Security Interest for Obligations clause applicable to 1994 NY CSA, 1995 English Law CSA, 1995 English Law Credit Support Deed, 2016 English Law VM CSA and 2016 New York Law VM CSA.">
     [docReference ISDA CSA_NewYork_1994 name "Security Interest for Obligations"]
@@ -1304,6 +1335,142 @@ type CreditSupportProviderElection: <"The party election of Credit Support Provi
     condition CreditSupportProvider: <"A validation rule to ensure that a Credit Support Provider is specified when required.">
         if creditSupportProviderTerms = CreditSupportProviderTermsEnum -> Specified
         then creditSupportProvider exists
+
+type SpecifiedCondition: <"Specifies events elected by the parties, that if triggered, can temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral.">
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)"]
+        [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)"]
+    isApplicable boolean (1..1) <"Indicates whether events that could temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral are applicable. If applicable,'True'. If not applicable,'False'.">
+    partyElection SpecifiedConditionPartyElection (0..2) <"The party specific elections.">
+    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
+
+type SpecifiedConditionPartyElection: <"The party specific elections in respect to the Specified Condition clause.">
+    party CounterpartyRoleEnum (1..1) <"Identifies the party making the election.">
+    specifiedCondition CSASpecifiedConditionEnum (0..*) <"Specifies events that may temporarily or permanently suspend a partys rights to rehypothecate, transfer, or substitute collateral.">
+    additionalTerminationEvent AdditionalTerminationEventEnum (0..*) <"Specifies events that may lead to the early termination of the Master Agreement, including suspension of the affected party's rights to rehypothecate, transfer, or substitute collateral.">
+    specifiedAdditionalTerminationEvent string (0..1) <"Specifies any bespoke Additional Termination Event(s) that are set out in the related Specified Condition clause.">
+
+    condition AdditionalTerminationEvent: <"If Specified Condition is Additional Termination Event, then Additional Termination Event must be specified.">
+        if specifiedCondition any = CSASpecifiedConditionEnum -> AdditionalTerminationEvents
+        then additionalTerminationEvent exists
+        else additionalTerminationEvent is absent
+
+    condition SpecifiedAdditionalTerminationEvent: <"If Additional Termination Event is As Specified, then Additional Termination event must be specified.">
+        if additionalTerminationEvent any = AdditionalTerminationEventEnum -> AsSpecified
+        then specifiedAdditionalTerminationEvent exists
+        else specifiedAdditionalTerminationEvent is absent
+
+type LegacyIndependentAmount: <"Sets out the additional amount of collateral that is required to be delivered by that party irrespective of the mark-to-market exposure under the related Transactions. It may take the form of a fixed amount, or be determined using credit ratings.">
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(b)(iv)(A)"]
+        [docReference ISDA CSA_English_1995 paragraph "11" clause "(b)(iii)(A)"]
+        [docReference ISDA CSD_English_1995 paragraph "11" clause "(c)(iii)(A)"]
+    partyElection LegacyIndependentAmountParty (2..2) <"The party specific elections for the Independent Amount clause.">
+    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
+
+type LegacyIndependentAmountParty: <"The party specific elections for the Independent Amount clause.">
+    party CounterpartyRoleEnum (1..1) <"Identifies the Party making the election.">
+    isApplicable boolean (1..1) <"Specifies whether Independent Amount is applicable to the elected party. If applicable, 'True', and if not applicable then 'False'.">
+    fixedAmount Money (0..1) <"Indicates the Independent Amount is specified as a fixed amount.">
+    ratingsBased LegacyIndependentAmountRatingsBased (0..1) <"Indicates the Independent Amount is determined using a credit rating.">
+    ratingsXExposure LegacyIndependentAmountRatingsXExposure (0..1) <"Indicates the Independent Amount is determined using both credit rating and exposure metrics.">
+
+    condition LegacyIAMethod: <"Ensures that the Independent Amount is specified as only one of Fixed Amount, Ratings Based or RatingsXExposure.">
+        required choice fixedAmount, ratingsBased, ratingsXExposure
+
+type IndependentAmountRatings: <"A logical container designed to hold a set of related data. In this case, designed to hold a set of information required when Independent Amount is determined using credit ratings.">
+    compare IndependentAmountCompareEnum (1..1) <"Specifies how multiple credit ratings are compared when determining the applicable Independent Amount, and whether that measure is highest, lowest, or a comparison of either.">
+    ratedParty RatedPartyEnum (1..1) <"Specifies the party to whom the rating agency rating applies to for the purposes of determining the Independent Amount.">
+    namedAffiliate LegalEntity (0..1) <"Details the Named Affiliate where the Rated Party is Named Affiliate.">
+    namedEntity LegalEntity (0..1) <"Details the Named Entity where the Rated Party is Named Entity.">
+    ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
+
+    condition RestrictCompare: <"Restricts allowable values pertaining to how multiple credit ratings are compared when determining the applicable Independent Amount.">
+        if compare exists
+        then compare = IndependentAmountCompareEnum -> Compare
+        or compare = IndependentAmountCompareEnum -> Lowest
+        or compare = IndependentAmountCompareEnum -> Highest
+
+    condition NamedAffiliate: <"Ensures Named Affiliate is provided where the Rated Party is Named Affiliate.">
+        if ratedParty = RatedPartyEnum -> NamedAffiliate
+        then namedAffiliate exists
+        else namedAffiliate is absent
+
+    condition NamedEntity: <"Ensures Named Entity is provided where the Rated Party is Named Entity.">
+        if ratedParty = RatedPartyEnum -> NamedEntity
+        then namedEntity exists
+        else namedEntity is absent
+
+type LegacyIndependentAmountRatingsBased extends IndependentAmountRatings: <"Specifies that the Independent Amount is determined using a credit rating.">
+    variableSet RatingAgencyAmount (1..*) <"A logical container designed to hold a defined set of related data. In this case the collation of Rating Information and an associated Independent Amount.">
+    currency string (0..1) <"Specifies the currency applicable to the relevant Independent Amount.">
+    [metadata scheme]
+
+    condition RestrictCompare: <"Restricts allowable values pertaining to how multiple credit ratings are compared when determining the applicable Independent Amount.">
+        if compare exists
+        then compare = IndependentAmountCompareEnum -> Lowest
+        or compare = IndependentAmountCompareEnum -> Highest
+
+type RatingAgencyAmount: <"A logical container to hold a defined set of related data. In this case the collation of Rating Information and an associated Independent Amount.">
+    ratingVariableSet CreditNotation (1..*) <"Allows a grouping of Rating agencies and Rating values.">
+    amount number (0..1) <"Specifies the notional or collateral Independent Amount.">
+
+    condition RestrictingCreditNotation: <"Disables attributes that are not required from CreditNotation.">
+        ratingVariableSet -> scale is absent
+        and ratingVariableSet -> outlook is absent
+        and ratingVariableSet -> debt is absent
+        and ratingVariableSet -> creditWatch is absent
+        and ratingVariableSet -> agency exists
+        and ratingVariableSet -> notation exists
+
+type LegacyIndependentAmountRatingsXExposure extends IndependentAmountRatings: <"Specifies that the Independent Amount is determined using both credit rating and exposure metrics.">
+    highestLowestVariableSet RatingMultiplier (0..*) <"A logical container to hold a defined set of related data. In this case the collation of Ratings Information and associated exposure multiplier where highest or lowest of the associated credit ratings are used when determining the applicable Independent Amount.">
+    compareVariableSet DirectionRatingMultiplier (0..*) <"A logical container to hold a defined set of related data. In this case the collation of Ratings Information and associated exposure multiplier where multiple credit ratings are compared when determining the applicable Independent Amount.">
+
+    condition CompareIA: <"Ensures the appropriate variable set is populated based on how the Ratings are compared.">
+        if compare = IndependentAmountCompareEnum -> Compare
+        then compareVariableSet exists and highestLowestVariableSet is absent
+
+    condition LowestIA: <"Ensures the appropriate variable set is populated based on how the Ratings are compared.">
+        if compare = IndependentAmountCompareEnum -> Lowest
+        then highestLowestVariableSet exists and compareVariableSet is absent
+
+    condition HighestIA: <"Ensures the appropriate variable set is populated based on how the Ratings are compared.">
+        if compare = IndependentAmountCompareEnum -> Highest
+        then highestLowestVariableSet exists and compareVariableSet is absent
+
+type RatingMultiplier: <"A logical container to hold a defined set of related data. In this case the collation of Ratings Information and associated exposure multiplier.">
+    ratingVariableSet CreditNotation (1..*) <"Allows a grouping of Rating agencies and Rating values.">
+    exposureMultiplier number (1..1) <"Specifies the multiplier applied to exposure based on the credit rating of the rated party.">
+
+    condition RestrictingCreditNotation: <"Disables attributes that are not required from CreditNotation.">
+        ratingVariableSet -> scale is absent
+        and ratingVariableSet -> outlook is absent
+        and ratingVariableSet -> debt is absent
+        and ratingVariableSet -> creditWatch is absent
+        and ratingVariableSet -> agency exists
+        and ratingVariableSet -> notation exists
+
+type DirectionRatingMultiplier: <"A logical container to hold a defined set of related data. In this case the collation of Ratings Information and associated exposure multiplier.">
+    variableSet DirectionRatingSet (1..*) <"A logical container to hold a defined set of related data. In this case the collation of Ratings Agency, Rating value and an associated direction.">
+    exposureMultiplier number (1..1) <"Specifies the multiplier applied to exposure based on the credit rating of the rated party.">
+
+choice DirectionRatingSet: <"A logical container to hold a defined set of related data. In this case the collation of Ratings Agency, Rating value and an associated direction that are grouped by either AND or OR logic.">
+    AllDirectionRating <"Enables two or more Direction and Ratings to be combined using AND logic.">
+    AnyDirectionRating <"Enables two or more Direction and Ratings to be combined using OR logic.">
+    DirectionRating <"A logical container to hold a defined set of related data. In this case the collation of Ratings Agency, Rating value and an associated direction.">
+
+type AllDirectionRating: <"Used to combine two or more Ratings and associated direction using AND logic.">
+    allDirectionRating DirectionRatingSet (2..*)
+
+type AnyDirectionRating: <"Used to combine two or more Ratings and associated direction using OR logic.">
+    anyDirectionRating DirectionRatingSet (2..*)
+
+type DirectionRating extends CreditNotation: <"A logical container to hold a defined set of related data. In this case the collation of Ratings Agency, Rating value and an associated direction.">
+    direction CompareOp (1..1) <"Specifies the direction of measurement for the rated party.">
+
+    condition RestrictingCreditNotation: <"Disables attributes that are not required from CreditNotation.">
+        (scale is absent and debt is absent and outlook is absent and creditWatch is absent)
+        and
+        (agency exists and notation exists)
 
 type DemandsAndNotices: <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
     [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(k)"]
