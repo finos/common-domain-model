@@ -24,6 +24,15 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
 
 
+    condition ExchangeRole: <"If Exchange is specified, it must be an exchange-listed Instrument.">
+        if partyRole -> role = Exchange then isExchangeListed
+
+    condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
+            if isExchangeListed then partyRole -> role = Exchange
+
+    condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
+            if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
+
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
         if assetType -> assetType = Security
             then partyRole -> role = Issuer
@@ -31,12 +40,6 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     condition LenderBorrower: <"If the asset type is a Load then the role must be Lender.">
         if assetType -> assetType = Loan
             then partyRole -> role =  Lender
-
-    condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
-            if isExchangeListed then partyRole -> role = Exchange
-
-    condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
-            if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
