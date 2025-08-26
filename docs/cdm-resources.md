@@ -4,7 +4,7 @@ title: Common Domain Model Resources
 
 Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://www.finos.org/common-domain-model)
 
-## COMMON DOMAIN MODEL Blogs
+## CDM Blogs
 
 ### [CDM New Horizons: Welcoming the First Sell-side Maintainer](https://www.finos.org/blog/cdm-new-horizons-welcoming-the-first-sell-side-maintainer?hsLang=en-us)
 
@@ -22,7 +22,7 @@ The newly formed CDM Tokenized Assets Working Group was formed to extend the mod
 
 This release, the second major update since the model found its home at FINOS, represents a collaborative effort with ISDA, ISLA, and ICMA and brings over 100 functional and technical enhancements. If you're involved in financial data management and building systems for post-trade services, this is a release you need to know about.
 
-## COMMON DOMAIN MODEL IN THE NEWS 
+## CDM News
 
 ###  [Press Release from FINOS Member JSCC](https://www.finos.org/press/from-finos-member-jscc-global-standardization-of-regulatory-reporting-leveraging-drr-cdm?hsLang=en-us)
 
@@ -57,7 +57,7 @@ In this article, Crowdfund Insider discussed the appointment of FINOS as the hos
 In February 2023, FINOS announced the launch of the Common Domain Model, which aims to to become the industry standard for digital regulatory reporting. The CDM streamlines and automates various lifecycle events and processes related to open repos, evergreens, and floating rate repos - ultimately reducing costs and improving sustainability in regulatory compliance by mutualizing regulatory reporting. The journey towards implementing the CDM is a significant step towards real-world industry implementation of digital regulatory reporting and compliance. See the press coverage here securitiesfinancetimes and FINADIUM.
 
 
-## Other news & Blogs
+## Other CDM Resources
 
 ### [A discussion of "The Future of the Securities Lending Market: An Agenda for Change"](https://www.finos.org/blog/the-future-of-securities-lending-market)
 
