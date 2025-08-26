@@ -1,10 +1,36 @@
 ---
-title: Common Domain Model Materials
+title: Common Domain Model Resources 
 ---
 
-Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://resources.finos.org/category/projects-sigs/common-domain-model-cdm?projects-sigs=common-domain-model-cdm&c=cG9zdDo5OTEwNzc%3D)
+Explore More Resources and Videos on the Common Domain Model in the [FINOS Resource Center](https://www.finos.org/common-domain-model)
+
+## COMMON DOMAIN MODEL Blogs
+
+### [CDM New Horizons: Welcoming the First Sell-side Maintainer](https://www.finos.org/blog/cdm-new-horizons-welcoming-the-first-sell-side-maintainer?hsLang=en-us)
+
+We are excited to announce an addition to the dedicated team of maintainers of the CDM: Nick Moger of J.P. MorganChase.
+
+### [CDM New Horizons: Standardised Schedule Margin Model in CDM 6](https://www.finos.org/blog/cdm-new-horizons-standardised-schedule-margin-model-in-cdm-6?hsLang=en-us)
+
+Following the financial crisis of 2008, world leaders agreed that over-the-counter (OTC) derivatives needed more transparency and better tools to mitigate risk. This led to new regulations forcing market participants to exchange collateral. A key component of this is the requirement for Initial Margin (IM).
+
+### [CDM New Horizons: The CDM’s Role in Defining Digital Ownership](https://www.finos.org/blog/cdm-new-horizons-the-cdms-role-in-defining-digital-ownership?hsLang=en-us)
+
+The newly formed CDM Tokenized Assets Working Group was formed to extend the model so that it can capture the full lifecycle of tokenised assets, without disrupting the integrity of its existing framework.
+
+### [CDM 6.0: A Major Leap Forward for Financial Data Standardization](https://www.finos.org/blog/cdm-6.0-a-major-leap-forward-for-financial-data-standardization?hsLang=en-us)
+
+This release, the second major update since the model found its home at FINOS, represents a collaborative effort with ISDA, ISLA, and ICMA and brings over 100 functional and technical enhancements. If you're involved in financial data management and building systems for post-trade services, this is a release you need to know about.
 
 ## COMMON DOMAIN MODEL IN THE NEWS 
+
+###  [Press Release from FINOS Member JSCC](https://www.finos.org/press/from-finos-member-jscc-global-standardization-of-regulatory-reporting-leveraging-drr-cdm?hsLang=en-us)
+
+The Japanese Securities Clearing Corporation (JSCC) announced today that JSCC is the first CCP (Central Counterparty) and Japanese entity to announce the adoption of DRR and CDM within a production environment. 
+
+###  [JPMorganChase implements revolutionary open source solution to transform regulatory reporting](https://www.jpmorgan.com/technology/technology-blog/jpmc-launches-finos-open-source-solution)
+
+JPMorganChase’s derivatives business leverages the Fintech Open Source Foundation (FINOS) Common Domain Model (CDM) and ISDA Digital Regulatory Reporting (DRR).
 
 ### [CDM Update: Focus on Reporting, Collateral & Sec Lending Next](https://derivsource.com/2024/08/28/common-domain-model-providing-a-standardised-data-representation-of-trade-events-isda-cdm/?utm_campaign=DerivSource%20SOCIALS&utm_content=305908647&utm_medium=social&utm_source=linkedin&hss_channel=lcp-1903852)
 
@@ -31,7 +57,8 @@ In this article, Crowdfund Insider discussed the appointment of FINOS as the hos
 In February 2023, FINOS announced the launch of the Common Domain Model, which aims to to become the industry standard for digital regulatory reporting. The CDM streamlines and automates various lifecycle events and processes related to open repos, evergreens, and floating rate repos - ultimately reducing costs and improving sustainability in regulatory compliance by mutualizing regulatory reporting. The journey towards implementing the CDM is a significant step towards real-world industry implementation of digital regulatory reporting and compliance. See the press coverage here securitiesfinancetimes and FINADIUM.
 
 
-## CDM RESOURCES
+## Other news & Blogs
+
 ### [A discussion of "The Future of the Securities Lending Market: An Agenda for Change"](https://www.finos.org/blog/the-future-of-securities-lending-market)
 
 ISLA published a paper entitled ‘The Future of the Securities Lending Market | An Agenda for Change’ in September 2019, looking at the conjunction of market complexity, technical architecture and regulatory impacts. The conclusion reached was that a transformation was overdue and the solution would be underpinned by common standards.
