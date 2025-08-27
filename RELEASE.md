@@ -21,4 +21,4 @@ The following changes have been made:
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#3952](https://github.com/finos/common-domain-model/pull/3952)
+Changes can be reviewed in PR: [#3994](https://github.com/finos/common-domain-model/pull/3994)
