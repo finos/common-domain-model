@@ -1,20 +1,78 @@
-# _Infrastructure - Dependency Update_
+# *Legal Documentation - Addition of clause Holding and Using Posted Collateral*
+
+_Background_
+
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards.
+
+This contribution of the clause for Holding and Using Posted Collateral enhances the model and contributes a structure for the following Legacy CSAs - ISDA 1995 English Law CSA, 1994 New York Law CSA, 1995 English Law CSD
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+Contribution of the last pending clause for the Legacy ISDA CSA/CSD Documents from the Legal Agreement Working Group.
 
-Version updates include:
-- `DSL` 9.62.0 Java code generation fixes related to setting metadata. See DSL release notes: [DSL 9.62.0](https://github.com/finos/rune-dsl/releases/tag/9.62.0)
-- `DSL` 9.63.0 Changes the generated Java pruning algorithm to keep required attributes, even if they are empty. See DSL release notes: [DSL 9.63.0](https://github.com/finos/rune-dsl/releases/tag/9.63.0)
-- `DSL` 9.64.0 See DSL release notes: [DSL 9.64.0](https://github.com/finos/rune-dsl/releases/tag/9.64.0)
-  * Show error for duplicate attributes in the same type
-  * Add support for XML union elements
-  * Added workaround for XSD `any` element
-  * Reverted to prune required fields, added config to disable pruning
-  
-Test expectations have been updated accordingly to include required empty model objects that were previously pruned.
+- `EligibilityToHoldCollateral`
+    - Restructuring the EligibilityToHoldCollateral type to more accurately represent the document and allow for criteria to be grouped using AND/OR logic.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#3943](https://github.com/finos/common-domain-model/pull/3943)
+Changes can be reviewed in PR: [#3978](https://github.com/finos/common-domain-model/pull/3978)
+
+# *Legal Agreement Model - Additional clauses for Legacy CSA*
+
+_Background_
+
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
+
+_What is being released?_
+
+Three new clauses:
+
+- Specified Condition
+- Independent Amount
+- Other Eligible Support
+
+These new clauses require the creation of the following enums:
+
+- `CSASpecifiedConditionEnum`
+- `AdditionalTerminationEventEnum`
+- `RatedPartyEnum`
+- `IndependentAmountCompareEnum` extends `CreditNotationMismatchResolutionEnum` and adds a new value 'compare'
+
+Updating clauses that exist within the model:
+
+- `CollateralTransferAgreementElections`
+    - `finalReturns` added as an attribute
+- `HoldingAndUsingPostedCollateral`
+    - `additionalLanguage` added as an attribute
+- `CreditSupportObligations`
+    - `legacyIndependentAmount` added as an attribute
+- `eligibleCreditSupport` added as a type and attribute
+
+Further updates to descriptions and addition of docReferences are also being contributed.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#3979](https://github.com/finos/common-domain-model/pull/3979)
+
+# *Legal Documentation - New types & consolidation of enums for Legacy CSA*
+
+_Background_
+
+D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+
+These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
+
+_What is being released?_
+- Added `CounterpartyRoleEnum` to `PartyContactInformation`. 
+- Consolidated `ThresholdRatedPartyEnum` and `MTARatedPartyEnum` into `RatedPartyEnum` and `ThresholdZeroEventEnum` and `MTAZeroEventEnum` into `ZeroEventEnum`
+- Created `DemandsAndNotices` type 
+- Relabelled `otherEligibleSupport` to `otherEligibleSupportIM` in `CreditSupportObligations` createIQ synonym mapping 
+- Changed type of `demandsAndNotices` attribute from `ContactElection`  to `DemandsAndNotices` type in `CreditSupportAgreementElections` & `CollateralTransferAgreementElections`
+ 
+_Review Directions_
+
+Changes can be reviewed in PR: [#3976](https://github.com/finos/common-domain-model/pull/3976)
