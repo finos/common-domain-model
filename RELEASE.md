@@ -11,13 +11,13 @@ _What is being released?_
 
 The following changes have been made:
 
-- Introduces a new `PositionBase` type.
+- A new `PositionBase` type has been introduced.
 - The attributes in `PositionBase` are the same as from the original `Position` with the addition of an `Asset`.
 - The cardinality of `Product` and `Asset` are set as optional.
 - A condition has been added to `PositionBase` to ensure either a `Product` or an `Asset` are defined.
-- Existing type `CollateralPosition` now extends `PositionBase`
-- Existing type `Position` now extends `PositionBase`
-- Position overrides the cardinality of `product` from `PositionBase` to make it mandatory. This retains the original requirement for a Position to contain a Product.
+- Existing type `CollateralPosition` now extends `PositionBase`.
+- Existing type `Position` now extends `PositionBase`.
+- `Position` overrides the cardinality of `product` from `PositionBase` to make it mandatory. This retains the original requirement for a position to contain a product.
 
 _Review Directions_
 
