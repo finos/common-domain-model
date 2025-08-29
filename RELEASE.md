@@ -1,24 +1,13 @@
-# *Position Model - Allow a Position to hold a Product or an Asset*
-
-_Background_
-
-This change allows a `Position` to now either be based upon a `Product` or an `Asset`.
-
-The reason for this change was to allow `CollateralPosition` (which extended `Position`) to represent a list of `PriceQuantity` by `Asset` or by `Product`. 
-This is required for securities lending trades that are collateralised by other securities, where the securities being used as collateral may need to defined on the trade too.
+# *Infrastructure - Security Update*
 
 _What is being released?_
 
-The following changes have been made:
+Third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
-- A new `PositionBase` type has been introduced.
-- The attributes in `PositionBase` are the same as from the original `Position` with the addition of an `Asset`.
-- The cardinality of `Product` and `Asset` are set as optional.
-- A condition has been added to `PositionBase` to ensure either a `Product` or an `Asset` are defined.
-- Existing type `CollateralPosition` now extends `PositionBase`.
-- Existing type `Position` now extends `PositionBase`.
-- `Position` overrides the cardinality of `product` from `PositionBase` to make it mandatory. This retains the original requirement for a position to contain a product.
+- `npm/axios` upgraded from version 0.25.0 to 0.30.1, see [GHSA-jr5f-v2jv-69x6](https://github.com/advisories/ghsa-jr5f-v2jv-69x6) for further details
+- `npm/image-size` upgraded from version 1.2.0 to 1.2.1, see [GHSA-m5qc-5hw7-8vg7](https://github.com/advisories/GHSA-m5qc-5hw7-8vg7) for further details
+- `npm/trim` upgraded from version 0.0.1 to 0.0.3, see [CVE-2020-7753](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-7753) for further details
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#3994](https://github.com/finos/common-domain-model/pull/3994)
+Changes can be reviewed in PR: [#3998](https://github.com/finos/common-domain-model/pull/3998)
