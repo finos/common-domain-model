@@ -1,4 +1,4 @@
-# *Changes to Position - Allow a Position to hold a Product or an Asset*
+# *Position Model - Allow a Position to hold a Product or an Asset*
 
 _Background_
 
