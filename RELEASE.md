@@ -47,7 +47,7 @@ This release contains a new set of Rune namespaces containing ingest functions, 
 
 _Review directions_
 
-Changes can be reviewed in PR: [3996](https://github.com/finos/common-domain-model/pull/3996)
+Changes can be reviewed in PR: [3999](https://github.com/finos/common-domain-model/pull/3999)
 
 # *Infrastructure - Security Update*
 
