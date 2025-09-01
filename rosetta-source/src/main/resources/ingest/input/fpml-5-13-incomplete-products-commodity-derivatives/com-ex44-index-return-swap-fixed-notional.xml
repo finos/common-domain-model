@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-13-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2022-2023 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<dataDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.fpml.org/FpML-5/confirmation" fpmlVersion="5-13" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation /schemas/fpml-5-13/confirmation/fpml-main-5-13.xsd">
+    <trade>
+        <tradeHeader>
+            <partyTradeIdentifier>
+                <partyReference href="PartyA"/>
+                <tradeId tradeIdScheme="http://www.PartyA.com/com-trade-id">ACIRST1234567</tradeId>
+            </partyTradeIdentifier>
+            <tradeDate id="TradeDate">2014-04-08</tradeDate>
+        </tradeHeader>
+        <commodityPerformanceSwap>
+            <primaryAssetClass>Commodity</primaryAssetClass>
+            <productType>Commodity:Energy:Index:Swap:Cash</productType>
+            <effectiveDate>
+                <adjustableDate>
+                    <unadjustedDate>2014-04-01</unadjustedDate>
+                    <dateAdjustments>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </dateAdjustments>
+                </adjustableDate>
+            </effectiveDate>
+            <terminationDate id="TerminationDate">
+                <adjustableDate>
+                    <unadjustedDate>2014-10-31</unadjustedDate>
+                    <dateAdjustments>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </dateAdjustments>
+                </adjustableDate>
+            </terminationDate>
+            <commodityReturnLeg>
+                <payerPartyReference href="PartyA"/>
+                <receiverPartyReference href="PartyB"/>
+                <calculationPeriodsSchedule id="returnLegCalculationPeriodSchedule">
+                    <periodMultiplier>1</periodMultiplier>
+                    <period>M</period>
+                    <balanceOfFirstPeriod>false</balanceOfFirstPeriod>
+                </calculationPeriodsSchedule>
+                <relativePaymentDates>
+                    <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                    <calculationPeriodsScheduleReference href="returnLegCalculationPeriodSchedule"/>
+                    <paymentDaysOffset>
+                        <periodMultiplier>2</periodMultiplier>
+                        <period>D</period>
+                        <dayType>Business</dayType>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </paymentDaysOffset>
+                </relativePaymentDates>
+                <commodity>
+                    <!-- Note:   instrumentId is required only in Confirmation View  -->
+                    <instrumentId instrumentIdScheme="http://www.fpml.org/coding-scheme/commodity-reference-price-3-0">DJUBS ComTSM</instrumentId>
+                    <specifiedPrice>Settlement</specifiedPrice>
+                </commodity>
+                <notionalAmount id="returnLegNotionalAmount">
+                    <!-- Note that, because this swap does not have a reinvestment feature on the notional -->
+                    <!-- that the 'amount' below is the notional amount in each Calculation Period         -->
+                    <currency>USD</currency>
+                    <amount>1000000.00</amount>
+                    <reinvestmentFeature>false</reinvestmentFeature>
+                </notionalAmount>
+                <commodityReturnCalculation>
+                    <formula>SimpleFormula</formula>
+                    <valuationDates>
+                        <calculationPeriodsScheduleReference href="returnLegCalculationPeriodSchedule"/>
+                        <dayType>Calendar</dayType>
+                        <dayDistribution>Last</dayDistribution>
+                    </valuationDates>
+                    <initialPrice>274.81</initialPrice>
+                </commodityReturnCalculation>
+            </commodityReturnLeg>
+            <commodityInterestLeg>
+                <payerPartyReference href="PartyB"/>
+                <receiverPartyReference href="PartyA"/>
+                <calculationPeriodsScheduleReference href="returnLegCalculationPeriodSchedule"/>
+                <relativePaymentDates>
+                    <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+                    <calculationPeriodsScheduleReference href="returnLegCalculationPeriodSchedule"/>
+                    <paymentDaysOffset>
+                        <periodMultiplier>2</periodMultiplier>
+                        <period>D</period>
+                        <dayType>Business</dayType>
+                        <businessDayConvention>NONE</businessDayConvention>
+                    </paymentDaysOffset>
+                </relativePaymentDates>
+                <notionalAmountReference href="returnLegNotionalAmount"/>
+                <commodityFixedInterestCalculation>
+                    <fixedRate>0.032100</fixedRate>
+                    <dayCountFraction>ACT/365.FIXED</dayCountFraction>
+                </commodityFixedInterestCalculation>
+            </commodityInterestLeg>
+            <marketDisruption>
+                <marketDisruptionEvent>AsSpecifiedInMasterAgreement</marketDisruptionEvent>
+                <disruptionFallbacks>AsSpecifiedInMasterAgreement</disruptionFallbacks>
+            </marketDisruption>
+        </commodityPerformanceSwap>
+        <documentation>
+            <masterAgreement>
+                <masterAgreementType>ISDA</masterAgreementType>
+                <masterAgreementVersion>2002</masterAgreementVersion>
+                <masterAgreementDate>2010-03-23</masterAgreementDate>
+            </masterAgreement>
+            <contractualDefinitions>ISDA2006</contractualDefinitions>
+        </documentation>
+    </trade>
+    <party id="PartyA">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">95980020140005196564</partyId>
+        <country>US</country>
+        <organizationType>SD</organizationType>
+    </party>
+    <party id="PartyB">
+        <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300XQFX97CITUR430</partyId>
+        <organizationType>non-SD/MSP</organizationType>
+    </party>
+</dataDocument>
