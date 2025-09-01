@@ -163,18 +163,17 @@ type PersonIdentifier: <"Comprises an identifier and a source. The associated me
     country string (0..1) <"The ISO 3166 standard code for the country issuing the identifier.">
         [metadata scheme]
 
-type NoticeInformation: <"Specifies notice information: address and, optionally, associated person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
-    contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
+type NoticeInformation: <"Specifies notice information: address and, optionally, associated person. This type also supports the ISDA CSA representation as a single string, through the address attribute in Contact Information.">
+    contactInformation ContactInformation (1..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
     naturalPerson NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process. (These are employees of the party.)">
     additionalInformation string (0..1)
 
-type NoticeInformationElection:
-    partyReference CounterpartyRoleEnum (0..1)
-    primaryNotice NoticeInformation (1..1)
-    additionalNotice NoticeInformation (0..1)
+type NoticeInformationElection: <"Specifies the party reference to which the notice information applies and their associated notice & contact information.">
+    partyReference CounterpartyRoleEnum (1..1) <"The party to which the notice applies.">
+    primaryNotice NoticeInformation (1..1) <"The main notice/address information of the party reference.">
+    additionalNotice NoticeInformation (0..1) <"Additional notice/address information of the party reference.">
 
 type PartyRole: <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
-
     partyReference Party (1..1) <"A reference to the party to which the role refers to.">
         [metadata reference]
     role PartyRoleEnum (1..1) <"The party role.">
