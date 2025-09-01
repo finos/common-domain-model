@@ -1,0 +1,758 @@
+namespace cdm.ingest.fpml.confirmation.settlement
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.credit.*
+import cdm.base.staticdata.party.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+
+import fpml.confirmation.* as fpml
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+
+func MapSettlementProvisionToSettlementTerms:
+    inputs:
+        settlementProvision fpml.SettlementProvision (0..1)
+        paymentDates fpml.PaymentDates (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias settlementType:
+        if settlementProvision -> nonDeliverableSettlement exists
+        then SettlementTypeEnum -> Cash
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: settlementType,
+            settlementCurrency: MapCurrency(settlementProvision -> settlementCurrency),
+            cashSettlementTerms: CashSettlementTerms {
+                valuationMethod: ValuationMethod {
+                    valuationSource: ValuationSource {
+                        settlementRateOption: SettlementRateOption {
+                            settlementRateOption: MapStringWithScheme(
+                                    settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> value,
+                                    settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> settlementRateOptionScheme
+                                )
+                                to-enum SettlementRateOptionEnum,
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                },
+                valuationDate: ValuationDate {
+                    fxFixingDate: if settlementProvision -> nonDeliverableSettlement -> fxFixingDate exists
+                        then MapFxFixingDate(
+                                settlementProvision -> nonDeliverableSettlement -> fxFixingDate,
+                                paymentDates
+                            ),
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapOptionSettlementModelToSettlementTerms:
+    inputs:
+        fpmlOptionSettlementModel fpml.OptionSettlementModel (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(
+                    fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                ),
+            settlementDate: fpmlOptionSettlementModel -> settlementDate
+                extract
+                    SettlementDate {
+                        adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                adjustableDate -> unadjustedDate -> value -> date,
+                                adjustableDate,
+                                relativeDate
+                            ),
+                        ...
+                    },
+            ...
+        }
+
+func MapEquityExerciseValuationSettlementToSettlementTerms:
+    inputs:
+        fpmlEquityExerciseValuationSettlement fpml.EquityExerciseValuationSettlement (0..1)
+        fpmlClearingInstructions fpml.SwaptionPhysicalSettlement (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: fpmlEquityExerciseValuationSettlement -> settlementType to-enum SettlementTypeEnum,
+            settlementDate: fpmlEquityExerciseValuationSettlement -> settlementDate
+                extract
+                    SettlementDate {
+                        adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                adjustableDate -> unadjustedDate -> value -> date,
+                                adjustableDate,
+                                relativeDate
+                            ),
+                        ...
+                    },
+            settlementCurrency: fpmlEquityExerciseValuationSettlement -> settlementCurrency -> value,
+            physicalSettlementTerms: PhysicalSettlementTerms {
+                clearedPhysicalSettlement: fpmlClearingInstructions -> clearedPhysicalSettlement,
+                predeterminedClearingOrganizationParty: if fpmlClearingInstructions -> predeterminedClearingOrganizationPartyReference -> href exists
+                    then AncillaryRoleEnum -> PredeterminedClearingOrganizationParty,
+                ...
+            },
+            ...
+        }
+
+func MapCashSettlementToSettlementTerms:
+    inputs:
+        fpmlCashSettlement fpml.CashSettlement (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        if fpmlCashSettlement exists
+        then SettlementTerms {
+                settlementType: Cash,
+                settlementCurrency: MapCurrency(
+                        GetFpmlCashSettlementCurrency(fpmlCashSettlement) first
+                    ),
+                cashSettlementTerms: MapCashSettlementToCashSettlementTerms(
+                        fpmlCashSettlement
+                    ),
+                ...
+            }
+
+func GetFpmlCashSettlementCurrency:
+    inputs:
+        fpmlCashSettlement fpml.CashSettlement (0..1)
+    output:
+        fpmlCurrency fpml.Currency (0..*)
+
+    add fpmlCurrency:
+        if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination exists
+        then fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod -> cashSettlementCurrency
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod exists
+        then fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod -> cashSettlementCurrency
+
+func MapCashSettlementToCashSettlementTerms:
+    inputs:
+        fpmlCashSettlement fpml.CashSettlement (0..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations exists
+        then MapMidMarketValuationMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotations,
+                    MidMarketIndicativeQuotations
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate exists
+        then MapMidMarketValuationMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> indicativeQuotationsAlternate,
+                    MidMarketIndicativeQuotationsAlternate
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination exists
+        then MapMidMarketValuationMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> midMarketValuation -> calculationAgentDetermination,
+                    MidMarketCalculationAgentDetermination
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations exists
+        then MapReplacementValueFirmQuotationsMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> firmQuotations
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination exists
+        then MapReplacementValueCalculationAgentDeterminationMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2021Model -> replacementValue -> calculationAgentDetermination
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> parYieldCurveUnadjustedMethod exists
+        then MapYieldCurveMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> parYieldCurveUnadjustedMethod,
+                    ParYieldCurveUnadjustedMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod exists
+        then MapCollateralizedCashPriceMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006and2021Model -> collateralizedCashPriceMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod exists
+        then MapCashPriceMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceMethod,
+                    CashPriceMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod exists
+        then MapCashPriceMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> cashPriceAlternateMethod,
+                    CashPriceAlternateMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> parYieldCurveAdjustedMethod exists
+        then MapYieldCurveMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> parYieldCurveAdjustedMethod,
+                    ParYieldCurveAdjustedMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> zeroCouponYieldAdjustedMethod exists
+        then MapYieldCurveMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> zeroCouponYieldAdjustedMethod,
+                    ZeroCouponYieldAdjustedMethod
+                )
+        else if fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod exists
+        then MapCrossCurrencyMethodToCashSettlementTerms(
+                    fpmlCashSettlement -> cashSettlementMethods2006Model -> crossCurrencyMethod
+                )
+    set cashSettlementTerms -> valuationDate:
+        ValuationDate {
+            valuationDate: MapRelativeDateOffset(
+                    fpmlCashSettlement -> cashSettlementValuationDate
+                ),
+            ...
+        }
+    set cashSettlementTerms -> valuationTime:
+        MapBusinessCenterTime(fpmlCashSettlement -> cashSettlementValuationTime)
+    set cashSettlementTerms -> key: fpmlCashSettlement -> id
+
+func MapMidMarketValuationMethodToCashSettlementTerms:
+    inputs:
+        fpmMidMarketValuationMethod fpml.MidMarketValuationMethod (0..1)
+        cdmCashSettlementMethod CashSettlementMethodEnum (1..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmMidMarketValuationMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: cdmCashSettlementMethod,
+                valuationMethod: MapValuationMethod(
+                        empty,
+                        fpmMidMarketValuationMethod -> cashSettlementReferenceBanks,
+                        empty,
+                        MapCashCollateralValuationMethod(
+                                fpmMidMarketValuationMethod -> applicableCsa,
+                                fpmMidMarketValuationMethod -> cashCollateralCurrency,
+                                fpmMidMarketValuationMethod -> cashCollateralInterestRate,
+                                fpmMidMarketValuationMethod -> agreedDiscountRate,
+                                empty,
+                                empty
+                            )
+                    ),
+                ...
+            }
+
+func MapReplacementValueFirmQuotationsMethodToCashSettlementTerms:
+    inputs:
+        fpmReplacementValueFirmQuotationsMethod fpml.ReplacementValueFirmQuotationsMethod (0..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmReplacementValueFirmQuotationsMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: ReplacementValueFirmQuotations,
+                valuationMethod: MapValuationMethod(
+                        empty,
+                        fpmReplacementValueFirmQuotationsMethod -> cashSettlementReferenceBanks,
+                        empty,
+                        MapCashCollateralValuationMethod(
+                                empty,
+                                fpmReplacementValueFirmQuotationsMethod -> cashCollateralCurrency,
+                                empty,
+                                empty,
+                                fpmReplacementValueFirmQuotationsMethod -> protectedParty,
+                                fpmReplacementValueFirmQuotationsMethod -> prescribedDocumentationAdjustment
+                            )
+                    ),
+                ...
+            }
+
+func MapReplacementValueCalculationAgentDeterminationMethodToCashSettlementTerms:
+    inputs:
+        fpmReplacementValueCalculationAgentDeterminationMethod fpml.ReplacementValueCalculationAgentDeterminationMethod (0..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmReplacementValueCalculationAgentDeterminationMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: ReplacementValueCalculationAgentDetermination,
+                valuationMethod: MapValuationMethod(
+                        empty,
+                        fpmReplacementValueCalculationAgentDeterminationMethod -> cashSettlementReferenceBanks,
+                        empty,
+                        MapCashCollateralValuationMethod(
+                                empty,
+                                fpmReplacementValueCalculationAgentDeterminationMethod -> cashCollateralCurrency,
+                                empty,
+                                empty,
+                                fpmReplacementValueCalculationAgentDeterminationMethod -> protectedParty,
+                                empty
+                            )
+                    ),
+                ...
+            }
+
+func MapCollateralizedCashPriceMethodToCashSettlementTerms:
+    inputs:
+        fpmlCollateralizedCashPriceMethod fpml.CollateralizedCashPriceMethod (0..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmlCollateralizedCashPriceMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: CollateralizedCashPriceMethod,
+                valuationMethod: MapValuationMethod(
+                        fpmlCollateralizedCashPriceMethod -> settlementRateSource,
+                        fpmlCollateralizedCashPriceMethod -> settlementRateSource -> cashSettlementReferenceBanks,
+                        fpmlCollateralizedCashPriceMethod -> quotationRateType,
+                        MapCashCollateralValuationMethod(
+                                empty,
+                                empty,
+                                empty,
+                                fpmlCollateralizedCashPriceMethod -> agreedDiscountRate,
+                                empty,
+                                empty
+                            )
+                    ),
+                ...
+            }
+
+func MapCashPriceMethodToCashSettlementTerms:
+    inputs:
+        fpmlCashPriceMethod fpml.CashPriceMethod (0..1)
+        cdmCashSettlementMethod CashSettlementMethodEnum (1..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmlCashPriceMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: cdmCashSettlementMethod,
+                valuationMethod: MapValuationMethod(
+                        empty,
+                        fpmlCashPriceMethod -> cashSettlementReferenceBanks,
+                        fpmlCashPriceMethod -> quotationRateType,
+                        empty
+                    ),
+                ...
+            }
+
+func MapYieldCurveMethodToCashSettlementTerms:
+    inputs:
+        fpmlParYieldCurveUnadjustedMethod fpml.YieldCurveMethod (0..1)
+        cdmCashSettlementMethod CashSettlementMethodEnum (1..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmlParYieldCurveUnadjustedMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: cdmCashSettlementMethod,
+                valuationMethod: MapValuationMethod(
+                        fpmlParYieldCurveUnadjustedMethod -> settlementRateSource,
+                        fpmlParYieldCurveUnadjustedMethod -> settlementRateSource -> cashSettlementReferenceBanks,
+                        fpmlParYieldCurveUnadjustedMethod -> quotationRateType,
+                        empty
+                    ),
+                ...
+            }
+
+func MapCrossCurrencyMethodToCashSettlementTerms:
+    inputs:
+        fpmlCrossCurrencyMethod fpml.CrossCurrencyMethod (0..1)
+    output:
+        cashSettlementTerms CashSettlementTerms (0..1)
+
+    set cashSettlementTerms:
+        if fpmlCrossCurrencyMethod exists
+        then CashSettlementTerms {
+                cashSettlementMethod: CrossCurrencyMethod,
+                valuationMethod: MapValuationMethod(
+                        empty,
+                        empty,
+                        fpmlCrossCurrencyMethod -> quotationRateType,
+                        empty
+                    ),
+                ...
+            }
+
+func MapValuationMethod:
+    inputs:
+        fpmlSettlementRateSource fpml.SettlementRateSource (0..1)
+        fpmlCashSettlementReferenceBanks fpml.CashSettlementReferenceBanks (0..1)
+        fpmlQuotationRateType fpml.QuotationRateTypeEnum (0..1)
+        cdmCashCollateralValuationMethod CashCollateralValuationMethod (0..1)
+    output:
+        valuationMethod ValuationMethod (0..1)
+
+    set valuationMethod:
+        ValuationMethod {
+            valuationSource: ValuationSource {
+                quotedCurrencyPair: empty,
+                informationSource: FxSpotRateSource {
+                    primarySource: MapInformationSource(
+                            fpmlSettlementRateSource -> informationSource
+                        ),
+                    ...
+                },
+                referenceBanks: MapReferenceBanks(fpmlCashSettlementReferenceBanks),
+                ...
+            },
+            quotationMethod: fpmlQuotationRateType to-enum QuotationRateTypeEnum,
+            cashCollateralValuationMethod: cdmCashCollateralValuationMethod,
+            ...
+        }
+
+func MapCashCollateralValuationMethod:
+    inputs:
+        fpmlApplicableCsa fpml.CsaTypeEnum (0..1)
+        fpmlCashCollateralCurrency fpml.Currency (0..1)
+        fpmlCashCollateralInterestRate fpml.BenchmarkRate (0..1)
+        fpmlAgreedDiscountRate fpml.BenchmarkRate (0..1)
+        fpmlProtectedParty fpml.PartySelector (0..*)
+        fpmlPrescribedDocumentationAdjustment boolean (0..1)
+    output:
+        cashCollateralValuationMethod CashCollateralValuationMethod (0..1)
+
+    set cashCollateralValuationMethod:
+        CashCollateralValuationMethod {
+            applicableCsa: fpmlApplicableCsa to-enum CsaTypeEnum,
+            cashCollateralCurrency: MapCurrency(fpmlCashCollateralCurrency),
+            cashCollateralInterestRate: MapStringWithScheme(
+                    fpmlCashCollateralInterestRate -> value,
+                    fpmlCashCollateralInterestRate -> benchmarkRateScheme
+                ),
+            agreedDiscountRate: MapStringWithScheme(
+                    fpmlAgreedDiscountRate -> value,
+                    fpmlAgreedDiscountRate -> benchmarkRateScheme
+                ),
+            protectedParty: fpmlProtectedParty
+                extract partyDetermination to-enum PartyDeterminationEnum,
+            prescribedDocumentationAdjustment: fpmlPrescribedDocumentationAdjustment
+        }
+
+func MapReferenceBanks:
+    inputs:
+        fpmlCashSettlementReferenceBanks fpml.CashSettlementReferenceBanks (0..1)
+    output:
+        referenceBanks ReferenceBanks (0..1)
+
+    set referenceBanks:
+        ReferenceBanks {
+            referenceBank: fpmlCashSettlementReferenceBanks -> referenceBank
+                extract MapReferenceBank
+        }
+
+func MapReferenceBank:
+    inputs:
+        fpmlReferenceBank fpml.ReferenceBank (0..1)
+    output:
+        referenceBank ReferenceBank (0..1)
+
+    set referenceBank:
+        ReferenceBank {
+            referenceBankId: MapStringWithScheme(
+                    fpmlReferenceBank -> referenceBankId -> value,
+                    fpmlReferenceBank -> referenceBankId -> referenceBankIdScheme
+                ),
+            referenceBankName: fpmlReferenceBank -> referenceBankName
+        }
+
+func MapFxCashSettlementToSettlementTerms:
+    inputs:
+        fpmlFxCashSettlement fpml.FxCashSettlement (0..1)
+        valueDate date (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: Cash,
+            settlementCurrency: MapCurrency(fpmlFxCashSettlement -> settlementCurrency),
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                        empty,
+                        fpmlFxCashSettlement -> settlementDate,
+                        empty
+                    ),
+                valueDate: valueDate,
+                ...
+            },
+            cashSettlementTerms: CashSettlementTerms {
+                cashSettlementMethod: empty,
+                valuationMethod: ValuationMethod {
+                    valuationSource: ValuationSource {
+                        quotedCurrencyPair: empty,
+                        informationSource: FxSpotRateSource {
+                            primarySource: empty,
+                            ...
+                        },
+                        referenceBanks: empty,
+                        ...
+                    },
+                    quotationMethod: empty,
+                    cashCollateralValuationMethod: empty,
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapFxOptionToSettlementTerms:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias EuropeanExercise: fpmlFxOption -> europeanExercise -> valueDate
+    alias AmericanExercise: fpmlFxOption -> americanExercise -> latestValueDate
+
+    alias settlementDate:
+        if EuropeanExercise exists
+        then EuropeanExercise
+        else if AmericanExercise exists
+        then AmericanExercise
+
+    alias settlementType:
+        if fpmlFxOption -> cashSettlement exists
+        then SettlementTypeEnum -> Cash
+
+    set settlementTerms:
+        if settlementDate exists
+        then SettlementTerms {
+                settlementDate: SettlementDate {
+                    valueDate: MapZoneDateTimeToDate(settlementDate),
+                    ...
+                },
+                settlementType: settlementType,
+                settlementCurrency: MapCurrency(
+                        fpmlFxOption -> cashSettlement -> settlementCurrency
+                    ),
+                cashSettlementTerms: fpmlFxOption -> cashSettlement -> fixing
+                    then extract
+                        CashSettlementTerms {
+                            valuationMethod: ValuationMethod {
+                                valuationSource: ValuationSource {
+                                    quotedCurrencyPair: quotedCurrencyPair
+                                        then extract
+                                            QuotedCurrencyPair {
+                                                currency1: MapCurrency(currency1),
+                                                currency2: MapCurrency(currency2),
+                                                quoteBasis: quoteBasis to-enum QuoteBasisEnum
+                                            },
+                                    informationSource: FxSpotRateSource {
+                                        primarySource: MapInformationSource(
+                                                fxSpotRateSource -> primaryRateSource
+                                            ),
+                                        ...
+                                    },
+                                    ...
+                                },
+                                ...
+                            },
+                            valuationDate: ValuationDate {
+                                fxFixingDate: FxFixingDate {
+                                    period: empty,
+                                    periodMultiplier: empty,
+                                    fxFixingDate: AdjustableOrRelativeDate {
+                                        adjustableDate: AdjustableDate {
+                                            adjustedDate: fixingDate -> date,
+                                            ...
+                                        },
+                                        ...
+                                    },
+                                    ...
+                                },
+                                ...
+                            },
+                            valuationTime: MapBusinessCenterTime(
+                                    fxSpotRateSource -> fixingTime
+                                ),
+                            ...
+                        },
+                ...
+            }
+
+func MapFxDigitalOptionToSettlementTerms:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias AmericanExercise:
+        fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise -> latestValueDate
+    alias EuropeanExercise:
+        fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise -> valueDate
+
+    alias settlementDate:
+        if EuropeanExercise exists
+        then EuropeanExercise
+        else if AmericanExercise exists
+        then AmericanExercise
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementDate: SettlementDate {
+                valueDate: MapZoneDateTimeToDate(settlementDate),
+                ...
+            },
+            settlementType: empty,
+            ...
+        }
+
+func MapCreditDefaultSwapChoiceToSettlementTerms:
+    inputs:
+        fpmlCreditDefaultSwapChoice fpml.CreditDefaultSwapChoice (0..*)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias physical: fpmlCreditDefaultSwapChoice first -> physicalSettlementTerms
+    alias cash: fpmlCreditDefaultSwapChoice first -> cashSettlementTerms
+
+    set settlementTerms:
+        if physical exists
+        then SettlementTerms {
+                settlementType: SettlementTypeEnum -> Physical,
+                settlementCurrency: MapCurrency(physical -> settlementCurrency),
+                physicalSettlementTerms: PhysicalSettlementTerms {
+                    physicalSettlementPeriod: PhysicalSettlementPeriod {
+                        businessDays: physical -> physicalSettlementPeriod -> businessDays,
+                        ...
+                    },
+                    deliverableObligations: DeliverableObligations {
+                        accruedInterest: physical -> deliverableObligations -> accruedInterest,
+                        category: MapObligationCategoryEnum(
+                                physical -> deliverableObligations -> category to-string
+                            ),
+                        notSubordinated: physical -> deliverableObligations -> notSubordinated,
+                        notContingent: physical -> deliverableObligations -> notContingent,
+                        specifiedCurrency: SpecifiedCurrency {
+                            applicable: physical -> deliverableObligations -> specifiedCurrency -> applicable,
+                            ...
+                        },
+                        assignableLoan: PCDeliverableObligationCharac {
+                            applicable: physical -> deliverableObligations -> assignableLoan -> applicable,
+                            ...
+                        },
+                        consentRequiredLoan: PCDeliverableObligationCharac {
+                            applicable: physical -> deliverableObligations -> consentRequiredLoan -> applicable,
+                            ...
+                        },
+                        transferable: physical -> deliverableObligations -> transferable,
+                        maximumMaturity: MapPeriod(
+                                physical -> deliverableObligations -> maximumMaturity
+                            ),
+                        notBearer: physical -> deliverableObligations -> notBearer,
+                        ...
+                    },
+                    escrow: physical -> escrow,
+                    ...
+                },
+                ...
+            }
+        else if cash exists
+        then empty
+
+func MapCommoditySettlementModelToSettlementTerms:
+    inputs:
+        fpmlCommoditySwapDetailsModel fpml.CommoditySwapDetailsModel (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlCommoditySwapDetailsModel -> settlementCurrency exists
+                then SettlementTypeEnum -> Cash,
+            settlementCurrency: MapStringWithScheme(
+                    fpmlCommoditySwapDetailsModel -> settlementCurrency -> value,
+                    fpmlCommoditySwapDetailsModel -> settlementCurrency -> currencyScheme
+                ),
+            ...
+        }
+
+func MapFxPerformanceSwapToSettlementTerms:
+    inputs:
+        fpmlFxPerformanceSwap fpml.FxPerformanceSwap (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency exists
+                then SettlementTypeEnum -> Cash,
+            settlementCurrency: fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency -> value,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
+                    adjustedDate: MapDateWithId(
+                            fpmlFxPerformanceSwap -> settlementDate -> adjustedDate
+                        ),
+                    ...
+                },
+                ...
+            },
+            ...
+        }
+
+func MapCorrelationLegToSettlmentTerms:
+    inputs:
+        fpmlCorrelationLeg fpml.CorrelationLeg (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    alias fpmlOptionSettlementModel: fpmlCorrelationLeg -> optionSettlementModel
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                        empty,
+                        fpmlOptionSettlementModel -> settlementDate -> adjustableDate,
+                        fpmlOptionSettlementModel -> settlementDate -> relativeDate
+                    ),
+                ...
+            },
+            ...
+        }
+
+func MapCommodityExerciseToSettlementTerms:
+    inputs:
+        fpmlCommodityExercise fpml.CommodityExercise (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlCommodityExercise -> settlementCurrency exists
+                then Cash,
+            settlementCurrency: fpmlCommodityExercise -> settlementCurrency -> value,
+            settlementDate: SettlementDate {
+                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
+                    relativeDate: MapDateOffsetToRelativeDateOffset(
+                            fpmlCommodityExercise -> commodityPaymentDatesModel -> relativePaymentDates -> paymentDaysOffset
+                        ),
+                    ...
+                },
+                ...
+            },
+            ...
+        }
