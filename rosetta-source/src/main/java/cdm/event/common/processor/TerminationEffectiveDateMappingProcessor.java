@@ -1,4 +1,4 @@
-package cdm.observable.asset.processor;
+package cdm.event.common.processor;
 
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -9,7 +9,7 @@ import com.rosetta.model.lib.records.Date;
 
 import java.util.List;
 
-import static cdm.base.datetime.AdjustableOrRelativeDate.AdjustableOrRelativeDateBuilder;
+import static cdm.observable.asset.PriceQuantity.PriceQuantityBuilder;
 
 /**
  * FpML mapper.  Sets
@@ -22,13 +22,18 @@ public class TerminationEffectiveDateMappingProcessor extends MappingProcessor {
     }
 
     @Override
-    public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        if (isTermination(synonymPath) && isChangeInstruction()) {
-            setValueAndUpdateMappings(synonymPath,
-                    xmlValue -> {
-                        AdjustableOrRelativeDateBuilder adjustableOrRelativeDateBuilder = (AdjustableOrRelativeDateBuilder) builder;
-                        adjustableOrRelativeDateBuilder.getOrCreateAdjustableDate().setAdjustedDateValue(parseDate(xmlValue));
-                    });
+    public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
+        if (isTermination(synonymPath)) {
+            @SuppressWarnings("unchecked") List<PriceQuantityBuilder> priceQuantityBuilders = (List<PriceQuantityBuilder>) builders;
+            priceQuantityBuilders
+                    .stream().filter(RosettaModelObjectBuilder::hasData)
+                    .forEach(priceQuantityBuilder ->
+                            setValueAndUpdateMappings(synonymPath,
+                                    xmlValue ->
+                                            priceQuantityBuilder
+                                                    .getOrCreateEffectiveDate()
+                                                    .getOrCreateAdjustableDate()
+                                                    .setAdjustedDateValue(parseDate(xmlValue))));
         }
     }
 
@@ -43,10 +48,4 @@ public class TerminationEffectiveDateMappingProcessor extends MappingProcessor {
         Path parentPath = synonymPath.getParent();
         return "termination".equals(parentPath.getLastElement().getPathName());
     }
-
-    private boolean isChangeInstruction() {
-        return "change".equals(getModelPath().getParent().getElement().getPath());
-    }
-    
-    
 }
