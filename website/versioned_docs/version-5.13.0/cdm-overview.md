@@ -8,7 +8,7 @@ title: Overview of the FINOS CDM
 
 [![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/regnosysops/FINOS%2Fcommon-domain-model?type=cf-1)]( https://g.codefresh.io/public/accounts/regnosysops/pipelines/new/63ecb79bde06416b39d81e70)
 
-# What is the FINOS CDM
+# What is the FINOS CDM?
 
 The FINOS Common Domain Model (CDM) is a standardised, machine-readable
 and machine-executable blueprint for how financial products are traded
@@ -72,21 +72,19 @@ documentation.
 
 ## Governance
 
-The CDM [governance framework](contributing#governance) regulates
+The CDM [governance framework](https://github.com/finos/common-domain-model/blob/master/GOVERNANCE.md) regulates
 the development of the CDM in open source.
 
 ## Scope
 
-The Common Domain Model (CDM) is a standardised, machine-readable and machine-executable blueprint for how financial products are traded and managed across the transaction lifecycle. It is represented as a domain model and distributed in open source, covering OTC derivatives, cash securities, securities financing, commodities. It can expand to include other Capital Markets products and Asset Classes. 
+The CDM covers OTC derivatives, cash securities, securities financing, commodities, and can expand to include other Capital Markets products and Asset Classes.
 
-There are no patents involved in the CDM.
+## CDM 2025 Roadmap
+Below is the full roadmap as ratified by the Steering WG in Feb 2025, subject to change as priorities evolve.
+![](/img/cdm-roadmap-2025-2.png)
+![](/img/cdm-roadmap-2025-1.png)
 
-## CDM 2024 Roadmap
-Below is the full roadmap as ratified by the Steering WG in Jan 2024, subject to change as priorities evolve.
-![](/img/cdm-roadmap-2024-2.png)
-![](/img/cdm-roadmap-2024-1.png)
-
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
+- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) . 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/) page.
 
 # CDM Components
@@ -110,10 +108,9 @@ The FINOS CDM distribution comprises three main sets of components:
 
 -   **Model definition**, which corresponds to the model as expressed in
     the Rune DSL and contained into a set of *.rosetta* files
-    organised as *namespaces*. The primary dimensions of the model are
+    organised as [*namespaces*](namespace.md). The primary dimensions of the model are
     listed below and further described in the
-    [common-domain-model](/docs/common-domain-model) of the
-    documentation.
+    [above](cdm-overview.md/#model-overview).
     -   Product
     -   Event
     -   Legal Agreement
@@ -122,7 +119,7 @@ The FINOS CDM distribution comprises three main sets of components:
     -   Mapping (Synonym)
 -   **Executable code distribution**, automatically generated from the
     model definitions expressed in the Rune DSL using [available code
-    generators](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
+    generators](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/#what-code-generators-are-available). Once a code generator is implemented for a particular
     language, the corresponding code generation is included as part of
     the CDM build and release process, allowing the CDM to be
     automatically distributed in that language going forward.
@@ -163,7 +160,7 @@ share code generators into any other languages.
 ---
 **Note:**
 All the language components, their syntax and purpose are detailed in
-the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rune-modelling-component/). The documentation also describes the
+the [Rune DSL Documentation](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/). The documentation also describes the
 mechanism to write and use code generators.
 
 ---

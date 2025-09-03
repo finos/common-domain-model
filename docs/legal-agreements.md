@@ -342,6 +342,7 @@ type Agreement:
   securityAgreementElections SecurityAgreementElections (0..1)
   masterAgreementSchedule MasterAgreementSchedule (0..1)
   transactionAdditionalTerms TransactionAdditionalTerms (0..1)
+  masterAgreementElections MasterAgreementElections (0..1)
   condition: one-of
 ```
 
@@ -380,21 +381,12 @@ are explicitly identified in the agreement templates, including the potential
 values for each election (e.g. an election from a list of options or a specific 
 type of information such as an amount, date or city). 
 
-Due to the domain and document specific nature of election provisions, the
-clauses and applicable values are currently not included in the CDM. However, 
-there are extensions to the CDM available that can provide declarative types for
-specific documents.
-
-For example, the ISDA Foundations model - which is available to all ISDA members
-upon request - can be used to represent the ISDA Credit Support Annexes. To gain
-access to ISDA Foundations please send an email to: <cdminfo@isda.org>
-
 ## Master Agreement Schedule
 
 Legal documentation is required to describe the contract between parties on 
-every transaction. The structures under the `MasterAgreementSchedule` have been
+every transaction. Specific master agreement types are available under the master namespace, and include the standard terms of ISDA, ISLA, and ICMA Master Agreements. The structures under the `MasterAgreementSchedule` have been
 created to be domain agnostic, and generic enough to describe any industry 
-standard or bespoke master agreement. 
+standard or bespoke master agreement.
 
 The types and datapoints that have been defined are loosely based upon the use 
 of a Clause Library. A Clause Library extracts the business outcomes from a 

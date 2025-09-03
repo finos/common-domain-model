@@ -22,10 +22,12 @@ Below is the list of [participants](GOVERNANCE.md#1-roles) in CDM, who have comm
 - Daniel Ivanier, Fragmos Chain, Date of enrollment: 9th Mar 2024
 - Jean-Baptiste Ziade, Fragmos Chain, Date of enrollment: 9th Mar 2024
 - Eleonora Acuna, ISDA, Date of enrollment: 11th Mar 2024
-- Vernon Alden-Smith ISDA, Date of enrolement 13th Mar 2024
-- Brian Lynn, Global Electronic Markets, Date of enrolement: 17 May 2024
+- Vernon Alden-Smith ISDA, Date of enrollment 13th Mar 2024
+- Brian Lynn, Global Electronic Markets, Date of enrollment: 17 May 2024
 - Vassil Verguilov, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
 - Dimo Rezashki, CLOUDRISK Limited, Date of enrollment: 4th Dec 2024
+- Jason Polis, ISDA, Date of enrollment: 14 Mar 2025
+- Horance Zheng, ISDA, Date of enrollment: 16th Jun 2025
 
 
 ## How to enroll as a participant

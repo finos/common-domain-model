@@ -41,8 +41,8 @@ widely adopted and freely available programming languages and is
 systematically distributed as part of the CDM release.
 
 The code generation process is based on the Rune DSL and is further
-described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators), including an up-to-date
-list of [available languages](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-code-generators/#what-code-generators-are-available). Support for further languages can be
+described in the [Code Generation Section](https://docs.rosetta-technology.io/rosetta/rune-dsl/rosetta-code-generators/), including an up-to-date
+list of available languages. Support for further languages can be
 added as required by market participants.
 
 ## Scope
@@ -530,6 +530,7 @@ as the output, as shown below:
 
 ``` Haskell
 func CalculationPeriod:
+  [codeImplementation]
   inputs:
     calculationPeriodDates CalculationPeriodDates (1..1)
     date date (1..1)
@@ -659,7 +660,7 @@ func Create_SecurityLendingInvoice:
 ## Lifecycle Event Process
 
 While the lifecycle event model described in the
-[event-model-section](/docs/event-model) provides a
+[event-model-section](event-model.md) provides a
 standardised data representation of those events using the concept of
 *primitive event* components, the CDM must further specify the
 processing of those events to ensure standardised implementations across
@@ -671,7 +672,7 @@ In particular, the CDM must ensure that:
 -   The lifecycle event process model constructs valid CDM event
     objects.
 -   The constructed events qualify according to the qualification logic
-    described in the [event-qualification-section](/docs/event-model#event-qualification-section).
+    described in the [event-qualification-section](event-model.md/#event-qualification-section).
 -   The lineage between states allows an accurate reconstruction of the
     trade's lifecycle sequence.
 
@@ -802,6 +803,7 @@ type, which ensures the integrity of the observed value.
 
 ``` Haskell
 func ResolveObservation:
+  [codeImplementation]
     inputs:
         identifiers ObservationIdentifier (1..*)
         averagingMethod AveragingCalculationMethod (0..1)

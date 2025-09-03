@@ -1,0 +1,1483 @@
+namespace cdm.mapping.createiq
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.csa.*
+import cdm.legaldocumentation.master.*
+import cdm.product.collateral.*
+
+synonym source CreateiQ
+
+synonym source CreateiQ_1_0 extends CreateiQ
+{
+    AccessConditionsElections:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "not_applicable"]
+        + illegality
+            [set to True when "partyA_illegality" = "applicable" , set to False when "partyA_illegality" = "not_applicable"]
+            [set to True when "partyB_illegality" = "applicable" , set to False when "partyB_illegality" = "not_applicable"]
+        + forceMajeure
+            [set to True when "partyA_force_majeure" = "applicable" , set to False when "partyA_force_majeure" = "not_applicable"]
+            [set to True when "partyB_force_majeure" = "applicable" , set to False when "partyB_force_majeure" = "not_applicable"]
+        + taxEvent
+            [set to True when "partyA_tax_event" = "applicable" , set to False when "partyA_tax_event" = "not_applicable"]
+            [set to True when "partyB_tax_event" = "applicable" , set to False when "partyB_tax_event" = "not_applicable"]
+        + taxEventUponMerger
+            [set to True when "partyA_tax_event_upon_merger" = "applicable" , set to False when "partyA_tax_event_upon_merger" = "not_applicable"]
+            [set to True when "partyB_tax_event_upon_merger" = "applicable" , set to False when "partyB_tax_event_upon_merger" = "not_applicable"]
+        + creditEventUponMerger
+            [set to True when "partyA_credit_event_upon_merger" = "applicable" , set to False when "partyA_credit_event_upon_merger" = "not_applicable"]
+            [set to True when "partyB_credit_event_upon_merger" = "applicable" , set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
+
+    AdditionalRepresentation:
+        + customElection
+            [value "specify" removeHtml]
+
+    AdditionalRepresentationElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_additional_representations" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_additional_representations" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_additional_representations" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_additional_representations" = "not_applicable"]
+        + isApplicable
+            [set to True when "partyA_additional_representations" = "applicable" , set to False when "partyA_additional_representations" = "not_applicable"]
+            [set to True when "partyB_additional_representations" = "applicable" , set to False when "partyB_additional_representations" = "not_applicable"]
+
+    AdditionalRepresentations:
+        + additionalRepresentation
+            [value "additional_representations"]
+        + regulatoryComplianceRepresentation
+            [set to True when "regulatory_compliance_and_concentration_limits->additional_information" = "applicable" , set to False when "regulatory_compliance_and_concentration_limits->additional_information" = "not_applicable"]
+
+    AdditionalRightsEvent:
+        + isApplicable
+            [set to True when "applicable" = "true" , set to False when "applicable" = "false"]
+        + qualification
+            [value "specify" removeHtml]
+
+    AdditionalType:
+        + standardValue
+            [value "additional_type"]
+        + customValue
+            [value "additional_type_specify" removeHtml]
+
+    AmendmentEffectiveDate:
+        + date
+            [value "date_of_agreement"]
+            [value "date_of_annex"]
+        + specificDate
+            [value "annex_date" mapper "EffectivenessDate"]
+            [value "effectiveness_date" mapper "EffectivenessDate"]
+            [value "agreement_date" mapper "EffectivenessDate"]
+        + customProvision
+            [value "specify" set when "effectiveness_date" = "other" removeHtml]
+            [value "specify" set when "agreement_date" = "other" removeHtml]
+            [value "specify" set when "annex_date" = "other" removeHtml]
+
+    AppropriatedCollateralValuation:
+        + isSpecified
+            [set to True when "specified" = "true" , set to False when "specified" = "false"]
+            [set to True when "valuation_of_appropriated_securities_is" = "other_specify" , set to False when "valuation_of_appropriated_securities_is" = "not_specified"]
+            [set to True when "valuation_of_appropriated_collateral_is" = "other_specify" , set to False when "valuation_of_appropriated_collateral_is" = "not_specified"]
+        + election
+            [value "specify" removeHtml]
+            [value "other_specify_text" removeHtml]
+
+    BespokeCalculationDate:
+        + isApplicable
+            [set to True when "specified" = "true" , set to False when "specified" = "false"]
+
+    BespokeCalculationTime:
+        + asCalculationAgent
+            [set to True when "calculation_time_IM_is" = "calculation_agent_IM_computation_time" , set to False when "calculation_time_IM_is" = "specify"]
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "specify"]
+        + bespokeCalculationTimeTerms
+            [value "calculation_agent_IM_computation_time_specify" removeHtml]
+
+    BespokeTransferTiming:
+        + isApplicable
+            [set to True when "specified" = "true" , set to False when "specified" = "false"]
+        + bespokeTransferTimingTerms
+            [value "settlement_day_specify" removeHtml]
+
+    CalculationAgentTerms:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "partyA"]
+            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "party_A"]
+            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "partyB"]
+            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "party_B"]
+            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
+            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
+        + bespokeCalculationAgentTerms
+            [value "specify" set when "is_applicable" = "applicable" removeHtml]
+
+    CalculationAndTiming:
+        + calculationAgentTerms
+            [value "calculation_agent_IM"]
+        + bespokeCalculationDate
+            [value "calculation_date"]
+        + bespokeCalculationTime
+            [value "calculation_time"]
+            [value "credit_support_amount_calculation_time"]
+        + calculationDateLocation
+            [value "calculation_date_location" mapper "CalculationDateLocation"]
+            [value "calculation_date" mapper "CalculationDateLocation"]
+            [value "designated_city" mapper "CalculationDateLocation"]
+        + notificationTime
+            [value "notification_time"]
+        + collateralValuationAgent
+            [value "collateral_valuation_agent"]
+        + cashSettlementDay
+            [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
+        + securitiesSettlementDay
+            [value "specify" path "securities_settlement_day" set when "securities_settlement_day->specified" = "true"]
+
+    CollateralAccessBreach:
+        + isApplicable
+            [set to True when "collateral_access_breach" = "applicable" , set to False when "collateral_access_breach" = "not_applicable"]
+        + cabEndDateElection
+            [set to True when "cab_end_date" = "days" , set to False when "cab_end_date" = "other"]
+        + cabEndDate
+            [value "cab_end_date_days"]
+        + cabEndDateTerms
+            [value "cab_end_date_specify" removeHtml]
+
+    CollateralRounding:
+        + deliveryAmount
+            [value "delivery_amount"]
+        + returnAmount
+            [value "return_amount"]
+        + deliveryDirection
+            [value "delivery_direction"]
+
+    CollateralTransferAgreementElections:
+        + oneWayProvisions
+            [value "one_way_provisions"]
+        + identifiedCrossCurrencySwap
+            [set to True when "cross_currency_swap->yey_ney" = "true" , set to False when "cross_currency_swap->yey_ney" = "false"]
+        + fxHaircutCurrency
+            [value "fx_haircut_percentage"]
+        + postingObligations
+            [value "security_provider_posting_obligations" mapper "PostingObligations"]
+        + substitutedRegime
+            [value "substituted_regimes" mapper "CtaSubstitutedRegime"]
+        + substitution
+            [value "consent"]
+        + demandsAndNotices
+            [value "demands_and_notices" mapper "DemandsAndNotices"]
+        + addressesForTransfer
+            [value "addresses_for_transfers" mapper "ContactElection"]
+        + otherCsa
+            [value "other_csa->specify" set when "other_csa->specified" = "true"]
+            [value "other_csa->other_csa_specify" set when "other_csa->specified" = "true"]
+        + terminationCurrencyAmendment
+            [value "amendment_to_termination_currency" , "security_provider_posting_obligations" mapper "TerminationCurrencyAmendment"]
+        + minimumTransferAmountAmendment
+            [value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
+        + interpretationTerms
+            [value "paragraph_1_6a_specify" path "interpretation" set when "interpretation->paragraph_1_6a_is" = "specify" removeHtml]
+            [value "paragraph_10ki_specify" path "interpretation" set when "interpretation->paragraph_10ki_is" = "specify" removeHtml]
+        + processAgent
+            [value "process_agent"]
+        + additionalAmendments
+            [value "specify" path "amendments" maps 2 set when "amendments->is_applicable" = "applicable" removeHtml]
+        + additionalBespokeTerms
+            [value "specify" path "additional_terms" set when "additional_terms->is_applicable" = "applicable" removeHtml]
+            [value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable" removeHtml]
+        + pledgeeRepresentativeRider
+            [value "rider"]
+
+    CollateralValuationAgentElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
+        + additionalLanguage
+            [value "partyA_specify" removeHtml]
+            [value "partyB_specify" removeHtml]
+
+    ConditionsPrecedent:
+        + conditionsPrecedentElection
+            [value "specified" path "conditions_precedent"]
+            [value "conditions_precedent" path "conditions_precedent"]
+        + customProvision
+            [value "specify" path "conditions_precedent" removeHtml]
+        + accessConditions
+            [value "access_conditions" mapper "AdditionalTerminationEvent"]
+            [value "access_conditions" path "conditions_precedent" mapper "AdditionalTerminationEvent"]
+
+    ControlAgreementNecEventElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_control_agreement_nec_event" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_control_agreement_nec_event" = "not_applicable"]
+        + necEvent
+            [set to True when "partyA_control_agreement_nec_event" = "applicable" , set to False when "partyA_control_agreement_nec_event" = "not_applicable"]
+            [set to True when "partyB_control_agreement_nec_event" = "applicable" , set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
+
+    CreditSupportAgreementElections:
+        + oneWayProvisions
+            [value "one_way_provisions"]
+        + identifiedCrossCurrencySwap
+            [set to True when "cross_currency_swap->yey_ney" = "true" , set to False when "cross_currency_swap->yey_ney" = "false"]
+        + fxHaircutCurrency
+            [value "fx_haircut_percentage"]
+        + postingObligations
+            [value "chargor_posting_obligations" mapper "PostingObligations"]
+            [value "pledgor_posting_obligations" mapper "PostingObligations"]
+            [value "obligor_posting_obligations" mapper "PostingObligations"]
+        + substitutedRegime
+            [value "substituted_regimes" mapper "CsaSubstitutedRegime"]
+        + additionalObligations
+            [value "additional_obligations_specify" path "additional_obligations" set when "additional_obligations->additional_obligations" = "specify" removeHtml]
+        + substitution
+            [value "consent"]
+        + distributionAndInterestPayment
+            [value "eligible_currencies" path "interest_rate" mapper "DistributionAndInterestPayment"]
+        + demandsAndNotices
+            [value "demands_and_notices" mapper "DemandsAndNotices"]
+        + addressesForTransfer
+            [value "addresses_for_transfers" mapper "ContactElection"]
+        + terminationCurrencyAmendment
+            [value "amendment_to_termination_currency" , "pledgor_posting_obligations" , "chargor_posting_obligations" , "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"]
+        + minimumTransferAmountAmendment
+            [value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
+        + interpretationTerms
+            [value "paragraph_10ki_specify" path "interpretation" set when "interpretation->paragraph_10ki_is" = "specify" removeHtml]
+            [value "paragraph_11g_specify" path "interpretation" set when "interpretation->paragraph_11g_is" = "specify" removeHtml]
+            [value "paragraph_11j_specify" path "interpretation" set when "interpretation->paragraph_11j_is" = "specify" removeHtml]
+        + processAgent
+            [value "process_agent"]
+        + appropriatedCollateralValuation
+            [value "valuation_of_appropriated_collateral"]
+        + additionalAmendments
+            [value "specify" path "amendments" maps 2 set when "amendments->is_applicable" = "applicable" removeHtml]
+        + additionalBespokeTerms
+            [value "specify" path "additional_terms" set when "additional_terms->is_applicable" = "applicable" removeHtml]
+            [value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable" removeHtml]
+        + trustSchemeAddendum
+            [set to True when "trust_scheme_addendum->is_applicable" = "applicable" , set to False when "trust_scheme_addendum->is_applicable" = "not_applicable"]
+
+    CustodianEvent:
+        + isApplicable
+            [set to True when "custodian_event->definition" = "applicable" , set to False when "custodian_event->definition" = "not_applicable"]
+            [set to True when "euroclear_event->definition" = "applicable" , set to False when "euroclear_event->definition" = "not_applicable"]
+            [set to True when "clearstream_event->definition" = "applicable" , set to False when "clearstream_event->definition" = "not_applicable"]
+            [set to True when "collateral_manager_event->definition" = "applicable" , set to False when "collateral_manager_event->definition" = "not_applicable"]
+        + endDate
+            [value "ce_end_date" mapper "CustodianEventEndDate"]
+            [value "ee_end_date" mapper "CustodianEventEndDate"]
+            [value "cme_end_date" mapper "CustodianEventEndDate"]
+
+    CustodianRiskElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_custodian_risk" = "other" , set to CounterpartyRoleEnum -> Party1 when "partyA_custodian_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_custodian_risk" = "other" , set to CounterpartyRoleEnum -> Party2 when "partyB_custodian_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_collateral_manager_risk" = "other" , set to CounterpartyRoleEnum -> Party1 when "partyA_collateral_manager_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_collateral_manager_risk" = "other" , set to CounterpartyRoleEnum -> Party2 when "partyB_collateral_manager_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_clearstream_risk" = "other" , set to CounterpartyRoleEnum -> Party1 when "partyA_clearstream_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_clearstream_risk" = "other" , set to CounterpartyRoleEnum -> Party2 when "partyB_clearstream_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_euroclear_risk" = "other" , set to CounterpartyRoleEnum -> Party1 when "partyA_euroclear_risk" = "not_specified"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_euroclear_risk" = "other" , set to CounterpartyRoleEnum -> Party2 when "partyB_euroclear_risk" = "not_specified"]
+        + isSpecified
+            [set to True when "partyA_custodian_risk" = "other" , set to False when "partyA_custodian_risk" = "not_specified"]
+            [set to True when "partyB_custodian_risk" = "other" , set to False when "partyB_custodian_risk" = "not_specified"]
+            [set to True when "partyA_collateral_manager_risk" = "other" , set to False when "partyA_collateral_manager_risk" = "not_specified"]
+            [set to True when "partyB_collateral_manager_risk" = "other" , set to False when "partyB_collateral_manager_risk" = "not_specified"]
+            [set to True when "partyA_clearstream_risk" = "other" , set to False when "partyA_clearstream_risk" = "not_specified"]
+            [set to True when "partyB_clearstream_risk" = "other" , set to False when "partyB_clearstream_risk" = "not_specified"]
+            [set to True when "partyA_euroclear_risk" = "other" , set to False when "partyA_euroclear_risk" = "not_specified"]
+            [set to True when "partyB_euroclear_risk" = "other" , set to False when "partyB_euroclear_risk" = "not_specified"]
+            [set to True when "paragraph_6b" = "specified" , set to False when "paragraph_6b" = "not_specified"]
+            [set to True when "paragraph_6a" = "specified" , set to False when "paragraph_6a" = "not_specified"]
+            [set to True when "paragraph_5_2" = "specify" , set to False when "paragraph_5_2" = "not_specified"]
+        + qualification
+            [value "partyA_specify" removeHtml]
+            [value "partyB_specify" removeHtml]
+            [value "paragraph_6b_specify" set when "paragraph_6b" = "specify" removeHtml]
+            [value "paragraph_6a_specify" set when "paragraph_6a" = "specify" removeHtml]
+            [value "paragraph_5_2_specify" set when "paragraph_5_2" = "specify" removeHtml]
+
+    CustodyArrangements:
+        + isCreditSupportDocument
+            [set to True when "control_agreement_as_a_credit_support_document->definition" = "creditSupportDocument" , set to False when "control_agreement_as_a_credit_support_document->definition" = "not_specified"]
+            [set to True when "collateral_management_agreement_as_a_credit_support_document->definition" = "creditSupportDocument" , set to False when "collateral_management_agreement_as_a_credit_support_document->definition" = "not_specified"]
+            [set to True when "euroclear_agreements_as_credit_support_documents->definition" = "creditSupportDocument" , set to False when "euroclear_agreements_as_credit_support_documents->definition" = "not_specified"]
+            [set to True when "clearstream_agreements_as_credit_support_documents->definition" = "creditSupportDocument" , set to False when "clearstream_agreements_as_credit_support_documents->definition" = "not_specified"]
+        + hasControlAgreementLanguage
+            [set to True when "relationship_with_the_control_agreement->include_language" = "include" , set to False when "relationship_with_the_control_agreement->include_language" = "exclude"]
+            [set to True when "relationship_with_the_collateral_management_agreement->include_language" = "include" , set to False when "relationship_with_the_collateral_management_agreement->include_language" = "exclude"]
+        + otherProvisions
+            [value "specify" path "other_provisions" set when "other_provisions->specify_provisions" = "specify" removeHtml]
+        + collateralAccessBreach
+            [value "collateral_access_breach_additional_termination_event"]
+            [value "collateral_access_breach"]
+        + custodianRisk
+            [value "custodian_risk"]
+            [value "collateral_manager_risk"]
+            [value "euroclear_risk"]
+            [value "clearstream_risk"]
+        + controlAgreement
+            [value "control_agreement_as_a_credit_support_document" mapper "ControlAgreement"]
+            [value "euroclear_agreements_as_credit_support_documents" mapper "ControlAgreement"]
+            [value "clearstream_agreements_as_credit_support_documents" mapper "ControlAgreement"]
+        + custodian
+            [value "custodian_name" mapper "Custodian"]
+            [value "custodian_and_segregated_account_details" mapper "Custodian"]
+            [value "collateral_manager" mapper "Custodian"]
+        + collateralManagementAgreement
+            [value "collateral_management_agreement" mapper "CollateralManagementAgreement"]
+
+    DeliveryAmount:
+        + standardElection
+            [value "delivery_amount"]
+        + customElection
+            [value "specify_delivery_amount"]
+
+    DisputeResolution:
+        + resolutionTime
+            [value "resolution_time" set when "resolution_time->specified" = "true"]
+        + otherTerms
+            [value "specify" path "resolution_time" set when "resolution_time->specified" = "false" removeHtml]
+        + recalculationOfValue
+            [value "recalculation_of_value" mapper "RecalculationOfValue"]
+            [value "recalculation_of_market_value" mapper "RecalculationOfValue"]
+
+    CollateralInterestParameters:
+        + currency
+            [value "eligible_currency"]
+
+    CollateralInterestCalculationParameters:
+        + fixedRate
+            [value "interest_rate" pattern "([0-9.]*)([%])" "$1"]
+
+    EnforcementEvent:
+        + earlyTerminationDate
+            [set to True when "paid_in_full_language" = "include" , set to False when "paid_in_full_language" = "exclude"]
+        + failureToPay
+            [set to True when "failure_to_pay_early_termination_amount" = "applicable" , set to False when "failure_to_pay_early_termination_amount" = "not_applicable"]
+
+    ExecutionLanguage:
+        + standardLanguage
+            [set to True when "execution_language" = "standard_language" , set to False when "execution_language" = "other_execution_language"]
+        + numberOfOriginals
+            [value "number_of_originals"]
+        + otherLanguage
+            [value "specify_execution_language"]
+
+    ExecutionLocation:
+        + executionLocation
+            [value "location_of_execution"]
+        + otherLanguage
+            [value "specify_location_of_execution"]
+        + dutyPayer
+            [set to "PartyA" when "documentary_duty_payer" = "party_A" , set to "PartyB" when "documentary_duty_payer" = "party_B" , set to "Specify" when "documentary_duty_payer" = "other"]
+        + dutyPayerLanguage
+            [value "specify_documentary_duty_payer"]
+        + dutyPaymentDate
+            [value "select_documentary_duty_date"]
+        + dutyPaymentLanguage
+            [value "specify_documentary_duty_date_datepicker" set when "documentary_duty_date" = "other"]
+
+    FrenchLawAddendum:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+
+    FxHaircutCurrency:
+        + isTerminationCurrency
+            [set to True when "is_termination_currency" = "terminationCurrency" , set to False when "is_termination_currency" = "fxCurrency"]
+        + fxDesignatedCurrency
+            [value "fx_designated_currency" mapper "IsoCurrency"]
+
+    GeneralSimmElections:
+        + simmVersion
+            [value "version_of_ISDA_SIMM"]
+        + simmCalculationCurrency
+            [value "simm_calculation_currency" mapper "SimmCalculationCurrency"]
+
+    InterestAdjustment:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+
+    InterestAdjustmentPeriodicity:
+        + standardElection
+            [value "timing"]
+        + customElection
+            [value "specify" set when "timing" = "other"]
+
+    JapaneseSecuritiesProvisions:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+        + relevantProvisionsElection
+            [set to True when "relevant_provisions" = "recommended_japanese" , set to False when "relevant_provisions" = "specified"]
+        + relevantProvisionsTerms
+            [value "relevant_specify" removeHtml]
+        + amendmentsToJapaneseProvisions
+            [set to True when "amendments_to_japanese_provisions" = "amendments_specify" , set to False when "amendments_to_japanese_provisions" = "amendments_not_specified"]
+        + amendmentsToJapaneseProvisionsTerms
+            [value "amendments_specify" maps 2 removeHtml]
+        + clearstreamAmendmentToJapaneseProvisions
+            [set to True when "japanese_collateral_provisions_is_applicable" = "include" , set to False when "japanese_collateral_provisions_is_applicable" = "exclude"]
+
+    JurisdictionRelatedTerms:
+        + japaneseSecuritiesProvisions
+            [value "japanese_securities_provisions"]
+            [value "japanese_security_provisions"]
+            [value "japanese_collateral_provisions"]
+        + exclusiveJurisdiction
+            [set to True when "jurisdiction->exclusive_jurisdiction" = "applicable" , set to False when "jurisdiction->exclusive_jurisdiction" = "not_applicable"]
+        + juryWaiver
+            [set to True when "jury_waiver->is_applicable" = "applicable" , set to False when "jury_waiver->is_applicable" = "not_applicable"]
+        + frenchLawAddendum
+            [value "french_law_addendum" mapper "FrenchLawAddendum"]
+        + belgianLawSecurityAgreement
+            [set to True when "belgian_law_security_agreement->is_applicable" = "applicable" , set to False when "belgian_law_security_agreement->is_applicable" = "not_applicable"]
+
+    MarginApproach:
+        + marginApproach
+            [value "approach_selection"]
+
+    MinimumTransferAmountAmendment:
+        + isApplicable
+            [set to True when "amendment_to_minimum_transfer_amount_is" = "applicable" , set to False when "amendment_to_minimum_transfer_amount_is" = "not_applicable"]
+
+    NotificationTime:
+        + disputeNotificationReference
+            [set to True when "include_reference_to_41a_is_applicable" = "applicable" , set to False when "include_reference_to_41a_is_applicable" = "not_applicable"]
+        + transferTimingProviso
+            [set to True when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "applicable" , set to False when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "not_applicable"]
+
+    NotificationTimeElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "false" , set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "true"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "false" , set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "true"]
+        + customNotification
+            [value "partyA_specify" set when "partyA_notification_time" = "false" removeHtml]
+            [value "partyB_specify" set when "partyB_notification_time" = "false" removeHtml]
+
+    OneWayProvisions:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+        + postingParty
+            [set to CounterpartyRoleEnum -> Party1 when "posting_party" = "partyA" , set to CounterpartyRoleEnum -> Party2 when "posting_party" = "partyB"]
+
+    OtherAgreements:
+        + otherCsa
+            [value "other_csa"]
+        + japaneseLawCsa
+            [value "japanese_law_csa_vm"]
+
+    OtherEligibleAndPostedSupport:
+        + applicableValue
+            [set to True when "support_value->is_applicable" = "applicable" , set to False when "support_value->is_applicable" = "not_applicable"]
+        + applicableTransfer
+            [set to True when "support_transfer->is_applicable" = "applicable" , set to False when "support_transfer->is_applicable" = "not_applicable"]
+
+    PostingObligations:
+        + securityProvider
+            [value "pledgor"]
+            [value "chargor"]
+            [value "obligor"]
+            [value "security_provider"]
+
+    PostingObligationsElection:
+        + eligibleCollateral
+            [value "partyA_eligible_currencies" set when "partyA_type" = "specify"]
+            [value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
+
+    ProcessAgentElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "other"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "other"]
+        + isApplicable
+            [set to True when "partyA_process_agent" = "other" , set to False when "partyA_process_agent" = "not_applicable"]
+            [set to True when "partyB_process_agent" = "other" , set to False when "partyB_process_agent" = "not_applicable"]
+
+    Regime:
+        + applicableRegime
+            [value "australia" , "brazil" , "canada" , "cftc" , "emir" , "hong_kong" , "hong_kong_sfc" , "japan" , "prudential" , "sec" , "singapore" , "south_africa" , "south_korea" , "switzerland" , "united_kingdom" , "additional_regimes" mapper "ApplicableRegime"]
+        + fallbackToMandatoryMethodDays
+            [value "fallback_to_mandatory_method_days" path "fallback_to_mandatory_method"]
+
+    PledgeeRepresentativeRider:
+        + isApplicable
+            [set to True when "representative_cta_provisions" = "applicable" , set to False when "representative_cta_provisions" = "not_applicable"]
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "represented_party" = "party_a" , set to CounterpartyRoleEnum -> Party2 when "represented_party" = "party_b"]
+        + representativeTerms
+            [value "specify" removeHtml]
+        + representativeEvent
+            [value "representative_event"]
+        + representativeEventTerms
+            [value "specify_text" removeHtml]
+
+    ReturnAmount:
+        + includesDefaultLanguage
+            [set to True when "return_amount" = "include" , set to False when "return_amount" = "exclude" , set to False when "return_amount" = "other"]
+        + customElection
+            [value "specify_return_amount"]
+
+    RightsEvents:
+        + securityTakerRightsEvent
+            [value "secured_party_rights_event"]
+            [value "security_taker_rights_event"]
+            [value "early_termination_date"]
+        + controlAgreementNecEvent
+            [value "control_agreement_nec_event"]
+        + securityProviderRightsEvent
+            [value "obligor_rights_event" mapper "SecurityProviderRightsEvent"]
+            [value "chargor_rights_event" mapper "SecurityProviderRightsEvent"]
+            [value "pledgor_rights_event" mapper "SecurityProviderRightsEvent"]
+            [value "security_provider_rights_event" mapper "SecurityProviderRightsEvent"]
+        + deliveryInLieuRight
+            [set to True when "delivery_in_lieu_right->right" = "applicable" , set to False when "delivery_in_lieu_right->right" = "not_applicable"]
+        + additionalRightsEvent
+            [value "chargor_additional_rights_event"]
+            [value "obligor_additional_rights_event"]
+            [value "pledgor_additional_rights_event"]
+
+    SecuredPartyRightsEvent:
+        + earlyTerminationDateOptionalLanguage
+            [set to True when "early_termination_date_optional_language" = "include" , set to False when "early_termination_date_optional_language" = "exclude"]
+            [set to True when "paid_in_full_language" = "include" , set to False when "paid_in_full_language" = "exclude"]
+        + failureToPayEarlyTermination
+            [set to True when "failure_to_pay_early_termination_is_applicable" = "applicable" , set to False when "failure_to_pay_early_termination_is_applicable" = "not_applicable"]
+
+    SecuredPartyRightsEventElection:
+        + party
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_secured_party_rights_event" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_secured_party_rights_event" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_secured_party_rights_event" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_secured_party_rights_event" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party1 when "partyA_security_taker_rights_event" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_security_taker_rights_event" = "not_applicable"]
+            [set to CounterpartyRoleEnum -> Party2 when "partyB_security_taker_rights_event" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_security_taker_rights_event" = "not_applicable"]
+        + rightsEvent
+            [set to True when "partyA_secured_party_rights_event" = "applicable" , set to False when "partyA_secured_party_rights_event" = "not_applicable"]
+            [set to True when "partyB_secured_party_rights_event" = "applicable" , set to False when "partyB_secured_party_rights_event" = "not_applicable"]
+            [set to True when "partyA_security_taker_rights_event" = "applicable" , set to False when "partyA_security_taker_rights_event" = "not_applicable"]
+            [set to True when "partyB_security_taker_rights_event" = "applicable" , set to False when "partyB_security_taker_rights_event" = "not_applicable"]
+
+    SecurityAgreementElections:
+        + pledgedAccount
+            [value "pledged_account_number"]
+        + enforcementEvent
+            [value "enforcement_event"]
+            [value "early_termination_date"]
+        + deliveryInLieuRight
+            [set to True when "delivery_in_lieu_right->right" = "applicable" , set to False when "delivery_in_lieu_right->right" = "not_applicable"]
+        + fullDischarge
+            [set to True when "security_provider_full_discharge_condition->is_applicable" = "applicable" , set to False when "security_provider_full_discharge_condition->is_applicable" = "not_applicable"]
+        + appropriatedCollateralValuation
+            [value "valuation_of_appropriated_collateral"]
+            [value "valuation_of_appropriated_securities"]
+        + processAgent
+            [value "process_agent"]
+        + additionalAmendments
+            [value "specify" path "amendments" maps 2 set when "amendments->is_applicable" = "applicable" removeHtml]
+        + additionalBespokeTerms
+            [value "specify" path "additional_terms" set when "additional_terms->is_applicable" = "applicable" removeHtml]
+            [value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable" removeHtml]
+        + executionTerms
+            [value "execution_language"]
+
+    SecurityProviderRightsEvent:
+        + includeCoolingOffLanguage
+            [set to True when "cooling_off_language" = "include" , set to False when "cooling_off_language" = "not_specified" , set to False when "cooling_off_language" = "other"]
+            [set to True when "cooling_off_period_condition_is_applicable" = "applicable" , set to False when "cooling_off_period_condition_is_applicable" = "not_applicable"]
+        + fullDischarge
+            [set to True when "chargor_full_discharge_condition_is_applicable" = "applicable" , set to False when "chargor_full_discharge_condition_is_applicable" = "not_applicable"]
+            [set to True when "pledgor_full_discharge_condition_is_applicable" = "applicable" , set to False when "pledgor_full_discharge_condition_is_applicable" = "not_applicable"]
+            [set to True when "obligor_full_discharge_condition_is_applicable" = "applicable" , set to False when "obligor_full_discharge_condition_is_applicable" = "not_applicable"]
+            [set to True when "security_provider_full_discharge_condition_is_applicable" = "applicable" , set to False when "security_provider_full_discharge_condition_is_applicable" = "not_applicable"]
+        + automaticSetOff
+            [set to True when "automatic_setoff->right" = "applicable" , set to False when "automatic_setoff->right" = "not_applicable"]
+        + customElection
+            [value "specify" removeHtml]
+
+    SensitivityMethodologies:
+        + sensitivityToEquity
+            [value "sensitivities_to_equity_indices_funds_etfs"]
+        + sensitivityToCommodity
+            [value "sensitivities_to_commodity_indices"]
+
+    SensitivityMethodology:
+        + specifiedMethodology
+            [value "sensitivities_equity_indices_funds_etfs" , "sensitivities_commodity_indices"]
+        + customMethodology
+            [value "sensitivities_equity_indices_funds_etfs_specify" , "sensitivities_commodity_indices_specify" removeHtml]
+
+    SimmVersion:
+        + isSpecified
+            [set to True when "is_specified" = "specified" , set to False when "is_specified" = "not_specified"]
+        + partyVersion
+            [set to CounterpartyRoleEnum -> Party1 when "party_A_or_party_B_version" = "partyA" , set to CounterpartyRoleEnum -> Party2 when "party_A_or_party_B_version" = "partyB"]
+        + asSpecified
+            [value "specify" set when "is_specified" = "other" removeHtml]
+
+    Substitution:
+        + needsConsent
+            [set to True when "is_applicable" = "standard" , set to False when "is_applicable" = "other"]
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+        + specificConsentLanguage
+            [value "specify" removeHtml]
+
+    TerminationCurrencyAmendment:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+            [set to True when "amendment_to_termination_currency_is" = "applicable" , set to False when "amendment_to_termination_currency_is" = "not_applicable"]
+
+    BaseAndEligibleCurrency:
+        + baseCurrency
+            [value "currency" path "base_currency" mapper "IsoCurrency"]
+
+    CreditSupportObligations:
+        + marginApproach
+            [value "selection_of_margin_approach"]
+        + otherEligibleSupportIM
+            [value "eligible_support_specify" path "other_eligible_support" set when "other_eligible_support->other_eligible_support" = "specify" removeHtml]
+            [value "other_eligible_support" path "eligible_support" removeHtml]
+        + threshold
+            [value "threshold" mapper "Threshold"]
+        + minimumTransferAmount
+            [value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
+        + rounding
+            [value "rounding"]
+        + bespokeTransferTiming
+            [value "transfer_timing"]
+
+    OtherAgreement:
+        + date
+            [value "collateral_transfer_agreement_date" path "collateral_transfer_agreement"]
+
+    Agreement:
+        + creditSupportAgreementElections
+            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Annex"]
+            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Deed"]
+        + collateralTransferAgreementElections
+            [value "partyA" path "answers" set when "document->documentType" = "Collateral Transfer Agreement"]
+        + securityAgreementElections
+            [value "partyA" path "answers" set when "document->documentType" = "Security Agreement"]
+        + masterAgreementSchedule
+            [value "ignore"]
+        + masterAgreementElections
+            [value "ignore"]
+
+    AgreementTerms:
+        + clauseLibrary
+            [set to True when "document->documentType" = "Clause Library"]
+        + counterparty
+            [value "partyA" mapper "AgreementTermsParty"]
+
+    LegalAgreement:
+        + relatedAgreements
+            [value "date_of_euroclear_security_agreement" path "answers->partyA" , "date_of_collateral_transfer_agreement" path "answers->partyA" , "date_of_isda_master_agreement" path "answers->partyA" , "collateral_transfer_agreement" path "answers->partyA" , "isda_master_agreement_form" path "answers->partyA" mapper "RelatedAgreement"]
+        + umbrellaAgreement
+            [value "umbrella_agreement_and_principal_identification" , "umbrella_agreement_and_principal_identification" path "answers->partyA"]
+
+    LegalAgreementBase:
+        + agreementDate
+            [value "executionDate" path "answers->partyA->execution_date"]
+        + contractualParty
+            [value "partyA" mapper "ContractualParty"]
+
+    LegalAgreementIdentification:
+        + governingLaw
+            [value "governingLaw" path "document"]
+        + agreementName
+            [value "document"]
+        + publisher
+            [value "publisher" path "document"]
+        + vintage
+            [value "year" path "document"]
+
+    AgreementName:
+        + agreementType
+            [value "documentType"]
+        + creditSupportAgreementType
+            [value "documentType"]
+        + creditSupportAgreementMarginType
+            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (Jpn Law)"]
+            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (NY Law)"]
+            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSA (NY Law)"]
+            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSD (Eng Law)"]
+            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSD (Eng Law)"]
+        + masterAgreementType
+            [value "documentType"]
+
+    UmbrellaAgreement:
+        + isApplicable
+            [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
+        + language
+            [value "language" maps 2 removeHtml]
+        + parties
+            [value "principal_identification_schedule" mapper "UmbrellaAgreementEntity"]
+
+    OtherAgreementTerms:
+        + isSpecified
+            [set to True when "specify_japanese_law_csa_vm" = "true" , set to False when "specify_japanese_law_csa_vm" = "false"]
+            [set to True when "specify_other_csa" = "true" , set to False when "specify_other_csa" = "false"]
+        + legalDocument
+            [value "specify"]
+
+    BusinessCenterTime:
+        + hourMinuteTime
+            [value "partyA_time"]
+            [value "partyB_time"]
+            [value "time"]
+        + businessCenter
+            [value "partyA_location"]
+            [value "partyB_location"]
+            [value "location"]
+
+    CustomisableOffset:
+        + customProvision
+            [value "re_end_date__days_after_representative_event__other__specify" set when "re_end_date__days_after_representative_event" = "other__specify" removeHtml]
+
+    Account:
+        + accountNumber
+            [value "pledged_account_number" removeHtml]
+        + accountName
+            [value "name"]
+
+    PartyContactInformation:
+        + additionalInformation
+            [value "partyA_specify" removeHtml]
+            [value "partyB_specify" removeHtml]
+
+    PartyRole:
+        + partyReference
+            [value "partyA"]
+
+    enums
+
+    ISOCurrencyCodeEnum:
+        + AED
+            [value "United Arab Emirates Dirham"]
+        + AFN
+            [value "Afghan Afghani"]
+        + ALL
+            [value "Albanian Lek"]
+        + AMD
+            [value "Armenian Dram"]
+        + AOA
+            [value "Angolan Kwanza"]
+        + ARS
+            [value "Argentine Peso"]
+        + AUD
+            [value "Australian Dollar"]
+        + AWG
+            [value "Aruban Florin"]
+        + AZN
+            [value "Azerbaijani Manat"]
+        + BAM
+            [value "Bosnia and Herzegovina Convertible Mark"]
+        + BBD
+            [value "Barbados Dollar"]
+        + BDT
+            [value "Bangladeshi Taka"]
+        + BGN
+            [value "Bulgarian Lev"]
+        + BHD
+            [value "Bahraini Dinar"]
+        + BIF
+            [value "Burundian Franc"]
+        + BMD
+            [value "Bermudian Dollar"]
+        + BND
+            [value "Brunei Dollar"]
+        + BOB
+            [value "Boliviano"]
+        + BOV
+            [value "Bolivian Mvdol"]
+        + BRL
+            [value "Brazilian Real"]
+        + BSD
+            [value "Bahamian Dollar"]
+        + BTN
+            [value "Bhutanese Ngultrum"]
+        + BWP
+            [value "Botswana Pula"]
+        + BYN
+            [value "Belarusian Ruble"]
+        + BZD
+            [value "Belize Dollar"]
+        + CAD
+            [value "Canadian Dollar"]
+        + CDF
+            [value "Congolese Franc"]
+        + CHF
+            [value "Swiss Franc"]
+        + CLF
+            [value "Unidad de Fomento"]
+        + CLP
+            [value "Chilean Peso"]
+        + CNY
+            [value "Chinese Yuan/Renminbi"]
+        + COP
+            [value "Colombian Peso"]
+        + COU
+            [value "Unidad de Valor Real (UVR)"]
+        + CRC
+            [value "Costa Rican Clon"]
+        + CUP
+            [value "Cuban Peso"]
+        + CVE
+            [value "Cape Verde Escudo"]
+        + CZK
+            [value "Czech Koruna"]
+        + DJF
+            [value "Djiboutian Franc"]
+        + DKK
+            [value "Danish Krone"]
+        + DOP
+            [value "Dominican Peso"]
+        + DZD
+            [value "Algerian Dinar"]
+        + EGP
+            [value "Egyptian Pound"]
+        + ERN
+            [value "Eritrean Nakfa"]
+        + ETB
+            [value "Ethiopian Birr"]
+        + EUR
+            [value "Euro"]
+        + FJD
+            [value "Fiji Dollar"]
+        + FKP
+            [value "Falkland Islands Pound"]
+        + GBP
+            [value "Pound Sterling"]
+        + GEL
+            [value "Georgian Lari"]
+        + GHS
+            [value "Ghanaian Cedi"]
+        + GIP
+            [value "Gibraltar Pound"]
+        + GMD
+            [value "Gambian Dalasi"]
+        + GNF
+            [value "Guinean Franc"]
+        + GTQ
+            [value "Guatemalan Quetzal"]
+        + GYD
+            [value "Guyanese Dollar"]
+        + HKD
+            [value "Hong Kong Dollar"]
+        + HNL
+            [value "Honduran Lempira"]
+        + HTG
+            [value "Haitian Gourde"]
+        + HUF
+            [value "Hungarian Forint"]
+        + IDR
+            [value "Indonesian Rupiah"]
+        + ILS
+            [value "Israeli New Shekel"]
+        + INR
+            [value "Indian Rupee"]
+        + IQD
+            [value "Iraqi Dinar"]
+        + IRR
+            [value "Iranian Rial"]
+        + ISK
+            [value "Icelandic Krna"]
+        + JMD
+            [value "Jamaican Dollar"]
+        + JOD
+            [value "Jordanian Dinar"]
+        + JPY
+            [value "Japanese Yen"]
+        + KES
+            [value "Kenyan Shilling"]
+        + KGS
+            [value "Kyrgyzstani Som"]
+        + KHR
+            [value "Cambodian Riel"]
+        + KMF
+            [value "Comoro Franc"]
+        + KPW
+            [value "North Korean Won"]
+        + KRW
+            [value "South Korean Won"]
+        + KWD
+            [value "Kuwaiti Dinar"]
+        + KYD
+            [value "Cayman Islands Dollar"]
+        + KZT
+            [value "Kazakhstani Tenge"]
+        + LAK
+            [value "Lao Kip"]
+        + LBP
+            [value "Lebanese Pound"]
+        + LKR
+            [value "Sri Lankan Rupee"]
+        + LRD
+            [value "Liberian Dollar"]
+        + LSL
+            [value "Lesotho Loti"]
+        + LYD
+            [value "Libyan Dinar"]
+        + MAD
+            [value "Moroccan Dirham"]
+        + MDL
+            [value "Moldovan Leu"]
+        + MGA
+            [value "Malagasy Ariary"]
+        + MKD
+            [value "Macedonian Denar"]
+        + MMK
+            [value "Myanmar Kyat"]
+        + MNT
+            [value "Mongolian Tgrg"]
+        + MOP
+            [value "Macanese Pataca"]
+        + MRU
+            [value "Mauritanian Ouguiya"]
+        + MUR
+            [value "Mauritian Rupee"]
+        + MVR
+            [value "Maldivian Rufiyaa"]
+        + MWK
+            [value "Malawian Kwacha"]
+        + MXN
+            [value "Mexican Peso"]
+        + MXV
+            [value "Mexican Unidad de Inversion (UDI)"]
+        + MYR
+            [value "Malaysian Ringgit"]
+        + MZN
+            [value "Mozambican Metical"]
+        + NAD
+            [value "Namibian Dollar"]
+        + NGN
+            [value "Nigerian Naira"]
+        + NIO
+            [value "Nicaraguan Crdoba"]
+        + NOK
+            [value "Norwegian Krone"]
+        + NPR
+            [value "Nepalese Rupee"]
+        + NZD
+            [value "New Zealand Dollar"]
+        + OMR
+            [value "Omani Rial"]
+        + PAB
+            [value "Panamanian Balboa"]
+        + PEN
+            [value "Peruvian Sol"]
+        + PGK
+            [value "Papua New Guinean Kina"]
+        + PHP
+            [value "Philippine Peso"]
+        + PKR
+            [value "Pakistani Rupee"]
+        + PLN
+            [value "Polish Zoty"]
+        + PYG
+            [value "Paraguayan Guaran"]
+        + QAR
+            [value "Qatari Riyal"]
+        + RON
+            [value "Romanian Leu"]
+        + RSD
+            [value "Serbian Dinar"]
+        + RUB
+            [value "Russian Ruble"]
+        + RWF
+            [value "Rwandan Franc"]
+        + SAR
+            [value "Saudi Riyal"]
+        + SBD
+            [value "Solomon Islands Dollar"]
+        + SCR
+            [value "Seychelles Rupee"]
+        + SDG
+            [value "Sudanese Pound"]
+        + SEK
+            [value "Swedish Krona/Kronor"]
+        + SGD
+            [value "Singapore Dollar"]
+        + SHP
+            [value "Saint Helena Pound"]
+        + SLE
+            [value "Leone"]
+        + SOS
+            [value "Somali Shilling"]
+        + SRD
+            [value "Surinamese Dollar"]
+        + SSP
+            [value "South Sudanese Pound"]
+        + STN
+            [value "So Tom and Prncipe Dobra"]
+        + SVC
+            [value "Salvadoran Coln"]
+        + SYP
+            [value "Syrian Pound"]
+        + SZL
+            [value "Swazi Lilangeni"]
+        + THB
+            [value "Thai Baht"]
+        + TJS
+            [value "Tajikistani Somoni"]
+        + TMT
+            [value "Turkmenistan Manat"]
+        + TND
+            [value "Tunisian Dinar"]
+        + TOP
+            [value "Tongan Paanga"]
+        + TRY
+            [value "Turkish Lira"]
+        + TTD
+            [value "Trinidad and Tobago Dollar"]
+        + TWD
+            [value "New Taiwan Dollar"]
+        + TZS
+            [value "Tanzanian Shilling"]
+        + UAH
+            [value "Ukrainian Hryvnia"]
+        + UGX
+            [value "Ugandan Shilling"]
+        + USD
+            [value "United States Dollar"]
+        + UYI
+            [value "Uruguay Peso en Unidades Indexadas (URUIURUI)"]
+        + UYU
+            [value "Uruguayan Peso"]
+        + UYW
+            [value "Unidad Previsional"]
+        + UZS
+            [value "Uzbekistan Som"]
+        + VES
+            [value "Venezuelan Bolvar Soberano"]
+        + VND
+            [value "Vietnamese ng"]
+        + VUV
+            [value "Vanuatu Vatu"]
+        + WST
+            [value "Samoan Tala"]
+        + XAF
+            [value "CFA Franc BEAC"]
+        + XCD
+            [value "East Caribbean Dollar"]
+        + XOF
+            [value "CFA Franc BCEAO"]
+        + XPF
+            [value "CFP Franc (Franc Pacifique)"]
+        + YER
+            [value "Yemeni Rial"]
+        + ZAR
+            [value "South African Rand"]
+        + ZMW
+            [value "Zambian Kwacha"]
+        + ZWG
+            [value "Zimbabwean Gold"]
+
+    RecalculationOfValueElectionEnum:
+        + ConsulationProcedure
+            [value "consultation_procedure"]
+        + OtherRegulatoryCSAProcedure
+            [value "other_regulatory_CSA_procedure"]
+        + NotApplicable
+            [value "not_applicable"]
+        + Specified
+            [value "specified"]
+
+    SimmExceptionApplicableEnum:
+        + FallBackToMandatoryMethod
+            [value "fallback"]
+        + MandatoryMethod
+            [value "mandatory"]
+        + OtherMethod
+            [value "other"]
+
+    ExceptionEnum:
+        + Applicable
+            [value "applicable"]
+            [value "not_specified"]
+            [value "false"]
+        + NotApplicable
+            [value "not_applicable"]
+            [value "paragraph_3_1_will_not_apply"]
+            [value "paragraph_4a_will_not_apply"]
+        + Other
+            [value "specify"]
+            [value "other"]
+            [value "true"]
+            [value "other__specify"]
+
+    SensitivitiesEnum:
+        + Alternative
+            [value "alternative"]
+            [value "other"]
+        + Standard
+            [value "standard"]
+            [value "not_specified"]
+
+    RegulatoryRegimeEnum:
+        + AustraliaMarginRules
+            [value "australia"]
+        + CanadaMarginRules
+            [value "canada"]
+        + CFTC_MarginRules
+            [value "cftc"]
+        + EMIR_MarginRules
+            [value "emir"]
+        + HongKongMarginRules
+            [value "hong_kong"]
+        + JapanMarginRules
+            [value "japan"]
+        + US_PrudentialMarginRules
+            [value "prudential"]
+        + SEC_MarginRules
+            [value "sec"]
+        + SingaporeMarginRules
+            [value "singapore"]
+        + SwitzerlandMarginRules
+            [value "switzerland"]
+        + BrazilMarginRules
+            [value "brazil"]
+        + UnitedKingdomMarginRules
+            [value "united_kingdom"]
+        + SouthAfricaMarginRules
+            [value "south_africa"]
+        + SouthKoreaMarginRules
+            [value "south_korea"]
+        + HongKongSFCMarginRules
+            [value "hong_kong_sfc"]
+
+    MarginApproachEnum:
+        + Distinct
+            [value "distinct"]
+        + Allocated
+            [value "allocated"]
+        + GreaterOf
+            [value "greaterof"]
+            [value "greater_of"]
+
+    InterestAdjustmentPeriodicityEnum:
+        + LastLocalBusinessDayOfMonth
+            [value "last_day"]
+        + EachDay
+            [value "each_day"]
+
+    DeliveryAmountElectionEnum:
+        + LastLocalBusinessDay
+            [value "include_one"]
+        + LastAndAnyLocalBusinessDay
+            [value "include_both"]
+
+    CollateralAssetDefinitionsEnum:
+        + GB_GILT
+            [value "UK Gilts"]
+
+    AmendmentEffectiveDateEnum:
+        + AnnexDate
+            [value "annex"]
+            [value "specify_date"]
+        + DeedDate
+            [value "deed"]
+        + AgreementDate
+            [value "agreement"]
+        + AmendmentEffectiveDate
+            [value "amendment_effective_date"]
+
+    AdditionalTypeEnum:
+        + NotApplicable
+            [value "not_applicable"]
+        + Other
+            [value "other"]
+
+    BusinessCenterEnum:
+        + AEAD
+            [value "Abu Dhabi, United Arab Emirates"]
+        + AMYE
+            [value "Yerevan, Armenia"]
+        + AOLU
+            [value "Luanda, Angola"]
+        + ARBA
+            [value "Buenos Aires, Argentina"]
+        + ATVI
+            [value "Vienna, Austria"]
+        + AUCA
+            [value "Canberra, Australia"]
+        + AUSY
+            [value "Sydney, Australia"]
+        + BBBR
+            [value "Bridgetown, Barbados"]
+        + BDDH
+            [value "Dhaka, Bangladesh"]
+        + BEBR
+            [value "Brussels, Belgium"]
+        + BGSO
+            [value "Sofia, Bulgaria"]
+        + BHMA
+            [value "Manama, Bahrain"]
+        + BMHA
+            [value "Hamilton, Bermuda"]
+        + BNBS
+            [value "Bandar Seri Begawan, Brunei Darussalam"]
+        + BOLP
+            [value "La Paz, Bolivia"]
+        + BRBR
+            [value "Braslia, Brazil"]
+        + BSNA
+            [value "Nassau, Bahamas"]
+        + BWGA
+            [value "Gaborone, Botswana"]
+        + BYMI
+            [value "Minsk, Belarus"]
+        + CAOT
+            [value "Ottawa-Gatineau, Canada"]
+        + CATO
+            [value "Toronto, Canada"]
+        + CIAB
+            [value "Abidjan, Cte d'Ivoire"]
+        + CLSA
+            [value "Santiago, Chile"]
+        + CNBE
+            [value "Beijing, China"]
+        + CNSH
+            [value "Shanghai, China"]
+        + COBO
+            [value "Bogot, Colombia"]
+        + CRSJ
+            [value "San Jos, Costa Rica"]
+        + CYNI
+            [value "Nicosia, Cyprus"]
+        + CZPR
+            [value "Prague, Czechia"]
+        + DEFR
+            [value "Frankfurt, Germany"]
+        + DKCO
+            [value "Copenhagen, Denmark"]
+        + DOSD
+            [value "Santo Domingo, Dominican Republic"]
+        + DZAL
+            [value "Algiers, Algeria"]
+        + EETA
+            [value "Tallinn, Estonia"]
+        + EGCA
+            [value "Cairo, Egypt"]
+        + ESMA
+            [value "Madrid, Spain"]
+        + FIHE
+            [value "Helsinki, Finland"]
+        + FRPA
+            [value "Paris, France"]
+        + GBLO
+            [value "London, United Kingdom"]
+        + GETB
+            [value "Tbilisi, Georgia"]
+        + GRAT
+            [value "Athens, Greece"]
+        + HKHK
+            [value "Hong Kong, China"]
+        + HNTE
+            [value "Tegucigalpa, Honduras"]
+        + HRZA
+            [value "Zagreb, Croatia"]
+        + HUBU
+            [value "Budapest, Hungary"]
+        + IDJA
+            [value "Jakarta, Indonesia"]
+        + IEDU
+            [value "Dublin, Ireland"]
+        + ILJE
+            [value "Jerusalem, Israel"]
+        + INND
+            [value "New Delhi, India"]
+        + IRTE
+            [value "Tehran, Iran (Islamic Republic of)"]
+        + ISRE
+            [value "Reykjavk, Iceland"]
+        + JESH
+            [value "St. Helier, Channel Islands"]
+        + JMKI
+            [value "Kingston, Jamaica"]
+        + JOAM
+            [value "Amman, Jordan"]
+        + JPTO
+            [value "Tokyo, Japan"]
+        + KENA
+            [value "Nairobi, Kenya"]
+        + KRSE
+            [value "Seoul, Republic of Korea"]
+        + KWKC
+            [value "Kuwait City, Kuwait"]
+        + KYGE
+            [value "George Town, Cayman Islands"]
+        + LBBE
+            [value "Beirut, Lebanon"]
+        + LKCO
+            [value "Colombo, Sri Lanka"]
+        + LULU
+            [value "Luxembourg, Luxembourg"]
+        + LVRI
+            [value "Riga, Latvia"]
+        + MARA
+            [value "Rabat, Morocco"]
+        + MCMO
+            [value "Monaco, Monaco"]
+        + MOMA
+            [value "Macao, China, Macao SAR"]
+        + MTVA
+            [value "Valletta, Malta"]
+        + MUPL
+            [value "Port Louis, Mauritius"]
+        + MVMA
+            [value "Male, Maldives"]
+        + MWLI
+            [value "Lilongwe, Malawi"]
+        + MXMC
+            [value "Mexico City, Mexico"]
+        + MYKL
+            [value "Kuala Lumpur, Malaysia"]
+        + NAWI
+            [value "Windhoek, Namibia"]
+        + NGAB
+            [value "Abuja, Nigeria"]
+        + NLAM
+            [value "Amsterdam, Netherlands"]
+        + NOOS
+            [value "Oslo, Norway"]
+        + NPKA
+            [value "Kathmandu, Nepal"]
+        + NZWE
+            [value "Wellington, New Zealand"]
+        + OMMU
+            [value "Masqat (Muscat), Oman"]
+        + PAPC
+            [value "Panama City, Panama"]
+        + PELI
+            [value "Lima, Peru"]
+        + PHMA
+            [value "Manila, Philippines"]
+        + PLWA
+            [value "Warsaw, Poland"]
+        + PRSJ
+            [value "San Juan, Puerto Rico"]
+        + PTLI
+            [value "Lisbon, Portugal"]
+        + QADO
+            [value "Doha, Qatar"]
+        + RSBE
+            [value "Belgrade, Serbia"]
+        + RUMO
+            [value "Moscow, Russian Federation"]
+        + SARI
+            [value "Riyadh, Saudi Arabia"]
+        + SEST
+            [value "Stockholm, Sweden"]
+        + SGSI
+            [value "Singapore, Singapore"]
+        + SILJ
+            [value "Ljubljana, Slovenia"]
+        + SKBR
+            [value "Bratislava, Slovakia"]
+        + SNDA
+            [value "Dakar, Senegal"]
+        + SVSS
+            [value "San Salvador, El Salvador"]
+        + THBA
+            [value "Bangkok, Thailand"]
+        + TNTU
+            [value "Tunis, Tunisia"]
+        + TRAN
+            [value "Ankara, Turkey"]
+        + TTPS
+            [value "Port of Spain, Trinidad and Tobago"]
+        + TWTA
+            [value " Taibei, China, Taiwan Province of China"]
+        + TZDO
+            [value "Dodoma, United Republic of Tanzania"]
+        + UAKI
+            [value "Kiev, Ukraine"]
+        + UGKA
+            [value "Kampala, Uganda"]
+        + USDC
+            [value "Washington, D.C., United States of America"]
+        + USNY
+            [value "New York, United States of America"]
+        + UYMO
+            [value "Montevideo, Uruguay"]
+        + VECA
+            [value "Caracas, Venezuela (Bolivarian Republic of)"]
+        + VGRT
+            [value "Road Town, British Virgin Islands"]
+        + VNHA
+            [value "H Noi, Viet Nam"]
+        + VNHC
+            [value "Ho Chi Minh (formerly Saigon), Vietnam"]
+        + ZMLU
+            [value "Lusaka, Zambia"]
+        + ZWHA
+            [value "Harare, Zimbabwe"]
+
+    DayTypeEnum:
+        + Business
+            [value "days_after_days"]
+            [value "day_release_days"]
+            [value "day_release_date_i"]
+            [value "day_release_date_ii"]
+            [value "days_days_prior_to_release_date"]
+            [value "days_timely_days"]
+            [value "days_days_after_timely_statement"]
+            [value "local_business_days_days_after_timely_statement"]
+        + Calendar
+            [value "calendar_days_after_days"]
+            [value "calendar_day_release_days"]
+            [value "calendar_day_release_date_i"]
+            [value "calendar_day_release_date_ii"]
+            [value "calendar_days_days_prior_to_release_date"]
+            [value "calendar_days_timely_days"]
+
+    GoverningLawEnum:
+        + BE
+            [value "Belgian"]
+        + GBEN
+            [value "English"]
+        + JP
+            [value "Japanese"]
+        + LU
+            [value "Luxembourg"]
+        + RelatedMasterAgreement
+            [value "As agreed in the ISDA Master Agreement"]
+        + USNY
+            [value "New York"]
+
+    LegalAgreementTypeEnum:
+        + MasterAgreement
+            [value "Master Agreement"]
+        + CreditSupportAgreement
+            [value "Credit Support Deed"]
+            [value "Credit Support Annex"]
+            [value "Collateral Transfer Agreement"]
+        + SecurityAgreement
+            [value "Security Agreement"]
+
+    MasterAgreementTypeEnum:
+        + ISDAMaster
+            [value "Master Agreement"]
+
+    CreditSupportAgreementTypeEnum:
+        + CreditSupportDeed
+            [value "Credit Support Deed"]
+        + CreditSupportAnnex
+            [value "Credit Support Annex"]
+        + CollateralTransferAgreement
+            [value "Collateral Transfer Agreement"]
+
+    LegalAgreementPublisherEnum:
+        + ISDAClearstream
+            [value "ISDA/Clearstream"]
+        + ISDAEuroclear
+            [value "ISDA/Euroclear"]
+        + ISDA
+            [value "ISDA"]
+
+    ExecutionLocationEnum:
+        + ExecutedOutsideBelgium
+            [value "executed_outside_of_belgium"]
+        + ExecutedInBelgium
+            [value "executed_in_belgium"]
+        + OtherLocation
+            [value "other"]
+}

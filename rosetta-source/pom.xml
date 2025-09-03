@@ -103,6 +103,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -681,6 +682,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -815,6 +817,7 @@
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
                                     <classPathLookupFilter>.*com\.regnosys\.rosetta.*</classPathLookupFilter>
+                                    <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
                                             <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
@@ -869,6 +872,30 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <configLocation>checkstyle-for-deprecated-guice.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <sourceDirectories>
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                        <sourceDirectory>src/test/java</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>Check style</id>
+                        <!-- This needs to run /after/ xtend (test) source
+                        generation is done. -->
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
@@ -887,11 +914,38 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-rune-fpml-rosetta</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/parent-dependency</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.regnosys.rune-fpml</groupId>
+                                    <artifactId>rosetta-source</artifactId>
+                                    <includes>fpml/rosetta/*.rosetta</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeScope>runtime</includeScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>default-cli</id>
-                        <phase>validate</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -899,28 +953,16 @@
                             <outputDirectory>${basedir}/target/classes/cdm/rosetta</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/rosetta</directory>
+                                    <directory>${project.build.directory}/parent-dependency/fpml/rosetta</directory>
                                     <includes>
                                         <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-json-hierarchy-file</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/main/rosetta</outputDirectory>
-                            <resources>
                                 <resource>
-                                    <directory>src/generated/java</directory>
+                                    <directory>src/main/rosetta</directory>
                                     <includes>
-                                        <include>namespace-hierarchy.json</include>
+                                        <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -1050,6 +1092,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.regnosys.rune-fpml</groupId>
+            <artifactId>rosetta-source</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>
         </dependency>
@@ -1084,6 +1130,25 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.regnosys</groupId>
+            <artifactId>ingest-test-framework</artifactId>
+            <version>${rosetta.bundle.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.regnosys.rosetta</groupId>
+                    <artifactId>com.regnosys.rosetta.xcore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.osgi</groupId>
+                    <artifactId>org.osgi.service.prefs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.xtext</groupId>
+                    <artifactId>org.eclipse.xtext.ecore</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

@@ -6,7 +6,7 @@ In order to facilitate the translation of existing industry messages
 (based on open standards or proprietary ones) into CDM, the CDM is
 mapped to a set of those alternative data representations using the
 Rosetta DSL *synonym* feature, as described in the [Mapping Component
-Section](https://docs.rosetta-technology.io/rosetta/rosetta-dsl/rosetta-modelling-component#mapping-component).
+Section](https://docs.rosetta-technology.io/rosetta/rune-dsl/rune-modelling-component/#mapping-component).
 
 The following set of synonym sources are currently in place for the CDM:
 
