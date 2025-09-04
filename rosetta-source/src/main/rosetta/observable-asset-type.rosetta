@@ -145,6 +145,7 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     composite PriceComposite (0..1) <"(Optionally) Specifies the underlying price components if the price can be expressed as a composite: e.g. dirty price = clean price + accrued.">
     arithmeticOperator ArithmeticOperationEnum (0..1) <"(Optionally) When the price is to be understood as an operator to apply to an observable, i.e. a spread, multiplier or min/max.">
     cashPrice CashPrice (0..1) <"(Optionally when the price type is cash) Additional attributes that further define a cash price, e.g. what type of fee it is.">
+    feeType FeeTypeEnum (0..1) <"Specifies the type of any associated fee.">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
         if priceType = PriceTypeEnum -> Variance
@@ -194,6 +195,10 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
     condition AccruedInterest: <"If composite operand type is AccruedInterest then the price type must be AssetPrice.">
         if composite -> operandType = PriceOperandEnum -> AccruedInterest
         then priceType = PriceTypeEnum -> AssetPrice
+
+    condition InterestRateFeeType: <"If a lending fee or rebate rate is specified then price type must be interest rate.">
+        if (feeType = FeeTypeEnum -> LendingFee) or (feeType = FeeTypeEnum -> RebateRate)
+        then priceType = PriceTypeEnum -> InterestRate
 
 type Price extends PriceSchedule: <"Specifies a price as a single value to be associated to a financial product. This data type extends PriceSchedule and requires that only the amount value exists.">
 
