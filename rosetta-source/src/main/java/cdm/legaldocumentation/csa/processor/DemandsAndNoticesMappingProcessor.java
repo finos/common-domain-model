@@ -2,6 +2,7 @@ package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.staticdata.party.Address;
 import cdm.base.staticdata.party.ContactInformation;
+import cdm.legaldocumentation.common.NoticeInformation;
 import cdm.legaldocumentation.common.NoticeInformationElection;
 import cdm.legaldocumentation.csa.DemandsAndNotices;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -36,7 +37,7 @@ public class DemandsAndNoticesMappingProcessor extends MappingProcessor {
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
                 address -> partyContactInformationBuilder
                         .setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party))
-                        .setContactInformation(ContactInformation.builder()
+                        .setContactInformation(NoticeInformation.builder()
                                 .addAddress(Address.builder()
                                         .addStreet(removeHtml(address)))));
         return partyContactInformationBuilder.hasData() ? Optional.of(partyContactInformationBuilder.build()) : Optional.empty();
