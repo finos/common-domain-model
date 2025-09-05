@@ -2,14 +2,14 @@ package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.staticdata.party.Address;
 import cdm.base.staticdata.party.ContactInformation;
-import cdm.base.staticdata.party.PartyContactInformation;
-import cdm.base.staticdata.party.metafields.ReferenceWithMetaParty;
+import cdm.legaldocumentation.common.NoticeInformationElection;
 import cdm.legaldocumentation.csa.DemandsAndNotices;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
+import org.isda.cdm.processor.CreateiQMappingProcessorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +31,11 @@ public class DemandsAndNoticesMappingProcessor extends MappingProcessor {
         PARTIES.forEach(party -> getPartyContactInformation(synonymPath, party).ifPresent(demandsAndNoticesBuilder::addPartyElection));
     }
 
-    private Optional<PartyContactInformation> getPartyContactInformation(Path synonymPath, String party) {
-        PartyContactInformation.PartyContactInformationBuilder partyContactInformationBuilder = PartyContactInformation.builder();
+    private Optional<NoticeInformationElection> getPartyContactInformation(Path synonymPath, String party) {
+        NoticeInformationElection.NoticeInformationElectionBuilder partyContactInformationBuilder = NoticeInformationElection.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
                 address -> partyContactInformationBuilder
-                        .setPartyReference(ReferenceWithMetaParty.builder().setExternalReference(party).build())
+                        .setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party))
                         .setContactInformation(ContactInformation.builder()
                                 .addAddress(Address.builder()
                                         .addStreet(removeHtml(address)))));
