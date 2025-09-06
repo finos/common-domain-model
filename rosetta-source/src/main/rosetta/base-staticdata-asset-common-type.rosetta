@@ -14,7 +14,7 @@ choice Asset: <"An Asset is defined as something that can be owned and transferr
     Instrument <"An asset that is issued by one party to one or more others; Instrument is also a choice data type.">
 
 
-type AssetBase: <"The base data type to specify common attributes for all Assets.">
+type AssetBase : <"The base data type to specify common attributes for all Assets.">
     identifier AssetIdentifier (1..*) <"Asset Identifiers are used to uniquely identify an Asset, using a specified Asset Identifier Type.">
     taxonomy Taxonomy (0..*) <"Defines the taxonomy of an object by combining a taxonomy source (i.e. the rules to classify the object) and a value (i.e. the output of those rules on the object.">
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
@@ -23,23 +23,27 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     ancillaryPartyRole AssetAncillaryPartyRole (0..*) <"The role of a party with indirect participation in the asset (i.e. transfer agent).">
     assetType AssetType (1..1) <"Represents a class to allow specification of the asset product type.">
 
-
     condition ExchangeRole: <"If Exchange is specified, it must be an exchange-listed Instrument.">
-        if partyRole -> role = Exchange then isExchangeListed
+         if partyRole -> role = Exchange or ancillaryPartyRole filter [ item = Exchange ] exists
+                  then isExchangeListed = True
 
     condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
-            if isExchangeListed then partyRole -> role = Exchange
+         if isExchangeListed then partyRole -> role = Exchange
 
     condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
-            if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
+         if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
 
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
         if assetType -> assetType = Security
             then partyRole -> role = Issuer
 
-    condition LenderBorrower: <"If the asset type is a Load then the role must be Lender.">
+    condition LenderBorrower: <"If the asset type is a Loan then the role must be Lender.">
         if assetType -> assetType = Loan
             then partyRole -> role =  Lender
+
+    condition NoAncillaryPartyRole: <"Party,partyrole and ancillaryPartyRole are all absent.">
+        party is absent and partyRole is absent and ancillaryPartyRole is absent
+
 
 
 type AssetIdentifier: <"The unique identifier for an Asset, specified using an Asset Identifier Type enumerator.">
@@ -119,7 +123,10 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
         taxonomy is absent
 
     condition NoCashParty:
-                party is absent and partyRole -> role is absent
+        partyRole -> role is absent
+
+    condition AssetType:
+        assetType -> assetType = Cash
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -135,8 +142,11 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
         if taxonomy exists
         then (taxonomy -> source exists and taxonomy -> value exists)
 
-   condition NoCashParty:
-                party is absent and partyRole -> role is absent
+    condition NoCommodityParty:
+        partyRole -> role is absent
+
+    condition AssetType:
+        assetType -> assetType = Commodity
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -182,7 +192,6 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
         if optionType exists then strike exists else strike is absent
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
-    borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
     lien string (0..1) <"Specifies the seniority level of the lien.">
         [metadata scheme]
     facilityType string (0..1) <"Specifies the type of loan facility (letter of credit, revolving, ...).">
@@ -190,6 +199,9 @@ type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset id
     creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
     tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
         [metadata scheme]
+
+    condition AssetType:
+        assetType -> assetType = Loan
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
@@ -243,7 +255,10 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
         then fundType is absent
 
     condition PartyRole: <"If the asset type is a security then the role must be issuer.">
-                partyRole -> role = Issuer
+        partyRole -> role = Issuer
+
+    condition AssetType:
+        assetType -> assetType = Security
 
 type DebtType: <"Specifies the type of debt instrument.">
     debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
