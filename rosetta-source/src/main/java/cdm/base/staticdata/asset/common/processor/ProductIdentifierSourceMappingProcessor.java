@@ -51,6 +51,13 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
                     // Update Source
                     productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
                 });
+        setValueAndUpdateMappings(xmlPath.addElement("indexIdScheme"),
+                xmlValue -> {
+                    // Update scheme
+                    productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    // Update Source
+                    productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
+                });
         if (xmlPath.endsWith("description")) {
             productIdentifierBuilder.setSource(ProductIdTypeEnum.NAME);
         }
