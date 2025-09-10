@@ -11,4 +11,4 @@ Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove port
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4002](https://github.com/finos/common-domain-model/pull/4002)
+The changes can be reviewed in PR: [#4026](https://github.com/finos/common-domain-model/pull/4026)
