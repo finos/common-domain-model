@@ -11,4 +11,4 @@ Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'por
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4026](https://github.com/finos/common-domain-model/pull/4026)
+The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
