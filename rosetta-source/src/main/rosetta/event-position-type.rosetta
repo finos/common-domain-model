@@ -28,13 +28,19 @@ type CounterpartyPosition extends ContractBase: <"A Position describes the accum
     partyRole PartyRole (0..*) <"Represents the role each specified party takes in the position.">
     positionBase TradableProduct (1..1) <"Encapsulates the core constituents that characterize a position.">
 
-type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
-
+type PositionBase: <"Base class to describe a Position, which could be a group of products (e.g. trade portfolio) or a group of assets (e.g. collateral portfolio).">
     priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
-    product Product (1..1) <"The product underlying the position.">
-    cashBalance Money (0..1) <"The aggregate cost of proceeds">
-    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
+    product Product (0..1) <"The product underlying the position.">
+    asset Asset (0..1) <"The asset that underlies the position.">
+    cashBalance Money (0..1) <"The aggregate cost of proceeds.">
+    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed.">
         [metadata reference]
+
+    condition ProductOrAsset: <"A Position must either refer to a grouping by product or a grouping by asset.">
+        required choice product, asset
+
+type Position extends PositionBase: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+    override product Product (1..1) <"The product underlying the position.">
 
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
     [metadata key]
