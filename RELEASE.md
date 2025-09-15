@@ -1,36 +1,14 @@
-# *Product Model - Refactor function UpdateAmountForEachMatchingQuantity*
+# _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
 
 _Background_
 
-The function `Create_QuantityChange` relies on function `UpdateAmountForEachMatchingQuantity` to update the price and quantity amounts. However, the function is written in Java because historically the DSL syntax did not support some required operations.  Further details on the background context can be found in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
+It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
+The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
 
 _What is being released?_
 
-Refactor function `UpdateAmountForEachMatchingQuantity` from Java into Rune.
+Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
 
 _Review Directions_
 
-There is an expectation change in repo-and-bond visualisation test-pack related to an existing issue where the Quantity Change func does not match on Observable, as discussed in Issue [#3907](https://github.com/finos/common-domain-model/issues/3907).
-
-Changes can be reviewed in PR: [#3955](https://github.com/finos/common-domain-model/pull/3955)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `DSL` dependency.
-
-Version updates include:
-- `DSL` 9.62.0 Java code generation fixes related to setting metadata. See DSL release notes: [DSL 9.62.0](https://github.com/finos/rune-dsl/releases/tag/9.62.0)
-- `DSL` 9.63.0 Changes the generated Java pruning algorithm to keep required attributes, even if they are empty. See DSL release notes: [DSL 9.63.0](https://github.com/finos/rune-dsl/releases/tag/9.63.0)
-- `DSL` 9.64.0 See DSL release notes: [DSL 9.64.0](https://github.com/finos/rune-dsl/releases/tag/9.64.0)
-  * Show error for duplicate attributes in the same type
-  * Add support for XML union elements
-  * Added workaround for XSD `any` element
-  * Reverted to prune required fields, added config to disable pruning
-  
-Test expectations have been updated accordingly to include required empty model objects that were previously pruned.
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#3944](https://github.com/finos/common-domain-model/pull/3944)
+The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
