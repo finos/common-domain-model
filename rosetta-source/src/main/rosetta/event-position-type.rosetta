@@ -78,6 +78,7 @@ type InventoryRecord: <"An individual piece of inventory. This represents a sing
     security Security (1..1) <"The security details.">
 
 type AvailableInventory: <"A data type that can be used to describe the inventory of securities that a party holds. The securities are held in the AvailableInventoryRecord, with each item in the array being an individual security and its associated criteria. Criteria can include the quantity available, the rate at which the security is available to borrow at, as well as other details that can affect the decision as to whether a party wants to utilise the securities listed.">
+    [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1) <"Defines the purpose of this inventory.">
     messageInformation MessageInformation (0..1) <"Allows details related to the availability messaging use case to be defined">
     party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
@@ -108,6 +109,6 @@ type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of 
             )
 
 type SecurityLocate extends AvailableInventory: <"A locate is an approval from a broker that needs to be obtained prior to effecting a short sale in an equity security. Similar to security availability, a borrower can request a single or multiple securities, but at least one must be requested.">
-
+    [rootType]
     condition RequestOneSecurityMinimum: <"A locate must request the availability of at least one security.">
         availableInventoryRecord exists
