@@ -51,6 +51,13 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
                     // Update Source
                     productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
                 });
+        setValueAndUpdateMappings(xmlPath.addElement("indexIdScheme"),
+                xmlValue -> {
+                    // Update scheme
+                    productIdentifierValueBuilder.getOrCreateMeta().setScheme(xmlValue);
+                    // Update Source
+                    productIdentifierBuilder.setSource(getSourceEnum(xmlValue));
+                });
         if (xmlPath.endsWith("description")) {
             productIdentifierBuilder.setSource(ProductIdTypeEnum.NAME);
         }
@@ -69,6 +76,8 @@ public class ProductIdentifierSourceMappingProcessor extends MappingProcessor {
             return ProductIdTypeEnum.ISDACRP;
         } else if (scheme.contains("iso4914")) {
             return ProductIdTypeEnum.UPI;
+        } else if (scheme.contains("-id-RED-")) {
+            return ProductIdTypeEnum.REDID;
         } else {
             return ProductIdTypeEnum.OTHER;
         }
