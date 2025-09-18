@@ -3,13 +3,12 @@ version "${project.version}"
 
 import cdm.event.common.*
 import cdm.event.workflow.*
-
-import fpml.confirmation.* as fpml
-
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.legal.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.tradestate.*
-import cdm.ingest.fpml.confirmation.datetime.*
+
+import fpml.confirmation.* as fpml
 
 func MapWorkflowStep:
     inputs:
@@ -161,7 +160,9 @@ func GetEffectiveDate:
 
     set effectiveDate:
         if fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate exists
-        then MapZoneDateTimeToDate(fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate)
+        then MapZoneDateTimeToDate(
+                    fpmlAmendment -> agreementAndEffectiveDatesModel -> effectiveDate
+                )
         else if fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate exists
         then MapZoneDateTimeToDate(
                     fpmlTermination -> agreementAndEffectiveDatesModel -> effectiveDate
