@@ -1,4 +1,4 @@
-# *Product Model - Adding `EquityIndexEnum` emum list*
+# *Product Model - Adding `EquityIndexEnum` list*
 
 _Background_
 
