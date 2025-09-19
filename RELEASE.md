@@ -2,7 +2,7 @@
 
 _Background_
 
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agree on the Collateral & Contribution Review Working Groups.
+When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed on the Collateral & Contribution Review Working Groups.
 
 _What is being released?_
 
