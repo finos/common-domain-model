@@ -1,4 +1,4 @@
-# *Observable Model - Adding `EquityIndexEnum` emum list*
+# *Product Model - Adding `EquityIndexEnum` emum list*
 
 _Background_
 
