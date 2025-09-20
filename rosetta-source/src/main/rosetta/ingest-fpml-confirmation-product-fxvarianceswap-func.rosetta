@@ -1,22 +1,21 @@
 namespace cdm.ingest.fpml.confirmation.product.fxvarianceswap: <"FpML FxVarianceSwap product mapping functions.">
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
 import cdm.base.datetime.*
-import cdm.product.asset.*
 import cdm.base.math.*
-
-import fpml.confirmation.* as fpml
-
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
-import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
 
 func MapFxVarianceSwapCounterpartyList:
     inputs:
@@ -66,7 +65,11 @@ func MapFxVarianceSwapEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
-            payout: MapFxVarianceSwapPayout(fpmlFxVarianceSwap, MapFxPerformanceSwapToReturnTerms(fpmlFxVarianceSwap), cdmCounterpartyList),
+            payout: MapFxVarianceSwapPayout(
+                    fpmlFxVarianceSwap,
+                    MapFxPerformanceSwapToReturnTerms(fpmlFxVarianceSwap),
+                    cdmCounterpartyList
+                ),
             ...
         }
 
@@ -101,7 +104,9 @@ func MapFxVarianceSwapPayout:
                 },
                 settlementTerms: MapFxPerformanceSwapToSettlementTerms(fpmlFxVarianceSwap),
                 observationTerms: MapFxPerformanceSwapToObservationTerms(fpmlFxVarianceSwap),
-                valuationDates: MapFxValuationDateOffsetToValuationDates(fpmlFxVarianceSwap -> valuationDateOffset),
+                valuationDates: MapFxValuationDateOffsetToValuationDates(
+                        fpmlFxVarianceSwap -> valuationDateOffset
+                    ),
                 paymentDates: empty,
                 underlier: Underlier {
                     Observable: MapQuotedCurrencyPairToObservableWithAddress(
@@ -165,7 +170,9 @@ func MapFxPerformanceSwapToObservationTerms:
                     ),
                 ...
             },
-            observationDates: MapFxFixingScheduleToObservationDates(fpmlFxPerformanceSwap -> fixingSchedule),
+            observationDates: MapFxFixingScheduleToObservationDates(
+                    fpmlFxPerformanceSwap -> fixingSchedule
+                ),
             numberOfObservationDates: fpmlFxPerformanceSwap -> numberOfReturns,
             ...
         }
@@ -260,7 +267,9 @@ func MapFxPerformanceSwapToReturnTerms:
                     priceType: InterestRate,
                     ...
                 },
-                vegaNotionalAmount: MapNonNegativeMoneyToQuantity(fpmlFxPerformanceSwap -> vegaNotional),
+                vegaNotionalAmount: MapNonNegativeMoneyToQuantity(
+                        fpmlFxPerformanceSwap -> vegaNotional
+                    ),
                 valuationTerms: empty, // not in original
                 expectedN: empty, // not in original
                 ...
