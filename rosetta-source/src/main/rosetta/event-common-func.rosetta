@@ -38,10 +38,13 @@ func QuantityIncreased:
 
 func QuantityDecreased:
     inputs:
-        before TradeState (1..1)
+        instruction Instruction (0..*)
         after TradeState (0..*)
     output:
         result boolean (1..1)
+    
+    alias unitType: <"Unit Types of the instruction's quantities.">
+        instruction -> primitiveInstruction -> quantityChange -> change -> quantity -> unit
 
     set result:
         after
@@ -50,44 +53,56 @@ func QuantityDecreased:
                 CompareTradeLot(
                             item -> trade -> tradeLot only-element,
                             CompareOp -> LessThan,
-                            before -> trade -> tradeLot only-element
+                            instruction -> before -> trade -> tradeLot only-element
                         ) = True
-                    and // check each after (item) is greater than zero
-                    CompareTradeLotToAmount(
-                            item -> trade -> tradeLot only-element,
-                            CompareOp -> GreaterThan,
-                            0.0
-                        ) = True
+                    and // Check that changed quantities have not decreased to zero
+                    QuantityDecreasedToZero(instruction, after) = False
             ] all = True
 
 func QuantityDecreasedToZero:
     inputs:
-        before TradeState (0..*)
+        instruction Instruction (0..*)
         after TradeState (0..*)
     output:
         result boolean (1..1)
+    
+    alias unitTypes:  <"Unit Types of the instruction's quantities.">
+        instruction -> primitiveInstruction -> quantityChange -> change -> quantity -> unit
 
     set result:
         CompareTradeLotToAmount(
-                    before -> trade -> tradeLot only-element,
+                    instruction -> before -> trade -> tradeLot only-element,
                     CompareOp -> GreaterThan,
-                    0.0
+                    0.0,
+                    unitTypes
                 ) = True
-            and CompareTradeStatesToAmount(after, CompareOp -> Equals, 0.0) = True
+            and CompareTradeStatesToAmount(after, CompareOp -> Equals, 0.0, unitTypes) = True
 
-func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amounts in each TradeState to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amounts in each TradeState to the given amount  based on the CompareOp enum. If Unit Types are specified, only quantities with those units are compared. Otherwise, the comparison applies to all quantities, regardless of the unit type.">
     inputs:
         tradeStates TradeState (0..*) <"List of TradeState to be compared.">
         op CompareOp (1..1) <"Comparison operation to use.">
         amount number (1..1) <"Quantity amount to use.">
+        unitType UnitType (0..*) <"Unit Types to which condition should be applied.">
+
     output:
         result boolean (1..1)
 
-    set result:
+    alias resultAll: <"Result of applying the comparison to all quantities, regardless of unit.">
         tradeStates
             extract [
-                CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount)
+                CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount, unitType)
             ] all = True
+
+    alias resultUnit: <"Result of applying the comparison only to quantities whose unit corresponds to any of the specified Unit Types.">
+        tradeStates
+            extract [
+                CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount, unitType)
+            ] all = True
+
+    set result: <"If Unit Types are provided, return the result based only on quantities with those units; otherwise, return the result for all quantities.">
+        if unitType exists then resultUnit
+        else resultAll
 
 func TransfersForDate:
     inputs:
@@ -988,9 +1003,11 @@ func Create_QuantityChange: <"A specification of the inputs, outputs and constra
     set quantityChange -> trade -> ancillaryParty: trade -> ancillaryParty
     set quantityChange -> trade -> adjustment: trade -> adjustment
 
-    set quantityChange -> state -> positionState:
-        if newTradeLots -> priceQuantity -> quantity -> value all = 0
-        then PositionStatusEnum -> Closed
+    set quantityChange -> state -> positionState: <"Set positionState to Closed if all quantities with the instruction’s unit have decreased to zero.">
+        newTradeLots -> priceQuantity -> quantity 
+            filter instruction -> change -> quantity -> unit any = item -> unit
+        then if item -> value all = 0
+            then PositionStatusEnum -> Closed
 
 func Create_TermsChange: <"A specification of the inputs, outputs and constraints when calculating the after tradeState based Terms Change Primitive Instruction.">
     inputs:

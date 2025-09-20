@@ -77,21 +77,33 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
                                 },
                         unitOfAmount
                     )
-            ] all = True
+            ] any = True //the comparison succeeds if at least one quantity meets the condition
 
-func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount, based on the CompareOp enum. If Unit Types are specified, only quantities with those units are compared. Otherwise, the comparison applies to all quantities, regardless of the unit type">
     inputs:
         tradeLot TradeLot (1..1)
         op CompareOp (1..1)
         amount number (1..1)
+        unitTypes UnitType (0..*) <"Unit Types to which comparison should be applied.">
     output:
         result boolean (1..1)
 
-    set result:
+    alias resultAll: <"Result of applying the comparison to all quantities, regardless of unit.">
         tradeLot -> priceQuantity -> quantity
             filter item -> value exists
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
+
+    alias resultUnit: <"Result of applying the comparison only to quantities whose unit corresponds to any of the specified Unit Types.">
+        tradeLot -> priceQuantity -> quantity
+            filter item -> value exists 
+            then filter unitTypes any = item -> unit 
+            then extract [ CompareNumbers(item -> value, op, amount) ]
+                all = True
+
+    set result: <"If Unit Types are provided, return the result based only on quantities with those units; otherwise, return the result for all quantities.">
+        if unitTypes exists then resultUnit 
+        else resultAll
 
 func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
     inputs:
