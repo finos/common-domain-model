@@ -12,6 +12,6 @@ Version updates include:
 
 There are no changes to model or test expectations.
 
-_Review Directions_
+_Review Directions_ 
 
 The changes can be reviewed in PR: [#4037](https://github.com/finos/common-domain-model/pull/4037)
