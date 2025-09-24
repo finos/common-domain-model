@@ -81,6 +81,20 @@ func MapOptionSettlementModelToSettlementTerms:
             ...
         }
 
+func MapReturnLegToSettlementTerms:
+    inputs:
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlReturnLeg -> amount -> cashSettlement = True
+                then SettlementTypeEnum -> Cash,
+                settlementCurrency: MapCurrency (fpmlReturnLeg -> amount -> currencyAndDeterminationMethodModel -> currency),
+            ...
+        }        
+
 func MapEquityExerciseValuationSettlementToSettlementTerms:
     inputs:
         fpmlEquityExerciseValuationSettlement fpml.EquityExerciseValuationSettlement (0..1)
@@ -516,6 +530,20 @@ func MapFxCashSettlementToSettlementTerms:
             },
             ...
         }
+
+func MapEquitySwapToSettlementTerms:
+    inputs:
+        fpmlEquitySwapTransactionSupplement fpml.EquitySwapTransactionSupplement (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if fpmlEquitySwapTransactionSupplement -> returnSwapLeg exists // = True, ...
+                then SettlementTypeEnum -> Cash,
+            ...
+        }
+
 
 func MapFxOptionToSettlementTerms:
     inputs:
