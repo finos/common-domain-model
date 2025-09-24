@@ -1,14 +1,15 @@
-# _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
+# *Product Model - Adding `EquityIndexEnum`*
 
 _Background_
 
-It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
-The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
+When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
 
 _What is being released?_
 
-Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
+The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
+
+A condition restricts the `EquityIndex` type from having an enum value and a name.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4026](https://github.com/finos/common-domain-model/pull/4026)
+Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
