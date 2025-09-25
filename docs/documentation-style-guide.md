@@ -215,7 +215,7 @@ Another non-compliant example:
 
 The RST editing syntax in which the user documentation is written is a
 standard web mark-up language, for which a reference guide can be found
-at: <https://sublime-and-sphinx-guide.readthedocs.io>
+at: [Sublime and Sphinx guide](https://sublime-and-sphinx-guide.readthedocs.io)
 
 2.  Logical organization and order:
     1.  The user documentation should walk the user through the model
@@ -290,7 +290,7 @@ Inspect Pull Request: [#1101](https://github.com/finos/common-domain-model/pull/
 
 The MD editing syntax in which release notes are written is a standard
 web mark-up language, for which a reference guide can be found at:
-<https://www.markdownguide.org/cheat-sheet/>
+[Markdown Guide cheat sheet](https://www.markdownguide.org/cheat-sheet/)
 
 ---
 **Note:**

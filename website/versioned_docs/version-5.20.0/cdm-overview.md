@@ -44,7 +44,7 @@ enhances financial markets' operational efficiency in several ways:
 
 For further information about the CDM and its applications, please
 consult the [CDM section](https://www.finos.org/common-domain-model) of the FINOS website or contact FINOS directly
-at <cdm@lists.finos.org>.
+at [cdm@lists.finos.org](mailto:cdm@lists.finos.org).
 
 ## Model Overview 
 The key models defined in the CDM are listed below. Click each one to learn more. 
