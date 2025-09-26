@@ -1,15 +1,12 @@
-# *Product Model - Adding `EquityIndexEnum`*
-
-_Background_
-
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
+# *Infrastructure - Security Update*
 
 _What is being released?_
 
-The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
+Third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
-A condition restricts the `EquityIndex` type from having an enum value and a name.
+- `npm/axios` upgraded from version 0.30.1 to 1.12.0, see [GHSA-4hjh-wcwx-xvwj](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) for further details
+- `npm/docusaurus` upgraded from version 2.4.1 to 3.8.1 upgraded from version 2.4.1 to 3.8.1 to remove a transitive dependency on axios 0.7.0.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
+Changes can be reviewed in PR: [#4054](https://github.com/finos/common-domain-model/pull/4054)
