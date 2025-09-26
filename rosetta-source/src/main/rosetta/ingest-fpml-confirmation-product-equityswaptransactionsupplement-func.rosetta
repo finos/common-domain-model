@@ -8,6 +8,8 @@ import cdm.product.template.*
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
 
+import cdm.base.datetime.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.product.returnswap.*
@@ -59,6 +61,8 @@ func MapEquitySwapTransactionSupplementEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> effectiveDate distinct only-element),
+            terminationDate: MapAdjustableOrRelativeDate(fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> terminationDate distinct only-element),
             payout: MapReturnSwapLegListToPayoutList(
                     fpmlEquitySwapTransactionSupplement -> returnSwapLeg,
                     cdmCounterpartyList
@@ -92,11 +96,17 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+alias returnLeg:
+        fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract ToLegChoice
+            then extract ReturnLeg
+            then only-element
+
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
             extract
                 ToLegChoice switch
-           InterestLeg then MapInterestLegToPriceQuantity,
+           InterestLeg then MapInterestLegToPriceQuantity(item,returnLeg),
            ReturnLeg then MapReturnLegToPriceQuantity,
            default empty
 

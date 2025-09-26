@@ -8,6 +8,7 @@ import cdm.product.template.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
+import cdm.ingest.fpml.confirmation.other.*
 
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.header.*
@@ -76,6 +77,8 @@ func MapTrade:
             tradeLot: MapTradeLotList(fpmlTrade, fpmlPartiesAndAccountsModel),
             counterparty: counterpartyList,
             ancillaryParty: MapAncillaryPartyList(fpmlTrade),
+            // adjustment: MapNotionalAdjustmentEnum (ToLegChoice (fpmlTrade) -> ReturnLeg -> notionalAdjustments to-string),
+            adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
             tradeIdentifier: MapTradeIdentifierList(fpmlTrade -> tradeHeader),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
             party: MapPartyList(fpmlPartiesAndAccountsModel -> party),
@@ -84,6 +87,19 @@ func MapTrade:
             account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel),
             ...
         }
+
+func ExtractNotionalAdjustmentByLeg:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        adjustment string (0..1)
+
+    set adjustment:
+        ToProductChoice(fpmlTrade -> product)
+            switch
+        EquitySwapTransactionSupplement then ToLegChoice(returnSwapLeg first) -> ReturnLeg -> notionalAdjustments to-string,
+        ReturnSwap then ToLegChoice(returnSwapLeg first) -> ReturnLeg -> notionalAdjustments to-string,
+        default empty
 
 func MapNonTransferableProduct:
     inputs:
