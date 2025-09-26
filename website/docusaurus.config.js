@@ -12,8 +12,6 @@ module.exports = {
   title: `${projectName}`,
   url: 'https://www.cdm.finos.org',
   baseUrl: '/',
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon/favicon.ico',
   projectName: `${projectName}`,
   organizationName: 'FINOS',

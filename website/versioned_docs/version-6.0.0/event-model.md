@@ -152,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#TradableProduct) section of the
+[`tradable-product`](/docs/product-model#tradableproduct) section of the
 documentation.
 
 ---

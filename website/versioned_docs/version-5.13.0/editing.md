@@ -121,7 +121,7 @@ following contribution checklist:
 ---
 **Note:**
 A contribution should be a whole [releasable
-unit](development-approach.md#what-is-a-releasable-unit) and its size calibrated in accordance
+unit](development-approach#what-is-a-releasable-unit) and its size calibrated in accordance
 with the CDM's [agile development
 approach](development-approach.md).
 

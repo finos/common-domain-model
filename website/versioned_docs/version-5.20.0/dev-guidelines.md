@@ -271,7 +271,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](documentation-style-guide.md/#content-of-release-notes) for further
+[content-of-release-notes](documentation-style-guide#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -474,7 +474,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content-of-release-notes](documentation-style-guide.md/#content-of-release-notes) for further
+[content-of-release-notes](documentation-style-guide#content-of-release-notes) for further
 guidance on editing release notes.
 
 

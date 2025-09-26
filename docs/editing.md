@@ -121,7 +121,7 @@ following contribution checklist:
 ---
 **Note:**
 A contribution should be a whole [releasable
-unit](development-approach.md#what-is-a-releasable-unit) and its size calibrated in accordance
+unit](development-approach#what-is-a-releasable-unit) and its size calibrated in accordance
 with the CDM's [agile development
 approach](development-approach.md).
 
@@ -184,7 +184,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content of release notes](dev-guidelines.md/#content-of-release-notes) for further
+[content of release notes](dev-guidelines#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -192,7 +192,7 @@ guidance on editing release notes.
 ### Review checklist
 
 Before starting to review a contribution, the CDM Maintainer should go
-through the [review checklist](maintenance-and-release.md/#review-checklist).
+through the [review checklist](maintenance-and-release#review-checklist).
 
 
 
@@ -201,7 +201,7 @@ through the [review checklist](maintenance-and-release.md/#review-checklist).
 It is not yet possible to verify that mapping, validation and
 qualification expectations have been maintained by looking at the output
 of the Pull Request and CDM build only. Please refer to the
-[downstream dependencies](maintenance-and-release.md/#downstream-dependencies) section for more details.
+[downstream dependencies](maintenance-and-release#downstream-dependencies) section for more details.
 
 ---
 

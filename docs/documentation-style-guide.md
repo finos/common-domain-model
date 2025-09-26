@@ -210,7 +210,7 @@ Another non-compliant example:
 | 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](cdm-overview) |
 | 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](product-model.md),<br/>[legal-agreements-page](legal-agreements.md) |
 | 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](product-model#tradable-product) |
-| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](product-model.md/#PriceQuantity) |
+| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](product-model#pricequantity) |
 :Heading Styles
 
 The RST editing syntax in which the user documentation is written is a
