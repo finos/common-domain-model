@@ -76,7 +76,7 @@ The two data definition components should be referred to as follows:
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    [contractual-product](./product-model#contractual-product) is defined as a
+    [contractual-product](./product-model#product) is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
