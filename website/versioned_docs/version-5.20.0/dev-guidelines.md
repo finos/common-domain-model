@@ -398,7 +398,7 @@ The following release checklist should be verified before deploying a
 new model:
 
 -   Update the CDM version number, using the [semantic
-    versioning](#semantic-versioning) format
+    versioning](./versioning) format
 -   Build release candidate, and test
 -   Build documentation website release candidate, and test
 -   Deploy release candidate and notify channels if need be

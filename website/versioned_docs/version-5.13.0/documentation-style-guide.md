@@ -70,13 +70,13 @@ The two data definition components should be referred to as follows:
 ### Product
 
 1.  *Financial Product*. The user documentation defines
-    [financial-product](product-model#financial-product) as the highest
+    [financial-product](./product-model#financial-product) as the highest
     level of the hierarchy of the universe of products. The term
     *Financial Product* should be used consistently throughout the
     documentation and wherever applicable in the model descriptions when
     describing the broad set of products.
 2.  *Contractual Product*. Similarly,
-    [contractual-product](product-model#contractual-product) is defined as a
+    [contractual-product](./product-model#contractual-product) is defined as a
     subset of Financial Products and should be used consistently in any
     documentation.
     1.  Not *Derivatives*.
@@ -92,7 +92,7 @@ The two data definition components should be referred to as follows:
     1.  Not *Lifecycle Event*. the term *Business Event* should be
         consistently used when referring to these data structures in the
         CDM documentation.
-2.  *Primitive Event*. In the CDM, a [primitive-event](event-model#primitive-events) represents a building block component used to specify
+2.  *Primitive Event*. In the CDM, a [primitive-event](event-model#primitive-event) represents a building block component used to specify
     business events in the CDM.
     1.  Not *Primitive* (stand-alone). In the CDM documentation, the
         word *Primitive* always needs to be qualified with *Event*,
@@ -205,12 +205,12 @@ Another non-compliant example:
         there should not be a heading at level 3 or 4 with the exact
         same title.
 
-| Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                          Section Example |
-|:--------------|:----------------------------------:|--------------------------------------:|---------------------------------------------------------:|
-| 1             |        _[===============]_         |                      XL font and bold |         [common-domain-model](cdm-overview.md) |
-| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold |               [product-model-page](product-model.md),<br/>[legal-agreements-page](legal-agreements.md) |
-| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold | [tradable-product](product-model#tradableproduct) |
-| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |     [price-quantity](product-model#pricequantity) |
+| Heading Level |    Notation (underline in .rst)    | Relative font size (as seen by users) |                                                                         Section Example |
+|:--------------|:----------------------------------:|--------------------------------------:|----------------------------------------------------------------------------------------:|
+| 1             |        _[===============]_         |                      XL font and bold |                                                   [common-domain-model](./cdm-overview) |
+| 2             | _[\-\-\-\-\-\-\-\-\-\-\-\-\-\--]_  |                       L font and bold | [product-model-page](product-model.md),<br/>[legal-agreements-page](./legal-agreements) |
+| 3             | _[\^\^\^\^\^\^\^\^\^\^\^\^\^\^\^]_ |                       M font and bold |                                    [tradable-product](./product-model#tradable-product) |
+| 4             | _["""""""""""""""]_ |     S font (same ascontent), but bold |                                        [price-quantity](./product-model#price-quantity) |
 :Heading Styles
 
 The RST editing syntax in which the user documentation is written is a

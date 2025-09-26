@@ -136,7 +136,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#traableproduct) section of the
+[`tradable-product`](./product-model#tradable-product) section of the
 documentation.
 
 ---
@@ -404,7 +404,7 @@ in the instructions.
 
 This function applies each of the primitive operators (other than split)
 to the trade state in the order listed in the [primitive
-operator](#primitive-operator) section. Apart from execution which, when
+operator](#primitive-event) section. Apart from execution which, when
 present, must always be applied first, the order does not affect the
 outcome because each primitive operator impacts a different part of the
 trade state.
@@ -870,7 +870,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](#event-qualification) section.
+    qualification](#event-qualification-section) section.
 
 # Workflow
 

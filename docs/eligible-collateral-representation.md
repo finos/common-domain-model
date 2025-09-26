@@ -742,7 +742,7 @@ for particular financial products. The data type `Asset` can be used to
 express specific instrument identifiers such as ISINs, CUSIPs etc. There
 is a section within the CDM documentation that covers this area of the
 model, this can be found in the following link
-[products-with-identifiers-section](/docs/product-model#identifiers).
+[products-with-identifiers-section](./product-model#products-with-identifiers).
 
 ### Listing 
 

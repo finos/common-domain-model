@@ -152,7 +152,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#tradableproduct) section of the
+[`tradable-product`](./product-model#tradable-product) section of the
 documentation.
 
 ---
@@ -903,7 +903,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](#event-qualification) section.
+    qualification](#event-qualification-section) section.
 
 ## Workflow
 
