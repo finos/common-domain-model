@@ -1,11 +1,24 @@
 package org.finos.cdm.ingest;
 
+import cdm.event.common.TradeState;
+import cdm.event.workflow.WorkflowStep;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.Patch;
 import com.github.difflib.unifieddiff.UnifiedDiff;
 import com.github.difflib.unifieddiff.UnifiedDiffFile;
 import com.github.difflib.unifieddiff.UnifiedDiffWriter;
+import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.transform.TransformType;
+import com.regnosys.rosetta.common.util.SimpleBuilderProcessor;
+import com.rosetta.model.lib.GlobalKey;
+import com.rosetta.model.lib.RosettaModelObject;
+import com.rosetta.model.lib.RosettaModelObjectBuilder;
+import com.rosetta.model.lib.meta.FieldWithMeta;
+import com.rosetta.model.lib.meta.ReferenceWithMeta;
+import com.rosetta.model.lib.path.RosettaPath;
+import com.rosetta.model.lib.process.AttributeMeta;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +48,9 @@ public class TargetExpectationsDiffTest {
     private static final Boolean WRITE_EXPECTATIONS = Optional.ofNullable(System.getenv("WRITE_EXPECTATIONS"))
             .map(Boolean::parseBoolean)
             .orElse(false);
+    private static final ObjectMapper OBJECT_MAPPER = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
+    
+
 
     private static final Path PROJECT_ROOT = Path.of("").toAbsolutePath().getParent();
     private static final Path MAIN_RESOURCES_PATH = PROJECT_ROOT.resolve(Path.of("rosetta-source/src/main/resources"));
@@ -45,18 +61,43 @@ public class TargetExpectationsDiffTest {
 
     @MethodSource("inputs")
     @ParameterizedTest(name = "{0}")
-    void checkTargetOutputDiff(String testName, Path synonymIngestOutputPath, Path ingestOutputPath, Path diffPath) throws IOException {
-        List<String> actualOutputFileContent = Files.readAllLines(synonymIngestOutputPath);
+    void checkTargetOutputDiff(String testName, Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath, Path ingestOutputPath, Path diffPath) throws IOException {
+        List<String> actualOutputFileContent = readFile(clazz, synonymIngestOutputPath);
         if (!Files.exists(ingestOutputPath)) {
             return;
         }
-        List<String> targetOutputFileContent = Files.readAllLines(ingestOutputPath);
+        List<String> targetOutputFileContent = readFile(clazz, ingestOutputPath);
 
         String expectedDiff = readFile(diffPath);
         String actualDiff = createPatchFile(actualOutputFileContent, targetOutputFileContent, getRelativePath(synonymIngestOutputPath), getRelativePath(ingestOutputPath));
         assertDiffEquals(expectedDiff, actualDiff, diffPath);
     }
 
+    @NotNull
+    private List<String> readFile(Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath) throws IOException {
+        String json = Files.readString(synonymIngestOutputPath);
+        RosettaModelObject modelObject = deserialise(clazz, json);
+        RosettaModelObject processedModelObject = removeGlobalKeys(modelObject);
+        String processedJson = serialise(processedModelObject);
+        return Arrays.asList(processedJson.split("\n"));
+    }
+    
+    private static <T extends RosettaModelObject> T deserialise(Class<T> clazz, String json) throws JsonProcessingException {
+        return OBJECT_MAPPER.readValue(json, clazz);
+    }
+
+    private <T extends RosettaModelObject> RosettaModelObject removeGlobalKeys(RosettaModelObject o) {
+        RosettaModelObjectBuilder builder = o.toBuilder();
+        builder.process(RosettaPath.valueOf("Root"), new GlobalKeyRemover());
+        GlobalKey.GlobalKeyBuilder globalKeyBuilder = (GlobalKey.GlobalKeyBuilder) builder;
+        globalKeyBuilder.getOrCreateMeta().setGlobalKey(null);
+        return builder.prune().build();
+    }
+
+    private static String serialise(RosettaModelObject o) throws JsonProcessingException {
+        return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(o);
+    }
+    
     private String readFile(Path file) {
         try {
             return Files.readString(file);
@@ -104,8 +145,14 @@ public class TargetExpectationsDiffTest {
                     .filter(TargetExpectationsDiffTest::isJsonExt)
                     .map(synonymIngestOutputPath ->
                     {
-                        Path ingestOutputPath = getIngestOutputPath(synonymIngestOutputPath);
-                        return Arguments.of(getTestName(synonymIngestOutputPath),
+                        Path fileName = synonymIngestOutputPath.getFileName();
+                        Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
+                        String testPackName = toTestPackName(relativePath.toString());
+                        Path ingestOutputPath = getIngestOutputPath(testPackName, fileName);
+                        Class<? extends RosettaModelObject> clazz = EVENT_TEST_PACKS.contains(testPackName) ?
+                                WorkflowStep.class : TradeState.class;
+                         return Arguments.of(getTestName(testPackName, fileName),
+                                clazz,
                                 synonymIngestOutputPath,
                                 ingestOutputPath,
                                 getDiffPath(ingestOutputPath));
@@ -124,25 +171,20 @@ public class TargetExpectationsDiffTest {
     }
 
     @NotNull
-    private static String getTestName(Path synonymIngestOutputPath) {
-        Path fileName = synonymIngestOutputPath.getFileName();
-        Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
-        String testPackName = toTestPackName(relativePath.toString());
+    private static String getTestName(String testPackName, Path fileName) {
         return String.format("%s | %s", testPackName, fileName.toString().replace(".json", ""));
     }
 
     @NotNull
-    private static Path getIngestOutputPath(Path synonymIngestOutputPath) {
-        Path fileName = synonymIngestOutputPath.getFileName();
-        Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
-        String testPackName = toTestPackName(relativePath.toString());
-        String functionFolder = EVENT_TEST_PACKS.contains(testPackName) ? "fpml-confirmation-to-workflow-step" : "fpml-confirmation-to-trade-state";
+    private static Path getIngestOutputPath(String testPackName, Path fileName) {
+        String functionFolder = EVENT_TEST_PACKS.contains(testPackName) ?
+                "fpml-confirmation-to-workflow-step" : "fpml-confirmation-to-trade-state";
         return INGEST_OUTPUT_PATH.resolve(functionFolder).resolve(testPackName).resolve(fileName);
     }
 
     @NotNull
-    private static String toTestPackName(String cdmLegacyIngestTestPackPath) {
-        String testPackName = cdmLegacyIngestTestPackPath.replaceAll("[-._/]+", " ");
+    private static String toTestPackName(String synonymIngestOutputPath) {
+        String testPackName = synonymIngestOutputPath.replaceAll("[-._/]+", " ");
         return directoryNameOfDataset(testPackName);
     }
 
@@ -153,5 +195,41 @@ public class TargetExpectationsDiffTest {
                 .replace("/tests/", "/rosetta-source/")
                 .replace(INGEST_OUTPUT_PATH.toString(), FUNCTION_INGEST_DIFF_PATH.toString())
                 .replace(".json", ".diff"));
+    }
+
+    private static class GlobalKeyRemover extends SimpleBuilderProcessor {
+        @Override
+        public <R extends RosettaModelObject> boolean processRosetta(RosettaPath path,
+                                                                     Class<R> rosettaType,
+                                                                     RosettaModelObjectBuilder builder,
+                                                                     RosettaModelObjectBuilder parent,
+                                                                     AttributeMeta... metas) {
+            if (builder == null)
+                return false;
+            if (isGlobalReference(builder)) {
+                ReferenceWithMeta.ReferenceWithMetaBuilder<?> refBuilder = (ReferenceWithMeta.ReferenceWithMetaBuilder<?>) builder;
+                refBuilder.setGlobalReference(null);
+            } else if (isGlobalKey(builder, metas)) {
+                GlobalKey.GlobalKeyBuilder keyBuilder = (GlobalKey.GlobalKeyBuilder) builder;
+                Optional.ofNullable(keyBuilder.getMeta())
+                        .ifPresent(b -> b.setGlobalKey(null));
+            }
+            return true;
+        }
+
+        @Override
+        public Report report() {
+            return null;
+        }
+
+        private boolean isGlobalKey(RosettaModelObjectBuilder builder, AttributeMeta... metas) {
+            return builder instanceof GlobalKey
+                    // exclude FieldWithMetas unless they contain a IS_GLOBAL_KEY_FIELD meta
+                    && !(builder instanceof FieldWithMeta && !Arrays.asList(metas).contains(AttributeMeta.GLOBAL_KEY_FIELD));
+        }
+
+        private boolean isGlobalReference(RosettaModelObjectBuilder builder) {
+            return builder instanceof ReferenceWithMeta;
+        }
     }
 }
