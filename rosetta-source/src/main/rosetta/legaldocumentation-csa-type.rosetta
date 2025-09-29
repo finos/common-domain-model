@@ -1051,7 +1051,15 @@ type Threshold: <"Represents the amount of unsecured risk that a party is willin
         [docReference ISDA CSA_VM_English_2016 name "Threshold"]
         [docReference ISDA CSA_VM_NewYork_2016 name "Threshold"]
     partyElection ThresholdType (0..2) <"The party specific election for the threshold clause.">
+
+type ThresholdMTABase: <"A logical container designed to hold a set of related data. In this case, designed to hold a set of information required to specify conditions under which Threshold or Minimum Transfer Amount can fall to zero.">
+    zeroEvent boolean (1..1) <"Indicates whether a trigger applies for the Threshold or Minimum Transfer Amount to fall to zero. If 'True' then such a trigger exists.">
+    event ZeroEventEnum (0..*) <"Specifies the relevant trigger for the Threshold or Minimum Transfer Amount to fall to zero.">
  
+    condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
+        if zeroEvent = True
+        then event exists
+
 type ThresholdType: <"Specifies whether the threshold is rating based, a fixed amount, or infinity.">
     party CounterpartyRoleEnum (1..1) <"The party to which the threshold applies.">
     fixedAmount ThresholdFixedAmount (0..1) <"Defines that the Threshold is a Fixed Amount.">
@@ -1062,16 +1070,10 @@ type ThresholdType: <"Specifies whether the threshold is rating based, a fixed a
     condition ThresholdOneOf: <"Ensures that threshold is specified as one-of fixedAmount, ratingsBased, infinity, or other.">
         required choice fixedAmount, ratingsBased, infinity, other
  
-type ThresholdFixedAmount: <"Defines that the Threshold is based on a Fixed Amount.">
+type ThresholdFixedAmount extends ThresholdMTABase: <"Defines that the Threshold is based on a Fixed Amount.">
     thresholdAmount Money (1..1) <"Specifies the monetary value of the threshold applicable to collateral transfer obligations.">
-    zeroEvent boolean (1..1) <"Indicates whether a trigger applies for the threshold to fall to zero. If 'True' then such a trigger exists.">
-    event ZeroEventEnum (0..*) <"Specifies the relevant trigger for the threshold to fall to zero.">
  
-    condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
-        if zeroEvent = True
-        then event exists
- 
-type ThresholdRatingsBased: <"Defines that the Threshold is based on Ratings condition(s).">
+type ThresholdRatingsBased extends ThresholdMTABase: <"Defines that the Threshold is based on Ratings condition(s).">
     currency ISOCurrencyCodeEnum (1..1) <"The threshold currency code.">
     ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
     variableSet CSAThresholdVariableSet (0..*) <"Defines a combination of Rating Agency, Rating Value, Threshold amount and Currency code.">
@@ -1082,12 +1084,6 @@ type ThresholdRatingsBased: <"Defines that the Threshold is based on Ratings con
     noRating boolean (1..1) <"What conditions apply where a party has no rating.">
     notRatedBy NotRatedByEnum (0..1) <"Defines where conditions apply if no Rating where ratings may not exist.">
     numberOfRatingAgencies NumberOfRatingAgenciesEnum (0..1) <"Defines the number of Rating Agencies that the Party must be rated by.">
-    zeroEvent boolean (1..1) <"Whether a trigger applies for the threshold to fall to zero.">
-    event ZeroEventEnum (0..*) <"The relevant trigger for the threshold to fall to zero.">
- 
-    condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
-        if zeroEvent = True
-        then event exists
  
     condition NamedEntity: <"If the rated party is NamedEntity then the entity must be specified.">
         if ratedParty = RatedPartyEnum -> NamedEntity
@@ -1125,16 +1121,10 @@ type MTATypeElection: <"Specifies the method by which the minimum transfer amoun
     condition MTAOneOf: <"Ensures that Minimum Transfer Amount is specified as one-of fixedAmount, ratingsBased, or other.">
         required choice fixedAmount, ratingsBased, other
  
-type MTAFixedAmount: <"Defines that the Minimum Transfer Amount (MTA) is a Fixed Amount.">
+type MTAFixedAmount extends ThresholdMTABase: <"Defines that the Minimum Transfer Amount (MTA) is a Fixed Amount.">
     minimumTransferAmount Money (1..1) <"Specifies the monetary value of the Minimum Transfer Amount applicable to collateral transfer obligations.">
-    zeroEvent boolean (1..1) <"Specifies whether a trigger applies for the Minimum Transfer Amount to fall to zero. If 'True' then such a trigger exists.">
-    event ZeroEventEnum (0..*) <"Specifies the relevant trigger for the Minimum Transfer Amount to fall to zero.">
- 
-      condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
-        if zeroEvent = True
-        then event exists
- 
-type MTARatingsBased: <"Defines that the Minimum Transfer Amount (MTA) is based on a Ratings condition(s).">
+
+type MTARatingsBased extends ThresholdMTABase: <"Defines that the Minimum Transfer Amount (MTA) is based on a Ratings condition(s).">
     currency ISOCurrencyCodeEnum (1..1) <"The minimum transfer amount currency code.">
     ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
     variableSet CSAMTAVariableSet (0..*) <"Defines a combination of Rating Agency, Rating Value, amount and Currency code.">
@@ -1145,12 +1135,6 @@ type MTARatingsBased: <"Defines that the Minimum Transfer Amount (MTA) is based 
     noRating boolean (1..1) <"What conditions apply where a party has no rating.">
     notRatedBy NotRatedByEnum (0..1) <"Defines where conditions apply if no Rating where ratings may not exist.">
     numberOfRatingAgencies NumberOfRatingAgenciesEnum (0..1) <"Defines the number of Rating Agencies that the Party must be rated by.">
-    zeroEvent boolean (1..1) <"Whether a trigger applies for the threshold to fall to zero.">
-    event ZeroEventEnum (0..*) <"The relevant trigger for the to fall to zero.">
- 
-      condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
-        if zeroEvent = True
-        then event exists
  
     condition NamedEntity: <"If the rated party is NamedEntity then the entity must be specified.">
         if ratedParty = RatedPartyEnum -> NamedEntity
