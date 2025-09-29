@@ -6,13 +6,13 @@ import cdm.base.staticdata.identifier.*
 
 type Counterparty: <"Defines a counterparty enumerated value, e.g. Party1 or Party2, with an associated party reference. The product is agnostic to the actual parties to the transaction, with the party references abstracted away from the product definition and replaced by the CounterpartyEnum (e.g. values Party1 or Party2). The CounterpartyEnum can then be positioned in the product (e.g. to specify which counterparty is the payer, receiver etc) and this Counterparty type, which is positioned outside of the product definition, allows the CounterpartyEnum to be associated with an actual party reference.">
     role CounterpartyRoleEnum (1..1) <"Specifies the CounterpartyEnum, e.g. either Party1 or Party2, that is associated to the partyReference.">
-    partyReference Party (1..1) <"Specifies the party that is associated to the counterparty.">
+    partyReference LegalPerson (1..1) <"Specifies the party that is associated to the counterparty.">
         [metadata reference]
 
 type AncillaryParty: <"Defines an ancillary role enumerated value with an associated party reference. The product is agnostic to the actual parties involved in the transaction, with the party references abstracted away from the product definition and replaced by the AncillaryRoleEnum. The AncillaryRoleEnum can then be positioned in the product and this AncillaryParty type, which is positioned outside of the product definition, allows the AncillaryRoleEnum to be associated with an actual party reference.">
 
     role AncillaryRoleEnum (1..1) <"Specifies the AncillaryRoleEnum that is associated to the party reference. An ancillary party is any involved party that is not one of the two principal parties to the transaction.">
-    partyReference Party (1..*) <"Specifies the party, or parties, associated to the ancillary role.">
+    partyReference LegalPerson (1..*) <"Specifies the party, or parties, associated to the ancillary role.">
         [metadata reference]
     onBehalfOf CounterpartyRoleEnum (0..1) <"Optionally specifies the counterparty that the ancillary party is acting on behalf of.">
 
@@ -36,11 +36,11 @@ type PayerReceiver: <"Specifies the parties responsible for making and receiving
 
 type PartyReferencePayerReceiver: <"Specifies the parties responsible for making and receiving payments defined by this structure.">
 
-    payerPartyReference Party (1..1) <"The party responsible for making the payments defined by this structure.">
+    payerPartyReference LegalPerson (1..1) <"The party responsible for making the payments defined by this structure.">
         [metadata reference]
     payerAccountReference Account (0..1) <"A reference to the account responsible for making the payments defined by this structure.">
         [metadata reference]
-    receiverPartyReference Party (1..1) <"The party that receives the payments corresponding to this structure.">
+    receiverPartyReference LegalPerson (1..1) <"The party that receives the payments corresponding to this structure.">
         [metadata reference]
     receiverAccountReference Account (0..1) <"A reference to the account that receives the payments corresponding to this structure.">
         [metadata reference]
@@ -56,7 +56,7 @@ type ReferenceBanks: <"A class defining the list of reference institutions polle
 
 type RelatedParty:
 
-    partyReference Party (1..1) <"Reference to a party.">
+    partyReference LegalPerson (1..1) <"Reference to a party.">
         [metadata reference]
     accountReference Account (0..1) <"Reference to an account.">
         [metadata reference]
@@ -65,7 +65,7 @@ type RelatedParty:
 type Account: <"A class to specify an account as an account number alongside, optionally. an account name, an account type, an account beneficiary and a servicing party.">
     [metadata key]
 
-    partyReference Party (0..1) <"A reference to the party to which the account refers to.">
+    partyReference LegalEntity (0..1) <"A reference to the party to which the account refers to.">
         [metadata reference]
     accountNumber string (1..1) <"The account number.">
         [metadata scheme]
@@ -73,9 +73,9 @@ type Account: <"A class to specify an account as an account number alongside, op
         [metadata scheme]
     accountType AccountTypeEnum (0..1) <"The type of account, e.g. client, house.">
         [metadata scheme]
-    accountBeneficiary Party (0..1) <"A reference to the party beneficiary of the account.">
+    accountBeneficiary LegalPerson (0..1) <"A reference to the party beneficiary of the account.">
         [metadata reference]
-    servicingParty Party (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
+    servicingParty LegalEntity (0..1) <"The reference to the legal entity that services the account, i.e. in the books of which the account is held.">
         [metadata reference]
 
 type Address: <"A class to specify a post or street address.">
@@ -161,6 +161,8 @@ type Party: <"A class to specify a participant in a trade as a specific legal pe
         [metadata reference]  
     role PartyRoleEnum (1..1) <"The legal person role.">
     account Account (0..1) <"The account that might be associated with the party. At most one account can be specified, as it is expected that this information is used in the context of a contract or legal document where only one account per party can be associated with such object.">
+    ownershipPartyReference LegalPerson (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
+        [metadata reference]
 
 type PartyIdentifier: <"Comprises an identifier and a source. The associated metadata key denotes the ability to associate a hash value to the PartyIdentifier instantiations for the purpose of model cross-referencing, in support of functionality such as the event effect and the lineage.">
     [deprecated]
@@ -179,7 +181,7 @@ type PersonIdentifier: <"Comprises an identifier and a source. The associated me
 
 type PartyContactInformation: <"A class to specify contact information within a party: address and, optionally, associated business unit and person. This class also supports the ISDA CSA representation as a single string, through the address attribute.">
     party CounterpartyRoleEnum (0..1) <"Specifies the role of the Party to which the contact information refers to.">
-    partyReference Party (0..1) <"The reference to the party to which the contact information refers to.">
+    partyReference LegalPerson (0..1) <"The reference to the party to which the contact information refers to.">
         [metadata reference]
     contactInformation ContactInformation (0..1) <"The postal/street address, telephone number, email address and/or web page. If the contact information is specific to the associated business unit(s), it should be associated with those.">
     businessUnit BusinessUnit (0..*) <"Optional organization unit information used to describe the organization units (e.g. trading desks) involved in a transaction or business process, incl. the contact information (when relevant).">
@@ -188,11 +190,9 @@ type PartyContactInformation: <"A class to specify contact information within a 
 
 type PartyRole: <"A class to specify the role(s) that party(ies) may have in relation to the execution, contract or other legal agreement.">
     [deprecated]
-    partyReference Party (1..1) <"A reference to the party to which the role refers to.">
+    partyReference LegalEntity (1..1) <"A reference to the party to which the role refers to.">
         [metadata reference]
     role PartyRoleEnum (1..1) <"The party role.">
-    ownershipPartyReference Party (0..1) <"A reference to the party that has ownership of this party role information. FpML specifies that For shared trade information, this attribute will reference the originator of the data (for example, an execution facility or clearing house).">
-        [metadata reference]
 
 type TelephoneNumber: <"A class to specify a telephone number as a type of phone number (e.g. work, personal, ...) alongside with the actual number.">
 
@@ -202,7 +202,7 @@ type TelephoneNumber: <"A class to specify a telephone number as a type of phone
 type AncillaryEntity: <"Holds an identifier for an ancillary entity, either identified directly via its ancillary role or directly as a legal entity.">
 
     ancillaryParty AncillaryRoleEnum (0..1) <"Identifies a party via its ancillary role on a transaction (e.g. CCP or DCO through which the trade should be cleared.)">
-    legalEntity LegalEntity (0..1)
+    legalEntity LegalPerson (0..1)
 
     condition:
         one-of
