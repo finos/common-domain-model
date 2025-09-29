@@ -64,7 +64,7 @@ class LoadCodeListTest {
      */
     @Test
     void mustResolveBusinessCenterCodeList() throws JsonProcessingException {
-        shoudlResolveCodeListByDomainAsExpected("business-center");
+        shouldResolveCodeListByDomainAsExpected("business-center");
     }
 
     /**
@@ -72,7 +72,7 @@ class LoadCodeListTest {
      */
     @Test
     void mustResolveFloatingRateIndexCodeList() throws JsonProcessingException {
-        shoudlResolveCodeListByDomainAsExpected("floating-rate-index");
+        shouldResolveCodeListByDomainAsExpected("floating-rate-index");
     }
 
     /**
@@ -81,7 +81,7 @@ class LoadCodeListTest {
      *
      * @param domain the code list domain to evaluate (e.g., "business-center")
      */
-    private void shoudlResolveCodeListByDomainAsExpected(String domain) throws JsonProcessingException {
+    private void shouldResolveCodeListByDomainAsExpected(String domain) throws JsonProcessingException {
         // Resolve code list by domain
         CodeList supportedCodes = loadCodeListFunc.evaluate(domain);
         logger.info("CDM CodeList for '{}' domain", domain);
