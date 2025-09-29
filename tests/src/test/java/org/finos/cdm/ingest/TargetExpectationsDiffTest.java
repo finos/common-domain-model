@@ -49,8 +49,6 @@ public class TargetExpectationsDiffTest {
             .map(Boolean::parseBoolean)
             .orElse(false);
     private static final ObjectMapper OBJECT_MAPPER = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
-    
-
 
     private static final Path PROJECT_ROOT = Path.of("").toAbsolutePath().getParent();
     private static final Path MAIN_RESOURCES_PATH = PROJECT_ROOT.resolve(Path.of("rosetta-source/src/main/resources"));
@@ -64,6 +62,7 @@ public class TargetExpectationsDiffTest {
     void checkTargetOutputDiff(String testName, Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath, Path ingestOutputPath, Path diffPath) throws IOException {
         List<String> actualOutputFileContent = readFile(clazz, synonymIngestOutputPath);
         if (!Files.exists(ingestOutputPath)) {
+            LOGGER.warn("No output file found for " + synonymIngestOutputPath);
             return;
         }
         List<String> targetOutputFileContent = readFile(clazz, ingestOutputPath);
