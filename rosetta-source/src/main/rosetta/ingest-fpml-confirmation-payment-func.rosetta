@@ -6,14 +6,15 @@ import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
-import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.datetime.*
-import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
+
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
 
 func MapTransferStateList:
     inputs:
@@ -81,13 +82,13 @@ func MapTransferStateList:
             else if feeLeg -> feeLegSequence -> singlePayment exists 
             then MapSinglePaymentListToTransferStateList(feeLeg -> feeLegSequence -> singlePayment, Upfront),
         default empty
-
+    
     // equityPremium
     add transfer:
         productChoice switch
         EquityOption then MapEquityPremiumToTransferState(equityPremium, Premium),
         default empty
-
+    
     // premium
     add transfer:
         productChoice switch
