@@ -18,6 +18,37 @@ _Review Directions_
 
 The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
 
+# _Infrastructure - Dependency Update_
+
+_Background_
+
+The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
+
+_What is being released?_
+
+This release updates `FloatingRateIndexEnum` to keep it in sync with the latest FpML coding scheme.
+* The following enum value has been added:
+    * `INR_MIBOR <"INR-MIBOR">`
+    * `INR_SORR <"INR-SORR">`
+    * `INR_SORR_OIS_Compound <"INR-SORR-OIS Compound">`
+    * `PLN_POLSTR <"PLN-POLSTR">`
+    * `PLN_POLSTR_OIS_Compound <"PLN-POLSTR-OIS Compound">`
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
+
+# _Infrastructure - Security Update_
+
+_What is being released?_
+
+Update to the CVE scanning configuration. The `OSS Index integration` has been disabled in the build pipeline because username and password credentials are not yet configured. Dependency scanning continues to run using OWASP Dependency-Check with suppression rules, ensuring vulnerability checks are still performed.
+`disableOssIndex` flag set in CVE scanning workflow configuration
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
+
 # _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
 
 _Background_
