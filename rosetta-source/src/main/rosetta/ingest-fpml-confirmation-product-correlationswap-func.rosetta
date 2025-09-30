@@ -1,20 +1,19 @@
 namespace cdm.ingest.fpml.confirmation.product.correlationswap: <"FpML CorrelationSwap product mapping functions.">
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-import cdm.product.asset.*
 import cdm.base.math.*
-
-import fpml.confirmation.* as fpml
-
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
-import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
 
 func MapCorrelationSwapCounterpartyList:
     inputs:
@@ -111,7 +110,9 @@ func MapCorrelationSwapPayout:
                     ...
                 },
                 returnTerms: ReturnTerms {
-                    correlationReturnTerms: MapCorrelationLegToCorrelationReturnTerms(correlationLeg),
+                    correlationReturnTerms: MapCorrelationLegToCorrelationReturnTerms(
+                            correlationLeg
+                        ),
                     ...
                 },
                 paymentDates: empty,
@@ -128,7 +129,7 @@ func MapCorrelationLegToCorrelationReturnTerms:
 
     alias fpmlAmount: fpmlCorrelationLeg -> amount
 
-    set correlationReturnTerms: 
+    set correlationReturnTerms:
         CorrelationReturnTerms {
             dividendApplicability: DividendApplicability {
                 allDividends: fpmlAmount -> dividendsModel -> allDividends,
@@ -149,8 +150,7 @@ func MapCorrelationLegToCorrelationReturnTerms:
                 upperBound: NumberBound {
                     number: fpmlAmount -> correlation -> boundedCorrelation -> maximumBoundaryPercent,
                     inclusive: empty
-                },
-            },
+            },},
             numberOfDataSeries: fpmlAmount -> correlation -> numberOfDataSeries,
             ...
         }
