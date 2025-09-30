@@ -11,6 +11,17 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4054](https://github.com/finos/common-domain-model/pull/4054)
 
+# _Infrastructure - Security Update_
+
+_What is being released?_
+
+Update to the CVE scanning configuration. The `OSS Index integration` has been disabled in the build pipeline because username and password credentials are not yet configured. Dependency scanning continues to run using OWASP Dependency-Check with suppression rules, ensuring vulnerability checks are still performed.
+`disableOssIndex` flag set in CVE scanning workflow configuration
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4054](https://github.com/finos/common-domain-model/pull/4054)
+
 # _Infrastructure - Dependency Update_
 
 _What is being released?_
@@ -46,17 +57,6 @@ This release updates `FloatingRateIndexEnum` to keep it in sync with the latest 
     * `INR_SORR_OIS_Compound <"INR-SORR-OIS Compound">`
     * `PLN_POLSTR <"PLN-POLSTR">`
     * `PLN_POLSTR_OIS_Compound <"PLN-POLSTR-OIS Compound">`
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4054](https://github.com/finos/common-domain-model/pull/4054)
-
-# _Infrastructure - Security Update_
-
-_What is being released?_
-
-Update to the CVE scanning configuration. The `OSS Index integration` has been disabled in the build pipeline because username and password credentials are not yet configured. Dependency scanning continues to run using OWASP Dependency-Check with suppression rules, ensuring vulnerability checks are still performed.
-`disableOssIndex` flag set in CVE scanning workflow configuration
 
 _Review Directions_
 
