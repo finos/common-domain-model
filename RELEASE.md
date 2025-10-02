@@ -5,7 +5,7 @@ _What is being released?_
 - Third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
    - `npm/axios` upgraded from version 0.30.1 to 1.12.0, see [GHSA-4hjh-wcwx-xvwj](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) for further details
-   - `npm/docusaurus` upgraded from version 2.4.1 to 3.8.1 upgraded from version 2.4.1 to 3.8.1 to remove a transitive dependency on axios 0.7.0.
+   - `npm/docusaurus` upgraded from version 2.4.1 to 3.8.1 to remove a transitive dependency on axios 0.7.0.
 
 - Update to the CVE scanning configuration. The `OSS Index integration` has been disabled in the build pipeline because username and password credentials are not yet configured. Dependency scanning continues to run using OWASP Dependency-Check with suppression rules, ensuring vulnerability checks are still performed.
    - `disableOssIndex` flag set in CVE scanning workflow configuration
