@@ -1,15 +1,16 @@
-# *Product Model - Adding `EquityIndexEnum`*
+# *Broker Equity Option - Exercise Procedure Mapping fix*
 
 _Background_
 
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
+For broker equity options, in the switchover from synonyms to functions, the exercise terms was mapped but the exercise procedure was left empty, meaning for all equity broker option products, this was left blank.
 
 _What is being released?_
 
-The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
+Additional mapping have been added under the 'ingest' namespace to:
 
-A condition restricts the `EquityIndex` type from having an enum value and a name.
+- 'common' function renaming 'fpmlAutomaticExerciseIsApplicable' to 'fpmlAutomaticExercise' to make the code easier to read
+- 'brokerequityoption' where 'exerciseProcedure' has been mapped under 'exerciseTerms', as this was previously set to 'empty'
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
+Changes can be reviewed in PR: [#4070](https://github.com/finos/common-domain-model/pull/4070)
