@@ -29,4 +29,4 @@ tradestate
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4067](https://github.com/finos/common-domain-model/pull/4067)
+Changes can be reviewed in PR: [#4068](https://github.com/finos/common-domain-model/pull/4068)
