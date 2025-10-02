@@ -1,15 +1,32 @@
-# *Product Model - Adding `EquityIndexEnum`*
+# *CDM - Map Equity Swap Transaction Supplement*
 
 _Background_
 
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
+Fixing mapping issues found with equity swap transaction supplement in an effort to move away from synonyms over to functions. The missing mappings were the following:
 
+- TradeState → trade → product → economicTerms → payout → InterestRatePayout → priceQuantity
+  - quantitySchedule
+
+- TradeState → trade → product → economicTerms → payout → InterestRatePayout → rateSpecification → FloatingRateSpecification → spreadSchedule → price →
+  - Unit and per unit of MISSING and location different
+
+- TradeState → trade → product → economicTerms → payout → PerformancePayout → returnTerms → dividendReturnTerms
+  - firstOrSecondPeriod MISSING
+
+- TradeState → trade → tradeLot → priceQuantity → price
+  - Unit and per unit of MISSING and location different
+
+- TradeState → trade
+  - Adjustment missing
+  
 _What is being released?_
+Fixes to the missing mappings in order to populate the paths noted under `background`. Fixes are contained in:
 
-The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
+returnswap
+equityswaptransactionsupplement
+tradestate
 
-A condition restricts the `EquityIndex` type from having an enum value and a name.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
+Changes can be reviewed in PR: [#4067](https://github.com/finos/common-domain-model/pull/4067)
