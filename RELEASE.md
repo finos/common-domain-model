@@ -1,4 +1,4 @@
-# *CDM - Map Equity Swap Transaction Supplement*
+# *CDM Ingest - Map Equity Swap Transaction Supplement*
 
 _Background_
 
@@ -28,7 +28,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4068](https://github.com/finos/common-domain-model/pull/4068)
 
-# *Broker Equity Option - Exercise Procedure Mapping fix*
+# *CDM Ingest - Broker Equity Option Exercise Procedure Mapping fix*
 
 _Background_
 
