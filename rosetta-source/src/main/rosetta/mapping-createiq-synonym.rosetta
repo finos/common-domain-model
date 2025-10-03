@@ -126,6 +126,8 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "designated_city" mapper "CalculationDateLocation"]
         + notificationTime
             [value "notification_time"]
+        + valuationAgent
+            [value "collateral_valuation_agent"]
         + cashSettlementDay
             [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
         + securitiesSettlementDay
@@ -185,7 +187,15 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable" removeHtml]
         + pledgeeRepresentativeRider
             [value "rider"]
-            
+
+    ValuationAgent:
+        + party
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
+        + additionalLanguage
+            [value "partyA_specify" removeHtml]
+            [value "partyB_specify" removeHtml]
+       
     ConditionsPrecedent:
         + conditionsPrecedentElection
             [value "specified" path "conditions_precedent"]
@@ -1469,4 +1479,9 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "executed_in_belgium"]
         + OtherLocation
             [value "other"]
+
+    CalculationValuationAgentPartyEnum:
+        + Party1
+        + Party2
+        + PartyMakingDemand
 }
