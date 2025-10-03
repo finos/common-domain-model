@@ -643,7 +643,10 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
                                 physical -> deliverableObligations -> category to-string
                             ),
                         notSubordinated: physical -> deliverableObligations -> notSubordinated,
+                        notSovereignLender: physical -> deliverableObligations -> notSovereignLender,
+                        notDomesticLaw: physical -> deliverableObligations -> notDomesticLaw,
                         notContingent: physical -> deliverableObligations -> notContingent,
+                        notDomesticIssuance: physical -> deliverableObligations -> notDomesticIssuance,
                         specifiedCurrency: SpecifiedCurrency {
                             applicable: physical -> deliverableObligations -> specifiedCurrency -> applicable,
                             ...
@@ -664,12 +667,20 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
                         ...
                     },
                     escrow: physical -> escrow,
+                    sixtyBusinessDaySettlementCap: physical -> sixtyBusinessDaySettlementCap,
                     ...
                 },
                 ...
             }
         else if cash exists
-        then empty
+        then SettlementTerms {
+                settlementType: SettlementTypeEnum -> Cash,
+                cashSettlementTerms: CashSettlementTerms {
+                    recoveryFactor: cash -> fixedRecoveryModel -> recoveryFactor,
+                    ...
+                },
+                ...
+            }
 
 func MapCommoditySettlementModelToSettlementTerms:
     inputs:

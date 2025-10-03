@@ -188,6 +188,7 @@ func MapReferenceInformation:
             referenceEntity: MapLegalEntity(fpmlReferenceInformation -> referenceEntity),
             referenceObligation: fpmlReferenceInformation -> referenceObligation
                 extract MapReferenceObligation,
+            allGuarantees: fpmlReferenceInformation -> allGuarantees,
             referencePrice: MapReferencePrice(
                     fpmlReferenceInformation -> referencePrice,
                     fpmlCurrency
@@ -383,17 +384,20 @@ func MapProtectionTerms:
                 bankruptcy: creditEvents -> bankruptcy,
                 failureToPay: FailureToPay {
                     applicable: creditEvents -> failureToPay -> applicable,
-                    gracePeriodExtension: empty,
+                    gracePeriodExtension: creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
                     paymentRequirement: MapMoney(
                             creditEvents -> failureToPay -> paymentRequirement
                         )
                 },
+                obligationAcceleration: creditEvents -> obligationAcceleration,
+                repudiationMoratorium: creditEvents -> repudiationMoratorium,
                 restructuring: Restructuring {
                     applicable: creditEvents -> restructuring -> applicable,
                     restructuringType: MapRestructuringEnum(
                             creditEvents -> restructuring -> restructuringType -> value
                         ),
-                    ...
+                    multipleHolderObligation: creditEvents -> restructuring -> multipleHolderObligation,
+                    multipleCreditEventNotices: creditEvents -> restructuring -> multipleCreditEventNotices,
                 },
                 defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
                 creditEventNotice: MapCreditEventNotice(
@@ -407,6 +411,13 @@ func MapProtectionTerms:
                         fpmlProtectionTerms -> obligations -> category to-string
                     ),
                 notSubordinated: fpmlProtectionTerms -> obligations -> notSubordinated,
+                notSovereignLender: fpmlProtectionTerms -> obligations -> notSovereignLender,
+                notDomesticCurrency: NotDomesticCurrency {
+                    applicable: fpmlProtectionTerms -> obligations -> notDomesticCurrency -> applicable,
+                    ...
+                },
+                notDomesticLaw: fpmlProtectionTerms -> obligations -> notDomesticLaw,
+                notDomesticIssuance: fpmlProtectionTerms -> obligations -> notDomesticIssuance,
                 ...
             },
             ...
