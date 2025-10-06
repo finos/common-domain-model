@@ -8,6 +8,7 @@ import cdm.observable.common.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
+import cdm.event.workflow.*
 
 import fpml.confirmation.* as fpml
 
@@ -1029,3 +1030,25 @@ func MapPerformanceValuationDates:
             valuationTime: MapBusinessCenterTime(fpmlEquityValuation -> valuationTime),
             valuationTimeType: fpmlEquityValuation -> valuationTimeType to-enum TimeTypeEnum,
         }
+
+func MapEventTimestampQualification:
+    inputs:
+        messageHeaderModel fpml.MessageHeaderModel (0..1)
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        qual EventTimestampQualificationEnum (0..1)
+
+    alias partyTradeInformation:
+        fpmlTrade -> tradeHeader -> partyTradeInformation distinct only-element
+
+    set qual:
+        if messageHeaderModel -> creationTimestamp exists
+        then eventCreationDateTime
+        else if partyTradeInformation -> timestamps -> submittedForClearing exists
+        then clearingReceiptDateTime
+        else if partyTradeInformation -> timestamps -> cleared exists
+        then clearingReceiptDateTime
+        else if partyTradeInformation -> timestamps -> confirmed exists
+        then confirmationDateTime
+        else if partyTradeInformation -> executionDateTime exists
+        then executionDateTime

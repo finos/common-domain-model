@@ -14,6 +14,7 @@ import cdm.observable.common.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.event.common.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
@@ -23,6 +24,7 @@ func GetFpmlTrade:
         fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
         fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
         fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
+        fpmlTradeAmendmentContent fpml.TradeAmendmentContent (0..1)
     output:
         fpmlTrade fpml.Trade (0..1)
 
@@ -37,6 +39,8 @@ func GetFpmlTrade:
         then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
         else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade exists
         then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade
+        else if fpmlTradeAmendmentContent -> trade exists
+        then fpmlTradeAmendmentContent -> trade
 
 func MapStringWithScheme:
     inputs:
@@ -191,6 +195,17 @@ func MapTaxonomySourceEnum:
         else if StringContains(productTypeScheme, "emir-contract-type")
         then EMIR
         else Other
+
+func MapFeeTypeEnumWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme FeeTypeEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: MapFeeTypeEnum(value)
+    set enumWithScheme -> scheme: scheme
 
 func MapProductIdentifierList:
     inputs:
@@ -913,3 +928,17 @@ func StringContains:
         str string (1..1)
     output:
         result boolean (1..1)
+
+func MapMessageAction:
+    inputs:
+        isCorrection boolean (0..1)
+        reason string (0..1)
+    output:
+        action ActionEnum (0..1)
+    set action:
+        if reason = "RaisedInError"
+        then ActionEnum -> Cancel
+        else isCorrection switch
+    True then Correct,
+    False then New,
+    default empty
