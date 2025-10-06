@@ -764,17 +764,17 @@ type PostingObligationsElection: <"Specifies the collateral posting obligations 
         then eligibleCollateral -> appliesTo count = 0
 
 type ProcessAgent: <"A class to specify the Process Agent that might be appointed by the parties as part of a Credit Support Annex/Deed or Collateral Transfer Agreement.">
-    partyElection ProcessAgentElection (2..2) <"The parties' Process Agent election.">
+    partyElection ProcessAgentElection (1..2) <"The parties' Process Agent election.">
 
 type ProcessAgentElection extends ContactInformationElection: <"A class to specify the parties' respective elections with respect to the Process Agent.">
     isApplicable boolean (1..1) <"The qualification of whether the Process Agent is applicable (True) or not applicable (False).">
     entity LegalEntity (0..1) <"The party to which the notice applies.">
 
     condition Applicable: <"A data rule to enforce that the Process Agent must be specified when it is applicable.">
-        if isApplicable = True then contactInformation exists and entity exists and partyReference exists
+        if isApplicable = True then primaryContactInformation exists and entity exists and partyReference exists
 
     condition NotApplicable: <"A data rule to enforce that the Process Agent cannot be specified if deemed not applicable.">
-        if isApplicable = False then contactInformation is absent and entity is absent and partyReference is absent
+        if isApplicable = False then primaryContactInformation is absent and entity is absent and partyReference is absent
 
 type RecalculationOfValue: <"A class to specify terms for Recalculation of the Market Value of Posted Collateral when a dispute has been failed to be resolved by Resolution Time.">
 
