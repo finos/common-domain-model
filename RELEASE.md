@@ -9,6 +9,7 @@ Adding additional code for a number of different `boolean` fields to be mapped. 
 
 - `creditdefaultswap` under `ingest`
 - `event` under `observable`
+- `settlement` under `ingest`
 
 _Review Directions_
 
