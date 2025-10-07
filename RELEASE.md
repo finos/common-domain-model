@@ -1,15 +1,16 @@
-# *Product Model - Adding `EquityIndexEnum`*
+# *Legal Documentation - Valuation/Calculation Agent*
 
 _Background_
 
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
 
 _What is being released?_
 
-The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
-
-A condition restricts the `EquityIndex` type from having an enum value and a name.
+1. Calculation Agent: Changed Enum to include the party making the demand.
+2. Valuation Agent: Removed duplication (Collateral Valuation Agent). Renamed 'Legacy Valuation date/time/location' to 'Valuation date/time/location'.
+3. CalculationValuationAgentPartyEnum and ValuationCalculationDateLocation: Standardised Types and enums used under both Valuation Agent and Calculation Agent.
+4. General update to some descriptions and definitions.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
+Changes can be reviewed in PR: [#4078](https://github.com/finos/common-domain-model/pull/4078)
