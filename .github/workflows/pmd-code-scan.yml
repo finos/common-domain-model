@@ -26,16 +26,13 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build (compile only)
-        run: mvn -B -V -DskipTests install -q
-
       - name: Run PMD on modules
         run: |
-          mvn -B -DskipTests pmd:pmd
+          mvn -B -DskipTests -Dformat=csv pmd:aggregate-pmd
 
       - name: Upload rosetta-source PDM reports artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pmd-scanning-reports
-          path: rosetta-source/target/reports/
+          name: pmd-scanning-report.csv
+          path: target/pmd.csv
           if-no-files-found: warn          
