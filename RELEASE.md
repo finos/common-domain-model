@@ -1,15 +1,18 @@
-# *Product Model - Adding `EquityIndexEnum`*
+# *Legal Documentation - Misc IM/VM Clause Updates*
 
 _Background_
 
-When defining equity assets in an eligible collateral schedule it would be beneficial to have an enumeration list of common equity indices. This was agreed in the Collateral & Contribution Review Working Group discussions.
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
 
 _What is being released?_
 
-The Equity Index enum is defined in a new `staticdata.asset.equity.enum` namespace. The enum is added as an attribute under `EquityIndex` which extends `IndexBase`.
-
-A condition restricts the `EquityIndex` type from having an enum value and a name.
+1. Dispute Resolution: Merged valueTerms and legacyValue. Merged resolutionTime and legacyResolutionTime. Changed LegacyResolutionValue to ResolutionValue.
+2. IneligibleCreditSupport: Changed specifiedParty to CounterpartyRoleEnum.
+3. SensitivityMethodologies: Added partyElection and split SensitivityToEquity into sensitivityToIndices, sensitivityToFunds, sensitivityToETFs.
+4. Substitution: Added partyElection.
+5. Covered Transactions: Merged exposure and legacyExposure.
+6. Updated descriptions where necessary.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4013](https://github.com/finos/common-domain-model/pull/4013)
+Changes can be reviewed in PR: [#4081](https://github.com/finos/common-domain-model/pull/4081)
