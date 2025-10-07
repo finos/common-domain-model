@@ -1,6 +1,7 @@
 package cdm.base.staticdata.codelist;
 
 import cdm.base.datetime.BusinessCenterTime;
+import cdm.base.staticdata.codelist.validation.datarule.FpMLCodingSchemeIsValidCodingScheme;
 import cdm.event.common.TradeState;
 import cdm.product.template.EconomicTerms;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +15,6 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ final class FpMLCodingSchemeTests {
      * Ensures that the validation correctly detects a TYPE_FORMAT failure with a specific error message.
      */
     @Test
-    void mustFailValidatingBusinessCenterCodingScheme() {
+    void mustFailValidatingBusinessCenterCode() {
         // Create a BusinessCenterTime object with an invalid business center code ("DUMMY")
         BusinessCenterTime bct = BusinessCenterTime.builder()
                 .setBusinessCenter(FieldWithMetaString.builder()
@@ -80,7 +80,7 @@ final class FpMLCodingSchemeTests {
                 .map(ValidationResult::toString)
                 .forEach(logger::info);
 
-        // Assert that exactly one TYPE_FORMAT validation failure occurs
+        // Assert that exactly one DATA_RULE validation failure occurs
         assertEquals(1, report.getValidationResults().stream()
                 .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
                 .count(), "A single DATA_RULE failure is expected");
@@ -88,11 +88,14 @@ final class FpMLCodingSchemeTests {
         // Assert that the validation failure message matches the expected error
         assertTrue(report.getValidationResults().stream()
                         .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
+                        .filter(it -> it.getName().equalsIgnoreCase(FpMLCodingSchemeIsValidCodingScheme.class.getSimpleName()))
                         .findFirst()
                         .flatMap(ValidationResult::getFailureReason)
                         .map(reason -> reason.equalsIgnoreCase("Condition has failed."))
                         .orElse(false),
-                "The expected DATA_RULE rule must fail with a specific message");
+                String.format("The expected %s DATA_RULE rule must fail with a specific message",
+                        FpMLCodingSchemeIsValidCodingScheme.class.getSimpleName())
+        );
     }
 
     /**
@@ -103,7 +106,7 @@ final class FpMLCodingSchemeTests {
      */
     //@Disabled
     @Test
-    void mustValidateCodesInTradeStateSample() throws IOException {
+    void mustValidateBusinessCenterCodesInTradeStateSample() throws IOException {
         // Load the sample JSON file containing a trade state definition
         final URL source = FpMLCodingSchemeTests.class.getClassLoader()
                 .getResource("result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex01-vanilla-swap.json");
@@ -126,6 +129,13 @@ final class FpMLCodingSchemeTests {
                 .filter(it -> !it.isSuccess())
                 .map(ValidationResult::toString)
                 .forEach(logger::info);
+
+        //Assert no business-center errors
+        assertTrue(report.getValidationResults().stream()
+                        .filter(it -> it.getName().equalsIgnoreCase(FpMLCodingSchemeIsValidCodingScheme.class.getSimpleName()))
+                        .allMatch(ValidationResult::isSuccess),
+                "No errors in business-center values are expected");
+
     }
 }
 

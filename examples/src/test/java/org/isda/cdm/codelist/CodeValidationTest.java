@@ -2,6 +2,7 @@ package org.isda.cdm.codelist;
 
 import cdm.base.datetime.BusinessCenterTime;
 import cdm.base.staticdata.codelist.functions.ValidateFpMLCodingSchemeDomain;
+import cdm.base.staticdata.codelist.validation.datarule.FpMLCodingSchemeIsValidCodingScheme;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
@@ -77,9 +78,11 @@ class CodeValidationTest {
 
         assertTrue(report.getValidationResults().stream()
                 .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
+                .filter(it -> it.getName().equalsIgnoreCase(FpMLCodingSchemeIsValidCodingScheme.class.getSimpleName()))
                 .map(ValidationResult::getFailureReason)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
-                .anyMatch(Predicate.isEqual("Condition has failed."))
+                .allMatch(Predicate.isEqual("Condition has failed."))
         );
     }
 
@@ -96,10 +99,11 @@ class CodeValidationTest {
 
         assertTrue(report.getValidationResults().stream()
                 .filter(it -> it.getValidationType() == ValidationResult.ValidationType.DATA_RULE)
+                .filter(it -> it.getName().equalsIgnoreCase(FpMLCodingSchemeIsValidCodingScheme.class.getSimpleName()))
                 .map(ValidationResult::getFailureReason)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .noneMatch(Predicate.isEqual("Conditions has failed."))
+                .noneMatch(Predicate.isEqual("Condition has failed."))
         );
     }
 }

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.inject.Inject;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for the {@link LoadCodeList} function which loads CDM CodeList JSON resources.
@@ -73,6 +73,14 @@ class LoadCodeListTest {
     @Test
     void mustResolveFloatingRateIndexCodeList() throws JsonProcessingException {
         shouldResolveCodeListByDomainAsExpected("floating-rate-index");
+    }
+
+    @Test
+    void mustFailResolvingCodeList() {
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> loadCodeListFunc.evaluate("dummy-domain"));
+
+        assertEquals("java.io.FileNotFoundException: No matching CodeList found for: dummy-domain", ex.getMessage());
     }
 
     /**

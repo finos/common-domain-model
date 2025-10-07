@@ -23,7 +23,7 @@ public class LoadCodeListCustomImpl extends LoadCodeList {
     static {
         myCodeListSubsets = new HashMap<>();
         //My allowed business-center codes
-        myCodeListSubsets.put("business-center", Set.of("EUTA", "GBLO"));
+        myCodeListSubsets.put("business-center", Set.of("EUTA", "GBLO", "TEST"));
         myCodeListSubsets.put("floating-rate-index", Set.of("LIBOR", "EURIBOR"));
 
     }

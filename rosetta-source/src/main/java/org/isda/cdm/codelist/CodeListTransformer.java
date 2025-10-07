@@ -11,9 +11,10 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This class transforms `https://docs.oasis-open.org/codelist/ns/genericode/1.0/` codelist XML files to JSON-serialized CDM format using an XSLT script.
@@ -24,10 +25,7 @@ public class CodeListTransformer {
 
     private static final Logger logger = LoggerFactory.getLogger(CodeListTransformer.class);
 
-    private static final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
-
-    /** Path to the XSLT transformation script located in resources. */
-    private static final String XSLT_RESOURCE = "/org/isda/codelist/codelist2cdmjson.xsl";
+    private final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 
     /**
      * Transforms a single XML file using the provided Transformer and writes the output to the specified OutputStream.
@@ -37,23 +35,8 @@ public class CodeListTransformer {
      * @param outputStream Output stream where the transformed JSON is written.
      * @throws TransformerException If an error occurs during transformation.
      */
-    public static void transformFile(File xmlFile, Transformer transformer, OutputStream outputStream) throws TransformerException {
+    private void transformFile(File xmlFile, Transformer transformer, OutputStream outputStream) throws TransformerException {
         StreamSource xmlSource = new StreamSource(xmlFile);
-        Result outputTarget = new StreamResult(outputStream);
-        transformer.transform(xmlSource, outputTarget);
-    }
-
-    /**
-     * Transforms XML data from an InputStream using the provided Transformer
-     * and writes the transformed output to the specified OutputStream.
-     *
-     * @param inputStream   Input stream containing the XML content to transform.
-     * @param transformer   Pre-configured Transformer instance for applying the transformation.
-     * @param outputStream  Output stream where the transformed output is written.
-     * @throws TransformerException If an error occurs during the transformation process.
-     */
-    public static void transform(InputStream inputStream, Transformer transformer, OutputStream outputStream) throws TransformerException {
-        StreamSource xmlSource = new StreamSource(inputStream);
         Result outputTarget = new StreamResult(outputStream);
         transformer.transform(xmlSource, outputTarget);
     }
@@ -68,7 +51,10 @@ public class CodeListTransformer {
      * @throws IOException If an error occurs during transformation resources resolution
      * @throws URISyntaxException If the resource URL are not properly formatted
      */
-    public static void transformDirectory(String inputDirectory, String outputDirectory) throws TransformerConfigurationException, IOException, URISyntaxException {
+    public void transformDirectory(String inputDirectory, String outputDirectory) throws TransformerConfigurationException, IOException, URISyntaxException {
+
+        // Path to the XSLT transformation script located in resources.
+        final String XSLT_RESOURCE = "/org/isda/codelist/codelist2cdmjson.xsl";
 
         // Load the XSLT transformation script as a resource
         InputStream xsltStream = CodeListTransformer.class.getResourceAsStream(XSLT_RESOURCE);
@@ -138,7 +124,7 @@ public class CodeListTransformer {
      */
     public static void main(String[] args) {
         try {
-            transformDirectory("rosetta-source/src/main/resources/org/isda/codelist/xml", "rosetta-source/src/main/resources/org/isda/codelist/json");
+            new CodeListTransformer().transformDirectory("rosetta-source/src/main/resources/org/isda/codelist/xml", "rosetta-source/src/main/resources/org/isda/codelist/json");
         } catch (Exception e) {
             logger.error("Transformation process failed", e);
         }
