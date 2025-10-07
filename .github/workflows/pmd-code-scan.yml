@@ -1,4 +1,4 @@
-name: PDM Code Scan
+name: PMD Code Scan
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   pdm-code-scan:
-    name: Run PDM Code Scan
+    name: Run PMD Code Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -29,13 +29,13 @@ jobs:
       - name: Build (compile only)
         run: mvn -B -V -DskipTests install -q
 
-      - name: Run PDM on modules
+      - name: Run PMD on modules
         run: |
           mvn -B -DskipTests pmd:pmd
 
       - name: Upload rosetta-source PDM reports artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rosetta-source/target/reports/
-          path: rosetta-source-reports
+          name: pmd-scanning-reports
+          path: rosetta-source/target/reports/
           if-no-files-found: warn          
