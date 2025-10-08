@@ -22,7 +22,7 @@ Email help@finos.org. if you need help getting started in the CDM Community or i
 
 
 ## Contacting CDM Maintainers
-Please click [here](maintainers.md/#finos-cdm-project-maintainers) to view the CDM maintainers and their contact details. 
+Please click [here](maintainers#finos-cdm-project-maintainers) to view the CDM maintainers and their contact details. 
 
 
 If you would like to get in touch with the CDM maintainer team, contact them through their mailing list at [https://lists.finos.org/g/cdm-maintainers](https://lists.finos.org/g/cdm-maintainers). 

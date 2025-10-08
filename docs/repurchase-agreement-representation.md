@@ -57,8 +57,8 @@ ICMA Contacts:
 
 | Contact | Role | Email | Phone
 | :--- | :--- | :--- | :--- | 
-| Gabriel Callsen | Director | <gabriel.callsen@icmagroup.org> | +44 (0)20 7213 0334 |
-| Tom Healey | FINXIS LLC, Consultant | <tom.healey@icmagroup.org> |
+| Gabriel Callsen | Director | [gabriel.callsen@icmagroup.org](mailto:gabriel.callsen@icmagroup.org) | +44 (0)20 7213 0334 |
+| Tom Healey | FINXIS LLC, Consultant | [tom.healey@icmagroup.org](mailto:tom.healey@icmagroup.org) |
 
 # Scope
 
