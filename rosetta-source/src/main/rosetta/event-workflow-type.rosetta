@@ -29,7 +29,7 @@ type CustomisedWorkflow: <"In its initial iteration, this class is meant to supp
 type WorkflowStepApproval: <"Party approvals associated to the current WorkflowStep. ">
     [metadata key]
     approved boolean (1..1) <"Flag denoting whether the workflow step is approved or not">
-    party Party (1..1) <"Reference to the Party who is approving/rejecting this workflow step">
+    party LegalPerson (1..1) <"Reference to the Party who is approving/rejecting this workflow step">
         [metadata reference]
     rejectedReason string (0..1) <"Optional reason for rejecting the workflow step">
     timestamp EventTimestamp (1..1) <"Timestamp of the approval">
@@ -50,7 +50,7 @@ type WorkflowStep: <"A workflow step represents the state of a business event. T
     timestamp EventTimestamp (1..*) <"The set of timestamp(s) associated with the event as a collection of [dateTime, qualifier].">
     eventIdentifier Identifier (1..*) <"The identifier(s) that uniquely identify a lifecycle event. The unbounded cardinality is meant to provide the ability to associate identifiers that are issued by distinct parties. As an example, each of the parties to the event may choose to associate their own identifiers to the event.">
     action ActionEnum (0..1) <"Specifies whether the event is a new, a correction or a cancellation.">
-    party Party (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
+    party LegalPerson (0..*) <"The specification of the event parties. This attribute is optional, as not applicable to certain events (e.g. most of the observations).">
     account Account (0..*) <"Optional account information that could be associated to the event.">
     lineage Lineage (0..1) <"The lineage attribute provides a linkage among lifecycle events through the globalKey hash value. One example is when a given lifecycle event is being corrected or cancelled. In such case, each subsequent event will have lineage into the prior version of that event. The second broad use case is when an event has a dependency upon either another event (e.g. the regular payment associated with a fix/float swap will have a lineage into the reset event, which will in turn have a lineage into the observation event for the floating rate and the contract) or a contract (e.g. the exercise of an option has a lineage into that option).">
         [deprecated]
@@ -131,7 +131,7 @@ type MessageInformation: <"This class corresponds to the components of the FpML 
 
 type PartyCustomisedWorkflow: <"A class to specify a party-related, non-standardized data in a generic form.">
 
-    partyReference Party (0..1) <"Reference to the party to which the workflow pertains to.">
+    partyReference LegalPerson (0..1) <"Reference to the party to which the workflow pertains to.">
         [metadata reference]
     partyName string (0..1) <"The party name to which the workflow pertains to.">
     customisedWorkflow CustomisedWorkflow (1..*) <"Non-standardized data in a generic form.">
