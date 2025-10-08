@@ -59,3 +59,4 @@ _Review Directions_
 
 In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML sample, `USD-Vanilla-swap.xml`.
 
+Changes can be reviewed in PR: [#4064](https://github.com/finos/common-domain-model/pull/4064)
