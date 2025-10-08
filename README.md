@@ -2,7 +2,6 @@
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11267/badge)](https://www.bestpractices.dev/projects/11267)
 
-
 # Common Domain Model (CDM)
 
 > &#128161; Tip<br> 
