@@ -20,11 +20,14 @@ type ComputedAmount: <"A class to specify the outcome of a computed amount, for 
 
 type AssetFlowBase: <"Defines the basic parameters of an asset transfer, e.g. a cashflow: what (the asset), how much (the quantity) and when (the settlement date).">
     
-    deliverableQuantity NonNegativeQuantity (1..1) <"The quantity that is transferred.">
-    notionalQuantity NonNegativeQuantity (0..1) <"The notional value or nominal amount of the asset to which the transfer is relative to.">
-    price Price (0..1) <"The price of the asset to which the transfer is relative to.">
+    quantity NonNegativeQuantity (1..1) <"The quantity that is transferred.">
+    notionalQuantity NonNegativeQuantity (0..*) <"The notional value or nominal amount of the asset to which the transfer is relative to.">
+    price Price (0..*) <"The price of the asset to which the transfer is relative to.">
     asset Asset (1..1) <"The asset to which the transfer is relative to.">
     settlementDate AdjustableOrAdjustedOrRelativeDate (1..1) <"The date on which the transfer to due.">
+
+  //condition PriceQuantityTriangulation: <"Check that there is at least one pair of notionalQuantity and related price, which verifies that : quantity = notionalQuantity x price.">
+  //  PriceQuantityTriangulation(tradeLot) = True @leo please help to draft it 
 
   condition NotionalQuantityUnitIsMoney:
   if notionalQuantity exists 
@@ -32,12 +35,12 @@ type AssetFlowBase: <"Defines the basic parameters of an asset transfer, e.g. a 
 
   condition CashAsset: <"It is not permitted to deliver non-cash quantity if the asset subject to tranfer is Cash (however, it is possible to deliver cash quantity in relation to another asset type e.g. for instance when representing a cash transfer in relation to given share).">
   if asset -> Cash exists
-    then deliverableQuantity -> unit -> currency exists
+    then quantity -> unit -> currency exists
 
   condition DeliverableQuantityUnit: <"The unit of the deliverable quantity must be consistent with the kind of asset the transfer is relative to (which does not apply to cash transfer because cash quantity may be delivered in relation to other assets then cash).">
-  if deliverableQuantity -> unit -> capacityUnit exists
+  if quantity -> unit -> capacityUnit exists
     then asset -> Commodity exists
-  else if deliverableQuantity -> unit -> financialUnit exists
+  else if quantity -> unit -> financialUnit exists
     then asset -> Instrument exists
 
 
