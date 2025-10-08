@@ -95,24 +95,6 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 		}
 	}
 
-//	@Disabled
-//	@AfterAll
-//	/**
-//	 * To generate an initial set of coverage files. Will be useful for other ingestion tests.
-//	 */
-//	static void writeCoverageFilesToDisk() {
-//		String environmentName = ingestionService.getEnvironmentName();
-//		actualExpectation.asMap().entrySet().stream()
-//			.map(expectationFilePathToExpectationsMap ->
-//				Pair.of(expectationFilePathToExpectationsMap.getKey(),
-//					toMappingCoverages(environmentName,
-//						expectationFilePathToExpectationsMap.getValue()
-//							.stream()
-//							.map(IngestionTestExpectation::getExpectation)
-//							.collect(Collectors.toList()))))
-//			.forEach(CreateiQIngestionServiceTest::writeFileToDisk);
-//	}
-
 	private static List<MappingCoverage> toMappingCoverages(String environmentName, Collection<Expectation> expectations) {
 		return expectations.stream().collect(groupingBy(CreateiQIngestionServiceTest::schema, toMappingStatistic()))
 			.entrySet().stream()
