@@ -7,8 +7,6 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
-import com.regnosys.ingest.test.framework.ingestor.synonym.MappingReport;
-import com.regnosys.ingest.test.framework.ingestor.synonym.MappingResult;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
@@ -50,18 +47,5 @@ class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFrom(EXPECTATION_FILES);
-	}
-
-	@SuppressWarnings("unused")
-	private void toPrintExcelExport(MappingReport mappingReport) {
-		LOGGER.info("\nSuccesses -----------------------------------------------------------------\n");
-		mappingReport.getSuccesses().stream().map(this::toExcelExportString).forEach(LOGGER::info);
-
-		LOGGER.info("\nFailures -----------------------------------------------------------------\n");
-		mappingReport.getFailures().stream().map(this::toExcelExportString).forEach(LOGGER::info);
-	}
-
-	private String toExcelExportString(MappingResult r) {
-		return r.getExternalPath() + "|" + r.getInternalPaths().entrySet().stream().map(e->e.getKey().buildPath()).collect(Collectors.joining(",\n\t\t"));
 	}
 }
