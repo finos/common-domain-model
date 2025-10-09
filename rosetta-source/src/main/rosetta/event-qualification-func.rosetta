@@ -249,7 +249,7 @@ func Qualify_FullReturn: <"The qualification of a full return event from the fac
                     and businessEvent -> instruction -> primitiveInstruction -> quantityChange exists
                 or (businessEvent -> instruction -> primitiveInstruction -> quantityChange exists and transfer exists))
             and QuantityDecreasedToZero(
-                    businessEvent -> instruction,
+                    businessEvent -> instruction only-element,
                     businessEvent -> after
                 ) = True
             and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
@@ -517,7 +517,7 @@ func Qualify_PartialNovation: <"The qualification of a novation event from the f
                         or // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
                         (item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
                             and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
-                            and QuantityDecreased(businessEvent -> instruction, [item]))
+                            and QuantityDecreased(businessEvent -> instruction only-element, [item]))
                 ] all = True
 
 func Qualify_PartialTermination: <"The qualification of a partial termination event from the fact that (i) the intent is Partial Termination when specified, (ii) the associated primitives are the quantityChange and the cash transfer, the (iii) the quantity associated with the contract decreases, and (iv) there is an actual remaining quantity.">
@@ -537,7 +537,7 @@ func Qualify_PartialTermination: <"The qualification of a partial termination ev
         businessEvent -> intent is absent
             and (primitiveInstruction -> quantityChange only exists
                 or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
-            and (QuantityDecreased(businessEvent -> instruction, businessEvent -> after) = True)
+            and (QuantityDecreased(businessEvent -> instruction only-element, businessEvent -> after) = True)
             and businessEvent -> after -> state -> closedState is absent
 
 func Qualify_PortfolioRebalancing: <"The qualification of a portfolio rebalancing event from the fact that (i) the intent is PortfolioRebalancing, and (ii) the execution primitive exists">
@@ -574,7 +574,7 @@ func Qualify_Reallocation: <"The qualification of a reallocation event from the 
                         or // before trade counterparties match open after trade counterparties, and match trade identifiers, but with decreased quantity
                         (item -> trade -> counterparty -> partyReference = beforeTradeState -> trade -> counterparty -> partyReference
                             and item -> trade -> tradeIdentifier = beforeTradeState -> trade -> tradeIdentifier
-                            and QuantityDecreased(businessEvent -> instruction, [item]))
+                            and QuantityDecreased(businessEvent -> instruction only-element, [item]))
                 ] all = True
 
 func Qualify_Renegotiation: <"The qualification of a renegotiation event from the fact that (i) the intent is Renegotiation when specified, and (ii) the associated primitives instructions are the TermsChange, QuantityChange and the cash transfer.">
@@ -593,7 +593,7 @@ func Qualify_Renegotiation: <"The qualification of a renegotiation event from th
             and (businessEvent -> instruction
                 extract
                     (primitiveInstruction -> termsChange only exists or (primitiveInstruction -> termsChange, primitiveInstruction -> quantityChange) only exists)) all = True
-            and (QuantityDecreasedToZero(businessEvent -> instruction, businessEvent -> after) = False)
+            and (QuantityDecreasedToZero(businessEvent -> instruction only-element, businessEvent -> after) = False)
             and businessEvent -> after -> state -> closedState is absent
 
 func Qualify_Reprice: <"This qualification function is used to qualify repricing of a contractual product with an interest rate payout and assetPayout.">
@@ -654,7 +654,7 @@ func Qualify_Repurchase: <"The qualification of a repurchase event from the fact
                     extract
                         (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
             and QuantityDecreasedToZero(
-                    businessEvent -> instruction,
+                    businessEvent -> instruction only-element,
                     businessEvent -> after
                 ) = True
             and businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated
@@ -853,7 +853,7 @@ func Qualify_Termination: <"The qualification of a termination event from the fa
         businessEvent -> intent is absent
             and (primitiveInstruction -> quantityChange only exists
                 or (primitiveInstruction -> quantityChange, primitiveInstruction -> transfer) only exists)
-            and (QuantityDecreasedToZero(businessEvent -> instruction, businessEvent -> after) = True)
+            and (QuantityDecreasedToZero(businessEvent -> instruction only-element, businessEvent -> after) = True)
             and (businessEvent -> after -> state -> closedState -> state all = ClosedStateEnum -> Terminated)
 
 func Qualify_ValuationUpdate: <"The qualification of a valuation update from the fact that the only component is a valuation.">

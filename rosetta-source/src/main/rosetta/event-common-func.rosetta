@@ -38,7 +38,7 @@ func QuantityIncreased:
 
 func QuantityDecreased:
     inputs:
-        instruction Instruction (0..*)
+        instruction Instruction (1..1)
         after TradeState (0..*)
     output:
         result boolean (1..1)
@@ -61,7 +61,7 @@ func QuantityDecreased:
 
 func QuantityDecreasedToZero:
     inputs:
-        instruction Instruction (0..*)
+        instruction Instruction (1..1)
         after TradeState (0..*)
     output:
         result boolean (1..1)
@@ -88,21 +88,11 @@ func CompareTradeStatesToAmount: <"For each TradeState, compare the Quantity amo
     output:
         result boolean (1..1)
 
-    alias resultAll: <"Result of applying the comparison to all quantities, regardless of unit.">
+    set result: <"Result of applying the comparison. If Unit Types are provided, returns the result based only on quantities with those units; otherwise, returns the result for all quantities.">
         tradeStates
             extract [
                 CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount, unitType)
             ] all = True
-
-    alias resultUnit: <"Result of applying the comparison only to quantities whose unit corresponds to any of the specified Unit Types.">
-        tradeStates
-            extract [
-                CompareTradeLotToAmount(item -> trade -> tradeLot only-element, op, amount, unitType)
-            ] all = True
-
-    set result: <"If Unit Types are provided, return the result based only on quantities with those units; otherwise, return the result for all quantities.">
-        if unitType exists then resultUnit
-        else resultAll
 
 func TransfersForDate:
     inputs:

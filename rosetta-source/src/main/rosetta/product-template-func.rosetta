@@ -87,23 +87,15 @@ func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the g
         unitTypes UnitType (0..*) <"Unit Types to which comparison should be applied.">
     output:
         result boolean (1..1)
-
-    alias resultAll: <"Result of applying the comparison to all quantities, regardless of unit.">
-        tradeLot -> priceQuantity -> quantity
+    
+    set result:
+    tradeLot -> priceQuantity -> quantity
             filter item -> value exists
+            then (if unitTypes exists
+                then filter unitTypes any = item -> unit
+                else item)
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
-
-    alias resultUnit: <"Result of applying the comparison only to quantities whose unit corresponds to any of the specified Unit Types.">
-        tradeLot -> priceQuantity -> quantity
-            filter item -> value exists 
-            then filter unitTypes any = item -> unit 
-            then extract [ CompareNumbers(item -> value, op, amount) ]
-                all = True
-
-    set result: <"If Unit Types are provided, return the result based only on quantities with those units; otherwise, return the result for all quantities.">
-        if unitTypes exists then resultUnit 
-        else resultAll
 
 func PriceQuantityTriangulation: <"Defines all the scenarios which triangulation can be helpful validation between Prices and Quantities.">
     inputs:
