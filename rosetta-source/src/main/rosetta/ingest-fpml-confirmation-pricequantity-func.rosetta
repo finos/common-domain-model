@@ -71,7 +71,10 @@ func CreateQuantityWithAddress:
             [metadata address]
 
     set quantityWithAddress:
-        empty
+        NonNegativeQuantitySchedule {
+            value: empty,
+            ...
+        }
             with-meta {
                 address: keyValue
             }
@@ -154,7 +157,8 @@ func MapNotionalAmountWithIdToQuantityWithLocation:
                     MapCurrencyAmountToQuantity(
                             fpmlNotionalAmount,
                             fpmlStepList,
-                            fpmlCurrency
+                            fpmlCurrency,
+                            empty
                         ),
                     CreateQuantityKey(id, fpmlLeg)
                 )
@@ -201,6 +205,7 @@ func MapCurrencyAmountToQuantity:
         fpmlNotionalAmount number (0..1)
         fpmlStepList fpml.Step (0..*)
         fpmlCurrency fpml.Currency (0..1)
+        fpmlFinancialUnit FinancialUnitEnum (0..1)
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
 
@@ -212,6 +217,14 @@ func MapCurrencyAmountToQuantity:
                 unit: UnitType {
                     currency: MapCurrency(fpmlCurrency),
                     ...
+                },
+                multiplier: Measure {
+                    value: fpmlNotionalAmount,
+                    unit: UnitType {
+                    financialUnit: if fpmlFinancialUnit exists
+                                then fpmlFinancialUnit,
+                    ...
+                },
                 },
                 ...
             }
@@ -230,7 +243,7 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
         then NonNegativeQuantitySchedule {
                 value: fpmlNumberOfOptions,
                 unit: UnitType {
-                    financialUnit: fpmlFinancialUnit,
+                    financialUnit: Contract,
                     ...
                 },
                 multiplier: if fpmlOptionEntitlement exists
@@ -239,10 +252,13 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
                         unit: UnitType {
                             currency: if fpmlCurrency exists
                                 then MapCurrency(fpmlCurrency),
+                             financialUnit: if fpmlFinancialUnit exists
+                                then fpmlFinancialUnit,
                             ...
                 }},
                 ...
             }
+
 
 func MapNotionalStepScheduleToQuantityWithLocation:
     inputs:
@@ -456,7 +472,8 @@ func MapEquityDerivativeBaseQuantityListWithLocation:
                     MapCurrencyAmountToQuantity(
                             fpmlEquityDerivativeBase -> notional -> amount,
                             empty,
-                            fpmlEquityDerivativeBase -> notional -> currency
+                            fpmlEquityDerivativeBase -> notional -> currency,
+                            empty
                         ),
                     CreateQuantityKey("notional", empty)
                 )
@@ -466,12 +483,22 @@ func MapEquityDerivativeBaseQuantityListWithLocation:
         then CreateQuantityWithLocation(
                     MapNumberOfOptionsAndOptionEntitlementToQuantity(
                             fpmlNumberOfOptions,
-                            Contract,
+                            MapEquityBaseFinancialUnit(fpmlEquityDerivativeBase),
                             fpmlOptionEntitlement,
                             fpmlEquityDerivativeBase -> notional -> currency
                         ),
                     CreateQuantityKey("numberOfOptions", empty)
                 )
+
+func MapEquityBaseFinancialUnit:
+    inputs:
+        fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
+    output:
+        financialUnit FinancialUnitEnum (0..1)
+
+    set financialUnit:
+        if fpmlEquityDerivativeBase -> equityExercise exists
+        then Share
 
 func MapEquityDerivativeBaseQuantityListWithAddress:
     inputs:
@@ -504,7 +531,8 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                     MapCurrencyAmountToQuantity(
                             quantity1 -> amount,
                             empty,
-                            quantity1 -> currency
+                            quantity1 -> currency,
+                            empty
                         ),
                     CreateQuantityKey("exchangedCurrency1", fpmlLeg)
                 )
@@ -515,7 +543,8 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                     MapCurrencyAmountToQuantity(
                             quantity2 -> amount,
                             empty,
-                            quantity2 -> currency
+                            quantity2 -> currency,
+                            empty
                         ),
                     CreateQuantityKey("exchangedCurrency2", fpmlLeg)
                 )
@@ -556,7 +585,8 @@ func MapFxOptionToQuantityListWithLocation:
                 MapCurrencyAmountToQuantity(
                         fpmlFxOption -> putCurrencyAmount -> amount,
                         empty,
-                        fpmlFxOption -> putCurrencyAmount -> currency
+                        fpmlFxOption -> putCurrencyAmount -> currency,
+                        empty
                     ),
                 CreateQuantityKey("putCurrencyAmount", empty)
             )
@@ -566,7 +596,8 @@ func MapFxOptionToQuantityListWithLocation:
                 MapCurrencyAmountToQuantity(
                         fpmlFxOption -> callCurrencyAmount -> amount,
                         empty,
-                        fpmlFxOption -> callCurrencyAmount -> currency
+                        fpmlFxOption -> callCurrencyAmount -> currency,
+                        empty
                     ),
                 CreateQuantityKey("callCurrencyAmount", empty)
             )
@@ -1902,11 +1933,29 @@ func MapBasketConstituentWithLocation:
                         then MapAsset(fpmlBasketConstituent -> underlyingAsset),
                     Index: if isIndex
                         then MapEquityIndex(assetChoice -> Index),
+                    quantity: MapBasketConstituentQuantity (fpmlBasketConstituent),
                     ...
                 },
                 BasketConstituentKeyValue(fpmlBasketConstituent)
             )
 
+func MapBasketConstituentQuantity:
+    inputs:
+    fpmlBasketConstituent fpml.BasketConstituent (0..1)
+
+    output:
+    quantity NonNegativeQuantitySchedule (0..*)
+
+    add quantity: 
+        NonNegativeQuantitySchedule{
+            value: fpmlBasketConstituent -> constituentWeight -> basketPercentage,
+            unit: UnitType { 
+                financialUnit: if fpmlBasketConstituent -> constituentWeight -> basketPercentage exists then FinancialUnitEnum -> Weight,
+                ...
+                },
+    ...
+    }
+    
 func MapBasketConstituentWithAddress:
     inputs:
         fpmlBasketConstituent fpml.BasketConstituent (0..1)
