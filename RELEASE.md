@@ -1,72 +1,33 @@
-# Ingest & Observable - Continued Mapping for creditdefaultswap 
+## Ingest - Mapping for WorkflowStep, EquityOptions, and CDS
 
-_Background_
+*Background*
 
-Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version, where they are available for beta testing by the CDM community. There are still gaps in the original synonym mapping and ingest functional mapping which will be addressed in this PR.
+Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version for beta testing by the CDM community. There are still gaps between the original synonym mapping and ingest functional mapping which will be addressed in this PR.
 
-_What is being released?_
+*What is being released?*
 
-Adding additional code for a number of different boolean fields to be mapped. These have been added under:
+Mapping has been completed for the following areas in CDM:
 
-- `creditdefaultswap` under `ingest`
-- `event` under `observable`
+- Workflow Step
+    - `PrimitiveInstruction` for different message types
+    - Event timestamps
+    - Message information
+    - Event actions
 
-_Review Directions_
+- Vanilla Equity Option
+    - Further mapping for Equity Bermuda `multipleExercise`
+    - Created a new function `MapBasketConstituentQuantity` for basket constituent quantity
+    - Added mapping for a multiplier on non negative quantity schedules
+    - Mapped `passThrough` and `averagingFeature` on an option payout feature
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4073
+- Broker Equity Option
+    - Adding `MapEquityPremiumListToTransferStateList` function for `BrokerEquityOption` product type
+    - Further mapping for payout fields (`unit type`, `price`)
 
-# BrokerEquityOption mappings for fpml ingest
+- Credit Default Swaps
+    - Mapped `protectionTerms` fields (`gracePeriodExtension`, `obligationAcceleration`, `repudiationMoratorium`, `multipleHolderObligation`, `multipleCreditEventNotices`)
+    - Mapped physical and cash settlement terms
 
-_Background_
+*Review Directions*
 
-BrokerEquityOption mappings for fpml ingest
-
-_What is being released?_
-
-BrokerEquityOption mappings for fpml ingest
-
-_Review Directions_
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4088
-
-# CDM Fpml Ingest - Vanilla Equity Option Synonym to Fpml Ingest Function Mapping fixes
-
-_Background_
-
-Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version, where they are available for beta testing by the CDM community. There are still gaps in the original synonym mapping and ingest functional mapping which will be addressed in this PR.
-
-_What is being released?_
-
-Mapped the following:
-
-`common` :
-
-- `expirationTimeType` and `multipleExercise` for `BermudaExercise`
-datetime
-- `dateTimeList` to be populated with a zoned date time pricequantity
-- `financialUnit` to populate correct values opposed to being hardcoded to `Contract`
-`equityoption`
-- `averagingFeature` and `Passthrough` under `feature`
-
-_Review Directions_
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4090
-
-# Ingest - Mapping FpML Events to WorkflowStep
-
-_Background_
-
-Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version for beta testing by the CDM community. There are still gaps in the original synonym mapping and ingest functional mapping which will be addressed in this PR.
-
-_What is being released?_
-
-Added new mapping for events in WorkflowStep
-
-- PrimitiveInstruction for different message types
-- Event timestamps
-- Message information
-- Event actions
-
-_Review Directions_
-
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4077
+Changes can be reviewed in PR:
