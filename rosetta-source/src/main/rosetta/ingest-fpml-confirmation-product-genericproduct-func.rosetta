@@ -52,7 +52,7 @@ func MapGenericProductEconomicTerms:
     inputs:
         fpmlGenericProduct fpml.GenericProduct (0..1)
         cdmCounterpartyList Counterparty (0..2)
-        fpmlpartyTradeInformation fpml.PartyTradeInformation (0..*)
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         economicTerms EconomicTerms (0..1)
 
@@ -69,9 +69,9 @@ func MapGenericProductEconomicTerms:
             dateAdjustments: empty, // MapBusinessDayAdjustments(fpmlTrade, fpmlPartiesAndAccountsModel),
             payout: MapGenericProductPayout(fpmlGenericProduct, cdmCounterpartyList),
             terminationProvision: empty, // MapTerminationProvision(fpmlTrade, fpmlPartiesAndAccountsModel),
-            nonStandardisedTerms: fpmlpartyTradeInformation
+            nonStandardisedTerms: fpmlPartyTradeInformation
                 filter nonStandardTerms exists
-                then fpmlpartyTradeInformation -> nonStandardTerms only-element,
+                then extract nonStandardTerms then distinct only-element,
             collateral: empty, // MapCollateral(fpmlTrade, fpmlPartiesAndAccountsModel),
             ...
         }
