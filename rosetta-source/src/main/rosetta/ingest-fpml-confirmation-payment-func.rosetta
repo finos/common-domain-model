@@ -6,15 +6,14 @@ import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
-
-import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.datetime.*
-import cdm.ingest.fpml.confirmation.party.*
 
 func MapTransferStateList:
     inputs:
@@ -27,124 +26,89 @@ func MapTransferStateList:
     // additionalPayment
     add transfer:
         productChoice switch
-        FxVolatilitySwap then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        FxVarianceSwap then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        Swap then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        GenericProduct then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        Fra then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        CorrelationSwap then MapClassifiablePaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        VolatilitySwap then MapClassifiablePaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        VarianceSwap then MapClassifiablePaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        CapFloor then MapPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        EquitySwapTransactionSupplement then MapReturnSwapAdditionalPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        ReturnSwap then MapReturnSwapAdditionalPaymentListToTransferStateList(
-                    additionalPayment,
-                    Upfront
-                ),
-        default empty
+            FxVolatilitySwap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            FxVarianceSwap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            Swap then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            GenericProduct then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            Fra then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            CorrelationSwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            VolatilitySwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            VarianceSwap then
+                MapClassifiablePaymentListToTransferStateList(additionalPayment, Upfront),
+            CapFloor then
+                MapPaymentListToTransferStateList(additionalPayment, Upfront),
+            EquitySwapTransactionSupplement then
+                MapReturnSwapAdditionalPaymentListToTransferStateList(
+                        additionalPayment,
+                        Upfront
+                    ),
+            ReturnSwap then
+                MapReturnSwapAdditionalPaymentListToTransferStateList(
+                        additionalPayment,
+                        Upfront
+                    ),
+            default empty
 
     // initialPayment and singlePayment
     add transfer:
-        productChoice switch 
-        CreditDefaultSwap then 
-            if feeLeg -> feeLegSequence -> initialPayment exists
-            then MapInitialPaymentToTransferState(feeLeg -> feeLegSequence -> initialPayment, Upfront)
-            else if feeLeg -> feeLegSequence -> singlePayment exists 
-            then MapSinglePaymentListToTransferStateList(feeLeg -> feeLegSequence -> singlePayment, Upfront),
-        default empty
-    
+        productChoice switch
+            CreditDefaultSwap then
+                if feeLeg -> feeLegSequence -> initialPayment exists
+                then MapInitialPaymentToTransferState(
+                            feeLeg -> feeLegSequence -> initialPayment,
+                            Upfront
+                        )
+                else if feeLeg -> feeLegSequence -> singlePayment exists
+                then MapSinglePaymentListToTransferStateList(
+                            feeLeg -> feeLegSequence -> singlePayment,
+                            Upfront
+                        ),
+            default empty
+
     // equityPremium
     add transfer:
         productChoice switch
-        EquityOption then MapEquityPremiumToTransferState(equityPremium, Premium),
-        default empty
-    
+            EquityOption then
+                MapEquityPremiumToTransferState(equityPremium, Premium),
+            default empty
+
     // premium
     add transfer:
         productChoice switch
-        GenericProduct then MapSimplePaymentToTransferState(
-                    premium,
-                    Premium
-                ),
-        CapFloor then MapPaymentListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        Swaption then MapPaymentListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        FxDigitalOption then MapFxOptionPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        FxOption then MapFxOptionPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        DividendSwapOptionTransactionSupplement then MapEquityPremiumListToTransferStateList(
-                    equityPremium,
-                    Premium
-                ),
-        VarianceOptionTransactionSupplement then MapEquityPremiumListToTransferStateList(
-                    equityPremium,
-                    Premium
-                ),
-        CommodityBasketOption then MapCommodityPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        CommodityOption then MapCommodityPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        CommoditySwaption then MapCommodityPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        EquityOptionTransactionSupplement then MapEquityPremiumListToTransferStateList(
-                    equityPremium,
-                    Premium
-                ),
-        BondOption then MapPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        CreditDefaultSwapOption then MapPremiumListToTransferStateList(
-                    premium,
-                    Premium
-                ),
-        default empty
+            GenericProduct then
+                MapSimplePaymentToTransferState(premium, Premium),
+            CapFloor then
+                MapPaymentListToTransferStateList(premium, Premium),
+            Swaption then
+                MapPaymentListToTransferStateList(premium, Premium),
+            FxDigitalOption then
+                MapFxOptionPremiumListToTransferStateList(premium, Premium),
+            FxOption then
+                MapFxOptionPremiumListToTransferStateList(premium, Premium),
+            DividendSwapOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            VarianceOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            CommodityBasketOption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            CommodityOption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            CommoditySwaption then
+                MapCommodityPremiumListToTransferStateList(premium, Premium),
+            EquityOptionTransactionSupplement then
+                MapEquityPremiumListToTransferStateList(equityPremium, Premium),
+            BondOption then
+                MapPremiumListToTransferStateList(premium, Premium),
+            CreditDefaultSwapOption then
+                MapPremiumListToTransferStateList(premium, Premium),
+            default empty
 
     // otherPartyPayment
     add transfer: MapPaymentListToTransferStateList(fpmlTrade -> otherPartyPayment, Upfront)
@@ -447,7 +411,9 @@ func MapEquityPremiumToTransferState:
                         fpmlEquityPremium -> payerReceiverModel
                     ),
                 settlementDate: MapAdjustableOrAdjustedOrRelativeDate(
-                        MapZoneDateTimeToDate(fpmlEquityPremium -> paymentDate -> unadjustedDate -> value),
+                        MapZoneDateTimeToDate(
+                                fpmlEquityPremium -> paymentDate -> unadjustedDate -> value
+                            ),
                         fpmlEquityPremium -> paymentDate,
                         empty
                     ),
