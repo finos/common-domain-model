@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
-import com.regnosys.ingest.test.framework.ingestor.IngestionTestExpectation;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
@@ -19,9 +18,7 @@ import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -96,24 +93,6 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 		}
 	}
 
-	@Disabled
-	@AfterAll
-	/**
-	 * To generate an initial set of coverage files. Will be useful for other ingestion tests.
-	 */
-	static void writeCoverageFilesToDisk() {
-		String environmentName = ingestionService.getEnvironmentName();
-		actualExpectation.asMap().entrySet().stream()
-			.map(expectationFilePathToExpectationsMap ->
-				Pair.of(expectationFilePathToExpectationsMap.getKey(),
-					toMappingCoverages(environmentName,
-						expectationFilePathToExpectationsMap.getValue()
-							.stream()
-							.map(IngestionTestExpectation::getExpectation)
-							.collect(Collectors.toList()))))
-			.forEach(CreateiQIngestionServiceTest::writeFileToDisk);
-	}
-
 	private static List<MappingCoverage> toMappingCoverages(String environmentName, Collection<Expectation> expectations) {
 		return expectations.stream().collect(groupingBy(CreateiQIngestionServiceTest::schema, toMappingStatistic()))
 			.entrySet().stream()
@@ -156,10 +135,6 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private static String toJson(Object o) throws JsonProcessingException {
-		return RosettaObjectMapper.getNewRosettaObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(o);
 	}
 
 	@SuppressWarnings("unused")//used by the junit parameterized test
