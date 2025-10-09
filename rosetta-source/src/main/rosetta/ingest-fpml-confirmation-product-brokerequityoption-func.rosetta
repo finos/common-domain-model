@@ -67,16 +67,12 @@ func MapBrokerEquityOptionPayout:
 
     alias unit:
         UnitType {
-            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
+            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency default fpmlBrokerEquityOption -> equityExercise -> settlementCurrency),
             ...
         }
 
-    alias perUnitOf:
-        UnitType {
-            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
-            ...
-        }
-
+    alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlBrokerEquityOption)
+            
     set payout:
         Payout {
             OptionPayout: OptionPayout {
@@ -117,7 +113,7 @@ func MapBrokerEquityOptionPayout:
                         fpmlBrokerEquityOption -> strike -> strikePrice,
                         fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
                         unit,
-                        perUnitOf
+                        perUnitOf     
                     ),
                 ...
             },
@@ -138,8 +134,11 @@ func MapBrokerEquityOptionPriceQuantityList:
                     empty
                 ),
             observable: MapUnderlyerToObservableWithLocation(
-                    fpmlBrokerEquityOption -> underlyer
+                    fpmlBrokerEquityOption -> underlyer        
                 ),
+            price: MapEquityPermiumToPriceListWithLocation(
+                fpmlBrokerEquityOption -> equityPremium
+            ),    
             ...
         }
 
