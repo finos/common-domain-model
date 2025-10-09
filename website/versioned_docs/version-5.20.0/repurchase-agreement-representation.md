@@ -53,10 +53,12 @@ Examples of where the CDM can be used in the repo market:
 -   Capturing event history.
 -   Market standard taxonomy and mapping interface to other platforms.
 
-ICMA Contacts: \-\-\-\-\-\-\-\-\-\-\--Gabriel Callsen, Director
-<gabriel.callsen@icmagroup.org> +44 (0)20 7213 0334
+ICMA Contacts: 
 
-Tom Healey, FINXIS LLC, Consultant <tom.healey@icmagroup.org>
+| Contact | Role | Email | Phone
+| :--- | :--- | :--- | :--- | 
+| Gabriel Callsen | Director | [gabriel.callsen@icmagroup.org](mailto:gabriel.callsen@icmagroup.org) | +44 (0)20 7213 0334 |
+| Tom Healey | FINXIS LLC, Consultant | [tom.healey@icmagroup.org](mailto:tom.healey@icmagroup.org) |
 
 # Scope
 
