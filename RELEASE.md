@@ -25,7 +25,7 @@ _What is being released?_
    - `DSL` 9.65.4 Fix metadata template Java type. See DSL release notes: [DSL 9.65.4](https://github.com/finos/rune-dsl/releases/tag/9.65.4)
    - `DSL` 9.65.5 Fix issue where clashing names from other namespaces are not correctly qualified in generated code. See DSL release notes: [DSL 9.65.5](https://github.com/finos/rune-dsl/releases/tag/9.65.5)
    - `DSL` 9.66.0 Fix issue where `then` operation allows incorrect syntax. See DSL release notes: [DSL 9.66.0](https://github.com/finos/rune-dsl/releases/tag/9.66.0)
-   - `DSL` 9.66.1 Patch to fix slow loading of models. See DSL release notes: [DSL 9.66.1](https://github.com/finos/rune-dsl/releases/tag/9.66.1)
+   - `DSL` 9.66.1 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.66.1](https://github.com/finos/rune-dsl/releases/tag/9.66.1)
 
 There are no changes to model or test expectations.
 
@@ -44,7 +44,7 @@ _Review Directions_
 
 No changes to model or expectations
 
-The changes can be reviewed in PR: [#3269](https://github.com/rosetta-models/digital-regulatory-reporting/pull/3269)
+The changes can be reviewed in PR: [#4094](https://github.com/finos/common-domain-model/pull/4094)
 
 # _Infrastructure - Security Update_
 
@@ -55,20 +55,19 @@ Update to the CVE scanning configuration. The `OSS Index integration` has been d
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4037](https://github.com/finos/common-domain-model/pull/4037)
+The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
 
-# *FpML Ingestion - Related Party Role*
+# _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
 
 _Background_
 
-This release fixes the FpML ingestion (based on synonyms) mapping of related party role, as per GitHub issue [#3713](https://github.com/finos/common-domain-model/issues/3713).
+It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
+The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
 
 _What is being released?_
 
-Update to the FpML synonym mapping logic for `PartyRole` to remove invalid empty mappings.
+Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
 
 _Review Directions_
 
-In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML sample, `USD-Vanilla-swap.xml`.
-
-Changes can be reviewed in PR: [#4064](https://github.com/finos/common-domain-model/pull/4064)
+The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
