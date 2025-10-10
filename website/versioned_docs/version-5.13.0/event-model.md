@@ -136,7 +136,7 @@ Attributes within `Trade` and `ContractDetails` incorporate elements
 from FpML's *trade confirmation* view, whereas the `TradableProduct`
 data type corresponds to FpML's *pre-trade* view. The `TradableProduct`
 data type is further detailed in the
-[`tradable-product`](/docs/product-model#TraableProduct) section of the
+[`tradable-product`](./product-model#tradable-product) section of the
 documentation.
 
 ---
@@ -404,7 +404,7 @@ in the instructions.
 
 This function applies each of the primitive operators (other than split)
 to the trade state in the order listed in the [primitive
-operator](#primitive-operator) section. Apart from execution which, when
+operator](#primitive-event) section. Apart from execution which, when
 present, must always be applied first, the order does not affect the
 outcome because each primitive operator impacts a different part of the
 trade state.
@@ -543,7 +543,7 @@ the execution primitive so that it can be invoked appropriately
 depending on the scenario. E.g. in an allocation, the trade would first
 get split into sub-accounts as designated by one of the executing
 parties, before a set of legally binding contracts is signed with each
-of those sub-accounts. A contract formation may not even follow an
+of those sub-accounts. A  contract formation may not even follow an
 execution and could occur as part of later lifecycle events. E.g. in a
 novation scenario, a new contract will need to be instantiated with the
 step-in party and the right legal agreement associated to that trade.
@@ -870,7 +870,7 @@ Other selected attributes of a business event are explained below.
     events (e.g. observations), or may be redundant with the event date.
 -   The event qualifier attribute is derived from the event
     qualification features. This is further detailed in the [event
-    qualification](#event-qualification) section.
+    qualification](#event-qualification-section) section.
 
 # Workflow
 

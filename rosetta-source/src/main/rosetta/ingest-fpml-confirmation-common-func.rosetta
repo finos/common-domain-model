@@ -1,0 +1,915 @@
+namespace cdm.ingest.fpml.confirmation.common: <"FpML common mapping functions.">
+version "${project.version}"
+
+import cdm.base.datetime.*
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.observable.asset.*
+import cdm.observable.common.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+import fpml.confirmation.custom.*
+
+func GetFpmlTrade:
+    inputs:
+        fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
+        fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
+        fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
+    output:
+        fpmlTrade fpml.Trade (0..1)
+
+    set fpmlTrade:
+        if fpmlTradingEventsBaseModel -> tradePackage -> trade exists
+        then fpmlTradingEventsBaseModel -> tradePackage -> trade only-element
+        else if fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade exists
+        then fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade
+        else if fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination -> originalTrade exists
+        then fpmlPostTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination -> originalTrade
+        else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade exists
+        then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
+        else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade exists
+        then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade
+
+func MapStringWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        stringWithScheme string (0..1)
+            [metadata scheme]
+
+    set stringWithScheme: value
+    set stringWithScheme -> scheme: scheme
+
+func MapCurrency:
+    inputs:
+        fpmlCurrency fpml.Currency (0..1)
+    output:
+        currencyWithScheme string (0..1)
+            [metadata scheme]
+
+    set currencyWithScheme:
+        MapStringWithScheme(fpmlCurrency -> value, fpmlCurrency -> currencyScheme)
+
+func MapCurrencyReference:
+    inputs:
+        fpmlIdentifiedCurrencyReference fpml.IdentifiedCurrencyReference (0..1)
+    output:
+        currencyReference string (0..1)
+            [metadata reference]
+
+    set currencyReference -> reference: fpmlIdentifiedCurrencyReference -> href
+
+func MapResolvablePriceQuantityReference:
+    inputs:
+        fpmlHref string (0..1)
+    output:
+        quantityReference ResolvablePriceQuantity (0..1)
+            [metadata reference]
+
+    set quantityReference -> reference: fpmlHref
+
+func MapProductTaxonomyList:
+    inputs:
+        fpmlProductModel fpml.ProductModel (0..1)
+    output:
+        taxonomy ProductTaxonomy (0..*)
+
+    add taxonomy:
+        ProductTaxonomy {
+            primaryAssetClass: MapAssetClassWithScheme(
+                    fpmlProductModel -> primaryAssetClass -> value,
+                    fpmlProductModel -> primaryAssetClass -> assetClassScheme
+                ),
+            ...
+        }
+
+    add taxonomy:
+        fpmlProductModel -> productType
+            extract
+                ProductTaxonomy {
+                    source: MapTaxonomySourceEnum(productTypeScheme),
+                    value: TaxonomyValue {
+                        name: MapStringWithScheme(value, productTypeScheme),
+                        ...
+                    },
+                    ...
+                }
+
+func MapAssetClassWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme AssetClassEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: value to-enum AssetClassEnum
+    set enumWithScheme -> scheme: scheme
+
+func MapUnitTypeWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        unitType UnitType (0..1)
+
+    set unitType:
+        UnitType {
+            capacityUnit: if MapCapacityUnitEnum(value) exists
+                then MapCapacityUnitWithScheme(value, scheme),
+            weatherUnit: if value to-enum WeatherUnitEnum exists
+                then MapWeatherUnitWithScheme(value, scheme),
+            financialUnit: if value to-enum FinancialUnitEnum exists
+                then MapFinancialUnitWithScheme(value, scheme),
+            ...
+        }
+
+func MapCapacityUnitWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme CapacityUnitEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: MapCapacityUnitEnum(value)
+    set enumWithScheme -> scheme: scheme
+
+func MapWeatherUnitWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme WeatherUnitEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: value to-enum WeatherUnitEnum
+    set enumWithScheme -> scheme: scheme
+
+func MapFinancialUnitWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme FinancialUnitEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: value to-enum FinancialUnitEnum
+    set enumWithScheme -> scheme: scheme
+
+func MapCommodityFrequencyWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        frequency Frequency (0..1)
+            [metadata scheme]
+
+    set frequency -> key: value
+    set frequency -> scheme: scheme
+
+func MapTaxonomySourceEnum:
+    inputs:
+        productTypeScheme string (0..1)
+    output:
+        source TaxonomySourceEnum (0..1)
+
+    set source:
+        if StringContains(productTypeScheme, "www.fpml.org/coding-scheme/product-taxonomy")
+        then ISDA
+        else if StringContains(productTypeScheme, "iso10962")
+        then CFI
+        else if StringContains(productTypeScheme, "emir-contract-type")
+        then EMIR
+        else Other
+
+func MapProductIdentifierList:
+    inputs:
+        fpmlProductModel fpml.ProductModel (0..1)
+    output:
+        productIdentifierList ProductIdentifier (0..*)
+
+    add productIdentifierList: fpmlProductModel -> productId extract MapProductIdentifier
+
+func MapProductIdentifier:
+    inputs:
+        fpmlProductId fpml.ProductId (0..1)
+    output:
+        productIdentifier ProductIdentifier (0..1)
+
+    set productIdentifier:
+        ProductIdentifier {
+            identifier: MapStringWithScheme(
+                    fpmlProductId -> value,
+                    fpmlProductId -> productIdScheme
+                ),
+            source: MapProductIdType(fpmlProductId -> productIdScheme)
+        }
+
+func MapProductIdType:
+    inputs:
+        productIdScheme string (0..1)
+    output:
+        source ProductIdTypeEnum (0..1)
+
+    set source:
+        if StringContains(productIdScheme, "CUSIP")
+        then CUSIP
+        else if StringContains(productIdScheme, "ISIN")
+        then ISIN
+        else if StringContains(productIdScheme, "RIC")
+        then RIC
+        else if StringContains(productIdScheme, "Bloomberg")
+        then BBGID
+        else if StringContains(productIdScheme, "commodity-reference-price")
+        then ISDACRP
+        else if StringContains(productIdScheme, "iso4914")
+        then UPI
+        else Other
+
+func MapFxFeature:
+    inputs:
+        fpmlFxFeature fpml.FxFeature (0..1)
+    output:
+        fxFeature FxFeature (0..1)
+
+    set fxFeature:
+        FxFeature {
+            referenceCurrency: MapReferenceCurrency(fpmlFxFeature -> referenceCurrency),
+            composite: MapComposite(fpmlFxFeature -> composite),
+            quanto: MapQuanto(fpmlFxFeature -> quanto),
+            crossCurrency: MapComposite(fpmlFxFeature -> crossCurrency)
+        }
+
+func MapReferenceCurrency:
+    inputs:
+        fpmlReferenceCurrency fpml.IdentifiedCurrency (0..1)
+    output:
+        currency string (0..1)
+            [metadata id]
+            [metadata scheme]
+
+    set currency: fpmlReferenceCurrency -> value
+    set currency -> id: fpmlReferenceCurrency -> id
+    set currency -> scheme: fpmlReferenceCurrency -> currencyScheme
+
+func MapComposite:
+    inputs:
+        fpmlComposite fpml.Composite (0..1)
+    output:
+        composite Composite (0..1)
+
+    set composite:
+        Composite {
+            determinationMethod: fpmlComposite -> determinationMethod -> value to-enum DeterminationMethodEnum,
+            relativeDate: MapRelativeDateOffset(fpmlComposite -> relativeDate),
+            fxSpotRateSource: MapFxSpotRateSource(fpmlComposite -> fxSpotRateSource),
+            fixingTime: MapBusinessCenterTime(
+                    fpmlComposite -> fxSpotRateSource -> fixingTime
+                )
+        }
+
+func MapQuanto:
+    inputs:
+        fpmlQuanto fpml.Quanto (0..1)
+    output:
+        quanto Quanto (0..1)
+
+    set quanto:
+        Quanto {
+            fxRate: fpmlQuanto -> fxRate extract MapFxRate,
+            fxSpotRateSource: MapFxSpotRateSource(fpmlQuanto -> fxSpotRateSource),
+            fixingTime: MapBusinessCenterTime(fpmlQuanto -> fxSpotRateSource -> fixingTime)
+        }
+
+func MapFxRate:
+    inputs:
+        fpmlFxRate fpml.FxRate (0..1)
+    output:
+        fxRate FxRate (0..1)
+
+    set fxRate:
+        FxRate {
+            quotedCurrencyPair: MapQuotedCurrencyPair(fpmlFxRate -> quotedCurrencyPair),
+            rate: fpmlFxRate -> rate
+        }
+
+func MapQuotedCurrencyPair:
+    inputs:
+        fpmlQuotedCurrencyPair fpml.QuotedCurrencyPair (0..1)
+    output:
+        quotedCurrencyPair QuotedCurrencyPair (0..1)
+
+    set quotedCurrencyPair:
+        QuotedCurrencyPair {
+            currency1: MapCurrency(fpmlQuotedCurrencyPair -> currency1),
+            currency2: MapCurrency(fpmlQuotedCurrencyPair -> currency2),
+            quoteBasis: fpmlQuotedCurrencyPair -> quoteBasis to-enum QuoteBasisEnum
+        }
+
+func MapQuotedCurrencyPairWithLocation:
+    inputs:
+        fpmlQuotedCurrencyPair fpml.QuotedCurrencyPair (0..1)
+    output:
+        quotedCurrencyPair QuotedCurrencyPair (0..1)
+            [metadata location]
+
+    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair)
+    set quotedCurrencyPair -> location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair) // TODO: fix code gen issue when setting using with-meta
+
+func MapFxSpotRateSource:
+    inputs:
+        fpmlFxSpotRateSource fpml.FxSpotRateSource (0..1)
+    output:
+        fxSpotRateSource FxSpotRateSource (0..1)
+
+    set fxSpotRateSource:
+        FxSpotRateSource {
+            primarySource: MapInformationSource(fpmlFxSpotRateSource -> primaryRateSource),
+            secondarySource: MapInformationSource(
+                    fpmlFxSpotRateSource -> secondaryRateSource
+                )
+        }
+
+func MapInformationSource:
+    inputs:
+        fpmlInformationSource fpml.InformationSource (0..1)
+    output:
+        informationSource InformationSource (0..1)
+
+    set informationSource:
+        InformationSource {
+            sourceProvider: fpmlInformationSource -> rateSource -> value to-enum InformationProviderEnum,
+            sourcePage: MapStringWithScheme(
+                    fpmlInformationSource -> rateSourcePage -> value,
+                    fpmlInformationSource -> rateSourcePage -> rateSourcePageScheme
+                ),
+            sourcePageHeading: fpmlInformationSource -> rateSourcePageHeading
+        }
+
+func MapMoney:
+    inputs:
+        fpmlMoney fpml.Money (0..1)
+    output:
+        money Money (0..1)
+
+    set money:
+        if fpmlMoney exists
+        then Money {
+                value: fpmlMoney -> amount,
+                unit: UnitType {
+                    currency: MapCurrency(fpmlMoney -> currency),
+                    ...
+                },
+                ...
+            }
+
+func GetFpmlEquityExercise:
+    inputs:
+        fpmlEquityExercise fpml.EquityExerciseValuationSettlement (0..1)
+    output:
+        fpmlExercise fpml.Exercise (1..1)
+
+    set fpmlExercise:
+        if fpmlEquityExercise -> equityEuropeanExercise exists
+        then fpmlEquityExercise -> equityEuropeanExercise
+        else if fpmlEquityExercise -> equityBermudaExercise exists
+        then fpmlEquityExercise -> equityBermudaExercise
+        else if fpmlEquityExercise -> equityAmericanExercise exists
+        then fpmlEquityExercise -> equityAmericanExercise
+
+func GetFpmlCommodityExercise:
+    inputs:
+        fpmlCommodityExercise fpml.CommodityExercise (0..1)
+    output:
+        fpmlExercise fpml.Exercise (1..1)
+
+    set fpmlExercise:
+        if fpmlCommodityExercise -> europeanExercise exists
+        then fpmlCommodityExercise -> europeanExercise
+        else if fpmlCommodityExercise -> americanExercise exists
+        then fpmlCommodityExercise -> americanExercise
+
+func GetFpmlCommodityPhysicalExercise:
+    inputs:
+        fpmlCommodityPhysicalExercise fpml.CommodityPhysicalExercise (0..1)
+    output:
+        fpmlExercise fpml.Exercise (1..1)
+
+    set fpmlExercise:
+        if fpmlCommodityPhysicalExercise -> europeanExercise exists
+        then fpmlCommodityPhysicalExercise -> europeanExercise
+        else if fpmlCommodityPhysicalExercise -> americanExercise exists
+        then fpmlCommodityPhysicalExercise -> americanExercise
+
+func GetFpmlFxExercise:
+    inputs:
+        fpmlFxOption fpml.FxOption (0..1)
+    output:
+        fpmlExercise fpml.Exercise (1..1)
+
+    set fpmlExercise:
+        if fpmlFxOption -> europeanExercise exists
+        then fpmlFxOption -> europeanExercise
+        else if fpmlFxOption -> americanExercise exists
+        then fpmlFxOption -> americanExercise
+
+func GetFpmlFxDigitalExercise:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+    output:
+        fpmlDigitalExercise fpml.Exercise (1..1)
+
+    set fpmlDigitalExercise:
+        if fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise exists
+        then fpmlFxDigitalOption -> fxDigitalOptionSequence1 -> europeanExercise
+        else if fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise exists
+        then fpmlFxDigitalOption -> fxDigitalOptionSequence0 -> americanExercise
+
+func MapExerciseTerms:
+    inputs:
+        fpmlExercise fpml.Exercise (0..1)
+        fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
+        fpmlAutomaticExercise boolean (0..1)
+        fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    alias cdmExerciseProcedure:
+        if fpmlExerciseProcedure exists or fpmlAutomaticExercise exists
+        then MapExerciseProcedure(
+                    fpmlExerciseProcedure,
+                    fpmlBuyerSellerModel,
+                    fpmlAutomaticExercise,
+                    cdmCounterpartyList
+                )
+
+    set exerciseTerms:
+        ToExerciseChoice(fpmlExercise)
+            switch
+        EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+        EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+        CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+        FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
+        BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
+        EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
+        AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
+        EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
+        CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
+        FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
+        FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
+        default empty
+
+func MapExerciseProcedure:
+    inputs:
+        fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
+        fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
+        fpmlAutomaticExercise boolean (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        exerciseProcedure ExerciseProcedure (1..1)
+
+    alias buyerSeller: MapBuyerSeller(fpmlBuyerSellerModel, cdmCounterpartyList)
+
+    set exerciseProcedure:
+        ExerciseProcedure {
+            manualExercise: ManualExercise {
+                exerciseNotice: ExerciseNotice {
+                    exerciseNoticeGiver: if buyerSeller -> buyer = MapCounterpartyRoleEnum(
+                                fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                                cdmCounterpartyList
+                            )
+                        then Buyer
+                    else if buyerSeller -> seller = MapCounterpartyRoleEnum(
+                                fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                                cdmCounterpartyList
+                            )
+                    then Seller,
+                    businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
+                    ...
+                },
+                ...
+            },
+            automaticExercise: AutomaticExercise {
+                isApplicable: fpmlAutomaticExercise,
+                ...
+            },
+            followUpConfirmation: fpmlExerciseProcedure -> followUpConfirmation,
+            ...
+        }
+
+func MapEuropeanExerciseTerms:
+    inputs:
+        fpmlEuropeanExercise fpml.EuropeanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: European,
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlEuropeanExercise -> expirationDate
+                ),
+            earliestExerciseTime: MapBusinessCenterTime(
+                    fpmlEuropeanExercise -> earliestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(fpmlEuropeanExercise -> expirationTime),
+            expirationTimeType: if fpmlEuropeanExercise -> expirationTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            partialExercise: PartialExercise {
+                notionalReference: empty,
+                integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
+                minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
+                ...
+            },
+            ...
+        }
+            with-meta {
+                key: fpmlEuropeanExercise -> id
+            }
+
+func MapEquityEuropeanExerciseTerms:
+    inputs:
+        fpmlEquityEuropeanExercise fpml.EquityEuropeanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    alias equityExpirationModel:
+        fpmlEquityEuropeanExercise -> equityExpirationModel -> equityExpirationModelSequence
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: European,
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlEquityEuropeanExercise -> expirationDate
+                ),
+            expirationTime: MapBusinessCenterTime(
+                    equityExpirationModel -> equityExpirationTime
+                ),
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlEquityEuropeanExercise -> id
+            }
+
+func MapCommodityEuropeanExerciseTerms:
+    inputs:
+        fpmlCommodityEuropeanExercise fpml.CommodityEuropeanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    alias commodityExpirationModel:
+        fpmlCommodityEuropeanExercise -> commodityEuropeanExerciseSequence
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: European,
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlCommodityEuropeanExercise -> expirationDate
+                ),
+            expirationTime: MapBusinessCenterTime(
+                    fpmlCommodityEuropeanExercise -> expirationTime
+                ),
+            expirationTimeType: if fpmlCommodityEuropeanExercise -> expirationTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlCommodityEuropeanExercise -> id
+            }
+
+func MapFxEuropeanExerciseTerms:
+    inputs:
+        fpmlFxEuropeanExercise fpml.FxEuropeanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: European,
+            expirationDate: MapDateToAdjustableOrRelativeDate(
+                    fpmlFxEuropeanExercise -> expiryDate -> date
+                ),
+            expirationTime: MapBusinessCenterTime(fpmlFxEuropeanExercise -> expiryTime),
+            expirationTimeType: if fpmlFxEuropeanExercise -> expiryTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlFxEuropeanExercise -> id
+            }
+
+func MapBermudaExerciseTerms:
+    inputs:
+        fpmlBermudaExercise fpml.BermudaExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: Bermuda,
+            exerciseDates: MapAdjustableOrRelativeDates(
+                    fpmlBermudaExercise -> bermudaExerciseDates
+                ),
+            relevantUnderlyingDate: MapAdjustableOrRelativeDates(
+                    fpmlBermudaExercise -> relevantUnderlyingDate
+                ),
+            earliestExerciseTime: MapBusinessCenterTime(
+                    fpmlBermudaExercise -> earliestExerciseTime
+                ),
+            latestExerciseTime: MapBusinessCenterTime(
+                    fpmlBermudaExercise -> latestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(fpmlBermudaExercise -> expirationTime),
+            expirationTimeType: if fpmlBermudaExercise -> expirationTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlBermudaExercise -> id
+            }
+
+func MapEquityBermudaExerciseTerms:
+    inputs:
+        fpmlEquityBermudaExercise fpml.EquityBermudaExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    alias equityExpirationModel:
+        fpmlEquityBermudaExercise -> equityExpirationModel -> equityExpirationModelSequence
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: Bermuda,
+            commencementDate: MapAdjustableOrRelativeDate(
+                    fpmlEquityBermudaExercise -> commencementDate
+                ),
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlEquityBermudaExercise -> expirationDate
+                ),
+            exerciseDates: MapDateListToAdjustableOrRelativeDates(
+                    fpmlEquityBermudaExercise -> bermudaExerciseDates -> date -> date
+                ),
+            latestExerciseTime: MapBusinessCenterTime(
+                    fpmlEquityBermudaExercise -> latestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(
+                    equityExpirationModel -> equityExpirationTime
+                ),
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlEquityBermudaExercise -> id
+            }
+
+func MapAmericanExerciseTerms:
+    inputs:
+        fpmlAmericanExercise fpml.AmericanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: American,
+            commencementDate: MapAdjustableOrRelativeDate(
+                    fpmlAmericanExercise -> commencementDate
+                ),
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlAmericanExercise -> expirationDate
+                ),
+            relevantUnderlyingDate: MapAdjustableOrRelativeDates(
+                    fpmlAmericanExercise -> relevantUnderlyingDate
+                ),
+            earliestExerciseTime: MapBusinessCenterTime(
+                    fpmlAmericanExercise -> earliestExerciseTime
+                ),
+            latestExerciseTime: MapBusinessCenterTime(
+                    fpmlAmericanExercise -> latestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(fpmlAmericanExercise -> expirationTime),
+            expirationTimeType: if fpmlAmericanExercise -> expirationTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            multipleExercise: MapMultipleExercise(fpmlAmericanExercise -> multipleExercise),
+            ...
+        }
+            with-meta {
+                key: fpmlAmericanExercise -> id
+            }
+
+func MapMultipleExercise:
+    inputs:
+        fpmlMultipleExercise fpml.MultipleExercise (0..1)
+    output:
+        multipleExercise MultipleExercise (0..1)
+
+    set multipleExercise:
+        MultipleExercise {
+            integralMultipleAmount: fpmlMultipleExercise -> partialExerciseModel -> integralMultipleAmount,
+            minimumNumberOfOptions: fpmlMultipleExercise -> partialExerciseModel -> minimumNumberOfOptions,
+            maximumNumberOfOptions: fpmlMultipleExercise -> maximumNumberOfOptions,
+            minimumNotionalAmount: fpmlMultipleExercise -> partialExerciseModel -> minimumNotionalAmount,
+            notionalReference: empty
+                with-meta {
+                    reference: fpmlMultipleExercise -> partialExerciseModel -> notionalReference -> href first
+                },
+            ...
+        }
+
+func MapEquityAmericanExerciseTerms:
+    inputs:
+        fpmlEqutiyAmericanExercise fpml.EquityAmericanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    alias equityExpirationModel:
+        fpmlEqutiyAmericanExercise -> equityExpirationModel -> equityExpirationModelSequence
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: American,
+            commencementDate: MapAdjustableOrRelativeDate(
+                    fpmlEqutiyAmericanExercise -> commencementDate
+                ),
+            expirationDate: MapAdjustableOrRelativeDate(
+                    fpmlEqutiyAmericanExercise -> expirationDate
+                ),
+            latestExerciseTime: MapBusinessCenterTime(
+                    fpmlEqutiyAmericanExercise -> latestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(
+                    equityExpirationModel -> equityExpirationTime
+                ),
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
+            exerciseProcedure: cdmExerciseProcedure,
+            multipleExercise: MapEquityMultipleExercise(
+                    fpmlEqutiyAmericanExercise -> equityMultipleExercise
+                ),
+            ...
+        }
+            with-meta {
+                key: fpmlEqutiyAmericanExercise -> id
+            }
+
+func MapEquityMultipleExercise:
+    inputs:
+        fpmlEquityMultipleExercise fpml.EquityMultipleExercise (0..1)
+    output:
+        multipleExercise MultipleExercise (0..1)
+
+    set multipleExercise:
+        MultipleExercise {
+            integralMultipleAmount: fpmlEquityMultipleExercise -> integralMultipleExercise,
+            minimumNumberOfOptions: fpmlEquityMultipleExercise -> minimumNumberOfOptions,
+            maximumNumberOfOptions: fpmlEquityMultipleExercise -> maximumNumberOfOptions,
+            notionalReference: empty,
+            ...
+        }
+
+func MapCommodityAmericanExerciseTerms:
+    inputs:
+        fpmlCommodityAmericanExercise fpml.CommodityAmericanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: American,
+            commencementDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
+                extract MapAdjustableOrRelativeDate(commencementDate)
+                then first,
+            expirationDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
+                extract MapAdjustableOrRelativeDate(expirationDate),
+            latestExerciseTime: MapBusinessCenterTime(
+                    fpmlCommodityAmericanExercise -> latestExerciseTime
+                ),
+            expirationTime: MapBusinessCenterTime(
+                    fpmlCommodityAmericanExercise -> expirationTime
+                ),
+            expirationTimeType: if fpmlCommodityAmericanExercise -> expirationTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlCommodityAmericanExercise -> id
+            }
+
+func MapFxDigitalAmericanExercise:
+    inputs:
+        fpmlFxAmericanExercise fpml.FxDigitalAmericanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        ExerciseTerms {
+            style: American,
+            commencementDate: MapAdjustableOrRelativeDate(
+                    fpmlFxAmericanExercise -> commencementDate
+                ),
+            expirationDate: MapDateToAdjustableOrRelativeDate(
+                    fpmlFxAmericanExercise -> expiryDate -> date
+                ),
+            expirationTime: MapBusinessCenterTime(fpmlFxAmericanExercise -> expiryTime),
+            expirationTimeType: if fpmlFxAmericanExercise -> expiryTime exists
+                then SpecificTime,
+            exerciseProcedure: cdmExerciseProcedure,
+            ...
+        }
+            with-meta {
+                key: fpmlFxAmericanExercise -> id
+            }
+
+func MapFxAmericanExerciseTerms:
+    inputs:
+        fpmlFxAmericanExercise fpml.FxAmericanExercise (0..1)
+        cdmExerciseProcedure ExerciseProcedure (0..1)
+    output:
+        exerciseTerms ExerciseTerms (1..1)
+
+    set exerciseTerms:
+        MapFxDigitalAmericanExercise(fpmlFxAmericanExercise, cdmExerciseProcedure)
+
+func GetPerUnitOfForEquityDerivativeBase:
+    inputs:
+        fpmlEquityDerivativeBase fpml.EquityDerivativeBase (0..1)
+    output:
+        perUnitOf UnitType (0..1)
+
+    alias assetChoice:
+        ToAssetChoice(
+                fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
+            )
+
+    alias financialUnit:
+        assetChoice switch
+        Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
+        default FinancialUnitEnum -> Share
+
+    set perUnitOf:
+        UnitType {
+            financialUnit: financialUnit,
+            ...
+        }
+
+func MapAdjustableOrRelativeDateToObservationTerms:
+    inputs:
+        fpmlAdjustableOrRelativeDate fpml.AdjustableOrRelativeDate (0..1)
+    output:
+        obserrvationTerms ObservationTerms (0..1)
+
+    set obserrvationTerms:
+        if fpmlAdjustableOrRelativeDate exists
+        then ObservationTerms {
+                observationDates: ObservationDates {
+                    periodicSchedule: PeriodicDates {
+                        startDate: AdjustableOrRelativeDate {
+                            adjustableDate: MapAdjustableDate(
+                                    fpmlAdjustableOrRelativeDate -> adjustableDate
+                                ),
+                            relativeDate: MapRelativeDateOffsetToAdjustedRelativeDateOffset(
+                                    fpmlAdjustableOrRelativeDate -> relativeDate
+                                )
+                        },
+                        ...
+                    },
+                    ...
+                },
+                ...
+            }
+
+func StringContains:
+    [codeImplementation]
+    inputs:
+        input string (0..1)
+        str string (1..1)
+    output:
+        result boolean (1..1)

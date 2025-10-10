@@ -1,0 +1,87 @@
+namespace cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement: <"FpML VarianceSwapTransactionSupplement product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.varianceswap.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+func MapVarianceSwapTransactionSupplementCounterpartyList:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlVarianceSwapTransactionSupplement -> varianceLeg first -> payerReceiverModel
+            )
+
+func MapVarianceSwapTransactionSupplementAncillaryPartyList:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapVarianceSwapTransactionSupplementNonTransferableProduct:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(
+                    fpmlVarianceSwapTransactionSupplement -> productModel
+                ),
+            taxonomy: MapProductTaxonomyList(
+                    fpmlVarianceSwapTransactionSupplement -> productModel
+                ),
+            economicTerms: MapVarianceSwapTransactionSupplementEconomicTerms(
+                    fpmlVarianceSwapTransactionSupplement,
+                    cdmCounterpartyList
+                )
+        }
+
+func MapVarianceSwapTransactionSupplementEconomicTerms:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: fpmlVarianceSwapTransactionSupplement -> varianceLeg
+                extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
+            ...
+        }
+
+func MapVarianceSwapTransactionSupplementPriceQuantityList:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        fpmlVarianceSwapTransactionSupplement -> varianceLeg
+            extract MapVarianceLegToPriceQuantity
+
+func MapVarianceSwapTransactionSupplementAccountPartyReference:
+    inputs:
+        fpmlVarianceSwapTransactionSupplement fpml.VarianceSwapTransactionSupplement (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapPayerReceiverToAccountPartyReference(
+                fpmlAccount,
+                fpmlVarianceSwapTransactionSupplement -> varianceLeg -> payerReceiverModel
+            )

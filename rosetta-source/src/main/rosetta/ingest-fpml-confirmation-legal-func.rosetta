@@ -1,0 +1,348 @@
+namespace cdm.ingest.fpml.confirmation.legal
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.legaldocumentation.common.*
+import cdm.legaldocumentation.master.*
+import cdm.product.collateral.*
+
+import fpml.confirmation.* as fpml
+
+func MapContractDetails:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        contractDetails ContractDetails (0..1)
+
+    set contractDetails:
+        ContractDetails {
+            documentation: MapLegalAgreementList(
+                    fpmlTrade -> documentation,
+                    cdmCounterpartyList
+                ),
+            governingLaw: MapGoverningLaw(fpmlTrade -> governingLaw)
+        }
+
+func MapLegalAgreementList:
+    inputs:
+        fpmlDocumentation fpml.Documentation (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreementList LegalAgreement (0..*)
+
+    add legalAgreementList:
+        if fpmlDocumentation -> masterAgreement exists
+        then MapMasterAgreement(fpmlDocumentation -> masterAgreement, cdmCounterpartyList)
+    add legalAgreementList:
+        if fpmlDocumentation -> masterConfirmation exists
+        then MapMasterConfirmation(
+                    fpmlDocumentation -> masterConfirmation,
+                    cdmCounterpartyList
+                )
+    add legalAgreementList:
+        if fpmlDocumentation -> creditSupportAgreement exists
+        then MapCreditSupportAgreement(
+                    fpmlDocumentation -> creditSupportAgreement,
+                    cdmCounterpartyList
+                )
+    add legalAgreementList:
+        if fpmlDocumentation -> contractualDefinitions exists
+                or fpmlDocumentation -> contractualMatrix exists
+                or fpmlDocumentation -> contractualTermsSupplement exists
+        then MapConfirmationLegalAgreement(fpmlDocumentation, cdmCounterpartyList)
+    add legalAgreementList:
+        if fpmlDocumentation -> otherAgreement exists
+        then fpmlDocumentation -> otherAgreement
+            extract MapOtherAgreements(item, cdmCounterpartyList)
+
+func MapMasterAgreement:
+    inputs:
+        fpmlMasterAgreement fpml.MasterAgreement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    alias cdmAgreementName:
+        AgreementName {
+            masterAgreementType: MapMasterAgreementTypeEnumWithScheme(
+                    fpmlMasterAgreement -> masterAgreementType
+                ),
+            agreementType: MasterAgreement,
+            ...
+        }
+
+    set legalAgreement:
+        MapLegalAgreement(
+                fpmlMasterAgreement -> masterAgreementDate -> date,
+                cdmCounterpartyList,
+                cdmAgreementName,
+                fpmlMasterAgreement -> masterAgreementVersion -> value to-int
+            )
+
+func MapMasterAgreementTypeEnumWithScheme:
+    inputs:
+        fpmlMasterAgreementType fpml.MasterAgreementType (0..1)
+    output:
+        masterAgreementTypeEnum MasterAgreementTypeEnum (0..1)
+            [metadata scheme]
+
+    set masterAgreementTypeEnum:
+        MapMasterAgreementTypeEnum(fpmlMasterAgreementType -> value)
+    set masterAgreementTypeEnum -> scheme:
+        fpmlMasterAgreementType -> masterAgreementTypeScheme
+
+func MapMasterConfirmation:
+    inputs:
+        fpmlMasterConfirmation fpml.MasterConfirmation (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    alias cdmAgreementName:
+        AgreementName {
+            masterConfirmationType: MapMasterConfirmationTypeEnumWithScheme(
+                    fpmlMasterConfirmation -> masterConfirmationType
+                ),
+            masterConfirmationAnnexType: MapMasterConfirmationAnnexTypeEnumWithScheme(
+                    fpmlMasterConfirmation -> masterConfirmationAnnexType
+                ),
+            agreementType: MasterConfirmation,
+            ...
+        }
+
+    set legalAgreement:
+        MapLegalAgreement(
+                fpmlMasterConfirmation -> masterConfirmationDate -> date,
+                cdmCounterpartyList,
+                cdmAgreementName,
+                empty
+            )
+
+func MapMasterConfirmationTypeEnumWithScheme:
+    inputs:
+        fpmlMasterConfirmationType fpml.MasterConfirmationType (0..1)
+    output:
+        masterConfirmationTypeEnum MasterConfirmationTypeEnum (0..1)
+            [metadata scheme]
+
+    set masterConfirmationTypeEnum:
+        MapMasterConfirmationTypeEnum(fpmlMasterConfirmationType -> value)
+    set masterConfirmationTypeEnum -> scheme:
+        fpmlMasterConfirmationType -> masterConfirmationTypeScheme
+
+func MapMasterConfirmationAnnexTypeEnumWithScheme:
+    inputs:
+        fpmlMasterConfirmationAnnexType fpml.MasterConfirmationAnnexType (0..1)
+    output:
+        masterConfirmationAnnexType MasterConfirmationAnnexTypeEnum (0..1)
+            [metadata scheme]
+
+    set masterConfirmationAnnexType:
+        MapMasterConfirmationAnnexTypeEnum(fpmlMasterConfirmationAnnexType -> value)
+    set masterConfirmationAnnexType -> scheme:
+        fpmlMasterConfirmationAnnexType -> masterConfirmationAnnexTypeScheme
+
+func MapCreditSupportAgreement:
+    inputs:
+        fpmlCreditSupportAgreement fpml.CreditSupportAgreement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    alias cdmAgreementName:
+        AgreementName {
+            creditSupportAgreementType: MapCreditSupportAgreementTypeEnumWithScheme(
+                    fpmlCreditSupportAgreement -> _type
+                ),
+            agreementType: CreditSupportAgreement,
+            ...
+        }
+
+    set legalAgreement:
+        MapLegalAgreement(
+                fpmlCreditSupportAgreement -> date -> date,
+                cdmCounterpartyList,
+                cdmAgreementName,
+                empty
+            )
+
+func MapCreditSupportAgreementTypeEnumWithScheme:
+    inputs:
+        fpmlCreditSupportAgreementType fpml.CreditSupportAgreementType (0..1)
+    output:
+        creditSupportAgreementTypeEnum CreditSupportAgreementTypeEnum (0..1)
+            [metadata scheme]
+
+    set creditSupportAgreementTypeEnum:
+        MapCreditSupportAgreementTypeEnum(fpmlCreditSupportAgreementType -> value)
+    set creditSupportAgreementTypeEnum -> scheme:
+        fpmlCreditSupportAgreementType -> creditSupportAgreementTypeScheme
+
+func MapConfirmationLegalAgreement:
+    inputs:
+        fpmlDocumentation fpml.Documentation (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    alias cdmAgreementName:
+        AgreementName {
+            contractualDefinitionsType: fpmlDocumentation -> contractualDefinitions
+                extract MapContractualDefinitionsEnumWithScheme,
+            contractualMatrix: fpmlDocumentation -> contractualMatrix
+                extract
+                    ContractualMatrix {
+                        matrixType: MapMatrixTypeEnumWithScheme(matrixType),
+                        matrixTerm: MapMatrixTermEnumWithScheme(matrixTerm)
+                    },
+            contractualTermsSupplement: fpmlDocumentation -> contractualTermsSupplement
+                extract
+                    ContractualTermsSupplement {
+                        contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
+                                _type
+                            ),
+                        publicationDate: publicationDate -> date
+                    },
+            agreementType: Confirmation,
+            ...
+        }
+
+    set legalAgreement:
+        MapLegalAgreement(empty, cdmCounterpartyList, cdmAgreementName, empty)
+
+func MapContractualDefinitionsEnumWithScheme:
+    inputs:
+        fpmlContractualDefinitions fpml.ContractualDefinitions (0..1)
+    output:
+        contractualDefinitionsEnum ContractualDefinitionsEnum (0..1)
+            [metadata scheme]
+
+    set contractualDefinitionsEnum:
+        MapContractualDefinitionsEnum(fpmlContractualDefinitions -> value)
+    set contractualDefinitionsEnum -> scheme:
+        fpmlContractualDefinitions -> contractualDefinitionsScheme
+
+func MapMatrixTypeEnumWithScheme:
+    inputs:
+        fpmlMatrixType fpml.MatrixType (0..1)
+    output:
+        matrixTypeEnum MatrixTypeEnum (0..1)
+            [metadata scheme]
+
+    set matrixTypeEnum: MapMatrixTypeEnum(fpmlMatrixType -> value)
+    set matrixTypeEnum -> scheme: fpmlMatrixType -> matrixTypeScheme
+
+func MapMatrixTermEnumWithScheme:
+    inputs:
+        fpmlMatrixTerm fpml.MatrixTerm (0..1)
+    output:
+        matrixTermEnum MatrixTermEnum (0..1)
+            [metadata scheme]
+
+    set matrixTermEnum: MapMatrixTermEnum(fpmlMatrixTerm -> value)
+    set matrixTermEnum -> scheme: fpmlMatrixTerm -> matrixTermScheme
+
+func MapContractualSupplementTypeEnumWithScheme:
+    inputs:
+        fpmlContractualSupplement fpml.ContractualSupplement (0..1)
+    output:
+        contractualSupplementTypeEnum ContractualSupplementTypeEnum (0..1)
+            [metadata scheme]
+
+    set contractualSupplementTypeEnum:
+        MapContractualSupplementTypeEnum(fpmlContractualSupplement -> value)
+    set contractualSupplementTypeEnum -> scheme:
+        fpmlContractualSupplement -> contractualSupplementScheme
+
+func MapOtherAgreements:
+    inputs:
+        fpmlOtherAgreement fpml.OtherAgreement (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    alias agreementName:
+        AgreementName {
+            otherAgreement: fpmlOtherAgreement -> _type -> value,
+            agreementType: Other,
+            ...
+        }
+    alias vintage: fpmlOtherAgreement -> version -> value to-int
+
+    set legalAgreement:
+        MapLegalAgreement(
+                fpmlOtherAgreement -> date -> date,
+                cdmCounterpartyList,
+                agreementName,
+                vintage
+            )
+
+func MapLegalAgreement:
+    inputs:
+        fpmlAgreementDate date (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+        cdmAgreementName AgreementName (0..1)
+        cdmVintage int (0..1)
+    output:
+        legalAgreement LegalAgreement (0..1)
+
+    set legalAgreement:
+        LegalAgreement {
+            agreementDate: fpmlAgreementDate,
+            contractualParty: MapContractualParty(cdmCounterpartyList),
+            legalAgreementIdentification: LegalAgreementIdentification {
+                governingLaw: empty,
+                agreementName: cdmAgreementName,
+                publisher: empty,
+                vintage: cdmVintage,
+            },
+            ...
+        }
+
+func MapContractualParty:
+    inputs:
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        contractualPartyList Party (0..2)
+            [metadata reference]
+
+    add contractualPartyList: cdmCounterpartyList -> partyReference
+
+func MapGoverningLaw:
+    inputs:
+        fpmlGoverningLaw fpml.GoverningLaw (0..1)
+    output:
+        governingLawEnum GoverningLawEnum (0..1)
+            [metadata scheme]
+
+    set governingLawEnum: fpmlGoverningLaw -> value to-enum GoverningLawEnum
+/*
+ * func MapAgreementTerms:
+ *     inputs:
+ *         fpmlTrade fpml.Trade (0..1)
+ *         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+ *     output:
+ *         agreementTerms AgreementTerms (0..1)
+ *     set agreementTerms:
+ *         AgreementTerms {
+ *             agreement: MapAgreement(fpmlTrade, fpmlPartiesAndAccountsModel),
+ *             clauseLibrary: empty,
+ *             counterparty: MapCounterpartyList(fpmlTrade),
+ *         }
+
+ * func MapUmbrellaAgreement:
+ *     inputs:
+ *         fpmlTrade fpml.Trade (0..1)
+ *         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+ *     output:
+ *         umbrellaAgreement UmbrellaAgreement (0..1)
+ *     set umbrellaAgreement:
+ *         UmbrellaAgreement {
+ *             isApplicable: empty,
+ *             language: empty,
+ *             parties: MapUmbrellaAgreementEntityList(fpmlTrade, fpmlPartiesAndAccountsModel),
+ *         }
+ */
