@@ -30,4 +30,4 @@ Mapping has been completed for the following areas in CDM:
 
 *Review Directions*
 
-Changes can be reviewed in PR: #4091
+Changes can be reviewed in PR: [#4091](https://github.com/finos/common-domain-model/pull/4091)
