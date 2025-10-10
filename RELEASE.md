@@ -11,4 +11,4 @@ _Review Directions_
 
 No changes to model or expectations
 
-The changes can be reviewed in PR: [3269](https://github.com/rosetta-models/common-domain-model/pull/3269)
+The changes can be reviewed in PR: [4093](https://github.com/finos/common-domain-model/pull/4093)
