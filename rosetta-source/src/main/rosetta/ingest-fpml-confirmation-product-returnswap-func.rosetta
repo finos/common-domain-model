@@ -354,36 +354,37 @@ func MapReturnSwapDividendReturnTerms:
         dividendReturnTerms DividendReturnTerms (0..1)
 
     set dividendReturnTerms:
-        DividendReturnTerms {
-            dividendPayoutRatio: DividendPayoutRatio {
-                totalRatio: fpmlDividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
-                ...
-            },
-            dividendReinvestment: fpmlDividendConditions -> dividendReinvestment,
-            dividendEntitlement: MapDividendEntitlementEnum(
-                    fpmlDividendConditions -> dividendEntitlement to-string
-                ),
-            excessDividendAmount: MapDividendAmountTypeEnum(
-                    fpmlDividendConditions -> excessDividendAmount to-string
-                ),
-            dividendCurrency: MapDividendCurrency(
-                    fpmlDividendConditions -> currencyAndDeterminationMethodModel
-                ),
-            dividendPeriod: DividendPeriod {
-                startDate: MapDateReferenceToDividendPaymentDate(
-                        fpmlDividendConditions -> dividendConditionsSequence -> dividendPeriodEffectiveDate
-                    ),
-                endDate: MapDateReferenceToDividendPaymentDate(
-                        fpmlDividendConditions -> dividendConditionsSequence -> dividendPeriodEndDate
-                    ),
-                dividendPaymentDate: MapDividendPaymentDate(
-                        fpmlDividendConditions -> dividendPaymentDate
-                    ),
-                dateAdjustments: empty,
-                ...
-            },
-            ...
-        }
+        fpmlDividendConditions
+            extract
+                DividendReturnTerms {
+                    dividendPayoutRatio: DividendPayoutRatio {
+                        totalRatio: fpmlDividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
+                        ...
+                    },
+                    firstOrSecondPeriod: MapDividendPeriodEnum(dividendPeriod to-string),
+                    dividendReinvestment: dividendReinvestment,
+                    dividendEntitlement: MapDividendEntitlementEnum(
+                            dividendEntitlement to-string
+                        ),
+                    excessDividendAmount: MapDividendAmountTypeEnum(
+                            excessDividendAmount to-string
+                        ),
+                    dividendCurrency: MapDividendCurrency(
+                            currencyAndDeterminationMethodModel
+                        ),
+                    dividendPeriod: DividendPeriod {
+                        startDate: MapDateReferenceToDividendPaymentDate(
+                                dividendConditionsSequence -> dividendPeriodEffectiveDate
+                            ),
+                        endDate: MapDateReferenceToDividendPaymentDate(
+                                dividendConditionsSequence -> dividendPeriodEndDate
+                            ),
+                        dividendPaymentDate: MapDividendPaymentDate(dividendPaymentDate),
+                        dateAdjustments: empty,
+                        ...
+                    },
+                    ...
+                }
 
 func MapDividendCurrency:
     inputs:
@@ -406,17 +407,24 @@ func MapReturnSwapPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias returnLeg:
+        fpmlReturnSwap -> returnSwapLeg
+            extract ToLegChoice
+            then extract ReturnLeg
+            then only-element
+
     add priceQuantityList:
         fpmlReturnSwap -> returnSwapLeg
             extract
                 ToLegChoice switch
-           InterestLeg then MapInterestLegToPriceQuantity,
+           InterestLeg then MapInterestLegToPriceQuantity (item,returnLeg),
            ReturnLeg then MapReturnLegToPriceQuantity,
            default empty
 
 func MapInterestLegToPriceQuantity:
     inputs:
         fpmlInterestLeg fpml.InterestLeg (0..1)
+        fpmlReturnLeg fpml.ReturnLeg (0..1)
     output:
         priceQuantity PriceQuantity (0..1)
 
@@ -424,6 +432,7 @@ func MapInterestLegToPriceQuantity:
         PriceQuantity {
             price: MapInterestCalculationToPriceListWithLocation(
                     fpmlInterestLeg -> interestCalculation,
+                    fpmlInterestLeg -> notional -> notionalAmount -> currency default fpmlReturnLeg -> notional -> notionalAmount -> currency,
                     fpmlInterestLeg
                 ),
             quantity: MapNotionalAmountToQuantityWithLocation(
@@ -442,6 +451,7 @@ func MapInterestLegToPriceQuantity:
 func MapInterestCalculationToPriceListWithLocation:
     inputs:
         fpmlInterestCalculation fpml.InterestCalculation (0..1)
+        fpmlCurrency fpml.Currency (0..1)
         fpmlLeg fpml.Leg (0..1)
     output:
         priceSchedules PriceSchedule (0..*)
@@ -449,7 +459,6 @@ func MapInterestCalculationToPriceListWithLocation:
 
     alias fpmlRate: fpmlInterestCalculation -> floatingRateCalculation
 
-    alias fpmlCurrency: empty // TODO
     add priceSchedules:
         MapFixedRateToPriceScheduleWithLocation(
                 fpmlInterestCalculation -> fixedRate,
@@ -491,12 +500,21 @@ func MapReturnLegToPriceQuantity:
                     fpmlReturnLeg -> rateOfReturn -> initialPrice,
                     fpmlReturnLeg
                 ),
-            quantity: MapNotionalAmountToQuantityWithLocation(
-                    fpmlReturnLeg -> notional -> notionalAmount -> amount,
-                    empty,
-                    fpmlReturnLeg -> notional -> notionalAmount -> currency,
-                    fpmlReturnLeg
-                ),
+            quantity: [
+                MapNotionalAmountWithIdToQuantityWithLocation(
+                        fpmlReturnLeg -> underlyer -> singleUnderlyer -> openUnits,
+                        empty,
+                        fpmlReturnLeg -> notional -> notionalAmount -> currency,
+                        "openUnits",
+                        fpmlReturnLeg
+                    ),
+                MapNotionalAmountToQuantityWithLocation(
+                        fpmlReturnLeg -> notional -> notionalAmount -> amount,
+                        empty,
+                        fpmlReturnLeg -> notional -> notionalAmount -> currency,
+                        fpmlReturnLeg
+                    )
+            ],
             observable: MapUnderlyerToObservableWithLocation(fpmlReturnLeg -> underlyer),
             ...
         }
