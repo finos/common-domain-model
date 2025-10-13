@@ -57,64 +57,63 @@ public class CodeListTransformer {
         final String XSLT_RESOURCE = "/org/isda/codelist/codelist2cdmjson.xsl";
 
         // Load the XSLT transformation script as a resource
-        InputStream xsltStream = CodeListTransformer.class.getResourceAsStream(XSLT_RESOURCE);
-        if (xsltStream == null) {
-            throw new FileNotFoundException("XSLT file not found in resources: " + XSLT_RESOURCE);
-        }
+        try (InputStream xsltStream = CodeListTransformer.class.getResourceAsStream(XSLT_RESOURCE)){
+            //InputStream xsltStream = CodeListTransformer.class.getResourceAsStream(XSLT_RESOURCE);
+            if (xsltStream == null) {
+                throw new FileNotFoundException("XSLT file not found in resources: " + XSLT_RESOURCE);
+            }
 
-        // Set up Transformer using the loaded XSLT
-        StreamSource xsltSource = new StreamSource(xsltStream);
-        TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
-        Transformer transformer = factory.newTransformer(xsltSource);
+            // Set up Transformer using the loaded XSLT
+            StreamSource xsltSource = new StreamSource(xsltStream);
+            TransformerFactory factory = new net.sf.saxon.TransformerFactoryImpl();
+            Transformer transformer = factory.newTransformer(xsltSource);
 
-        // Load XML directory from resources
-        Path outputDirPath = Paths.get(outputDirectory);
-        // Remove any existing files inside the output directory before recreating it
-        if (Files.exists(outputDirPath)) {
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(outputDirPath)) {
-                for (Path file : stream) {
-                    Files.delete(file);
+            // Load XML directory from resources
+            Path outputDirPath = Paths.get(outputDirectory);
+            // Remove any existing files inside the output directory before recreating it
+            if (Files.exists(outputDirPath)) {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(outputDirPath)) {
+                    for (Path file : stream) {
+                        Files.delete(file);
+                    }
+                }
+            }
+            Files.createDirectories(outputDirPath); // Ensure directory exists
+
+            File xmlDir = new File(inputDirectory);
+            if (!xmlDir.exists()) {
+                throw new FileNotFoundException("XML resource directory not found: " + inputDirectory);
+            }
+
+            File[] xmlFiles = xmlDir.listFiles((dir, name) -> name.endsWith(".xml"));
+            if (xmlFiles == null || xmlFiles.length == 0) {
+                logger.warn("No XML files found in: {}", inputDirectory);
+                return;
+            }
+
+            // Process each XML file
+            for (File xmlFile : xmlFiles) {
+                String outputFileName = xmlFile.getName().replace(".xml", ".json");
+                Path outputPath = outputDirPath.resolve(outputFileName);
+
+                // Use try-with-resources to ensure OutputStream is properly closed
+                try (OutputStream outputStream = new ByteArrayOutputStream()) {
+                    transformFile(xmlFile, transformer, outputStream);
+                    // Convert OutputStream to String
+                    String jsonString = outputStream.toString();
+
+                    // Parse JSON string into CodeList object
+                    CodeList codeList = mapper.readValue(jsonString, CodeList.class);
+
+                    //Save JSON string to outputPath
+                    mapper.writeValue(outputPath.toFile(), codeList);
+
+                    logger.info("Successfully transformed: {} -> {}", xmlFile.getName(), outputPath);
+                } catch (Exception e) {
+                    logger.error("Failed to transform {}: {}", xmlFile.getName(), e.getMessage());
                 }
             }
         }
-        Files.createDirectories(outputDirPath); // Ensure directory exists
-
-        File xmlDir = new File(inputDirectory);
-        if (!xmlDir.exists()) {
-            throw new FileNotFoundException("XML resource directory not found: " + inputDirectory);
-        }
-
-        File[] xmlFiles = xmlDir.listFiles((dir, name) -> name.endsWith(".xml"));
-        if (xmlFiles == null || xmlFiles.length == 0) {
-            logger.warn("No XML files found in: {}", inputDirectory);
-            return;
-        }
-
-        // Process each XML file
-        for (File xmlFile : xmlFiles) {
-            String outputFileName = xmlFile.getName().replace(".xml", ".json");
-            Path outputPath = outputDirPath.resolve(outputFileName);
-
-            // Use try-with-resources to ensure OutputStream is properly closed
-            try (OutputStream outputStream = new ByteArrayOutputStream()) {
-                transformFile(xmlFile, transformer, outputStream);
-                // Convert OutputStream to String
-                String jsonString = outputStream.toString();
-
-                // Parse JSON string into CodeList object
-                CodeList codeList = mapper.readValue(jsonString, CodeList.class);
-
-                //Save JSON string to outputPath
-                mapper.writeValue(outputPath.toFile(), codeList);
-
-                logger.info("Successfully transformed: {} -> {}", xmlFile.getName(), outputPath);
-            } catch (Exception e) {
-                logger.error("Failed to transform {}: {}", xmlFile.getName(), e.getMessage(), e);
-            }
-        }
-
-        // Close XSLT stream to avoid resource leaks
-        xsltStream.close();
     }
 
     /**
