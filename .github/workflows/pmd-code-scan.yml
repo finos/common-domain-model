@@ -1,0 +1,38 @@
+name: PMD Code Scan
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  pdm-code-scan:
+    name: Run PMD Code Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run PMD on modules
+        run: |
+          mvn -B -DskipTests -Dformat=csv pmd:aggregate-pmd
+
+      - name: Upload rosetta-source PDM reports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmd-scanning-report.csv
+          path: target/pmd.csv
+          if-no-files-found: warn          

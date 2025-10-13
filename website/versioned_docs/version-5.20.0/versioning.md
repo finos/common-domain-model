@@ -75,7 +75,7 @@ various versions available would be as follows:
     version 6.0.0 can be tagged as a major release and becomes the new
     latest production version.
 
-Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Maintenance and Release Guidelines](maintenance-and-release.md/#release-build-approval-guidelines).
+Please note, all contributions must follow the [change control guidelines](change-control-guidelines.md). Guidelines for approval of  new versions are described in the [Maintenance and Release Guidelines](maintenance-and-release#release-build-approval-guidelines).
 
 Click [here](https://github.com/finos/common-domain-model/blob/master/ROADMAP.md) to view the current planned release timeline.
 
