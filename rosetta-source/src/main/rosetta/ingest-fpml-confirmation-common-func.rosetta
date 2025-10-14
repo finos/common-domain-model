@@ -439,18 +439,18 @@ func MapExerciseTerms:
     inputs:
         fpmlExercise fpml.Exercise (0..1)
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
-        fpmlAutomaticExerciseIsApplicable boolean (0..1)
+        fpmlAutomaticExercise boolean (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseTerms ExerciseTerms (1..1)
 
     alias cdmExerciseProcedure:
-        if fpmlExerciseProcedure exists or fpmlAutomaticExerciseIsApplicable exists
+        if fpmlExerciseProcedure exists or fpmlAutomaticExercise exists
         then MapExerciseProcedure(
                     fpmlExerciseProcedure,
                     fpmlBuyerSellerModel,
-                    fpmlAutomaticExerciseIsApplicable,
+                    fpmlAutomaticExercise,
                     cdmCounterpartyList
                 )
 
@@ -474,7 +474,7 @@ func MapExerciseProcedure:
     inputs:
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
-        fpmlAutomaticExerciseIsApplicable boolean (0..1)
+        fpmlAutomaticExercise boolean (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseProcedure ExerciseProcedure (1..1)
@@ -501,7 +501,7 @@ func MapExerciseProcedure:
                 ...
             },
             automaticExercise: AutomaticExercise {
-                isApplicable: fpmlAutomaticExerciseIsApplicable,
+                isApplicable: fpmlAutomaticExercise,
                 ...
             },
             followUpConfirmation: fpmlExerciseProcedure -> followUpConfirmation,
