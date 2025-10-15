@@ -133,6 +133,28 @@ func UpdateAmount: <"Updates an amount based on the given QuantityChangeDirectio
         Decrease then oldAmount - changeAmount,
         Replace then changeAmount
 
+func UpdateDatedValues: <"Updates the amounts of the dated values based on the given QuantityChangeDirectionEnum. For all periods after the effective date of the change, if the direction is Increase, the old amount and change amount are summed, if the direction is Decrease, then the change amount is subtracted from the old amount, and if the direction is Replace then the change amount replaces the old amount.">
+    inputs:
+        datedValues DatedValue (0..*)
+        changeAmount number (0..1)
+        direction QuantityChangeDirectionEnum (1..1)
+        effectiveDate date (0..1)
+    output:
+        newdatedValues DatedValue (0..*)
+
+    add newdatedValues:
+    datedValues
+        extract
+            DatedValue {
+                date:  item -> date,
+                value:
+                if item -> date >= effectiveDate then (
+                if direction = QuantityChangeDirectionEnum -> Increase then item -> value + changeAmount
+                else if direction = QuantityChangeDirectionEnum -> Decrease then item -> value - changeAmount
+                else if direction = QuantityChangeDirectionEnum -> Replace then changeAmount)
+                else item -> value
+            }
+
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
         quantities Quantity (0..*) <"List of quantities to filter.">
