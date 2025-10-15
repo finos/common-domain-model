@@ -8,8 +8,8 @@ Currently, there is no identifier type for indexes with the value only being pro
 
 _What is being released?_
 
-- Adding ProductIdentifier attribute to IndexReferenceInformation
-- Adding deprecated annotation to indexId attribute
+- Adding `ProductIdentifier` attribute to `IndexReferenceInformation`
+- Adding `deprecated` annotation to `indexId` attribute
 
 _Review Directions_
 
