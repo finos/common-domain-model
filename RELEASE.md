@@ -1,16 +1,25 @@
-# Pre-trade - Addition of `[rootType] `to AvailableInventory and SecurityLocate
+# *FpML Ingestion - FX Payer and Receiver*
 
 _Background_
 
-The `AvailableInventory` and `SecurityLocate` types are top level types used for modelling the securities lending pre-trade processes of where a lender distributes details of the securities they have available and where a borrower can request specific securities respectively.
-
-Adding the `[rootType]` annotation to these two types sets them as top level types and also makes them accessible through the Object Builder, making it easier for modellers to build JSON examples of their structure.
+This release fixes the FpML ingestion (based on synonyms) mapping of payer and receiver for FX products, as per GitHub issue [#4039](https://github.com/finos/common-domain-model/issues/4039).
 
 _What is being released?_
 
-- Addition of `[rootType]` annotation to `AvailableInventory`
-- Addition of `[rootType]` annotation to `SecurityLocate`
+Update to the FpML synonym mappings for `SettlementPayout` attributes `payer` and `receiver` to correctly correspond the exchange rate quote basis. 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4105](https://github.com/finos/common-domain-model/pull/4105)
+In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML samples:
+
+- fx-ex01-fx-spot.xml
+- fx-ex02-spot-cross-w-side-rates.xml
+- fx-ex03-fx-fwd.xml
+- fx-ex05-fx-fwd-w-ssi.xml
+- fx-ex07-non-deliverable-forward.xml
+- fx-ex08-fx-swap.xml
+- fx-ex26-fxswap-multiple-USIs.xml
+- fx-ex28-non-deliverable-w-disruption.xml
+- fx-ex29-fx-swap-with-multiple-identifiers.xml
+
+Changes can be reviewed in PR: [#4062](https://github.com/finos/common-domain-model/pull/4062)

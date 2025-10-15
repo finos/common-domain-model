@@ -1,5 +1,6 @@
 package cdm.base.staticdata.asset.common.processor;
 
+import cdm.observable.asset.QuoteBasisEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Reference;
@@ -68,5 +69,21 @@ public class FxMetaHelper {
                 true :
                 strikeQuoteBasis.equals("PutCurrencyPerCallCurrency") ?
                         false : null);
+    }
+
+    public Optional<Path> getExchangedCurrencyPath(Path quoteBasisPath) {
+        return getNonNullMappedValue(quoteBasisPath, mappings)
+                .map(quoteBasis -> {
+                    Path productPath = quoteBasisPath.getParent().getParent().getParent();
+                    QuoteBasisEnum quoteBasisEnum = QuoteBasisEnum.fromDisplayName(quoteBasis);
+                    switch (quoteBasisEnum) {
+                        case CURRENCY_1_PER_CURRENCY_2:
+                            return productPath.addElement("exchangedCurrency2");
+                        case CURRENCY_2_PER_CURRENCY_1:
+                            return productPath.addElement("exchangedCurrency1");
+                        default:
+                            return null;
+                    }
+                });
     }
 }
