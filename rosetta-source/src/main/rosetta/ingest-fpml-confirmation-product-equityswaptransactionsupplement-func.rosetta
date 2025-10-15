@@ -3,6 +3,7 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.product.returnswap.*
 import cdm.observable.asset.*
@@ -58,6 +59,16 @@ func MapEquitySwapTransactionSupplementEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                    fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> effectiveDate
+                        distinct
+                        only-element
+                ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                    fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> terminationDate
+                        distinct
+                        only-element
+                ),
             payout: MapReturnSwapLegListToPayoutList(
                     fpmlEquitySwapTransactionSupplement -> returnSwapLeg,
                     cdmCounterpartyList
@@ -91,13 +102,20 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias returnLeg:
+        fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract ToLegChoice
+            then extract ReturnLeg
+            then only-element
+
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
             extract
                 ToLegChoice switch
-           InterestLeg then MapInterestLegToPriceQuantity,
-           ReturnLeg then MapReturnLegToPriceQuantity,
-           default empty
+                    InterestLeg then
+                        MapInterestLegToPriceQuantity(item, returnLeg),
+                    ReturnLeg then MapReturnLegToPriceQuantity,
+                    default empty
 
 func MapEquitySwapTransactionSupplementAccountPartyReference:
     inputs:
