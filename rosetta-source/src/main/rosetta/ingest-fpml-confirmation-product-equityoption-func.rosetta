@@ -12,6 +12,9 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.confirmation.* as fpml
+import cdm.product.common.schedule.*
+import cdm.observable.event.*
+import cdm.ingest.fpml.confirmation.datetime.*
 
 func MapEquityOptionCounterpartyList:
     inputs:
@@ -74,6 +77,10 @@ func MapEquityOptionPayout:
         }
 
     alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlEquityOption)
+    alias prm:
+        fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> payerReceiverModel
+    alias apo: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodOut
+    alias api: fpmlEquityOption -> featureModel -> feature -> asian -> averagingPeriodIn
 
     set payout:
         Payout {
@@ -97,6 +104,45 @@ func MapEquityOptionPayout:
                         fpmlEquityOption -> buyerSellerModel,
                         cdmCounterpartyList
                     ),
+                feature: OptionFeature {
+                    averagingFeature: AveragingFeature {
+                        averagingCalculation: empty,
+                        averagingInOut: fpmlEquityOption -> featureModel -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
+                        averagingPeriodOut: AveragingPeriod {
+                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                    apo -> averagingDateTimes
+                                ),
+                            averagingObservations: MapAveragingObservations(
+                                    apo -> averagingObservations
+                                ),
+                            marketDisruption: apo -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                            ...
+                        },
+                        averagingPeriodIn: AveragingPeriod {
+                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                    api -> averagingDateTimes
+                                ),
+                            marketDisruption: api -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                            ...
+                        },
+                        ...
+                    },
+                    passThrough: PassThrough {
+                        passThroughItem: PassThroughItem {
+                            payerReceiver: PayerReceiver {
+                                payer: MapCounterpartyRoleEnum(
+                                        prm -> payerModel -> payerPartyReference -> href,
+                                        cdmCounterpartyList
+                                    ),
+                                receiver: MapCounterpartyRoleEnum(
+                                        prm -> receiverModel -> receiverPartyReference -> href,
+                                        cdmCounterpartyList
+                                    )
+                            },
+                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage
+                    },},
+                    ...
+                },
                 underlier: Underlier {
                     Observable: MapUnderlyerToObservableWithAddress(
                             fpmlEquityOption -> underlyer
@@ -121,6 +167,20 @@ func MapEquityOptionPayout:
             },
             ...
         }
+
+func MapAveragingObservations:
+    inputs:
+        averagingObservationList fpml.AveragingObservationList (0..*)
+    output:
+        observationList AveragingObservationList (0..*)
+
+    add observationList:
+        AveragingObservationList {
+            averagingObservation: WeightedAveragingObservation {
+                dateTime: averagingObservationList -> averagingObservation -> dateTime,
+                observationNumber: averagingObservationList -> averagingObservation -> observationNumber,
+                weight: averagingObservationList -> averagingObservation -> weight
+        }}
 
 func MapEquityOptionPriceQuantityList:
     inputs:
