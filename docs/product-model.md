@@ -1030,11 +1030,11 @@ type QuantitySchedule extends MeasureSchedule:
 ``` Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
 
-    condition NonNegativeQuantity_value: <"For a non-negative quantity, all amount attribute must be positive.">
+    condition NonNegativeQuantity_value:
         if value exists
         then value >= 0.0
 
-    condition NonNegativeQuantity_datedValue: <"For a non-negative quantity, all amount attribute must be positive.">
+    condition NonNegativeQuantity_datedValue:
         if datedValue exists
         then datedValue -> value all >= 0.0
 ```
