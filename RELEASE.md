@@ -26,12 +26,15 @@ _What is being released?_
    - `DSL` 9.65.5 Fix issue where clashing names from other namespaces are not correctly qualified in generated code. See DSL release notes: [DSL 9.65.5](https://github.com/finos/rune-dsl/releases/tag/9.65.5)
    - `DSL` 9.66.0 Fix issue where `then` operation allows incorrect syntax. See DSL release notes: [DSL 9.66.0](https://github.com/finos/rune-dsl/releases/tag/9.66.0)
    - `DSL` 9.66.1 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.66.1](https://github.com/finos/rune-dsl/releases/tag/9.66.1)
+   - `DSL` 9.67.7 has been migrated to the Finos namespace. See DSL release notes: [DSL 9.67.7](https://github.com/finos/rune-dsl/releases/tag/9.67.7)
+   - `DSL` 9.67.8 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.67.8](https://github.com/finos/rune-dsl/releases/tag/9.67.8)
+   - `DSL` 9.67.9 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.67.9](https://github.com/finos/rune-dsl/releases/tag/9.67.9)
 
 There are no changes to model or test expectations.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
+The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036) && [#4101](https://github.com/finos/common-domain-model/pull/4101)
 
 # _Infrastructure - Security Update_
 
