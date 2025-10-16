@@ -10,7 +10,7 @@ The contribution is the addition of a new `CFTC` value to the `TaxonomySourceEnu
 
 _Review Directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4109
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4110
 
 # _Infrastructure - Dependency Update_
 
