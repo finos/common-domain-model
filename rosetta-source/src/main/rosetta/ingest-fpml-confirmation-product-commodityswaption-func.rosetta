@@ -37,9 +37,9 @@ func MapCommoditySwaptionNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlCommoditySwaption -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlCommoditySwaption -> productModel),
             economicTerms: MapCommoditySwaptionEconomicTerms(
-                    fpmlCommoditySwaption,
-                    cdmCounterpartyList
-                )
+                        fpmlCommoditySwaption,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapCommoditySwaptionEconomicTerms:
@@ -64,39 +64,42 @@ func MapCommoditySwaptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlCommoditySwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                settlementTerms: empty,
-                buyerSeller: MapBuyerSeller(
-                        fpmlCommoditySwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Product: Product {
-                        NonTransferableProduct: MapUnderlierNonTransferableProduct(
-                                fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel,
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlCommoditySwaption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                        ...
-                    },
+                    settlementTerms: empty,
+                    buyerSeller: MapBuyerSeller(
+                                fpmlCommoditySwaption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapUnderlierNonTransferableProduct(
+                                                fpmlCommoditySwaption -> commoditySwap -> commoditySwapDetailsModel,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    optionType: empty,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlCommodityPhysicalExercise(
+                                        fpmlCommoditySwaption -> physicalExercise
+                                    ),
+                                empty,
+                                empty,
+                                fpmlCommoditySwaption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: empty,
                     ...
                 },
-                optionType: empty,
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlCommodityPhysicalExercise(
-                                fpmlCommoditySwaption -> physicalExercise
-                            ),
-                        empty,
-                        empty,
-                        fpmlCommoditySwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: empty,
-                ...
-            },
             ...
         }
 
@@ -110,9 +113,9 @@ func MapUnderlierNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             economicTerms: MapCommoditySwapEconomicTerms(
-                    fpmlCommoditySwapDetailsModel,
-                    cdmCounterpartyList
-                ),
+                        fpmlCommoditySwapDetailsModel,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 

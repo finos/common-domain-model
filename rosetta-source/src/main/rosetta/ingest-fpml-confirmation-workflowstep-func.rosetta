@@ -24,26 +24,32 @@ func MapWorkflowStep:
 
     set workflowStep:
         WorkflowStep {
-            proposedEvent: EventInstruction {
-                intent: intent,
-                eventDate: eventDate,
-                effectiveDate: effectiveDate,
-                instruction: [
-                    Instruction {
-                        primitiveInstruction: PrimitiveInstruction {
-                            contractFormation: ContractFormationInstruction {
-                                legalAgreement: MapLegalAgreementList(
-                                        fpmlTrade -> documentation,
-                                        counterpartyList
-                                    )
-                            },
-                            ...
-                        },
-                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel)
-                    }
-                ],
-                ...
-            },
+            proposedEvent:
+                EventInstruction {
+                    intent: intent,
+                    eventDate: eventDate,
+                    effectiveDate: effectiveDate,
+                    instruction: [
+                            Instruction {
+                                primitiveInstruction:
+                                    PrimitiveInstruction {
+                                        contractFormation:
+                                            ContractFormationInstruction {
+                                                legalAgreement: MapLegalAgreementList(
+                                                            fpmlTrade -> documentation,
+                                                            counterpartyList
+                                                        )
+                                            },
+                                        ...
+                                    },
+                                before: MapTradeState(
+                                            fpmlTrade,
+                                            fpmlPartiesAndAccountsModel
+                                        )
+                            }
+                        ],
+                    ...
+                },
             timestamp: empty,
             eventIdentifier: empty,
             ...

@@ -44,9 +44,9 @@ func MapCorrelationSwapNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlCorrelationSwap -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlCorrelationSwap -> productModel),
             economicTerms: MapCorrelationSwapEconomicTerms(
-                    fpmlCorrelationSwap,
-                    cdmCounterpartyList
-                )
+                        fpmlCorrelationSwap,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapCorrelationSwapEconomicTerms:
@@ -73,51 +73,57 @@ func MapCorrelationSwapPayout:
 
     set payout:
         Payout {
-            PerformancePayout: PerformancePayout {
-                payerReceiver: PayerReceiver {
-                    payer: MapCounterpartyRoleEnum(
-                            correlationLeg -> payerReceiverModel -> payerModel -> payerPartyReference -> href,
-                            cdmCounterpartyList
-                        ),
-                    receiver: MapCounterpartyRoleEnum(
-                            correlationLeg -> payerReceiverModel -> receiverModel -> receiverPartyReference -> href,
-                            cdmCounterpartyList
-                        )
-                },
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapNonNegativeMoneyToQuantityWithAddress(
-                            correlationLeg -> amount -> correlation -> notionalAmount,
-                            empty,
-                            correlationLeg
-                        ),
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver:
+                        PayerReceiver {
+                            payer: MapCounterpartyRoleEnum(
+                                        correlationLeg -> payerReceiverModel -> payerModel -> payerPartyReference -> href,
+                                        cdmCounterpartyList
+                                    ),
+                            receiver: MapCounterpartyRoleEnum(
+                                        correlationLeg -> payerReceiverModel -> receiverModel -> receiverPartyReference -> href,
+                                        cdmCounterpartyList
+                                    )
+                        },
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNonNegativeMoneyToQuantityWithAddress(
+                                        correlationLeg -> amount -> correlation -> notionalAmount,
+                                        empty,
+                                        correlationLeg
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapCorrelationLegToSettlmentTerms(correlationLeg),
+                    observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
+                                correlationLeg -> amount -> observationStartDate
+                            ),
+                    valuationDates:
+                        ValuationDates {
+                            finalValuationDate: MapPerformanceValuationDates(
+                                        empty,
+                                        correlationLeg -> valuation
+                                    ),
+                            ...
+                        },
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        correlationLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    returnTerms:
+                        ReturnTerms {
+                            correlationReturnTerms: MapCorrelationLegToCorrelationReturnTerms(
+                                        correlationLeg
+                                    ),
+                            ...
+                        },
+                    paymentDates: empty,
                     ...
                 },
-                settlementTerms: MapCorrelationLegToSettlmentTerms(correlationLeg),
-                observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
-                        correlationLeg -> amount -> observationStartDate
-                    ),
-                valuationDates: ValuationDates {
-                    finalValuationDate: MapPerformanceValuationDates(
-                            empty,
-                            correlationLeg -> valuation
-                        ),
-                    ...
-                },
-                underlier: Underlier {
-                    Observable: MapUnderlyerToObservableWithAddress(
-                            correlationLeg -> underlyer
-                        ),
-                    ...
-                },
-                returnTerms: ReturnTerms {
-                    correlationReturnTerms: MapCorrelationLegToCorrelationReturnTerms(
-                            correlationLeg
-                        ),
-                    ...
-                },
-                paymentDates: empty,
-                ...
-            },
             ...
         }
 
@@ -131,25 +137,30 @@ func MapCorrelationLegToCorrelationReturnTerms:
 
     set correlationReturnTerms:
         CorrelationReturnTerms {
-            dividendApplicability: DividendApplicability {
-                allDividends: fpmlAmount -> dividendsModel -> allDividends,
-                ...
-            },
+            dividendApplicability:
+                DividendApplicability {
+                    allDividends: fpmlAmount -> dividendsModel -> allDividends,
+                    ...
+                },
             expectedN: fpmlAmount -> correlation -> expectedN,
             valuationTerms: empty,
-            correlationStrikePrice: Price {
-                value: fpmlAmount -> correlation -> correlationStrikePrice,
-                priceType: Correlation,
-                ...
-            },
-            boundedCorrelation: NumberRange {
-                lowerBound: NumberBound {
-                    number: fpmlAmount -> correlation -> boundedCorrelation -> minimumBoundaryPercent,
-                    inclusive: empty
+            correlationStrikePrice:
+                Price {
+                    value: fpmlAmount -> correlation -> correlationStrikePrice,
+                    priceType: Correlation,
+                    ...
                 },
-                upperBound: NumberBound {
-                    number: fpmlAmount -> correlation -> boundedCorrelation -> maximumBoundaryPercent,
-                    inclusive: empty
+            boundedCorrelation:
+                NumberRange {
+                    lowerBound:
+                        NumberBound {
+                            number: fpmlAmount -> correlation -> boundedCorrelation -> minimumBoundaryPercent,
+                            inclusive: empty
+                        },
+                    upperBound:
+                        NumberBound {
+                            number: fpmlAmount -> correlation -> boundedCorrelation -> maximumBoundaryPercent,
+                            inclusive: empty
             },},
             numberOfDataSeries: fpmlAmount -> correlation -> numberOfDataSeries,
             ...
@@ -166,10 +177,10 @@ func MapCorrelationSwapPriceQuantityList:
     add priceQuantityList:
         PriceQuantity {
             quantity: MapNonNegativeMoneyToQuantityWithLocation(
-                    correlationLeg -> amount -> correlation -> notionalAmount,
-                    empty,
-                    correlationLeg
-                ),
+                        correlationLeg -> amount -> correlation -> notionalAmount,
+                        empty,
+                        correlationLeg
+                    ),
             observable: MapUnderlyerToObservableWithLocation(correlationLeg -> underlyer),
             ...
         }
