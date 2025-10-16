@@ -42,27 +42,36 @@ func MapWorkflowStep:
                     effectiveDate: effectiveDate,
                     instruction: [
                             Instruction {
-                        primitiveInstruction: MapPrimitiveInstruction(
-                                fpmlTrade,
-                                fpmlPostTradeEventsBaseModel,
-                                tradingEventsBaseModel
-                            ),
-                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel)
-                    }
-                ],
-                ...
-            },
-            timestamp: EventTimestamp {
-                dateTime: messageHeaderModel -> creationTimestamp,
-                qualification: MapEventTimestampQualification(messageHeaderModel, fpmlTrade),
-            },
-            eventIdentifier: Identifier {
-                assignedIdentifier: AssignedIdentifier {
-                    identifier: messageId -> value,
+                                primitiveInstruction: MapPrimitiveInstruction(
+                                            fpmlTrade,
+                                            fpmlPostTradeEventsBaseModel,
+                                            tradingEventsBaseModel
+                                        ),
+                                before: MapTradeState(
+                                            fpmlTrade,
+                                            fpmlPartiesAndAccountsModel
+                                        )
+                            }
+                        ],
                     ...
                 },
-                ...
-            },
+            timestamp:
+                EventTimestamp {
+                    dateTime: messageHeaderModel -> creationTimestamp,
+                    qualification: MapEventTimestampQualification(
+                                messageHeaderModel,
+                                fpmlTrade
+                    ),
+                },
+            eventIdentifier:
+                Identifier {
+                    assignedIdentifier:
+                        AssignedIdentifier {
+                            identifier: messageId -> value,
+                            ...
+                        },
+                    ...
+                },
             messageInformation: MapMessageInformation(messageId, messageHeaderModel),
             action: action,
             ...
@@ -100,12 +109,13 @@ func MapTradingEventsBaseModelToPrimitiveInstruction:
 
     set primitiveInstruction:
         PrimitiveInstruction {
-            contractFormation: ContractFormationInstruction {
-                legalAgreement: MapLegalAgreementList(
-                        fpmlTrade -> documentation,
-                        counterpartyList
-                    )
-            },
+            contractFormation:
+                ContractFormationInstruction {
+                    legalAgreement: MapLegalAgreementList(
+                                fpmlTrade -> documentation,
+                                counterpartyList
+                            )
+                },
             ...
         }
 
@@ -125,55 +135,61 @@ func MapAmendmentToPrimitiveInstruction:
 
     set primitiveInstruction:
         PrimitiveInstruction {
-            transfer: TransferInstruction {
-                transferState: TransferState {
-                    transfer: Transfer {
-                        quantity: NonNegativeQuantity {
-                            value: amendmentPayment -> value,
-                            unit: amendmentPayment -> unit,
-                            ...
-                        },
-                        asset: Asset {
-                            Cash: Cash {
-                                identifier: amendmentPayment -> unit -> currency
-                                    extract
-                                        AssetIdentifier {
-                                            identifier: item,
-                                            identifierType: if exists
-                                                then CurrencyCode
+            transfer:
+                TransferInstruction {
+                    transferState:
+                        TransferState {
+                            transfer:
+                                Transfer {
+                                    quantity:
+                                        NonNegativeQuantity {
+                                            value: amendmentPayment -> value,
+                                            unit: amendmentPayment -> unit,
+                                            ...
                                         },
-                                ...
-                            },
+                                    asset:
+                                        Asset {
+                                            Cash:
+                                                Cash {
+                                                    identifier: amendmentPayment -> unit -> currency
+                                                            extract
+                                                                AssetIdentifier {
+                                                                    identifier: item,
+                                                                    identifierType: if exists
+                                                                            then CurrencyCode
+                                                                },
+                                                    ...
+                                                },
+                                            ...
+                                        },
+                                    settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
+                                                payment -> paymentDate
+                                            ),
+                                    payerReceiver: payment -> payerReceiverModel
+                                            extract
+                                                PartyReferencePayerReceiver {
+                                                    payerPartyReference: MapPartyReference(
+                                                                payerModel -> payerPartyReference -> href
+                                                            ),
+                                                    receiverPartyReference: MapPartyReference(
+                                                                receiverModel -> receiverPartyReference -> href
+                                                            ),
+                                                    ...
+                                                },
+                                    transferExpression: payment
+                                            extract
+                                                TransferExpression {
+                                                    priceTransfer: if item -> id exists
+                                                            then MapFeeTypeEnum(id)
+                                                        else MapFeeTypeEnumWithScheme(
+                                                                paymentType -> value to-string,
+                                                                paymentType -> paymentTypeScheme
+                                                            ),
+                                                    ...
+                                                },
+                                    ...
+                                },
                             ...
-                        },
-                        settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
-                                payment -> paymentDate
-                            ),
-                        payerReceiver: payment -> payerReceiverModel
-                            extract
-                                PartyReferencePayerReceiver {
-                                    payerPartyReference: MapPartyReference(
-                                            payerModel -> payerPartyReference -> href
-                                        ),
-                                    receiverPartyReference: MapPartyReference(
-                                            receiverModel -> receiverPartyReference -> href
-                                        ),
-                                    ...
-                                },
-                        transferExpression: payment
-                            extract
-                                TransferExpression {
-                                    priceTransfer: if item -> id exists
-                                        then MapFeeTypeEnum(id)
-                                    else MapFeeTypeEnumWithScheme(
-                                            paymentType -> value to-string,
-                                            paymentType -> paymentTypeScheme
-                                        ),
-                                    ...
-                                },
-                                ...
-                    },
-                    ...
             },},
             ...
         }
@@ -195,68 +211,75 @@ func MapTerminationToPrimitiveInstruction:
 
     set primitiveInstruction:
         PrimitiveInstruction {
-            contractFormation: ContractFormationInstruction {
-                legalAgreement: MapLegalAgreementList(
-                        fpmlTrade -> documentation,
-                        counterpartyList
-                    )
-            },
+            contractFormation:
+                ContractFormationInstruction {
+                    legalAgreement: MapLegalAgreementList(
+                                fpmlTrade -> documentation,
+                                counterpartyList
+                            )
+                },
             quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
-                extract
-                    QuantityChangeInstruction {
-                        change: MapPriceQuantity,
-                        direction: if exists then Replace,
-                        ...
-                    },
-            transfer: TransferInstruction {
-                transferState: TransferState {
-                    transfer: Transfer {
-                        quantity: NonNegativeQuantity {
-                            value: terminationPayment -> value,
-                            unit: terminationPayment -> unit,
+                    extract
+                        QuantityChangeInstruction {
+                            change: MapPriceQuantity,
+                            direction: if exists then Replace,
                             ...
                         },
-                        asset: Asset {
-                            Cash: Cash {
-                                identifier: terminationPayment -> unit -> currency
-                                    extract
-                                        AssetIdentifier {
-                                            identifier: item,
-                                            identifierType: if exists
-                                                then CurrencyCode
+            transfer:
+                TransferInstruction {
+                    transferState:
+                        TransferState {
+                            transfer:
+                                Transfer {
+                                    quantity:
+                                        NonNegativeQuantity {
+                                            value: terminationPayment -> value,
+                                            unit: terminationPayment -> unit,
+                                            ...
                                         },
-                                ...
-                            },
+                                    asset:
+                                        Asset {
+                                            Cash:
+                                                Cash {
+                                                    identifier: terminationPayment -> unit -> currency
+                                                            extract
+                                                                AssetIdentifier {
+                                                                    identifier: item,
+                                                                    identifierType: if exists
+                                                                            then CurrencyCode
+                                                                },
+                                                    ...
+                                                },
+                                            ...
+                                        },
+                                    settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
+                                                payment -> paymentDate
+                                            ),
+                                    payerReceiver: payment -> payerReceiverModel
+                                            extract
+                                                PartyReferencePayerReceiver {
+                                                    payerPartyReference: MapPartyReference(
+                                                                payerModel -> payerPartyReference -> href
+                                                            ),
+                                                    receiverPartyReference: MapPartyReference(
+                                                                receiverModel -> receiverPartyReference -> href
+                                                            ),
+                                                    ...
+                                                },
+                                    transferExpression: payment
+                                            extract
+                                                TransferExpression {
+                                                    priceTransfer: if id exists
+                                                            then MapFeeTypeEnum(id)
+                                                        else MapFeeTypeEnumWithScheme(
+                                                                paymentType -> value to-string,
+                                                                paymentType -> paymentTypeScheme
+                                                            ),
+                                                    ...
+                                                },
+                                    ...
+                                },
                             ...
-                        },
-                        settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
-                                payment -> paymentDate
-                            ),
-                        payerReceiver: payment -> payerReceiverModel
-                            extract
-                                PartyReferencePayerReceiver {
-                                    payerPartyReference: MapPartyReference(
-                                            payerModel -> payerPartyReference -> href
-                                        ),
-                                    receiverPartyReference: MapPartyReference(
-                                            receiverModel -> receiverPartyReference -> href
-                                        ),
-                                    ...
-                                },
-                        transferExpression: payment
-                            extract
-                                TransferExpression {
-                                    priceTransfer: if id exists
-                                        then MapFeeTypeEnum(id)
-                                    else MapFeeTypeEnumWithScheme(
-                                            paymentType -> value to-string,
-                                            paymentType -> paymentTypeScheme
-                                        ),
-                                    ...
-                                },
-                        ...
-                    },
-                    ...
             },},
             ...
         }
@@ -270,9 +293,9 @@ func MapPriceQuantity:
     add priceQuantityList:
         PriceQuantity {
             quantity: CreateQuantityWithLocation(
-                    MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
-                    CreateQuantityKey(empty, empty)
-                ),
+                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
+                        CreateQuantityKey(empty, empty)
+                    ),
             ...
         }
 
@@ -285,10 +308,11 @@ func MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule:
     set priceQuantityList:
         NonNegativeQuantitySchedule {
             value: f -> outstandingNotionalAmount -> amount distinct only-element,
-            unit: UnitType {
-                currency: f -> outstandingNotionalAmount -> currency -> value
-                    distinct
-                    only-element,
+            unit:
+                UnitType {
+                    currency: f -> outstandingNotionalAmount -> currency -> value
+                            distinct
+                            only-element,
                     ...
                 },
             ...
@@ -304,15 +328,15 @@ func MapMessageInformation:
         MessageInformation {
             messageId: MapStringWithScheme(messageId -> value, messageId -> messageIdScheme),
             sentBy: MapStringWithScheme(
-                    messageHeaderModel -> sentBy -> value,
-                    messageHeaderModel -> sentBy -> messageAddressScheme
-                ),
+                        messageHeaderModel -> sentBy -> value,
+                        messageHeaderModel -> sentBy -> messageAddressScheme
+                    ),
             sentTo: [
-                MapStringWithScheme(
-                        messageHeaderModel -> sendTo -> value,
-                        messageHeaderModel -> sendTo -> messageAddressScheme
-                    )
-            ],
+                    MapStringWithScheme(
+                            messageHeaderModel -> sendTo -> value,
+                            messageHeaderModel -> sendTo -> messageAddressScheme
+                        )
+                ],
             ...
         }
 

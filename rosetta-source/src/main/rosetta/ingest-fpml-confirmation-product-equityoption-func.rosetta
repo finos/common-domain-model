@@ -106,46 +106,54 @@ func MapEquityOptionPayout:
                                 fpmlEquityOption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                    feature: OptionFeature {
-                    averagingFeature: AveragingFeature {
-                        averagingCalculation: empty,
-                        averagingInOut: fpmlEquityOption -> featureModel -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
-                        averagingPeriodOut: AveragingPeriod {
-                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
-                                    apo -> averagingDateTimes
-                                ),
-                            averagingObservations: MapAveragingObservations(
-                                    apo -> averagingObservations
-                                ),
-                            marketDisruption: apo -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                    feature:
+                        OptionFeature {
+                            averagingFeature:
+                                AveragingFeature {
+                                    averagingCalculation: empty,
+                                    averagingInOut: fpmlEquityOption -> featureModel -> feature -> asian -> averagingInOut to-enum AveragingInOutEnum,
+                                    averagingPeriodOut:
+                                        AveragingPeriod {
+                                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                                        apo -> averagingDateTimes
+                                                    ),
+                                            averagingObservations: MapAveragingObservations(
+                                                        apo -> averagingObservations
+                                                    ),
+                                            marketDisruption: apo -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                            ...
+                                        },
+                                    averagingPeriodIn:
+                                        AveragingPeriod {
+                                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
+                                                        api -> averagingDateTimes
+                                                    ),
+                                            marketDisruption: api -> marketDisruption -> value to-enum MarketDisruptionEnum,
+                                            ...
+                                        },
+                                    ...
+                                },
+                            passThrough:
+                                PassThrough {
+                                    passThroughItem:
+                                        PassThroughItem {
+                                            payerReceiver:
+                                                PayerReceiver {
+                                                    payer: MapCounterpartyRoleEnum(
+                                                                prm -> payerModel -> payerPartyReference -> href,
+                                                                cdmCounterpartyList
+                                                            ),
+                                                    receiver: MapCounterpartyRoleEnum(
+                                                                prm -> receiverModel -> receiverPartyReference -> href,
+                                                                cdmCounterpartyList
+                                                            )
+                                                },
+                                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage
+                            },},
                             ...
                         },
-                        averagingPeriodIn: AveragingPeriod {
-                            averagingDateTimes: MapFpmlDateTimeListToDateTimeList(
-                                    api -> averagingDateTimes
-                                ),
-                            marketDisruption: api -> marketDisruption -> value to-enum MarketDisruptionEnum,
-                            ...
-                        },
-                        ...
-                    },
-                    passThrough: PassThrough {
-                        passThroughItem: PassThroughItem {
-                            payerReceiver: PayerReceiver {
-                                payer: MapCounterpartyRoleEnum(
-                                        prm -> payerModel -> payerPartyReference -> href,
-                                        cdmCounterpartyList
-                                    ),
-                                receiver: MapCounterpartyRoleEnum(
-                                        prm -> receiverModel -> receiverPartyReference -> href,
-                                        cdmCounterpartyList
-                                    )
-                            },
-                            passThroughPercentage: fpmlEquityOption -> featureModel -> feature -> passThrough -> passThroughItem -> passThroughPercentage
-                    },},
-                    ...
-                },
-                underlier: Underlier {
+                    underlier:
+                        Underlier {
                             Observable: MapUnderlyerToObservableWithAddress(
                                         fpmlEquityOption -> underlyer
                                     ),
@@ -178,10 +186,11 @@ func MapAveragingObservations:
 
     add observationList:
         AveragingObservationList {
-            averagingObservation: WeightedAveragingObservation {
-                dateTime: averagingObservationList -> averagingObservation -> dateTime,
-                observationNumber: averagingObservationList -> averagingObservation -> observationNumber,
-                weight: averagingObservationList -> averagingObservation -> weight
+            averagingObservation:
+                WeightedAveragingObservation {
+                    dateTime: averagingObservationList -> averagingObservation -> dateTime,
+                    observationNumber: averagingObservationList -> averagingObservation -> observationNumber,
+                    weight: averagingObservationList -> averagingObservation -> weight
         }}
 
 func MapEquityOptionPriceQuantityList:
