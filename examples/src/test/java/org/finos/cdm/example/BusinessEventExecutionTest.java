@@ -91,7 +91,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     public void mustCreateContractFormationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in contract formation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json"); //processes/msg-new-trade-CFTC-SEC-and-canada.json
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json"); //processes/msg-new-trade-CFTC-SEC-and-canada.json
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the contract formation instruction containing a legal agreement
@@ -116,7 +116,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
 
         // Load a sample TradeState from a JSON file and resolve its references.
         // We will use this deserialized tradeState to extract the information of a trade in order to create the execution instruction more easily.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Extract the product from the loaded TradeState. This represents the financial product being traded.
@@ -176,7 +176,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateFullNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-Vanilla-party-roles-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         //beforeTradeState = beforeTradeState.toBuilder().setState(State.builder().setClosedState(ClosedState.builder().build()));
 
@@ -214,7 +214,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreatePartialNovationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Novation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-Vanilla-party-roles-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-Vanilla-party-roles-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         //New party to replace in the first after trade for the party1
@@ -253,7 +253,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateIncreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Increase.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState,"before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
@@ -286,7 +286,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateDecreaseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in decrease.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
@@ -319,7 +319,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateTerminationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Full Termination.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Price quantity change to be applied to the trade
@@ -354,7 +354,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateResetBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Reset.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Payout to be applied to the trade.
@@ -386,7 +386,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateValuationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Valuation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Valuation to be applied to the trade
@@ -415,7 +415,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateExerciseBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Option Exercise.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/cb-option-usi.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/cb-option-usi.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         assertNotNull(beforeTradeState.getTrade().getProduct().getEconomicTerms().getPayout().stream()
                         .filter(payout -> payout.getOptionPayout() != null)
@@ -447,7 +447,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateTransferBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Transfer.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the transfer instruction
@@ -469,7 +469,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateAmendmentBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Amendment.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the amendment instruction through a terms change instruction
@@ -492,7 +492,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateStockSplitBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Stock Split.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/equity/eqd-ex01-american-call-stock-long-form.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqd-ex01-american-call-stock-long-form.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Adjustment ratio to be applied to the trade
@@ -531,7 +531,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateAllocationBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Allocation.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the allocation instruction through the split instruction
@@ -556,7 +556,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCorporateActionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Corporate Action.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
         //assertNotNull("before", beforeTradeState.getObservationHistory());
 
@@ -587,7 +587,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCreditEventBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Credit Event.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Observation that must be applied to the trade
@@ -616,7 +616,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateCompressionBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in the Execution instruction
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         // Creation of the execution instruction and adding it to the primitive instruction that will be included in the resulting workflow step
@@ -647,7 +647,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PrimitiveInstruction p1 = PrimitiveInstruction.builder().setExecution(executionInstruction).build();
 
         // Trade to be included in the first quantity change instruction
-        TradeState beforeTradeState2 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/EUR-OIS-uti.json");
+        TradeState beforeTradeState2 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/EUR-OIS-uti.json");
         assertNotNull(beforeTradeState2, "before TradeState must not be null");
 
         // Creation of the first quantity change instruction and adding it to the primitive instruction that will be included in the resulting workflow step
@@ -688,7 +688,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
     void mustCreateClearingBusinessEventAcceptedWorkflowStep() {
 
         // Trade to be included in Clearing.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/ird-ex01-vanilla-swap-versioned.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/ird-ex01-vanilla-swap-versioned.json");
         assertNotNull(beforeTradeState, "before TradeState must not be null");
 
         PartyChangeInstruction partyChangeInstruction = buildPartyChangePrimitiveInstruction(beforeTradeState, Counterparty.builder().setRole(CounterpartyRoleEnum.PARTY_1).build());
