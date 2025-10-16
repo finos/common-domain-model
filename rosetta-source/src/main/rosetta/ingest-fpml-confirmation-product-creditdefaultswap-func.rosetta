@@ -60,10 +60,10 @@ func MapCreditDefaultSwapNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel),
             economicTerms: MapCreditDefaultSwapEconomicTerms(
-                    fpmlCreditDefaultSwap,
-                    fpmlTradeHeader,
-                    cdmCounterpartyList
-                )
+                        fpmlCreditDefaultSwap,
+                        fpmlTradeHeader,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapCreditDefaultSwapEconomicTerms:
@@ -83,18 +83,18 @@ func MapCreditDefaultSwapEconomicTerms:
     set economicTerms:
         EconomicTerms {
             effectiveDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
-                    fpmlCreditDefaultSwap -> generalTerms -> effectiveDate
-                ),
+                        fpmlCreditDefaultSwap -> generalTerms -> effectiveDate
+                    ),
             terminationDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
-                    fpmlCreditDefaultSwap -> generalTerms -> scheduledTerminationDate
-                ),
+                        fpmlCreditDefaultSwap -> generalTerms -> scheduledTerminationDate
+                    ),
             dateAdjustments: MapBusinessDayAdjustments(
-                    fpmlCreditDefaultSwap -> generalTerms -> dateAdjustments
-                ),
+                        fpmlCreditDefaultSwap -> generalTerms -> dateAdjustments
+                    ),
             payout: MapCreditDefaultSwapPayoutList(
-                    fpmlCreditDefaultSwap,
-                    cdmCounterpartyList
-                ),
+                        fpmlCreditDefaultSwap,
+                        cdmCounterpartyList
+                    ),
             nonStandardisedTerms: nonStandardisedTerms,
             ...
         }
@@ -140,39 +140,43 @@ func MapCreditDefaultSwapPayout:
 
     set payout:
         Payout {
-            CreditDefaultPayout: CreditDefaultPayout {
-                payerReceiver: cdmGeneralTermsPayerReceiver,
-                generalTerms: GeneralTerms {
-                    referenceInformation: MapReferenceInformation(
-                            fpmlCreditDefaultSwap -> generalTerms -> referenceInformation,
-                            currency
-                        ),
-                    indexReferenceInformation: MapCreditIndex(
-                            fpmlCreditDefaultSwap -> generalTerms -> indexReferenceInformation
-                        ),
-                    basketReferenceInformation: MapBasketReferenceInformation(
-                            fpmlCreditDefaultSwap -> generalTerms -> basketReferenceInformation
-                        ),
+            CreditDefaultPayout:
+                CreditDefaultPayout {
+                    payerReceiver: cdmGeneralTermsPayerReceiver,
+                    generalTerms:
+                        GeneralTerms {
+                            referenceInformation: MapReferenceInformation(
+                                        fpmlCreditDefaultSwap -> generalTerms -> referenceInformation,
+                                        currency
+                                    ),
+                            indexReferenceInformation: MapCreditIndex(
+                                        fpmlCreditDefaultSwap -> generalTerms -> indexReferenceInformation
+                                    ),
+                            basketReferenceInformation: MapBasketReferenceInformation(
+                                        fpmlCreditDefaultSwap -> generalTerms -> basketReferenceInformation
+                                    ),
+                            ...
+                        },
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNotionalAmountToQuantityWithAddress(
+                                        fpmlCreditDefaultSwap -> protectionTerms -> calculationAmount -> amount first,
+                                        empty
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapCreditDefaultSwapChoiceToSettlementTerms(
+                                fpmlCreditDefaultSwap -> creditDefaultSwapChoice
+                            ),
+                    protectionTerms: fpmlCreditDefaultSwap -> protectionTerms
+                            extract MapProtectionTerms(item, cdmCounterpartyList),
+                    transactedPrice:
+                        TransactedPrice {
+                            marketFixedRate: fpmlCreditDefaultSwap -> feeLeg -> marketFixedRate,
+                            ...
+                        },
                     ...
                 },
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapNotionalAmountToQuantityWithAddress(
-                            fpmlCreditDefaultSwap -> protectionTerms -> calculationAmount -> amount first,
-                            empty
-                        ),
-                    ...
-                },
-                settlementTerms: MapCreditDefaultSwapChoiceToSettlementTerms(
-                        fpmlCreditDefaultSwap -> creditDefaultSwapChoice
-                    ),
-                protectionTerms: fpmlCreditDefaultSwap -> protectionTerms
-                    extract MapProtectionTerms(item, cdmCounterpartyList),
-                transactedPrice: TransactedPrice {
-                    marketFixedRate: fpmlCreditDefaultSwap -> feeLeg -> marketFixedRate,
-                    ...
-                },
-                ...
-            },
             ...
         }
 
@@ -187,12 +191,12 @@ func MapReferenceInformation:
         ReferenceInformation {
             referenceEntity: MapLegalEntity(fpmlReferenceInformation -> referenceEntity),
             referenceObligation: fpmlReferenceInformation -> referenceObligation
-                extract MapReferenceObligation,
+                    extract MapReferenceObligation,
             allGuarantees: fpmlReferenceInformation -> allGuarantees,
             referencePrice: MapReferencePrice(
-                    fpmlReferenceInformation -> referencePrice,
-                    fpmlCurrency
-                ),
+                        fpmlReferenceInformation -> referencePrice,
+                        fpmlCurrency
+                    ),
             ...
         }
 
@@ -215,10 +219,10 @@ func MapReferenceObligation:
     set referenceObligation:
         ReferenceObligation {
             security: if debtAsset exists
-                then MapIdentifiedAssetToSecurity(debtAsset, empty, empty, Debt),
+                    then MapIdentifiedAssetToSecurity(debtAsset, empty, empty, Debt),
             primaryObligorReference: MapLegalEntityReference(
-                    fpmlReferenceObligation -> primaryObligorReference
-                ),
+                        fpmlReferenceObligation -> primaryObligorReference
+                    ),
             ...
         }
 
@@ -246,15 +250,15 @@ func MapCreditIndex:
                 indexAnnexDate: fpmlIndexReferenceInformation -> indexAnnexDate -> date,
                 indexAnnexSource: fpmlIndexReferenceInformation -> indexAnnexSource -> value to-enum IndexAnnexSourceEnum,
                 excludedReferenceEntity: fpmlIndexReferenceInformation -> excludedReferenceEntity
-                    extract
-                        ReferenceInformation {
-                            referenceEntity: MapLegalEntity,
-                            ...
-                        },
+                        extract
+                            ReferenceInformation {
+                                referenceEntity: MapLegalEntity,
+                                ...
+                            },
                 tranche: MapTranche(fpmlIndexReferenceInformation -> tranche),
                 settledEntityMatrix: MapSettledEntityMatrix(
-                        fpmlIndexReferenceInformation -> settledEntityMatrix
-                    ),
+                            fpmlIndexReferenceInformation -> settledEntityMatrix
+                        ),
                 indexFactor: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> indexFactor,
                 seniority: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> seniority -> value to-enum CreditSeniorityEnum,
                 ...
@@ -292,14 +296,15 @@ func MapBasketReferenceInformation:
         if fpmlBasketReferenceInformation exists
         then BasketReferenceInformation {
                 basketName: MapStringWithScheme(
-                        basketName -> value,
-                        basketName -> basketNameScheme
-                    ),
+                            basketName -> value,
+                            basketName -> basketNameScheme
+                        ),
                 basketId: basketId extract MapStringWithScheme(value, basketIdScheme),
-                referencePool: ReferencePool {
-                    referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
-                        extract MapReferencePoolItem
-                },
+                referencePool:
+                    ReferencePool {
+                        referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
+                                extract MapReferencePoolItem
+                    },
                 nthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> nthToDefault,
                 mthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> mthToDefault,
                 tranche: MapTranche(fpmlBasketReferenceInformation -> tranche),
@@ -314,8 +319,8 @@ func MapReferencePoolItem:
     set referencePoolItem:
         ReferencePoolItem {
             constituentWeight: MapConstituentWeight(
-                    fpmlReferencePoolItem -> constituentWeight
-                ),
+                        fpmlReferencePoolItem -> constituentWeight
+                    ),
             referencePair: MapReferencePair(fpmlReferencePoolItem -> referencePair),
             ...
         }
@@ -348,8 +353,8 @@ func MapReferencePair:
         ReferencePair {
             referenceEntity: MapLegalEntity(fpmlReferencePair -> referenceEntity),
             referenceObligation: MapReferenceObligation(
-                    fpmlReferencePair -> referenceObligation
-                ),
+                        fpmlReferencePair -> referenceObligation
+                    ),
             noReferenceObligation: fpmlReferencePair -> noReferenceObligation,
             entityType: fpmlReferencePair -> entityType -> value to-enum EntityTypeEnum
         }
@@ -380,35 +385,37 @@ func MapProtectionTerms:
 
     set protectionTerms:
         ProtectionTerms {
-            creditEvents: CreditEvents {
-                bankruptcy: creditEvents -> bankruptcy,
-                failureToPay: FailureToPay {
-                    applicable: creditEvents -> failureToPay -> applicable,
+            creditEvents:
+                CreditEvents {
+                    bankruptcy: creditEvents -> bankruptcy,
+                    failureToPay:
+                        FailureToPay {
+                            applicable: creditEvents -> failureToPay -> applicable,
                     gracePeriodExtension: GracePeriodExtension {
                         applicable: creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
                         ...
                     },
-                    paymentRequirement: MapMoney(
-                            creditEvents -> failureToPay -> paymentRequirement
-                        )
-                },
-                obligationAcceleration: creditEvents -> obligationAcceleration,
+                            paymentRequirement: MapMoney(
+                                        creditEvents -> failureToPay -> paymentRequirement
+                                    )
+                        },
+                    obligationAcceleration: creditEvents -> obligationAcceleration,
                 repudiationMoratorium: creditEvents -> repudiationMoratorium,
                 restructuring: Restructuring {
-                    applicable: creditEvents -> restructuring -> applicable,
-                    restructuringType: MapRestructuringEnum(
-                            creditEvents -> restructuring -> restructuringType -> value
-                        ),
+                            applicable: creditEvents -> restructuring -> applicable,
+                            restructuringType: MapRestructuringEnum(
+                                        creditEvents -> restructuring -> restructuringType -> value
+                                    ),
                     multipleHolderObligation: creditEvents -> restructuring -> multipleHolderObligation,
                     multipleCreditEventNotices: creditEvents -> restructuring -> multipleCreditEventNotices,
+                        },
+                    defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
+                    creditEventNotice: MapCreditEventNotice(
+                                creditEvents -> creditEventNotice,
+                                cdmCounterpartyList
+                            ),
+                    ...
                 },
-                defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
-                creditEventNotice: MapCreditEventNotice(
-                        creditEvents -> creditEventNotice,
-                        cdmCounterpartyList
-                    ),
-                ...
-            },
             obligations: fpmlProtectionTerms -> obligations
                 extract
                     Obligations {
@@ -436,14 +443,15 @@ func MapCreditEventNotice:
     set creditEventNotice:
         CreditEventNotice {
             notifyingParty: MapNotifyingPartyList(
-                    fpmlCreditEventNotice -> notifyingParty,
-                    cdmCounterpartyList
-                ),
+                        fpmlCreditEventNotice -> notifyingParty,
+                        cdmCounterpartyList
+                    ),
             businessCenter: MapBusinessCenter(fpmlCreditEventNotice -> businessCenter),
-            publiclyAvailableInformation: PubliclyAvailableInformation {
-                standardPublicSources: fpmlCreditEventNotice -> publiclyAvailableInformation -> standardPublicSources,
-                specifiedNumber: fpmlCreditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
-                ...
+            publiclyAvailableInformation:
+                PubliclyAvailableInformation {
+                    standardPublicSources: fpmlCreditEventNotice -> publiclyAvailableInformation -> standardPublicSources,
+                    specifiedNumber: fpmlCreditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
+                    ...
         }}
 
 func MapNotifyingPartyList:
@@ -485,70 +493,78 @@ func MapFeeLegToInterestRateLegPayout:
 
     set payout:
         Payout {
-            InterestRatePayout: InterestRatePayout {
-                payerReceiver: FlipPayerAndReceiver(cdmGeneralTermsPayerReceiver),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: if fixedAmountCalculation -> calculationAmount exists
-                            or floatingAmountCalculation -> calculationAmount exists
-                        then MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
-                                fixedAmountCalculation -> calculationAmount,
-                                floatingAmountCalculation -> calculationAmount,
-                                fpmlFeeLeg
-                            )
-                    else MapNotionalAmountToQuantityWithAddress(
-                            fpmlProtectionTerms -> calculationAmount -> amount first,
-                            empty
-                        ),
-                    ...
-                },
-                rateSpecification: RateSpecification {
-                    FixedRateSpecification: FixedRateSpecification {
-                        rateSchedule: RateSchedule {
-                            price: if fixedAmountCalculation -> fixedRate exists
-                                then MapFixedRateToPriceScheduleWithAddress(
-                                        fixedAmountCalculation -> fixedRate -> value,
-                                        fpmlFeeLeg
-                                    )
-                    }},
-                    FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
-                        then MapFloatingRateSpecification(
-                                rateChoice -> FloatingRateCalculation,
-                                fpmlFeeLeg
+            InterestRatePayout:
+                InterestRatePayout {
+                    payerReceiver: FlipPayerAndReceiver(cdmGeneralTermsPayerReceiver),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: if fixedAmountCalculation -> calculationAmount exists
+                                        or floatingAmountCalculation -> calculationAmount exists
+                                    then MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
+                                            fixedAmountCalculation -> calculationAmount,
+                                            floatingAmountCalculation -> calculationAmount,
+                                            fpmlFeeLeg
+                                        )
+                                else MapNotionalAmountToQuantityWithAddress(
+                                        fpmlProtectionTerms -> calculationAmount -> amount first,
+                                        empty
+                                    ),
+                            ...
+                        },
+                    rateSpecification:
+                        RateSpecification {
+                            FixedRateSpecification:
+                                FixedRateSpecification {
+                                    rateSchedule:
+                                        RateSchedule {
+                                            price: if fixedAmountCalculation -> fixedRate exists
+                                                    then MapFixedRateToPriceScheduleWithAddress(
+                                                            fixedAmountCalculation -> fixedRate -> value,
+                                                            fpmlFeeLeg
+                                                        )
+                            }},
+                            FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
+                                    then MapFloatingRateSpecification(
+                                            rateChoice -> FloatingRateCalculation,
+                                            fpmlFeeLeg
+                                        ),
+                            InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
+                                    then MapInflationRateSpecification(
+                                            rateChoice -> InflationRateCalculation,
+                                            fpmlFeeLeg
+                                        )
+                        },
+                    dayCountFraction: MapDayCountFractionEnum(
+                                fixedAmountCalculation -> dayCountFraction -> value
                             ),
-                    InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
-                        then MapInflationRateSpecification(
-                                rateChoice -> InflationRateCalculation,
-                                fpmlFeeLeg
-                            )
-                },
-                dayCountFraction: MapDayCountFractionEnum(
-                        fixedAmountCalculation -> dayCountFraction -> value
-                    ),
-                calculationPeriodDates: CalculationPeriodDates {
-                    firstPeriodStartDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                            fpmlFeeLeg -> periodicPayment -> firstPeriodStartDate -> date,
-                            empty
-                        ),
-                    calculationPeriodFrequency: MapPeriodicPaymentToCalculationPeriodFrequency(
-                            fpmlFeeLeg -> periodicPayment
-                        ),
+                    calculationPeriodDates:
+                        CalculationPeriodDates {
+                            firstPeriodStartDate: MapUnadjustedDateToAdjustableOrRelativeDate(
+                                        fpmlFeeLeg -> periodicPayment -> firstPeriodStartDate -> date,
+                                        empty
+                                    ),
+                            calculationPeriodFrequency: MapPeriodicPaymentToCalculationPeriodFrequency(
+                                        fpmlFeeLeg -> periodicPayment
+                                    ),
+                            ...
+                        },
+                    paymentDates: MapPeriodicPaymentToPaymentDates(
+                                fpmlFeeLeg -> periodicPayment
+                            ),
+                    resetDates:
+                        ResetDates {
+                            initialFixingDate:
+                                InitialFixingDate {
+                                    initialFixingDate: floatingAmountCalculation -> initialFixingDate -> date,
+                                    ...
+                                },
+                            finalFixingDate: MapAdjustableDate(
+                                        floatingAmountCalculation -> finalFixingDate
+                                    ),
+                            ...
+                        },
                     ...
                 },
-                paymentDates: MapPeriodicPaymentToPaymentDates(
-                        fpmlFeeLeg -> periodicPayment
-                    ),
-                resetDates: ResetDates {
-                    initialFixingDate: InitialFixingDate {
-                        initialFixingDate: floatingAmountCalculation -> initialFixingDate -> date,
-                        ...
-                    },
-                    finalFixingDate: MapAdjustableDate(
-                            floatingAmountCalculation -> finalFixingDate
-                        ),
-                    ...
-                },
-                ...
-            },
             ...
         }
 
@@ -600,20 +616,20 @@ func MapFeeLegToPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             price: MapFixedOrFloatingAmountCalculationToPriceListWithLocation(
-                    fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
-                    fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
-                    fpmlProtectionTerms -> calculationAmount -> currency first,
-                    fpmlFeeLeg
-                ),
+                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
+                        fpmlProtectionTerms -> calculationAmount -> currency first,
+                        fpmlFeeLeg
+                    ),
             quantity: MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
-                    fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
-                    fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
-                    fpmlFeeLeg
-                ),
+                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg
+                    ),
             observable: MapRateOptionToObservableWithLocation(
-                    fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate,
-                    fpmlFeeLeg
-                ),
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate,
+                        fpmlFeeLeg
+                    ),
             ...
         }
 
@@ -651,13 +667,13 @@ func MapProtectionTermsToPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             quantity: fpmlProtectionTerms
-                extract
-                    MapNotionalAmountToQuantityWithLocation(
-                            calculationAmount -> amount,
-                            empty,
-                            calculationAmount -> currency,
-                            empty
-                        ),
+                    extract
+                        MapNotionalAmountToQuantityWithLocation(
+                                calculationAmount -> amount,
+                                empty,
+                                calculationAmount -> currency,
+                                empty
+                            ),
             ...
         }
 
