@@ -1,25 +1,19 @@
-# *FpML Ingestion - FX Payer and Receiver*
-
-_Background_
-
-This release fixes the FpML ingestion (based on synonyms) mapping of payer and receiver for FX products, as per GitHub issue [#4039](https://github.com/finos/common-domain-model/issues/4039).
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-Update to the FpML synonym mappings for `SettlementPayout` attributes `payer` and `receiver` to correctly correspond the exchange rate quote basis. 
+This release updates the `DSL` dependency.
+
+Version updates include:
+- `DSL` 9.66.1: fix slow loading of models due to implicit variable handling. See DSL release notes: [DSL 9.66.1](https://github.com/finos/rune-dsl/releases/tag/9.66.1)
+- `DSL` 9.67.5: See DSL release notes: [9.67.5](https://github.com/finos/rune-dsl/releases/tag/9.67.5)
+- `DSL` 9.67.6: See DSL release notes: [9.67.6](https://github.com/finos/rune-dsl/releases/tag/9.67.6)
+- `DSL` 9.67.7 has been migrated to the Finos namespace. See DSL release notes: [DSL 9.67.7](https://github.com/finos/rune-dsl/releases/tag/9.67.7)
+- `DSL` 9.67.8: See DSL release notes: [9.67.8](https://github.com/finos/rune-dsl/releases/tag/9.67.8)
+- `DSL` 9.67.9: See DSL release notes: [9.67.9](https://github.com/finos/rune-dsl/releases/tag/9.67.9)
+
+There are no changes to model or test expectations.
 
 _Review Directions_
 
-In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML samples:
-
-- fx-ex01-fx-spot.xml
-- fx-ex02-spot-cross-w-side-rates.xml
-- fx-ex03-fx-fwd.xml
-- fx-ex05-fx-fwd-w-ssi.xml
-- fx-ex07-non-deliverable-forward.xml
-- fx-ex08-fx-swap.xml
-- fx-ex26-fxswap-multiple-USIs.xml
-- fx-ex28-non-deliverable-w-disruption.xml
-- fx-ex29-fx-swap-with-multiple-identifiers.xml
-
-Changes can be reviewed in PR: [#4062](https://github.com/finos/common-domain-model/pull/4062)
+The changes can be reviewed in PR: [#4100](https://github.com/finos/common-domain-model/pull/4100)
