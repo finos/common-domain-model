@@ -655,7 +655,7 @@ public class BusinessEventExecutionTest extends AbstractExampleTest {
         PrimitiveInstruction p2 = PrimitiveInstruction.builder().setQuantityChange(quantityChangeInstruction).build();
 
         // Trade to be included in the second quantity change instruction
-        TradeState beforeTradeState3 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/credit/cd-swaption-uti.json");
+        TradeState beforeTradeState3 = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-credit/cd-swaption-uti.json");
         assertNotNull(beforeTradeState3, "before TradeState must not be null");
 
         // Creation of the second quantity change instruction and adding it to the primitive instruction that will be included in the resulting workflow step
