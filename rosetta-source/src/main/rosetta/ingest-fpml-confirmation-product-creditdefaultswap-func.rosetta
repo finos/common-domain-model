@@ -192,6 +192,7 @@ func MapReferenceInformation:
             referenceEntity: MapLegalEntity(fpmlReferenceInformation -> referenceEntity),
             referenceObligation: fpmlReferenceInformation -> referenceObligation
                     extract MapReferenceObligation,
+            allGuarantees: fpmlReferenceInformation -> allGuarantees,
             referencePrice: MapReferencePrice(
                         fpmlReferenceInformation -> referencePrice,
                         fpmlCurrency
@@ -390,18 +391,25 @@ func MapProtectionTerms:
                     failureToPay:
                         FailureToPay {
                             applicable: creditEvents -> failureToPay -> applicable,
-                            gracePeriodExtension: empty,
+                            gracePeriodExtension:
+                                GracePeriodExtension {
+                                    applicable: creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
+                                    ...
+                                },
                             paymentRequirement: MapMoney(
                                         creditEvents -> failureToPay -> paymentRequirement
                                     )
                         },
+                    obligationAcceleration: creditEvents -> obligationAcceleration,
+                    repudiationMoratorium: creditEvents -> repudiationMoratorium,
                     restructuring:
                         Restructuring {
                             applicable: creditEvents -> restructuring -> applicable,
                             restructuringType: MapRestructuringEnum(
                                         creditEvents -> restructuring -> restructuringType -> value
                                     ),
-                            ...
+                            multipleHolderObligation: creditEvents -> restructuring -> multipleHolderObligation,
+                            multipleCreditEventNotices: creditEvents -> restructuring -> multipleCreditEventNotices,
                         },
                     defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
                     creditEventNotice: MapCreditEventNotice(
@@ -410,14 +418,21 @@ func MapProtectionTerms:
                             ),
                     ...
                 },
-            obligations:
-                Obligations {
-                    category: MapObligationCategoryEnum(
-                                fpmlProtectionTerms -> obligations -> category to-string
-                            ),
-                    notSubordinated: fpmlProtectionTerms -> obligations -> notSubordinated,
-                    ...
-                },
+            obligations: fpmlProtectionTerms -> obligations
+                    extract
+                        Obligations {
+                            category: MapObligationCategoryEnum(category to-string),
+                            notSubordinated: notSubordinated,
+                            notSovereignLender: notSovereignLender,
+                            notDomesticCurrency:
+                                NotDomesticCurrency {
+                                    applicable: notDomesticCurrency -> applicable,
+                                    ...
+                                },
+                            notDomesticLaw: notDomesticLaw,
+                            notDomesticIssuance: notDomesticIssuance,
+                            ...
+                        },
             ...
         }
 

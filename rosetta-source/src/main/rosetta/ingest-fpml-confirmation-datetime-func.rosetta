@@ -2,6 +2,7 @@ namespace cdm.ingest.fpml.confirmation.datetime
 version "${project.version}"
 
 import cdm.base.datetime.*
+import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
@@ -1024,3 +1025,36 @@ func MapPerformanceValuationDates:
             valuationTime: MapBusinessCenterTime(fpmlEquityValuation -> valuationTime),
             valuationTimeType: fpmlEquityValuation -> valuationTimeType to-enum TimeTypeEnum,
         }
+
+func MapFpmlDateTimeListToDateTimeList: <"Creates a ZonedDateTime from the provided ZonedDateTime">
+    inputs:
+        fpmldateTime fpml.DateTimeList (0..1)
+    output:
+        zonedDateTime DateTimeList (0..*)
+
+    add zonedDateTime:
+        DateTimeList {
+            dateTime: fpmldateTime -> dateTime,
+        }
+
+func MapEventTimestampQualification:
+    inputs:
+        messageHeaderModel fpml.MessageHeaderModel (0..1)
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        qual EventTimestampQualificationEnum (0..1)
+
+    alias partyTradeInformation:
+        fpmlTrade -> tradeHeader -> partyTradeInformation distinct only-element
+
+    set qual:
+        if messageHeaderModel -> creationTimestamp exists
+        then eventCreationDateTime
+        else if partyTradeInformation -> timestamps -> submittedForClearing exists
+        then clearingReceiptDateTime
+        else if partyTradeInformation -> timestamps -> cleared exists
+        then clearingReceiptDateTime
+        else if partyTradeInformation -> timestamps -> confirmed exists
+        then confirmationDateTime
+        else if partyTradeInformation -> executionDateTime exists
+        then executionDateTime
