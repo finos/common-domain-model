@@ -1,24 +1,25 @@
-# _Infrastructure - Dependency Update_
+# *FpML Ingestion - FX Payer and Receiver*
+
+_Background_
+
+This release fixes the FpML ingestion (based on synonyms) mapping of payer and receiver for FX products, as per GitHub issue [#4039](https://github.com/finos/common-domain-model/issues/4039).
 
 _What is being released?_
 
-This release updates Python generation to use the new FINOS-hosted Python [generator](https://github.com/finos/rune-python-generator) and [runtime](https://github.com/finos/rune-python-runtime).
+Update to the FpML synonym mappings for `SettlementPayout` attributes `payer` and `receiver` to correctly correspond the exchange rate quote basis. 
 
-These updated components now provide support for:
+_Review Directions_
 
-- The new serialization standard
-- Metadata in Rune-defined types
-- Types with circular dependencies
-- Python generation when the input Rune includes multiple top-level namespaces
+In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML samples:
 
-**Note:** Python generation from Rune-defined functions is not yet supported.
+- fx-ex01-fx-spot.xml
+- fx-ex02-spot-cross-w-side-rates.xml
+- fx-ex03-fx-fwd.xml
+- fx-ex05-fx-fwd-w-ssi.xml
+- fx-ex07-non-deliverable-forward.xml
+- fx-ex08-fx-swap.xml
+- fx-ex26-fxswap-multiple-USIs.xml
+- fx-ex28-non-deliverable-w-disruption.xml
+- fx-ex29-fx-swap-with-multiple-identifiers.xml
 
-This release differs from the process of generating other language versions of CDM by using a standalone CLI included in the Python Generator. The new process is defined in the [build script](./rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh):
-
-1. Determine the value of `rosetta.dsl.version` used in the [CDM pom](./pom.xml)
-2. Find a Python Generator that matches the version number.  **The process stops if none are found.**
-3. Build Python by invoking the CLI, providing the CDM Rune source and a target directory for the generated Python
-4. Run tests
-5. If successful, package the generated Python and releasing the Python package along with the most recently released runtime
-
-The changes can be reviewed in PR: [#3975](https://github.com/finos/common-domain-model/pull/3975)
+Changes can be reviewed in PR: [#4062](https://github.com/finos/common-domain-model/pull/4062)
