@@ -1529,8 +1529,8 @@ func Qualify_Roll: <"Qualification of a roll event based on: (i) terminating a s
 
     set is_event:
         // The first 2 conditions imply that there is 1 and only 1 before and 1 open thanks to the "only-element" modifier
-        beforeEconomicterms exists
-            and openEconomicTerms exists
+        beforeEconomicterms -> collateral exists
+            and openEconomicTerms -> collateral exists
             and closedTradeState count = 1
             and openEconomicTerms -> payout = beforeEconomicterms -> payout
             and openEconomicTerms -> collateral = beforeEconomicterms -> collateral
@@ -2225,8 +2225,9 @@ func Qualify_Substitution: <"Qualification of a collateral substitution event.">
     alias openEconomicTerms: ExtractOpenEconomicTerms(businessEvent)
 
     set is_event:
-        beforeEconomicterms exists
-            and openEconomicTerms exists
+        beforeEconomicterms -> terminationDate exists
+            and openEconomicTerms -> effectiveDate exists
+            and openEconomicTerms -> terminationDate exists
             and openEconomicTerms -> payout <> beforeEconomicterms -> payout
             and openEconomicTerms -> collateral <> beforeEconomicterms -> collateral
             and openEconomicTerms -> effectiveDate = beforeEconomicterms -> terminationDate
