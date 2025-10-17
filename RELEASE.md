@@ -1,24 +1,48 @@
-# _Infrastructure - Dependency Update_
+## Ingest - Mapping for WorkflowStep, EquityOptions, and CDS
 
-_What is being released?_
+*Background*
 
-This release updates Python generation to use the new FINOS-hosted Python [generator](https://github.com/finos/rune-python-generator) and [runtime](https://github.com/finos/rune-python-runtime).
+Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version for beta testing by the CDM community. There are still gaps between the original synonym mapping and ingest functional mapping which will be addressed in this PR.
 
-These updated components now provide support for:
+*What is being released?*
 
-- The new serialization standard
-- Metadata in Rune-defined types
-- Types with circular dependencies
-- Python generation when the input Rune includes multiple top-level namespaces
+Mapping has been completed for the following areas in CDM:
 
-**Note:** Python generation from Rune-defined functions is not yet supported.
+- Workflow Step
+    - Expanded `PrimitiveInstruction` mapping function for different message types (`ConfirmationAgreed`, `ExecutionNotification`, `RequestClearing` `RequestConfirmation`, `ClearingConfirmed`, `ExecutionAdvice`, `ExecutionAdviceRetracted`, `ExecutionNotification`, `RequestClearing`, `TradeChangeAdvice`)
+    - Created new `MapPrimitiveInstruction` along with function with new functions for amendments, terminations, and event based model mapping (`MapAmendmentToPrimitiveInstruction`, `MapTerminationToPrimitiveInstruction`, `MapTradingEventsBaseModelToPrimitiveInstruction`)
+    - Extended workflow step mapping for `EventTimestamps` and `MessageInformation`
+    
 
-This release differs from the process of generating other language versions of CDM by using a standalone CLI included in the Python Generator. The new process is defined in the [build script](./rosetta-source/src/main/resources/build-resources/python/build-cdm-python.sh):
+- Vanilla Equity Option
+    - Further mapping for Equity Bermuda `multipleExercise`
+    - Created a new functions `MapBasketConstituentQuantity` and `MapEquityBaseFinancialUnit`
+    - Added mapping for a multiplier on non negative quantity schedules
+    - Mapped `passThrough` and `averagingFeature` on an option payout feature attribute
 
-1. Determine the value of `rosetta.dsl.version` used in the [CDM pom](./pom.xml)
-2. Find a Python Generator that matches the version number.  **The process stops if none are found.**
-3. Build Python by invoking the CLI, providing the CDM Rune source and a target directory for the generated Python
-4. Run tests
-5. If successful, package the generated Python and releasing the Python package along with the most recently released runtime
+- Broker Equity Option
+    - Adding `MapEquityPremiumListToTransferStateList` function for `BrokerEquityOption` product type
+    - Further mapping for payout fields (`unit type`, `price`)
 
-The changes can be reviewed in PR: [#3975](https://github.com/finos/common-domain-model/pull/3975)
+- Credit Default Swaps
+    - Mapped `protectionTerms` fields (`gracePeriodExtension`, `obligationAcceleration`, `repudiationMoratorium`, `multipleHolderObligation`, `multipleCreditEventNotices`)
+    - Mapped physical and cash settlement terms in the `MapCreditDefaultSwapChoiceToSettlementTerms` function
+
+- Common
+    - Added coverage for `TradeAmendmentContent` in `GetFpmlTrade` function
+    - Added functions `MapFeeTypeEnumWithScheme` and `MapMessageAction` 
+ 
+- DateTime
+    - Added 2 new functions `MapFpmlDateTimeListToDateTimeList` and `MapEventTimestampQualification`
+
+- PriceQuantity
+    - Add multiplier mapping to `MapCurrencyAmountToQuantity` function
+
+- Other
+    - Added new values to `MapFeeTypeEnum` function
+
+  
+
+*Review Directions*
+
+Changes can be reviewed in PR: [#4091](https://github.com/finos/common-domain-model/pull/4091)

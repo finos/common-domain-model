@@ -40,9 +40,9 @@ func MapBrokerEquityOptionNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlBrokerEquityOption -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlBrokerEquityOption -> productModel),
             economicTerms: MapBrokerEquityOptionEconomicTerms(
-                    fpmlBrokerEquityOption,
-                    cdmCounterpartyList
-                )
+                        fpmlBrokerEquityOption,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapBrokerEquityOptionEconomicTerms:
@@ -67,60 +67,63 @@ func MapBrokerEquityOptionPayout:
 
     alias unit:
         UnitType {
-            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
+            currency: MapCurrency(
+                        fpmlBrokerEquityOption -> strike -> currency default fpmlBrokerEquityOption -> equityExercise -> settlementCurrency
+                    ),
             ...
         }
 
-    alias perUnitOf:
-        UnitType {
-            currency: MapCurrency(fpmlBrokerEquityOption -> strike -> currency),
-            ...
-        }
+    alias perUnitOf: GetPerUnitOfForEquityDerivativeBase(fpmlBrokerEquityOption)
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlBrokerEquityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
-                            fpmlBrokerEquityOption,
-                            fpmlBrokerEquityOption -> numberOfOptions
-                        ),
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapEquityDerivativeBaseQuantityListWithAddress(
+                                        fpmlBrokerEquityOption,
+                                        fpmlBrokerEquityOption -> numberOfOptions
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                                fpmlBrokerEquityOption -> equityExercise,
+                                empty
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlBrokerEquityOption -> underlyer
+                                    ),
+                            ...
+                        },
+                    optionType: fpmlBrokerEquityOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlEquityExercise(
+                                        fpmlBrokerEquityOption -> equityExercise
+                                    ),
+                                empty,
+                                fpmlBrokerEquityOption -> equityExercise -> equityExerciseValuationSettlementSequence -> automaticExercise,
+                                fpmlBrokerEquityOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: MapOptionStrikePrice(
+                                fpmlBrokerEquityOption -> strike -> strikePrice,
+                                fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
+                                unit,
+                                perUnitOf
+                            ),
                     ...
                 },
-                settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlBrokerEquityOption -> equityExercise,
-                        empty
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlBrokerEquityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Observable: MapUnderlyerToObservableWithAddress(
-                            fpmlBrokerEquityOption -> underlyer
-                        ),
-                    ...
-                },
-                optionType: fpmlBrokerEquityOption -> optionType to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlEquityExercise(fpmlBrokerEquityOption -> equityExercise),
-                        empty,
-                        empty,
-                        fpmlBrokerEquityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: MapOptionStrikePrice(
-                        fpmlBrokerEquityOption -> strike -> strikePrice,
-                        fpmlBrokerEquityOption -> strike -> equityStrikeSequence -> strikePercentage,
-                        unit,
-                        perUnitOf
-                    ),
-                ...
-            },
             ...
         }
 
@@ -133,13 +136,16 @@ func MapBrokerEquityOptionPriceQuantityList:
     add priceQuantityList:
         PriceQuantity {
             quantity: MapEquityDerivativeBaseQuantityListWithLocation(
-                    fpmlBrokerEquityOption,
-                    fpmlBrokerEquityOption -> numberOfOptions,
-                    empty
-                ),
+                        fpmlBrokerEquityOption,
+                        fpmlBrokerEquityOption -> numberOfOptions,
+                        empty
+                    ),
             observable: MapUnderlyerToObservableWithLocation(
-                    fpmlBrokerEquityOption -> underlyer
-                ),
+                        fpmlBrokerEquityOption -> underlyer
+                    ),
+            price: MapEquityPermiumToPriceListWithLocation(
+                        fpmlBrokerEquityOption -> equityPremium
+                    ),
             ...
         }
 
