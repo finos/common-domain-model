@@ -22,24 +22,26 @@ import java.util.stream.Stream;
 
 import static org.finos.cdm.ingest.diagnostics.IngestUtils.*;
 
-public class IngestBasicDiagnostics {
+public class IngestBasicDiagnosticsCreator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IngestBasicDiagnostics.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestBasicDiagnosticsCreator.class);
 
     private static final Map<String, Map<String, TestPackAndProductDiagnostics>> TEST_PACK_AND_PRODUCT_SAMPLE_TOTALS = new HashMap<>();
     private static final Map<String, Diagnostics> PRODUCT_SAMPLE_TOTALS = new HashMap<>();
     private static final Map<String, Diagnostics> TEST_PACK_SAMPLE_TOTALS = new HashMap<>();
     private static final Map<String, Multimap<String, SampleDiagnostics>> TEST_PACK_SAMPLES = new HashMap<>();
 
+    private static final Path FUNCTION_INGEST_EXPECTATION_DIFF_PATH = PROJECT_ROOT.resolve("tests/src/test/resources/ingest/diagnostics");
+
     private static final Set<String> FPML_PRODUCT_ELEMENTS = getFpmlProductElements();
-    
-    public void generateIngestBasicDiagnostics() throws IOException {
+
+    public void generateIngestBasicDiagnostics() {
         inputs().forEach(input ->
                 collectDiagnostics(input.testPack, input.inputXmlPath, input.ingestOutputPath, input.synonymIngestOutputPath));
         printTotals();
     }
 
-    private List<Input> inputs() throws IOException {
+    private List<Input> inputs() {
         try (Stream<Path> synonymIngestOutputFileStream = Files.walk(SYNONYM_INGEST_OUTPUT_BASE_PATH)) {
             return synonymIngestOutputFileStream
                     .filter(IngestUtils::isFpmlTestPack)
@@ -61,6 +63,8 @@ public class IngestBasicDiagnostics {
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new UncheckedIOException(String.format("Failed to walk files %s", SYNONYM_INGEST_OUTPUT_BASE_PATH), e);
         }
     }
 
@@ -173,13 +177,12 @@ public class IngestBasicDiagnostics {
     }
 
     private void writeDiagnosticsFile(String fileName, String contents) {
-        Path outputDir = PROJECT_ROOT.resolve("tests/src/test/resources/diagnostics");
-        Path outputFile = outputDir.resolve(fileName);
+        Path outputFile = FUNCTION_INGEST_EXPECTATION_DIFF_PATH.resolve(fileName);
 
         try {
             // Create directory if it doesn't exist
-            if (!Files.exists(outputDir)) {
-                Files.createDirectories(outputDir);
+            if (!Files.exists(FUNCTION_INGEST_EXPECTATION_DIFF_PATH)) {
+                Files.createDirectories(FUNCTION_INGEST_EXPECTATION_DIFF_PATH);
             }
             // Write to file
             Files.writeString(outputFile, contents);

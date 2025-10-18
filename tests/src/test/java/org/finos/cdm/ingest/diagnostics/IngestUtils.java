@@ -23,7 +23,6 @@ public class IngestUtils {
     static final Path MAIN_RESOURCES_PATH = PROJECT_ROOT.resolve(Path.of("rosetta-source/src/main/resources"));
     static final Path INGEST_OUTPUT_PATH = MAIN_RESOURCES_PATH.resolve(TransformType.TRANSLATE.getResourcePath()).resolve("output");
     static final Path SYNONYM_INGEST_OUTPUT_BASE_PATH = MAIN_RESOURCES_PATH.resolve("result-json-files");
-    static final Path FUNCTION_INGEST_DIFF_PATH = PROJECT_ROOT.resolve(Path.of("tests/src/test/resources")).resolve("expected-output");
     // synonym ingest folder structure - top level folders
     static final List<String> FPML_GROUPS = Arrays.asList("fpml-5-10", "fpml-5-12", "fpml-5-13"); //"native-cdm-events"
 

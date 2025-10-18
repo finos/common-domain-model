@@ -11,7 +11,8 @@ import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
-import org.finos.cdm.ingest.diagnostics.IngestBasicDiagnostics;
+import org.finos.cdm.ingest.diagnostics.IngestBasicDiagnosticsCreator;
+import org.finos.cdm.ingest.diagnostics.IngestExpectationDiffCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,8 @@ public class CdmTestPackCreator {
 
     private void run() throws IOException {
         pipelineConfigWriter.writePipelinesAndTestPacks(createTreeConfig());
-        new IngestBasicDiagnostics().generateIngestBasicDiagnostics();
+        new IngestBasicDiagnosticsCreator().generateIngestBasicDiagnostics();
+        new IngestExpectationDiffCreator().generateIngestExpectationDiffs();
     }
 
     private PipelineTreeConfig createTreeConfig() {

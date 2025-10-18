@@ -16,11 +16,6 @@ import com.rosetta.model.lib.meta.FieldWithMeta;
 import com.rosetta.model.lib.meta.ReferenceWithMeta;
 import com.rosetta.model.lib.path.RosettaPath;
 import com.rosetta.model.lib.process.AttributeMeta;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,77 +32,82 @@ import java.util.stream.Stream;
 
 import static org.finos.cdm.ingest.diagnostics.IngestUtils.*;
 import static org.finos.cdm.testpack.CdmTestPackCreator.EVENT_TEST_PACKS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Disabled
-public class IngestTargetExpectationsDiffTest {
+public class IngestExpectationDiffCreator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IngestTargetExpectationsDiffTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestExpectationDiffCreator.class);
 
-    @MethodSource("inputs")
-    @ParameterizedTest(name = "{0}")
-    void checkTargetOutputDiff(String testName, Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath, Path ingestOutputPath, Path diffPath) throws IOException {
-        List<String> actualOutputFileContent = readFile(clazz, synonymIngestOutputPath);
-        if (!Files.exists(ingestOutputPath)) {
-            LOGGER.warn("No output file found for {}", synonymIngestOutputPath);
-            return;
-        }
-        List<String> targetOutputFileContent = readFile(clazz, ingestOutputPath);
+    private static final Path FUNCTION_INGEST_DIFF_PATH = PROJECT_ROOT.resolve(Path.of("tests/src/test/resources")).resolve("ingest").resolve("expected-output");
 
-        String expectedDiff = readFile(diffPath);
-        String actualDiff = createPatchFile(actualOutputFileContent, targetOutputFileContent, getRelativePath(synonymIngestOutputPath), getRelativePath(ingestOutputPath));
-        assertDiffEquals(expectedDiff, actualDiff, diffPath);
+    public void generateIngestExpectationDiffs() {
+        inputs().forEach(input ->
+                generateIngestExpectationDiffFile(input.clazz, input.synonymIngestOutputPath, input.ingestOutputPath, input.diffPath));
     }
 
-    private static Stream<Arguments> inputs() throws IOException {
-        List<Arguments> arguments;
+    private List<Input> inputs() {
         try (Stream<Path> synonymIngestOutputFileStream = Files.walk(SYNONYM_INGEST_OUTPUT_BASE_PATH)) {
-            arguments = synonymIngestOutputFileStream
+            return synonymIngestOutputFileStream
                     .filter(IngestUtils::isFpmlTestPack)
                     .filter(IngestUtils::isJsonExt)
                     .map(synonymIngestOutputPath ->
                     {
-                        
+
                         Path fileName = synonymIngestOutputPath.getFileName();
                         Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
                         String testPackName = toTestPackName(relativePath.toString());
                         Path ingestOutputPath = getIngestOutputPath(testPackName, fileName);
                         Class<? extends RosettaModelObject> clazz = EVENT_TEST_PACKS.contains(testPackName) ?
                                 WorkflowStep.class : TradeState.class;
-                        return Arguments.of(getTestName(testPackName, fileName),
-                                clazz,
+                        return new Input(clazz,
                                 synonymIngestOutputPath,
                                 ingestOutputPath,
                                 getDiffPath(ingestOutputPath));
                     })
                     .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new UncheckedIOException(String.format("Failed to walk files %s", SYNONYM_INGEST_OUTPUT_BASE_PATH), e);
         }
-        return arguments.stream();
     }
-    
-    @NotNull
-    private static Path getDiffPath(Path ingestOutputPath) {
+
+    void generateIngestExpectationDiffFile(Class<? extends RosettaModelObject> clazz, 
+                                           Path synonymIngestOutputPath, 
+                                           Path ingestOutputPath, 
+                                           Path diffPath) {
+        List<String> actualOutputFileContent = readFile(clazz, synonymIngestOutputPath);
+        if (!Files.exists(ingestOutputPath)) {
+            LOGGER.warn("No output file found for {}", synonymIngestOutputPath);
+            return;
+        }
+        List<String> targetOutputFileContent = readFile(clazz, ingestOutputPath);
+        try {
+            String contents = createPatchFile(actualOutputFileContent, targetOutputFileContent, getRelativePath(synonymIngestOutputPath), getRelativePath(ingestOutputPath));
+            writeFile(diffPath, contents);
+        } catch (IOException e) {
+            LOGGER.error("Error while creating diff file {}", diffPath, e);
+        }
+    }
+
+    private Path getDiffPath(Path ingestOutputPath) {
         return Path.of(ingestOutputPath.toString()
                 .replace("/tests/", "/rosetta-source/")
                 .replace(INGEST_OUTPUT_PATH.toString(), FUNCTION_INGEST_DIFF_PATH.toString())
                 .replace(".json", ".diff"));
     }
 
-    @NotNull
-    private List<String> readFile(Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath) throws IOException {
+    private List<String> readFile(Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath) {
         try {
             String json = Files.readString(synonymIngestOutputPath);
             RosettaModelObject modelObject = deserialise(clazz, json);
             RosettaModelObject processedModelObject = removeGlobalKeys(modelObject);
             String processedJson = serialise(processedModelObject);
             return Arrays.asList(processedJson.split("\n"));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to read file {}", synonymIngestOutputPath, e);
             return Collections.emptyList();
         }
     }
-    
-    private static <T extends RosettaModelObject> T deserialise(Class<T> clazz, String json) throws JsonProcessingException {
+
+    private <T extends RosettaModelObject> T deserialise(Class<T> clazz, String json) throws JsonProcessingException {
         return OBJECT_MAPPER.readValue(json, clazz);
     }
 
@@ -119,25 +119,14 @@ public class IngestTargetExpectationsDiffTest {
         return builder.prune().build();
     }
 
-    private static String serialise(RosettaModelObject o) throws JsonProcessingException {
+    private String serialise(RosettaModelObject o) throws JsonProcessingException {
         return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(o);
     }
-    
-    private String readFile(Path file) {
-        try {
-            return Files.readString(file);
-        } catch (IOException e) {
-            LOGGER.error("Failed to read file {}", file.getFileName().toString(), e);
-            return "";
-        }
-    }
 
-    @NotNull
     private String getRelativePath(Path actualOutputPath) {
         return PROJECT_ROOT.relativize(actualOutputPath).toString();
     }
 
-    @NotNull
     private String createPatchFile(List<String> targetOutputContent, List<String> actualOutputContent, String targetOutputFileName, String actualOutputFileName) throws IOException {
         Patch<String> patch = DiffUtils.diff(targetOutputContent, actualOutputContent);
         UnifiedDiffFile revised = UnifiedDiffFile.from(targetOutputFileName, actualOutputFileName, patch);
@@ -147,19 +136,10 @@ public class IngestTargetExpectationsDiffTest {
         return writer.toString();
     }
 
-    private void assertDiffEquals(String expectedDiff, String actualDiff, Path diffPath) {
-        if (!expectedDiff.equals(actualDiff)) {
-            if (WRITE_EXPECTATIONS) {
-                try {
-                    Files.createDirectories(diffPath.getParent());
-                    Files.write(diffPath, actualDiff.getBytes());
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            }
-        }
-        assertEquals(expectedDiff, actualDiff,
-                "The expected diff between actual and target output does not match for path " + diffPath);
+    private void writeFile(Path path, String content) throws IOException {
+        Files.createDirectories(path.getParent());
+        Files.write(path, content.getBytes());
+        LOGGER.info("Created diff file {}", path);
     }
 
     private static class GlobalKeyRemover extends SimpleBuilderProcessor {
@@ -195,6 +175,20 @@ public class IngestTargetExpectationsDiffTest {
 
         private boolean isGlobalReference(RosettaModelObjectBuilder builder) {
             return builder instanceof ReferenceWithMeta;
+        }
+    }
+
+    private static class Input {
+        private final Class<? extends RosettaModelObject> clazz;
+        private final Path synonymIngestOutputPath;
+        private final Path ingestOutputPath;
+        private final Path diffPath;
+
+        private Input(Class<? extends RosettaModelObject> clazz, Path synonymIngestOutputPath, Path ingestOutputPath, Path diffPath) {
+            this.clazz = clazz;
+            this.synonymIngestOutputPath = synonymIngestOutputPath;
+            this.ingestOutputPath = ingestOutputPath;
+            this.diffPath = diffPath;
         }
     }
 }
