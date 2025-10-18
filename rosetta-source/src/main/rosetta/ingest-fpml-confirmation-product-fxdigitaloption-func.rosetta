@@ -1,0 +1,84 @@
+namespace cdm.ingest.fpml.confirmation.product.fxdigitaloption
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
+
+func MapFxDigitalOptionNonTransferableProduct:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlFxDigitalOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFxDigitalOption -> productModel),
+            economicTerms: MapFxDigitalOptionEconomicTerms(
+                        fpmlFxDigitalOption,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapFxDigitalOptionCounterpartyList:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(fpmlFxDigitalOption -> buyerSellerModel)
+
+func MapFxDigitalOptionEconomicTerms:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapFxDigitalOptionPayout(fpmlFxDigitalOption, cdmCounterpartyList),
+            ...
+        }
+
+func MapFxDigitalOptionPayout:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    settlementTerms: MapFxDigitalOptionToSettlementTerms(
+                                fpmlFxDigitalOption
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier: empty,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlFxDigitalExercise(fpmlFxDigitalOption),
+                                fpmlFxDigitalOption -> exerciseProcedure,
+                                empty,
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    ...
+                },
+            ...
+        }
