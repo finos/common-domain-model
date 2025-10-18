@@ -183,7 +183,7 @@ public class IngestBasicDiagnostics {
             }
             // Write to file
             Files.writeString(outputFile, contents);
-            LOGGER.info("Product diagnostics written to {}", outputFile);
+            LOGGER.info("Diagnostics written to {}", outputFile);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to write product diagnostics to markdown file", e);
         }
