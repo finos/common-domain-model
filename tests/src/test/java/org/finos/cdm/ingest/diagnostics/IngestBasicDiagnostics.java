@@ -5,10 +5,6 @@ import com.google.common.collect.Multimap;
 import fpml.confirmation.custom.ProductChoice;
 import org.eclipse.xtext.xbase.lib.StringExtensions;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +22,9 @@ import java.util.stream.Stream;
 
 import static org.finos.cdm.ingest.diagnostics.IngestUtils.*;
 
-public class IngestBasicDiagnosticsTest {
+public class IngestBasicDiagnostics {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IngestBasicDiagnosticsTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IngestBasicDiagnostics.class);
 
     private static final Map<String, Map<String, TestPackAndProductDiagnostics>> TEST_PACK_AND_PRODUCT_SAMPLE_TOTALS = new HashMap<>();
     private static final Map<String, Diagnostics> PRODUCT_SAMPLE_TOTALS = new HashMap<>();
@@ -36,10 +32,39 @@ public class IngestBasicDiagnosticsTest {
     private static final Map<String, Multimap<String, SampleDiagnostics>> TEST_PACK_SAMPLES = new HashMap<>();
 
     private static final Set<String> FPML_PRODUCT_ELEMENTS = getFpmlProductElements();
+    
+    public void generateIngestBasicDiagnostics() throws IOException {
+        inputs().forEach(input ->
+                collectDiagnostics(input.testPack, input.inputXmlPath, input.ingestOutputPath, input.synonymIngestOutputPath));
+        printTotals();
+    }
 
-    @MethodSource("inputs")
-    @ParameterizedTest(name = "{0}")
-    void checkTargetOutputDiff(String testName, String testPack, Path inputXmlPath, Path ingestOutputPath, Path synonymIngestOutputPath) {
+    private List<Input> inputs() throws IOException {
+        try (Stream<Path> synonymIngestOutputFileStream = Files.walk(SYNONYM_INGEST_OUTPUT_BASE_PATH)) {
+            return synonymIngestOutputFileStream
+                    .filter(IngestUtils::isFpmlTestPack)
+                    .filter(IngestUtils::isJsonExt)
+                    .map(synonymIngestOutputPath ->
+                    {
+                        Path fileName = synonymIngestOutputPath.getFileName();
+                        Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
+                        String testPackName = toTestPackName(relativePath.toString());
+                        Path ingestOutputPath = getIngestOutputPath(testPackName, fileName);
+                        if (!Files.exists(ingestOutputPath)) {
+                            LOGGER.warn("No ingest output file found for {}", ingestOutputPath);
+                            return null;
+                        }
+                        return new Input(testPackName,
+                                getXmlInputPath(synonymIngestOutputPath),
+                                ingestOutputPath,
+                                synonymIngestOutputPath);
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private void collectDiagnostics(String testPack, Path inputXmlPath, Path ingestOutputPath, Path synonymIngestOutputPath) {
         if (!Files.exists(ingestOutputPath)) {
             return;
         }
@@ -75,50 +100,20 @@ public class IngestBasicDiagnosticsTest {
                 });
     }
 
-    private static Stream<Arguments> inputs() throws IOException {
-        List<Arguments> arguments;
-        try (Stream<Path> synonymIngestOutputFileStream = Files.walk(SYNONYM_INGEST_OUTPUT_BASE_PATH)) {
-            arguments = synonymIngestOutputFileStream
-                    .filter(IngestUtils::isFpmlTestPack)
-                    .filter(IngestUtils::isJsonExt)
-                    .map(synonymIngestOutputPath ->
-                    {
-                        Path fileName = synonymIngestOutputPath.getFileName();
-                        Path relativePath = SYNONYM_INGEST_OUTPUT_BASE_PATH.relativize(synonymIngestOutputPath.getParent());
-                        String testPackName = toTestPackName(relativePath.toString());
-                        Path ingestOutputPath = getIngestOutputPath(testPackName, fileName);
-                        if (!Files.exists(ingestOutputPath)) {
-                            LOGGER.warn("No ingest output file found for {}", ingestOutputPath);
-                            return null;
-                        }
-                        return Arguments.of(getTestName(testPackName, fileName),
-                                testPackName,
-                                getXmlInputPath(synonymIngestOutputPath),
-                                ingestOutputPath,
-                                synonymIngestOutputPath);
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        }
-        return arguments.stream();
-    }
-
-    @NotNull
-    private static Path getXmlInputPath(Path synonymIngestOutputPath) {
-        return Path.of(synonymIngestOutputPath.toString()
-                .replace("result-json-files", "cdm-sample-files")
-                .replace(".json", ".xml"));
-    }
-
-
-    @AfterAll
-    static void printTotals() {
+    private void printTotals() {
         printProductDiagnostics();
         printTestPackDiagnostics();
         printTestPackAndProductDiagnostics();
     }
 
-    private static void printProductDiagnostics() {
+    @NotNull
+    private Path getXmlInputPath(Path synonymIngestOutputPath) {
+        return Path.of(synonymIngestOutputPath.toString()
+                .replace("result-json-files", "cdm-sample-files")
+                .replace(".json", ".xml"));
+    }
+
+    private void printProductDiagnostics() {
         List<Diagnostics> productDiagnostics = PRODUCT_SAMPLE_TOTALS.values().stream()
                 .sorted(Comparator.comparing((Diagnostics x) -> getCompleteness(x.actual, x.target))
                         .thenComparing(Diagnostics::samples).reversed())
@@ -138,7 +133,7 @@ public class IngestBasicDiagnosticsTest {
         writeDiagnosticsFile("product_diagnostics.md", markdownContent.toString());
     }
 
-    private static void printTestPackDiagnostics() {
+    private void printTestPackDiagnostics() {
         List<Diagnostics> testPackDiagnostics = TEST_PACK_SAMPLE_TOTALS.values().stream()
                 .sorted(Comparator.comparing((Diagnostics x) -> getCompleteness(x.actual, x.target))
                         .thenComparing(Diagnostics::samples).reversed())
@@ -153,11 +148,11 @@ public class IngestBasicDiagnosticsTest {
         testPackDiagnostics.forEach(d ->
                 markdownContent.append(String.format("| %s | %s | %s |\n",
                         d.group, d.samples, getFormattedCompleteness(d.actual, d.target))));
-        
+
         writeDiagnosticsFile("test_pack_diagnostics.md", markdownContent.toString());
     }
 
-    private static void printTestPackAndProductDiagnostics() {
+    private void printTestPackAndProductDiagnostics() {
         List<TestPackAndProductDiagnostics> testPackAndProductDiagnostics = TEST_PACK_AND_PRODUCT_SAMPLE_TOTALS.values().stream()
                 .map(Map::values).flatMap(Collection::stream)
                 .sorted(Comparator.comparing(TestPackAndProductDiagnostics::testPack)
@@ -169,7 +164,7 @@ public class IngestBasicDiagnosticsTest {
         markdownContent.append("# Test Pack / Product Diagnostics\n\n");
         markdownContent.append("| Test Pack | FpML Product | Samples | Completeness |\n");
         markdownContent.append("|:-----------------------------------------------------|:-----------------------------------------------|:-------:|:-------:|\n");
-        
+
         testPackAndProductDiagnostics.forEach(d ->
                 markdownContent.append(String.format("| %s | %s | %s | %s |\n",
                         d.testPack, d.product, d.samples, getFormattedCompleteness(d.actual, d.target))));
@@ -177,7 +172,7 @@ public class IngestBasicDiagnosticsTest {
         writeDiagnosticsFile("test_pack_product_diagnostics.md", markdownContent.toString());
     }
 
-    private static void writeDiagnosticsFile(String fileName, String contents) {
+    private void writeDiagnosticsFile(String fileName, String contents) {
         Path outputDir = PROJECT_ROOT.resolve("tests/src/test/resources/diagnostics");
         Path outputFile = outputDir.resolve(fileName);
 
@@ -194,11 +189,11 @@ public class IngestBasicDiagnosticsTest {
         }
     }
 
-    private static double getCompleteness(int actual, int target) {
+    private double getCompleteness(int actual, int target) {
         return (double) actual / target * 100;
     }
 
-    private static String getFormattedCompleteness(int actual, int target) {
+    private String getFormattedCompleteness(int actual, int target) {
         DecimalFormat df = new DecimalFormat("0");
         return df.format(getCompleteness(actual, target)) + "%";
     }
@@ -217,7 +212,7 @@ public class IngestBasicDiagnosticsTest {
         return returnTypes;
     }
 
-    private static boolean isProduct(String product, String inputXml) {
+    private boolean isProduct(String product, String inputXml) {
         // nasty hack
         if (product.equals("swap") && inputXml.contains("<swaption")) {
             return false;
@@ -257,7 +252,21 @@ public class IngestBasicDiagnosticsTest {
         }
     }
 
-    private static final class SampleDiagnostics {
+    private static class Input {
+        private final String testPack;
+        private final Path inputXmlPath;
+        private final Path ingestOutputPath;
+        private final Path synonymIngestOutputPath;
+
+        private Input(String testPack, Path inputXmlPath, Path ingestOutputPath, Path synonymIngestOutputPath) {
+            this.testPack = testPack;
+            this.inputXmlPath = inputXmlPath;
+            this.ingestOutputPath = ingestOutputPath;
+            this.synonymIngestOutputPath = synonymIngestOutputPath;
+        }
+    }
+
+    private static class SampleDiagnostics {
         private final String testPack;
         private final String product;
         private final String sample;
@@ -270,26 +279,6 @@ public class IngestBasicDiagnosticsTest {
             this.sample = sample;
             this.actual = actual;
             this.target = target;
-        }
-
-        public String testPack() {
-            return testPack;
-        }
-
-        public String product() {
-            return product;
-        }
-
-        public String sample() {
-            return sample;
-        }
-
-        public int actual() {
-            return actual;
-        }
-
-        public int target() {
-            return target;
         }
 
         @Override
@@ -308,19 +297,9 @@ public class IngestBasicDiagnosticsTest {
         public int hashCode() {
             return Objects.hash(testPack, product, sample, actual, target);
         }
-
-        @Override
-        public String toString() {
-            return "SampleDiagnostics[" +
-                    "testPack=" + testPack + ", " +
-                    "product=" + product + ", " +
-                    "sample=" + sample + ", " +
-                    "actual=" + actual + ", " +
-                    "target=" + target + ']';
-        }
     }
 
-    private static final class TestPackAndProductDiagnostics {
+    private static class TestPackAndProductDiagnostics {
         private final String testPack;
         private final String product;
         private final int samples;
@@ -351,18 +330,6 @@ public class IngestBasicDiagnosticsTest {
             return product;
         }
 
-        public int samples() {
-            return samples;
-        }
-
-        public int actual() {
-            return actual;
-        }
-
-        public int target() {
-            return target;
-        }
-
         @Override
         public boolean equals(Object obj) {
             if (obj == this) return true;
@@ -379,19 +346,9 @@ public class IngestBasicDiagnosticsTest {
         public int hashCode() {
             return Objects.hash(testPack, product, samples, actual, target);
         }
-
-        @Override
-        public String toString() {
-            return "TestPackAndProductDiagnostics[" +
-                    "testPack=" + testPack + ", " +
-                    "product=" + product + ", " +
-                    "samples=" + samples + ", " +
-                    "actual=" + actual + ", " +
-                    "target=" + target + ']';
-        }
     }
 
-    private static final class Diagnostics {
+    private static class Diagnostics {
         private final String group;
         private final int samples;
         private final int actual;
@@ -412,20 +369,8 @@ public class IngestBasicDiagnosticsTest {
             return new Diagnostics(this.group, this.samples + 1, this.actual + actual, this.target + target);
         }
 
-        public String group() {
-            return group;
-        }
-
         public int samples() {
             return samples;
-        }
-
-        public int actual() {
-            return actual;
-        }
-
-        public int target() {
-            return target;
         }
 
         @Override
@@ -442,15 +387,6 @@ public class IngestBasicDiagnosticsTest {
         @Override
         public int hashCode() {
             return Objects.hash(group, samples, actual, target);
-        }
-
-        @Override
-        public String toString() {
-            return "Diagnostics[" +
-                    "group=" + group + ", " +
-                    "samples=" + samples + ", " +
-                    "actual=" + actual + ", " +
-                    "target=" + target + ']';
         }
     }
 }
