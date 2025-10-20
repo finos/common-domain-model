@@ -1,89 +1,41 @@
-# *FpML Ingestion - FX Payer and Receiver*
+## Ingest - Fix use of empty in conditions and qualification functions
 
-_Background_
+*Background*
 
-This release fixes the FpML ingestion (based on synonyms) mapping of payer and receiver for FX products, as per GitHub issue [#4039](https://github.com/finos/common-domain-model/issues/4039).
+An upcoming DSL release has found a number of areas where the use of empty in qualification functions and conditions was not being handled correctly. This change contains fixes that readying the model for the DSL release.
 
-_What is being released?_
+*What is being released?*
 
-Update to the FpML synonym mappings for `SettlementPayout` attributes `payer` and `receiver` to correctly correspond the exchange rate quote basis.
+The following functions have been updated:
 
-_Review Directions_
+- Qualify_Substitution
+    - Check for existence of `beforeEconomicterms -> terminationDate` instead of just `beforeEconomicterms` existence.
+    - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of just `openEconomicTerms` existence.
 
-In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML samples:
+- Qualify_Roll
+    - Check for existence of `beforeEconomicterms -> collateral` instead of just `beforeEconomicterms` existence.
+    - Check for existence of `openEconomicTerms -> collateral` instead of just `openEconomicTerms` existence.
 
-- fx-ex01-fx-spot.xml
-- fx-ex02-spot-cross-w-side-rates.xml
-- fx-ex03-fx-fwd.xml
-- fx-ex05-fx-fwd-w-ssi.xml
-- fx-ex07-non-deliverable-forward.xml
-- fx-ex08-fx-swap.xml
-- fx-ex26-fxswap-multiple-USIs.xml
-- fx-ex28-non-deliverable-w-disruption.xml
-- fx-ex29-fx-swap-with-multiple-identifiers.xml
+- UnderlierQualification
+    - Check `securityType` exists before comparing to `instrumentType`.
 
-Changes can be reviewed in PR: [#4063](https://github.com/finos/common-domain-model/pull/4063)
-
-# _Infrastructure - Dependency Update_
-
-_Background_
-
-The Rosetta platform has a feature for its enumerations that enables, if a certain enumeration is directly related to an FpML or ISO coding scheme, to label that enumeration with the corresponding coding scheme canonical URI, so every time that coding scheme is updated, the enumeration will be automatically updated.
-
-_What is being released?_
-
-- This release updates `FloatingRateIndexEnum` to keep it in sync with the latest FpML coding scheme.
-   * The following enum value has been added:
-       * `INR_MIBOR <"INR-MIBOR">`
-       * `INR_SORR <"INR-SORR">`
-       * `INR_SORR_OIS_Compound <"INR-SORR-OIS Compound">`
-       * `PLN_POLSTR <"PLN-POLSTR">`
-       * `PLN_POLSTR_OIS_Compound <"PLN-POLSTR-OIS Compound">`
+- ObservableQualification
+    - Check `securityType` exists before comparing to `instrumentType`.
+    - Check `assetClass` exists before comparing to `Index ->> assetClass`.
 
 
-- This release updates the `DSL` dependency.
+The following types have been updated:
 
-   Version updates include:
-   - `DSL` 9.65.0 The `switch` operation now supports complex types. It also contains various model validation fixes. See DSL release notes: [DSL 9.65.0](https://github.com/finos/rune-dsl/releases/tag/9.65.0)
-   - `DSL` 9.65.1 Code generation fix for the `with-meta` operation. See DSL release notes: [DSL 9.65.1](https://github.com/finos/rune-dsl/releases/tag/9.65.1)
-   - `DSL` 9.65.2 Various fixes and build optimization. See DSL release notes: [DSL 9.65.2](https://github.com/finos/rune-dsl/releases/tag/9.65.2)
-   - `DSL` 9.65.3 Fixes related to `key` metadata. See DSL release notes: [DSL 9.65.3](https://github.com/finos/rune-dsl/releases/tag/9.65.3)
-   - `DSL` 9.65.4 Fix metadata template Java type. See DSL release notes: [DSL 9.65.4](https://github.com/finos/rune-dsl/releases/tag/9.65.4)
-   - `DSL` 9.65.5 Fix issue where clashing names from other namespaces are not correctly qualified in generated code. See DSL release notes: [DSL 9.65.5](https://github.com/finos/rune-dsl/releases/tag/9.65.5)
-   - `DSL` 9.66.0 Fix issue where `then` operation allows incorrect syntax. See DSL release notes: [DSL 9.66.0](https://github.com/finos/rune-dsl/releases/tag/9.66.0)
-   - `DSL` 9.66.1 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.66.1](https://github.com/finos/rune-dsl/releases/tag/9.66.1)
-   - `DSL` 9.67.7 has been migrated to the Finos namespace. See DSL release notes: [DSL 9.67.7](https://github.com/finos/rune-dsl/releases/tag/9.67.7)
-   - `DSL` 9.67.8 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.67.8](https://github.com/finos/rune-dsl/releases/tag/9.67.8)
-   - `DSL` 9.67.9 Fix for issue where the model build process is slow. See DSL release notes: [DSL 9.67.9](https://github.com/finos/rune-dsl/releases/tag/9.67.9)
+- NonNegativeQuantitySchedule
+  - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
 
-There are no changes to model or test expectations.
+- ValuationMethod
+    - Check for existence of `quotationAmount -> unit -> currency` instead of just `quotationAmount` existence.
+    - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of just `minimumQuotationAmount` existence.
 
-_Review Directions_
+- FixedPrice
+    - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
 
-The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036) && [#4101](https://github.com/finos/common-domain-model/pull/4101)
+*Review Directions*
 
-# _Infrastructure - Security Update_
-
-_What is being released?_
-
-Update to the CVE scanning configuration. The `OSS Index integration` has been disabled in the build pipeline because username and password credentials are not yet configured. Dependency scanning continues to run using OWASP Dependency-Check with suppression rules, ensuring vulnerability checks are still performed.
-`disableOssIndex` flag set in CVE scanning workflow configuration
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4036](https://github.com/finos/common-domain-model/pull/4036)
-
-# _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
-
-_Background_
-
-It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
-The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
-
-_What is being released?_
-
-Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
+Changes can be reviewed in PR: [#4118](https://github.com/finos/common-domain-model/pull/4118)
