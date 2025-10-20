@@ -1,48 +1,41 @@
-## Ingest - Mapping for WorkflowStep, EquityOptions, and CDS
+## Ingest - Fix use of empty in conditions
 
 *Background*
 
-Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version for beta testing by the CDM community. There are still gaps between the original synonym mapping and ingest functional mapping which will be addressed in this PR.
+An upcoming DSL release has found a number of areas where the use of empty in qualification functions and conditions was not being handled correctly. This change contains fixes that readying the model for the DSL release. 
 
 *What is being released?*
 
-Mapping has been completed for the following areas in CDM:
+The following functions have been updated:
 
-- Workflow Step
-    - Expanded `PrimitiveInstruction` mapping function for different message types (`ConfirmationAgreed`, `ExecutionNotification`, `RequestClearing` `RequestConfirmation`, `ClearingConfirmed`, `ExecutionAdvice`, `ExecutionAdviceRetracted`, `ExecutionNotification`, `RequestClearing`, `TradeChangeAdvice`)
-    - Created new `MapPrimitiveInstruction` along with function with new functions for amendments, terminations, and event based model mapping (`MapAmendmentToPrimitiveInstruction`, `MapTerminationToPrimitiveInstruction`, `MapTradingEventsBaseModelToPrimitiveInstruction`)
-    - Extended workflow step mapping for `EventTimestamps` and `MessageInformation`
-    
+- Qualify_Substitution
+  - Check for existence of `beforeEconomicterms -> terminationDate` instead of just `beforeEconomicterms` existence.
+  - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of just `openEconomicTerms` existence.
 
-- Vanilla Equity Option
-    - Further mapping for Equity Bermuda `multipleExercise`
-    - Created a new functions `MapBasketConstituentQuantity` and `MapEquityBaseFinancialUnit`
-    - Added mapping for a multiplier on non negative quantity schedules
-    - Mapped `passThrough` and `averagingFeature` on an option payout feature attribute
+- Qualify_Roll
+  - Check for existence of `beforeEconomicterms -> collateral` instead of just `beforeEconomicterms` existence.
+  - Check for existence of `openEconomicTerms -> collateral` instead of just `openEconomicTerms` existence.
 
-- Broker Equity Option
-    - Adding `MapEquityPremiumListToTransferStateList` function for `BrokerEquityOption` product type
-    - Further mapping for payout fields (`unit type`, `price`)
+- UnderlierQualification
+  - Check `securityType` exists before comparing to `instrumentType`.
 
-- Credit Default Swaps
-    - Mapped `protectionTerms` fields (`gracePeriodExtension`, `obligationAcceleration`, `repudiationMoratorium`, `multipleHolderObligation`, `multipleCreditEventNotices`)
-    - Mapped physical and cash settlement terms in the `MapCreditDefaultSwapChoiceToSettlementTerms` function
+- ObservableQualification
+  - Check `securityType` exists before comparing to `instrumentType`.
+  - Check `assetClass` exists before comparing to `Index ->> assetClass`.
 
-- Common
-    - Added coverage for `TradeAmendmentContent` in `GetFpmlTrade` function
-    - Added functions `MapFeeTypeEnumWithScheme` and `MapMessageAction` 
- 
-- DateTime
-    - Added 2 new functions `MapFpmlDateTimeListToDateTimeList` and `MapEventTimestampQualification`
 
-- PriceQuantity
-    - Add multiplier mapping to `MapCurrencyAmountToQuantity` function
+The following types have been updated:
 
-- Other
-    - Added new values to `MapFeeTypeEnum` function
+- ValuationMethod
+  - Check for existence of `quotationAmount -> unit -> currency` instead of just `quotationAmount` existence.
+  - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of just `minimumQuotationAmount` existence.
 
-  
+- FixedPrice
+  - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
+
+- OptionPayout
+  - Split condition `AsianOptionChoice` into two conditions `AsianOptionChoice_averagingStrikeFeature` and `AsianOptionChoice_averagingFeature`.
 
 *Review Directions*
 
-Changes can be reviewed in PR: [#4091](https://github.com/finos/common-domain-model/pull/4091)
+Changes can be reviewed in PR: [#4113](https://github.com/finos/common-domain-model/pull/4113)
