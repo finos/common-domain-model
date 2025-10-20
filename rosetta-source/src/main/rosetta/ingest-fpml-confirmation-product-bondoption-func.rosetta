@@ -67,39 +67,42 @@ func MapBondOptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapOptionBaseExtendedQuantityListWithAddress(
-                            fpmlBondOption
-                        ),
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapOptionBaseExtendedQuantityListWithAddress(
+                                        fpmlBondOption
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapOptionSettlementModelToSettlementTerms(
+                                fpmlBondOption -> optionSettlementModel
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapAssetToObservableWithAddress(fpmlUnderlyingAsset),
+                            ...
+                        },
+                    optionType: fpmlBondOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                fpmlBondOption -> exercise,
+                                fpmlBondOption -> exerciseProcedure,
+                                empty,
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: MapBondOptionStrikeToOptionStrike(fpmlBondOption -> strike),
                     ...
                 },
-                settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                        fpmlBondOption -> optionSettlementModel
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(fpmlUnderlyingAsset),
-                    ...
-                },
-                optionType: fpmlBondOption -> optionType to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        fpmlBondOption -> exercise,
-                        fpmlBondOption -> exerciseProcedure,
-                        empty,
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: MapBondOptionStrikeToOptionStrike(fpmlBondOption -> strike),
-                ...
-            },
             ...
         }
 

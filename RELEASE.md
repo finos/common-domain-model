@@ -1,25 +1,13 @@
-# *FpML Ingestion - FX Payer and Receiver*
+# Product Taxonomy Model - Adding "CFTC" value in TaxonomySourceEnum
 
 _Background_
 
-This release fixes the FpML ingestion (based on synonyms) mapping of payer and receiver for FX products, as per GitHub issue [#4039](https://github.com/finos/common-domain-model/issues/4039).
+A gap has been identified in the model when capturing taxonomy values for commodity underlyer assets as defined by CFTC regulation. Introducing `CFTC` as a taxonomy source is necessary to properly map these values within the model and to support population of the **"Commodity Underlyer ID"** fields in DRR.
 
 _What is being released?_
 
-Update to the FpML synonym mappings for `SettlementPayout` attributes `payer` and `receiver` to correctly correspond the exchange rate quote basis. 
+The contribution is the addition of a new `CFTC` value to the `TaxonomySourceEnum` in order to represent the Commodity Futures Trading Commission as a taxonomy source, enabling support for **Commodity Underlyer ID** rules under CFTC jurisdiction in DRR.
 
 _Review Directions_
 
-In Rosetta, select the Ingest tab, select `FpML_5_Confirmation_To_TradeState` and review the following FpML samples:
-
-- fx-ex01-fx-spot.xml
-- fx-ex02-spot-cross-w-side-rates.xml
-- fx-ex03-fx-fwd.xml
-- fx-ex05-fx-fwd-w-ssi.xml
-- fx-ex07-non-deliverable-forward.xml
-- fx-ex08-fx-swap.xml
-- fx-ex26-fxswap-multiple-USIs.xml
-- fx-ex28-non-deliverable-w-disruption.xml
-- fx-ex29-fx-swap-with-multiple-identifiers.xml
-
-Changes can be reviewed in PR: [#4062](https://github.com/finos/common-domain-model/pull/4062)
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4112
