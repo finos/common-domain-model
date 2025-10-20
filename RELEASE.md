@@ -26,6 +26,9 @@ The following functions have been updated:
 
 The following types have been updated:
 
+- NonNegativeQuantitySchedule
+    - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
+
 - ValuationMethod
   - Check for existence of `quotationAmount -> unit -> currency` instead of just `quotationAmount` existence.
   - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of just `minimumQuotationAmount` existence.
