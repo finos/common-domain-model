@@ -1,4 +1,4 @@
-## Ingest - Fix use of empty in conditions
+## Ingest - Fix use of empty in conditions and qualification functions
 
 *Background*
 
