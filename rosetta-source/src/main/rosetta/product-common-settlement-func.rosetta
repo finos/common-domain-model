@@ -1,6 +1,7 @@
 namespace cdm.product.common.settlement : <"Common product settlement concepts: cash vs physical, non-deliverable, money and cashflow, delivery vs payment.">
 version "${project.version}"
 
+import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.observable.asset.*
 
@@ -27,7 +28,8 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                             extract
                                 UpdateQuantityAmountForEachMatchingQuantity(
                                         item,
-                                        change -> quantity, // FilterChangePriceQuantity(priceQuantity, change) -> quantity,
+                                        change, // FilterChangePriceQuantity(priceQuantity, change),
+                                                // PriceQuantity used as input to keep the quantity and effectiveDate linked
                                         direction
                                     ),
                     observable: priceQuantity -> observable,
@@ -76,20 +78,31 @@ func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from th
     inputs:
         quantity NonNegativeQuantitySchedule (0..1) <"List of NonNegativeQuantitySchedule to update.">
             [metadata location]
-        change NonNegativeQuantitySchedule (0..*) <"List of new NonNegativeQuantitySchedule to use where the units match.">
+        change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match."> // PriceQuantity defined as input to keep the quantity and effectiveDate linked
         direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
     output:
         updatedQuantity NonNegativeQuantitySchedule (0..1)
             [metadata location]
 
-    alias changedAmount:
+    alias changeMatching:
         change
-            filter UnitEquals(item -> unit, quantity -> unit)
+         filter UnitEquals(item -> quantity then first -> unit, quantity -> unit)
             then first
-            then extract UpdateAmount(quantity -> value, value, direction)
+
+    alias changedAmount:
+        UpdateAmount(quantity -> value, changeMatching -> quantity only-element -> value, direction)
+
+    alias changeEffectiveDate:
+        AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
+        //ResolveAdjustableDate(changeMatching -> effectiveDate)
+        // TODO uncomment usage once function is available
+
+    alias changedDatedValue:
+        UpdateDatedValues(quantity -> datedValue, changeMatching -> quantity only-element -> value, direction,  changeEffectiveDate)
 
     set updatedQuantity: quantity
     set updatedQuantity -> value: changedAmount default quantity -> value
+    set updatedQuantity -> datedValue : changedDatedValue  default quantity -> datedValue
 
 func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes match, except for the amount.">
     inputs:
