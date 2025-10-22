@@ -230,11 +230,15 @@ func MapFxFixingScheduleToObservationDates:
         ObservationDates {
             periodicSchedule: PeriodicDates {
                 startDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                        fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date,
+                        if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate exists
+                            then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date
+                            else fpmlFixingSchedule -> startDate -> date,
                         empty
                     ),
                 endDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                        fpmlFixingSchedule -> endDate -> date,
+                        if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate exists
+                            then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate -> date
+                            else fpmlFixingSchedule -> endDate -> date,
                         empty
                     ),
                 periodDatesAdjustments: BusinessDayAdjustments {
