@@ -14,4 +14,4 @@ Detail on the changes can be found at [Issue #3878](https://github.com/finos/com
 
 ## Review Directions
 
-Changes can be reviewed in PR: [#xxxx](https://github.com/finos/common-domain-model/pull/xxxx)
+Changes can be reviewed in PR: [#4125](https://github.com/finos/common-domain-model/pull/4125)
