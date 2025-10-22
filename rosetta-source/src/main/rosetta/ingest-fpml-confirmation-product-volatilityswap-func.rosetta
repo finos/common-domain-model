@@ -82,9 +82,9 @@ func MapVolatilitySwapNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlVolatilitySwap -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlVolatilitySwap -> productModel),
             economicTerms: MapVolatilitySwapEconomicTerms(
-                    fpmlVolatilitySwap,
-                    cdmCounterpartyList
-                )
+                        fpmlVolatilitySwap,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapVolatilitySwapEconomicTerms:
@@ -97,7 +97,7 @@ func MapVolatilitySwapEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: fpmlVolatilitySwap -> volatilityLeg
-                extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
+                    extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
             ...
         }
 
@@ -110,21 +110,23 @@ func MapVolatilityLegToPerformancePayout:
 
     set payout:
         Payout {
-            PerformancePayout: PerformancePayout {
-                payerReceiver: MapPayerReceiver(
-                        fpmlVolatilityLeg -> payerReceiverModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Observable: MapUnderlyerToObservableWithAddress(
-                            fpmlVolatilityLeg -> underlyer
-                        ),
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver: MapPayerReceiver(
+                                fpmlVolatilityLeg -> payerReceiverModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlVolatilityLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    valuationDates: empty,
+                    paymentDates: empty,
                     ...
                 },
-                valuationDates: empty,
-                paymentDates: empty,
-                ...
-            },
             ...
         }
 

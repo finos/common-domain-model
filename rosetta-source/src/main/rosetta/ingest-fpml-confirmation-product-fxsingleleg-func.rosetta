@@ -96,10 +96,10 @@ func MapFxSingleLegEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapFxCoreDetailsModelToSettlementPayout(
-                    fpmlFxSingleLeg -> fxCoreDetailsModel,
-                    empty,
-                    cdmCounterpartyList
-                ),
+                        fpmlFxSingleLeg -> fxCoreDetailsModel,
+                        empty,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -115,35 +115,38 @@ func MapFxCoreDetailsModelToSettlementPayout:
 
     set payout:
         Payout {
-            SettlementPayout: SettlementPayout {
-                payerReceiver: MapPayerReceiver(
-                        exchangedCurrency -> payerReceiverModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
-                            fpmlFxCoreDetailsModel,
-                            fpmlLeg
-                        ),
-                    priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
-                            fpmlFxCoreDetailsModel,
-                            fpmlLeg
-                        ),
+            SettlementPayout:
+                SettlementPayout {
+                    payerReceiver: MapPayerReceiver(
+                                exchangedCurrency -> payerReceiverModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
+                                        fpmlFxCoreDetailsModel,
+                                        fpmlLeg
+                                    ),
+                            priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
+                                        fpmlFxCoreDetailsModel,
+                                        fpmlLeg
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapFxCashSettlementToSettlementTerms(
+                                fpmlFxCoreDetailsModel -> nonDeliverableSettlement,
+                                fpmlFxCoreDetailsModel -> valueDate -> date
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapCurrencyToObservableCashWithAddress(
+                                        exchangedCurrency -> paymentAmount -> currency,
+                                        fpmlLeg
+                                    ),
+                            ...
+                        },
                     ...
                 },
-                settlementTerms: MapFxCashSettlementToSettlementTerms(
-                        fpmlFxCoreDetailsModel -> nonDeliverableSettlement,
-                        fpmlFxCoreDetailsModel -> valueDate -> date
-                    ),
-                underlier: Underlier {
-                    Observable: MapCurrencyToObservableCashWithAddress(
-                            exchangedCurrency -> paymentAmount -> currency,
-                            fpmlLeg
-                        ),
-                    ...
-                },
-                ...
-            },
             ...
         }
 

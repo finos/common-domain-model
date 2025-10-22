@@ -85,15 +85,15 @@ func MapVarianceOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlVarianceOptionTransactionSupplement -> productModel
-                ),
+                        fpmlVarianceOptionTransactionSupplement -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(
-                    fpmlVarianceOptionTransactionSupplement -> productModel
-                ),
+                        fpmlVarianceOptionTransactionSupplement -> productModel
+                    ),
             economicTerms: MapVarianceOptionTransactionSupplementEconomicTerms(
-                    fpmlVarianceOptionTransactionSupplement,
-                    cdmCounterpartyList
-                )
+                        fpmlVarianceOptionTransactionSupplement,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapVarianceOptionTransactionSupplementEconomicTerms:
@@ -106,9 +106,9 @@ func MapVarianceOptionTransactionSupplementEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapVarianceOptionTransactionSupplementPayout(
-                    fpmlVarianceOptionTransactionSupplement,
-                    cdmCounterpartyList
-                ),
+                        fpmlVarianceOptionTransactionSupplement,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -121,41 +121,44 @@ func MapVarianceOptionTransactionSupplementPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlVarianceOptionTransactionSupplement -> equityExercise,
-                        fpmlVarianceOptionTransactionSupplement -> clearingInstructions
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Product: Product {
-                        NonTransferableProduct: MapVarianceSwapTransactionSupplementNonTransferableProduct(
-                                fpmlVarianceOptionTransactionSupplement -> varianceSwapTransactionSupplement,
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                        ...
-                    },
+                    settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                                fpmlVarianceOptionTransactionSupplement -> equityExercise,
+                                fpmlVarianceOptionTransactionSupplement -> clearingInstructions
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapVarianceSwapTransactionSupplementNonTransferableProduct(
+                                                fpmlVarianceOptionTransactionSupplement -> varianceSwapTransactionSupplement,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    optionType: fpmlVarianceOptionTransactionSupplement -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlEquityExercise(
+                                        fpmlVarianceOptionTransactionSupplement -> equityExercise
+                                    ),
+                                empty,
+                                empty,
+                                fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
                     ...
                 },
-                optionType: fpmlVarianceOptionTransactionSupplement -> optionType to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlEquityExercise(
-                                fpmlVarianceOptionTransactionSupplement -> equityExercise
-                            ),
-                        empty,
-                        empty,
-                        fpmlVarianceOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                ...
-            },
             ...
         }
 

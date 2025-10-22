@@ -114,44 +114,47 @@ func MapFxOptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlFxOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapFxOptionQuantityWithAddress(fpmlFxOption),
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlFxOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapFxOptionQuantityWithAddress(fpmlFxOption),
+                            ...
+                        },
+                    settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlFxOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    observationTerms: MapFxOptionFeaturesToObservationTerms(
+                                fpmlFxOption -> features
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapCurrencyToObservableCashWithAddress(
+                                        exchangeCurrency,
+                                        empty
+                                    ),
+                            ...
+                        },
+                    optionType: MapPutCallEnum(
+                                fpmlFxOption -> strike -> strikeQuoteBasis to-string
+                            )
+                            to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlFxExercise(fpmlFxOption),
+                                fpmlFxOption -> exerciseProcedure,
+                                empty,
+                                fpmlFxOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: MapFxOptionStrikePrice(fpmlFxOption),
                     ...
                 },
-                settlementTerms: MapFxOptionToSettlementTerms(fpmlFxOption),
-                buyerSeller: MapBuyerSeller(
-                        fpmlFxOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                observationTerms: MapFxOptionFeaturesToObservationTerms(
-                        fpmlFxOption -> features
-                    ),
-                underlier: Underlier {
-                    Observable: MapCurrencyToObservableCashWithAddress(
-                            exchangeCurrency,
-                            empty
-                        ),
-                    ...
-                },
-                optionType: MapPutCallEnum(
-                        fpmlFxOption -> strike -> strikeQuoteBasis to-string
-                    )
-                    to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlFxExercise(fpmlFxOption),
-                        fpmlFxOption -> exerciseProcedure,
-                        empty,
-                        fpmlFxOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: MapFxOptionStrikePrice(fpmlFxOption),
-                ...
-            },
             ...
         }
 
@@ -166,13 +169,14 @@ func MapFxOptionFeaturesToObservationTerms:
             then extract
                 ObservationTerms {
                     observationTime: MapBusinessCenterTime(fixingTime),
-                    informationSource: FxSpotRateSource {
-                        primarySource: MapInformationSource(primaryRateSource),
-                        ...
-                    },
+                    informationSource:
+                        FxSpotRateSource {
+                            primarySource: MapInformationSource(primaryRateSource),
+                            ...
+                        },
                     observationDates: MapObservationScheduleToObservationDates(
-                            fxAsianFeatureSequence -> observationSchedule
-                        ),
+                                fxAsianFeatureSequence -> observationSchedule
+                            ),
                     ...
                 }
 
@@ -183,26 +187,31 @@ func MapObservationScheduleToObservationDates:
         observationSchedule ObservationDates (0..1)
     set observationSchedule:
         ObservationDates {
-            periodicSchedule: PeriodicDates {
-                startDate: AdjustableOrRelativeDate {
-                    adjustableDate: AdjustableDate {
-                        unadjustedDate: fpmlObservationSchedule -> startDate -> date,
-                        ...
-                    },
+            periodicSchedule:
+                PeriodicDates {
+                    startDate:
+                        AdjustableOrRelativeDate {
+                            adjustableDate:
+                                AdjustableDate {
+                                    unadjustedDate: fpmlObservationSchedule -> startDate -> date,
+                                    ...
+                                },
+                            ...
+                        },
+                    endDate:
+                        AdjustableOrRelativeDate {
+                            adjustableDate:
+                                AdjustableDate {
+                                    unadjustedDate: fpmlObservationSchedule -> endDate -> date,
+                                    ...
+                                },
+                            ...
+                        },
+                    periodFrequency: MapCalculationPeriodFrequency(
+                                fpmlObservationSchedule -> calculationPeriodFrequency
+                            ),
                     ...
                 },
-                endDate: AdjustableOrRelativeDate {
-                    adjustableDate: AdjustableDate {
-                        unadjustedDate: fpmlObservationSchedule -> endDate -> date,
-                        ...
-                    },
-                    ...
-                },
-                periodFrequency: MapCalculationPeriodFrequency(
-                        fpmlObservationSchedule -> calculationPeriodFrequency
-                    ),
-                ...
-            },
             ...
         }
 
@@ -225,38 +234,40 @@ func MapFxOptionStrikePrice:
     alias priceUnits:
         UnitType {
             currency: MapCurrency(
-                    if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
-                    then fpmlFxOption -> callCurrencyAmount -> currency
-                    else fpmlFxOption -> putCurrencyAmount -> currency
-                ),
+                        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+                        then fpmlFxOption -> callCurrencyAmount -> currency
+                        else fpmlFxOption -> putCurrencyAmount -> currency
+                    ),
             ...
         }
 
     alias perUnitOf:
         UnitType {
             currency: MapCurrency(
-                    if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
-                    then fpmlFxOption -> putCurrencyAmount -> currency
-                    else fpmlFxOption -> callCurrencyAmount -> currency
-                ),
+                        if fpmlFxOption -> strike -> strikeQuoteBasis = CallCurrencyPerPutCurrency
+                        then fpmlFxOption -> putCurrencyAmount -> currency
+                        else fpmlFxOption -> callCurrencyAmount -> currency
+                    ),
             ...
         }
 
     set strike:
         OptionStrike {
-            strikePrice: Price {
-                value: fpmlFxOption -> strike -> rate,
-                unit: priceUnits,
-                perUnitOf: perUnitOf,
-                priceType: ExchangeRate,
-                composite: PriceComposite {
-                    baseValue: fpmlFxOption -> spotRate,
-                    operand: empty,
-                    arithmeticOperator: empty,
+            strikePrice:
+                Price {
+                    value: fpmlFxOption -> strike -> rate,
+                    unit: priceUnits,
+                    perUnitOf: perUnitOf,
+                    priceType: ExchangeRate,
+                    composite:
+                        PriceComposite {
+                            baseValue: fpmlFxOption -> spotRate,
+                            operand: empty,
+                            arithmeticOperator: empty,
+                            ...
+                        },
                     ...
                 },
-                ...
-            },
             ...
         }
 

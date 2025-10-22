@@ -152,38 +152,46 @@ func MapFraToFixedInterestRatePayout:
 
     set payout:
         Payout {
-            InterestRatePayout: InterestRatePayout {
-                // flip payerReceiver for the fixed leg
-                payerReceiver: FlipPayerAndReceiver(floatingPayerReceiver),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: CreateQuantityWithAddress(
-                            CreateQuantityKey(empty, FixedLeg)
-                        ),
+            InterestRatePayout:
+                InterestRatePayout {
+                    // flip payerReceiver for the fixed leg
+                    payerReceiver: FlipPayerAndReceiver(floatingPayerReceiver),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: CreateQuantityWithAddress(
+                                        CreateQuantityKey(empty, FixedLeg)
+                                    ),
+                            ...
+                        },
+                    rateSpecification:
+                        RateSpecification {
+                            FixedRateSpecification:
+                                FixedRateSpecification {
+                                    rateSchedule:
+                                        RateSchedule {
+                                            price: CreatePriceWithAddress(
+                                                        CreatePriceKey(empty, FixedLeg)
+                                                    )
+                            }},
+                            ...
+                        },
+                    calculationPeriodDates: calculationPeriodDates,
+                    dayCountFraction: dayCountFraction,
+                    paymentDates:
+                        PaymentDates {
+                            paymentFrequency: fpmlFra -> indexTenor
+                                    first
+                                    extract
+                                        Frequency {
+                                            periodMultiplier: periodMultiplier,
+                                            period: MapPeriodExtendedEnum(period to-string),
+                                        },
+                            ...
+                        },
+                    paymentDate: paymentDate,
+                    discountingMethod: discountingMethod,
                     ...
                 },
-                rateSpecification: RateSpecification {
-                    FixedRateSpecification: FixedRateSpecification {
-                        rateSchedule: RateSchedule {
-                            price: CreatePriceWithAddress(CreatePriceKey(empty, FixedLeg))
-                    }},
-                    ...
-                },
-                calculationPeriodDates: calculationPeriodDates,
-                dayCountFraction: dayCountFraction,
-                paymentDates: PaymentDates {
-                    paymentFrequency: fpmlFra -> indexTenor
-                        first
-                        extract
-                            Frequency {
-                                periodMultiplier: periodMultiplier,
-                                period: MapPeriodExtendedEnum(period to-string),
-                            },
-                    ...
-                },
-                paymentDate: paymentDate,
-                discountingMethod: discountingMethod,
-                ...
-            },
             ...
         }
 
@@ -200,32 +208,36 @@ func MapFraToFloatingInterestRatePayout:
 
     set payout:
         Payout {
-            InterestRatePayout: InterestRatePayout {
-                payerReceiver: floatingPayerReceiver,
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: CreateQuantityWithAddress(
-                            CreateQuantityKey(empty, FloatingLeg)
-                        ),
+            InterestRatePayout:
+                InterestRatePayout {
+                    payerReceiver: floatingPayerReceiver,
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: CreateQuantityWithAddress(
+                                        CreateQuantityKey(empty, FloatingLeg)
+                                    ),
+                            ...
+                        },
+                    rateSpecification:
+                        RateSpecification {
+                            FloatingRateSpecification:
+                                FloatingRateSpecification {
+                                    rateOption: MapFloatingRateIndexToRateOptionWithAddress(
+                                                fpmlFra -> floatingRateIndex,
+                                                fpmlFra -> indexTenor first,
+                                                FloatingLeg
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    dayCountFraction: dayCountFraction,
+                    calculationPeriodDates: calculationPeriodDates,
+                    paymentDate: paymentDate,
+                    resetDates: MapFraResetDates(fpmlFra -> fixingDateOffset),
+                    discountingMethod: discountingMethod,
                     ...
                 },
-                rateSpecification: RateSpecification {
-                    FloatingRateSpecification: FloatingRateSpecification {
-                        rateOption: MapFloatingRateIndexToRateOptionWithAddress(
-                                fpmlFra -> floatingRateIndex,
-                                fpmlFra -> indexTenor first,
-                                FloatingLeg
-                            ),
-                        ...
-                    },
-                    ...
-                },
-                dayCountFraction: dayCountFraction,
-                calculationPeriodDates: calculationPeriodDates,
-                paymentDate: paymentDate,
-                resetDates: MapFraResetDates(fpmlFra -> fixingDateOffset),
-                discountingMethod: discountingMethod,
-                ...
-            },
             ...
         }
 
@@ -238,13 +250,13 @@ func MapFraCalculationPeriodDates:
     set calculationPeriodDates:
         CalculationPeriodDates {
             effectiveDate: MapAdjustedDateToAdjustableOrRelativeDate(
-                    fpmlFra -> adjustedEffectiveDate -> value -> date,
-                    fpmlFra -> adjustedEffectiveDate -> id
-                ),
+                        fpmlFra -> adjustedEffectiveDate -> value -> date,
+                        fpmlFra -> adjustedEffectiveDate -> id
+                    ),
             terminationDate: MapAdjustedDateToAdjustableOrRelativeDate(
-                    fpmlFra -> adjustedTerminationDate -> date,
-                    empty
-                ),
+                        fpmlFra -> adjustedTerminationDate -> date,
+                        empty
+                    ),
             ...
         }
 
@@ -291,15 +303,15 @@ func MapFraFixedLegPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             price: MapFixedRateToPriceScheduleWithLocation(
-                    fpmlFra -> fixedRate -> value,
-                    empty,
-                    fpmlFra -> notional -> currency,
-                    FixedLeg
-                ),
+                        fpmlFra -> fixedRate -> value,
+                        empty,
+                        fpmlFra -> notional -> currency,
+                        FixedLeg
+                    ),
             quantity: CreateQuantityWithLocation(
-                    MapMoneyToQuantity(fpmlFra -> notional),
-                    CreateQuantityKey(empty, FixedLeg)
-                ),
+                        MapMoneyToQuantity(fpmlFra -> notional),
+                        CreateQuantityKey(empty, FixedLeg)
+                    ),
             ...
         }
 
@@ -311,14 +323,14 @@ func MapFraFloatingLegPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             quantity: CreateQuantityWithLocation(
-                    MapMoneyToQuantity(fpmlFra -> notional),
-                    CreateQuantityKey(empty, FloatingLeg)
-                ),
+                        MapMoneyToQuantity(fpmlFra -> notional),
+                        CreateQuantityKey(empty, FloatingLeg)
+                    ),
             observable: MapFloatingRateIndexToRateOptionObservableWithLocation(
-                    fpmlFra -> floatingRateIndex,
-                    fpmlFra -> indexTenor first,
-                    FloatingLeg
-                ),
+                        fpmlFra -> floatingRateIndex,
+                        fpmlFra -> indexTenor first,
+                        FloatingLeg
+                    ),
             ...
         }
 
