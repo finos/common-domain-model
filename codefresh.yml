@@ -14,10 +14,44 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_REVISION}}"
 
+  CheckDocumentationOnly:
+    stage: 'setup'
+    title: Check if only documentation files changed
+    image: alpine/git
+    commands:
+      - |
+        # Get the list of changed files
+        if [ -n "${{CF_PULL_REQUEST_NUMBER}}" ]; then
+          # For pull requests, compare against the base branch
+          git fetch origin ${{CF_BASE_BRANCH}}
+          CHANGED_FILES=$(git diff --name-only origin/${{CF_BASE_BRANCH}}...HEAD)
+        else
+          # For regular commits, compare against previous commit
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+        fi
+        
+        echo "Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Filter out documentation files
+        NON_DOC_FILES=$(echo "$CHANGED_FILES" | grep -v -E '^(docs/|website/|.*\.md$|.*\.mdx$|\.github/.*\.md$|ROADMAP\.md|GOVERNANCE\.md|LICENSE\.md|NOTICE\.md|RELEASE\.md|SCOPE\.md|Participants\.md)' || true)
+        
+        if [ -z "$NON_DOC_FILES" ]; then
+          echo "Only documentation files changed. Skipping build pipeline."
+          cf_export SKIP_BUILD=true
+        else
+          echo "Non-documentation files changed. Proceeding with build."
+          cf_export SKIP_BUILD=false
+        fi
+
   MvnSettings:
     stage: 'setup'
     title: Setup Maven settings
     image: alpine/git
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - cf_export MVN_CLI_OPT="-Dmaven.repo.local=\"${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}_m2/repository\""
 
@@ -25,6 +59,10 @@ steps:
     stage: 'setup'
     title: Setup build
     image: alpine/git
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - cf_export MVN_DEPLOY_FLAGS="-s ${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/settings.xml -Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2 -Denv.CI_DEPLOY_PASSWORD=${{CI_DEPLOY_PASSWORD}} -Denv.CI_DEPLOY_USERNAME=${{CI_DEPLOY_USERNAME}} -Denv.GPG_KEYNAME=${{GPG_KEYNAME}} -Denv.GPG_PASSPHRASE=${{GPG_PASSPHRASE}}" --mask
       - cf_export MVN_BUILD_FLAGS="-Dmaven.repo.local=${{CF_VOLUME_PATH}}/.m2"
@@ -41,6 +79,7 @@ steps:
       condition:
         all:
           releaseNameNotDefined: "${{TAG_REPO}} == true"
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - cf_export RELEASE_NAME=${{TAG_NAME}}
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,full,release,excel,json-schema"
@@ -53,6 +92,7 @@ steps:
       condition:
         all:
           releaseNameNotDefined: "${{TAG_REPO}} == false"
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - cf_export RELEASE_NAME=${{GLOBAL_RELEASE_VERSION}}.${{CF_BRANCH_TAG_NORMALIZED}}-SNAPSHOT
       - cf_export MAVEN_BUILD_PROFILES="daml,scala,typescript,golang,csharp8,csharp9,kotlin,release,excel,json-schema"
@@ -63,6 +103,10 @@ steps:
     fail_fast: false
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - mvn ${{MVN_BUILD_FLAGS}} ${{MVN_CLI_OPT}} versions:set -DnewVersion=${{RELEASE_NAME}} versions:update-child-modules -DallowSnapshots=true
@@ -82,6 +126,10 @@ steps:
   BuildParallelTasks:
     stage: 'build'
     type: parallel
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     steps:
       BuildDaml:
         stage: 'build'
@@ -144,6 +192,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target
@@ -158,6 +210,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/scala/target/scala-2.12
@@ -174,6 +230,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/csharp8/NetStandard.2.1
@@ -188,6 +248,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/csharp9/Net.5.0
@@ -202,6 +266,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm
@@ -216,6 +284,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm
@@ -230,6 +302,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd target/classes/cdm/kotlin
@@ -243,6 +319,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - apk add --no-cache python3
       - bash -c "${{GPG_IMPORT_COMMAND}}"
@@ -258,6 +338,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd src/generated/excel
@@ -274,6 +358,10 @@ steps:
     image: maven:3.9.11-eclipse-temurin-21-alpine
     working_directory: ./rosetta-source/
     shell: bash
+    when:
+      condition:
+        all:
+          shouldBuild: "'${{SKIP_BUILD}}' != 'true'"
     commands:
       - bash -c "${{GPG_IMPORT_COMMAND}}"
       - cd src/generated
@@ -320,4 +408,3 @@ steps:
       - git fetch --prune https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git "+refs/tags/*:refs/tags/*"
       - git tag ${{RELEASE_NAME}}
       - git push https://${{REGNOSYS_OPS}}:${{REGNOSYS_OPS_TOKEN}}@github.com/${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}.git ${{RELEASE_NAME}}
-
