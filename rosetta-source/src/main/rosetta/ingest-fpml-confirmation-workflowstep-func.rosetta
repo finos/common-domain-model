@@ -221,7 +221,7 @@ func MapTerminationToPrimitiveInstruction:
             quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
                     extract
                         QuantityChangeInstruction {
-                            change: MapPriceQuantity,
+                            change: MapPriceQuantity(termination),
                             direction: if exists then Replace,
                             ...
                         },
@@ -286,16 +286,17 @@ func MapTerminationToPrimitiveInstruction:
 
 func MapPriceQuantity:
     inputs:
-        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+        f fpml.TradeNotionalChange (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
         PriceQuantity {
             quantity: CreateQuantityWithLocation(
-                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
+                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0),
                         CreateQuantityKey(empty, empty)
                     ),
+            effectiveDate: MapAdjustedDateToAdjustableOrRelativeDate(f -> agreementAndEffectiveDatesModel -> effectiveDate -> date, empty),
             ...
         }
 
