@@ -1,44 +1,18 @@
-## Qualification and Validation - Fix use of empty in conditions and qualification functions
+# *Legal Documentation - Misc IM/VM Clause Updates*
 
-*Background*
+_Background_
 
-An upcoming DSL release has found a number of areas where the use of `empty` in qualification functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release. 
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
 
-*What is being released?*
+_What is being released?_
 
-The following functions have been updated:
+1. Dispute Resolution: Merged valueTerms and legacyValue. Merged resolutionTime and legacyResolutionTime. Changed LegacyResolutionValue to ResolutionValue.
+2. IneligibleCreditSupport: Changed specifiedParty to CounterpartyRoleEnum.
+3. SensitivityMethodologies: Added partyElection and split SensitivityToEquity into sensitivityToIndices, sensitivityToFunds, sensitivityToETFs.
+4. Substitution: Added partyElection.
+5. Covered Transactions: Merged exposure and legacyExposure.
+6. Updated descriptions where necessary.
 
-- Qualify_Substitution
-  - Check for existence of `beforeEconomicterms -> terminationDate` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of the existence of `openEconomicTerms`.
+_Review Directions_
 
-- Qualify_Roll
-  - Check for existence of `beforeEconomicterms -> collateral` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> collateral` instead of the existence of `openEconomicTerms`.
-
-- UnderlierQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
-
-- ObservableQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
-  - Check `assetClass` exists before comparing to `Index ->> assetClass`.
-
-
-The following types have been updated:
-
-- NonNegativeQuantitySchedule
-    - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
-
-- ValuationMethod
-  - Check for existence of `quotationAmount -> unit -> currency` instead of the existence of `quotationAmount`.
-  - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of the existence of `minimumQuotationAmount`.
-
-- FixedPrice
-  - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
-
-- OptionPayout
-  - Split condition `AsianOptionChoice` into two conditions `AsianOptionChoice_averagingStrikeFeature` and `AsianOptionChoice_averagingFeature`.
-
-*Review Directions*
-
-Changes can be reviewed in PR: [#4113](https://github.com/finos/common-domain-model/pull/4113)
+Changes can be reviewed in PR: [#4081](https://github.com/finos/common-domain-model/pull/4081)
