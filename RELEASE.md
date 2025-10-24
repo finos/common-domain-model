@@ -9,7 +9,7 @@ This change increases the version of the upstream Rune FpML dependency to versio
 The following namespaces have been updated:
 
 - All Rosetta files mapping files with the naming convention `ingest-fpml-confirmation[...].rosetta` now contain updated imports to the consolidated FpML Confirmation and Record Keeping types.
-- Update following pipline config files with consolidated to level type and updated serialisation config file names:
+- Update the following pipline config files with consolidated to level type and updated serialisation config file names:
   - `pipeline-translate-fpml-confirmation-to-trade-state.json`
   - `pipeline-translate-fpml-confirmation-to-workflow-step.json`
 - Updated the following static Java classes with new consolidated namespaces:
