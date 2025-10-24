@@ -17,16 +17,16 @@ import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 @SuppressWarnings("unused")
 public class ThresholdMappingProcessor extends MappingProcessor {
 
-	private final ElectiveAmountElectionMappingHelper helper;
+	private final ThresholdElectionMappingHelper helper;
 
 	public ThresholdMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings(), getSynonymToEnumMap());
+		this.helper = new ThresholdElectionMappingHelper(getModelPath(), getMappings(), getSynonymToEnumMap());
 	}
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		Threshold.ThresholdBuilder thresholdBuilder = (Threshold.ThresholdBuilder) builder;
-		PARTIES.forEach(party -> helper.getElectiveAmountElection(synonymPath, party).ifPresent(thresholdBuilder::addPartyElection));
+		PARTIES.forEach(party -> helper.getThresholdElection(synonymPath, party).ifPresent(thresholdBuilder::addPartyElection));
 	}
 }
