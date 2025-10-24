@@ -1,44 +1,42 @@
-## Qualification and Validation - Fix use of empty in conditions and qualification functions
+# *Legal Documentation - Valuation/Calculation Agent*
 
-*Background*
+_Background_
 
-An upcoming DSL release has found a number of areas where the use of `empty` in qualification functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release. 
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
 
-*What is being released?*
+_What is being released?_
 
-The following functions have been updated:
+1. Calculation Agent: Changed Enum to include the party making the demand.
+2. Valuation Agent: Removed duplication (Collateral Valuation Agent). Renamed 'Legacy Valuation date/time/location' to 'Valuation date/time/location'.
+3. CalculationValuationAgentPartyEnum and ValuationCalculationDateLocation: Standardised Types and enums used under both Valuation Agent and Calculation Agent.
+4. General update to some descriptions and definitions.
 
-- Qualify_Substitution
-  - Check for existence of `beforeEconomicterms -> terminationDate` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of the existence of `openEconomicTerms`.
+_Review Directions_
 
-- Qualify_Roll
-  - Check for existence of `beforeEconomicterms -> collateral` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> collateral` instead of the existence of `openEconomicTerms`.
+Changes can be reviewed in PR: [#4080](https://github.com/finos/common-domain-model/pull/4080)
 
-- UnderlierQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
+# Ingest - Continued Mapping for Equity Products
 
-- ObservableQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
-  - Check `assetClass` exists before comparing to `Index ->> assetClass`.
+_Background_
 
+Ingest functions for FpML Confirmation to CDM are available in the CDM 7-dev version, where they are available for beta testing by the CDM community.
+There are still gaps in the original synonym mapping and ingest functional mapping which will be addressed in this PR.
 
-The following types have been updated:
+_What is being released?_
 
-- NonNegativeQuantitySchedule
-    - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
+Fixing mapping issues found within `equityswaptransactionsupplement`:
 
-- ValuationMethod
-  - Check for existence of `quotationAmount -> unit -> currency` instead of the existence of `quotationAmount`.
-  - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of the existence of `minimumQuotationAmount`.
+- `quantitySchedule`
+- `unit` and `perUnit` in `SpreadSchedule`
+- `firstOrSecondPeriod` in `dividendReturnTerms`
+- `unit` and `perUnit` in `price`
+- `adjustment` in `trade`
 
-- FixedPrice
-  - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
+Fixing mapping issues found within `brokerequityoption`:
 
-- OptionPayout
-  - Split condition `AsianOptionChoice` into two conditions `AsianOptionChoice_averagingStrikeFeature` and `AsianOptionChoice_averagingFeature`.
+- Renaming `fpmlAutomaticExerciseIsApplicable` to `fpmlAutomaticExercise` in `common` namespace
+- Mapping `exerciseProcedure` in `exerciseTerms`
 
-*Review Directions*
+_Review Directions_
 
-Changes can be reviewed in PR: [#4113](https://github.com/finos/common-domain-model/pull/4113)
+Changes can be reviewed in PR: [#4068](https://github.com/finos/common-domain-model/pull/4068)

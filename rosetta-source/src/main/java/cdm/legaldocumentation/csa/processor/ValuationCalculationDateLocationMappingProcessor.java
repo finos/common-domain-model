@@ -2,8 +2,8 @@ package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.datetime.BusinessCenterEnum;
 import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
-import cdm.legaldocumentation.csa.CalculationDateLocation;
-import cdm.legaldocumentation.csa.CalculationDateLocationElection;
+import cdm.legaldocumentation.csa.ValuationCalculationDateLocation;
+import cdm.legaldocumentation.csa.ValuationCalculationDateLocationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -19,20 +19,20 @@ import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.*;
  * CreateiQ mapping processor.
  */
 @SuppressWarnings("unused")
-public class CalculationDateLocationMappingProcessor extends MappingProcessor {
+public class ValuationCalculationDateLocationMappingProcessor extends MappingProcessor {
 
-	public CalculationDateLocationMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+	public ValuationCalculationDateLocationMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
 	}
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		CalculationDateLocation.CalculationDateLocationBuilder calculationDateLocationBuilder = (CalculationDateLocation.CalculationDateLocationBuilder) builder;
+        ValuationCalculationDateLocation.ValuationCalculationDateLocationBuilder calculationDateLocationBuilder = (ValuationCalculationDateLocation.ValuationCalculationDateLocationBuilder) builder;
 		PARTIES.forEach(party -> getCalculationDateLocation(synonymPath, party).ifPresent(calculationDateLocationBuilder::addPartyElection));
 	}
 
-	private Optional<CalculationDateLocationElection> getCalculationDateLocation(Path synonymPath, String party) {
-		CalculationDateLocationElection.CalculationDateLocationElectionBuilder calculationDateLocationElectionBuilder = CalculationDateLocationElection.builder();
+	private Optional<ValuationCalculationDateLocationElection> getCalculationDateLocation(Path synonymPath, String party) {
+        ValuationCalculationDateLocationElection.ValuationCalculationDateLocationElectionBuilder calculationDateLocationElectionBuilder = ValuationCalculationDateLocationElection.builder();
 
 		String selectLocationSynonymValue = synonymPath.endsWith("calculation_date") ?
 				"_calculation_date_location" :
