@@ -1,14 +1,13 @@
-# _Collateral Model - Updated descriptions for ConcentrationLimitTypeEnum_
+# Product Taxonomy Model - Adding "CFTC" value in TaxonomySourceEnum
 
 _Background_
 
-It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
-The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
+A gap has been identified in the model when capturing taxonomy values for commodity underlyer assets as defined by CFTC regulation. Introducing `CFTC` as a taxonomy source is necessary to properly map these values within the model and to support population of the **"Commodity Underlyer ID"** fields in DRR.
 
 _What is being released?_
 
-Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
+The contribution is the addition of a new `CFTC` value to the `TaxonomySourceEnum` in order to represent the Commodity Futures Trading Commission as a taxonomy source, enabling support for **Commodity Underlyer ID** rules under CFTC jurisdiction in DRR.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4026](https://github.com/finos/common-domain-model/pull/4026)
+Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4112

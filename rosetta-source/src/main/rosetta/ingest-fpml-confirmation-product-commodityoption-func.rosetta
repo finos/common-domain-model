@@ -1,23 +1,21 @@
 namespace cdm.ingest.fpml.confirmation.product.commodityoption: <"FpML CommodityOption product mapping functions.">
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.template.*
-import cdm.product.common.settlement.*
-import cdm.product.common.schedule.*
-import cdm.base.datetime.*
-import cdm.product.asset.*
 import cdm.base.math.*
-
-import fpml.confirmation.* as fpml
-
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
-import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.settlement.*
-import cdm.ingest.fpml.confirmation.other.*
+import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.confirmation.* as fpml
 
 func MapCommodityOptionCounterpartyList:
     inputs:
@@ -46,9 +44,9 @@ func MapCommodityOptionNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlCommodityOption -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlCommodityOption -> productModel),
             economicTerms: MapCommodityOptionEconomicTerms(
-                    fpmlCommodityOption,
-                    cdmCounterpartyList
-                )
+                        fpmlCommodityOption,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapCommodityOptionEconomicTerms:
@@ -61,8 +59,8 @@ func MapCommodityOptionEconomicTerms:
     set economicTerms:
         EconomicTerms {
             effectiveDate: MapAdjustableOrRelativeDate(
-                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> effectiveDate
-                ),
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityOptionFeaturesModel -> effectiveDate
+                    ),
             payout: MapCommodityOptionPayout(fpmlCommodityOption, cdmCounterpartyList),
             ...
         }
@@ -77,69 +75,74 @@ func MapCommodityOptionPayout:
     alias strikeUnit:
         UnitType {
             currency: MapCurrency(
-                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> currency
-                ),
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> currency
+                    ),
             ...
         }
 
     alias strikePerUnitOf:
         UnitType {
             capacityUnit: MapCapacityUnitEnum(
-                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> notionalQuantity -> quantityUnit -> value
-                ),
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel -> commodityNotionalQuantityModelSequence -> notionalQuantity -> quantityUnit -> value
+                    ),
             ...
         }
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlCommodityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapCommodityNotionalQuantityToQuantityWithAddress(
-                            fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
-                            empty
-                        ),
-                    ...
-                },
-                settlementTerms: MapCommodityExerciseToSettlementTerms(
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlCommodityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                observationTerms: MapCommodityOptionToObservationTerms(fpmlCommodityOption),
-                underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(
-                            fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
-                        ),
-                    ...
-                },
-                optionType: fpmlCommodityOption -> optionType to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlCommodityExercise(
-                                fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlCommodityOption -> buyerSellerModel,
+                                cdmCounterpartyList
                             ),
-                        fpml.ExerciseProcedure {
-                            followUpConfirmation: fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> writtenConfirmation,
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapCommodityNotionalQuantityToQuantityWithAddress(
+                                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
+                                        empty
+                                    ),
                             ...
                         },
-                        fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> automaticExercise,
-                        fpmlCommodityOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: if fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount exists
-                    then MapOptionStrikePrice(
-                            fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount,
-                            empty,
-                            strikeUnit,
-                            strikePerUnitOf
-                        ),
-                ...
-            },
+                    settlementTerms: MapCommodityExerciseToSettlementTerms(
+                                fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlCommodityOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    observationTerms: MapCommodityOptionToObservationTerms(
+                                fpmlCommodityOption
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapAssetToObservableWithAddress(
+                                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
+                                    ),
+                            ...
+                        },
+                    optionType: fpmlCommodityOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlCommodityExercise(
+                                        fpmlCommodityOption -> commodityFinancialOptionModel -> exercise
+                                    ),
+                                fpml.ExerciseProcedure {
+                                    followUpConfirmation: fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> writtenConfirmation,
+                                    ...
+                                },
+                                fpmlCommodityOption -> commodityFinancialOptionModel -> exercise -> automaticExercise,
+                                fpmlCommodityOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: if fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount exists
+                            then MapOptionStrikePrice(
+                                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityStrikePriceModel -> strikePricePerUnit -> amount,
+                                    empty,
+                                    strikeUnit,
+                                    strikePerUnitOf
+                                ),
+                    ...
+                },
             ...
         }
 
@@ -157,12 +160,13 @@ func MapCommodityOptionToObservationTerms:
 
     set observationTerms:
         ObservationTerms {
-            calculationPeriodDates: CalculationPeriodDates {
-                calculationPeriodFrequency: MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy(
-                        fpmlCalculationPeriodsSchedule
-                    ),
-                ...
-            },
+            calculationPeriodDates:
+                CalculationPeriodDates {
+                    calculationPeriodFrequency: MapCommodityCalculationPeriodsScheduleToCalculationPeriodFrequncy(
+                                fpmlCalculationPeriodsSchedule
+                            ),
+                    ...
+                },
             observationDates: MapCommodityPricingDatesToObservationDates(fpmlPricingDates),
             ...
         }
@@ -178,14 +182,17 @@ func MapCommodityPricingDatesToObservationDates:
 
     set observationDates:
         ObservationDates {
-            parametricDates: ParametricDates {
-                dayType: MapDayTypeEnum(fpmlDateSequence -> daysModel -> dayType to-string),
-                dayDistribution: fpmlDateSequence -> daysModel -> daysModelSequence0 -> dayDistribution -> value to-enum DayDistributionEnum,
-                businessCenters: MapCommodityBusinessCalendarToBusinessCenters(
-                        fpmlDateSequence -> businessCalendar
-                    ),
-                ...
-            },
+            parametricDates:
+                ParametricDates {
+                    dayType: MapDayTypeEnum(
+                                fpmlDateSequence -> daysModel -> dayType to-string
+                            ),
+                    dayDistribution: fpmlDateSequence -> daysModel -> daysModelSequence0 -> dayDistribution -> value to-enum DayDistributionEnum,
+                    businessCenters: MapCommodityBusinessCalendarToBusinessCenters(
+                                fpmlDateSequence -> businessCalendar
+                            ),
+                    ...
+                },
             ...
         }
 
@@ -198,12 +205,12 @@ func MapCommodityOptionPriceQuantityList:
     add priceQuantityList:
         PriceQuantity {
             quantity: MapCommodityNotionalQuantityToQuantityListWithLocation(
-                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
-                    empty
-                ),
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodityNotionalQuantityModel,
+                        empty
+                    ),
             observable: MapAssetToObservableWithLocation(
-                    fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
-                ),
+                        fpmlCommodityOption -> commodityFinancialOptionModel -> commodity
+                    ),
             ...
         }
 

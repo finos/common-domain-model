@@ -3,13 +3,12 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.other.*
 import cdm.legaldocumentation.common.*
 import cdm.legaldocumentation.master.*
 import cdm.product.collateral.*
 
 import fpml.confirmation.* as fpml
-
-import cdm.ingest.fpml.confirmation.other.*
 
 func MapContractDetails:
     inputs:
@@ -21,9 +20,9 @@ func MapContractDetails:
     set contractDetails:
         ContractDetails {
             documentation: MapLegalAgreementList(
-                    fpmlTrade -> documentation,
-                    cdmCounterpartyList
-                ),
+                        fpmlTrade -> documentation,
+                        cdmCounterpartyList
+                    ),
             governingLaw: MapGoverningLaw(fpmlTrade -> governingLaw)
         }
 
@@ -69,8 +68,8 @@ func MapMasterAgreement:
     alias cdmAgreementName:
         AgreementName {
             masterAgreementType: MapMasterAgreementTypeEnumWithScheme(
-                    fpmlMasterAgreement -> masterAgreementType
-                ),
+                        fpmlMasterAgreement -> masterAgreementType
+                    ),
             agreementType: MasterAgreement,
             ...
         }
@@ -105,11 +104,11 @@ func MapMasterConfirmation:
     alias cdmAgreementName:
         AgreementName {
             masterConfirmationType: MapMasterConfirmationTypeEnumWithScheme(
-                    fpmlMasterConfirmation -> masterConfirmationType
-                ),
+                        fpmlMasterConfirmation -> masterConfirmationType
+                    ),
             masterConfirmationAnnexType: MapMasterConfirmationAnnexTypeEnumWithScheme(
-                    fpmlMasterConfirmation -> masterConfirmationAnnexType
-                ),
+                        fpmlMasterConfirmation -> masterConfirmationAnnexType
+                    ),
             agreementType: MasterConfirmation,
             ...
         }
@@ -156,8 +155,8 @@ func MapCreditSupportAgreement:
     alias cdmAgreementName:
         AgreementName {
             creditSupportAgreementType: MapCreditSupportAgreementTypeEnumWithScheme(
-                    fpmlCreditSupportAgreement -> _type
-                ),
+                        fpmlCreditSupportAgreement -> _type
+                    ),
             agreementType: CreditSupportAgreement,
             ...
         }
@@ -192,21 +191,21 @@ func MapConfirmationLegalAgreement:
     alias cdmAgreementName:
         AgreementName {
             contractualDefinitionsType: fpmlDocumentation -> contractualDefinitions
-                extract MapContractualDefinitionsEnumWithScheme,
+                    extract MapContractualDefinitionsEnumWithScheme,
             contractualMatrix: fpmlDocumentation -> contractualMatrix
-                extract
-                    ContractualMatrix {
-                        matrixType: MapMatrixTypeEnumWithScheme(matrixType),
-                        matrixTerm: MapMatrixTermEnumWithScheme(matrixTerm)
-                    },
+                    extract
+                        ContractualMatrix {
+                            matrixType: MapMatrixTypeEnumWithScheme(matrixType),
+                            matrixTerm: MapMatrixTermEnumWithScheme(matrixTerm)
+                        },
             contractualTermsSupplement: fpmlDocumentation -> contractualTermsSupplement
-                extract
-                    ContractualTermsSupplement {
-                        contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
-                                _type
-                            ),
-                        publicationDate: publicationDate -> date
-                    },
+                    extract
+                        ContractualTermsSupplement {
+                            contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
+                                        _type
+                                    ),
+                            publicationDate: publicationDate -> date
+                        },
             agreementType: Confirmation,
             ...
         }
@@ -294,12 +293,13 @@ func MapLegalAgreement:
         LegalAgreement {
             agreementDate: fpmlAgreementDate,
             contractualParty: MapContractualParty(cdmCounterpartyList),
-            legalAgreementIdentification: LegalAgreementIdentification {
-                governingLaw: empty,
-                agreementName: cdmAgreementName,
-                publisher: empty,
-                vintage: cdmVintage,
-            },
+            legalAgreementIdentification:
+                LegalAgreementIdentification {
+                    governingLaw: empty,
+                    agreementName: cdmAgreementName,
+                    publisher: empty,
+                    vintage: cdmVintage,
+                },
             ...
         }
 

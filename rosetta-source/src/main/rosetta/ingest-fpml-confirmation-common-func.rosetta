@@ -5,25 +5,26 @@ import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
 import cdm.base.staticdata.party.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.observable.asset.*
 import cdm.observable.common.*
+import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
-import cdm.product.common.schedule.*
 
 import fpml.confirmation.* as fpml
 import fpml.confirmation.custom.*
-
-import cdm.ingest.fpml.confirmation.datetime.*
-import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.pricequantity.*
-import cdm.ingest.fpml.confirmation.other.*
 
 func GetFpmlTrade:
     inputs:
         fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
         fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
         fpmlChangeEventsBaseModel fpml.ChangeEventsBaseModel (0..1)
+        fpmlTradeAmendmentContent fpml.TradeAmendmentContent (0..1)
     output:
         fpmlTrade fpml.Trade (0..1)
 
@@ -38,6 +39,8 @@ func GetFpmlTrade:
         then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
         else if fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade exists
         then fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence1 -> feeTradeModel -> feeTrade
+        else if fpmlTradeAmendmentContent -> trade exists
+        then fpmlTradeAmendmentContent -> trade
 
 func MapStringWithScheme:
     inputs:
@@ -192,6 +195,17 @@ func MapTaxonomySourceEnum:
         else if StringContains(productTypeScheme, "emir-contract-type")
         then EMIR
         else Other
+
+func MapFeeTypeEnumWithScheme:
+    inputs:
+        value string (0..1)
+        scheme string (0..1)
+    output:
+        enumWithScheme FeeTypeEnum (0..1)
+            [metadata scheme]
+
+    set enumWithScheme: MapFeeTypeEnum(value)
+    set enumWithScheme -> scheme: scheme
 
 func MapProductIdentifierList:
     inputs:
@@ -440,18 +454,18 @@ func MapExerciseTerms:
     inputs:
         fpmlExercise fpml.Exercise (0..1)
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
-        fpmlAutomaticExerciseIsApplicable boolean (0..1)
+        fpmlAutomaticExercise boolean (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseTerms ExerciseTerms (1..1)
 
     alias cdmExerciseProcedure:
-        if fpmlExerciseProcedure exists or fpmlAutomaticExerciseIsApplicable exists
+        if fpmlExerciseProcedure exists or fpmlAutomaticExercise exists
         then MapExerciseProcedure(
                     fpmlExerciseProcedure,
                     fpmlBuyerSellerModel,
-                    fpmlAutomaticExerciseIsApplicable,
+                    fpmlAutomaticExercise,
                     cdmCounterpartyList
                 )
 
@@ -475,7 +489,7 @@ func MapExerciseProcedure:
     inputs:
         fpmlExerciseProcedure fpml.ExerciseProcedure (0..1)
         fpmlBuyerSellerModel fpml.BuyerSellerModel (0..1)
-        fpmlAutomaticExerciseIsApplicable boolean (0..1)
+        fpmlAutomaticExercise boolean (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         exerciseProcedure ExerciseProcedure (1..1)
@@ -502,7 +516,7 @@ func MapExerciseProcedure:
                 ...
             },
             automaticExercise: AutomaticExercise {
-                isApplicable: fpmlAutomaticExerciseIsApplicable,
+                isApplicable: fpmlAutomaticExercise,
                 ...
             },
             followUpConfirmation: fpmlExerciseProcedure -> followUpConfirmation,
@@ -664,8 +678,12 @@ func MapEquityBermudaExerciseTerms:
     set exerciseTerms:
         ExerciseTerms {
             style: Bermuda,
+            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             commencementDate: MapAdjustableOrRelativeDate(
                     fpmlEquityBermudaExercise -> commencementDate
+                ),
+            multipleExercise: MapEquityMultipleExercise(
+                    fpmlEquityBermudaExercise -> equityMultipleExercise
                 ),
             expirationDate: MapAdjustableOrRelativeDate(
                     fpmlEquityBermudaExercise -> expirationDate
@@ -679,7 +697,6 @@ func MapEquityBermudaExerciseTerms:
             expirationTime: MapBusinessCenterTime(
                     equityExpirationModel -> equityExpirationTime
                 ),
-            expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
             ...
         }
@@ -914,3 +931,17 @@ func StringContains:
         str string (1..1)
     output:
         result boolean (1..1)
+
+func MapMessageAction:
+    inputs:
+        isCorrection boolean (0..1)
+        reason string (0..1)
+    output:
+        action ActionEnum (0..1)
+    set action:
+        if reason = "RaisedInError"
+        then ActionEnum -> Cancel
+        else isCorrection switch
+    True then Correct,
+    False then New,
+    default empty
