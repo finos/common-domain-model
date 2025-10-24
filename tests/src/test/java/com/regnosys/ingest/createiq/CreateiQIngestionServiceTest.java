@@ -3,6 +3,7 @@ package com.regnosys.ingest.createiq;
 import cdm.legaldocumentation.common.LegalAgreement;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
@@ -39,7 +40,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
-
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
 	private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
@@ -52,13 +52,15 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 		.build();
 
 
-	static IngestionService ingestionService;
+	private static IngestionService ingestionService;
+	private static ObjectMapper objectMapper;
 
 	@BeforeAll
 	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getService("createiQAll");
+		objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
 	}
 
 	@Override
@@ -80,12 +82,12 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 	@Test
 	void mappingCoverageIsConsistent() {
 		for (String file : EXPECTATION_FILES) {
-			List<Expectation> expectations = readFile(Resources.getResource(file), RosettaObjectMapper.getNewRosettaObjectMapper(), new TypeReference<List<Expectation>>() {
+			List<Expectation> expectations = readFile(Resources.getResource(file), objectMapper, new TypeReference<List<Expectation>>() {
 			}).collect(Collectors.toList());
 			List<MappingCoverage> coverageFromExpectations = toMappingCoverages(ingestionService.getEnvironmentName(), expectations);
 			URL resource = this.getClass().getResource(file.replace("expectations.json", "coverage.json"));
 			if (resource != null) {
-				List<MappingCoverage> actualCoverage = readCoverageFile(Resources.getResource(file.replace("expectations.json", "coverage.json")), RosettaObjectMapper.getNewRosettaObjectMapper());
+				List<MappingCoverage> actualCoverage = readCoverageFile(Resources.getResource(file.replace("expectations.json", "coverage.json")), objectMapper);
 				for (MappingCoverage mappingCoverage : coverageFromExpectations) {
 					assertThat(actualCoverage, hasItem(mappingCoverage));
 				}
