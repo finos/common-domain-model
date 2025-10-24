@@ -1,51 +1,342 @@
 namespace cdm.ingest.fpml.confirmation.workflowstep: <"FpML type mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
+import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.identifier.*
+import cdm.base.staticdata.party.*
 import cdm.event.common.*
 import cdm.event.workflow.*
+import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.legal.*
+import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
+import cdm.observable.asset.*
 
 import fpml.confirmation.* as fpml
 
 func MapWorkflowStep:
     inputs:
+        messageId fpml.MessageId (0..1)
+        messageHeaderModel fpml.MessageHeaderModel (0..1)
+        action ActionEnum (0..1)
         fpmlTrade fpml.Trade (0..1)
         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
         intent EventIntentEnum (0..1)
         eventDate date (0..1)
         effectiveDate date (0..1)
+        fpmlPostTradeEventsBaseModel fpml.PostTradeEventsBaseModel (0..1)
+        tradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
     output:
         workflowStep WorkflowStep (0..1)
 
-    alias counterpartyList: MapCounterpartyList(fpmlTrade)
-
     set workflowStep:
         WorkflowStep {
-            proposedEvent: EventInstruction {
-                intent: intent,
-                eventDate: eventDate,
-                effectiveDate: effectiveDate,
-                instruction: [
-                    Instruction {
-                        primitiveInstruction: PrimitiveInstruction {
-                            contractFormation: ContractFormationInstruction {
-                                legalAgreement: MapLegalAgreementList(
-                                        fpmlTrade -> documentation,
-                                        counterpartyList
-                                    )
-                            },
+            proposedEvent:
+                EventInstruction {
+                    intent: intent,
+                    eventDate: eventDate,
+                    effectiveDate: effectiveDate,
+                    instruction: [
+                            Instruction {
+                                primitiveInstruction: MapPrimitiveInstruction(
+                                            fpmlTrade,
+                                            fpmlPostTradeEventsBaseModel,
+                                            tradingEventsBaseModel
+                                        ),
+                                before: MapTradeState(
+                                            fpmlTrade,
+                                            fpmlPartiesAndAccountsModel
+                                        )
+                            }
+                        ],
+                    ...
+                },
+            timestamp:
+                EventTimestamp {
+                    dateTime: messageHeaderModel -> creationTimestamp,
+                    qualification: MapEventTimestampQualification(
+                                messageHeaderModel,
+                                fpmlTrade
+                    ),
+                },
+            eventIdentifier:
+                Identifier {
+                    assignedIdentifier:
+                        AssignedIdentifier {
+                            identifier: messageId -> value,
                             ...
                         },
-                        before: MapTradeState(fpmlTrade, fpmlPartiesAndAccountsModel)
-                    }
+                    ...
+                },
+            messageInformation: MapMessageInformation(messageId, messageHeaderModel),
+            action: action,
+            ...
+        }
+
+func MapPrimitiveInstruction:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        fpmlTradeNotionalChange fpml.PostTradeEventsBaseModel (0..1)
+        fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
+    output:
+        primitiveInstruction PrimitiveInstruction (0..1)
+
+    set primitiveInstruction:
+        if fpmlTradeNotionalChange -> postTradeEventsBaseModelSequence -> termination exists
+        then MapTerminationToPrimitiveInstruction(
+                    fpmlTrade,
+                    fpmlTradeNotionalChange -> postTradeEventsBaseModelSequence -> termination
+                )
+        else if fpmlTradeNotionalChange -> amendment exists
+        then MapAmendmentToPrimitiveInstruction(
+                    fpmlTrade,
+                    fpmlTradeNotionalChange -> amendment
+                )
+        else if fpmlTradingEventsBaseModel exists
+        then MapTradingEventsBaseModelToPrimitiveInstruction(fpmlTrade)
+
+func MapTradingEventsBaseModelToPrimitiveInstruction:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+    output:
+        primitiveInstruction PrimitiveInstruction (0..1)
+
+    alias counterpartyList: MapCounterpartyList(fpmlTrade)
+
+    set primitiveInstruction:
+        PrimitiveInstruction {
+            contractFormation:
+                ContractFormationInstruction {
+                    legalAgreement: MapLegalAgreementList(
+                                fpmlTrade -> documentation,
+                                counterpartyList
+                            )
+                },
+            ...
+        }
+
+func MapAmendmentToPrimitiveInstruction:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        amendment fpml.TradeAmendmentContent (0..1)
+    output:
+        primitiveInstruction PrimitiveInstruction (0..1)
+
+    alias counterpartyList: MapCounterpartyList(fpmlTrade)
+    alias payment: amendment -> tradeAlterationPaymentModel -> payment distinct only-element
+    alias amendmentPayment:
+        MapNonNegativeMoneyToQuantity(
+                amendment -> tradeAlterationPaymentModel -> payment distinct only-element -> paymentAmount
+            )
+
+    set primitiveInstruction:
+        PrimitiveInstruction {
+            transfer:
+                TransferInstruction {
+                    transferState:
+                        TransferState {
+                            transfer:
+                                Transfer {
+                                    quantity:
+                                        NonNegativeQuantity {
+                                            value: amendmentPayment -> value,
+                                            unit: amendmentPayment -> unit,
+                                            ...
+                                        },
+                                    asset:
+                                        Asset {
+                                            Cash:
+                                                Cash {
+                                                    identifier: amendmentPayment -> unit -> currency
+                                                            extract
+                                                                AssetIdentifier {
+                                                                    identifier: item,
+                                                                    identifierType: if exists
+                                                                            then CurrencyCode
+                                                                },
+                                                    ...
+                                                },
+                                            ...
+                                        },
+                                    settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
+                                                payment -> paymentDate
+                                            ),
+                                    payerReceiver: payment -> payerReceiverModel
+                                            extract
+                                                PartyReferencePayerReceiver {
+                                                    payerPartyReference: MapPartyReference(
+                                                                payerModel -> payerPartyReference -> href
+                                                            ),
+                                                    receiverPartyReference: MapPartyReference(
+                                                                receiverModel -> receiverPartyReference -> href
+                                                            ),
+                                                    ...
+                                                },
+                                    transferExpression: payment
+                                            extract
+                                                TransferExpression {
+                                                    priceTransfer: if item -> id exists
+                                                            then MapFeeTypeEnum(id)
+                                                        else MapFeeTypeEnumWithScheme(
+                                                                paymentType -> value to-string,
+                                                                paymentType -> paymentTypeScheme
+                                                            ),
+                                                    ...
+                                                },
+                                    ...
+                                },
+                            ...
+            },},
+            ...
+        }
+
+func MapTerminationToPrimitiveInstruction:
+    inputs:
+        fpmlTrade fpml.Trade (0..1)
+        termination fpml.TradeNotionalChange (0..1)
+    output:
+        primitiveInstruction PrimitiveInstruction (0..1)
+
+    alias counterpartyList: MapCounterpartyList(fpmlTrade)
+    alias payment:
+        termination -> tradeAlterationPaymentModel -> payment distinct only-element
+    alias terminationPayment:
+        MapNonNegativeMoneyToQuantity(
+                termination -> tradeAlterationPaymentModel -> payment distinct only-element -> paymentAmount
+            )
+
+    set primitiveInstruction:
+        PrimitiveInstruction {
+            contractFormation:
+                ContractFormationInstruction {
+                    legalAgreement: MapLegalAgreementList(
+                                fpmlTrade -> documentation,
+                                counterpartyList
+                            )
+                },
+            quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
+                    extract
+                        QuantityChangeInstruction {
+                            change: MapPriceQuantity,
+                            direction: if exists then Replace,
+                            ...
+                        },
+            transfer:
+                TransferInstruction {
+                    transferState:
+                        TransferState {
+                            transfer:
+                                Transfer {
+                                    quantity:
+                                        NonNegativeQuantity {
+                                            value: terminationPayment -> value,
+                                            unit: terminationPayment -> unit,
+                                            ...
+                                        },
+                                    asset:
+                                        Asset {
+                                            Cash:
+                                                Cash {
+                                                    identifier: terminationPayment -> unit -> currency
+                                                            extract
+                                                                AssetIdentifier {
+                                                                    identifier: item,
+                                                                    identifierType: if exists
+                                                                            then CurrencyCode
+                                                                },
+                                                    ...
+                                                },
+                                            ...
+                                        },
+                                    settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
+                                                payment -> paymentDate
+                                            ),
+                                    payerReceiver: payment -> payerReceiverModel
+                                            extract
+                                                PartyReferencePayerReceiver {
+                                                    payerPartyReference: MapPartyReference(
+                                                                payerModel -> payerPartyReference -> href
+                                                            ),
+                                                    receiverPartyReference: MapPartyReference(
+                                                                receiverModel -> receiverPartyReference -> href
+                                                            ),
+                                                    ...
+                                                },
+                                    transferExpression: payment
+                                            extract
+                                                TransferExpression {
+                                                    priceTransfer: if id exists
+                                                            then MapFeeTypeEnum(id)
+                                                        else MapFeeTypeEnumWithScheme(
+                                                                paymentType -> value to-string,
+                                                                paymentType -> paymentTypeScheme
+                                                            ),
+                                                    ...
+                                                },
+                                    ...
+                                },
+                            ...
+            },},
+            ...
+        }
+
+func MapPriceQuantity:
+    inputs:
+        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: CreateQuantityWithLocation(
+                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
+                        CreateQuantityKey(empty, empty)
+                    ),
+            ...
+        }
+
+func MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule:
+    inputs:
+        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+    output:
+        priceQuantityList NonNegativeQuantitySchedule (0..1)
+
+    set priceQuantityList:
+        NonNegativeQuantitySchedule {
+            value: f -> outstandingNotionalAmount -> amount distinct only-element,
+            unit:
+                UnitType {
+                    currency: f -> outstandingNotionalAmount -> currency -> value
+                            distinct
+                            only-element,
+                    ...
+                },
+            ...
+        }
+
+func MapMessageInformation:
+    inputs:
+        messageId fpml.MessageId (0..1)
+        messageHeaderModel fpml.MessageHeaderModel (0..1)
+    output:
+        messageInfo MessageInformation (0..1)
+    set messageInfo:
+        MessageInformation {
+            messageId: MapStringWithScheme(messageId -> value, messageId -> messageIdScheme),
+            sentBy: MapStringWithScheme(
+                        messageHeaderModel -> sentBy -> value,
+                        messageHeaderModel -> sentBy -> messageAddressScheme
+                    ),
+            sentTo: [
+                    MapStringWithScheme(
+                            messageHeaderModel -> sendTo -> value,
+                            messageHeaderModel -> sendTo -> messageAddressScheme
+                        )
                 ],
-                ...
-            },
-            timestamp: empty,
-            eventIdentifier: empty,
             ...
         }
 
