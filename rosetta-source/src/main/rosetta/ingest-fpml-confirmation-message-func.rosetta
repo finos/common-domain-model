@@ -21,12 +21,12 @@ func Ingest_FpmlConfirmationToTradeState:
 
     set tradeState:
         documentChoice switch
-        ConfirmationAgreed then MapConfirmationAgreedToTradeState,
-        DataDocument then MapDataDocumentToTradeState,
-        ExecutionNotification then MapExecutionNotificationToTradeState,
-        RequestClearing then MapRequestClearingToTradeState,
-        RequestConfirmation then MapRequestConfirmationToTradeState,
-        default empty
+            ConfirmationAgreed then MapConfirmationAgreedToTradeState,
+            DataDocument then MapDataDocumentToTradeState,
+            ExecutionNotification then MapExecutionNotificationToTradeState,
+            RequestClearing then MapRequestClearingToTradeState,
+            RequestConfirmation then MapRequestConfirmationToTradeState,
+            default empty
 
 func Ingest_FpmlConfirmationToWorkflowStep:
     [ingest XML]
@@ -39,13 +39,13 @@ func Ingest_FpmlConfirmationToWorkflowStep:
 
     set workflowStep:
         documentChoice switch
-        ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
-        ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
-        ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
-        ExecutionNotification then MapExecutionNotificationToWorkflowStep,
-        RequestClearing then MapRequestClearingToWorkflowStep,
-        TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
-        default empty
+            ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
+            ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
+            ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
+            ExecutionNotification then MapExecutionNotificationToWorkflowStep,
+            RequestClearing then MapRequestClearingToWorkflowStep,
+            TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
+            default empty
 
 func MapConfirmationAgreedToTradeState:
     inputs:
@@ -57,7 +57,8 @@ func MapConfirmationAgreedToTradeState:
         GetFpmlTrade(
                 fpmlConfirmationAgreed -> tradingEventsBaseModel,
                 fpmlConfirmationAgreed -> postTradeEventsBaseModel,
-                fpmlConfirmationAgreed -> changeEventsBaseModel
+                fpmlConfirmationAgreed -> changeEventsBaseModel,
+                empty
             )
 
     set tradeState:
@@ -82,7 +83,12 @@ func MapExecutionNotificationToTradeState:
         tradeState TradeState (0..1)
 
     alias fpmlTrade:
-        GetFpmlTrade(fpmlExecutionNotification -> tradingEventsBaseModel, empty, empty)
+        GetFpmlTrade(
+                fpmlExecutionNotification -> tradingEventsBaseModel,
+                empty,
+                empty,
+                empty
+            )
 
     set tradeState:
         MapTradeState(fpmlTrade, fpmlExecutionNotification -> partiesAndAccountsModel)
@@ -96,6 +102,7 @@ func MapRequestClearingToTradeState:
     alias fpmlTrade:
         GetFpmlTrade(
                 fpmlRequestClearing -> tradingEventsModel -> tradingEventsBaseModel,
+                empty,
                 empty,
                 empty
             )
@@ -112,6 +119,7 @@ func MapRequestConfirmationToTradeState:
         GetFpmlTrade(
                 fpmlRequestConfirmation -> tradingAndPostTradeEventsModel -> tradingEventsBaseModel,
                 fpmlRequestConfirmation -> tradingAndPostTradeEventsModel -> postTradeEventsBaseModel,
+                empty,
                 empty
             )
 
@@ -128,7 +136,9 @@ func MapClearingConfirmedToWorkflowStep:
         fpmlClearingConfirmed -> clearingResultsModel -> tradingEventsModel -> tradingEventsBaseModel
     alias fpmlTermination:
         fpmlClearingConfirmed -> clearingResultsModel -> clearingResultsModelSequence -> termination
-    alias fpmlTrade: GetFpmlTrade(fpmlTradingEventsBaseModel, empty, empty)
+    alias fpmlTrade: GetFpmlTrade(fpmlTradingEventsBaseModel, empty, empty, empty)
+    alias eventDate: GetEventDate(empty, fpmlTermination, empty, fpmlTrade)
+    alias effectiveDate: GetEffectiveDate(empty, fpmlTermination, empty)
 
     alias intent:
         GetIntent(
@@ -139,16 +149,18 @@ func MapClearingConfirmedToWorkflowStep:
                 fpmlTrade
             )
 
-    alias eventDate: GetEventDate(empty, fpmlTermination, empty, fpmlTrade)
-    alias effectiveDate: GetEffectiveDate(empty, fpmlTermination, empty)
-
     set workflowStep:
         MapWorkflowStep(
+                fpmlClearingConfirmed -> header -> messageId,
+                fpmlClearingConfirmed -> header -> messageHeaderModel,
+                empty,
                 fpmlTrade,
                 fpmlClearingConfirmed -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                empty,
+                fpmlTradingEventsBaseModel
             )
 
 func MapExecutionAdviceToWorkflowStep:
@@ -161,13 +173,21 @@ func MapExecutionAdviceToWorkflowStep:
         GetFpmlTrade(
                 fpmlExecutionAdvice -> tradingEventsBaseModel,
                 fpmlExecutionAdvice -> postTradeEventsBaseModel,
-                fpmlExecutionAdvice -> changeEventsBaseModel
+                fpmlExecutionAdvice -> changeEventsBaseModel,
+                fpmlExecutionAdvice -> postTradeEventsBaseModel -> amendment
             )
 
     alias fpmlTermination:
         fpmlExecutionAdvice -> postTradeEventsBaseModel -> postTradeEventsBaseModelSequence -> termination
     alias fpmlNovation: fpmlExecutionAdvice -> postTradeEventsBaseModel -> novation
     alias fpmlAmendment: fpmlExecutionAdvice -> postTradeEventsBaseModel -> amendment
+    alias action:
+        MapMessageAction(
+                fpmlExecutionAdvice -> isCorrection,
+                fpmlExecutionAdvice -> postTradeEventsBaseModel -> withdrawal -> reason
+                    distinct
+                    only-element -> value
+            )
 
     alias intent:
         GetIntent(
@@ -183,11 +203,16 @@ func MapExecutionAdviceToWorkflowStep:
 
     set workflowStep:
         MapWorkflowStep(
+                fpmlExecutionAdvice -> header -> messageId,
+                fpmlExecutionAdvice -> header -> messageHeaderModel,
+                action,
                 fpmlTrade,
                 fpmlExecutionAdvice -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                fpmlExecutionAdvice -> postTradeEventsBaseModel,
+                fpmlExecutionAdvice -> tradingEventsBaseModel
             )
 
 func MapExecutionAdviceRetractedToWorkflowStep:
@@ -200,7 +225,8 @@ func MapExecutionAdviceRetractedToWorkflowStep:
         GetFpmlTrade(
                 fpmlExecutionAdviceRetracted -> tradingEventsBaseModel,
                 fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel,
-                fpmlExecutionAdviceRetracted -> changeEventsBaseModel
+                fpmlExecutionAdviceRetracted -> changeEventsBaseModel,
+                empty
             )
 
     alias fpmlTermination:
@@ -208,6 +234,13 @@ func MapExecutionAdviceRetractedToWorkflowStep:
     alias fpmlNovation: fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel -> novation
     alias fpmlAmendment:
         fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel -> amendment
+    alias action:
+        MapMessageAction(
+                empty,
+                fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel -> withdrawal -> reason
+                    distinct
+                    only-element -> value
+            )
 
     alias intent:
         GetIntent(
@@ -223,11 +256,16 @@ func MapExecutionAdviceRetractedToWorkflowStep:
 
     set workflowStep:
         MapWorkflowStep(
+                fpmlExecutionAdviceRetracted -> header -> messageId,
+                fpmlExecutionAdviceRetracted -> header -> messageHeaderModel,
+                action,
                 fpmlTrade,
                 fpmlExecutionAdviceRetracted -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                fpmlExecutionAdviceRetracted -> postTradeEventsBaseModel,
+                fpmlExecutionAdviceRetracted -> tradingEventsBaseModel
             )
 
 func MapExecutionNotificationToWorkflowStep:
@@ -237,7 +275,14 @@ func MapExecutionNotificationToWorkflowStep:
         workflowStep WorkflowStep (0..1)
 
     alias fpmlTrade:
-        GetFpmlTrade(fpmlExecutionNotification -> tradingEventsBaseModel, empty, empty)
+        GetFpmlTrade(
+                fpmlExecutionNotification -> tradingEventsBaseModel,
+                empty,
+                empty,
+                empty
+            )
+
+    alias action: MapMessageAction(fpmlExecutionNotification -> isCorrection, empty)
 
     alias intent:
         GetIntent(
@@ -253,11 +298,16 @@ func MapExecutionNotificationToWorkflowStep:
 
     set workflowStep:
         MapWorkflowStep(
+                fpmlExecutionNotification -> header -> messageId,
+                fpmlExecutionNotification -> header -> messageHeaderModel,
+                action,
                 fpmlTrade,
                 fpmlExecutionNotification -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                empty,
+                fpmlExecutionNotification -> tradingEventsBaseModel
             )
 
 func MapRequestClearingToWorkflowStep:
@@ -269,6 +319,7 @@ func MapRequestClearingToWorkflowStep:
     alias fpmlTrade:
         GetFpmlTrade(
                 fpmlRequestClearing -> tradingEventsModel -> tradingEventsBaseModel,
+                empty,
                 empty,
                 empty
             )
@@ -283,14 +334,20 @@ func MapRequestClearingToWorkflowStep:
 
     alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
     alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+    alias action: MapMessageAction(fpmlRequestClearing -> isCorrection, empty)
 
     set workflowStep:
         MapWorkflowStep(
+                fpmlRequestClearing -> header -> messageId,
+                fpmlRequestClearing -> header -> messageHeaderModel,
+                action,
                 fpmlTrade,
                 fpmlRequestClearing -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                empty,
+                fpmlRequestClearing -> tradingEventsModel -> tradingEventsBaseModel
             )
 
 func MapTradeChangeAdviceToWorkflowStep:
@@ -305,12 +362,18 @@ func MapTradeChangeAdviceToWorkflowStep:
 
     alias eventDate: GetEventDate(empty, empty, empty, fpmlTrade)
     alias effectiveDate: GetEffectiveDate(empty, empty, empty)
+    alias action: MapMessageAction(fpmlTradeChangeAdvice -> isCorrection, empty)
 
     set workflowStep:
         MapWorkflowStep(
+                fpmlTradeChangeAdvice -> header -> messageId,
+                fpmlTradeChangeAdvice -> header -> messageHeaderModel,
+                action,
                 fpmlTrade,
                 fpmlTradeChangeAdvice -> partiesAndAccountsModel,
                 intent,
                 eventDate,
-                effectiveDate
+                effectiveDate,
+                empty,
+                empty
             )

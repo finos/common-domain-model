@@ -663,7 +663,7 @@ the underlying product may be.
 
 In its simplest form, that trade's terms will specify the settlement date
 in addition to the price and quantity and can be represented using the
-[`SettlementPayout`](#SettlementPayout).
+[`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
 otherwise cannot be directly transfered. The `Payout` would define how
