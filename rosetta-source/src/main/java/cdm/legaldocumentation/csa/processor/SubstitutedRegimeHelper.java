@@ -17,6 +17,10 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 public class SubstitutedRegimeHelper {
 
 	private final RosettaPath path;

@@ -28,7 +28,7 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
     @Test
     public void mustQualifyValidProduct() {
         // Path to the sample JSON file representing a valid TradeState (Interest Rate FRA)
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex08-fra.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex08-fra.json";
 
         // Load the TradeState object from the file and resolve any references
         TradeState sample = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, filePath);
@@ -138,10 +138,10 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
      * into a WorkflowStep. The test verifies that the qualification process
      * succeeds, and the resulting qualified object matches the expected type.
      */
-    //@Test
+    @Test
     public void mustQualifyValidWorkflowStep() {
         // Path to the sample JSON file representing a valid WorkflowStep
-        String filePath = "result-json-files/fpml-5-13/processes/execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.json";
+        String filePath = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-13-processes-execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.json";
 
         WorkflowStep sample = ResourcesUtils.getObjectAndResolveReferences(WorkflowStep.class, filePath);
 

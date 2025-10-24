@@ -14,6 +14,10 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 class RegimeMappingHelper {
 
 	private static final List<String> SUFFIXES = Arrays.asList("_secured_party", "_security_taker", "_obligee");

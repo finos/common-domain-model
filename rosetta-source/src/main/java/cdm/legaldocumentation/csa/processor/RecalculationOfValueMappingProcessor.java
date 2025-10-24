@@ -16,6 +16,9 @@ import java.util.Optional;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
+/**
+ * CreateiQ mapping processor.
+ */
 @SuppressWarnings("unused")
 public class RecalculationOfValueMappingProcessor extends MappingProcessor {
 

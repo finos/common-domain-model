@@ -19,7 +19,7 @@ class Qualify_AssetClass_ForeignExchangeTest  extends AbstractFunctionTest {
 
     @Test
     void shouldQualifyAsAssetClassForeignExchange() throws IOException {
-        EconomicTerms economicTerms = getEconomicTerms("result-json-files/fpml-5-13/products/fx-derivatives/fx-ex08-fx-swap.json");
+        EconomicTerms economicTerms = getEconomicTerms("ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-fx-derivatives/fx-ex08-fx-swap.json");
 
         Boolean result = qualifyAssetClassForeignExchange.evaluate(economicTerms);
 
@@ -28,7 +28,7 @@ class Qualify_AssetClass_ForeignExchangeTest  extends AbstractFunctionTest {
 
     @Test
     void shouldNotQualifyAsAssetClassForeignExchange() throws IOException {
-        EconomicTerms economicTerms = getEconomicTerms("result-json-files/fpml-5-13/products/credit-derivatives/cdx-index-option.json");
+        EconomicTerms economicTerms = getEconomicTerms("ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-incomplete-products-credit-derivatives/cdx-index-option.json");
 
         Boolean result = qualifyAssetClassForeignExchange.evaluate(economicTerms);
 

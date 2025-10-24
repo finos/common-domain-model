@@ -18,6 +18,10 @@ import java.util.Optional;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 public class ContactElectionMappingProcessor extends MappingProcessor {
     public ContactElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(modelPath, synonymPaths, mappingContext);

@@ -10,6 +10,9 @@ import java.util.List;
 
 import static cdm.legaldocumentation.csa.CreditSupportAgreementElections.CreditSupportAgreementElectionsBuilder;
 
+/**
+ * CreateiQ mapping processor.
+ */
 @SuppressWarnings("unused")
 public class CsaSubstitutedRegimeMappingProcessor extends MappingProcessor {
 

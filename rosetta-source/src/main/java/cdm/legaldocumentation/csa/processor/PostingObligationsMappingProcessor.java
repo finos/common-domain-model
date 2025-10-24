@@ -19,6 +19,10 @@ import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 public class PostingObligationsMappingProcessor extends MappingProcessor {
 
     public PostingObligationsMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths,

@@ -6,6 +6,7 @@ import com.regnosys.rosetta.common.postprocess.qualify.QualificationReport;
 import com.rosetta.model.lib.qualify.QualifyResult;
 import org.finos.cdm.example.processors.AbstractProcessorTest;
 import org.finos.cdm.example.util.ResourcesUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,94 +112,98 @@ final class QualifyBusinessEventTest extends AbstractProcessorTest {
 
     // Test cases for qualifying specific events from CDM samples resulting from the ingestion.
     @Test
+    @Disabled // disabled until remaining FpML function ingestion mapping task is completed, see https://github.com/finos/common-domain-model/issues/4030
     void testPartialTermination() throws IOException {
         // Test for qualifying a "PartialTermination" event.
-        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-partial-termination.json", "PartialTermination");
+        runQualifyEventFromWorkflowStep("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-processes/msg-partial-termination.json", "PartialTermination");
     }
 
     @Test
     void testContractFormation() throws IOException {
         // Test for qualifying a "ContractFormation" event.
-        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-ex58-execution-advice-trade-initiation-F01-00.json", "ContractFormation");
+        runQualifyEventFromWorkflowStep("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-processes/msg-ex58-execution-advice-trade-initiation-F01-00.json", "ContractFormation");
     }
 
     @Test
+    @Disabled // disabled until remaining FpML function ingestion mapping task is completed, see https://github.com/finos/common-domain-model/issues/4030
     void testPartialNovation() throws IOException {
         // Test for qualifying a "PartialNovation" event.
-        runQualifyEventFromWorkflowStep("result-json-files/fpml-5-10/processes/msg-ex52-execution-advice-trade-partial-novation-C02-00.json", "PartialNovation");
+        runQualifyEventFromWorkflowStep("ingest/output/fpml-confirmation-to-workflow-step/fpml-5-10-processes/msg-ex52-execution-advice-trade-partial-novation-C02-00.json", "PartialNovation");
     }
 
     // Test cases for qualifying specific events from CDM-native samples.
     @Test
     void testAllocation() throws IOException {
         // Test for qualifying a "Allocation" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/allocation/allocation-func-output.json", "Allocation");
+        runQualifyEventFromBusinessEvent("functions/business-event/allocation/allocation-func-output.json", "Allocation");
     }
 
     @Test
     void testClearing() throws IOException {
         // Test for qualifying a "ClearedTrade" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/clearing/clearing-func-output.json", "ClearedTrade");
+        runQualifyEventFromBusinessEvent("functions/business-event/clearing/clearing-func-output.json", "ClearedTrade");
     }
 
     @Test
     void testCompression() throws IOException {
         // Test for qualifying a "Compression" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/compression/compression-func-output.json", "Compression");
+        runQualifyEventFromBusinessEvent("functions/business-event/compression/compression-func-output.json", "Compression");
     }
 
     @Test
     void testCorporateAction() throws IOException {
         // Test for qualifying a "CorporateActionDetermined" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/corporate-actions/corporate-actions-func-output.json", "CorporateActionDetermined");
+        runQualifyEventFromBusinessEvent("functions/business-event/corporate-actions/corporate-actions-func-output.json", "CorporateActionDetermined");
     }
 
     @Test
     void testCreditEvent() throws IOException {
         // Test for qualifying a "CreditEventDetermined" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/credit-event/credit-event-func-output.json", "CreditEventDetermined");
+        runQualifyEventFromBusinessEvent("functions/business-event/credit-event/credit-event-func-output.json", "CreditEventDetermined");
     }
 
     @Test
     void testExecution() throws IOException {
         // Test for qualifying a "Execution" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/execution/execution-basis-swap-func-output.json", "Execution");
+        runQualifyEventFromBusinessEvent("functions/business-event/execution/execution-basis-swap-func-output.json", "Execution");
     }
 
     @Test
     void testExercise() throws IOException {
         // Test for qualifying a "Exercise" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/exercise/exercise-cancellable-option-func-output.json", "Exercise");
+        runQualifyEventFromBusinessEvent("functions/business-event/exercise/exercise-cancellable-option-func-output.json", "Exercise");
     }
 
     @Test
     void testNovation() throws IOException {
         // Test for qualifying a "Novation" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/novation/full-novation-func-output.json", "Novation");
+        runQualifyEventFromBusinessEvent("functions/business-event/novation/full-novation-func-output.json", "Novation");
     }
 
     @Test
     void testIndexTransition() throws IOException {
         // Test for qualifying a "IndexTransition" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/index-transition/index-transition-vanilla-swap-func-output.json", "IndexTransition");
+        runQualifyEventFromBusinessEvent("functions/business-event/index-transition/index-transition-vanilla-swap-func-output.json", "IndexTransition");
     }
 
     @Test
+    @Disabled // disabled until remaining FpML function ingestion mapping task is completed, see https://github.com/finos/common-domain-model/issues/4030
     void testTermination() throws IOException {
         // Test for qualifying a "Termination" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/quantity-change/full-termination-equity-swap-func-output.json", "Termination");
+        runQualifyEventFromBusinessEvent("functions/business-event/quantity-change/full-termination-equity-swap-func-output.json", "Termination");
     }
 
     @Test
     void testIncrease() throws IOException {
         // Test for qualifying a "Increase" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/quantity-change/increase-equity-swap-func-output.json", "Increase");
+        runQualifyEventFromBusinessEvent("functions/business-event/quantity-change/increase-equity-swap-func-output.json", "Increase");
     }
 
     @Test
+    @Disabled // disabled until remaining FpML function ingestion mapping task is completed, see https://github.com/finos/common-domain-model/issues/4030
     void testStockSplit() throws IOException {
         // Test for qualifying a "StockSplit" event.
-        runQualifyEventFromBusinessEvent("cdm-sample-files/functions/business-event/stock-split/stock-split-equity-swap-func-output.json", "StockSplit");
+        runQualifyEventFromBusinessEvent("functions/business-event/stock-split/stock-split-equity-swap-func-output.json", "StockSplit");
     }
 
     /*

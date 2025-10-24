@@ -78,11 +78,11 @@ class SecLendingFunctionInputCreationTest {
 
     // ALLOCATION AND REALLOCATION EXAMPLES ARE BASED ON THIS EXECUTION INSTRUCTION.
     // This is the execution instruction between an agent lender and a borrower
-    public static final String EXECUTION_INSTRUCTION_JSON = "/cdm-sample-files/functions/sec-lending/block-execution-instruction.json";
-    public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "cdm-sample-files/functions/sec-lending/block-execution-trade-state.json";
+    public static final String EXECUTION_INSTRUCTION_JSON = "/functions/sec-lending/block-execution-instruction.json";
+    public static final String BLOCK_EXECUTION_TRADE_STATE_JSON = "functions/sec-lending/block-execution-trade-state.json";
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
-    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/cdm-sample-files/functions/sec-lending/new-settlement-workflow-func-input.json";
+    public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/functions/sec-lending/new-settlement-workflow-func-input.json";
     
     private static Injector injector;
 
@@ -143,8 +143,8 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 10, 8)
         );
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        assertJsonEquals("functions/sec-lending/part-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
@@ -162,15 +162,15 @@ class SecLendingFunctionInputCreationTest {
                 returnInstruction,
                 Date.of(2020, 10, 21));
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", actual);
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        assertJsonEquals("functions/sec-lending/full-return-settlement-workflow-func-input.json", actual);
+        assertJsonConformsToRosettaType("/functions/sec-lending/full-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
     }
 
     @Test
     void validateCreateAllocationFuncInputJson() throws IOException {
         CreateBusinessEventInput actual = getAllocationInput();
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
+        assertJsonEquals("functions/sec-lending/allocation/allocation-sec-lending-func-input.json", actual);
     }
 
 
@@ -254,12 +254,12 @@ class SecLendingFunctionInputCreationTest {
                 Date.of(2020, 9, 21),
                 null);
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/reallocation/reallocation-pre-settled-func-input.json", actual);
+        assertJsonEquals("functions/sec-lending/reallocation/reallocation-pre-settled-func-input.json", actual);
     }
 
     @Test
     void validateCreateSecurityLendingInvoiceFuncInputJson() throws IOException {
-        RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
+        RunReturnSettlementWorkflowInput input = assertJsonConformsToRosettaType("/functions/sec-lending/part-return-settlement-workflow-func-input.json", RunReturnSettlementWorkflowInput.class);
         Workflow part = injector.getInstance(RunReturnSettlementWorkflow.class).execute(input);
 
         TradeState fullReturnAfterTradeState = getTransferTradeState();
@@ -340,8 +340,8 @@ class SecLendingFunctionInputCreationTest {
                         )))
                 .build();
 
-        assertJsonEquals("cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", actualBillingInstruction);
-        assertJsonConformsToRosettaType("/cdm-sample-files/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
+        assertJsonEquals("functions/sec-lending/create-security-lending-invoice-func-input.json", actualBillingInstruction);
+        assertJsonConformsToRosettaType("/functions/sec-lending/create-security-lending-invoice-func-input.json", BillingInstruction.class);
     }
 
     private BillingRecordInstruction createBillingRecordInstruction(TradeState transferTradeState, Date billingStartDate, Date billingEndDate, Date settlementDate, List<Observation> observations) {

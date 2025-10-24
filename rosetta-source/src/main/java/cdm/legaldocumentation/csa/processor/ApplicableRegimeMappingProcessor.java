@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.*;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 
+/**
+ * CreateiQ mapping processor.
+ */
 @SuppressWarnings("unused")
 public class ApplicableRegimeMappingProcessor extends MappingProcessor {
 

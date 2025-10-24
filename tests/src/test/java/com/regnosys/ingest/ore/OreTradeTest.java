@@ -18,7 +18,7 @@ class OreTradeTest extends IngestionTest<TradeState>{
 
 	private static final String ORE_1_0_39_FILES_DIR = "cdm-sample-files/ore-1-0-39/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+	private static final ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
 			.add(Resources.getResource(ORE_1_0_39_FILES_DIR + "expectations.json"))
 			.build();
 	
