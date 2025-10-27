@@ -1,14 +1,14 @@
-## Ingest - Add support for FpML Record-keeping schema
+## Ingest - Support for FpML Record-keeping schema
 
 *Background*
 
-This change updates the version of the upstream FpML as Rune dependency to version `1.0.1`. This will allow us to support FpML Record-keeping messages when working with the Ingest mapping functions which was released as part of [#3866](https://github.com/finos/common-domain-model/issues/3836).  
+This change updates the version of the upstream FpML as a Rune dependency to version `1.0.1`. This will allow support for FpML Record-keeping messages when working with the Ingest mapping functions which was released as part of [#3866](https://github.com/finos/common-domain-model/issues/3836).  
 
 *What is being released?*
 
 The following namespaces have been updated:
 
-- All Rosetta files mapping files with the naming convention `ingest-fpml-confirmation[...].rosetta` now contain updated imports to the consolidated FpML Confirmation and Record Keeping types.
+- All Rosetta mapping files with the naming convention `ingest-fpml-confirmation[...].rosetta` now contain updated imports to the consolidated FpML Confirmation and Record Keeping types.
 - Any Java implementations of functions have had their namespaces updated accordingly.
 
 *Review Directions*
