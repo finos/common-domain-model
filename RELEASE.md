@@ -1,13 +1,44 @@
-# Product Taxonomy Model - Adding "CFTC" value in TaxonomySourceEnum
+## Qualification and Validation - Fix use of empty in conditions and qualification functions
 
-_Background_
+*Background*
 
-A gap has been identified in the model when capturing taxonomy values for commodity underlyer assets as defined by CFTC regulation. Introducing `CFTC` as a taxonomy source is necessary to properly map these values within the model and to support population of the **"Commodity Underlyer ID"** fields in DRR.
+An upcoming DSL release has found a number of areas where the use of `empty` in qualification functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release. 
 
-_What is being released?_
+*What is being released?*
 
-The contribution is the addition of a new `CFTC` value to the `TaxonomySourceEnum` in order to represent the Commodity Futures Trading Commission as a taxonomy source, enabling support for **Commodity Underlyer ID** rules under CFTC jurisdiction in DRR.
+The following functions have been updated:
 
-_Review Directions_
+- Qualify_Substitution
+  - Check for existence of `beforeEconomicterms -> terminationDate` instead of the existence of `beforeEconomicterms`.
+  - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of the existence of `openEconomicTerms`.
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4112
+- Qualify_Roll
+  - Check for existence of `beforeEconomicterms -> collateral` instead of the existence of `beforeEconomicterms`.
+  - Check for existence of `openEconomicTerms -> collateral` instead of the existence of `openEconomicTerms`.
+
+- UnderlierQualification
+  - Check `securityType` exists before comparing to `instrumentType`.
+
+- ObservableQualification
+  - Check `securityType` exists before comparing to `instrumentType`.
+  - Check `assetClass` exists before comparing to `Index ->> assetClass`.
+
+
+The following types have been updated:
+
+- NonNegativeQuantitySchedule
+    - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
+
+- ValuationMethod
+  - Check for existence of `quotationAmount -> unit -> currency` instead of the existence of `quotationAmount`.
+  - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of the existence of `minimumQuotationAmount`.
+
+- FixedPrice
+  - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
+
+- OptionPayout
+  - Split condition `AsianOptionChoice` into two conditions `AsianOptionChoice_averagingStrikeFeature` and `AsianOptionChoice_averagingFeature`.
+
+*Review Directions*
+
+Changes can be reviewed in PR: [#4113](https://github.com/finos/common-domain-model/pull/4113)
