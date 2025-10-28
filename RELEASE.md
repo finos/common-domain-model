@@ -8,7 +8,7 @@ This change updates the version of the upstream FpML as a Rune dependency to ver
 
 The following namespaces have been updated:
 
-- All Rosetta mapping files with the naming convention `ingest-fpml-confirmation[...].rosetta` now contain updated imports to the consolidated FpML Confirmation and Record Keeping types.
+- All Rosetta mapping files with the naming convention `ingest-fpml-confirmation[...].rosetta` now contain updated imports to the consolidated FpML Confirmation and Record-keeping types.
 - Any Java implementations of functions have had their namespaces updated accordingly.
 
 *Review Directions*
