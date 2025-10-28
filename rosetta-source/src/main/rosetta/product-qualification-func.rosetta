@@ -21,7 +21,7 @@ func UnderlierQualification: <"Identifies whether the underlier(s) have either t
 
     set qualifies:
         ObservableQualification(underlier -> Observable, securityType, assetClass)
-            or underlier -> Product -> TransferableProduct -> Instrument -> Security -> instrumentType = securityType
+            or (securityType exists and underlier -> Product -> TransferableProduct -> Instrument -> Security -> instrumentType = securityType)
 
 // The EconomicTerms of any TransferableProduct or a NonTransferableProduct should be checked outside this function.
 func ObservableQualification: <"Identifies whether the observable(s) have either the specified securityType or assetClass.">
@@ -33,8 +33,8 @@ func ObservableQualification: <"Identifies whether the observable(s) have either
         qualifies boolean (1..1)
 
     set qualifies:
-        observable -> Asset -> Instrument -> Security -> instrumentType = securityType
-            or observable -> Index ->> assetClass = assetClass
+        (securityType exists and observable -> Asset -> Instrument -> Security -> instrumentType = securityType)
+            or (assetClass exists and observable -> Index ->> assetClass = assetClass)
             or if observable -> Basket exists
                 then observable -> Basket -> basketConstituent
                         extract [ ObservableQualification(item, securityType, assetClass) ]
