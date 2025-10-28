@@ -1,4 +1,4 @@
-## FpML Ingest - Support for FpML Record-keeping schema
+## FpML Ingestion - Support for FpML Record-keeping schema
 
 *Background*
 
