@@ -1,4 +1,4 @@
-## Ingestion Framework - Retire legacy synonym mappings for FpML and the associated ingestion tests
+## Ingestion Framework - Retire legacy synonym mappings for FpML
 
 *Background*
 
