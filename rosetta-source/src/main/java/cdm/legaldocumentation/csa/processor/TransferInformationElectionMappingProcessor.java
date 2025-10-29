@@ -23,17 +23,19 @@ public class TransferInformationElectionMappingProcessor extends MappingProcesso
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        PARTIES.forEach(party -> getTransferInformationElection(synonymPath, party));
+        TransferInformationElection.TransferInformationElectionBuilder transferInformationElectionBuilder = (TransferInformationElection.TransferInformationElectionBuilder) builder;
+        PARTIES.forEach(party -> {
+            transferInformationElectionBuilder.setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party));
+            getTransferContactInformation(synonymPath, party).ifPresent(transferInformationElectionBuilder::setContactInformation);
+        });
     }
 
-    private Optional<TransferInformationElection> getTransferInformationElection(Path synonymPath, String party) {
-        TransferInformationElection.TransferInformationElectionBuilder transferInformationElection = TransferInformationElection.builder();
+    private Optional<TransferContactInformation> getTransferContactInformation(Path synonymPath, String party) {
+        TransferContactInformation.TransferContactInformationBuilder transferContactInformationBuilder = TransferContactInformation.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-                address -> transferInformationElection
-                        .setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party))
-                        .setContactInformation(TransferContactInformation.builder()
-                                .addAddress(Address.builder()
-                                        .addStreet(removeHtml(address)))));
-        return transferInformationElection.hasData() ? Optional.of(transferInformationElection.build()) : Optional.empty();
+                address ->
+                        transferContactInformationBuilder.addAddress(Address.builder()
+                                .addStreet(removeHtml(address))));
+        return transferContactInformationBuilder.hasData() ? Optional.of(transferContactInformationBuilder.build()) : Optional.empty();
     }
 }
