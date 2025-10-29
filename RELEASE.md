@@ -2,7 +2,7 @@
 
 *Background*
 
-This change updates the version of the upstream FpML as a Rune dependency to version `1.0.1`. This will allow support for FpML Record-keeping messages when working with the Ingest mapping functions which was released as part of [#3866](https://github.com/finos/common-domain-model/issues/3836).  
+This change updates the version of the upstream FpML as a Rune dependency to version `1.1.0`. This will allow support for FpML Record-keeping messages when working with the Ingest mapping functions which was released as part of [#3866](https://github.com/finos/common-domain-model/issues/3836).  
 
 *What is being released?*
 
