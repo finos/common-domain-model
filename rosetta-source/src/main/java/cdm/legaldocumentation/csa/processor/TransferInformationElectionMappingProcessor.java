@@ -26,7 +26,7 @@ public class TransferInformationElectionMappingProcessor extends MappingProcesso
         TransferInformationElection.TransferInformationElectionBuilder transferInformationElectionBuilder = (TransferInformationElection.TransferInformationElectionBuilder) builder;
         PARTIES.forEach(party -> {
             transferInformationElectionBuilder.setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party));
-            getTransferContactInformation(synonymPath, party).ifPresent(transferInformationElectionBuilder::setContactInformation);
+            getTransferContactInformation(synonymPath, party).ifPresent(transferInformationElectionBuilder::setPrimaryContactInformation);
         });
     }
 

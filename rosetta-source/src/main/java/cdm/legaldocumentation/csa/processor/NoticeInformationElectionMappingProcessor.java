@@ -1,7 +1,7 @@
 package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.staticdata.party.Address;
-import cdm.legaldocumentation.common.NoticeInformation;
+import cdm.legaldocumentation.common.NoticeContactInformation;
 import cdm.legaldocumentation.common.NoticeInformationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
@@ -26,16 +26,16 @@ public class NoticeInformationElectionMappingProcessor extends MappingProcessor 
         NoticeInformationElection.NoticeInformationElectionBuilder noticeInformationElectionBuilder = (NoticeInformationElection.NoticeInformationElectionBuilder) builder;
         PARTIES.forEach(party -> {
             noticeInformationElectionBuilder.setPartyReference(CreateiQMappingProcessorUtils.toCounterpartyRoleEnum(party));
-            getNoticeInformationElection(synonymPath, party).ifPresent(noticeInformationElectionBuilder::setAdditionalContactInformation);
+            getNoticeInformationElection(synonymPath, party).ifPresent(noticeInformationElectionBuilder::setPrimaryContactInformation);
         });
     }
 
-    private Optional<NoticeInformation> getNoticeInformationElection(Path synonymPath, String party) {
-        NoticeInformation.NoticeInformationBuilder noticeInformationBuilder = cdm.legaldocumentation.common.NoticeInformation.builder();
+    private Optional<NoticeContactInformation> getNoticeInformationElection(Path synonymPath, String party) {
+        NoticeContactInformation.NoticeContactInformationBuilder noticeContactInformationBuilder = NoticeContactInformation.builder();
         setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
-                address -> noticeInformationBuilder
-                        .addAddress(Address.builder()
-                                .addStreet(removeHtml(address))));
-        return noticeInformationBuilder.hasData() ? Optional.of(noticeInformationBuilder.build()) : Optional.empty();
+                address -> {
+                    noticeContactInformationBuilder.addAddress(Address.builder().addStreet(removeHtml(address)));
+                });
+        return noticeContactInformationBuilder.hasData() ? Optional.of(noticeContactInformationBuilder.build()) : Optional.empty();
     }
 }
