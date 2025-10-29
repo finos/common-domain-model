@@ -1,17 +1,31 @@
-# *Legal Documentation - Misc IM/VM Clause Updates*
+# *Legal Documentation - Initial Margin and Variation Margin Clause Updates*
 
 _Background_
 
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplication in the model where possible.
 
 _What is being released?_
 
-1. Dispute Resolution: Merged valueTerms and legacyValue. Merged resolutionTime and legacyResolutionTime. Changed LegacyResolutionValue to ResolutionValue.
-2. IneligibleCreditSupport: Changed specifiedParty to CounterpartyRoleEnum.
-3. SensitivityMethodologies: Added partyElection and split SensitivityToEquity into sensitivityToIndices, sensitivityToFunds, sensitivityToETFs.
-4. Substitution: Added partyElection.
-5. Covered Transactions: Merged exposure and legacyExposure.
-6. Updated descriptions where necessary.
+Dispute Resolution: 
+- Merged `valueTerms` and `legacyValue`.
+- Merged `resolutionTime` and `legacyResolutionTime`.
+- Renamed `LegacyResolutionValue` to `ResolutionValue`.
+
+IneligibleCreditSupport: 
+- Changed `specifiedParty` type from `Party` to `CounterpartyRoleEnum`.
+- Updated type and attribute descriptions.
+
+SensitivityMethodologies: 
+- Added `partyElection` attribute with a type `SensitivityMethodologiesPartyElection`.
+- Split `SensitivityToEquity` into `sensitivityToIndices`, `sensitivityToFunds`, and `sensitivityToETFs`.
+- Updated type and attribute descriptions.
+
+Substitution:
+- Added `partyElection` attribute with a type `SubstitutionPartyElection`
+
+Covered Transactions: 
+- Merged `exposure` and `legacyExposure`.
+- Updated type and attribute descriptions.
 
 _Review Directions_
 
