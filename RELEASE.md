@@ -1,4 +1,4 @@
-## Legal documentation - Updating and Merging Legacy Threshold and Minimum Transfer Amount types
+## Legal documentation - Updating the Legacy Threshold and Minimum Transfer Amount types
 
 *Background*
 
@@ -9,20 +9,21 @@ D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT
 The following updates were applied to Threshold and Minimum Transfer Amount (MTA) types:
 
 Threshold
-- Merged Legacy threshold and threshold.
-- Added party elections. Changed infinity to boolean.
+- Merged Legacy threshold and threshold types.
+- Added party elections to specify the party to which the threshold applies.
+- Changed infinity attribute to boolean.
 - Added conditions for robustness.
-- Updated fixed amount to the money type.
+- Change fixed amount type to money.
 - Added Zero event to fixed amount.
-- Updated descriptions.
+- Updated descriptions of types and attributes.
 
 Minimum Transfer Amount
 - Merged Legacy MTA and MTA.
-- Added party elections.
+- Added party elections to specify the party to which the MTA applies.
 - Added conditions for robustness.
-- Updated fixed amount to the money type.
+- Change fixed amount type to money.
 - Added Zero event to fixed amount.
-- Updated descriptions.
+- Updated descriptions of types and attributes.
 
 *Review Directions*
 
