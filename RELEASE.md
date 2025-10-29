@@ -5,7 +5,7 @@
 This change updates the version of the `FpML as Rune` dependency to version `1.1.0`. 
 
 `FpML as Rune` version `1.1.0`
- - Cosolidates the FpML Confrimation and Record Keeping Schemas
+ - Consolidates the FpML Confrimation and Record Keeping Schemas
  - Rune namespaces are now based on the FpML Schema XSD filename naming convention
  - Previous versions used `_` for reserved Rune key words. These have now been correctly escaped (e.g `_type` is now `^type`). 
 
