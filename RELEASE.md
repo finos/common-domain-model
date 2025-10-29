@@ -1,8 +1,8 @@
-## Ingest - Retire legacy FpML mappings using synonyms and associated ingestion tests
+## Ingest Framework - Retire legacy FpML synonym mappings and associated ingestion tests
 
 *Background*
 
-FpML to CDM mapping functions were recently contributed to CDM 7-dev ([#3836](https://github.com/finos/common-domain-model/issues/3836)).  To avoid duplicative FpML mappings (i.e. synonym and functions), the old FpML-based synonym mappings and associated infrastructure should be removed, for further details see [#4030](https://github.com/finos/common-domain-model/issues/4030).
+FpML to CDM mapping functions were recently contributed to CDM 7-dev ([#3836](https://github.com/finos/common-domain-model/issues/3836)). To avoid duplicative FpML mappings (i.e. synonym and functions), the old FpML-based synonym mappings and associated infrastructure should be removed. For further details see [#4030](https://github.com/finos/common-domain-model/issues/4030).
 
 *What is being released?*
 
