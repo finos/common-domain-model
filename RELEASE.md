@@ -1,10 +1,12 @@
-## Legal documentation - Threshold, MTA - Merging Legacy Threshold/MTA with Threshold/MTA. Updated attributes, conditions, and definitions
+## Legal documentation - Updating and Merging Legacy Threshold and Minimum Transfer Amount types
 
 *Background*
 
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplications in the model where possible.
 
 *What is being released?*
+
+The following updates were applied to Threshold and Minimum Transfer Amount (MTA) types:
 
 Threshold
 - Merged Legacy threshold and threshold.
@@ -14,7 +16,7 @@ Threshold
 - Added Zero event to fixed amount.
 - Updated descriptions.
 
-MTA
+Minimum Transfer Amount
 - Merged Legacy MTA and MTA.
 - Added party elections.
 - Added conditions for robustness.
