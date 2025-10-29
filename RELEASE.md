@@ -8,15 +8,15 @@ _What is being released?_
 
 Calculation Agent: 
 - Changed the party type from `CounterpartyRoleEnum` to `CalculationValuationAgentPartyEnum`.
-- Update to type and attribute descriptions.
+- Updated type and attribute descriptions.
 
 Valuation Agent:
 - Removed duplicate `CollateralValuationAgent`
 - Renamed `LegacyValuationDate`/`LegacyValuationTime`/`LegacyValuationDate` to `ValuationDate`/`ValuationTime`/`ValuationLocation`.
-- Update to type and attribute descriptions.
+- Updated type and attribute descriptions.
 
 `CalculationValuationAgentPartyEnum` and `ValuationCalculationDateLocation`: 
-- Standardised Types and enums used under both Valuation Agent and Calculation Agent.
+- Standardised types and enums used under both Valuation Agent and Calculation Agent.
 
 
 _Review Directions_
