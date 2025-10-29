@@ -26,7 +26,8 @@ public class CdmTestPackCreator {
      * This set of test packs need to be excluded for all test packs except the one defined.
      */
     public static final List<String> EVENT_TEST_PACKS =
-            List.of("fpml-5-10-incomplete-processes",
+            List.of("fpml-5-10-native-cdm-events",
+                    "fpml-5-10-incomplete-processes",
                     "fpml-5-10-processes",
                     "fpml-5-12-processes",
                     "fpml-5-13-incomplete-processes-execution-advice",
