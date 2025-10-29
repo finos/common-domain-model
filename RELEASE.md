@@ -2,14 +2,22 @@
 
 _Background_
 
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the IM/VM and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes the elimination of duplications in the model.
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplications in the model where possible.
 
 _What is being released?_
 
-1. Calculation Agent: Changed Enum to include the party making the demand.
-2. Valuation Agent: Removed duplication (Collateral Valuation Agent). Renamed 'Legacy Valuation date/time/location' to 'Valuation date/time/location'.
-3. CalculationValuationAgentPartyEnum and ValuationCalculationDateLocation: Standardised Types and enums used under both Valuation Agent and Calculation Agent.
-4. General update to some descriptions and definitions.
+Calculation Agent: 
+- Changed the party type from `CounterpartyRoleEnum` to `CalculationValuationAgentPartyEnum`.
+- General update to some descriptions and definitions.
+
+Valuation Agent:
+- Removed duplicate `CollateralValuationAgent`
+- Renamed `LegacyValuationDate`/`LegacyValuationTime`/`LegacyValuationDate` to `ValuationDate`/`ValuationTime`/`ValuationLocation`.
+- General update to some descriptions and definitions.
+
+`CalculationValuationAgentPartyEnum` and `ValuationCalculationDateLocation`: 
+- Standardised Types and enums used under both Valuation Agent and Calculation Agent.
+
 
 _Review Directions_
 
