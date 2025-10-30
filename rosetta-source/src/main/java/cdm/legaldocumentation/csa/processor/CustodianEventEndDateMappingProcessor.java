@@ -19,6 +19,8 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.removeHtml;
 
 /**
+ * CreateiQ mapping processor.
+ *
  * "Days after Custodian Event" ( "days_after_custodian_event" / "days_after_collateral_manager_event" / "days_after_euroclear_event")
  * when "days_after_custodian_event" = "days"
  * No. of days: "after_days" (number)
