@@ -1,88 +1,30 @@
-## Ingestion Framework - Retire legacy synonym mappings for FpML
+## Legal documentation - Updating the Legacy Threshold and Minimum Transfer Amount types
 
 *Background*
 
-FpML to CDM mapping functions were recently contributed to CDM 7-dev ([#3836](https://github.com/finos/common-domain-model/issues/3836)). They will replace the legacy synonym mappings which were less intuitive and relied on Java Mappers in scenarios when the Rune syntax was not powerful enough to perform the required transformation.
-
-To avoid duplicate FpML mappings (i.e. synonym and functions), the old FpML-based synonym mappings and associated infrastructure should be removed. For further details see [#4030](https://github.com/finos/common-domain-model/issues/4030).
+D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplication in the model where possible.
 
 *What is being released?*
 
-The removal of all FpML-related synonym mappings, related regression tests, and associated test pack samples in the following namespaces: 
-- `cdm.mapping.fpml.confirmation.tradestate`
-- `cdm.mapping.fpml.confirmation.workflowstep`
-- `cdm.mapping.cme`
-- `cdm.mapping.dtcc`
+The following updates were applied to Threshold and Minimum Transfer Amount (MTA) types:
+
+Threshold
+- Merged Legacy threshold and threshold types.
+- Added party elections to specify the party to which the threshold applies.
+- Changed infinity attribute to boolean.
+- Added conditions for robustness.
+- Change fixed amount type to money.
+- Added Zero event to fixed amount.
+- Updated descriptions of types and attributes.
+
+Minimum Transfer Amount
+- Merged Legacy MTA and MTA.
+- Added party elections to specify the party to which the MTA applies.
+- Added conditions for robustness.
+- Change fixed amount type to money.
+- Added Zero event to fixed amount.
+- Updated descriptions of types and attributes.
 
 *Review Directions*
 
-Changes can be reviewed in PR: [#4114](https://github.com/finos/common-domain-model/pull/4114)
-
-
-## FpML Ingestion - Support for FpML Record-keeping schema
-
-*Background*
-
-This change updates the version of the `FpML as Rune` dependency to version `1.1.0`.
-
-`FpML as Rune` version `1.1.0`
-- Consolidates the FpML Confrimation and Record Keeping Schemas
-- Rune namespaces are now based on the FpML Schema XSD filename naming convention
-- Previous versions used `_` for reserved Rune key words. These have now been correctly escaped (e.g `_type` is now `^type`).
-
-There is no functional change in this release. All mapping functions behave in the same way as before.
-
-*What is being released?*
-
-- Rune and Java files have had their namespaces updated accordingly.
-- Use escaped attributes (`_type` is now `^type`)
-
-Following files have been updated (imports only)
-- ingest-fpml-confirmation-common-func.rosetta
-- ingest-fpml-confirmation-datetime-func.rosetta
-- ingest-fpml-confirmation-header-func.rosetta
-- ingest-fpml-confirmation-legal-func.rosetta
-- ingest-fpml-confirmation-message-func.rosetta
-- ingest-fpml-confirmation-other-func.rosetta
-- ingest-fpml-confirmation-party-func.rosetta
-- ingest-fpml-confirmation-payment-func.rosetta
-- ingest-fpml-confirmation-pricequantity-func.rosetta
-- ingest-fpml-confirmation-product-bondoption-func.rosetta
-- ingest-fpml-confirmation-product-brokerequityoption-func.rosetta
-- ingest-fpml-confirmation-product-capfloor-func.rosetta
-- ingest-fpml-confirmation-product-commodityforward-func.rosetta
-- ingest-fpml-confirmation-product-commodityoption-func.rosetta
-- ingest-fpml-confirmation-product-commodityswap-func.rosetta
-- ingest-fpml-confirmation-product-commodityswaption-func.rosetta
-- ingest-fpml-confirmation-product-correlationswap-func.rosetta
-- ingest-fpml-confirmation-product-creditdefaultswap-func.rosetta
-- ingest-fpml-confirmation-product-creditdefaultswapoption-func.rosetta
-- ingest-fpml-confirmation-product-dividendswapoptiontransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-dividendswaptransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-equityforward-func.rosetta
-- ingest-fpml-confirmation-product-equityoption-func.rosetta
-- ingest-fpml-confirmation-product-equityoptiontransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-equityswaptransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-fra-func.rosetta
-- ingest-fpml-confirmation-product-fxdigitaloption-func.rosetta
-- ingest-fpml-confirmation-product-fxoption-func.rosetta
-- ingest-fpml-confirmation-product-fxsingleleg-func.rosetta
-- ingest-fpml-confirmation-product-fxswap-func.rosetta
-- ingest-fpml-confirmation-product-fxvarianceswap-func.rosetta
-- ingest-fpml-confirmation-product-fxvolatilityswap-func.rosetta
-- ingest-fpml-confirmation-product-genericproduct-func.rosetta
-- ingest-fpml-confirmation-product-returnswap-func.rosetta
-- ingest-fpml-confirmation-product-swap-func.rosetta
-- ingest-fpml-confirmation-product-swaption-func.rosetta
-- ingest-fpml-confirmation-product-varianceoptiontransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-varianceswap-func.rosetta
-- ingest-fpml-confirmation-product-varianceswaptransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-product-volatilityswap-func.rosetta
-- ingest-fpml-confirmation-product-volatilityswaptransactionsupplement-func.rosetta
-- ingest-fpml-confirmation-settlement-func.rosetta
-- ingest-fpml-confirmation-tradestate-func.rosetta
-- ingest-fpml-confirmation-workflowstep-func.rosetta
-
-*Review Directions*
-
-Changes can be reviewed in PR: [#4117](https://github.com/finos/common-domain-model/pull/4117)
+Changes can be reviewed in PR: [#4107](https://github.com/finos/common-domain-model/pull/4107)
