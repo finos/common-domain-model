@@ -21,7 +21,7 @@ SensitivityMethodologies:
 - Updated type and attribute descriptions.
 
 Substitution:
-- Added `partyElection` attribute with a type `SubstitutionPartyElection`
+- Added `partyElection` attribute with a type `SubstitutionPartyElection`.
 
 Covered Transactions:
 - Merged `exposure` and `legacyExposure`.
