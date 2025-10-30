@@ -6,7 +6,7 @@ D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT
 
 _What is being released?_
 
-Calculation Agent: 
+Calculation Agent:
 - Changed the party type from `CounterpartyRoleEnum` to `CalculationValuationAgentPartyEnum`.
 - Updated type and attribute descriptions.
 
@@ -15,7 +15,7 @@ Valuation Agent:
 - Renamed `LegacyValuationDate`/`LegacyValuationTime`/`LegacyValuationDate` to `ValuationDate`/`ValuationTime`/`ValuationLocation`.
 - Updated type and attribute descriptions.
 
-`CalculationValuationAgentPartyEnum` and `ValuationCalculationDateLocation`: 
+`CalculationValuationAgentPartyEnum` and `ValuationCalculationDateLocation`:
 - Standardised types and enums used under both Valuation Agent and Calculation Agent.
 
 
