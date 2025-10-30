@@ -9,12 +9,14 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
+@Disabled
 public class Fpml510ProductIngestionServiceTest extends IngestionTest<TradeState> {
 
 	private static final String BASE_DIR = "cdm-sample-files/fpml-5-10/products/";

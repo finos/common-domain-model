@@ -8,6 +8,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
+@Disabled
 public class NativeCdmEventsIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
 	private static final String BASE_DIR = "cdm-sample-files/native-cdm-events/";

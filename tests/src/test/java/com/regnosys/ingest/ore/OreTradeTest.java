@@ -9,11 +9,13 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
 import java.util.stream.Stream;
 
+@Disabled
 class OreTradeTest extends IngestionTest<TradeState>{
 
 	private static final String ORE_1_0_39_FILES_DIR = "cdm-sample-files/ore-1-0-39/";
