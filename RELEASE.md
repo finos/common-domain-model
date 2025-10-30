@@ -11,7 +11,7 @@ No expectations are updated as part of this release.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4134](https://github.com/finos/common-domain-model/pull/4134)
+The changes can be reviewed in PR: [#4136](https://github.com/finos/common-domain-model/pull/4136)
 
 # Qualification and Validation - Fix use of empty in conditions and qualification functions
 
