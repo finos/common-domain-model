@@ -42,12 +42,12 @@ class FunctionTest {
 	private static final ObjectMapper ROSETTA_OBJECT_MAPPER = RosettaObjectMapper.getNewRosettaObjectMapper();
 
 	private static final List<String> EXECUTION_DESCRIPTOR_PATHS = List.of(
-			"cdm-sample-files/functions/execution-descriptor.json",
-			"cdm-sample-files/functions/sec-lending-execution-descriptor.json",
-			"cdm-sample-files/functions/fpml-processes-execution-descriptor.json",
-			"cdm-sample-files/functions/cme-cleared-confirm-1-17-execution-descriptor.json",
-			"cdm-sample-files/functions/dtcc-11-0-execution-descriptor.json",
-			"cdm-sample-files/functions/repo-and-bond-execution-descriptor.json");
+			"functions/execution-descriptor.json",
+			"functions/sec-lending-execution-descriptor.json",
+			"functions/fpml-processes-execution-descriptor.json",
+			"functions/cme-cleared-confirm-1-17-execution-descriptor.json",
+			"functions/dtcc-11-0-execution-descriptor.json",
+			"functions/repo-and-bond-execution-descriptor.json");
 
 	private static Injector injector;
 
