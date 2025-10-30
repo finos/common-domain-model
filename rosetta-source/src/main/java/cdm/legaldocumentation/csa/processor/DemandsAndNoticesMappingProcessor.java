@@ -12,6 +12,10 @@ import java.util.List;
 
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 public class DemandsAndNoticesMappingProcessor extends MappingProcessor {
     private final NoticeInformationElectionMappingHelper helper;
 
