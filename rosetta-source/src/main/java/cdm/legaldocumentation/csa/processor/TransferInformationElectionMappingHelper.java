@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
+import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
 public class TransferInformationElectionMappingHelper {
     private final RosettaPath path;
@@ -26,13 +27,11 @@ public class TransferInformationElectionMappingHelper {
         TransferInformationElection.TransferInformationElectionBuilder TransferInformationElectionBuilder = TransferInformationElection.builder();
         setValueAndUpdateMappings(
                 synonymPath.addElement(party + "_specify"),
-                address -> TransferInformationElectionBuilder.setPrimaryContactInformation(
-                        NoticeContactInformation.builder()
+                address -> TransferInformationElectionBuilder
+                        .setPartyReference(toCounterpartyRoleEnum(party))
+                        .setPrimaryContactInformation(NoticeContactInformation.builder()
                                 .addAddress(Address.builder().addStreet(removeHtml(address)).build())
-                                .build()
-                )
-                , mappings, path);
-
+                                .build()), mappings, path);
         return TransferInformationElectionBuilder.hasData()
                 ? Optional.of(TransferInformationElectionBuilder.build())
                 : Optional.empty();
