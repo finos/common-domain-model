@@ -71,7 +71,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
      */
     private WorkflowStep getWorkflowStepInstruction() throws IOException {
         // Trade to be partially terminated.  Note that all references are resolved here.
-        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "result-json-files/fpml-5-10/products/rates/USD-Vanilla-swap.json");
+        TradeState beforeTradeState = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, "ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-rates/USD-Vanilla-swap.json");
 
         Date eventDate = Date.of(2013, 2, 12);
 

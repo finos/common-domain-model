@@ -6,16 +6,16 @@ D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT
 
 _What is being released?_
 
-Dispute Resolution: 
+Dispute Resolution:
 - Merged `valueTerms` and `legacyValue`.
 - Merged `resolutionTime` and `legacyResolutionTime`.
 - Renamed `LegacyResolutionValue` to `ResolutionValue`.
 
-IneligibleCreditSupport: 
+IneligibleCreditSupport:
 - Changed `specifiedParty` type from `Party` to `CounterpartyRoleEnum`.
 - Updated type and attribute descriptions.
 
-SensitivityMethodologies: 
+SensitivityMethodologies:
 - Added `partyElection` attribute with a type `SensitivityMethodologiesPartyElection`.
 - Split `SensitivityToEquity` into `sensitivityToIndices`, `sensitivityToFunds`, and `sensitivityToETFs`.
 - Updated type and attribute descriptions.
@@ -23,7 +23,7 @@ SensitivityMethodologies:
 Substitution:
 - Added `partyElection` attribute with a type `SubstitutionPartyElection`
 
-Covered Transactions: 
+Covered Transactions:
 - Merged `exposure` and `legacyExposure`.
 - Updated type and attribute descriptions.
 

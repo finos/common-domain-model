@@ -17,6 +17,10 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setV
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.*;
 
+/**
+ * CreateiQ mapping processor.
+ */
+@SuppressWarnings("unused")
 public class ElectiveAmountElectionMappingHelper {
 
 	private static final String ZERO = "zero";
