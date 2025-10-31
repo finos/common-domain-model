@@ -484,17 +484,14 @@ type DisputeResolution: <"A class to specify the election terms under which a pa
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(g)" name "Dispute Resolution"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(h)" name "Dispute Resolution"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(g)" name "Dispute Resolution"]
-
     resolutionTime BusinessCenterTime (0..1) <"The time by which the dispute needs to be resolved, failure of which would trigger a recalculation alongside a process that is specified as part of the agreement.">
         [docReference ISDA CSA_IM_2016 paragraph "3 General Principles" clause "(g)(i)" name "Resolution Time"]
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(g)(i)" name "Resolution Time"]
     otherTerms string (0..1) <"The custom Resolution Time election that might be specified by the parties.">
-    valueTerms string (1..1) <"The method of calculation for determining value for the purposes of a Variation Margin agreement.">
     alternativeTerms string (0..1) <"The alternative dispute resolution procedure if specified.">
     recalculationOfValue RecalculationOfValue (0..1) <"The elections to specify terms for recalculation of the market value of posted collateral.">
-    legacyResolutionTime BusinessCenterTime (0..1) <"Definition of a point of time un the following LBD to the date of notice in the resolution process at which the recalculation of the disputed amount(s) begins if the consultation process has not resolved the dispute.">
     legacyAlternative LegacyResolutionAlternative (0..1) <"Alternative procedures to those in the pre-print for resolving collateral related disputes.">
-    legacyValue LegacyResolutionValue (0..1) <"Methodology for resolving disputes in respect of the determination of the value of collateral.">
+    value ResolutionValue (0..1) <"Methodology for resolving disputes in respect of the determination of the value of collateral.">
 
 type ElectiveAmountElection: <"A class to specify the party elective amounts which can be used for the purpose of specifying elections such as the ISDA CSA Threshold and Minimum Transfer Amount.">
     party CounterpartyRoleEnum (1..1) <"The elective party.">
@@ -605,14 +602,12 @@ type HoldingAndUsingPostedCollateralElection: <"Specifies the parties' elections
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(h)(ii)" name "Use of Posted Collateral (VM)"]
         [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(g)(ii)"]
 
-type IneligibleCreditSupport: <"A class to specify the parties to which the provisions of the Credit Support Annex for Variation Margin will apply to.">
+type IneligibleCreditSupport: <"Identifies collateral that has been designated as not meeting the eligibility criteria set out in the agreement.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause "(c)(iii)" name "Legally Ineligible Credit Support (VM)"]
-
-    totalIneligibilityDate string (0..1) <"Total Ineligibility Date has the meaning specified in Paragraph 11(g), unless otherwise specified here.">
-    transferIneligibilityDate string (0..1) <"Transfer Ineligibility Date has the meaning specified in Paragraph 11(g), unless otherwise specified here.">
-    specifiedParty Party (0..2) <"The parties to which the provisions of the CSA will apply to, as the Secured Party.">
+    totalIneligibilityDate string (0..1) <"Specifies the date from which all credit support provided by a party is treated as ineligible under the agreement.">
+    transferIneligibilityDate string (0..1) <"Specifies the date from which the transfer of credit support by a party is treated as ineligible under the agreement.">
+    specifiedParty CounterpartyRoleEnum (0..2) <"Identifies a party designated in the agreement for the purpose of applying particular rights, obligations, or elections.">
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(c)(iii)" name "Legally Ineligible Credit Support (VM)"]
-        [metadata reference]
 
 type InterestAdjustment: <"A class to specify whether the Interest Adjustment is applicable and what its periodicity is.">
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(n)(ii)"]
@@ -863,9 +858,17 @@ type SecurityProviderRightsEventElection: <"A class to specify party specific Se
     rightsEvent boolean (1..1) <"If True, the Rights Event language applies for the specified Party.">
 
 type SensitivityMethodologies: <"A class to specificy methodologies to compute sensitivities specific to the agreement.">
+    partyElection SensitivityMethodologiesPartyElection (2..2) <"Party specific elections for Sensitivity Methodology for Equity and Commodities.">
 
-    sensitivityToEquity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to equity indices, funds and ETFs for the purpose of Initial Margin agreements.">
+type SensitivityMethodologiesPartyElection: <"A class to specificy methodologies to compute sensitivities specific to the agreement.">
+    party CounterpartyRoleEnum (1..1) <"The party to which the election applies.">
+    sensitivityToEquity SensitivityToEquity (1..1) <"The methodology to compute sensitivities to equity indices, funds and ETFs for the purpose of Initial Margin agreements.">
     sensitivityToCommodity SensitivityMethodology (1..1) <"The methodology to compute sensitivities to commodity indices for the purpose of Initial Margin agreements.">
+
+type SensitivityToEquity: <"Represents risk sensitivity calculated with respect to the value of an individual equity instrument.">
+    sensitivityToIndices SensitivityMethodology (1..1) <"Represents risk sensitivity calculated with respect to the level of an equity or market index.">
+    sensitivityToFunds SensitivityMethodology (1..1) <"Represents risk sensitivity calculated with respect to the value of a fund, such as a mutual fund or collective investment vehicle.">
+    sensitivityToETFs SensitivityMethodology (1..1) <"Represents risk sensitivity calculated with respect to the value of an exchange-traded fund (ETF).">
 
 type SensitivityMethodology: <"A class to specify the methodology according to which sensitivities are computed.">
     [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(gg)(2)"]
@@ -914,7 +917,11 @@ type SubstitutedRegimeTerms: <"Specifies the applicability of the Substituted Re
     isApplicable boolean (1..1) <"The specification of whether the regime is elected as applicable to the party when acting as collateral taker.">
 
 type Substitution: <"A class to specify the conditions under which the Security Provider can substitute posted collateral. The details required for 'Legacy' agreements are substantially different to those required for newer agreements; where the agreement is a 1994 or 1995 CSA, or 1995 CSD, the legacyConsent attribute needs to be used which contains additional values beyond a simple true/false value.">
-    needsConsent boolean (1..1) <"The election as to whether the Pledgor/Obligor/Chargor must obtain the Secured Partys consent for any collateral substitution.">
+    partyElection SubstitutionPartyElection (0..2) <"Party specific elections for substitution of posted collateral.">
+
+type SubstitutionPartyElection: <"Party specific elections for substitution of posted collateral.">
+    party CounterpartyRoleEnum (1..1) <"The party that is acting as the Pledgor/Obligor/Chargor/Security Provider.">
+    needsConsent boolean (1..1) <"The election as to whether the Pledgor/Obligor/Chargor/Security Provider must obtain the Secured Partys consent for any collateral substitution.">
         [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(f)(ii)" name "Consent"]
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(f)(ii)" name "Consent"]
     substitutionDateLanguage string (0..1) <"Substitution Date has the meaning specified in Paragraph4(d)(ii), unless otherwise specified.">
@@ -962,8 +969,7 @@ type CoveredTransactions: <"Specification of Transactions covered by the legal a
     coveredTransactions ProductTaxonomy (1..*) <"Covered Transactions when expressed using the ISDA taxonomy.">
     bespokeCoveredTransactions string (1..*) <"Covered Transactions when not expressed using the ISDA taxonomy.">
     additionalObligations AdditionalObligations (0..2) <"The party specific additional obligations applicable to the document.">
-    exposure string (0..1) <"The bespoke definition of exposure for Covered Transactions as part of the agreement.">
-    legacyExposure ExposureScope (0..2) <"Specification of amendments to the calculation of Exposure in terms of the Transactions covered.">
+    exposure ExposureScope (0..1) <"Specification of amendments to the calculation of Exposure in terms of the Transactions covered.">
 
 type CreditSupportObligations: <"A class to specify the Credit Support Obligations applicable to the Initial Margin Credit Support Annex.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c)" name "Credit Support Obligations"]
@@ -1216,7 +1222,7 @@ type LegacyExposureScopeElection: <"Specification of amendments to the calculati
     party CounterpartyRoleEnum (1..1) <"The elective party.">
     excludedTransactions boolean (1..1) <"A boolean flag to represent whether any transactions are excluded (ie True) or not (ie False).">
     excludedProducts ExcludedProducts (0..*) <"Description of the relevant derivative transactions excluded from the calculation of exposure.">
-    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
+    additionalLanguage string (0..1) <"The bespoke/additional language that might be specified by the parties to the legal agreement.">
 
 type ExcludedProducts: <"Description of the relevant derivative transactions excluded from the calculation of exposure.">
     product ExposureScopeProductEnum (0..*) <"Description of the relevant derivative transactions excluded from the calculation of exposure.">
@@ -1244,10 +1250,10 @@ type LegacyResolutionAlternative: <"Alternative procedures to those in the pre-p
         if resolutionAlternative = LegacyResolutionAlternativeEnum -> SplitDifference
         then amount exists
 
-type LegacyResolutionValue: <"Methodology for resolving disputes in respect of the determination of the value of collateral.">
+type ResolutionValue: <"Methodology for resolving disputes in respect of the determination of the value of collateral.">
     cash ValueCashEnum (0..1) <"Details of how cash collateral is valued when resolving disputes.">
     securities ValueSecuritiesEnum (0..1) <"Details of how securities collateral is valued when resolving disputes.">
-    fallback boolean (0..1) <"A boolean flag to represent whether a fallback calculation method is applicable.">
+    fallback boolean (0..1) <"Represents whether a fallback calculation method is applicable. 'True' if fallback calculation method is applicable.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
     condition OtherValues: <"Additional language is required when 'Other' values are used.">
