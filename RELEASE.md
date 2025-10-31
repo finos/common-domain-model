@@ -14,7 +14,7 @@ Detail on the changes can be found at [Issue #3878](https://github.com/finos/com
 
 _Review directions_
 
-Changes can be reviewed in PR: [#4126](https://github.com/finos/common-domain-model/pull/4126)
+Changes can be reviewed in PR: [#4142](https://github.com/finos/common-domain-model/pull/4142)
 
 ## Qualification and Validation - Fix use of empty in conditions and qualification functions
 
