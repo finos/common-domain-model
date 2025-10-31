@@ -2,6 +2,7 @@ package cdm.legaldocumentation.csa.processor;
 
 import cdm.base.staticdata.party.Address;
 import cdm.legaldocumentation.common.NoticeContactInformation;
+import cdm.legaldocumentation.common.TransferContactInformation;
 import cdm.legaldocumentation.common.TransferInformationElection;
 import com.regnosys.rosetta.common.translation.*;
 import com.rosetta.model.lib.path.RosettaPath;
@@ -29,7 +30,7 @@ public class TransferInformationElectionMappingHelper {
                 synonymPath.addElement(party + "_specify"),
                 address -> TransferInformationElectionBuilder
                         .setPartyReference(toCounterpartyRoleEnum(party))
-                        .setPrimaryContactInformation(NoticeContactInformation.builder()
+                        .setPrimaryContactInformation(TransferContactInformation.builder()
                                 .addAddress(Address.builder().addStreet(removeHtml(address)).build())
                                 .build()), mappings, path);
         return TransferInformationElectionBuilder.hasData()
