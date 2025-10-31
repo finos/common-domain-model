@@ -1009,10 +1009,10 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
         [docReference ISDA CSD_English_1995]
         [docReference ISDA CSA_VM_English_2016]
         [docReference ISDA CSA_VM_NewYork_2016]
- 
+
 type EligibleCreditSupport: <"Specifies the collateral posting obligations of the security provider or security providers as specified in the corresponding agreement">
     partyElection EligibleCollateralElection (1..2) <"The specification of the collateral posting obligations for the security provider party(ies)">
- 
+
 type EligibleCollateralElection extends PostingObligationsElection: <"Specifies the collateral posting obligations for the security provider party(ies).">
     otherEligibleSupport string (1..1) <"Specifies the Other Eligible Support conditions. If not specified, this election is deemed as not applicable.">
         [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(b)(iii)"]
@@ -1020,23 +1020,23 @@ type EligibleCollateralElection extends PostingObligationsElection: <"Specifies 
         [docReference ISDA CSA_VM_NewYork_2016]
         [docReference ISDA CSA_IM_NewYork_2018]
         [docReference ISDA CSA_IM_NewYork_2016]
- 
+
 type SecurityInterestForObligations: <"Security Interest for Obligations clause applicable to 1994 NY CSA, 1995 English Law CSA, 1995 English Law Credit Support Deed, 2016 English Law VM CSA and 2016 New York Law VM CSA.">
     [docReference ISDA CSA_NewYork_1994 name "Security Interest for Obligations"]
         [docReference ISDA CSA_English_1995 name "Security Interest for Obligations"]
         [docReference ISDA CSD_English_1995 name "Security Interest for Obligations"]
         [docReference ISDA CSA_VM_English_2016 name "Security Interest for Obligations"]
         [docReference ISDA CSA_VM_NewYork_2016 name "Security Interest for Obligations"]
- 
+
     party CounterpartyRoleEnum (2..2) <"The elective party to which the Security Interest for Obligations is applicable.">
     obligations SecurityInterestObligationsEnum (1..1) <"A description of any additional obligations secured by the credit support arrangements.">
     obligee SecurityInterestObligeeEnum (1..1) <"The party to whom obligations under the Master Agreement are owed and secured by the credit support arrangements.">
     other string (0..1) <"Exception value.">
- 
+
 type SinglePostingParty: <"Where only a single  party is explicitly designated to post collateral, the party which is specified as the sole poster of collateral.">
     party CounterpartyRoleEnum (0..1) <"The party acting as the Single Posting Party.">
     other string (0..1) <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
- 
+
 type Threshold: <"Represents the amount of unsecured risk that a party is willing to tolerate without holding any posted collateral provided by the other party.">
     [docReference ISDA CSA_NewYork_1994 name "Threshold"]
         [docReference ISDA CSA_English_1995 name "Threshold"]
@@ -1048,10 +1048,9 @@ type Threshold: <"Represents the amount of unsecured risk that a party is willin
 type ThresholdMinmumTransferAmountBase: <"A logical container designed to hold a set of related data. In this case, designed to hold a set of information required to specify conditions under which Threshold or Minimum Transfer Amount can fall to zero.">
     zeroEvent boolean (1..1) <"Indicates whether a trigger applies for the Threshold or Minimum Transfer Amount to fall to zero. If 'True' then such a trigger exists.">
     event ZeroEventEnum (0..*) <"Specifies the relevant trigger for the Threshold or Minimum Transfer Amount to fall to zero.">
- 
+
     condition ZeroEvent: <"If zero event exists then boolean must be set to 'True' and event must be specified.">
-        if zeroEvent = True
-        then event exists
+        if zeroEvent = True then event exists
 
 type ThresholdElection: <"Specifies whether the threshold is rating based, a fixed amount, or infinity.">
     party CounterpartyRoleEnum (1..1) <"The party to which the threshold applies.">
@@ -1059,10 +1058,10 @@ type ThresholdElection: <"Specifies whether the threshold is rating based, a fix
     ratingsBased ThresholdRatingsBased (0..1) <"Defines that the Threshold is based on a Ratings condition(s).">
     infinity boolean (0..1) <"Specifies that the Threshold is Infinity. If 'True' then the threshold for the elective party is Infinity.">
     other string (0..1) <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
- 
+
     condition ThresholdOneOf: <"Ensures that threshold is specified as one-of fixedAmount, ratingsBased, infinity, or other.">
         required choice fixedAmount, ratingsBased, infinity, other
- 
+
 type ThresholdRatingsBased extends ThresholdMinmumTransferAmountBase: <"Defines that the Threshold is based on Ratings condition(s).">
     currency ISOCurrencyCodeEnum (1..1) <"The threshold currency code.">
     ratingType RatingTypeEnum (1..1) <"The relevant rating type.">
@@ -1074,26 +1073,26 @@ type ThresholdRatingsBased extends ThresholdMinmumTransferAmountBase: <"Defines 
     noRating boolean (1..1) <"What conditions apply where a party has no rating.">
     notRatedBy NotRatedByEnum (0..1) <"Defines where conditions apply if no Rating where ratings may not exist.">
     numberOfRatingAgencies NumberOfRatingAgenciesEnum (0..1) <"Defines the number of Rating Agencies that the Party must be rated by.">
- 
+
     condition NamedEntity: <"If the rated party is NamedEntity then the entity must be specified.">
         if ratedParty = RatedPartyEnum -> NamedEntity
         then namedEntity exists
- 
+
     condition NamedAffiliate: <"If rated party is NamedAffilite then the affiliate must be specified.">
         if ratedParty = RatedPartyEnum -> NamedAffiliate
         then namedAffiliate exists
- 
+
 type CSAThresholdVariableSet: <"Defines a combination of Rating Agency, Rating Value, Threshold amount and Currency code.">
     name CreditRatingAgencyEnum (0..1) <"The relevant rating agency.">
     value string (0..1) <"Rating applicable to the party from a given rating agency.">
     amount int (0..1) <"The amount value applicable to the Threshold.">
- 
+
     condition NameMustExist: <"If we have a name then we must also have a value.">
         if name exists then value exists
- 
+
     condition ValueMustExist: <"If we have a value then we must also have a name.">
         if value exists then name exists
- 
+
 type MinimumTransferAmount: <"Represents the threshold specified in the agreement below which collateral need not be delivered, and represents the smallest incremental value of exposure that must be reached before the parties are obliged to transfer collateral.">
     [docReference ISDA CSA_NewYork_1994 name "Minimum Transfer Amount"]
     [docReference ISDA CSA_English_1995 name "Minimum Transfer Amount"]
@@ -1107,10 +1106,10 @@ type MinimumTransferAmountElection: <"Specifies the method by which the minimum 
     fixedAmount ThresholdMinimumTransferAmountFixedAmount (0..1) <"Defines that the Minimum Transfer Amount (MTA) is a Fixed Amount.">
     ratingsBased MinimumTransferAmountRatingsBased (0..1) <"Defines that the Minimum Transfer Amount (MTA) is based on a Ratings condition(s).">
     other string (0..1) <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
- 
+
     condition MinimumTransferAmountOneOf: <"Ensures that Minimum Transfer Amount is specified as one-of fixedAmount, ratingsBased, or other.">
         required choice fixedAmount, ratingsBased, other
- 
+
 type ThresholdMinimumTransferAmountFixedAmount extends ThresholdMinmumTransferAmountBase: <"Defines the Threshold or the Minimum Transfer Amount (MTA) as a fixed amount.">
     amount Money (1..1) <"Specifies the monetary value of the Threshold or the Minimum Transfer Amount (MTA) applicable to collateral transfer obligations.">
 
@@ -1125,11 +1124,11 @@ type MinimumTransferAmountRatingsBased extends ThresholdMinmumTransferAmountBase
     noRating boolean (1..1) <"What conditions apply where a party has no rating.">
     notRatedBy NotRatedByEnum (0..1) <"Defines where conditions apply if no Rating where ratings may not exist.">
     numberOfRatingAgencies NumberOfRatingAgenciesEnum (0..1) <"Defines the number of Rating Agencies that the Party must be rated by.">
- 
+
     condition NamedEntity: <"If the rated party is NamedEntity then the entity must be specified.">
         if ratedParty = RatedPartyEnum -> NamedEntity
         then namedEntity exists
- 
+
     condition NamedAffiliate: <"If rated party is NamedAffilite then the affiliate must be specified.">
         if ratedParty = RatedPartyEnum -> NamedAffiliate
         then namedAffiliate exists
