@@ -1,4 +1,4 @@
-# *CDM Distribution - Update Python generation to utilize the new process*
+# *CDM Distribution - Python generation to utilize new process*
 
 *Background*
 
@@ -12,7 +12,7 @@ Note that the new Python library for CDM 5.x.x will use the new serialization fo
 
 Detail on the changes can be found at [Issue #3878](https://github.com/finos/common-domain-model/issues/3878)
 
-_Review directions_
+_Review Directions_
 
 Changes can be reviewed in PR: [#4142](https://github.com/finos/common-domain-model/pull/4142)
 
