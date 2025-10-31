@@ -8,13 +8,13 @@ _What is being released?_
 
 The Python library will use updated tooling that supports metadata.  Python support for functions will arrive in a subsequent update.
 
-Note that the new Python library for CDM 5.x.x will use the new serialization format that is not backward compatible with data produced by the old Python libraries.  Before standardization, cross-language data exchange (e.g., between Java and Python) was not guaranteed. The new Python tooling facilitates such compatibility by implementing the new format.
+Note that the new Python library for CDM 6.x.x will use the new serialization format that is not backward compatible with data produced by the old Python libraries.  Before standardization, cross-language data exchange (e.g., between Java and Python) was not guaranteed. The new Python tooling facilitates such compatibility by implementing the new format.
 
 Detail on the changes can be found at [Issue #3878](https://github.com/finos/common-domain-model/issues/3878)
 
 _Review directions_
 
-Changes can be reviewed in PR: [#4125](https://github.com/finos/common-domain-model/pull/4125)
+Changes can be reviewed in PR: [#4141](https://github.com/finos/common-domain-model/pull/4141)
 
 ## Qualification and Validation - Fix use of empty in conditions and qualification functions
 
