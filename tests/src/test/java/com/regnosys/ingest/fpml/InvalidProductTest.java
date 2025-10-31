@@ -7,8 +7,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
@@ -16,7 +15,6 @@ import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToTradeState;
 
-@Disabled
 class InvalidProductTest extends IngestionTest<TradeState> {
 
 	private static final String SAMPLE_FILES_DIR = "cdm-sample-files/fpml-5-10/invalid-products/";
@@ -32,11 +30,13 @@ class InvalidProductTest extends IngestionTest<TradeState> {
 
 	private static IngestionService ingestionService;
 
-	@BeforeAll
-	static void setup() {
+    @Override
+    @BeforeEach
+    protected void setUp() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToTradeState();
+        super.setUp();
 	}
 
 	@Override

@@ -19,8 +19,7 @@ import com.regnosys.rosetta.common.util.ClassPathUtils;
 import com.regnosys.rosetta.common.util.MutablePair;
 import com.regnosys.rosetta.common.util.Pair;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -41,7 +40,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 
-@Disabled
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
 	private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
@@ -57,13 +55,15 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 	private static IngestionService ingestionService;
 	private static ObjectMapper objectMapper;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = IngestionFactory.getInstance().getService("createiQAll");
-		objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
-	}
+    @Override
+    @BeforeEach
+    protected void setUp() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        ingestionService = IngestionFactory.getInstance().getService("createiQAll");
+        objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+        super.setUp();
+    }
 
 	@Override
 	protected Class<LegalAgreement> getClazz() {

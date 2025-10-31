@@ -8,8 +8,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.stream.Stream;
 
-@Disabled
 class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
     private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion11ServiceTest.class);
 
@@ -29,11 +27,13 @@ class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
 
 	private static IngestionService dtcc11IngestionService;
 
-	@BeforeAll
-	static void setup() {
+    @Override
+    @BeforeEach
+    protected void setUp() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		dtcc11IngestionService = IngestionFactory.getInstance().getDtcc11();
+        super.setUp();
 	}
 	
 	@Override
