@@ -9,7 +9,6 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
@@ -17,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Disabled
 public class FisIngestionTest extends IngestionTest<WorkflowStep> {
 
 	private static final String ENV_INSTANCE_NAME = "target/ISLA";
