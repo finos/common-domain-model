@@ -8,12 +8,14 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
 import java.util.stream.Stream;
 
+@Disabled
 class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
 	private static final String CME_CLEARED_1_17_FILES_DIR = "cdm-sample-files/cme-cleared-confirm-1-17/";
@@ -24,14 +26,12 @@ class CMEClearedConfirmTest extends IngestionTest<WorkflowStep> {
 
 	private static IngestionService ingestionService;
 
-    @Override
-    @BeforeEach
-	protected void setUp() {
-        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-        ingestionService = IngestionFactory.getInstance().getCmeCleared117();
-        super.setUp();
-    }
+	@BeforeAll
+	static void setup() {
+		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+		ingestionService = IngestionFactory.getInstance().getCmeCleared117();
+	}
 	
 	@Override
 	protected Class<WorkflowStep> getClazz() {

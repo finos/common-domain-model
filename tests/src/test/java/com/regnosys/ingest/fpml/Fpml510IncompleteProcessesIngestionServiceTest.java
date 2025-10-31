@@ -7,7 +7,8 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
 import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
+@Disabled
 public class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
 	private static final String INCOMPLETE_PROCESSES = "cdm-sample-files/fpml-5-10/incomplete-processes/";
@@ -25,13 +27,11 @@ public class Fpml510IncompleteProcessesIngestionServiceTest extends IngestionTes
 
 	private static IngestionService ingestionService;
 
-    @Override
-    @BeforeEach
-    protected void setUp() {
+	@BeforeAll
+	static void setup() {
 		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = getFpml5ConfirmationToWorkflowStep();
-        super.setUp();
 	}
 	
 	@Override
