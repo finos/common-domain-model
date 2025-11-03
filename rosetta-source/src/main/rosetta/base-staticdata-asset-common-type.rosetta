@@ -27,10 +27,10 @@ type AssetBase : <"The base data type to specify common attributes for all Asset
          if partyRole -> role = Exchange or ancillaryPartyRole filter [ item = Exchange ] exists
                   then isExchangeListed = True
 
-    condition ExchangeListed: <"if isExchange listed is true then partyRole is Exchange.">
+    condition ExchangeListed: <"if isExchangeListed is true then partyRole is Exchange.">
          if isExchangeListed then partyRole -> role = Exchange
 
-    condition RelatedExchange: <"If isExchangeList is false then RelatedExchange ancillaryPartyRole is absent.">
+    condition RelatedExchange: <"If isExchangeListed is false then RelatedExchange ancillaryPartyRole is absent.">
          if isExchangeListed is absent then ancillaryPartyRole -> role any <> RelatedExchange
 
     condition Issuer: <"If the asset type is a security then the role must be issuer.">
@@ -143,7 +143,7 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
         then (taxonomy -> source exists and taxonomy -> value exists)
 
     condition NoCommodityParty:
-        partyRole -> role is absent
+        partyRole is absent
 
     condition AssetType:
         assetType -> assetType = Commodity
