@@ -2,7 +2,7 @@ package org.finos.cdm.ingest.diagnostics;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import fpml.confirmation.custom.ProductChoice;
+import fpml.custom.ProductChoice;
 import org.eclipse.xtext.xbase.lib.StringExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
