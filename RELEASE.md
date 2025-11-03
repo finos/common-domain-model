@@ -16,4 +16,4 @@ This PR introduces a restructuring of `PartyContactInformation` so it is more co
 
 _Review Directions_
 
-Changes can be reviewed in PR: https://github.com/finos/common-domain-model/pull/4020
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
