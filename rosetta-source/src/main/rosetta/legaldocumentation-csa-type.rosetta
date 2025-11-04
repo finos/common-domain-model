@@ -254,7 +254,7 @@ type BespokeTransferTiming: <"A class to specify any bespoke Transfer Timing lan
 
 type CalculationAgentTerms: <"A class to specify Calculation Agent for purposes of Initial or Variation Margin agreements.">
 
-    party CounterpartyRoleEnum (0..2) <"The party which is specified as Calculation Agent for Initial Margin.">
+    party CalculationValuationAgentPartyEnum (0..1) <"The party which is specified as Calculation Agent for Initial Margin.">
     bespokeCalculationAgentTerms string (0..1) <"The Calculation Agent (IM) terms when specified.">
 
     condition:
@@ -265,16 +265,16 @@ type CalculationAndTiming: <"A class to specify the Calculation, Valuation and T
     calculationAgentTerms CalculationAgentTerms (0..1) <"The calculation agent terms applicable to the agreement.">
     bespokeCalculationDate BespokeCalculationDate (0..1) <"The specification of bespoke Calculation Date terms for the purposes of Initial or Variation Margin by the parties to the agreement.">
     bespokeCalculationTime BespokeCalculationTime (0..1) <"Bespoke terms to describe the time as of which such party (or the Calculation Agent (IM) (if applicale)) computes its end of day valuations of derivatives transactions.">
-    calculationDateLocation CalculationDateLocation (0..1) <"The specified location where the credit exposure will be calculated by the respective parties.">
+    calculationDateLocation ValuationCalculationDateLocation (0..1) <"The specified location where the credit exposure will be calculated by the respective parties.">
     notificationTime NotificationTime (1..1) <"The time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions.">
-    collateralValuationAgent CollateralValuationAgent (0..1) <"The bespoke Collateral Valuation Agent terms applicable to the agreement.">
     cashSettlementDay string (0..1)
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "4" clause "(b)(i)"]
     securitiesSettlementDay string (0..1)
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "12"]
-    legacyValuationDate LegacyValuationDate (0..1) <"Details of the days on which calculations are to be made to determine the Delivery Amount and/or Return Amount.">
-    legacyValuationTime LegacyValuationTime (0..1) <"The time by which the value of the collateral and obligations to transfer or return collateral are to be calculated relative to the Valuation Date.">
-    legacyValuationAgent LegacyValuationAgent (0..1) <"Details of the party calculating the value of collateral to be delivered or returned.">
+    valuationDate CSAValuationDate (0..1) <"Details of the days on which calculations are to be made to determine the Delivery Amount and/or Return Amount.">
+    valuationTime ValuationTime (0..1) <"Specifies the time on which the value of collateral or exposure are calculated in accordance with the agreement.">
+    valuationAgent ValuationAgent (0..1) <"Details of the party calculating the value of collateral to be delivered or returned.">
+    valuationDateLocation ValuationCalculationDateLocation (0..1) <"The specified location where the credit exposure will be calculated by the respective parties.">
 
 type CalculationCurrencyElection: <"A class to specify the ISDA SIMM Calculation Currency.">
     [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(ee)(3"]
@@ -288,13 +288,13 @@ type CalculationCurrencyElection: <"A class to specify the ISDA SIMM Calculation
         then currency is absent
         else currency exists
 
-type CalculationDateLocation: <"A class to specify the Calculation Date Location election for the respective parties to the legal agreement.">
+type ValuationCalculationDateLocation: <"Specification of the Calculation Date Location for the respective parties to the legal agreement.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(d)(i)" name "Calculation Date Location"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(e)(i)" name "Calculation Date Location"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(d)(i)" name "Calculation Date Location"]
-    partyElection CalculationDateLocationElection (2..2) <"The parties' calculation date location election.">
+    partyElection ValuationCalculationDateLocationElection (2..2) <"The parties' calculation date location election.">
 
-type CalculationDateLocationElection: <"A class to specify each of the party elections with respect to the Calculation Date Location.">
+type ValuationCalculationDateLocationElection: <"A class to specify each of the party elections with respect to the Calculation Date Location.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(d)(i)" name "Calculation Date Location"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(e)(i)" name "Calculation Date Location"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(d)(i)" name "Calculation Date Location"]
@@ -334,13 +334,6 @@ type CollateralRounding: <"A class to specify the rounding methodology applicabl
     returnDirection RoundingModeEnum (1..1) <"The rounding rule applicable to the Return Amount (which can be (i) up to nearest; (ii) down to nearest).">
     currency ISOCurrencyCodeEnum (1..1) <"The currency in which the Delivery Amount and Return Amount rounding amounts are specified.">
     other string (0..1) <"Utilised where the clause data structure is not able to capture a material aspect of the clause.">
-
-type CollateralValuationAgent: <"A class to specify Collateral Valuation Agent terms.">
-    partyElection CollateralValuationAgentElection (0..2) <"The parties Collateral Valuation Agent Elections.">
-
-type CollateralValuationAgentElection: <"A class to specify Collateral Valuation Agent language.">
-    party CounterpartyRoleEnum (1..1) <"The elective party.">
-    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
 type ConditionsPrecedent: <"A class to specify the two set of elections that may overwrite the default Condition Precedent provision.">
     [docReference ISDA CSA_IM_2016 paragraph "4" clause "(a)"]
@@ -760,10 +753,14 @@ type ProcessAgentElection extends ContactInformationElection: <"Specifies the pa
     additionalInformation string (0..1) <"Additional information relating to the Process Agent.">
 
     condition Applicable: <"A data rule to enforce that the Process Agent details must be specified when it is applicable.">
-        if isApplicable = True then primaryContactInformation exists and entity exists and partyReference exists
+        if isApplicable = True
+        then primaryContactInformation exists and entity exists and partyReference exists
 
     condition NotApplicable: <"A data rule to enforce that the Process Agent details cannot be specified if deemed not applicable.">
-        if isApplicable = False then primaryContactInformation is absent and entity is absent and partyReference is absent
+        if isApplicable = False
+        then primaryContactInformation is absent
+                and entity is absent
+                and partyReference is absent
 
 type RecalculationOfValue: <"A class to specify terms for Recalculation of the Market Value of Posted Collateral when a dispute has been failed to be resolved by Resolution Time.">
 
@@ -1172,7 +1169,7 @@ type LegacyReturnAmount: <"In respect of a Valuation Date, the amount of collate
     legacyReturnAmount LegacyDeliveryReturnAmountEnum (1..1) <"Specifies whether the meaning of Return Amount follows the pre-print definition or deviates from this (either based on a rating or some other methodology).">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
-type LegacyValuationTime: <"The time by which the value of the collateral and obligations to transfer or return collateral are to be calculated relative to the Valuation Date.">
+type ValuationTime: <"Specifies the time by which the value of the collateral and obligations to transfer or return collateral are to be calculated relative to the Valuation Date.">
     day ValuationTimeDayEnum (0..1) <"The day in respect of which the Valuation Time is being specified. If not specified, addional language must be used to define the methodology.">
     location BusinessCenterEnum (0..*) <"The location relevant to the timezone for the Valuation Time.">
     time ValuationTimeEnum (0..1) <"The type of time specified for the Valuation Time.">
@@ -1198,7 +1195,7 @@ type FinalReturns: <"A clause providing that final return collateral is to be pr
     condition AdditionalLanguage: <"The additional language should be qualified only if the clause is specified as applicable.">
         if applicable then additionalLanguage exists
 
-type LegacyValuationDate: <"Details of the days on which calculations are to be made to determine the Delivery Amount and/or Return Amount. For example the language in the document may state 'Valuation Date means each day which is a Local Business Day', to capture this the values would be: Date: EACH, Day: LBD, Frequency: NULL. Alternatively the language may state: 'Valuation Date means the 1st Local Business Day of each week', this would be captured as: Date: 1st, Day: LBD, Frequency: WEEKLY.">
+type CSAValuationDate: <"Specifies the date on which the value of collateral or exposure are calculated in accordance with the agreement.">
     date ValuationDateDateEnum (0..1) <"Defines whether a date is defined by a certain day of the week or a particular date in the month. If not specified here, then additional language must be used.">
     day ValuationDateDayEnum (0..1) <"Specific day(s) or day of the week, if any, specified for Valuation Time.">
     calendarDay number (0..1) <"Defines the day of the calendar if this is specified for in the ValuationDateDateEnum.">
@@ -1214,9 +1211,9 @@ type LegacyValuationDate: <"Details of the days on which calculations are to be 
         if date is absent or frequency is absent
         then additionalLanguage exists
 
-type LegacyValuationAgent: <"Details of the party calculating the value of collateral to be delivered or returned.">
-    party ValuationAgentPartyEnum (0..1) <"The elective party.">
-    valuationAgent LegacyValuationAgentEnum (0..1) <"Specifies how the Valuation Agent is determined.">
+type ValuationAgent: <"Details of the party calculating the value of collateral to be delivered or returned.">
+    party CalculationValuationAgentPartyEnum (0..1) <"Specification of which party calculating the value of collateral to be delivered or returned.">
+    valuationAgent ValuationAgentDeterminationEnum (0..1) <"Specifies how the Valuation Agent is determined.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
     condition AdditionalLanguage: <"If no party is defined, additional language must be used to specify the elective party.">
