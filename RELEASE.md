@@ -12,7 +12,7 @@ This update introduces a restructuring of `PartyContactInformation` so it is mor
 - A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
 - Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
 - Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
-- The same structure is applied to the existing `ProcessAgentElection`, type with an additional attribute to specify the process agent entity and additional information.
+- The same structure is applied to the existing `ProcessAgentElection` type with an additional attribute to specify the process agent entity and additional information.
 
 _Review Directions_
 
