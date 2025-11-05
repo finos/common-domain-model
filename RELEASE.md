@@ -1,4 +1,4 @@
-# Legal Agreement Model - Removal of PartyContactInformation and redefining how contact information is set
+# Legal Agreement Model - Updating PartyContactInformation
 
 _Background_
 
