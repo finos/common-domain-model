@@ -4,6 +4,7 @@ import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToT
 import com.regnosys.rosetta.common.transform.TestPackModel;
 import com.regnosys.testing.transform.TransformTestExtension;
 import org.finos.cdm.CdmRuntimeModuleTesting;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,7 +14,8 @@ import java.util.stream.Stream;
 
 import static com.regnosys.rosetta.common.transform.TestPackUtils.INGEST_CONFIG_PATH;
 
-public class IngestFpmlConfirmationToTradeStateTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class IngestFpmlConfirmationToTradeStateTest {
 
     @RegisterExtension
     static TransformTestExtension<Ingest_FpmlConfirmationToTradeState> testExtension =
