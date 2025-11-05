@@ -261,13 +261,13 @@ func MapTerminationToPrimitiveInstruction:
                                 counterpartyList
                             )
                 },
-            quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
-                    extract
-                        QuantityChangeInstruction {
-                            change: MapPriceQuantity(termination),
-                            direction: if exists then Replace,
-                            ...
-                        },
+            quantityChange: 
+                if termination exists
+                    then QuantityChangeInstruction {
+                        change: MapPriceQuantity(termination),
+                        direction: Replace,
+                        ...
+                    },
             transfer:
                 TransferInstruction {
                     transferState:
