@@ -6,37 +6,39 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
 
 import static com.regnosys.ingest.IngestionEnvUtil.getFpml5ConfirmationToWorkflowStep;
 
-public class Fpml513ProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class Fpml513ProcessesIngestionServiceTest extends IngestionTest<WorkflowStep> {
 
-	private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/processes/";
+    private static final String BASE_DIR = "cdm-sample-files/fpml-5-13/processes/";
 
-	private static IngestionService ingestionService;
+    private static IngestionService ingestionService;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		ingestionService = getFpml5ConfirmationToWorkflowStep();
-	}
-	
-	@Override
-	protected Class<WorkflowStep> getClazz() {
-		return WorkflowStep.class;
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        ingestionService = getFpml5ConfirmationToWorkflowStep();
+    }
 
-	@Override
-	protected IngestionService ingestionService() {
-		return ingestionService;
-	}
+    @Override
+    protected Class<WorkflowStep> getClazz() {
+        return WorkflowStep.class;
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFromPath(BASE_DIR);
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return ingestionService;
+    }
+
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFromPath(BASE_DIR);
+    }
 }

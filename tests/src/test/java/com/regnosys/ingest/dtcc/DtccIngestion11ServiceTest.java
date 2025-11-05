@@ -9,43 +9,42 @@ import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.provider.Arguments;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.stream.Stream;
 
-class DtccIngestion11ServiceTest  extends IngestionTest<WorkflowStep> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DtccIngestion11ServiceTest.class);
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class DtccIngestion11ServiceTest extends IngestionTest<WorkflowStep> {
 
-	private static final String DTCC_11_0_FILES_DIR = "cdm-sample-files/dtcc-11-0/";
+    private static final String DTCC_11_0_FILES_DIR = "cdm-sample-files/dtcc-11-0/";
 
-	private static ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
-			.add(Resources.getResource(DTCC_11_0_FILES_DIR + "expectations.json"))
-			.build();
+    private static final ImmutableList<URL> EXPECTATION_FILES = ImmutableList.<URL>builder()
+            .add(Resources.getResource(DTCC_11_0_FILES_DIR + "expectations.json"))
+            .build();
 
-	private static IngestionService dtcc11IngestionService;
+    private static IngestionService dtcc11IngestionService;
 
-	@BeforeAll
-	static void setup() {
-		CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
-		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
-		dtcc11IngestionService = IngestionFactory.getInstance().getDtcc11();
-	}
-	
-	@Override
-	protected Class<WorkflowStep> getClazz() {
-		return WorkflowStep.class;
-	}
+    @BeforeAll
+    static void setup() {
+        CdmRuntimeModule runtimeModule = new CdmRuntimeModule();
+        initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
+        dtcc11IngestionService = IngestionFactory.getInstance().getDtcc11();
+    }
 
-	@Override
-	protected IngestionService ingestionService() {
-		return dtcc11IngestionService;
-	}
+    @Override
+    protected Class<WorkflowStep> getClazz() {
+        return WorkflowStep.class;
+    }
 
-	@SuppressWarnings("unused")//used by the junit parameterized test
-	private static Stream<Arguments> fpMLFiles() {
-		return readExpectationsFrom(EXPECTATION_FILES);
-	}
+    @Override
+    protected IngestionService ingestionService() {
+        return dtcc11IngestionService;
+    }
+
+    @SuppressWarnings("unused")//used by the junit parameterized test
+    private static Stream<Arguments> fpMLFiles() {
+        return readExpectationsFrom(EXPECTATION_FILES);
+    }
 }
