@@ -29,7 +29,7 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                                 UpdateQuantityAmountForEachMatchingQuantity(
                                         item,
                                         change, // FilterChangePriceQuantity(priceQuantity, change),
-                                                // PriceQuantity used as input to keep the quantity and effectiveDate linked
+                                        // PriceQuantity used as input to keep the quantity and effectiveDate linked
                                         direction
                                     ),
                     observable: priceQuantity -> observable,
@@ -86,23 +86,31 @@ func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from th
 
     alias changeMatching:
         change
-         filter UnitEquals(item -> quantity first -> unit, quantity -> unit)
+            filter UnitEquals(item -> quantity first -> unit, quantity -> unit)
             then first
 
     alias changedAmount:
-        UpdateAmount(quantity -> value, changeMatching -> quantity only-element -> value, direction)
+        UpdateAmount(
+                quantity -> value,
+                changeMatching -> quantity only-element -> value,
+                direction
+            )
 
     alias changeEffectiveDate:
         AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
-        //ResolveAdjustableDate(changeMatching -> effectiveDate)
-        // TODO uncomment usage once function is available
-
+    // ResolveAdjustableDate(changeMatching -> effectiveDate)
+    // TODO uncomment usage once function is available
     alias changedDatedValue:
-        UpdateDatedValues(quantity -> datedValue, changeMatching -> quantity only-element -> value, direction,  changeEffectiveDate)
+        UpdateDatedValues(
+                quantity -> datedValue,
+                changeMatching -> quantity only-element -> value,
+                direction,
+                changeEffectiveDate
+            )
 
     set updatedQuantity: quantity
     set updatedQuantity -> value: changedAmount default quantity -> value
-    set updatedQuantity -> datedValue : changedDatedValue  default quantity -> datedValue
+    set updatedQuantity -> datedValue: changedDatedValue default quantity -> datedValue
 
 func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes match, except for the amount.">
     inputs:

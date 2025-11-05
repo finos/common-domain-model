@@ -1,8 +1,10 @@
-# *CDM Event Model - Termination for Schedules*
+# *Event Model - Termination for Schedules*
 
 _Background_
 
-When a termination applies to a quantity schedule, all the dated values from the effective period onwards should be set to zero.
+Previously, when a termination applied to a quantity schedule, the model did not correctly update all dated values following the termination’s effective period. As a result, quantities after the termination date could still retain non-zero values.
+
+To address this, the logic has been improved so that any dated values from the effective period onward are correctly set to zero when a termination occurs.
 
 _What is being released?_
 
@@ -16,4 +18,4 @@ The mapping from the FpML termination effective date has been added to the funct
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4123](https://github.com/finos/common-domain-model/pull/4123)
+Changes can be reviewed in PR: [#4144](https://github.com/finos/common-domain-model/pull/4144)

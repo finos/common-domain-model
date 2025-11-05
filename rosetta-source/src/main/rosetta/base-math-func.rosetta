@@ -143,17 +143,19 @@ func UpdateDatedValues: <"Updates the amounts of the dated values based on the g
         newdatedValues DatedValue (0..*)
 
     add newdatedValues:
-    datedValues
-        extract
-            DatedValue {
-                date:  item -> date,
-                value:
-                if item -> date >= effectiveDate then (
-                if direction = QuantityChangeDirectionEnum -> Increase then item -> value + changeAmount
-                else if direction = QuantityChangeDirectionEnum -> Decrease then item -> value - changeAmount
-                else if direction = QuantityChangeDirectionEnum -> Replace then changeAmount)
-                else item -> value
-            }
+        datedValues
+            extract
+                DatedValue {
+                    date: item -> date,
+                    value: if item -> date >= effectiveDate
+                            then (if direction = QuantityChangeDirectionEnum -> Increase
+                            then item -> value + changeAmount
+                            else if direction = QuantityChangeDirectionEnum -> Decrease
+                            then item -> value - changeAmount
+                            else if direction = QuantityChangeDirectionEnum -> Replace
+                            then changeAmount)
+                        else item -> value
+                }
 
 func FilterQuantity: <"Filter list of quantities based on unit type.">
     inputs:
