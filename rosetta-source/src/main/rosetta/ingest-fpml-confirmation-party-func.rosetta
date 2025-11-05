@@ -257,7 +257,17 @@ func MapPartyReference:
     inputs:
         fpmlPartyHref string (0..1)
     output:
-        partyReference Party (0..1)
+        partyReference LegalPerson (0..1)
+            [metadata reference]
+
+    set partyReference -> reference:
+        if fpmlPartyHref exists then fpmlPartyHref
+
+func MapLEgalEntityFromFpmlPartyHRef:
+    inputs:
+        fpmlPartyHref string (0..1)
+    output:
+        partyReference LegalEntity (0..1)
             [metadata reference]
 
     set partyReference -> reference:
@@ -267,7 +277,7 @@ func MapPartyList:
     inputs:
         fpmlParties fpml.Party (0..*)
     output:
-        partyList Party (0..*)
+        partyList LegalPerson (0..*)
 
     add partyList: fpmlParties extract MapParty
 
@@ -275,39 +285,57 @@ func MapParty:
     inputs:
         fpmlParty fpml.Party (0..1)
     output:
-        party Party (0..1)
+        party LegalPerson (0..1)
 
     alias partyModel: fpmlParty -> partyModel
     alias partyName: partyModel -> partyName
 
     set party:
-        Party {
-            partyId: partyModel -> partyId extract MapPartyIdentifier,
-            name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
-            businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
-            person: partyModel -> person extract MapNaturalPerson,
-            personRole: empty, // MapNaturalPersonRoleList(empty),
-            account: empty, // MapAccount(empty),
-            contactInformation: MapContactInformation(partyModel -> contactInfo)
-        }
+        LegalPerson {
+            organisation: Organisation{
+                identifier: partyModel -> partyId extract MapEntityIdentifier,
+                name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
+                businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
+                naturalPerson: partyModel -> person extract
+                    NaturalPersonRole {
+                    personReference: MapNaturalPerson(item),
+                    role: empty, // MapNaturalPersonRoleList(empty),
+                    },
+                contactInformation: MapContactInformation(partyModel -> contactInfo)
+        },  
+            naturalPerson: MapNaturalPerson(partyModel -> person only-element)}
             with-meta {
                 key: fpmlParty -> id
             }
 
-func MapPartyIdentifier:
+func MapEntityIdentifier:
     inputs:
         fpmlPartyIdentifier fpml.PartyId (0..1)
     output:
-        partyIdentifier PartyIdentifier (0..1)
+        partyIdentifier EntityIdentifier (0..1)
 
     set partyIdentifier:
-        PartyIdentifier {
+        EntityIdentifier {
             identifier: MapStringWithScheme(
                     fpmlPartyIdentifier -> value,
                     fpmlPartyIdentifier -> partyIdScheme
                 ),
-            identifierType: MapPartyIdentifierTypeEnum(fpmlPartyIdentifier -> partyIdScheme)
+            identifierType: MapEntityIdentifierTypeEnum(fpmlPartyIdentifier -> partyIdScheme)
         }
+
+func MapEntityIdentifierTypeEnum:
+    inputs:
+        value string (0..1)
+    output:
+        result EntityIdentifierTypeEnum (0..1)
+    set result:
+        value switch
+            "http://www.fpml.org/coding-scheme/external/iso17442" then LEI,
+            "http://www.fpml.org/coding-scheme/external/iso9362" then BIC,
+            "http://www.fpml.org/coding-scheme/external/iso10383" then MIC,
+            "http://www.fpml.org/spec/2003/instrument-id-RED-pair" then RED,
+            "http://www.fpml.org/coding-scheme/external/iso3166" then CountryCode,
+            default empty
 
 func MapBusinessUnit:
     inputs:
@@ -437,22 +465,23 @@ func MapPartyRoleList:
     inputs:
         fpmlTrade fpml.Trade (0..1)
     output:
-        partyRoleList PartyRole (0..*)
+        partyRoleList Party (0..*)
 
     add partyRoleList:
         fpmlTrade -> determiningParty
             extract
-                PartyRole {
-                    partyReference: MapPartyReference(href),
+                Party {
+                    legalPerson: MapPartyReference(href),
                     role: DeterminingParty,
+                    account: empty, // MapAccount(empty),
                     ...
                 }
 
     add partyRoleList:
         fpmlTrade -> barrierDeterminationAgent
             extract
-                PartyRole {
-                    partyReference: MapPartyReference(href),
+                Party {
+                    legalPerson: MapPartyReference(href),
                     role: BarrierDeterminationAgent,
                     ...
                 }
@@ -460,8 +489,8 @@ func MapPartyRoleList:
     add partyRoleList:
         fpmlTrade -> hedgingParty
             extract
-                PartyRole {
-                    partyReference: MapPartyReference(href),
+                Party {
+                    legalPerson: MapPartyReference(href),
                     role: HedgingParty,
                     ...
                 }
@@ -469,8 +498,8 @@ func MapPartyRoleList:
     add partyRoleList:
         fpmlTrade -> brokerPartyReference
             extract
-                PartyRole {
-                    partyReference: MapPartyReference(href),
+                Party {
+                    legalPerson: MapPartyReference(href),
                     role: ArrangingBroker,
                     ...
                 }
@@ -484,21 +513,22 @@ func MapRelatedPartyToPartyRole:
     inputs:
         fpmlPartyTradeInformation fpml.PartyTradeInformation (0..1)
     output:
-        partyRole PartyRole (0..*)
+        partyRole Party (0..*)
 
     alias relatedParties: fpmlPartyTradeInformation -> relatedParty
 
     add partyRole:
         relatedParties
             extract
-                PartyRole {
-                    partyReference: MapPartyReference(
+                Party {
+                    legalPerson: MapPartyReference(
                             partyAndAccountReferencesModel -> partyReference -> href
                         ),
                     role: role -> value to-enum PartyRoleEnum,
                     ownershipPartyReference: MapPartyReference(
                             fpmlPartyTradeInformation -> partyAndAccountReferencesModel -> partyReference -> href
-                        )
+                        ),
+                    ...
                 }
 
 func MapAccountList:
@@ -608,7 +638,7 @@ func MapAccount:
             accountBeneficiary: MapPartyReference(
                     fpmlAccount -> accountSequence -> accountBeneficiary -> href
                 ),
-            servicingParty: MapPartyReference(fpmlAccount -> servicingParty -> href)
+            servicingParty: MapLEgalEntityFromFpmlPartyHRef(fpmlAccount -> servicingParty -> href)
         }
             with-meta {
                 key: fpmlAccount -> id
@@ -619,7 +649,7 @@ func MapPayerReceiverToAccountPartyReference:
         fpmlAccount fpml.Account (0..1)
         fpmlPayerReceiverModelList fpml.PayerReceiverModel (0..*)
     output:
-        partyReference Party (0..1)
+        partyReference LegalPerson (0..1)
             [metadata reference]
 
     alias payerPartyReference:
@@ -645,7 +675,7 @@ func MapBuyerSellerToAccountPartyReference:
         fpmlAccount fpml.Account (0..1)
         fpmlBuyerSellerModelModelList fpml.BuyerSellerModel (0..*)
     output:
-        partyReference Party (0..1)
+        partyReference LegalPerson (0..1)
             [metadata reference]
 
     alias buyerPartyReference:
@@ -677,9 +707,17 @@ func MapLegalEntity:
 
     set legalEntity:
         LegalEntity {
-            entityId: [entityIdFromLegalEntitySequence, entityIdFromLegalEntity],
+            identifier: [entityIdFromLegalEntitySequence, entityIdFromLegalEntity] then extract
+            EntityIdentifier {
+            identifier: MapStringWithScheme(
+                    item,
+                    item -> scheme
+                ),
+            identifierType: MapEntityIdentifierTypeEnum(item -> scheme)
+        },
             name: fpmlLegalEntity -> legalEntitySequence -> entityName
                 extract MapStringWithScheme(value, entityNameScheme),
+                contactInformation: empty // TH: ContactInformation empty, as fpml.LegalEntity does not contain this information
         }
     set legalEntity -> key: fpmlLegalEntity -> id
 

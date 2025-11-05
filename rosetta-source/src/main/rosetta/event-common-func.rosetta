@@ -451,8 +451,6 @@ func Create_Execution: <"Specifies the function to compose an execution based on
         instruction -> ancillaryParty
     add execution -> trade -> party: <"Assign the parties input to the execution object.">
         instruction -> parties
-    add execution -> trade -> partyRole: <"Assign the party roles input to the execution object.">
-        instruction -> partyRoles
     set execution -> trade -> executionDetails: <"Assign the settlement terms input to the execution object.">
         instruction -> executionDetails
     set execution -> trade -> tradeDate: <"Assign the tradeDate input to the execution object.">
@@ -525,7 +523,6 @@ func Create_Exercise: <"Defines the process of putting into effect the rights sp
                     counterparty: originalTrade -> trade -> counterparty,
                     ancillaryParty: originalTrade -> trade -> ancillaryParty,
                     parties: originalTrade -> trade -> party,
-                    partyRoles: originalTrade -> trade -> partyRole,
                     executionDetails: empty,
                     tradeDate: originalTrade -> trade -> tradeDate,
                     tradeIdentifier: exerciseInstruction -> replacementTradeIdentifier,
@@ -869,7 +866,7 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
     inputs:
         counterparty Counterparty (1..1) <"The counterparty to change and the role it plays in the transaction.">
         ancillaryParty AncillaryParty (0..1) <"Optional ancillary party, which can be used to keep a reference to the original executing party, for instance.">
-        partyRole PartyRole (0..1)
+        party Party (0..1)
         tradeId TradeIdentifier (1..*) <"A mandatory trade identifier must be specified, as the chnage of party results in a new trade.">
         originalTrade TradeState (1..1) <"The original trade on which to update the counterparty. The original trade will be terminated.">
     output:
@@ -909,18 +906,20 @@ func Create_PartyChange: <"Defines the logic for changing one of the counterpart
         ReplaceParty(
                 originalTrade -> trade -> party,
                 partyToRemove,
-                counterparty -> partyReference
+                party
             )
     set newTrade -> trade -> tradeIdentifier: <"Replaces the existing trade identifier with the new trade identifier">
         tradeId
     add newTrade -> trade -> party: <"Add ancillary party as an additional party">
-        ancillaryParty -> partyReference
+        ancillaryParty -> partyReference then
+            Party {
+                    legalPerson: item,
+                    role: empty,
+                    ...
+                }
     add newTrade -> trade -> ancillaryParty: <"Add ancillary party role">
         ancillaryParty
-    add newTrade -> trade -> party: <"Add party role party reference as an additional party">
-        partyRole -> partyReference
-    add newTrade -> trade -> partyRole: <"Add party role">
-        partyRole
+
     set newTrade -> transferHistory: <"Clear transfer history.">
         EmptyTransferHistory()
 
@@ -1645,7 +1644,6 @@ func Create_PairOffInstruction: <"Creates a set of instructions to pair-off a se
                                     counterparty: item -> trade -> counterparty,
                                     ancillaryParty: item -> trade -> ancillaryParty,
                                     parties: item -> trade -> party,
-                                    partyRoles: item -> trade -> partyRole,
                                     executionDetails: Create_PackageExecutionDetails(
                                                 item -> trade -> executionDetails,
                                                 pairReference,
@@ -1688,7 +1686,6 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
                             counterparty: tradeState -> trade -> counterparty,
                             ancillaryParty: tradeState -> trade -> ancillaryParty,
                             parties: tradeState -> trade -> party,
-                            partyRoles: tradeState -> trade -> partyRole,
                             executionDetails: Create_PackageExecutionDetails(
                                         tradeState -> trade -> executionDetails,
                                         shapeIdentifier,

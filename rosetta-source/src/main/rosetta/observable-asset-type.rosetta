@@ -14,7 +14,7 @@ import cdm.product.asset.*
 type IndexBase extends AssetBase: <"Identifies an index by referencing an identifier.">
     name string (0..1) <"A description of the Index.">
         [metadata scheme]
-    provider LegalEntity (0..1) <"The organisation that creates or maintains the Index.">
+    provider LegalPerson (0..1) <"The organisation that creates or maintains the Index.">
     assetClass AssetClassEnum (0..1) <"The Asset Class of the Index.">
 
 choice Index: <"An Index is an Observable which is computed based on the prices, rates or valuations of a number of assets that are tracked in a standardized way.  Examples include equity market indices as well as indices on interest rates, inflation and credit instruments.">
@@ -451,7 +451,7 @@ type ValuationSource: <"A class describing the method for obtaining a settlement
     informationSource FxSpotRateSource (0..1) <"The information source where a published or displayed market rate will be obtained, e.g. Telerate Page 3750.">
     settlementRateOption SettlementRateOption (0..1) <"The rate option to use for the fixing. Currently only applicable to foreign exchange fixing in case of cross-currency settlement.">
     referenceBanks ReferenceBanks (0..1) <"A container for a set of reference institutions that may be called upon to provide rate quotations as part of the method to determine the applicable cash settlement amount. If institutions are not specified, it is assumed that reference institutions will be agreed between the parties on the exercise date, or in the case of swap transaction to which mandatory early termination is applicable, the cash settlement valuation date.">
-    dealerOrCCP AncillaryEntity (0..1) <"Holds an identifier for the reference entity that is agreed by both parties as a basis for cash settlement calculations. This could be a dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement in a credit event. ISDA 2003 Term: Dealer. This could be the clearing organization (CCP, DCO) to which the trade should be cleared, as applicable for cash-settled swaptions.">
+    dealerOrCCP LegalEntity (0..1) <"Holds an identifier for the reference entity that is agreed by both parties as a basis for cash settlement calculations. This could be a dealer from whom quotations are obtained by the calculation agent on the reference obligation for purposes of cash settlement in a credit event. ISDA 2003 Term: Dealer. This could be the clearing organization (CCP, DCO) to which the trade should be cleared, as applicable for cash-settled swaptions.">
 
     condition InformationSource: <"An information source must be provided.">
         required choice informationSource, settlementRateOption, referenceBanks, dealerOrCCP
@@ -474,7 +474,7 @@ type ValuationMethod: <"Specifies the parameters required to obtain a valuation,
 
     condition Dealer: <"When a quotation amount is specified, the dealer from which to obtain the quotation must be specified in the valuation source. This is typically applicable to determine the recovery amount in a credit event.">
         if quotationAmount exists or minimumQuotationAmount exists
-        then valuationSource -> dealerOrCCP -> legalEntity exists
+        then valuationSource -> dealerOrCCP exists
 
 type CashCollateralValuationMethod: <"This type is a generic structure that can represent the parameters of several mid-market valuation and replacement value methods described in the 2021 ISDA Definitions.">
     applicableCsa CsaTypeEnum (0..1) <"This may be used to specify what type of CSA (credit support annex/agreement) is to be used for cash settlement purposes.">

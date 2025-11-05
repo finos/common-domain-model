@@ -24,8 +24,7 @@ type CounterpartyPosition extends ContractBase: <"A Position describes the accum
     openDateTime dateTime (0..1) <"The date and time when the position was opened.">
     tradeReference TradeState (0..*) <"Reference to all the trades that constitute the position.">
         [metadata reference]
-    party Party (0..*) <"The parties involved in the position, including the Clearing Organization.">
-    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the position.">
+    party Party (0..*) <"The parties involved in the position, including the Clearing Organization, and the role each specified party takes in the position.">
     positionBase TradableProduct (1..1) <"Encapsulates the core constituents that characterize a position.">
 
 type PositionBase: <"Base class to describe a Position, which could be a group of products (e.g. trade portfolio) or a group of assets (e.g. collateral portfolio).">
@@ -59,7 +58,7 @@ type AggregationParameters: <" Parameters to be used to filter events that are r
     dateTime zonedDateTime (1..1) <"To aggregate as of a particular date">
     totalPosition boolean (0..1) <"Specifies whether to calculate total position to given date, or only daily position for the given date.">
     positionStatus PositionStatusEnum (0..1) <"To aggregate based on position status (EXECUTED, SETTLED etc)">
-    party Party (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
+    party LegalPerson (0..*) <"To aggregate based on a selection of party(ies) / legal entity(ies).">
         [metadata reference]
     product NonTransferableProduct (0..*) <"To aggregate based on a selection of products.">
     productQualifier string (0..*) <"To aggregate based on a selection of product type(s).">
@@ -81,20 +80,19 @@ type AvailableInventory: <"A data type that can be used to describe the inventor
     [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1) <"Defines the purpose of this inventory.">
     messageInformation MessageInformation (0..1) <"Allows details related to the availability messaging use case to be defined">
-    party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
-    partyRole PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the inventory.">
+    party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory and the roles they may have in relation to the inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
     availableInventoryRecord AvailableInventoryRecord (0..*) <"An array holding the list of inventory being described. Each element in the inventoryRecord array represents an individual piece of inventory i.e. a security.">
 
     condition ValidPartyRole: <"Restrict roles to be only those that would be associated to the overall list of availability">
         IsValidPartyRole(
-                partyRole,
+                party,
                 [PartyRoleEnum -> AgentLender, PartyRoleEnum -> BeneficialOwner, PartyRoleEnum -> Borrower, PartyRoleEnum -> Custodian, PartyRoleEnum -> Lender]
             )
 
 type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of available inventory. This represents a single security and its associated criteria. The criteria are used to describe any restrictions on the securities.">
     expirationDateTime zonedDateTime (0..1) <"There may be a set period/time restriction associated to the security.">
     collateral CollateralProvisions (0..*) <"The type of collateral can often be required when determining if the piece of availability being described is suitable for a party.">
-    partyRole PartyRole (0..*) <"An individual security may be held by several agents. Including the party role at this level allows us to reference the party holding this specific item.">
+    partyRole Party (0..*) <"An individual security may be held by several agents. Including the party role at this level allows us to reference the party holding this specific item.">
     quantity Quantity (0..1) <"The quantity of the security">
     interestRate Price (0..1) <"An optional element which can be used to hold a rate associated to this piece of availability.">
 

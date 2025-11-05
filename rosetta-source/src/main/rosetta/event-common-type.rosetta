@@ -86,8 +86,7 @@ type ExecutionInstruction: <"Specifies instructions for execution of a transacti
     priceQuantity PriceQuantity (1..*) <"Defines the prices (e.g. spread, equity price, FX rate), quantities (e.g. currency amount, no. shares) and settlement terms (e.g. initial fee, broker fee, up-front cds payment or option premium settlement) associated with the constituents of the transacted product.">
     counterparty Counterparty (2..2) <"Maps two defined parties to counterparty enums for the transacted product.">
     ancillaryParty AncillaryParty (0..*) <"Maps any ancillary parties, e.g. parties involved in the transaction that are not one of the two principal parties.">
-    parties Party (2..*) <"Defines all parties to that execution, including agents and brokers.">
-    partyRoles PartyRole (0..*) <"Defines the role(s) that party(ies) may have in relation to the execution.">
+    parties Party (2..*) <"Defines all parties to that execution, including agents and brokers, abd the role(s) that party(ies) may have in relation to the execution.">
     executionDetails ExecutionDetails (1..1) <"Specifies the type and venue of execution, e.g. via voice, or electronically.">
     tradeDate date (1..1) <"Denotes the trade/execution date.">
         [metadata id]
@@ -154,7 +153,7 @@ type SplitInstruction: <"Specifies instructions for a split, consisting of a bre
 type PartyChangeInstruction: <"Specifies instruction to change the party on a trade. This primitive instruction is used in a number of scenarios including: clearing, allocation and novation. The instrution must include a trade identifier, because a change of party effectively results in a different trade.">
     counterparty Counterparty (1..1) <"The new counterparty who is stepping into the trade. The stepping out counterparty is inferred based on the counterparty role that is being updated.">
     ancillaryParty AncillaryParty (0..1) <"Specifies an ancillary party to be added onto the new transaction, e.g. the original executing party in an allocation.">
-    partyRole PartyRole (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
+    partyRole Party (0..1) <"Specifies an additional party roles to be added on to the new transaction.">
     tradeId TradeIdentifier (1..*) <"The identifier to be assigned to the new trade post change of party.">
 
 type TradeState: <"Defines the fundamental financial information that can be changed by a Primitive Event and by extension any business or life-cycle event. Each TradeState specifies where a Trade is in its life-cycle. TradeState is a root type and as such, can be created independently to any other CDM data type, but can also be used as part of the CDM Event Model.">
@@ -260,8 +259,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         [metadata id]
     tradeTime TimeZone (0..1) <"Denotes the trade time and timezone as agreed by the parties to the trade.">
         [metadata id]
-    party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent.">
-    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the trade. further to the principal roles, payer and receiver.">
+    party Party (0..*) <"Represents the parties to the trade. The cardinality is optional to address the case where the trade is defined within a BusinessEvent data type, in which case the party is specified in BusinessEvent. It includes the the role each specified party takes in the trade further to the principal roles, payer and receiver.">
     executionDetails ExecutionDetails (0..1) <"Represents information specific to trades that arose from executions.">
     contractDetails ContractDetails (0..1) <"Represents information specific to trades involving contractual products.">
     clearedDate date (0..1) <"Specifies the date on which a trade is cleared (novated) through a central counterparty clearing service.">
@@ -272,8 +270,8 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
 
     condition SettlementPayout: <"When the product uses a settlement payout, both buyer and seller party roles, and a price, must exist.">
         if SettlementPayoutOnlyExists(product -> economicTerms -> payout)
-        then partyRole -> role contains PartyRoleEnum -> Buyer
-                and partyRole -> role contains PartyRoleEnum -> Seller
+        then party -> role contains PartyRoleEnum -> Buyer
+                and party -> role contains PartyRoleEnum -> Seller
                 and tradeLot -> priceQuantity -> price exists
 
     condition PackageTrade: <"When the trade is part of a package as specified in the execution details, the trade identifier must be found as one of the package components.">
@@ -359,16 +357,16 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> impliedWritedown exists)
 
     condition HedgingParty: <"FpML specifies that there cannot be more than 2 hedging parties.">
-        if partyRole -> role contains PartyRoleEnum -> HedgingParty
-        then FilterPartyRole(partyRole, PartyRoleEnum -> HedgingParty) count <= 2
+        if party -> role contains PartyRoleEnum -> HedgingParty
+        then FilterPartyRole(party, PartyRoleEnum -> HedgingParty) count <= 2
 
     condition DeterminingParty: <"FpML specifies that there cannot be more than 2 determining parties.">
-        if partyRole -> role contains PartyRoleEnum -> DeterminingParty
-        then FilterPartyRole(partyRole, PartyRoleEnum -> DeterminingParty) count <= 2
+        if party -> role contains PartyRoleEnum -> DeterminingParty
+        then FilterPartyRole(party, PartyRoleEnum -> DeterminingParty) count <= 2
 
     condition BarrierDerterminationAgent: <"FpML specifies that there cannot be more than 1 barrier determination agent.">
-        if partyRole -> role contains PartyRoleEnum -> BarrierDeterminationAgent
-        then FilterPartyRole(partyRole, PartyRoleEnum -> BarrierDeterminationAgent) count <= 1
+        if party -> role contains PartyRoleEnum -> BarrierDeterminationAgent
+        then FilterPartyRole(party, PartyRoleEnum -> BarrierDeterminationAgent) count <= 1
 
     condition ClearedDate: <"If the cleared date exists, it needs to be on or after the trade date.">
         if clearedDate exists then clearedDate >= tradeDate
@@ -584,15 +582,6 @@ type Merger: <"Defines the underlier for both the Purchaser Company and the Acqu
         purchaserSecurity -> instrumentType = InstrumentTypeEnum -> Equity
             and acquiredSecurity -> instrumentType = InstrumentTypeEnum -> Equity
 
-type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
-    alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
-    clearingParty Party (1..1) <"The Central Counter party (CCP) that the contract will be submitted to for clearing.">
-    party1 Party (1..1) <"First party facing the CCP if it is clearing for its own account.">
-    party2 Party (1..1) <"Second party facing the CCP if it is clearing for its own account.">
-    clearerParty1 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party1.">
-    clearerParty2 Party (0..1) <"Optional party facing the CCP, acting as clearing member for party2.">
-    isOpenOffer boolean (0..1) <"Open Offer">
-
 type ExerciseEvent: <"A data defining:  the adjusted dates associated with a particular exercise event.">
     [deprecated]
     [metadata key]
@@ -609,16 +598,16 @@ type ReturnInstruction: <"Specifies the information required to create the retur
 type SecurityLendingInvoice: <"Specifies the information required for inclusion in a securities lending billing invoice.">
     [rootType]
     [metadata key]
-    sendingParty Party (1..1) <"The party issuing the invoice">
-    receivingParty Party (1..1) <"The party receiving the invoice">
+    sendingParty LegalPerson (1..1) <"The party issuing the invoice">
+    receivingParty LegalPerson (1..1) <"The party receiving the invoice">
     billingStartDate date (1..1) <"The starting date of the period described by this invoice">
     billingEndDate date (1..1) <"The ending date of the period described by this invoice">
     billingRecord BillingRecord (1..*) <"The billing records contained within the invoice">
     billingSummary BillingSummary (1..*) <"The billing summaries contained within the invoice">
 
 type BillingInstruction: <"Specifies the instructions for creation of a Security Lending billing invoice.">
-    sendingParty Party (1..1) <"The party issuing the invoice">
-    receivingParty Party (1..1) <"The party receiving the invoice">
+    sendingParty LegalPerson (1..1) <"The party issuing the invoice">
+    receivingParty LegalPerson (1..1) <"The party receiving the invoice">
     billingStartDate date (1..1) <"The starting date of the period described by this invoice">
     billingEndDate date (1..1) <"The ending date of the period described by this invoice">
     billingRecordInstruction BillingRecordInstruction (1..*) <"Instructions for creating the billing records contained within the invoice">
@@ -669,9 +658,7 @@ type TradePricingReport: <"The attributes that are specific for consensus based 
 
 type MarginCallBase: <"Represents common attributes required for Issuance and Response to a Margin Call action as a result of a demand for delivery or return of collateral determined under a legal agreement such as a credit support document or equivalent.">
     instructionType MarginCallInstructionType (1..1) <"Identifies the enumeration values to specify the call notification type, direction, specific action type.">
-    party Party (0..*) <"Represents the parties to the margin call. The cardinality is optional to address the case where both parties of the event are specified and a third party if applicable.">
-    partyRole PartyRole (0..*) <"Represents the role each specified party takes in the margin call. further to the principal roles, payer and receiver.">
-    clearingBroker Party (0..1) <"Indicates the name of the Clearing Broker FCM/DCM.">
+    party Party (0..*) <"Represents the parties to the margin call and the role each specified party takes in the margin call, further to the principal roles, payer and receiver. The cardinality is optional to address the case where both parties of the event are specified and a third party if applicable.">
     callIdentifier Identifier (0..1) <"Represents a unique Identifier for a margin call message, that can be referenced throughout all points of the process.">
     callAgreementType AgreementName (1..1) <"Specifies the legal agreement type the margin call is generated from and governed by.">
     agreementMinimumTransferAmount Money (0..1) <"Specifies the collateral legal agreement minimum transfer amount in base currency.">
