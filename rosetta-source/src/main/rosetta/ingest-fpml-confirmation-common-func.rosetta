@@ -513,20 +513,19 @@ func MapExerciseTerms:
                 )
 
     set exerciseTerms:
-        ToExerciseChoice(fpmlExercise)
-            switch
-        EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
-        EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
-        AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
-        EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
-        CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
-        FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
-        FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
-        default empty
+        fpmlExercise switch
+            fpml.EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
+            default empty
 
 func MapExerciseProcedure:
     inputs:
@@ -925,15 +924,13 @@ func GetPerUnitOfForEquityDerivativeBase:
     output:
         perUnitOf UnitType (0..1)
 
-    alias assetChoice:
-        ToAssetChoice(
-                fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
-            )
+    alias fpmlUnderlyingAsset:
+        fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
 
     alias financialUnit:
-        assetChoice switch
-        Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
-        default FinancialUnitEnum -> Share
+        fpmlUnderlyingAsset switch
+            fpml.Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
+            default FinancialUnitEnum -> Share
 
     set perUnitOf:
         UnitType {

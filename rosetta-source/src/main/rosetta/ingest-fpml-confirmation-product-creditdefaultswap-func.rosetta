@@ -532,10 +532,7 @@ func MapFeeLegToInterestRateLegPayout:
     alias floatingAmountCalculation:
         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation
 
-    alias rateChoice:
-        ToRateChoice(
-                fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate
-            )
+    alias fpmlFloatingRate: fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate
 
     set payout:
         Payout {
@@ -569,16 +566,12 @@ func MapFeeLegToInterestRateLegPayout:
                                                             fpmlFeeLeg
                                                         )
                             }},
-                            FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
-                                    then MapFloatingRateSpecification(
-                                            rateChoice -> FloatingRateCalculation,
+                            FloatingRateSpecification: if fpmlFloatingRate exists 
+                                        then MapFloatingRateSpecification(
+                                            fpmlFloatingRate,
                                             fpmlFeeLeg
                                         ),
-                            InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
-                                    then MapInflationRateSpecification(
-                                            rateChoice -> InflationRateCalculation,
-                                            fpmlFeeLeg
-                                        )
+                                        ...
                         },
                     dayCountFraction: MapDayCountFractionEnum(
                                 fixedAmountCalculation -> dayCountFraction -> value
