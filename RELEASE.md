@@ -8,7 +8,7 @@ Furthermore, `PartyContactInformation` is used inconsistently across the model. 
 
 _What is being released?_
 
-This update removes `PartyContactInformation` and redefines how the contact information is set in a more constistent and reusable way. 
+This update removes `PartyContactInformation` and redefines how the contact information is set in a more consistent and reusable way. 
 - A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
 - Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
 - Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
