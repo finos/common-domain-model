@@ -18,7 +18,7 @@ of one or more assets in the future - for instance, but not exclusively, future 
 when that asset is cash. These future transfers may be contingent on the future value
 or performance of that asset or other, as in the case of options.
 
-### Asset  {#asset}
+### Asset  
 
 :::tip Definition: Asset
 
@@ -663,7 +663,7 @@ the underlying product may be.
 
 In its simplest form, that trade's terms will specify the settlement date
 in addition to the price and quantity and can be represented using the
-[`SettlementPayout`](#SettlementPayout).
+[`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
 otherwise cannot be directly transfered. The `Payout` would define how
@@ -796,7 +796,7 @@ one for an upfront fee. By comparison, the purchase or sale of a
 security or listed derivative would typically have a single
 `PriceQuantity` instance in the trade lot.
 
-## PriceQuantity {#price-quantity}
+## PriceQuantity
 
 The price and quantity attributes of a trade, or of a leg of a trade in
 the case of composite products, are part of a data type called

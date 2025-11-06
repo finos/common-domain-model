@@ -127,16 +127,15 @@ func MapReturnSwapLegListToPayoutList:
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter InterestLeg exists
-            then extract
-                MapInterestLegToInterestRatePayout(InterestLeg, cdmCounterpartyList)
+            extract item switch
+                fpml.InterestLeg then MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
+                default empty
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter ReturnLeg exists
-            then extract MapReturnLegToPerformancePayout(ReturnLeg, cdmCounterpartyList)
+            extract item switch
+                fpml.ReturnLeg then MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+                default empty
 
 func MapEquitySwapTransactionSupplementPriceQuantityList:
     inputs:
@@ -145,19 +144,18 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias returnLeg:
-        fpmlEquitySwapTransactionSupplement -> returnSwapLeg
-            extract ToLegChoice
-            then extract ReturnLeg
-            then only-element
+        (fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract item switch
+                fpml.ReturnLeg then item,
+                default empty)
+        then only-element
 
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
-            extract
-                ToLegChoice switch
-                    InterestLeg then
-                        MapInterestLegToPriceQuantity(item, returnLeg),
-                    ReturnLeg then MapReturnLegToPriceQuantity,
-                    default empty
+            extract item switch
+                fpml.InterestLeg then MapInterestLegToPriceQuantity(item, returnLeg),
+                fpml.ReturnLeg then MapReturnLegToPriceQuantity,
+                default empty
 
 func MapEquitySwapTransactionSupplementAccountPartyReference:
     inputs:

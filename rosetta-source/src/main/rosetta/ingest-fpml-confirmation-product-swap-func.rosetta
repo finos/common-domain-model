@@ -122,7 +122,23 @@ func MapSwapPayout:
     alias notionalStepScheduleCalculation:
         fpmlSwapStream -> calculationPeriodAmount -> calculation
 
-    alias rateChoice: ToRateChoice(notionalStepScheduleCalculation -> rateCalculation)
+    alias fpmlRateCalculation: notionalStepScheduleCalculation -> rateCalculation
+
+    alias floatingRateSpecification:
+        fpmlRateCalculation switch
+            fpml.FloatingRateCalculation then MapFloatingRateSpecification(
+                                            item,
+                                            fpmlSwapStream
+                                        ),
+            default empty
+
+    alias inflationRateSpecification:
+        fpmlRateCalculation switch
+            fpml.InflationRateCalculation then MapInflationRateSpecification(
+                                            item,
+                                            fpmlSwapStream
+                                        ),
+            default empty
 
     alias principalPaymentCurrency:
         fpmlSwapStream -> settlementProvision -> settlementCurrency default notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule -> currency
@@ -183,16 +199,8 @@ func MapSwapPayout:
                                                         fpmlSwapStream
                                                     )
                             }},
-                            FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
-                                    then MapFloatingRateSpecification(
-                                            rateChoice -> FloatingRateCalculation,
-                                            fpmlSwapStream
-                                        ),
-                            InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
-                                    then MapInflationRateSpecification(
-                                            rateChoice -> InflationRateCalculation,
-                                            fpmlSwapStream
-                                        )
+                            FloatingRateSpecification: floatingRateSpecification,
+                            InflationRateSpecification: inflationRateSpecification
                         },
                     dayCountFraction: MapDayCountFractionEnum(
                                 notionalStepScheduleCalculation -> dayCountFraction -> value
