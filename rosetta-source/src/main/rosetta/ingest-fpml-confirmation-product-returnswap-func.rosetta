@@ -21,7 +21,6 @@ import fpml.consolidated.* as fpml
 import fpml.consolidated.asset.* as fpml
 import fpml.consolidated.eq.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.custom.*
 
 func MapReturnSwapCounterpartyList:
     inputs:
@@ -82,14 +81,13 @@ func MapReturnSwapLegToPayout:
         payout Payout (0..1)
 
     set payout:
-        ToLegChoice(fpmlDirectionalLeg)
-            switch
-        InterestLeg then MapInterestLegToInterestRatePayout(
-                    item,
-                    cdmCounterpartyList
-                ),
-        ReturnLeg then MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
-        default empty
+        fpmlDirectionalLeg switch
+            fpml.InterestLeg then MapInterestLegToInterestRatePayout(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.ReturnLeg then MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+            default empty
 
 func MapInterestLegToInterestRatePayout:
     inputs:
@@ -98,8 +96,7 @@ func MapInterestLegToInterestRatePayout:
     output:
         payout Payout (0..1)
 
-    alias rateChoice:
-        ToRateChoice(fpmlInterestLeg -> interestCalculation -> floatingRateCalculation)
+    alias fpmlFloatingRateCalculation: fpmlInterestLeg -> interestCalculation -> floatingRateCalculation
 
     set payout:
         Payout {
@@ -121,16 +118,12 @@ func MapInterestLegToInterestRatePayout:
                                     fpmlInterestLeg
                                 )
                     }},
-                    FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
+                    FloatingRateSpecification: if fpmlFloatingRateCalculation exists
                         then MapFloatingRateSpecification(
-                                rateChoice -> FloatingRateCalculation,
+                                fpmlFloatingRateCalculation,
                                 fpmlInterestLeg
                             ),
-                    InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
-                        then MapInflationRateSpecification(
-                                rateChoice -> InflationRateCalculation,
-                                fpmlInterestLeg
-                            )
+                    ...
                 },
                 dayCountFraction: MapDayCountFractionEnum(
                         fpmlInterestLeg -> interestCalculation -> dayCountFraction -> value
@@ -411,18 +404,17 @@ func MapReturnSwapPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias returnLeg:
-        fpmlReturnSwap -> returnSwapLeg
-            extract ToLegChoice
-            then extract ReturnLeg
-            then only-element
+        (fpmlReturnSwap -> returnSwapLeg
+            extract item switch
+                fpml.ReturnLeg then item,
+                default empty) then only-element
 
     add priceQuantityList:
         fpmlReturnSwap -> returnSwapLeg
-            extract
-                ToLegChoice switch
-           InterestLeg then MapInterestLegToPriceQuantity (item,returnLeg),
-           ReturnLeg then MapReturnLegToPriceQuantity,
-           default empty
+            extract item switch
+                fpml.InterestLeg then  MapInterestLegToPriceQuantity (item,returnLeg),
+                fpml.ReturnLeg then MapReturnLegToPriceQuantity,
+                default empty
 
 func MapInterestLegToPriceQuantity:
     inputs:
