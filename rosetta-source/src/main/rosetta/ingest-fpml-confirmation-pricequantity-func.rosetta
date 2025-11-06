@@ -947,13 +947,11 @@ func MapSpreadScheduleToPriceWithLocation:
         priceSchedule PriceSchedule (0..*)
             [metadata location]
 
-    alias rateChoice: ToRateChoice(fpmlRate)
-
     alias spreadSchedule:
-        if rateChoice -> FloatingRateCalculation exists
-        then rateChoice -> FloatingRateCalculation -> floatingRateModel -> spreadSchedule
-        else if rateChoice -> InflationRateCalculation exists
-        then rateChoice -> InflationRateCalculation -> floatingRateModel -> spreadSchedule
+        fpmlRate switch
+            fpml.FloatingRateCalculation then floatingRateModel -> spreadSchedule,
+            fpml.InflationRateCalculation then floatingRateModel -> spreadSchedule,
+            default empty
 
     add priceSchedule:
         spreadSchedule
@@ -986,19 +984,19 @@ func MapCapRateScheduleToPriceWithLocation:
         priceSchedule PriceSchedule (0..*)
             [metadata location]
 
-    alias rateChoice: ToRateChoice(fpmlRate)
-
     add priceSchedule:
-        rateChoice -> FloatingRateCalculation -> floatingRateModel -> capRateSchedule
-            extract
-                CreatePriceWithLocation(
-                        MapScheduleToInterestRatePriceSchedule(
-                                item,
-                                fpmlCurrency,
-                                ArithmeticOperationEnum -> Min
-                            ),
-                        CreatePriceKey("capRateSchedule", fpmlLeg)
-                    )
+        fpmlRate switch 
+            fpml.FloatingRateCalculation then floatingRateModel -> capRateSchedule
+                extract
+                    CreatePriceWithLocation(
+                            MapScheduleToInterestRatePriceSchedule(
+                                    item,
+                                    fpmlCurrency,
+                                    ArithmeticOperationEnum -> Min
+                                ),
+                            CreatePriceKey("capRateSchedule", fpmlLeg)
+                        ),
+            default empty
 
 func MapCapRateScheduleWithAddress:
     inputs:
@@ -1023,19 +1021,20 @@ func MapFloorRateScheduleToPriceWithLocation:
         priceSchedule PriceSchedule (0..*)
             [metadata location]
 
-    alias rateChoice: ToRateChoice(fpmlRate)
-
     add priceSchedule:
-        rateChoice -> FloatingRateCalculation -> floatingRateModel -> floorRateSchedule
-            extract
-                CreatePriceWithLocation(
-                        MapScheduleToInterestRatePriceSchedule(
-                                item,
-                                fpmlCurrency,
-                                ArithmeticOperationEnum -> Max
+        fpmlRate switch 
+            fpml.FloatingRateCalculation then 
+                floatingRateModel -> floorRateSchedule
+                    extract
+                        CreatePriceWithLocation(
+                                MapScheduleToInterestRatePriceSchedule(
+                                        item,
+                                        fpmlCurrency,
+                                        ArithmeticOperationEnum -> Max
+                                    ),
+                                CreatePriceKey("floorRateSchedule", fpmlLeg)
                             ),
-                        CreatePriceKey("floorRateSchedule", fpmlLeg)
-                    )
+            default empty                   
 
 func MapFloorRateScheduleWithAddress:
     inputs:
@@ -1557,20 +1556,21 @@ func MapRateOptionWithLocation:
         interestRateIndex InterestRateIndex (0..1)
             [metadata location]
 
-    alias rateChoice: ToRateChoice(fpmlRate)
+    alias rateCalculationExists:
+        fpmlRate switch
+            fpml.FloatingRateCalculation then True,
+            fpml.InflationRateCalculation then True,
+            default False
 
     set interestRateIndex:
-        if rateChoice -> FloatingRateCalculation exists
-                or rateChoice -> InflationRateCalculation exists
+        if rateCalculationExists 
         then CreateInterestRateIndexWithLocation(
-                    InterestRateIndex {
-                        FloatingRateIndex: if rateChoice -> FloatingRateCalculation exists
-                            then MapFloatingRateIndex(rateChoice -> FloatingRateCalculation),
-                        InflationIndex: if rateChoice -> InflationRateCalculation exists
-                            then MapInflationIndex(rateChoice -> InflationRateCalculation),
-                    },
-                    CreateKey("InterestRateIndex", empty, fpmlLeg)
-                )
+                InterestRateIndex {
+                    FloatingRateIndex: (fpmlRate switch fpml.FloatingRateCalculation then MapFloatingRateIndex, default empty),
+                    InflationIndex: (fpmlRate switch fpml.InflationRateCalculation then MapInflationIndex, default empty),
+                },
+                CreateKey("InterestRateIndex", empty, fpmlLeg)
+            )
 
 func MapRateOptionWithAddress:
     inputs:
@@ -1580,14 +1580,17 @@ func MapRateOptionWithAddress:
         rateOption InterestRateIndex (0..1)
             [metadata address]
 
-    alias rateChoice: ToRateChoice(fpmlRate)
+    alias isRateCalculation:
+        fpmlRate switch
+            fpml.FloatingRateCalculation then True,
+            fpml.InflationRateCalculation then True,
+            default False
 
     set rateOption:
-        if rateChoice -> FloatingRateCalculation exists
-                or rateChoice -> InflationRateCalculation exists
-        then CreateInterestRateIndexWithAddress(
-                    CreateKey("InterestRateIndex", empty, fpmlLeg)
-                )
+        if isRateCalculation 
+            then CreateInterestRateIndexWithAddress(
+                        CreateKey("InterestRateIndex", empty, fpmlLeg)
+                    )
 
 func MapFloatingRateIndex:
     inputs:
@@ -1738,21 +1741,15 @@ func MapAssetToObservableWithLocation:
         observable Observable (0..1)
             [metadata location]
 
-    alias assetChoice: ToAssetChoice(fpmlAsset)
-
-    alias isBasket: assetChoice -> Basket exists
-    alias isIndex: assetChoice -> Index exists
-    alias isAsset: fpmlAsset exists and isBasket = False and isIndex = False
+    alias observableWithoutLocation:
+        fpmlAsset switch
+            fpml.Basket then Observable {Basket: MapBasket, ...},
+            fpml.Index then Observable {Index: MapEquityIndex, ...},
+            default Observable {Asset: MapAsset(fpmlAsset), ...}
 
     set observable:
         CreateObservableWithLocation(
-                Observable {
-                    Asset: if isAsset then MapAsset(fpmlAsset),
-                    Basket: if isBasket
-                        then MapBasket(assetChoice -> Basket),
-                    Index: if isIndex
-                        then MapEquityIndex(assetChoice -> Index)
-                },
+                observableWithoutLocation,
                 ObservableKeyValue(fpmlAsset)
             )
 
@@ -1790,17 +1787,16 @@ func MapAsset:
         asset Asset (0..1)
 
     set asset:
-        ToAssetChoice(fpmlAsset)
-            switch
-                ExchangeTradedFund then MapIdentifiedAssetToAssetListedDerivative(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, Fund),
-                ExchangeTradedContract then MapIdentifiedAssetToAssetListedDerivative(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, ListedDerivative),
-                Loan then MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
-                ConvertibleBond then MapIdentifiedAssetToAssetSecurity(item, empty, empty, Debt),
-                Bond then MapIdentifiedAssetToAssetSecurity(item, empty, empty, Debt),
-                Equity then MapIdentifiedAssetToAssetSecurity(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, Equity),
-                Commodity then MapAssetCommodity,
-                //TODO: add condition for ExchangeTradedContract when fpml version is updated to 0.13.5
-                default empty
+        fpmlAsset switch
+            fpml.ExchangeTradedFund then MapIdentifiedAssetToAssetListedDerivative(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, Fund),
+            fpml.ExchangeTradedContract then MapIdentifiedAssetToAssetListedDerivative(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, ListedDerivative),
+            fpml.Loan then MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
+            fpml.ConvertibleBond then MapIdentifiedAssetToAssetSecurity(item, empty, empty, Debt),
+            fpml.Bond then MapIdentifiedAssetToAssetSecurity(item, empty, empty, Debt),
+            fpml.Equity then MapIdentifiedAssetToAssetSecurity(item, exchangeId, exchangeIdentifierModel -> relatedExchangeId, Equity),
+            fpml.Commodity then MapAssetCommodity,
+            //TODO: add condition for ExchangeTradedContract when fpml version is updated to 0.13.5
+            default empty
 
 func MapIdentifiedAssetToAssetListedDerivative:
     inputs:
@@ -1963,21 +1959,19 @@ func MapBasketConstituentWithLocation:
         basketConstituent BasketConstituent (0..1)
             [metadata location]
 
-    alias assetChoice: ToAssetChoice(fpmlBasketConstituent -> underlyingAsset)
+    alias fpmlUnderlyingAsset: fpmlBasketConstituent -> underlyingAsset
 
-    alias isIndex: assetChoice -> Index exists
-    alias isAsset: isIndex = False
+    alias basketConstituentQuantity: MapBasketConstituentQuantity (fpmlBasketConstituent)
+
+    alias basketConstituentWithoutLocation:
+        fpmlUnderlyingAsset switch
+            fpml.Index then BasketConstituent {Index: MapEquityIndex, quantity: basketConstituentQuantity, ...},
+            default BasketConstituent {Asset: MapAsset(fpmlUnderlyingAsset), quantity: basketConstituentQuantity, ...}
+
 
     set basketConstituent:
         CreateBasketConstituentWithLocation(
-                BasketConstituent {
-                    Asset: if isAsset
-                        then MapAsset(fpmlBasketConstituent -> underlyingAsset),
-                    Index: if isIndex
-                        then MapEquityIndex(assetChoice -> Index),
-                    quantity: MapBasketConstituentQuantity (fpmlBasketConstituent),
-                    ...
-                },
+                basketConstituentWithoutLocation,
                 BasketConstituentKeyValue(fpmlBasketConstituent)
             )
 
