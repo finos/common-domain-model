@@ -260,8 +260,11 @@ func MapPartyReference:
         partyReference Party (0..1)
             [metadata reference]
 
-    set partyReference -> reference:
-        if fpmlPartyHref exists then fpmlPartyHref
+    set partyReference: 
+        if fpmlPartyHref exists 
+            then empty with-meta {
+                reference: fpmlPartyHref
+            }
 
 func MapPartyList:
     inputs:
@@ -634,11 +637,17 @@ func MapPayerReceiverToAccountPartyReference:
             then extract receiverPartyReference -> href
             then distinct only-element
 
-    set partyReference -> reference:
+    alias href: 
         if payerPartyReference exists
         then payerPartyReference
         else if receiverPartyReference exists
         then receiverPartyReference
+
+
+    set partyReference: empty with-meta {
+        reference: href
+    }
+
 
 func MapBuyerSellerToAccountPartyReference:
     inputs:
@@ -660,7 +669,9 @@ func MapBuyerSellerToAccountPartyReference:
             then extract sellerAccountReference -> href
             then distinct only-element
 
-    set partyReference -> reference: buyerPartyReference default sellerPartyReference
+    set partyReference: empty with-meta {
+        reference: buyerPartyReference default sellerPartyReference
+    }
 
 func MapLegalEntity:
     inputs:
@@ -690,7 +701,9 @@ func MapLegalEntityReference:
         legalEntity LegalEntity (0..1)
             [metadata reference]
 
-    set legalEntity -> reference: fpmlLegalEntityReference -> href
+    set legalEntity: empty with-meta {
+        reference: fpmlLegalEntityReference -> href
+    }
 
 func MapExchangeIdToLegalEntity:
     inputs:

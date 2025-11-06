@@ -93,8 +93,21 @@ func MapStringWithScheme:
         stringWithScheme string (0..1)
             [metadata scheme]
 
-    set stringWithScheme: value
-    set stringWithScheme -> scheme: scheme
+    set stringWithScheme: value with-meta {
+        scheme: scheme
+    }
+
+func MapStringWithReference:
+    inputs:
+        value string (0..1)
+        reference string (0..1)
+    output:
+        stringWithReference string (0..1)
+            [metadata reference]
+
+    set stringWithReference: value with-meta {
+        reference: reference
+    }
 
 func MapCurrency:
     inputs:
@@ -113,7 +126,8 @@ func MapCurrencyReference:
         currencyReference string (0..1)
             [metadata reference]
 
-    set currencyReference -> reference: fpmlIdentifiedCurrencyReference -> href
+    set currencyReference: 
+        MapStringWithReference(empty, fpmlIdentifiedCurrencyReference -> href)
 
 func MapResolvablePriceQuantityReference:
     inputs:
@@ -122,7 +136,9 @@ func MapResolvablePriceQuantityReference:
         quantityReference ResolvablePriceQuantity (0..1)
             [metadata reference]
 
-    set quantityReference -> reference: fpmlHref
+    set quantityReference: empty with-meta {
+        reference: fpmlHref
+    }
 
 func MapProductTaxonomyList:
     inputs:
@@ -159,8 +175,9 @@ func MapAssetClassWithScheme:
         enumWithScheme AssetClassEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum AssetClassEnum
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: value to-enum AssetClassEnum with-meta {
+        scheme: scheme
+    }
 
 func MapUnitTypeWithScheme:
     inputs:
@@ -188,8 +205,9 @@ func MapCapacityUnitWithScheme:
         enumWithScheme CapacityUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapCapacityUnitEnum(value)
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: MapCapacityUnitEnum(value) with-meta {
+        scheme: scheme
+    }
 
 func MapWeatherUnitWithScheme:
     inputs:
@@ -199,8 +217,9 @@ func MapWeatherUnitWithScheme:
         enumWithScheme WeatherUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum WeatherUnitEnum
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: value to-enum WeatherUnitEnum with-meta {
+        scheme: scheme
+    }
 
 func MapFinancialUnitWithScheme:
     inputs:
@@ -210,19 +229,9 @@ func MapFinancialUnitWithScheme:
         enumWithScheme FinancialUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum FinancialUnitEnum
-    set enumWithScheme -> scheme: scheme
-
-func MapCommodityFrequencyWithScheme:
-    inputs:
-        value string (0..1)
-        scheme string (0..1)
-    output:
-        frequency Frequency (0..1)
-            [metadata scheme]
-
-    set frequency -> key: value
-    set frequency -> scheme: scheme
+    set enumWithScheme: value to-enum FinancialUnitEnum with-meta {
+        scheme: scheme
+    }
 
 func MapTaxonomySourceEnum:
     inputs:
@@ -247,8 +256,9 @@ func MapFeeTypeEnumWithScheme:
         enumWithScheme FeeTypeEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapFeeTypeEnum(value)
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: MapFeeTypeEnum(value) with-meta {
+        scheme: scheme
+    }
 
 func MapProductIdentifierList:
     inputs:
@@ -316,9 +326,10 @@ func MapReferenceCurrency:
             [metadata id]
             [metadata scheme]
 
-    set currency: fpmlReferenceCurrency -> value
-    set currency -> id: fpmlReferenceCurrency -> id
-    set currency -> scheme: fpmlReferenceCurrency -> currencyScheme
+    set currency: fpmlReferenceCurrency -> value with-meta {
+        id: fpmlReferenceCurrency -> id,
+        scheme: fpmlReferenceCurrency -> currencyScheme
+    }
 
 func MapComposite:
     inputs:
@@ -381,8 +392,9 @@ func MapQuotedCurrencyPairWithLocation:
         quotedCurrencyPair QuotedCurrencyPair (0..1)
             [metadata location]
 
-    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair)
-    set quotedCurrencyPair -> location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair) // TODO: fix code gen issue when setting using with-meta
+    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair) with-meta {
+        location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair)
+    }
 
 func MapFxSpotRateSource:
     inputs:
