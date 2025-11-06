@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-10-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2014-2018 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-10" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-10.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="partyA" />
+        <tradeId tradeIdScheme="http://www.PartyA.com/com-trade-id">1234</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="partyB" />
+        <tradeId tradeIdScheme="http://www.PartyB.com/com-trade-id">2345</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2009-01-28</tradeDate>
+    </tradeHeader>
+    <commoditySwap>
+      <effectiveDate>
+        <adjustableDate>
+          <unadjustedDate>2009-08-01</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NotApplicable</businessDayConvention>
+          </dateAdjustments>
+        </adjustableDate>
+      </effectiveDate>
+      <terminationDate>
+        <adjustableDate>
+          <unadjustedDate>2009-08-31</unadjustedDate>
+          <dateAdjustments>
+            <businessDayConvention>NotApplicable</businessDayConvention>
+          </dateAdjustments>
+        </adjustableDate>
+      </terminationDate>
+      <settlementCurrency>USD</settlementCurrency>
+      <electricityPhysicalLeg>
+        <payerPartyReference href="partyA" />
+        <receiverPartyReference href="partyB" />
+        <deliveryPeriods>
+          <periodsSchedule>
+            <periodMultiplier>1</periodMultiplier>
+            <period>T</period>
+            <balanceOfFirstPeriod>false</balanceOfFirstPeriod>
+          </periodsSchedule>
+        </deliveryPeriods>
+        <settlementPeriods id="settlementPeriods">
+          <duration>1Hour</duration>
+          <applicableDay>MON</applicableDay>
+          <applicableDay>TUE</applicableDay>
+          <applicableDay>WED</applicableDay>
+          <applicableDay>THU</applicableDay>
+          <applicableDay>FRI</applicableDay>
+          <startTime>
+            <time>
+              <hourMinuteTime>07:00:00</hourMinuteTime>
+              <location>America/Chicago</location>
+            </time>
+          </startTime>
+          <endTime>
+            <time>
+              <hourMinuteTime>22:00:00</hourMinuteTime>
+              <location>America/Chicago</location>
+            </time>
+          </endTime>
+          <excludeHolidays>NERC</excludeHolidays>
+        </settlementPeriods>
+<!-- loadType below is optional in Confirmation View      -->
+<!-- That is the load profile (loadType) is 'Peak' is     -->
+<!-- apparent from the settlementPeriods element in       -->
+<!-- in electricityLeg: specifically the startTime and    -->
+<!-- endTime and the applicableDays. Care must be taken   -->
+<!-- as there is no validation that loadType is consistent-->
+<!-- with the load profile described in settlementPeriods -->
+        <loadType>Peak</loadType>
+        <electricity>
+          <type>Electricity</type>
+        </electricity>
+        <deliveryConditions>
+          <deliveryPoint deliveryPointScheme="http://www.PartyA.com/delivery-point-scheme-power-1-0">ErcotNorthCongestionZone</deliveryPoint>
+          <deliveryType>
+            <firm>
+              <forceMajeure>true</forceMajeure>
+            </firm>
+          </deliveryType>
+        </deliveryConditions>
+        <deliveryQuantity id="deliveryQuantity">
+          <physicalQuantity>
+            <quantityUnit>MWh</quantityUnit>
+            <quantityFrequency>PerSettlementPeriod</quantityFrequency>
+            <quantity>200.0</quantity>
+            <settlementPeriodsReference href="settlementPeriods" />
+          </physicalQuantity>
+        </deliveryQuantity>
+      </electricityPhysicalLeg>
+      <floatingLeg>
+        <payerPartyReference href="partyB" />
+        <receiverPartyReference href="partyA" />
+        <calculationPeriodsSchedule id="floatingLegCalculationPeriods">
+          <periodMultiplier>1</periodMultiplier>
+          <period>M</period>
+          <balanceOfFirstPeriod>false</balanceOfFirstPeriod>
+        </calculationPeriodsSchedule>
+        <commodity>
+          <instrumentId instrumentIdScheme="http://www.fpml.org/coding-scheme/commodity-reference-price-1-0">ELECTRICITY-ERCOT-NORTH PEAK-ICE/10X DAILY-POWER</instrumentId>
+          <specifiedPrice>MeanOfHighAndLow</specifiedPrice>
+        </commodity>
+        <quantityReference href="deliveryQuantity" />
+        <calculation>
+          <pricingDates>
+            <calculationPeriodsScheduleReference href="floatingLegCalculationPeriods" />
+            <dayType>CommodityBusiness</dayType>
+            <dayDistribution>All</dayDistribution>
+            <businessCalendar>ICE/10X-DAILY</businessCalendar>
+          </pricingDates>
+          <spread>
+            <currency>USD</currency>
+            <amount>3.0</amount>
+          </spread>
+        </calculation>
+        <masterAgreementPaymentDates>true</masterAgreementPaymentDates>
+      </floatingLeg>
+    </commoditySwap>
+  </trade>
+  <party id="partyA">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300KFSLY4U7N3LL12</partyId>
+    <partyName>Bank</partyName>
+  </party>
+  <party id="partyB">
+    <partyId partyIdScheme="http://www.fpml.org/coding-scheme/external/iso17442">549300AJRHKBLY9GM262</partyId>
+    <partyName>Energy Co.</partyName>
+  </party>
+</dataDocument>

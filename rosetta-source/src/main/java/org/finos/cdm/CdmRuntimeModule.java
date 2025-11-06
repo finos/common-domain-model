@@ -2,6 +2,9 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
+import cdm.ingest.fpml.confirmation.common.functions.StringContains;
+import cdm.ingest.fpml.confirmation.common.functions.StringContainsImpl;
+import cdm.ingest.fpml.confirmation.pricequantity.functions.*;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.observable.asset.fro.functions.IndexValueObservationEmptyDataProvider;
 import cdm.product.common.schedule.functions.*;
@@ -12,6 +15,7 @@ import com.regnosys.rosetta.common.hashing.ReferenceConfig;
 import com.regnosys.rosetta.common.postprocess.qualify.QualificationHandlerProvider;
 import com.regnosys.rosetta.translate.datamodel.json.CreateiQJsonSchemaParser;
 import com.regnosys.rosetta.translate.datamodel.json.JsonSchemaParser;
+import com.regnosys.runefpml.RuneFpmlRuntimeModule;
 import com.rosetta.model.lib.ModuleConfig;
 import com.rosetta.model.lib.qualify.QualifyFunctionFactory;
 import com.rosetta.model.lib.validation.ValidatorFactory;
@@ -23,6 +27,9 @@ public class CdmRuntimeModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		// upstream model dependency
+		install(new RuneFpmlRuntimeModule());
+
 		bind(QualifyFunctionFactory.class).to(bindQualifyFunctionFactory());
 		bind(QualificationHandlerProvider.class).to(bindQualificationConfigProvider());
 		bind(ValidatorFactory.class).to(bindValidatorFactory());
@@ -62,6 +69,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
+		// Ingest
+		bind(StringContains.class).to(StringContainsImpl.class);
+		bind(CreateKey.class).to(CreateKeyImpl.class);
+		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
+		bind(CreateKeyForQuotedCurrencyPair.class).to(CreateKeyForQuotedCurrencyPairImpl.class);
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {

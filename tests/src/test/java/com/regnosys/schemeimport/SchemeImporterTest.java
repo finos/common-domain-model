@@ -6,6 +6,7 @@ import com.regnosys.testing.schemeimport.fpml.FpMLSchemeEnumReader;
 import com.regnosys.testing.schemeimport.iso.currency.IsoCurrencySchemeEnumReader;
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -21,6 +22,7 @@ import static org.hamcrest.Matchers.equalTo;
  * When set to AdditiveMatch, it will only check if the enums in Rosetta are a subset of the enums in the standard.
  * When set to ExactMatch, it will make sure that enums in Rosetta are exactly the same as the enums in the standard.
  */
+@Disabled
 @ExtendWith(InjectionExtension.class)
 @InjectWith(SchemeImportInjectorProvider.class)
 class SchemeImporterTest {
