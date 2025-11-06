@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class BasketPercentageMappingProcessor extends MappingProcessor {
+public class UnitTypeWeightMappingProcessor extends MappingProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasketPercentageMappingProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UnitTypeWeightMappingProcessor.class);
     
-    public BasketPercentageMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
+    public UnitTypeWeightMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);
     }
 
