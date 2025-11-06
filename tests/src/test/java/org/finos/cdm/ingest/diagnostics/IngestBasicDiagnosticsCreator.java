@@ -2,16 +2,15 @@ package org.finos.cdm.ingest.diagnostics;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import fpml.custom.ProductChoice;
+import fpml.consolidated.shared.Product;
 import org.eclipse.xtext.xbase.lib.StringExtensions;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.finos.cdm.ingest.diagnostics.IngestUtils.*;
+import static org.reflections.scanners.Scanners.SubTypes;
 
 public class IngestBasicDiagnosticsCreator {
 
@@ -201,18 +201,15 @@ public class IngestBasicDiagnosticsCreator {
         return df.format(getCompleteness(actual, target)) + "%";
     }
 
-    private static Set<String> getFpmlProductElements() {
-        Set<String> returnTypes = new HashSet<>();
-        Method[] methods = ProductChoice.class.getDeclaredMethods();
-        for (Method method : methods) {
-            // Only consider public methods with 
-            if (Modifier.isPublic(method.getModifiers())
-                    && method.getReturnType().getPackageName().equals("fpml.confirmation")) {
-                String product = method.getReturnType().getSimpleName();
-                returnTypes.add(StringExtensions.toFirstLower(product));
-            }
-        }
-        return returnTypes;
+    public static Set<String> getFpmlProductElements() {
+        Reflections reflections = new Reflections("fpml.consolidated");
+        Set<Class<?>> subTypes = reflections.get(SubTypes.of(Product.class).asClass());
+
+        return subTypes.stream()
+                .map(Class::getSimpleName)
+                .filter(s -> !s.endsWith("Builder") && !s.endsWith("Impl"))
+                .map(StringExtensions::toFirstLower)
+                .collect(Collectors.toSet());
     }
 
     private boolean isProduct(String product, String inputXml) {
