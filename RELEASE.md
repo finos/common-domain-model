@@ -10,6 +10,8 @@ Everywhere in the ingestion functions where we use a choice function, the functi
 The following rosetta files are affected:
 
 - rosetta-source/src/main/rosetta/ingest-fpml-confirmation-common-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-datetime-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-legal-func.rosetta
 - rosetta-source/src/main/rosetta/ingest-fpml-confirmation-message-func.rosetta
 - rosetta-source/src/main/rosetta/ingest-fpml-confirmation-party-func.rosetta
 - rosetta-source/src/main/rosetta/ingest-fpml-confirmation-payment-func.rosetta
