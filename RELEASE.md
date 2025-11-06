@@ -2,7 +2,7 @@
 
 _Background_
 
-This change is required to remove references to the hard coded choice functions such as ToDocumentChoice. These functions are implemented in static Java and can instead be implemented with the switch operator in the Rune syntax.
+This change is required to remove references to the hard-coded choice functions such as ToDocumentChoice. These functions are implemented in static Java and can instead be implemented with the switch operator in the Rune syntax.
 
 _What is being released?_
 
