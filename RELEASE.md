@@ -1,4 +1,4 @@
-# *Ingestion Framework - Remove reference to hard coded choice functions*
+# *Ingestion Framework - Rune DSL syntax replacing static Java functions*
 
 _Background_
 
