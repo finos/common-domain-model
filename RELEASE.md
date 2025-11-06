@@ -17,3 +17,4 @@ This update removes `PartyContactInformation` and redefines how the contact info
 _Review Directions_
 
 Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
+
