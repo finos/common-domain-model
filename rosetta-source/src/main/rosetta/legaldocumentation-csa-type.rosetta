@@ -73,7 +73,7 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
     trustSchemeAddendum boolean (1..1) <"The qualification of whether Trust Scheme Addendum is applicable (True) or not applicable (False).">
     securityInterestForObligations SecurityInterestForObligations (1..1) <"The party to whom obligations under the Master Agreement are owed and secured by the credit support arrangements. Applicable to 1994 NY CSA, 1995 English Law CSD and 2016 New York Law VM CSA.">
     singlePostingParty SinglePostingParty (0..1) <"Where only a single  party is explicitly designated to post collateral, the party which is specified as the sole poster of collateral.">
-    datedAsOfDate DatedAsOfDate (0..1) <"Defines the dates agreed by the parties as the date of the Credit Support Annex or Credit Support Deed.">
+    masterAgreementDatedAsOfDate MasterAgreementDatedAsOfDate (0..1) <"Defines the dates agreed by the parties as the date of the Credit Support Annex or Credit Support Deed.">
     cass string (0..1) <"Details of language relating to Client Asset and Money Rules.">
     otherCSA string (0..1) <"A clause detailing the prescence of another collateralisation arrangement within the Master Agreement between the parties to this Collateral Arrangement.">
     legacyAdditionalRepresentations string (0..1) <"Details of any Additional Representations given by the relevant parties in relation to the collateral arrangement.">
@@ -130,13 +130,6 @@ type PostedCreditSupportItem: <"Posted Credit Support item with corresponding Va
     additionalHaircutPercentage number (0..1) <"Percentage value of any additional haircut to be applied to a collateral asset,the percentage value is expressed as the discount haircut to the value of the collateral- as an example a 5% haircut would be expressed as 0.05.">
     disputedCashOrSecurityValue Money (1..1) <"Paragraph 5. If a party (a 'Disputing Party') disputes the Value of any Posted Credit Support (IM).">
 
-type AccessConditions: <"A class to specify each party's election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA).">
-    [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(e) (ii)"]
-    [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(f) (ii)"]
-    [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(e) (ii)"]
-    [docReference ISDA CSA_VM_2016 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
-    partyElection AccessConditionsElections (2..2) <"The parties' Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA) election.">
-    additionalTerminationEvent AdditionalTerminationEvent (0..*) <"Additional Termination Events applicable to the agreement.">
 
 type AccessConditionsElections: <"A class to specify the Termination Events that will be deemed an Access Condition or a Specified Condition.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(e) (ii)"]
@@ -152,12 +145,13 @@ type AccessConditionsElections: <"A class to specify the Termination Events that
 
 type AdditionalRepresentation: <"A class to specify the Additional Representation.">
     [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(o)" name "Additional Representations(s)"]
-    partyElection AdditionalRepresentationElection (2..2) <"A qualification as to whether the Additional Representation is applicable.">
+    partyElection AdditionalRepresentationElection (0..2) <"A qualification as to whether the Additional Representation is applicable.">
     customElection string (0..1) <"A supplemental custom election that might be specified by the parties for the purpose of specifying the Additional Representation.">
 
 type AdditionalRepresentationElection: <"A class to specify the parties' Additional Representation(s) election.">
     party CounterpartyRoleEnum (1..1) <"The elective party.">
     isApplicable boolean (1..1) <"The Additional Representation is applicable when True, and not applicable when False.">
+    additionalLanguage string (0..1) <"Details of any Additional Representations given by the relevant parties in relation to the collateral arrangement.">
 
 type AdditionalRepresentations: <"A class to specify Additional Representations that may be applicable to an agreement.">
     additionalRepresentation AdditionalRepresentation (0..1) <"The specification of the Additional Representation that may be applicable to the agreement.">
@@ -252,8 +246,7 @@ type BespokeTransferTiming: <"A class to specify any bespoke Transfer Timing lan
     isApplicable boolean (1..1) <"A boolean flag to specify whether bespoke transfer terms are applicable or not.">
     bespokeTransferTimingTerms string (0..1) <"The bespoke transfer timing terms applicable to the agreement.">
 
-type CalculationAgentTerms: <"A class to specify Calculation Agent for purposes of Initial or Variation Margin agreements.">
-
+type CalculationAgentTerms: <"Details of the party calculating the value of collateral to be delivered or returned.">
     party CalculationValuationAgentPartyEnum (0..1) <"The party which is specified as Calculation Agent for Initial Margin.">
     bespokeCalculationAgentTerms string (0..1) <"The Calculation Agent (IM) terms when specified.">
 
@@ -353,14 +346,13 @@ type ConditionsPrecedent: <"A class to specify the two set of elections that may
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(f)(i)"]
         [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(e)(i)"]
         [docReference ISDA CSA_VM_2016 paragraph "13" name "Conditions Precedent and Secured Partys Rights and Remedies"]
-    accessConditions AccessConditions (1..1) <"The parties' election with respect to the Termination Events that will be deemed an Access Condition (Initial Margin CSA) or a Specified Condition (Variation Margin CSA).">
+    specifiedConditionAndAccessCondition SpecifiedConditionAndAccessCondition (0..1) <"SSpecifies the events elected by the parties that are deemed an Access Condition (for Initial Margin CSA) or a Specified Condition (for Variation Margin and Legacy CSA), which, if triggered, may temporarily or permanently suspend rights to rehypothecate, transfer, or substitute collateral.">
+        [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
         [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(e)(ii)"]
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(f)(ii)"]
         [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(e)(ii)"]
         [docReference ISDA CSA_VM_2016 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
-    specifiedCondition SpecifiedCondition (0..1) <"Specifies events elected by the parties, that if triggered, can temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral.">
-        [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
-        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)" name "Conditions Precedent and Secured Partys Rights and Remedies."]
 
     condition CustomProvision: <"When a Custom Provision is specified then the Conditions Precedent Election should be absent.">
         if customProvision exists
@@ -463,8 +455,7 @@ type CustodianTerms: <"A class to specify the requirements applicable to the cus
     initialDesignation LegalEntity (0..1) <"Election to specify the initial custodian.">
         [docReference ISDA CSA_VM_2016]
 
-type CustodyArrangements: <"A class to specify the Custody Arrangements for the agreement.">
-
+type CustodyArrangements: <"Describes how posted collateral is held, maintained, and safeguarded by a custodian or third-party agent, in accordance with the terms of the governing agreement.">
     isCreditSupportDocument boolean (0..1) <"Unless specified as True, the Control Agreement is not a Credit Support Document under the agreement with respect to a party.">
         [docReference ISDA CSA_VM_2016 paragraph "Paragraph 6" clause " (e) " name "The Control Agreement as a Credit Support Document"]
     hasControlAgreementLanguage boolean (0..1) <"Control Agreement language is specified when True.">
@@ -474,7 +465,7 @@ type CustodyArrangements: <"A class to specify the Custody Arrangements for the 
     custodianRisk CustodianRisk (0..1) <"The qualification of the Custodian Risk.">
         [docReference ISDA CSA_IM_2016 paragraph "3 General Principles" clause "(n)(ii)" name "Custodian (IM) Risk"]
     controlAgreement ControlAgreement (0..1) <"The party-specific election with respect to the control agreement.">
-    custodianEvent CustodianEvent (1..1) <"Specifies if and until when a Custodian Event clause applies.">
+    custodianEvent CustodianEvent (0..1) <"Specifies if and until when a Custodian Event clause applies.">
         [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(m)(iii)" name "Custodian Event"]
     custodian Custodian (0..1) <"The custodian and segregated account details for each party to the agreement.">
     collateralManagementAgreement CollateralManagementAgreement (0..1)
@@ -667,11 +658,15 @@ type MinimumTransferAmountAmendment: <" A class to specify whether Amendment to 
         if isApplicable = False
         then effectiveDate is absent and partyElections is absent
 
-type NotificationTime: <"A class to specify the time by which a demand for the Transfer of Eligible Credit Support (IM) or Posted Credit Support (IM) needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions.">
+type NotificationTime: <"Specifies the time by which a demand for the Transfer of Eligible Credit Support or Posted Credit Support needs to be made in order for the transfer to take place in accordance with the Transfer Timing provisions.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(d)(iii)" name "Notification Time"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(e)(iii)" name "Notification Time"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(d)(iii)" name "Notification Time"]
-
+    [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(c)(iv)" name "Notification Time"]
+    [docReference ISDA CSA_English_1995 paragraph "11" clause "(c)(iv)" name "Notification Time"]
+    [docReference ISDA CSD_English_1995 paragraph "13" clause "(d)(iv)" name "Notification Time"]
+    [docReference ISDA CSA_VM_English_2016 paragraph "11" clause "(d)(iv)" name "Notification Time"]
+    [docReference ISDA CSA_VM_NewYork_2016 paragraph "13" clause "(d)(iv)" name "Notification Time"]
     partyElections NotificationTimeElection (2..2) <"The parties' Notification Time election.">
     disputeNotificationReference boolean (0..1) <"The determination of whether reference is made to dispute resolution notification timing in the agreement.">
     transferTimingProviso boolean (0..1) <"The determination of whether transfer timing language is applicable or not.">
@@ -701,14 +696,15 @@ type OneWayProvisions: <"A class to specify whether One Way Provisions apply.">
     condition PostingPartyAbsent: <"A data rule to enforce that the Posting Party must not be specified in the case where the One Way Provision is not deemed applicable.">
         if isApplicable = False then postingParty is absent
 
-type OtherAgreements: <"The bespoke definition of other agreement terms as specified by the parties to the agreement.">
+type OtherAgreements: <"The bespoke definition of other agreements or other credit support annex terms as specified by the parties to the agreement.">
     otherCsa OtherAgreementTerms (0..1) <"The bespoke definition of Other CSA as specified by the parties to the agreement.">
     japaneseLawCsa OtherAgreementTerms (0..1) <"The bespoke definition of whether Japanese Law CSA (VM) are specified by the parties to the agreement.">
         [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(s)(ii)" name "Japanese Law CSA (VM)"]
 
-type OtherEligibleAndPostedSupport: <"A class to specify the Other Eligible Support elections associated Initial and Variation margin agreements.">
-    applicableValue boolean (1..1) <"The definition of 'Value' with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
-    applicableTransfer boolean (0..1) <"The definition of 'Transfer' with respect to Other Eligible Support (IM) and Other Posted Support (IM).">
+type OtherEligibleAndPostedSupport: <"Specifies the Other Eligible Support elections.">
+    applicableValue boolean (0..1) <"The definition of 'Value' with respect to Other Eligible Support and Other Posted Support.">
+    applicableTransfer boolean (0..1) <"The definition of 'Transfer' with respect to Other Eligible Support and Other Posted Support.">
+    value CollateralValueMethod (0..1) <"Details how particular types of collateral are valued (other than in respect of a default).">
 
 type PartyAgreementIdentifier: <"A class defining a legal agreement identifier issued by the indicated party.">
     [metadata key]
@@ -930,10 +926,9 @@ type SubstitutionPartyElection: <"Party specific elections for substitution of p
 
 type TerminationCurrencyAmendment: <"A class to specify the Amendment to Termination Currency elections by the parties to the agreement.">
     [docReference ISDA CSA_IM_2016 paragraph "13 General Principles" clause "(t)" name "Amendment to Termination Currency."]
-
     isApplicable boolean (1..1) <"The qualification of whether the Amendment to Termination Currency is deemed applicable by the parties (True) or not (False).">
     effectiveDate AmendmentEffectiveDate (0..1) <"The effective date of the Amendment to Termination Currency. This date can be specified as either an actual date, a specific date (e.g. the annex date) or as a custom provision.">
-    partyElection TerminationCurrencyElection (0..3) <"The parties' Amendment Currency election.">
+    partyElection TerminationCurrencyElection (0..2) <"The parties' Amendment Currency election.">
 
     condition Applicability: <"The Amendment to Termination Currency elections only apply when the Amendment to Termination Currency is deemed applicable by the parties.">
         if isApplicable = False
@@ -965,9 +960,9 @@ type BaseAndEligibleCurrency: <"The base and eligible currency(ies) for the docu
         [metadata scheme]
 
 type CoveredTransactions: <"Specification of Transactions covered by the legal agreement.">
-    inclusionDate date (1..1) <"Includes any Transaction specified below that is entered into on or after the specified date.">
-    coveredTransactions ProductTaxonomy (1..*) <"Covered Transactions when expressed using the ISDA taxonomy.">
-    bespokeCoveredTransactions string (1..*) <"Covered Transactions when not expressed using the ISDA taxonomy.">
+    inclusionDate date (0..1) <"Includes any Transaction specified below that is entered into on or after the specified date.">
+    coveredTransactions ProductTaxonomy (0..*) <"Covered Transactions when expressed using the ISDA taxonomy.">
+    bespokeCoveredTransactions string (0..*) <"Covered Transactions when not expressed using the ISDA taxonomy.">
     additionalObligations AdditionalObligations (0..2) <"The party specific additional obligations applicable to the document.">
     exposure ExposureScope (0..1) <"Specification of amendments to the calculation of Exposure in terms of the Transactions covered.">
 
@@ -975,8 +970,6 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(d)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(c) " name "Credit Support Obligations"]
-    deliveryAmount string (0..1) <"Delivery Amount (VM) has the meaning specified in Paragraph 3(a), unless otherwise specified here.">
-    returnAmount string (0..1) <"Return Amount (VM) has the meaning specified in Paragraph 3(a), unless otherwise specified here.">
     marginApproach MarginApproach (0..1) <"The selection of Margin Approach applicable to the agreement.">
     otherEligibleSupportIM string (0..1) <"The Other Eligible Support election. If not specified, this election is deemed as not applicable.">
         [docReference ISDA CSA_IM_NewYork_2016]
@@ -999,8 +992,8 @@ type CreditSupportObligations: <"A class to specify the Credit Support Obligatio
         [docReference ISDA CSD_English_1995]
         [docReference ISDA CSA_VM_English_2016]
         [docReference ISDA CSA_VM_NewYork_2016]
-    legacyDeliveryAmount LegacyDeliveryAmount (1..1) <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be transferred to it as a Delivery Amount.">
-    legacyReturnAmount LegacyReturnAmount (1..1) <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be recalled to it as a Return Amount.">
+    deliveryAmount DeliveryAmount (1..1) <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be transferred to it as a Delivery Amount.">
+    returnAmount ReturnAmount (1..1) <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be recalled to it as a Return Amount.">
     creditSupportAmount CreditSupportAmount (1..1) <"The total amount one counterparty must deliver to the other at any time: the combination of the Exposure to that party and the net Independent Amounts it must post, minus any agreed Threshold.">
     collateralTransferTiming CollateralTransferTiming (0..1) <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
     legacyIndependentAmount LegacyIndependentAmount (0..1) <"Specifies the additional amount of collateral that is required to be delivered by a party irrespective of the mark-to-market exposure under the related Transactions. It may take the form of a fixed amount or may be determined using ratings.">
@@ -1033,7 +1026,6 @@ type SecurityInterestForObligations: <"Security Interest for Obligations clause 
         [docReference ISDA CSD_English_1995 name "Security Interest for Obligations"]
         [docReference ISDA CSA_VM_English_2016 name "Security Interest for Obligations"]
         [docReference ISDA CSA_VM_NewYork_2016 name "Security Interest for Obligations"]
-
     party CounterpartyRoleEnum (2..2) <"The elective party to which the Security Interest for Obligations is applicable.">
     obligations SecurityInterestObligationsEnum (1..1) <"A description of any additional obligations secured by the credit support arrangements.">
     obligee SecurityInterestObligeeEnum (1..1) <"The party to whom obligations under the Master Agreement are owed and secured by the credit support arrangements.">
@@ -1049,7 +1041,7 @@ type Threshold: <"Represents the amount of unsecured risk that a party is willin
         [docReference ISDA CSD_English_1995 name "Threshold"]
         [docReference ISDA CSA_VM_English_2016 name "Threshold"]
         [docReference ISDA CSA_VM_NewYork_2016 name "Threshold"]
-    partyElection ThresholdElection (0..2) <"The party specific election for the threshold clause.">
+    partyElection ThresholdElection (2..2) <"The party specific election for the threshold clause.">
 
 type ThresholdMinmumTransferAmountBase: <"A logical container designed to hold a set of related data. In this case, designed to hold a set of information required to specify conditions under which Threshold or Minimum Transfer Amount can fall to zero.">
     zeroEvent boolean (1..1) <"Indicates whether a trigger applies for the Threshold or Minimum Transfer Amount to fall to zero. If 'True' then such a trigger exists.">
@@ -1105,7 +1097,7 @@ type MinimumTransferAmount: <"Represents the threshold specified in the agreemen
     [docReference ISDA CSD_English_1995 name "Minimum Transfer Amount"]
     [docReference ISDA CSA_VM_English_2016 name "Minimum Transfer Amount"]
     [docReference ISDA CSA_VM_NewYork_2016 name "Minimum Transfer Amount"]
-    partyElection MinimumTransferAmountElection (0..2) <"The party specific elections for the Minimum Transfer Amount clause.">
+    partyElection MinimumTransferAmountElection (2..2) <"The party specific elections for the Minimum Transfer Amount clause.">
 
 type MinimumTransferAmountElection: <"Specifies the method by which the minimum transfer amount is defined, such as a fixed amount, ratings based, or an alternative basis set out in the agreement.">
     party CounterpartyRoleEnum (1..1) <"The party to which the minimum transfer amount applies.">
@@ -1151,19 +1143,16 @@ type CSAMinimumTransferAmountVariableSet: <"Defines a combination of Rating Agen
     condition ValueMustExist: <"If we have a value then we must also have a name.">
         if value exists then name exists
 
-type DatedAsOfDate: <"Defines the dates agreed by the parties as the date of the Credit Support Annex or Credit Support Deed.">
-    csaDatedAsOfDate date (0..1) <"The date agreed by the parties as the Dated as of Date for the Credit Support Annex.">
+type MasterAgreementDatedAsOfDate: <"Defines the dates agreed by the parties as the date of the Credit Support Annex or Credit Support Deed.">
     masterAgreementDatedAsOfDate date (0..1) <"The date agreed by the parties as the Dated as of Date for the Master Agreement.">
-    csaMadeOn date (0..1) <"The date agreed by the parties as the Made On date of the Credit Support Deed.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
-type LegacyDeliveryAmount: <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be transferred to it as a Delivery Amount.">
-    legacyDeliveryAmount LegacyDeliveryReturnAmountEnum (1..1) <"Specifies whether the meaning of Delivery Amount follows the pre-print definition or deviates from this (either based on a rating or some other methodology).">
+type DeliveryAmount: <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be transferred to it as a Delivery Amount.">
+    deliveryAmount DeliveryReturnAmountEnum (1..1) <"Specifies whether the meaning of Delivery Amount follows the pre-print definition or deviates from this (either based on a rating or some other methodology).">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
-type LegacyReturnAmount: <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be recalled to it as a Return Amount.">
-    legacyReturnAmount LegacyDeliveryReturnAmountEnum (1..1) <"Specifies whether the meaning of Return Amount follows the pre-print definition or deviates from this (either based on a rating or some other methodology).">
-    additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
+type ReturnAmount: <"In respect of a Valuation Date, the amount of collateral which a party is entitled to demand to be recalled to it as a Return Amount.">
+    returnAmount DeliveryReturnAmountEnum (1..1) <"Specifies whether the meaning of Return Amount follows the pre-print definition or deviates from this (either based on a rating or some other methodology).">
 
 type ValuationTime: <"Specifies the time by which the value of the collateral and obligations to transfer or return collateral are to be calculated relative to the Valuation Date.">
     day ValuationTimeDayEnum (0..1) <"The day in respect of which the Valuation Time is being specified. If not specified, addional language must be used to define the methodology.">
@@ -1207,7 +1196,7 @@ type CSAValuationDate: <"Specifies the date on which the value of collateral or 
         if date is absent or frequency is absent
         then additionalLanguage exists
 
-type ValuationAgent: <"Details of the party calculating the value of collateral to be delivered or returned.">
+type ValuationAgent: <"Details of the party valuating the collateral to be delivered or returned.">
     party CalculationValuationAgentPartyEnum (0..1) <"Specification of which party calculating the value of collateral to be delivered or returned.">
     valuationAgent ValuationAgentDeterminationEnum (0..1) <"Specifies how the Valuation Agent is determined.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
@@ -1261,10 +1250,10 @@ type ResolutionValue: <"Methodology for resolving disputes in respect of the det
         then additionalLanguage exists
 
 type CollateralTransferTiming: <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
-    transferSettlementTiming LegacyTransferSettlementTiming (0..1) <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
-    legacyDefinition LegacyDefinition (0..1) <"Bespoke language removing the pre-print requirement to transfer legal title of securities collateral through written instructions to the relevant depository institution or other securities intermediaries solely for the purposes of the 1994 New York Law Credit Support Annex.">
+    transferSettlementTiming TransferSettlementTiming (0..1) <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
+    collateralTransferTimingdefinition CollateralTransferTimingDefinition (0..1) <"Bespoke language removing the pre-print requirement to transfer legal title of securities collateral through written instructions to the relevant depository institution or other securities intermediaries solely for the purposes of the 1994 New York Law Credit Support Annex.">
 
-type LegacyTransferSettlementTiming: <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
+type TransferSettlementTiming: <"Specification of transfer / settlement timing for cash and securities collateral assuming that the notice is provided before the Notification Time (and with a 1LBD lag introduced if the notice is delivered after the Notification Time), and that securities allow for a further Local Business Day for transfer / settlement.">
     cashCollateralTransferSettlementTime CashCTSTimeEnum (0..1) <"Details the day on which collateral is required to be transferred relative to the Notification Time.">
     securititesCollateralTransferSettlementTime SecuritiesCTSTimeEnum (0..1) <"Details the day on which collateral is required to be transferred relative to the Notification Time.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
@@ -1274,7 +1263,7 @@ type LegacyTransferSettlementTiming: <"Specification of transfer / settlement ti
                 or securititesCollateralTransferSettlementTime = SecuritiesCTSTimeEnum -> Other
         then additionalLanguage exists
 
-type LegacyDefinition: <"Bespoke language removing the pre-print requirement to transfer legal title of securities collateral through written instructions to the relevant depository institution or other securities intermediaries solely for the purposes of the 1994 New York Law Credit Support Annex.">
+type CollateralTransferTimingDefinition: <"Bespoke language removing the pre-print requirement to transfer legal title of securities collateral through written instructions to the relevant depository institution or other securities intermediaries solely for the purposes of the 1994 New York Law Credit Support Annex.">
     isApplicable boolean (0..1) <"A boolean flag to represent bespoke amendment to the pre-print definition of Transfer.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
@@ -1319,21 +1308,21 @@ type CreditSupportProviderElection: <"The party election of Credit Support Provi
         if creditSupportProviderTerms = CreditSupportProviderTermsEnum -> Specified
         then creditSupportProvider exists
 
-type SpecifiedCondition: <"Specifies events elected by the parties, that if triggered, can temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral.">
-    [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)"]
+type SpecifiedConditionAndAccessCondition: <"Specifies the events elected by the parties that are deemed an Access Condition (for Initial Margin CSA) or a Specified Condition (for Variation Margin and Legacy CSA), which, if triggered, may temporarily or permanently suspend rights to rehypothecate, transfer, or substitute collateral.">
+        [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(d)"]
         [docReference ISDA CSD_English_1995 paragraph "13" clause "(e)"]
     isApplicable boolean (1..1) <"Indicates whether events that could temporarily or permanently suspend rights to rehypothecate, transfer or substitute collateral are applicable. If applicable,'True'. If not applicable,'False'.">
-    partyElection SpecifiedConditionPartyElection (0..2) <"The party specific elections.">
+    partyElection SpecifiedOrAccessConditionPartyElection (0..2) <"The party specific elections.">
     additionalLanguage string (0..1) <"The additional language that might be specified by the parties to the legal agreement.">
 
-type SpecifiedConditionPartyElection: <"The party specific elections in respect to the Specified Condition clause.">
+type SpecifiedOrAccessConditionPartyElection: <"The party specific elections in respect to the Specified Condition and Access Condition clause.">
     party CounterpartyRoleEnum (1..1) <"Identifies the party making the election.">
-    specifiedCondition CSASpecifiedConditionEnum (0..*) <"Specifies events that may temporarily or permanently suspend a partys rights to rehypothecate, transfer, or substitute collateral.">
+    specifiedOrAccessCondition CSASpecifiedOrAccessConditionEnum (0..*) <"Specifies events that may temporarily or permanently suspend a partys rights to rehypothecate, transfer, or substitute collateral.">
     additionalTerminationEvent AdditionalTerminationEventEnum (0..*) <"Specifies events that may lead to the early termination of the Master Agreement, including suspension of the affected party's rights to rehypothecate, transfer, or substitute collateral.">
     specifiedAdditionalTerminationEvent string (0..1) <"Specifies any bespoke Additional Termination Event(s) that are set out in the related Specified Condition clause.">
 
-    condition AdditionalTerminationEvent: <"If Specified Condition is Additional Termination Event, then Additional Termination Event must be specified.">
-        if specifiedCondition any = CSASpecifiedConditionEnum -> AdditionalTerminationEvents
+    condition AdditionalTerminationEvent: <"If Specified or Access Condition is Additional Termination Event, then Additional Termination Event must be specified.">
+        if specifiedOrAccessCondition any = CSASpecifiedOrAccessConditionEnum -> AdditionalTerminationEvents
         then additionalTerminationEvent exists
         else additionalTerminationEvent is absent
 
