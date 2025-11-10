@@ -1,29 +1,21 @@
-# *Ingestion Framework - Rune DSL syntax replacing static Java functions*
+# *Event Model - Termination for Schedules*
 
 _Background_
 
-This change is required to remove references to the hard-coded choice functions such as ToDocumentChoice. These functions are implemented in static Java and can instead be implemented with the switch operator in the Rune syntax.
+Previously, when a termination applied to a quantity schedule, the model did not correctly update all dated values following the termination’s effective period. As a result, quantities after the termination date could still retain non-zero values.
+
+To address this, the logic has been improved so that any dated values from the effective period onward are correctly set to zero when a termination occurs.
 
 _What is being released?_
 
-Everywhere in the ingestion functions where we use a choice function, the function call has been replaced with a switch operator which is now capable of switching over types that extend a base type.
-The following rosetta files are affected:
+The `UpdateQuantityAmountForEachMatchingQuantity` function has been enhanced to apply the quantity change to all dated values from the current period onward. A new function `UpdateDatedValues` has been created to perform the update of the `DatedValue`.
 
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-common-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-datetime-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-legal-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-message-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-party-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-payment-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-pricequantity-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-commodityswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-creditdefaultswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-equityswaptransactionsupplement-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-returnswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-swap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-tradestate-func.rosetta
+The period from which the change should take effect is determined using the `primitiveInstruction → quantityChange → change → effectiveDate`.
+
+_Mappings_
+
+The mapping from the FpML termination effective date has been added to the function `MapPriceQuantity` pointing to the `primitiveInstruction → quantityChange → change → effectiveDate`.
 
 _Review Directions_
 
-
-Changes can be reviewed in PR: [#4156](https://github.com/finos/common-domain-model/pull/4156)
+Changes can be reviewed in PR: [#4144](https://github.com/finos/common-domain-model/pull/4144)
