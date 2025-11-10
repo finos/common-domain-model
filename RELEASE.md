@@ -18,4 +18,4 @@ Modified qualification functions
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4176]([url](https://github.com/finos/common-domain-model/pull/4176))
+Changes can be reviewed in PR: [#4176](https://github.com/finos/common-domain-model/pull/4176)
