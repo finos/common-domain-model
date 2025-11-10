@@ -1,103 +1,29 @@
-# *Legal Documentation - Valuation/Calculation Agent*
+# *Ingestion Framework - Rune DSL syntax replacing static Java functions*
 
 _Background_
 
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplication in the model where possible.
+This change is required to remove references to the hard-coded choice functions such as ToDocumentChoice. These functions are implemented in static Java and can instead be implemented with the switch operator in the Rune syntax.
 
 _What is being released?_
 
-Calculation Agent:
-- Changed the party type from `CounterpartyRoleEnum` to `CalculationValuationAgentPartyEnum`.
-- Updated type and attribute descriptions.
+Everywhere in the ingestion functions where we use a choice function, the function call has been replaced with a switch operator which is now capable of switching over types that extend a base type.
+The following rosetta files are affected:
 
-Valuation Agent:
-- Removed duplicate `CollateralValuationAgent`
-- Renamed `LegacyValuationDate`/`LegacyValuationTime`/`LegacyValuationDate` to `ValuationDate`/`ValuationTime`/`ValuationLocation`.
-- Updated type and attribute descriptions.
-
-`CalculationValuationAgentPartyEnum` and `ValuationCalculationDateLocation`:
-- Standardised types and enums used under both Valuation Agent and Calculation Agent.
-
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4080](https://github.com/finos/common-domain-model/pull/4080)
-
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This release updates the `DSL` dependency.
-
-Version updates include:
-- `DSL` `9.68.0` Allow usage of the `switch` operator on types which exist in other namespaces. See DSL release notes: [DSL 9.68.0](https://github.com/finos/rune-dsl/releases/tag/9.68.0)
-
-No expectations are updated as part of this release.
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-common-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-datetime-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-legal-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-message-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-party-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-payment-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-pricequantity-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-commodityswap-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-creditdefaultswap-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-equityswaptransactionsupplement-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-returnswap-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-swap-func.rosetta
+- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-tradestate-func.rosetta
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4134](https://github.com/finos/common-domain-model/pull/4134)
 
-# *Legal Documentation - Initial Margin and Variation Margin Clause Updates*
-
-_Background_
-
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplication in the model where possible.
-
-_What is being released?_
-
-Dispute Resolution:
-- Merged `valueTerms` and `legacyValue`.
-- Merged `resolutionTime` and `legacyResolutionTime`.
-- Renamed `LegacyResolutionValue` to `ResolutionValue`.
-
-IneligibleCreditSupport:
-- Changed `specifiedParty` type from `Party` to `CounterpartyRoleEnum`.
-- Updated type and attribute descriptions.
-
-SensitivityMethodologies:
-- Added `partyElection` attribute with a type `SensitivityMethodologiesPartyElection`.
-- Split `SensitivityToEquity` into `sensitivityToIndices`, `sensitivityToFunds`, and `sensitivityToETFs`.
-- Updated type and attribute descriptions.
-
-Substitution:
-- Added `partyElection` attribute with a type `SubstitutionPartyElection`.
-
-Covered Transactions:
-- Merged `exposure` and `legacyExposure`.
-- Updated type and attribute descriptions.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4081](https://github.com/finos/common-domain-model/pull/4081)
-
-## Legal documentation - Updating the Legacy Threshold and Minimum Transfer Amount types
-
-*Background*
-
-D2LT and ISDA are working to enhance the legal documentation aspect of CDM. D2LT has reviewed the Initial Margin / Variation Margin (IM/VM) and Legacy Credit Support documentation and is updating the model to accurately represent the clauses. This includes reducing duplication in the model where possible.
-
-*What is being released?*
-
-The following updates were applied to Threshold and Minimum Transfer Amount (MTA) types:
-
-Threshold
-- Merged Legacy threshold and threshold types.
-- Added party elections to specify the party to which the threshold applies.
-- Changed infinity attribute to boolean.
-- Added conditions for robustness.
-- Change fixed amount type to money.
-- Added Zero event to fixed amount.
-- Updated descriptions of types and attributes.
-
-Minimum Transfer Amount
-- Merged Legacy MTA and MTA.
-- Added party elections to specify the party to which the MTA applies.
-- Added conditions for robustness.
-- Change fixed amount type to money.
-- Added Zero event to fixed amount.
-- Updated descriptions of types and attributes.
-
-*Review Directions*
-
-Changes can be reviewed in PR: [#4107](https://github.com/finos/common-domain-model/pull/4107)
+Changes can be reviewed in PR: [#4156](https://github.com/finos/common-domain-model/pull/4156)
