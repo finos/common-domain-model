@@ -87,15 +87,19 @@ func MapReturnSwapLegListToPayoutList:
 
     add payoutList:
         fpmlDirectionalLegList
-            extract item switch
-                fpml.InterestLeg then MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
-                default empty
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
+                    default empty
 
     add payoutList:
         fpmlDirectionalLegList
-            extract item switch
-                fpml.ReturnLeg then MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
-                default empty
+            extract
+                item switch
+                    fpml.ReturnLeg then
+                        MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+                    default empty
 
 func MapEquitySwapTransactionSupplementPriceQuantityList:
     inputs:
@@ -105,17 +109,20 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
 
     alias returnLeg:
         (fpmlEquitySwapTransactionSupplement -> returnSwapLeg
-            extract item switch
-                fpml.ReturnLeg then item,
-                default empty)
-        then only-element
-           
+            extract
+                item switch
+                    fpml.ReturnLeg then item,
+                    default empty)
+            then only-element
+
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
-            extract item switch
-                fpml.InterestLeg then MapInterestLegToPriceQuantity(item, returnLeg),
-                fpml.ReturnLeg then MapReturnLegToPriceQuantity,
-                default empty
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        MapInterestLegToPriceQuantity(item, returnLeg),
+                    fpml.ReturnLeg then MapReturnLegToPriceQuantity,
+                    default empty
 
 func MapEquitySwapTransactionSupplementAccountPartyReference:
     inputs:
