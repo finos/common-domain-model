@@ -16,47 +16,14 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.confirmation.custom.*
-import fpml.consolidated.* as fpml
-import fpml.consolidated.accumulator.* as fpml
 import fpml.consolidated.asset.* as fpml
-import fpml.consolidated.bond.option.* as fpml
 import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.cd.* as fpml
-import fpml.consolidated.clearing.processes.* as fpml
 import fpml.consolidated.com.* as fpml
-import fpml.consolidated.confirmation.processes.* as fpml
-import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.credit.event.notification.* as fpml
-import fpml.consolidated.dividend.swaps.* as fpml
 import fpml.consolidated.doc.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
 import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlreturn.swaps.* as fpml
-import fpml.consolidated.fpmlstandard.* as fpml
 import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.fx.accruals.* as fpml
-import fpml.consolidated.fx.targets.* as fpml
-import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.ird.* as fpml
-import fpml.consolidated.loan.* as fpml
-import fpml.consolidated.main.* as fpml
-import fpml.consolidated.mktenv.* as fpml
-import fpml.consolidated.msg.* as fpml
 import fpml.consolidated.option.shared.* as fpml
-import fpml.consolidated.recordkeeping.processes.* as fpml
-import fpml.consolidated.reg.fpmlreporting.product.* as fpml
-import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
-import fpml.consolidated.repo.* as fpml
-import fpml.consolidated.riskdef.* as fpml
-import fpml.consolidated.sec.lending.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.consolidated.valuation.* as fpml
-import fpml.consolidated.valuation.fpmlreporting.* as fpml
-import fpml.consolidated.variance.swaps.* as fpml
-import fpml.consolidated.volatility.swaps.* as fpml
-import fpml.custom.*
 
 func GetFpmlTrade:
     inputs:
@@ -89,8 +56,21 @@ func MapStringWithScheme:
         stringWithScheme string (0..1)
             [metadata scheme]
 
-    set stringWithScheme: value
-    set stringWithScheme -> scheme: scheme
+    set stringWithScheme: value with-meta {
+        scheme: scheme
+    }
+
+func MapStringWithReference:
+    inputs:
+        value string (0..1)
+        reference string (0..1)
+    output:
+        stringWithReference string (0..1)
+            [metadata reference]
+
+    set stringWithReference: value with-meta {
+        reference: reference
+    }
 
 func MapCurrency:
     inputs:
@@ -109,7 +89,8 @@ func MapCurrencyReference:
         currencyReference string (0..1)
             [metadata reference]
 
-    set currencyReference -> reference: fpmlIdentifiedCurrencyReference -> href
+    set currencyReference:
+        MapStringWithReference(empty, fpmlIdentifiedCurrencyReference -> href)
 
 func MapResolvablePriceQuantityReference:
     inputs:
@@ -118,7 +99,9 @@ func MapResolvablePriceQuantityReference:
         quantityReference ResolvablePriceQuantity (0..1)
             [metadata reference]
 
-    set quantityReference -> reference: fpmlHref
+    set quantityReference: empty with-meta {
+        reference: fpmlHref
+    }
 
 func MapProductTaxonomyList:
     inputs:
@@ -155,8 +138,9 @@ func MapAssetClassWithScheme:
         enumWithScheme AssetClassEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum AssetClassEnum
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: value to-enum AssetClassEnum with-meta {
+        scheme: scheme
+    }
 
 func MapUnitTypeWithScheme:
     inputs:
@@ -184,8 +168,9 @@ func MapCapacityUnitWithScheme:
         enumWithScheme CapacityUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapCapacityUnitEnum(value)
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: MapCapacityUnitEnum(value) with-meta {
+        scheme: scheme
+    }
 
 func MapWeatherUnitWithScheme:
     inputs:
@@ -195,8 +180,9 @@ func MapWeatherUnitWithScheme:
         enumWithScheme WeatherUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum WeatherUnitEnum
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: value to-enum WeatherUnitEnum with-meta {
+        scheme: scheme
+    }
 
 func MapFinancialUnitWithScheme:
     inputs:
@@ -206,19 +192,9 @@ func MapFinancialUnitWithScheme:
         enumWithScheme FinancialUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum FinancialUnitEnum
-    set enumWithScheme -> scheme: scheme
-
-func MapCommodityFrequencyWithScheme:
-    inputs:
-        value string (0..1)
-        scheme string (0..1)
-    output:
-        frequency Frequency (0..1)
-            [metadata scheme]
-
-    set frequency -> key: value
-    set frequency -> scheme: scheme
+    set enumWithScheme: value to-enum FinancialUnitEnum with-meta {
+        scheme: scheme
+    }
 
 func MapTaxonomySourceEnum:
     inputs:
@@ -243,8 +219,9 @@ func MapFeeTypeEnumWithScheme:
         enumWithScheme FeeTypeEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapFeeTypeEnum(value)
-    set enumWithScheme -> scheme: scheme
+    set enumWithScheme: MapFeeTypeEnum(value) with-meta {
+        scheme: scheme
+    }
 
 func MapProductIdentifierList:
     inputs:
@@ -312,9 +289,10 @@ func MapReferenceCurrency:
             [metadata id]
             [metadata scheme]
 
-    set currency: fpmlReferenceCurrency -> value
-    set currency -> id: fpmlReferenceCurrency -> id
-    set currency -> scheme: fpmlReferenceCurrency -> currencyScheme
+    set currency: fpmlReferenceCurrency -> value with-meta {
+        id: fpmlReferenceCurrency -> id,
+        scheme: fpmlReferenceCurrency -> currencyScheme
+    }
 
 func MapComposite:
     inputs:
@@ -377,8 +355,9 @@ func MapQuotedCurrencyPairWithLocation:
         quotedCurrencyPair QuotedCurrencyPair (0..1)
             [metadata location]
 
-    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair)
-    set quotedCurrencyPair -> location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair) // TODO: fix code gen issue when setting using with-meta
+    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair) with-meta {
+        location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair)
+    }
 
 func MapFxSpotRateSource:
     inputs:
@@ -509,20 +488,19 @@ func MapExerciseTerms:
                 )
 
     set exerciseTerms:
-        ToExerciseChoice(fpmlExercise)
-            switch
-        EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
-        BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
-        EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
-        AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
-        EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
-        CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
-        FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
-        FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
-        default empty
+        fpmlExercise switch
+            fpml.EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
+            default empty
 
 func MapExerciseProcedure:
     inputs:
@@ -921,19 +899,17 @@ func GetPerUnitOfForEquityDerivativeBase:
     output:
         perUnitOf UnitType (0..1)
 
-    alias assetChoice:
-        ToAssetChoice(
-                fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
-            )
+    alias fpmlUnderlyingAsset:
+        fpmlEquityDerivativeBase -> underlyer -> singleUnderlyer -> underlyingAsset
 
     alias financialUnit:
-        assetChoice switch
-        Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
-        default FinancialUnitEnum -> Share
+        fpmlUnderlyingAsset switch
+            fpml.Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
+            default empty
 
     set perUnitOf:
         UnitType {
-            financialUnit: financialUnit,
+            financialUnit: financialUnit default FinancialUnitEnum -> Share,
             ...
         }
 
