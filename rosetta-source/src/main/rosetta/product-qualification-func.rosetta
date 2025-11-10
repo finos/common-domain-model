@@ -34,7 +34,7 @@ func ObservableQualification: <"Identifies whether the observable(s) have either
 
     set qualifies:
         (securityType exists and observable -> Asset -> Instrument -> Security -> instrumentType = securityType)
-                    or (assetClass exists and observable -> Index ->> assetClass = assetClass)
+            or (assetClass exists and observable -> Index ->> assetClass = assetClass)
             or if observable -> Basket exists
                 then observable -> Basket -> basketConstituent
                         extract [ ObservableQualification(item, securityType, assetClass) ]
@@ -345,7 +345,7 @@ func Qualify_TotalReturnSwap_Index: <"Qualifies a product as a Total Return Swap
         Qualify_AssetClass_Credit(economicTerms) = True
             and ((economicTerms -> payout -> InterestRatePayout, economicTerms -> payout -> PerformancePayout) only exists
                 and if performanceUnderlier exists
-                    then (performanceUnderlier -> Observable ->Index ->> assetClass = AssetClassEnum -> Credit))
+                    then (performanceUnderlier -> Observable -> Index ->> assetClass = AssetClassEnum -> Credit))
 
 func Qualify_InstrumentTypeEquity: <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
@@ -765,7 +765,7 @@ func Qualify_Equity_OtherForward: <"Qualifies a product with properties of an Ex
         Qualify_AssetClass_Equity(economicTerms) = True
             and economicTerms -> payout only-element -> SettlementPayout exists
             and economicTerms -> nonStandardisedTerms = True
-            
+
 func Qualify_EquityOption_PriceReturnBasicPerformance_SingleName: <"Qualifies a product as a plain vanilla Equity Option.  The determination of the qualification is based on the economic terms and the following criteria: 1) An option product  for which the underlier is a single stock and 2) No special option feature exists other than option averaging."> //
     [qualification Product]
     inputs:

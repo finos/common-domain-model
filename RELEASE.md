@@ -19,7 +19,7 @@ _Modified qualification functions_
 - `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
 Review Directions
 
-Changes can be reviewed in PR: [#4175](https://github.com/finos/common-domain-model/pull/4175)
+Changes can be reviewed in PR: [#4177](https://github.com/finos/common-domain-model/pull/4177)
 
 # *CDM Distribution - Python generation to utilize new process*
 
