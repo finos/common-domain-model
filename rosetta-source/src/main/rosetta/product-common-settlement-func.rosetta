@@ -25,8 +25,8 @@ func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from t
                                         direction
                                     ),
                     quantity: priceQuantity -> quantity
-                            extract
-                                UpdateQuantityAmountForEachMatchingQuantity(
+                        extract
+                            UpdateQuantityAmountForEachMatchingQuantity(
                                         item,
                                         change, // FilterChangePriceQuantity(priceQuantity, change),
                                         // PriceQuantity used as input to keep the quantity and effectiveDate linked
@@ -85,8 +85,8 @@ func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from th
             [metadata location]
 
     alias changeMatching:
-        change
-            filter UnitEquals(item -> quantity first -> unit, quantity -> unit)
+        SplitQuantityChange(change)
+            filter UnitEquals(item -> quantity only-element -> unit, quantity -> unit)
             then first
 
     alias changedAmount:
@@ -133,3 +133,22 @@ func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes ma
 
     set result:
         unitMatches and perUnitOfMatches and priceTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
+
+func SplitQuantityChange: <"Splits a PriceQuantity list into separate elements, each containing a single quantity and its corresponding effective date, if multiple quantities exist.">
+    inputs:
+        changeList PriceQuantity (1..*) <"Original PriceQuantity list where each of them may contain multiple quantities.">
+    output:
+        splitChange PriceQuantity (1..*) <"New list of PriceQuantity where each of them contain a single quantity.">
+
+    set splitChange: <"Iterates through the original PriceQuantity list and the quantity list.">
+        changeList
+            extract change [
+                change -> quantity
+                    extract quantity [
+                        PriceQuantity {
+                            quantity: quantity,
+                            effectiveDate: change -> effectiveDate,
+                            ...
+                        }
+                    ]
+            ] then flatten
