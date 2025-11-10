@@ -15,7 +15,10 @@ import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.payment.*
 
+import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.* as fpml
 import fpml.consolidated.* as fpml
 import fpml.consolidated.accumulator.* as fpml
@@ -140,9 +143,13 @@ func MapPrimitiveInstruction:
                     fpmlTradeNotionalChange -> amendment
                 )
         else if fpmlTradingEventsBaseModel exists
-        then MapTradingEventsBaseModelToPrimitiveInstruction(fpmlTrade)
+        then MapTradeToPrimitiveInstruction(
+                    fpmlTradingEventsBaseModel -> tradingEventsBaseModelSequence -> trade
+                )
+        else if fpmlTrade exists
+        then MapTradeToPrimitiveInstruction(fpmlTrade)
 
-func MapTradingEventsBaseModelToPrimitiveInstruction:
+func MapTradeToPrimitiveInstruction:
     inputs:
         fpmlTrade fpml.Trade (0..1)
     output:
@@ -245,12 +252,7 @@ func MapTerminationToPrimitiveInstruction:
         primitiveInstruction PrimitiveInstruction (0..1)
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
-    alias payment:
-        termination -> tradeAlterationPaymentModel -> payment distinct only-element
-    alias terminationPayment:
-        MapNonNegativeMoneyToQuantity(
-                termination -> tradeAlterationPaymentModel -> payment distinct only-element -> paymentAmount
-            )
+    alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -261,101 +263,73 @@ func MapTerminationToPrimitiveInstruction:
                                 counterpartyList
                             )
                 },
-            quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
-                    extract
-                        QuantityChangeInstruction {
-                            change: MapPriceQuantity,
-                            direction: if exists then Replace,
-                            ...
-                        },
+            quantityChange: MapQuantityChange(termination),
             transfer:
                 TransferInstruction {
-                    transferState:
-                        TransferState {
-                            transfer:
-                                Transfer {
-                                    quantity:
-                                        NonNegativeQuantity {
-                                            value: terminationPayment -> value,
-                                            unit: terminationPayment -> unit,
-                                            ...
-                                        },
-                                    asset:
-                                        Asset {
-                                            Cash:
-                                                Cash {
-                                                    identifier: terminationPayment -> unit -> currency
-                                                            extract
-                                                                AssetIdentifier {
-                                                                    identifier: item,
-                                                                    identifierType: if exists
-                                                                            then CurrencyCode
-                                                                },
-                                                    ...
-                                                },
-                                            ...
-                                        },
-                                    settlementDate: MapAdjustableOrAdjustedDateToAdjustableOrAdjustedOrRelativeDate(
-                                                payment -> paymentDate
-                                            ),
-                                    payerReceiver: payment -> payerReceiverModel
-                                            extract
-                                                PartyReferencePayerReceiver {
-                                                    payerPartyReference: MapPartyReference(
-                                                                payerModel -> payerPartyReference -> href
-                                                            ),
-                                                    receiverPartyReference: MapPartyReference(
-                                                                receiverModel -> receiverPartyReference -> href
-                                                            ),
-                                                    ...
-                                                },
-                                    transferExpression: payment
-                                            extract
-                                                TransferExpression {
-                                                    priceTransfer: if id exists
-                                                            then MapFeeTypeEnum(id)
-                                                        else MapFeeTypeEnumWithScheme(
-                                                                paymentType -> value to-string,
-                                                                paymentType -> paymentTypeScheme
-                                                            ),
-                                                    ...
-                                                },
-                                    ...
-                                },
-                            ...
-            },},
+                    transferState: MapPaymentListToTransferStateList(
+                                terminationPayment,
+                                Termination
+                    ),
+                },
+            ...
+        }
+
+func MapQuantityChange:
+    inputs:
+        fpmlTradeNotionalChange fpml.TradeNotionalChange (0..1)
+    output:
+        quantityChange QuantityChangeInstruction (0..1)
+
+    set quantityChange:
+        QuantityChangeInstruction {
+            change: MapPriceQuantity(fpmlTradeNotionalChange),
+            direction: if fpmlTradeNotionalChange exists then Replace,
             ...
         }
 
 func MapPriceQuantity:
     inputs:
-        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+        fpmlTradeNotionalChange fpml.TradeNotionalChange (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias outstandingTradeNotional:
+        fpmlTradeNotionalChange -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0 -> outstandingNotionalAmount
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+
+    alias outstandingSizeChange:
+        fpmlTradeNotionalChange -> sizeChange -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+
+
     add priceQuantityList:
         PriceQuantity {
-            quantity: CreateQuantityWithLocation(
-                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
-                        CreateQuantityKey(empty, empty)
-                    ),
+            quantity: outstandingTradeNotional
+                    extract
+                        CreateQuantityWithLocation(item, CreateQuantityKey(empty, empty)),
             ...
         }
 
-func MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule:
+    add priceQuantityList:
+        PriceQuantity {
+            quantity: outstandingSizeChange
+                    extract
+                        CreateQuantityWithLocation(item, CreateQuantityKey(empty, empty)),
+            ...
+        }
+
+func MapNonNegativeMoneyNonNegativeQuantitySchedule:
     inputs:
-        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+        f fpml.consolidated.shared.NonNegativeMoney (0..1)
     output:
         priceQuantityList NonNegativeQuantitySchedule (0..1)
 
     set priceQuantityList:
         NonNegativeQuantitySchedule {
-            value: f -> outstandingNotionalAmount -> amount distinct only-element,
+            value: f -> amount,
             unit:
                 UnitType {
-                    currency: f -> outstandingNotionalAmount -> currency -> value
-                            distinct
-                            only-element,
+                    currency: f -> currency -> value,
                     ...
                 },
             ...
