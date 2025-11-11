@@ -18,3 +18,19 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
 
+# _Infrastructure - Dependency Update_
+
+_What is being released?_
+
+This release updates the `bundle` dependency.
+
+Version updates include:
+- `bundle` `11.90.5` Fix issue with C# return type covariance
+
+No expectations are updated as part of this release.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
+
+
