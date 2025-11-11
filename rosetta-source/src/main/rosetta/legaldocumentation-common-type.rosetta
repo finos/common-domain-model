@@ -166,9 +166,24 @@ type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal
 
     terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
 
-type AddressForNotices: <"Specification of the address and other details for notices.">
-    primaryNotices ContactElection (1..1) <"Specification of primary notice details">
-    additionalNotices PartyContactInformation (0..*) <"The optional specification of additional information when a party requires notices to be delivered to more than one address.">
+type ContactInformationElection: <"Specifies the party reference and the associated contact information.">
+    partyReference CounterpartyRoleEnum (1..1) <"The party to which the election and details apply.">
+    primaryContactInformation ContactInformation (0..1) <"The main notice/address information of the party.">
+
+type NoticeInformationElection extends ContactInformationElection: <"Specifies the party reference and the associated notice and contact information.">
+    override primaryContactInformation NoticeContactInformation (1..1) <"The main notice/address information of the party.">
+    additionalContactInformation NoticeContactInformation (0..*) <"Additional notice/address information of the party.">
+
+type NoticeContactInformation extends ContactInformation: <"Specifies notice information including address and, optionally, an associated person. This type also supports the ISDA CSA representation as a single string, through the address attribute in Contact Information.">
+    naturalPerson NaturalPerson (0..*) <"Optional information about people involved in a transaction or business process.">
+    additionalInformation string (0..1) <"Additional information on the recipient.">
+
+type TransferInformationElection extends ContactInformationElection: <"Specifies the party reference and the associated transfer & contact information.">
+    override primaryContactInformation TransferContactInformation (1..1) <"The main notice/address and account information of the party.">
+
+type TransferContactInformation extends ContactInformation: <"Specifies transfer information including address and, optionally, an associated account. This type also supports the ISDA CSA representation as a single string, through the address attribute in Contact Information.">
+    account Account (0..*) <"Specifies the account infomation for transfers to a party.">
+    additionalInformation string (0..1) <"Additional transfer information.">
 
 type OtherAgreementTerms: <"A class to specify a related legal agreement. For example, ISDA 2016 Credit Support Annex for Initial Margin, paragraph 13, General Principles, (s): Other CSA and Japanese Law CSA (VM). | ISDA 2016 Credit Support Annex for Variation Margin, paragraph 13, (o): Other CSA.">
 
