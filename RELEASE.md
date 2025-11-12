@@ -17,6 +17,7 @@ _Modified qualification functions_
 
 - `Qualify_AssetClass_Credit` - Updated to check for credit underlier of the performance payout.
 - `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
+
 Review Directions
 
 Changes can be reviewed in PR: [#4177](https://github.com/finos/common-domain-model/pull/4177)
