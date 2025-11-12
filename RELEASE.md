@@ -1,3 +1,5 @@
+# *Product - Modifying and adding qualification functions*
+
 _Background_
 
 Qualification functions are used extensively in CDM and Digital Regulatory Reporting to determine the type of product.
