@@ -177,7 +177,7 @@ func MapNonNegativeMoneyToQuantityWithAddress:
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
         [metadata address]
-        
+
     set nonNegativeQuantitySchedule:
         if fpmlNonNegativeMoney exists
         then CreateQuantityWithAddress(CreateQuantityKey(id, fpmlLeg))
@@ -256,18 +256,11 @@ func MapCurrencyAmountToQuantity:
         then NonNegativeQuantitySchedule {
                 value: fpmlNotionalAmount,
                 datedValue: MapScheduleToDatedValueList(fpmlStepList),
-                unit: UnitType {
-                    currency: MapCurrency(fpmlCurrency),
-                    ...
-                },
-                multiplier: Measure {
-                    value: fpmlNotionalAmount,
-                    unit: UnitType {
-                    financialUnit: if fpmlFinancialUnit exists
-                                then fpmlFinancialUnit,
-                    ...
-                },
-                },
+                unit:
+                    UnitType {
+                        currency: MapCurrency(fpmlCurrency),
+                        ...
+                    },
                 ...
             }
 
@@ -281,7 +274,7 @@ func MapNumberOfOptionsAndOptionEntitlementToQuantity:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
 
     set nonNegativeQuantitySchedule:
-        if fpmlNumberOfOptions exists 
+        if fpmlNumberOfOptions exists
         then NonNegativeQuantitySchedule {
                 value: fpmlNumberOfOptions,
                 unit: UnitType {
@@ -893,7 +886,7 @@ func MapEquityPermiumToPriceListWithLocation:
         } with-meta {
             location: CreatePriceKey("equityPremium", empty)
             }
-        
+
 func MapEquityPermiumToPriceListWithAddress:
     inputs:
         fpmlEquityPremium fpml.EquityPremium (0..1)
@@ -905,7 +898,7 @@ func MapEquityPermiumToPriceListWithAddress:
         empty with-meta {
             address: CreatePriceKey("equityPremium", empty)
             }
-            
+
 func MapFixedRateScheduleToPriceWithLocation:
     inputs:
         fpmlFixedRateSchedule fpml.Schedule (0..1)
@@ -985,7 +978,7 @@ func MapCapRateScheduleToPriceWithLocation:
             [metadata location]
 
     add priceSchedule:
-        fpmlRate switch 
+        fpmlRate switch
             fpml.FloatingRateCalculation then floatingRateModel -> capRateSchedule
                 extract
                     CreatePriceWithLocation(
@@ -1022,8 +1015,8 @@ func MapFloorRateScheduleToPriceWithLocation:
             [metadata location]
 
     add priceSchedule:
-        fpmlRate switch 
-            fpml.FloatingRateCalculation then 
+        fpmlRate switch
+            fpml.FloatingRateCalculation then
                 floatingRateModel -> floorRateSchedule
                     extract
                         CreatePriceWithLocation(
@@ -1034,7 +1027,7 @@ func MapFloorRateScheduleToPriceWithLocation:
                                     ),
                                 CreatePriceKey("floorRateSchedule", fpmlLeg)
                             ),
-            default empty                   
+            default empty
 
 func MapFloorRateScheduleWithAddress:
     inputs:
@@ -1137,7 +1130,7 @@ func MapOptionStrikePrice:
         optionStrike OptionStrike (0..1)
 
     set optionStrike:
-        if fpmlStrikePrice exists or fpmlStrikePercentage exists 
+        if fpmlStrikePrice exists or fpmlStrikePercentage exists
         then OptionStrike {
                 strikePrice: Price {
                     value: fpmlStrikePrice default fpmlStrikePercentage,
@@ -1315,7 +1308,7 @@ func MapCommoditySpreadToPriceWithLocation:
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata location]
-    
+
     set priceSchedule:
         PriceSchedule {
             value: fpmlCommoditySpread -> amount,
@@ -1331,7 +1324,7 @@ func MapCommoditySpreadToPriceWithLocation:
             },
             ...
         } with-meta {location: CreatePriceKey("spreadPrice", fpmlLeg)}
-        
+
 func MapCommoditySpreadToPriceWithAddress:
     inputs:
         fpmlCommoditySpread fpml.CommoditySpread (0..1)
@@ -1339,7 +1332,7 @@ func MapCommoditySpreadToPriceWithAddress:
     output:
         priceSchedule PriceSchedule (0..1)
             [metadata address]
-    
+
     set priceSchedule:
         if fpmlCommoditySpread exists then
             empty with-meta {address: CreatePriceKey("spreadPrice", fpmlLeg)}
@@ -1563,7 +1556,7 @@ func MapRateOptionWithLocation:
             default False
 
     set interestRateIndex:
-        if rateCalculationExists 
+        if rateCalculationExists
         then CreateInterestRateIndexWithLocation(
                 InterestRateIndex {
                     FloatingRateIndex: (fpmlRate switch fpml.FloatingRateCalculation then MapFloatingRateIndex, default empty),
@@ -1587,7 +1580,7 @@ func MapRateOptionWithAddress:
             default False
 
     set rateOption:
-        if isRateCalculation 
+        if isRateCalculation
             then CreateInterestRateIndexWithAddress(
                         CreateKey("InterestRateIndex", empty, fpmlLeg)
                     )
@@ -1982,16 +1975,16 @@ func MapBasketConstituentQuantity:
     output:
     quantity NonNegativeQuantitySchedule (0..*)
 
-    add quantity: 
+    add quantity:
         NonNegativeQuantitySchedule{
             value: fpmlBasketConstituent -> constituentWeight -> basketPercentage,
-            unit: UnitType { 
+            unit: UnitType {
                 financialUnit: if fpmlBasketConstituent -> constituentWeight -> basketPercentage exists then FinancialUnitEnum -> Weight,
                 ...
                 },
     ...
     }
-    
+
 func MapBasketConstituentWithAddress:
     inputs:
         fpmlBasketConstituent fpml.BasketConstituent (0..1)
@@ -2028,7 +2021,7 @@ func CreateBasketConstituentWithAddress:
     output:
         basketConstituentWithAddress BasketConstituent (0..1)
             [metadata address]
-    
+
     set basketConstituentWithAddress:
         empty with-meta {address: keyValue}
 
