@@ -1,21 +1,17 @@
-# *Event Model - Termination for Schedules*
+# *Rosetta Visualisations - Securities Lending*
 
 _Background_
 
-Previously, when a termination applied to a quantity schedule, the model did not correctly update all dated values following the termination’s effective period. As a result, quantities after the termination date could still retain non-zero values.
-
-To address this, the logic has been improved so that any dated values from the effective period onward are correctly set to zero when a termination occurs.
+Rosetta has an extensive suite of CDM examples available under its Visualisations tab. This update adds further securities lending examples.
 
 _What is being released?_
 
-The `UpdateQuantityAmountForEachMatchingQuantity` function has been enhanced to apply the quantity change to all dated values from the current period onward. A new function `UpdateDatedValues` has been created to perform the update of the `DatedValue`.
+Three examples of Trade Execution are being added to the Securities Lending examples:
 
-The period from which the change should take effect is determined using the `primitiveInstruction → quantityChange → change → effectiveDate`.
-
-_Mappings_
-
-The mapping from the FpML termination effective date has been added to the function `MapPriceQuantity` pointing to the `primitiveInstruction → quantityChange → change → effectiveDate`.
+- Execution of securities lending trade using cash as collateral
+- Execution of securities lending trade using cash as collateral and using a benchmark index rate
+- Execution of securities lending trade using non-cash as collateral
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4144](https://github.com/finos/common-domain-model/pull/4144)
+Changes can be reviewed in [#4188](https://github.com/finos/common-domain-model/pull/4188)
