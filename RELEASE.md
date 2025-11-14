@@ -1,21 +1,23 @@
-# *Event Model - Termination for Schedules*
+# *Product - Modifying and adding qualification functions*
 
 _Background_
 
-Previously, when a termination applied to a quantity schedule, the model did not correctly update all dated values following the termination’s effective period. As a result, quantities after the termination date could still retain non-zero values.
+Qualification functions are used extensively in CDM and Digital Regulatory Reporting to determine the type of product.
 
-To address this, the logic has been improved so that any dated values from the effective period onward are correctly set to zero when a termination occurs.
+Several functions were added and modified in CDM 5 without the changes being applied to CDM 6 & 7. This update adds qualification functions to CDM 6 & 7
 
 _What is being released?_
 
-The `UpdateQuantityAmountForEachMatchingQuantity` function has been enhanced to apply the quantity change to all dated values from the current period onward. A new function `UpdateDatedValues` has been created to perform the update of the `DatedValue`.
+Added qualification functions
 
-The period from which the change should take effect is determined using the `primitiveInstruction → quantityChange → change → effectiveDate`.
+- `Qualify_TotalReturnSwap_Index` - This function qualifies a product as a Total Return Swap (Index) where the base product qualifies as Credit Swap and the index underlier for performance leg qualifies as Credit.
+- `Qualify_Equity_OtherForward` - This function qualifies a product as a Equity Forward (Other) where the base product qualifies as Equity Forward with non-standard terms.
 
-_Mappings_
+Modified qualification functions
 
-The mapping from the FpML termination effective date has been added to the function `MapPriceQuantity` pointing to the `primitiveInstruction → quantityChange → change → effectiveDate`.
+- `Qualify_AssetClass_Credit` - Updated to check for credit underlier of the performance payout.
+- `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4144](https://github.com/finos/common-domain-model/pull/4144)
+Changes can be reviewed in PR: [#4176](https://github.com/finos/common-domain-model/pull/4176)
