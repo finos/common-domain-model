@@ -9,8 +9,10 @@ import cdm.ingest.fpml.confirmation.product.returnswap.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
-import fpml.confirmation.custom.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapEquitySwapTransactionSupplementCounterpartyList:
     inputs:
@@ -85,16 +87,19 @@ func MapReturnSwapLegListToPayoutList:
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter InterestLeg exists
-            then extract
-                MapInterestLegToInterestRatePayout(InterestLeg, cdmCounterpartyList)
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
+                    default empty
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter ReturnLeg exists
-            then extract MapReturnLegToPerformancePayout(ReturnLeg, cdmCounterpartyList)
+            extract
+                item switch
+                    fpml.ReturnLeg then
+                        MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+                    default empty
 
 func MapEquitySwapTransactionSupplementPriceQuantityList:
     inputs:
@@ -103,18 +108,20 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     alias returnLeg:
-        fpmlEquitySwapTransactionSupplement -> returnSwapLeg
-            extract ToLegChoice
-            then extract ReturnLeg
+        (fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract
+                item switch
+                    fpml.ReturnLeg then item,
+                    default empty)
             then only-element
 
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
             extract
-                ToLegChoice switch
-                    InterestLeg then
+                item switch
+                    fpml.InterestLeg then
                         MapInterestLegToPriceQuantity(item, returnLeg),
-                    ReturnLeg then MapReturnLegToPriceQuantity,
+                    fpml.ReturnLeg then MapReturnLegToPriceQuantity,
                     default empty
 
 func MapEquitySwapTransactionSupplementAccountPartyReference:

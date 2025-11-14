@@ -15,7 +15,9 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapFxVarianceSwapCounterpartyList:
     inputs:
@@ -197,11 +199,15 @@ func MapFxFixingScheduleToObservationDates:
             periodicSchedule:
                 PeriodicDates {
                     startDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                                fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date,
+                                if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate exists
+                                then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> startDate -> date
+                                else fpmlFixingSchedule -> startDate -> date,
                                 empty
                             ),
                     endDate: MapUnadjustedDateToAdjustableOrRelativeDate(
-                                fpmlFixingSchedule -> endDate -> date,
+                                if fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate exists
+                                then fpmlFixingSchedule -> fxFixingScheduleSimpleSequence -> endDate -> date
+                                else fpmlFixingSchedule -> endDate -> date,
                                 empty
                             ),
                     periodDatesAdjustments:

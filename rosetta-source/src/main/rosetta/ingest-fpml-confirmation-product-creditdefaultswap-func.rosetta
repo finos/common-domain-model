@@ -18,8 +18,12 @@ import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
-import fpml.confirmation.custom.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapCreditDefaultSwapCounterpartyList:
     inputs:
@@ -438,7 +442,7 @@ func MapProtectionTerms:
 
 func MapCreditEventNotice:
     inputs:
-        fpmlCreditEventNotice fpml.CreditEventNoticeType (0..1)
+        fpmlCreditEventNotice fpml.consolidated.option.shared.CreditEventNotice (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         creditEventNotice CreditEventNotice (0..1)
@@ -489,10 +493,8 @@ func MapFeeLegToInterestRateLegPayout:
     alias floatingAmountCalculation:
         fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation
 
-    alias rateChoice:
-        ToRateChoice(
-                fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate
-            )
+    alias fpmlFloatingRate:
+        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate
 
     set payout:
         Payout {
@@ -526,16 +528,12 @@ func MapFeeLegToInterestRateLegPayout:
                                                             fpmlFeeLeg
                                                         )
                             }},
-                            FloatingRateSpecification: if rateChoice -> FloatingRateCalculation exists
+                            FloatingRateSpecification: if fpmlFloatingRate exists
                                     then MapFloatingRateSpecification(
-                                            rateChoice -> FloatingRateCalculation,
+                                            fpmlFloatingRate,
                                             fpmlFeeLeg
                                         ),
-                            InflationRateSpecification: if rateChoice -> InflationRateCalculation exists
-                                    then MapInflationRateSpecification(
-                                            rateChoice -> InflationRateCalculation,
-                                            fpmlFeeLeg
-                                        )
+                            ...
                         },
                     dayCountFraction: MapDayCountFractionEnum(
                                 fixedAmountCalculation -> dayCountFraction -> value

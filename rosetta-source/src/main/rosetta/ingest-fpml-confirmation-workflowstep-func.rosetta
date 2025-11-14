@@ -16,7 +16,11 @@ import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.business.events.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.msg.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapWorkflowStep:
     inputs:
@@ -218,13 +222,12 @@ func MapTerminationToPrimitiveInstruction:
                                 counterpartyList
                             )
                 },
-            quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
-                    extract
-                        QuantityChangeInstruction {
-                            change: MapPriceQuantity,
-                            direction: if exists then Replace,
-                            ...
-                        },
+            quantityChange: if termination exists
+                    then QuantityChangeInstruction {
+                        change: MapPriceQuantity(termination),
+                        direction: Replace,
+                        ...
+                    },
             transfer:
                 TransferInstruction {
                     transferState:
@@ -286,15 +289,21 @@ func MapTerminationToPrimitiveInstruction:
 
 func MapPriceQuantity:
     inputs:
-        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+        f fpml.TradeNotionalChange (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
         PriceQuantity {
             quantity: CreateQuantityWithLocation(
-                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
+                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(
+                                f -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
+                            ),
                         CreateQuantityKey(empty, empty)
+                    ),
+            effectiveDate: MapAdjustedDateToAdjustableOrRelativeDate(
+                        f -> agreementAndEffectiveDatesModel -> effectiveDate -> date,
+                        empty
                     ),
             ...
         }

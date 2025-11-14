@@ -7,8 +7,10 @@ import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.ingest.fpml.confirmation.workflowstep.*
 
-import fpml.confirmation.* as fpml
-import fpml.confirmation.custom.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.confirmation.processes.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.main.* as fpml
 
 func Ingest_FpmlConfirmationToTradeState:
     [ingest XML]
@@ -17,15 +19,13 @@ func Ingest_FpmlConfirmationToTradeState:
     output:
         tradeState TradeState (0..1)
 
-    alias documentChoice: ToDocumentChoice(fpmlDocument)
-
     set tradeState:
-        documentChoice switch
-            ConfirmationAgreed then MapConfirmationAgreedToTradeState,
-            DataDocument then MapDataDocumentToTradeState,
-            ExecutionNotification then MapExecutionNotificationToTradeState,
-            RequestClearing then MapRequestClearingToTradeState,
-            RequestConfirmation then MapRequestConfirmationToTradeState,
+        fpmlDocument switch
+            fpml.ConfirmationAgreed then MapConfirmationAgreedToTradeState,
+            fpml.DataDocument then MapDataDocumentToTradeState,
+            fpml.ExecutionNotification then MapExecutionNotificationToTradeState,
+            fpml.RequestClearing then MapRequestClearingToTradeState,
+            fpml.RequestConfirmation then MapRequestConfirmationToTradeState,
             default empty
 
 func Ingest_FpmlConfirmationToWorkflowStep:
@@ -35,16 +35,14 @@ func Ingest_FpmlConfirmationToWorkflowStep:
     output:
         workflowStep WorkflowStep (0..1)
 
-    alias documentChoice: ToDocumentChoice(fpmlDocument)
-
     set workflowStep:
-        documentChoice switch
-            ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
-            ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
-            ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
-            ExecutionNotification then MapExecutionNotificationToWorkflowStep,
-            RequestClearing then MapRequestClearingToWorkflowStep,
-            TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
+        fpmlDocument switch
+            fpml.ClearingConfirmed then MapClearingConfirmedToWorkflowStep,
+            fpml.ExecutionAdvice then MapExecutionAdviceToWorkflowStep,
+            fpml.ExecutionAdviceRetracted then MapExecutionAdviceRetractedToWorkflowStep,
+            fpml.ExecutionNotification then MapExecutionNotificationToWorkflowStep,
+            fpml.RequestClearing then MapRequestClearingToWorkflowStep,
+            fpml.TradeChangeAdvice then MapTradeChangeAdviceToWorkflowStep,
             default empty
 
 func MapConfirmationAgreedToTradeState:

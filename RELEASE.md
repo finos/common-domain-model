@@ -1,44 +1,23 @@
-## Qualification and Validation - Fix use of empty in conditions and qualification functions
+# *Product - Modifying and adding qualification functions*
 
-*Background*
+_Background_
 
-An upcoming DSL release has found a number of areas where the use of `empty` in qualification functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release. 
+Qualification functions are used extensively in CDM and Digital Regulatory Reporting to determine the type of product.
 
-*What is being released?*
+Several functions were added and modified in CDM 5 without the changes being applied to CDM 6 & 7. This update adds qualification functions to CDM 6 & 7
 
-The following functions have been updated:
+_What is being released?_
 
-- Qualify_Substitution
-  - Check for existence of `beforeEconomicterms -> terminationDate` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> effectiveDate` and `openEconomicTerms -> terminationDate` instead of the existence of `openEconomicTerms`.
+Added qualification functions
 
-- Qualify_Roll
-  - Check for existence of `beforeEconomicterms -> collateral` instead of the existence of `beforeEconomicterms`.
-  - Check for existence of `openEconomicTerms -> collateral` instead of the existence of `openEconomicTerms`.
+- `Qualify_TotalReturnSwap_Index` - This function qualifies a product as a Total Return Swap (Index) where the base product qualifies as Credit Swap and the index underlier for performance leg qualifies as Credit.
+- `Qualify_Equity_OtherForward` - This function qualifies a product as a Equity Forward (Other) where the base product qualifies as Equity Forward with non-standard terms.
 
-- UnderlierQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
+Modified qualification functions
 
-- ObservableQualification
-  - Check `securityType` exists before comparing to `instrumentType`.
-  - Check `assetClass` exists before comparing to `Index ->> assetClass`.
+- `Qualify_AssetClass_Credit` - Updated to check for credit underlier of the performance payout.
+- `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
 
+_Review Directions_
 
-The following types have been updated:
-
-- NonNegativeQuantitySchedule
-    - Split condition `NonNegativeQuantity_value` into two conditions `NonNegativeQuantity_value` and `NonNegativeQuantity_datedValue`.
-
-- ValuationMethod
-  - Check for existence of `quotationAmount -> unit -> currency` instead of the existence of `quotationAmount`.
-  - Check for existence of `minimumQuotationAmount -> unit -> currency` instead of the existence of `minimumQuotationAmount`.
-
-- FixedPrice
-  - Split condition `NonNegativePrice_amount` into two conditions `NonNegativePrice_amount` and `NonNegativePrice_datedValue`.
-
-- OptionPayout
-  - Split condition `AsianOptionChoice` into two conditions `AsianOptionChoice_averagingStrikeFeature` and `AsianOptionChoice_averagingFeature`.
-
-*Review Directions*
-
-Changes can be reviewed in PR: [#4113](https://github.com/finos/common-domain-model/pull/4113)
+Changes can be reviewed in PR: [#4176](https://github.com/finos/common-domain-model/pull/4176)
