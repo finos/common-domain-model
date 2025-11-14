@@ -155,16 +155,25 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 
 type UmbrellaAgreement: <"A class to specify a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement. This data representation reflects the ISDA Create representation.">
 
-    isApplicable boolean (1..1) <"The determination of whether Umbrella Agreement terms are Applicable (True), or Not Applicable (False)">
-    language string (0..1) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
-    parties UmbrellaAgreementEntity (0..*) <"Underlying principals to the umbrella agreement.">
+    agreementSet UmbrellaAgreementSet (1..*) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
+    parties UmbrellaAgreementEntity (2..*) <"Underlying principals to the umbrella agreement.">
+    language string (0..1) <"Represents any bespoke language that may need to be captured regarding the structure or application of terms that may exist for the agreement.">
 
-    condition UmbrellaAgreementExists: <"Umbrella Agreement language and parties should not exist when Umbrella Agreement terms are Not Applicable.">
-        if isApplicable = True then language exists and parties exists
+type UmbrellaAgreementEntity extends Counterparty: <"A class to specify the legal entities that are part of the umbrella agreement.">
+    umbrellapartyrole UmbrellaPartyRoleEnum (0..1) <"Represents the legal role that each defined entity to the agreement performs within the structure of that agreement.">
+    parentparty Parentparty (0..1)
 
-type UmbrellaAgreementEntity extends LegalEntity: <"A class to specify the legal entities that are part of the umbrella agreement.">
+    condition Parentparty: <"Identifies where a parent child relationship exists between two parties to the Umbrella agreement, allowing none legal entities to be linked to the appropriate legal entity and allowing funds, protfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
+   if umbrellapartyrole = UmbrellaPartyRoleEnum -> Sleeve then parentparty exists
+   or
+   if umbrellapartyrole = UmbrellaPartyRoleEnum -> Agent then parentparty is absent
 
-    terms string (0..1) <"The terms that might be associated with each party to the umbrella agreement.">
+type Parentparty: <"A class to specify the heirarchical structure of the entity relationships within the Umbrella agreement.">
+   parentIdentifier string (0..1) <"Represents the Entity Identifier of the parent entity on this agreement for the party defined.">
+
+type UmbrellaAgreementSet: <"Represents the groups of agreement term elections that exist within the agreement and to which entities that particular group of elections apply. Where all entities under the umbrella have the same set of elections only one agreement set will exist. At least one agreement set must be defined for an Umbrella agreement">
+    agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
+    partyId PartyIdentifier (1..*) <"The identifier associated with a party, e.g. the 20 digits LEI code.">
 
 type AddressForNotices: <"Specification of the address and other details for notices.">
     primaryNotices ContactElection (1..1) <"Specification of primary notice details">
