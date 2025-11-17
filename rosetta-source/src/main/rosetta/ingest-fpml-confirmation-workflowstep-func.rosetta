@@ -138,12 +138,7 @@ func MapAmendmentToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    alias counterpartyList: MapCounterpartyList(fpmlTrade)
     alias payment: amendment -> tradeAlterationPaymentModel -> payment distinct only-element
-    alias amendmentPayment:
-        MapNonNegativeMoneyToQuantity(
-                amendment -> tradeAlterationPaymentModel -> payment distinct only-element -> paymentAmount
-            )
     alias feeType: MapFeeTypeEnum(payment -> id)
 
     set primitiveInstruction:
@@ -181,7 +176,6 @@ func MapBreakdown:
         else Decrease
     alias changeAmount: if outstandingNotionalAmount exists then outstandingNotionalAmount else if remainingAmount exists then remainingAmount default novatedAmount
 
-    
 
     add breakdown:
         if novatedAmount exists or changeInNotionalAmount exists
@@ -390,8 +384,8 @@ func MapMessageInformation:
                     ),
             sentTo: [
                     MapStringWithScheme(
-                            messageHeaderModel -> sendTo -> value,
-                            messageHeaderModel -> sendTo -> messageAddressScheme
+                            messageHeaderModel -> sendTo only-element -> value,
+                            messageHeaderModel -> sendTo only-element -> messageAddressScheme
                         )
                 ],
             ...
