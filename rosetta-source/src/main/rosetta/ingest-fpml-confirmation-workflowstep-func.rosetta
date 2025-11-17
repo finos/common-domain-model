@@ -158,7 +158,8 @@ func MapNovationToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    add primitiveInstruction -> split -> breakdown: fpmlPostTradeEventsBaseModel extract MapBreakdown
+    add primitiveInstruction -> split -> breakdown:
+        fpmlPostTradeEventsBaseModel extract MapBreakdown
 
 func MapBreakdown:
     inputs:
@@ -166,27 +167,44 @@ func MapBreakdown:
     output:
         breakdown PrimitiveInstruction (0..*)
 
+    alias novatedAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> novatedAmount
+    alias changeInNotionalAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> changeInNotionalAmount
+    alias outstandingNotionalAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
+    alias remainingAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
+    
+    alias changeInstruction: if outstandingNotionalAmount exists or remainingAmount exists
+        then QuantityChangeDirectionEnum -> Replace
+        else Decrease
+    alias changeAmount: if outstandingNotionalAmount exists then outstandingNotionalAmount else if remainingAmount exists then remainingAmount default novatedAmount
+
+    
+
     add breakdown:
-        PrimitiveInstruction {
-            quantityChange: MapQuantityChangeInstruction(
-                        empty,
-                        fpmlPostTradeEventsBaseModel,
-                        Replace
-                    ),
-            partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel),
-            transfer: MapTransferInstruction(
-                        fpmlPostTradeEventsBaseModel -> novation -> payment,
-                        Novation
-                    ),
-            ...
-        }
+        if novatedAmount exists or changeInNotionalAmount exists
+        then PrimitiveInstruction {
+                quantityChange: MapQuantityChangeInstruction(
+                            empty,
+                            fpmlPostTradeEventsBaseModel,
+                            Replace
+                        ),
+                partyChange: MapPartyChangeInstruction(fpmlPostTradeEventsBaseModel),
+                transfer: MapTransferInstruction(
+                            fpmlPostTradeEventsBaseModel -> novation -> payment,
+                            Novation
+                        ),
+                ...
+            }
 
     add breakdown:
         PrimitiveInstruction {
             quantityChange: MapQuantityChangeInstruction(
                         empty,
                         fpmlPostTradeEventsBaseModel,
-                        Decrease
+                        changeInstruction
                     ),
             ...
         }
@@ -197,12 +215,17 @@ func MapPartyChangeInstruction:
     output:
         partyChange PartyChangeInstruction (0..1)
 
+    alias counterpartyList:
+        MapCounterpartyList(
+                fpmlPostTradeEventsBaseModel -> novation -> tradeNovationContentSequence0 -> oldTradeModel -> oldTrade
+            )
+
     set partyChange:
         PartyChangeInstruction {
             counterparty: MapPartyChangePayerReceiverModelToCounterparty(
                         fpmlPostTradeEventsBaseModel -> novation -> novationRolesModel -> transferee,
                         fpmlPostTradeEventsBaseModel -> novation -> novationRolesModel -> transferor,
-                        fpmlPostTradeEventsBaseModel -> novation -> payment -> payerReceiverModel
+                        counterpartyList
                     ),
             tradeId: fpmlPostTradeEventsBaseModel -> novation -> newTradeModel -> newTradeIdentifier
                     extract
@@ -214,15 +237,13 @@ func MapPartyChangePayerReceiverModelToCounterparty:
     inputs:
         transferee fpml.PartyReference (0..1)
         transferor fpml.PartyReference (0..1)
-        payerReceiverModel fpml.PayerReceiverModel (0..1)
+        counterpartyList Counterparty (0..2)
     output:
         counterparty Counterparty (0..1)
 
     alias transferorRole:
-        payerReceiverModel
-            extract MapPayerReceiverModelToCounterpartyList
-            then filter
-                partyReference -> reference = MapPartyReference(transferor -> href) -> reference
+        counterpartyList
+            then filter partyReference -> reference = transferor -> href
             then role only-element
 
     set counterparty: MapCounterparty(transferorRole, transferee)
@@ -298,8 +319,20 @@ func MapPriceQuantity:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> novatedAmount
             extract MapMoneyToNonNegativeQuantitySchedule
 
+    alias changeInNotionalAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> changeInNotionalAmount
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+
+    alias outstandingNotionalAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
+        extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+
+    alias remainingAmount:
+        fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
+        extract MapMoneyToNonNegativeQuantitySchedule
+
     alias q:
-        [outstandingTradeNotional, outstandingSizeChange, novatedAmount]
+        [outstandingTradeNotional, outstandingSizeChange, novatedAmount, changeInNotionalAmount, outstandingNotionalAmount, remainingAmount]
             extract CreateQuantityWithLocation(item, CreateQuantityKey(empty, empty))
 
     add priceQuantityList:
