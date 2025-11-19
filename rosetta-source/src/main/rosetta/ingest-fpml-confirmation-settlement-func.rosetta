@@ -125,6 +125,13 @@ func MapEquityExerciseValuationSettlementToSettlementTerms:
             ...
         }
 
+func MapCashSettlementRelativeDateOffset:
+    inputs:
+        fpmlcashSettlementPaymentDate fpml.CashSettlementPaymentDate (0..1)
+    output:
+        relativeDateOffset RelativeDateOffset (0..1)
+set relativeDateOffset: MapRelativeDateOffset(fpmlcashSettlementPaymentDate -> relativeDate)
+        
 func MapCashSettlementToSettlementTerms:
     inputs:
         fpmlCashSettlement fpml.CashSettlement (0..1)
@@ -141,6 +148,17 @@ func MapCashSettlementToSettlementTerms:
                 cashSettlementTerms: MapCashSettlementToCashSettlementTerms(
                             fpmlCashSettlement
                         ),
+                settlementDate:
+                    SettlementDate {
+                        adjustableOrRelativeDate:
+                            AdjustableOrAdjustedOrRelativeDate {
+                                relativeDate: MapCashSettlementRelativeDateOffset(
+                                            fpmlCashSettlement -> cashSettlementPaymentDate
+                                        ),
+                                ...
+                            },
+                        ...
+                    },
                 ...
             }
 
