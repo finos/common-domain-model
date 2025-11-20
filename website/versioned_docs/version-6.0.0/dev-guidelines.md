@@ -97,7 +97,7 @@ technology or service vendors. It describes:
 -   What a Maintainer should do to review the changes
 -   How to release a new CDM version once changes have been approved
 
-::: {#modelling-platforms}
+<a id="modelling-platforms"></a>
 Development of the CDM is supported through various modelling platforms,
 including [Rosetta](https://rosetta-technology.io) and [Legend](https://legend.finos.org/studio). Regardless of the modelling
 platform used, modelling and contribution to the CDM should go through
@@ -266,7 +266,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content of release notes](documentation-style-guide.md/#content-of-release-notes) for further
+[content of release notes](documentation-style-guide#content-of-release-notes) for further
 guidance on editing release notes.
 
 ## Reviewing model changes
@@ -468,7 +468,7 @@ with the documentation update.
 A release note should be provided with the proposed model change that
 concisely describes the high-level conceptual design, model changes and
 how to review. Please refer to the
-[content of release notes](documentation-style-guide.md/#content-of-release-notes) for further
+[content of release notes](documentation-style-guide#content-of-release-notes) for further
 guidance on editing release notes.
 
 
