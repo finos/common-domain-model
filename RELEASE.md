@@ -1,78 +1,36 @@
-# *Legal Documentation - Addition of clause Holding and Using Posted Collateral*
+# Legal Agreement Model - Updating PartyContactInformation
 
 _Background_
 
-D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
+The `PartyContactInformation` type is used throughout the legal agreement namespaces, and specifies the party details involved in the legal agreement as well as the party reference. Only the party reference should be specified, and the parties themselves anonymised, being referred to as Party1 or Party2 to the agreement.
 
-These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards.
-
-This contribution of the clause for Holding and Using Posted Collateral enhances the model and contributes a structure for the following Legacy CSAs - ISDA 1995 English Law CSA, 1994 New York Law CSA, 1995 English Law CSD
+Furthermore, `PartyContactInformation` is used inconsistently across the model. In `DemandsAndNotices`, the `PartyContactInformation` type is used to specified the party election attribute. The `addressForTransfer` attribute of a CSA however, uses `ContactElection`, which is comprised of two `PartyContactInformation` types.  
 
 _What is being released?_
 
-Contribution of the last pending clause for the Legacy ISDA CSA/CSD Documents from the Legal Agreement Working Group.
-
-- `EligibilityToHoldCollateral`
-    - Restructuring the EligibilityToHoldCollateral type to more accurately represent the document and allow for criteria to be grouped using AND/OR logic.
+This update removes `PartyContactInformation` and redefines how the contact information is set in a more consistent and reusable way. 
+- A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
+- Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
+- Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
+- The same structure is applied to the existing `ProcessAgentElection` type with an additional attribute to specify the process agent entity and additional information.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#3978](https://github.com/finos/common-domain-model/pull/3978)
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
 
-# *Legal Agreement Model - Additional clauses for Legacy CSA*
-
-_Background_
-
-D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
-
-These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-Three new clauses:
+This release updates the `bundle` dependency.
 
-- Specified Condition
-- Independent Amount
-- Other Eligible Support
+Version updates include:
+- `bundle` `11.90.5` Fix issue with C# return type covariance
 
-These new clauses require the creation of the following enums:
-
-- `CSASpecifiedConditionEnum`
-- `AdditionalTerminationEventEnum`
-- `RatedPartyEnum`
-- `IndependentAmountCompareEnum` extends `CreditNotationMismatchResolutionEnum` and adds a new value 'compare'
-
-Updating clauses that exist within the model:
-
-- `CollateralTransferAgreementElections`
-    - `finalReturns` added as an attribute
-- `HoldingAndUsingPostedCollateral`
-    - `additionalLanguage` added as an attribute
-- `CreditSupportObligations`
-    - `legacyIndependentAmount` added as an attribute
-- `eligibleCreditSupport` added as a type and attribute
-
-Further updates to descriptions and addition of docReferences are also being contributed.
+No expectations are updated as part of this release.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#3979](https://github.com/finos/common-domain-model/pull/3979)
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
 
-# *Legal Documentation - New types & consolidation of enums for Legacy CSA*
 
-_Background_
-
-D2 Legal Technology and ISDA are updating legacy clause definitions within the model related to collateral, notices, and specified conditions under the ISDA Credit Support Annex (CSA) framework.
-
-These clauses are foundational to collateral mechanics and counterparty obligations under the CSA, and are being modernised to align with prevailing legal interpretations and documentation standards. These were the last few clauses which have now been contributed to complete the legacy legal agreement piece.
-
-_What is being released?_
-- Added `CounterpartyRoleEnum` to `PartyContactInformation`. 
-- Consolidated `ThresholdRatedPartyEnum` and `MTARatedPartyEnum` into `RatedPartyEnum` and `ThresholdZeroEventEnum` and `MTAZeroEventEnum` into `ZeroEventEnum`
-- Created `DemandsAndNotices` type 
-- Relabelled `otherEligibleSupport` to `otherEligibleSupportIM` in `CreditSupportObligations` createIQ synonym mapping 
-- Changed type of `demandsAndNotices` attribute from `ContactElection`  to `DemandsAndNotices` type in `CreditSupportAgreementElections` & `CollateralTransferAgreementElections`
- 
-_Review Directions_
-
-Changes can be reviewed in PR: [#3976](https://github.com/finos/common-domain-model/pull/3976)

@@ -1,0 +1,125 @@
+namespace cdm.ingest.fpml.confirmation.product.volatilityswap: <"FpML VolatilitySwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+
+func MapVolatilitySwapCounterpartyList:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapPayerReceiverModelToCounterpartyList(
+                fpmlVolatilitySwap -> volatilityLeg first -> payerReceiverModel
+            )
+
+func MapVolatilitySwapAncillaryPartyList:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapVolatilitySwapNonTransferableProduct:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlVolatilitySwap -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlVolatilitySwap -> productModel),
+            economicTerms: MapVolatilitySwapEconomicTerms(
+                        fpmlVolatilitySwap,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapVolatilitySwapEconomicTerms:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: fpmlVolatilitySwap -> volatilityLeg
+                    extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
+            ...
+        }
+
+func MapVolatilityLegToPerformancePayout:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            PerformancePayout:
+                PerformancePayout {
+                    payerReceiver: MapPayerReceiver(
+                                fpmlVolatilityLeg -> payerReceiverModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapUnderlyerToObservableWithAddress(
+                                        fpmlVolatilityLeg -> underlyer
+                                    ),
+                            ...
+                        },
+                    valuationDates: empty,
+                    paymentDates: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapVolatilitySwapPriceQuantityList:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        fpmlVolatilitySwap -> volatilityLeg extract MapVolatilityLegToPriceQuantity
+
+func MapVolatilityLegToPriceQuantity:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            observable: MapUnderlyerToObservableWithLocation(fpmlVolatilityLeg -> underlyer),
+            ...
+        }
+
+func MapVolatilitySwapAccountPartyReference:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilitySwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapPayerReceiverToAccountPartyReference(
+                fpmlAccount,
+                fpmlVolatilitySwap -> volatilityLeg -> payerReceiverModel
+            )
