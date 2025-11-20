@@ -35,11 +35,14 @@ segment clause
 segment name
 
 type CreditSupportAgreementElections: <"The set of elections which specify a Credit Support Annex or Deed.">
-    csaIM CSAIMElections (0..1) <"The set of elections which specify an Initial Margin Credit Support Annex or Deed.">
-    csaVM CSAVMElections (0..1) <"The set of elections which specify a Variation Margin Credit Support Annex or Deed.">
+    csaInitialMargin CSAInitialMarginElections (0..1) <"The set of elections which specify an Initial Margin Credit Support Annex or Deed.">
+    csaVariationMargin CSAVariationMarginElections (0..1) <"The set of elections which specify a Variation Margin Credit Support Annex or Deed.">
     csaLegacy CSALegacyElections (0..1) <"The set of elections which specify a Legacy (1994 or 1995) Credit Support Annex or Deed.">
 
-type CSAIMElections extends CSABase: <"The set of elections which specify an Initial Margin Credit Support Annex or Deed.">
+    condition InitialMarginOrVariationMarginOrLegacy: <"Agreement elections must be specifed as one-of csaInitialMargin, csaVariationMargin or csaLegacy.">
+        one-of
+
+type CSAInitialMarginElections extends CSABase: <"The set of elections which specify an Initial Margin Credit Support Annex or Deed.">
     regime Regime (1..1) <"The Regime Table provision , which determines the regulatory regime(s) applicable to each of the parties to the agreement.">
     oneWayProvisions OneWayProvisions (1..1) <"The determination of whether the One Way Provisions are applicable (true) or not applicable (false).">
     generalSimmElections GeneralSimmElections (0..1) <"The specification of the ISDA SIMM Method for all Covered Transactions with respect to all Regimes.">
@@ -62,10 +65,10 @@ type CSAIMElections extends CSABase: <"The set of elections which specify an Ini
     additionalBespokeTerms string (0..1) <"Any additional terms that might be specified applicable.">
     trustSchemeAddendum boolean (1..1) <"The qualification of whether Trust Scheme Addendum is applicable (True) or not applicable (False).">
     cass string (0..1) <"Details of language relating to Client Asset and Money Rules.">
-    creditSupportObligations CreditSupportObligationsIM (1..1) <"The Credit Support Obligations applicable to the agreement.">
-    calculationAndTiming CalculationAndTimingIM (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
+    creditSupportObligations CreditSupportObligationsInitialMargin (1..1) <"The Credit Support Obligations applicable to the agreement.">
+    calculationAndTiming CalculationAndTimingInitialMargin (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
 
-type CSAVMElections extends CSABase: <"The set of elections which specify a Variation Margin Credit Support Annex or Deed.">
+type CSAVariationMarginElections extends CSABase: <"The set of elections which specify a Variation Margin Credit Support Annex or Deed.">
     fxHaircutCurrency FxHaircutCurrency (0..1) <"The reference currency for the purpose of specifying the FX Haircut relating to a posting obligation, as being either the Termination Currency or an FX Designated Currency.">
     exchangeDate string (0..1) <"The bespoke exchange date terms that might be specified by the parties to the agreement.">
     coveredTransactions CoveredTransactions (1..1) <"The specification of transactions covered by the terms of the agreement.">
@@ -74,8 +77,8 @@ type CSAVMElections extends CSABase: <"The set of elections which specify a Vari
     addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
     otherAgreements OtherAgreements (0..1) <"The bespoke definition of other agreement terms as specified by the parties to the agreement.">
     securityInterestForObligations SecurityInterestForObligations (1..1) <"The party to whom obligations under the Master Agreement are owed and secured by the credit support arrangements. Applicable to 1994 NY CSA, 1995 English Law CSD and 2016 New York Law VM CSA.">
-    creditSupportObligations CreditSupportObligationsVM (1..1) <"The Credit Support Obligations applicable to the agreement.">
-    calculationAndTiming CalculationAndTimingVM (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
+    creditSupportObligations CreditSupportObligationsVariationMargin (1..1) <"The Credit Support Obligations applicable to the agreement.">
+    calculationAndTiming CalculationAndTimingVariationMargin (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
 
 type CSALegacyElections extends CSABase: <"The set of elections which specify a Legacy (1994 or 1995) Credit Support Annex or Deed.">
     exchangeDate string (0..1) <"The bespoke exchange date terms that might be specified by the parties to the agreement.">
@@ -108,8 +111,8 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
     postingObligations PostingObligations (1..1) <"The security providers posting obligations.">
     substitutedRegime SubstitutedRegime (0..*) <"The specification of Additional regimes for purposes of determining whether a Regulatory Event has occurred.">
     baseAndEligibleCurrency BaseAndEligibleCurrency (1..1) <"The base and eligible currency(ies) for the document as specified by the parties to the agreement.">
-    creditSupportObligations CreditSupportObligationsCTA (1..1) <"The Credit Support Obligations applicable to the agreement.">
-    calculationAndTiming CalculationAndTimingCTA (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
+    creditSupportObligations CreditSupportObligationsCollateralTransferAgreement (1..1) <"The Credit Support Obligations applicable to the agreement.">
+    calculationAndTiming CalculationAndTimingCollateralTransferAgreement (1..1) <"The set of elections for determining Valuation and Timing terms specific to the agreement.">
     conditionsPrecedent ConditionsPrecedent (0..1) <"The set of elections that may overwrite the default Condition Precedent provision, and the set of provisions that are deemed Access Condition.">
     substitution Substitution (0..1) <"The conditions under which the Security Provider can substitute posted collateral.">
     disputeResolution DisputeResolution (1..1) <"The election terms under which a party disputes (i) the Calculation Agents calculation of a Delivery Amount or a Return Amount, or (ii) the Value of any Transfer of Eligible Credit Support or Posted Credit Support.">
@@ -282,13 +285,13 @@ type CalculationAndTimingLegacy extends CalculationAndTimingBase: <"Specificatio
     valuationTime ValuationTime (1..1) <"Specifies the time on which the value of collateral or exposure are calculated in accordance with the agreement.">
     valuationAgent ValuationAgent (1..1) <"Details of the party calculating the value of collateral to be delivered or returned.">
 
-type CalculationAndTimingVM extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Variation Margin Credit Support Annex.">
+type CalculationAndTimingVariationMargin extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Variation Margin Credit Support Annex.">
     valuationDate CSAValuationDate (1..1) <"Details of the days on which calculations are to be made to determine the Delivery Amount and/or Return Amount.">
     valuationTime ValuationTime (1..1) <"Specifies the time on which the value of collateral or exposure are calculated in accordance with the agreement.">
     valuationAgent ValuationAgent (1..1) <"Details of the party valuating the collateral to be delivered or returned.">
     valuationDateLocation ValuationCalculationDateLocation (1..1) <"The specified location where the credit exposure will be calculated by the respective parties.">
 
-type CalculationAndTimingIM extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Initial Margin Credit Support Annex.">
+type CalculationAndTimingInitialMargin extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Initial Margin Credit Support Annex.">
     calculationAgentTerms CalculationAgentTerms (1..1) <"Details of the party calculating the value of collateral to be delivered or returned.">
     bespokeCalculationDate BespokeCalculationDate (0..1) <"The specification of bespoke Calculation Date terms for the purposes of Initial or Variation Margin by the parties to the agreement.">
     bespokeCalculationTime BespokeCalculationTime (0..1) <"Bespoke terms to describe the time as of which such party (or the Calculation Agent (IM) (if applicale)) computes its end of day valuations of derivatives transactions.">
@@ -298,7 +301,7 @@ type CalculationAndTimingIM extends CalculationAndTimingBase: <"Specification of
     securitiesSettlementDay string (0..1)
         [docReference ISDA CSA_IM_Japanese_2016 paragraph "12"]
 
-type CalculationAndTimingCTA extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Initial Margin Credit Support Annex.">
+type CalculationAndTimingCollateralTransferAgreement extends CalculationAndTimingBase: <"Specification of the Calculation, Valuation and Timing terms specific to the Initial Margin Credit Support Annex.">
     calculationAgentTerms CalculationAgentTerms (0..1) <"Details of the party calculating the value of collateral to be delivered or returned.">
     bespokeCalculationDate BespokeCalculationDate (0..1) <"The specification of bespoke Calculation Date terms for the purposes of Initial or Variation Margin by the parties to the agreement.">
     bespokeCalculationTime BespokeCalculationTime (0..1) <"Bespoke terms to describe the time as of which such party (or the Calculation Agent (IM) (if applicale)) computes its end of day valuations of derivatives transactions.">
@@ -1035,7 +1038,7 @@ type CreditSupportObligationsLegacy extends CreditSupportObligationsBase: <"Spec
         [docReference ISDA CSA_VM_English_2016]
         [docReference ISDA CSA_VM_NewYork_2016]    
 
-type CreditSupportObligationsIM extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Initial Margin Credit Support Annex.">
+type CreditSupportObligationsInitialMargin extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Initial Margin Credit Support Annex.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(d)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(c) " name "Credit Support Obligations"]
@@ -1052,7 +1055,7 @@ type CreditSupportObligationsIM extends CreditSupportObligationsBase: <"Specific
         [docReference ISDA CSA_VM_NewYork_2016]
     creditSupportAmount CreditSupportAmount (1..1) <"The total amount one counterparty must deliver to the other at any time: the combination of the Exposure to that party and the net Independent Amounts it must post, minus any agreed Threshold.">
 
-type CreditSupportObligationsCTA extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Initial Margin Credit Support Annex.">
+type CreditSupportObligationsCollateralTransferAgreement extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Initial Margin Credit Support Annex.">
     [docReference ISDA CSD_IM_English_2016 paragraph "13 General Principles" clause "(c)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_Japanese_2016 paragraph "13 General Principles" clause "(d)" name "Credit Support Obligations"]
     [docReference ISDA CSA_IM_NewYork_2016 paragraph "13 General Principles" clause "(c) " name "Credit Support Obligations"]
@@ -1069,10 +1072,7 @@ type CreditSupportObligationsCTA extends CreditSupportObligationsBase: <"Specifi
     creditSupportAmount CreditSupportAmount (1..1) <"The total amount one counterparty must deliver to the other at any time: the combination of the Exposure to that party and the net Independent Amounts it must post, minus any agreed Threshold.">
     rounding CollateralRounding (0..1) <"The rounding methodology applicable to the Delivery Amount and the Return Amount in terms of nearest integral multiple of Base Currency units.">
 
-    condition Rounding: <"Replacing rounding in CreditSupportObligationsBase with roundingCTA as cardinalities change.">
-    rounding is absent
-
-type CreditSupportObligationsVM extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Variation Margin Credit Support Annex.">
+type CreditSupportObligationsVariationMargin extends CreditSupportObligationsBase: <"Specification of the Credit Support Obligations applicable to the Variation Margin Credit Support Annex.">
     [docReference ISDA CSA_VM_2016 paragraph "13" clause "(c) " name "Credit Support Obligations"]
     ineligibleCreditSupport IneligibleCreditSupport (0..1) <"The parties to which the provisions of the Credit Support Annex for Variation Margin will apply to.">
         [docReference ISDA CSA_VM_2016 paragraph "13 " clause "(c)(iii)" name "Legally Ineligible Credit Support (VM"]
@@ -1087,7 +1087,7 @@ type CreditSupportObligationsVM extends CreditSupportObligationsBase: <"Specific
         [docReference ISDA CSA_English_1995]
         [docReference ISDA CSD_English_1995]
         [docReference ISDA CSA_VM_English_2016]
-        [docReference ISDA CSA_VM_NewYork_2016]    
+        [docReference ISDA CSA_VM_NewYork_2016]
 
 type EligibleCreditSupport: <"Specifies the collateral posting obligations of the security provider or security providers as specified in the corresponding agreement">
     partyElection EligibleCollateralElection (1..2) <"The specification of the collateral posting obligations for the security provider party(ies)">
