@@ -1,23 +1,41 @@
-# *Product - Modifying and adding qualification functions*
+# *CDM Ingestion - FpML Confirmation Ingestion Tests*
 
 _Background_
 
-Qualification functions are used extensively in CDM and Digital Regulatory Reporting to determine the type of product.
-
-Several functions were added and modified in CDM 5 without the changes being applied to CDM 6 & 7. This update adds qualification functions to CDM 6 & 7
+The ingestion framework has been extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects.  
+This update introduces new tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations.  
+The new tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
 
 _What is being released?_
 
-Added qualification functions
+This release adds the following ingestion components and scenarios:
 
-- `Qualify_TotalReturnSwap_Index` - This function qualifies a product as a Total Return Swap (Index) where the base product qualifies as Credit Swap and the index underlier for performance leg qualifies as Credit.
-- `Qualify_Equity_OtherForward` - This function qualifies a product as a Equity Forward (Other) where the base product qualifies as Equity Forward with non-standard terms.
+Ingestion base class
 
-Modified qualification functions
+- **`AbstractIngestionTest`**  
+  Provides a shared foundation for XML ingestion tests, including:
+  - Initialising a Rosetta XML ObjectMapper using the FpML confirmation XML configuration (`fpml-5-13`)
+  - Setting the expected XML schema location
+  - Injecting the ingestion functions:
+    - `Ingest_FpmlConfirmationToTradeState`
+    - `Ingest_FpmlConfirmationToWorkflowStep`
+  - Utility method for loading and configuring the XML mapper (`getXmlMapper`)
 
-- `Qualify_AssetClass_Credit` - Updated to check for credit underlier of the performance payout.
-- `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
+Ingestion scenarios
+
+- **`IngestFpmlConfirmationTest`**  
+  Adds full ingestion scenarios demonstrating how to convert FpML confirmation samples into CDM objects:
+  - **FpML Confirmation to TradeState**  
+    Validates ingestion of a vanilla interest rate swap FpML confirmation, ensuring that the XML mapper configuration is correctly applied and that a valid `TradeState` instance is produced.
+  - **FpML Confirmation to WorkflowStep**  
+    Validates ingestion of an execution advice document for a partial novation, producing a valid `WorkflowStep` instance and confirming end-to-end ingestion workflow integrity.
+
+These scenarios provide practical examples for users integrating FpML confirmation ingestion pipelines with CDM.
+
+_Backward-incompatible changes_
+
+None.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4176](https://github.com/finos/common-domain-model/pull/4176)
+Changes can be reviewed in: [PR#4196](https://github.com/finos/common-domain-model/pull/4196)
