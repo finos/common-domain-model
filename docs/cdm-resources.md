@@ -6,6 +6,10 @@ Explore More Resources and Videos on the Common Domain Model in the [FINOS Resou
 
 ## CDM Blogs
 
+### [From Standard to Impact: CDM Becomes an Active Project](https://www.finos.org/blog/from-standards-to-impact-cdm-becomes-an-active-finos-project?hsLang=en-us)
+
+In under three years since its open-sourcing, the CDM has evolved from a collaborative proof of concept into a production-grade open standard that is helping financial institutions streamline trade processing, regulatory reporting, and data management across global markets.
+
 ### [CDM New Horizons: Welcoming the First Sell-side Maintainer](https://www.finos.org/blog/cdm-new-horizons-welcoming-the-first-sell-side-maintainer?hsLang=en-us)
 
 We are excited to announce an addition to the dedicated team of maintainers of the CDM: Nick Moger of J.P. MorganChase.
@@ -23,6 +27,10 @@ The newly formed CDM Tokenized Assets Working Group was formed to extend the mod
 This release, the second major update since the model found its home at FINOS, represents a collaborative effort with ISDA, ISLA, and ICMA and brings over 100 functional and technical enhancements. If you're involved in financial data management and building systems for post-trade services, this is a release you need to know about.
 
 ## CDM News
+
+### [Industry Perspectives on the ISDA DRR](https://www.finos.org/hubfs/Projects%20+%20SIGs/CDM%20-%20Common%20Domain%20Model/ISDA%20+%20DRR%20White%20Paper/Industry-Perspectives-on-the-ISDA-DRR-Unlocking-Efficiency-Accuracy-and-Strategic-Value.pdf?hsLang=en-us)
+
+This report examines how financial institutions are adopting the ISDA Digital Regulatory Reporting (DRR) solution, a standardized and open-access initiative built on the FINOS CDM.
 
 ###  [Press Release from FINOS Member JSCC](https://www.finos.org/press/from-finos-member-jscc-global-standardization-of-regulatory-reporting-leveraging-drr-cdm?hsLang=en-us)
 
