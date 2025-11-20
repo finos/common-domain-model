@@ -1,23 +1,36 @@
-# *Product - Modifying and adding qualification functions*
+# Legal Agreement Model - Updating PartyContactInformation
 
 _Background_
 
-Qualification functions are used extensively in CDM and Digital Regulatory Reporting to determine the type of product.
+The `PartyContactInformation` type is used throughout the legal agreement namespaces, and specifies the party details involved in the legal agreement as well as the party reference. Only the party reference should be specified, and the parties themselves anonymised, being referred to as Party1 or Party2 to the agreement.
 
-Several functions were added and modified in CDM 5 without the changes being applied to CDM 6 & 7. This update adds qualification functions to CDM 6 & 7
+Furthermore, `PartyContactInformation` is used inconsistently across the model. In `DemandsAndNotices`, the `PartyContactInformation` type is used to specified the party election attribute. The `addressForTransfer` attribute of a CSA however, uses `ContactElection`, which is comprised of two `PartyContactInformation` types.  
 
 _What is being released?_
 
-Added qualification functions
-
-- `Qualify_TotalReturnSwap_Index` - This function qualifies a product as a Total Return Swap (Index) where the base product qualifies as Credit Swap and the index underlier for performance leg qualifies as Credit.
-- `Qualify_Equity_OtherForward` - This function qualifies a product as a Equity Forward (Other) where the base product qualifies as Equity Forward with non-standard terms.
-
-Modified qualification functions
-
-- `Qualify_AssetClass_Credit` - Updated to check for credit underlier of the performance payout.
-- `Qualify_BaseProduct_EquityForward` - Updated to check that `nonStandardisedTerms` on the settlement payout are either absent or False
+This update removes `PartyContactInformation` and redefines how the contact information is set in a more consistent and reusable way. 
+- A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
+- Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
+- Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
+- The same structure is applied to the existing `ProcessAgentElection` type with an additional attribute to specify the process agent entity and additional information.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4176](https://github.com/finos/common-domain-model/pull/4176)
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
+
+# _Infrastructure - Dependency Update_
+
+_What is being released?_
+
+This release updates the `bundle` dependency.
+
+Version updates include:
+- `bundle` `11.90.5` Fix issue with C# return type covariance
+
+No expectations are updated as part of this release.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
+
+
