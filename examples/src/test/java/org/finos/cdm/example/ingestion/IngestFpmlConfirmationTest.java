@@ -24,7 +24,6 @@ public class IngestFpmlConfirmationTest extends AbstractIngestionTest {
 
     private static final Logger logger = LoggerFactory.getLogger(IngestFpmlConfirmationTest.class);
     ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
-    ObjectMapper xmlMapper = getXmlMapper();
 
     /**
      * Tests the ingestion of an FpML confirmation XML file into a TradeState object.
@@ -38,7 +37,7 @@ public class IngestFpmlConfirmationTest extends AbstractIngestionTest {
 
         // Load a specific FpML file
         URL url = Resources.getResource("ingest/input/fpml-5-13-products-interest-rate-derivatives/ird-ex01-vanilla-swap.xml");
-        Document document = xmlMapper.readValue(url, Document.class);
+        Document document = defaultXmlMapper.readValue(url, Document.class);
 
         // Log the fpml document
         logger.debug(defaultXmlWriter.writeValueAsString(document));
@@ -63,7 +62,7 @@ public class IngestFpmlConfirmationTest extends AbstractIngestionTest {
 
         // Load a specific FpML file
         URL url = Resources.getResource("ingest/input/fpml-5-13-processes-execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.xml");
-        Document document = xmlMapper.readValue(url, Document.class);
+        Document document = defaultXmlMapper.readValue(url, Document.class);
 
         // Log the fpml document
         logger.debug(defaultXmlWriter.writeValueAsString(document));

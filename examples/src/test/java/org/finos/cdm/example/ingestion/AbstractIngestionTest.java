@@ -36,7 +36,7 @@ public abstract class AbstractIngestionTest extends AbstractExampleTest {
 
     @BeforeAll
     static void setupOnce() {
-        defaultXmlMapper = getXmlMapper();
+        defaultXmlMapper = getXmlMapper(RuneFpmlModelConfig.FPML_CONFIRMATION_XML_CONFIG_PATH);
         defaultXmlWriter = defaultXmlMapper
                 .writerWithDefaultPrettyPrinter()
                 .withAttribute("schemaLocation", EXPECTED_SCHEMA_LOCATION);
@@ -45,9 +45,9 @@ public abstract class AbstractIngestionTest extends AbstractExampleTest {
     // Load the XML configuration file and create the Rosetta XML ObjectMapper
     // This configuration file defines how the Rosetta XML ObjectMapper should interpret,
     // validate, and map the XML structures used for FpML confirmations.
-    protected static ObjectMapper getXmlMapper() {
+    protected static ObjectMapper getXmlMapper(String xmlConfigPath) {
         try {
-            URL url = Objects.requireNonNull(Resources.getResource(RuneFpmlModelConfig.FPML_CONFIRMATION_XML_CONFIG_PATH));
+            URL url = Objects.requireNonNull(Resources.getResource(xmlConfigPath));
             ObjectMapper mapper = RosettaObjectMapperCreator.forXML(url.openStream()).create();
             ((XmlMapper) mapper).configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
             return mapper;
