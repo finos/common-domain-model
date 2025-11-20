@@ -1,0 +1,693 @@
+namespace cdm.ingest.fpml.confirmation.product.creditdefaultswap: <"FpML CreditDefaultSwap product mapping functions.">
+version "${project.version}"
+
+import cdm.base.math.*
+import cdm.base.staticdata.asset.credit.*
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.pricequantity.*
+import cdm.ingest.fpml.confirmation.product.swap.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.observable.event.*
+import cdm.product.asset.*
+import cdm.product.common.schedule.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.asset.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.shared.* as fpml
+
+func MapCreditDefaultSwapCounterpartyList:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    alias buyerSellerModel: fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel
+
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party1,
+                buyerSellerModel -> sellerPartyReference
+            )
+
+    add counterpartyList:
+        MapCounterparty(
+                CounterpartyRoleEnum -> Party2,
+                buyerSellerModel -> buyerPartyReference
+            )
+
+func MapCreditDefaultSwapAncillaryPartyList:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+    output:
+        ancillaryPartyList AncillaryParty (0..*)
+
+func MapCreditDefaultSwapNonTransferableProduct:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlCreditDefaultSwap -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwap -> productModel),
+            economicTerms: MapCreditDefaultSwapEconomicTerms(
+                        fpmlCreditDefaultSwap,
+                        fpmlTradeHeader,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapCreditDefaultSwapEconomicTerms:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    alias nonStandardisedTerms:
+        if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms exists
+        then if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms any = True
+            then True
+            else False
+
+    set economicTerms:
+        EconomicTerms {
+            effectiveDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
+                        fpmlCreditDefaultSwap -> generalTerms -> effectiveDate
+                    ),
+            terminationDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
+                        fpmlCreditDefaultSwap -> generalTerms -> scheduledTerminationDate
+                    ),
+            dateAdjustments: MapBusinessDayAdjustments(
+                        fpmlCreditDefaultSwap -> generalTerms -> dateAdjustments
+                    ),
+            payout: MapCreditDefaultSwapPayoutList(
+                        fpmlCreditDefaultSwap,
+                        cdmCounterpartyList
+                    ),
+            nonStandardisedTerms: nonStandardisedTerms,
+            ...
+        }
+
+func MapCreditDefaultSwapPayoutList:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payouts Payout (0..*)
+
+    alias generalTermsPayerReceiver:
+        MapSellerAsPayerAndBuyerAsReceiver(
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel,
+                cdmCounterpartyList
+            )
+    add payouts:
+        MapCreditDefaultSwapPayout(
+                fpmlCreditDefaultSwap,
+                generalTermsPayerReceiver,
+                cdmCounterpartyList
+            )
+
+    add payouts:
+        if fpmlCreditDefaultSwap -> feeLeg -> periodicPayment exists
+        then MapFeeLegToInterestRateLegPayout(
+                    fpmlCreditDefaultSwap -> feeLeg,
+                    fpmlCreditDefaultSwap -> protectionTerms,
+                    generalTermsPayerReceiver,
+                    cdmCounterpartyList
+                )
+
+func MapCreditDefaultSwapPayout:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        cdmGeneralTermsPayerReceiver PayerReceiver (1..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias currency:
+        fpmlCreditDefaultSwap -> protectionTerms -> calculationAmount -> currency first
+
+    set payout:
+        Payout {
+            CreditDefaultPayout:
+                CreditDefaultPayout {
+                    payerReceiver: cdmGeneralTermsPayerReceiver,
+                    generalTerms:
+                        GeneralTerms {
+                            referenceInformation: MapReferenceInformation(
+                                        fpmlCreditDefaultSwap -> generalTerms -> referenceInformation,
+                                        currency
+                                    ),
+                            indexReferenceInformation: MapCreditIndex(
+                                        fpmlCreditDefaultSwap -> generalTerms -> indexReferenceInformation
+                                    ),
+                            basketReferenceInformation: MapBasketReferenceInformation(
+                                        fpmlCreditDefaultSwap -> generalTerms -> basketReferenceInformation
+                                    ),
+                            ...
+                        },
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapNotionalAmountToQuantityWithAddress(
+                                        fpmlCreditDefaultSwap -> protectionTerms -> calculationAmount -> amount first,
+                                        empty
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapCreditDefaultSwapChoiceToSettlementTerms(
+                                fpmlCreditDefaultSwap -> creditDefaultSwapChoice
+                            ),
+                    protectionTerms: fpmlCreditDefaultSwap -> protectionTerms
+                            extract MapProtectionTerms(item, cdmCounterpartyList),
+                    transactedPrice:
+                        TransactedPrice {
+                            marketFixedRate: fpmlCreditDefaultSwap -> feeLeg -> marketFixedRate,
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapReferenceInformation:
+    inputs:
+        fpmlReferenceInformation fpml.ReferenceInformation (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+    output:
+        referenceInformation ReferenceInformation (0..1)
+
+    set referenceInformation:
+        ReferenceInformation {
+            referenceEntity: MapLegalEntity(fpmlReferenceInformation -> referenceEntity),
+            referenceObligation: fpmlReferenceInformation -> referenceObligation
+                    extract MapReferenceObligation,
+            allGuarantees: fpmlReferenceInformation -> allGuarantees,
+            referencePrice: MapReferencePrice(
+                        fpmlReferenceInformation -> referencePrice,
+                        fpmlCurrency
+                    ),
+            ...
+        }
+
+func MapReferenceObligation:
+    inputs:
+        fpmlReferenceObligation fpml.ReferenceObligation (0..1)
+    output:
+        referenceObligation ReferenceObligation (0..1)
+
+    alias debtAsset:
+        if fpmlReferenceObligation -> bond exists
+        then fpmlReferenceObligation -> bond
+        else if fpmlReferenceObligation -> convertibleBond exists
+        then fpmlReferenceObligation -> convertibleBond
+        else if fpmlReferenceObligation -> loan exists
+        then fpmlReferenceObligation -> loan
+        else if fpmlReferenceObligation -> mortgage exists
+        then fpmlReferenceObligation -> mortgage
+
+    set referenceObligation:
+        ReferenceObligation {
+            security: if debtAsset exists
+                    then MapIdentifiedAssetToSecurity(debtAsset, empty, empty, Debt),
+            primaryObligorReference: MapLegalEntityReference(
+                        fpmlReferenceObligation -> primaryObligorReference
+                    ),
+            ...
+        }
+
+func MapCreditIndex:
+    inputs:
+        fpmlIndexReferenceInformation fpml.IndexReferenceInformation (0..1)
+    output:
+        creditIndex CreditIndex (0..1)
+
+    alias indexName:
+        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexName
+
+    alias indexId:
+        fpmlIndexReferenceInformation -> indexReferenceInformationSequence0 -> indexId default fpmlIndexReferenceInformation -> indexReferenceInformationSequence1 -> indexId
+
+    set creditIndex:
+        if fpmlIndexReferenceInformation exists
+        then CreditIndex {
+                identifier: indexId extract MapIndexIdToAssetIdentifier,
+                name: MapStringWithScheme(indexName -> value, indexName -> indexNameScheme),
+                provider: empty,
+                assetClass: Credit,
+                indexSeries: fpmlIndexReferenceInformation -> indexSeries,
+                indexAnnexVersion: fpmlIndexReferenceInformation -> indexAnnexVersion,
+                indexAnnexDate: fpmlIndexReferenceInformation -> indexAnnexDate -> date,
+                indexAnnexSource: fpmlIndexReferenceInformation -> indexAnnexSource -> value to-enum IndexAnnexSourceEnum,
+                excludedReferenceEntity: fpmlIndexReferenceInformation -> excludedReferenceEntity
+                        extract
+                            ReferenceInformation {
+                                referenceEntity: MapLegalEntity,
+                                ...
+                            },
+                tranche: MapTranche(fpmlIndexReferenceInformation -> tranche),
+                settledEntityMatrix: MapSettledEntityMatrix(
+                            fpmlIndexReferenceInformation -> settledEntityMatrix
+                        ),
+                indexFactor: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> indexFactor,
+                seniority: fpmlIndexReferenceInformation -> indexReferenceInformationSequence2 -> seniority -> value to-enum CreditSeniorityEnum,
+                ...
+            }
+
+// set creditIndex -> indexAnnexSource -> scheme:
+// fpmlIndexReferenceInformation -> indexAnnexSource -> indexAnnexSourceScheme
+func MapSettledEntityMatrix:
+    inputs:
+        fpmlSettledEntityMatrix fpml.SettledEntityMatrix (0..1)
+    output:
+        settledEntityMatrix SettledEntityMatrix (0..1)
+
+    set settledEntityMatrix:
+        SettledEntityMatrix {
+            matrixSource: fpmlSettledEntityMatrix -> matrixSource -> value to-enum SettledEntityMatrixSourceEnum,
+            publicationDate: fpmlSettledEntityMatrix -> publicationDate -> date
+        }
+    set settledEntityMatrix -> matrixSource -> scheme:
+        fpmlSettledEntityMatrix -> matrixSource -> settledEntityMatrixSourceScheme
+
+func MapBasketReferenceInformation:
+    inputs:
+        fpmlBasketReferenceInformation fpml.BasketReferenceInformation (0..1)
+    output:
+        basketReferenceInformation BasketReferenceInformation (0..1)
+
+    alias basketName:
+        fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketName
+
+    alias basketId:
+        fpmlBasketReferenceInformation -> basketIdentifierModel -> basketIdentifierModelSequence -> basketId
+
+    set basketReferenceInformation:
+        if fpmlBasketReferenceInformation exists
+        then BasketReferenceInformation {
+                basketName: MapStringWithScheme(
+                            basketName -> value,
+                            basketName -> basketNameScheme
+                        ),
+                basketId: basketId extract MapStringWithScheme(value, basketIdScheme),
+                referencePool:
+                    ReferencePool {
+                        referencePoolItem: fpmlBasketReferenceInformation -> referencePool -> referencePoolItem
+                                extract MapReferencePoolItem
+                    },
+                nthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> nthToDefault,
+                mthToDefault: fpmlBasketReferenceInformation -> basketReferenceInformationSequence -> mthToDefault,
+                tranche: MapTranche(fpmlBasketReferenceInformation -> tranche),
+            }
+
+func MapReferencePoolItem:
+    inputs:
+        fpmlReferencePoolItem fpml.ReferencePoolItem (0..1)
+    output:
+        referencePoolItem ReferencePoolItem (0..1)
+
+    set referencePoolItem:
+        ReferencePoolItem {
+            constituentWeight: MapConstituentWeight(
+                        fpmlReferencePoolItem -> constituentWeight
+                    ),
+            referencePair: MapReferencePair(fpmlReferencePoolItem -> referencePair),
+            ...
+        }
+    set referencePoolItem -> protectionTermsReference -> reference:
+        fpmlReferencePoolItem -> protectionTermsReference -> href
+    set referencePoolItem -> cashSettlementTermsReference -> reference:
+        fpmlReferencePoolItem -> settlementTermsReference -> href
+    set referencePoolItem -> physicalSettlementTermsReference -> reference:
+        fpmlReferencePoolItem -> settlementTermsReference -> href
+
+func MapConstituentWeight:
+    inputs:
+        fpmlConstituentWeight fpml.ConstituentWeight (0..1)
+    output:
+        constituentWeight ConstituentWeight (0..1)
+
+    set constituentWeight:
+        ConstituentWeight {
+            openUnits: fpmlConstituentWeight -> openUnits,
+            basketPercentage: fpmlConstituentWeight -> basketPercentage
+        }
+
+func MapReferencePair:
+    inputs:
+        fpmlReferencePair fpml.ReferencePair (0..1)
+    output:
+        referencePair ReferencePair (0..1)
+
+    set referencePair:
+        ReferencePair {
+            referenceEntity: MapLegalEntity(fpmlReferencePair -> referenceEntity),
+            referenceObligation: MapReferenceObligation(
+                        fpmlReferencePair -> referenceObligation
+                    ),
+            noReferenceObligation: fpmlReferencePair -> noReferenceObligation,
+            entityType: fpmlReferencePair -> entityType -> value to-enum EntityTypeEnum
+        }
+    set referencePair -> entityType -> scheme:
+        fpmlReferencePair -> entityType -> entityTypeScheme
+
+func MapTranche:
+    inputs:
+        fpmlTranche fpml.Tranche (0..1)
+    output:
+        tranche Tranche (0..1)
+
+    set tranche:
+        Tranche {
+            attachmentPoint: fpmlTranche -> attachmentPoint,
+            exhaustionPoint: fpmlTranche -> exhaustionPoint,
+            incurredRecoveryApplicable: fpmlTranche -> incurredRecoveryApplicable
+        }
+
+func MapProtectionTerms:
+    inputs:
+        fpmlProtectionTerms fpml.ProtectionTerms (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        protectionTerms ProtectionTerms (0..1)
+
+    alias creditEvents: fpmlProtectionTerms -> creditEvents
+
+    set protectionTerms:
+        ProtectionTerms {
+            creditEvents:
+                CreditEvents {
+                    bankruptcy: creditEvents -> bankruptcy,
+                    failureToPay:
+                        FailureToPay {
+                            applicable: creditEvents -> failureToPay -> applicable,
+                            gracePeriodExtension:
+                                GracePeriodExtension {
+                                    applicable: creditEvents -> failureToPay -> gracePeriodExtension -> applicable,
+                                    ...
+                                },
+                            paymentRequirement: MapMoney(
+                                        creditEvents -> failureToPay -> paymentRequirement
+                                    )
+                        },
+                    obligationAcceleration: creditEvents -> obligationAcceleration,
+                    repudiationMoratorium: creditEvents -> repudiationMoratorium,
+                    restructuring:
+                        Restructuring {
+                            applicable: creditEvents -> restructuring -> applicable,
+                            restructuringType: MapRestructuringEnum(
+                                        creditEvents -> restructuring -> restructuringType -> value
+                                    ),
+                            multipleHolderObligation: creditEvents -> restructuring -> multipleHolderObligation,
+                            multipleCreditEventNotices: creditEvents -> restructuring -> multipleCreditEventNotices,
+                        },
+                    defaultRequirement: MapMoney(creditEvents -> defaultRequirement),
+                    creditEventNotice: MapCreditEventNotice(
+                                creditEvents -> creditEventNotice,
+                                cdmCounterpartyList
+                            ),
+                    ...
+                },
+            obligations: fpmlProtectionTerms -> obligations
+                    extract
+                        Obligations {
+                            category: MapObligationCategoryEnum(category to-string),
+                            notSubordinated: notSubordinated,
+                            notSovereignLender: notSovereignLender,
+                            notDomesticCurrency:
+                                NotDomesticCurrency {
+                                    applicable: notDomesticCurrency -> applicable,
+                                    ...
+                                },
+                            notDomesticLaw: notDomesticLaw,
+                            notDomesticIssuance: notDomesticIssuance,
+                            ...
+                        },
+            ...
+        }
+
+func MapCreditEventNotice:
+    inputs:
+        fpmlCreditEventNotice fpml.consolidated.option.shared.CreditEventNotice (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        creditEventNotice CreditEventNotice (0..1)
+
+    set creditEventNotice:
+        CreditEventNotice {
+            notifyingParty: MapNotifyingPartyList(
+                        fpmlCreditEventNotice -> notifyingParty,
+                        cdmCounterpartyList
+                    ),
+            businessCenter: MapBusinessCenter(fpmlCreditEventNotice -> businessCenter),
+            publiclyAvailableInformation:
+                PubliclyAvailableInformation {
+                    standardPublicSources: fpmlCreditEventNotice -> publiclyAvailableInformation -> standardPublicSources,
+                    specifiedNumber: fpmlCreditEventNotice -> publiclyAvailableInformation -> specifiedNumber,
+                    ...
+        }}
+
+func MapNotifyingPartyList:
+    inputs:
+        fpmlNotifyingParty fpml.NotifyingParty (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        notifyingPartyList CounterpartyRoleEnum (0..2)
+
+    add notifyingPartyList:
+        MapCounterpartyRoleEnum(
+                fpmlNotifyingParty -> buyerPartyReference -> href,
+                cdmCounterpartyList
+            )
+
+    add notifyingPartyList:
+        MapCounterpartyRoleEnum(
+                fpmlNotifyingParty -> sellerPartyReference -> href,
+                cdmCounterpartyList
+            )
+
+func MapFeeLegToInterestRateLegPayout:
+    inputs:
+        fpmlFeeLeg fpml.FeeLeg (0..1)
+        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+        cdmGeneralTermsPayerReceiver PayerReceiver (1..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    alias fixedAmountCalculation: fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation
+    alias floatingAmountCalculation:
+        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation
+
+    alias fpmlFloatingRate:
+        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate
+
+    set payout:
+        Payout {
+            InterestRatePayout:
+                InterestRatePayout {
+                    payerReceiver: FlipPayerAndReceiver(cdmGeneralTermsPayerReceiver),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: if fixedAmountCalculation -> calculationAmount exists
+                                        or floatingAmountCalculation -> calculationAmount exists
+                                    then MapFixedOrFloatingCalculationAmountToQuantityListWithAddress(
+                                            fixedAmountCalculation -> calculationAmount,
+                                            floatingAmountCalculation -> calculationAmount,
+                                            fpmlFeeLeg
+                                        )
+                                else MapNotionalAmountToQuantityWithAddress(
+                                        fpmlProtectionTerms -> calculationAmount -> amount first,
+                                        empty
+                                    ),
+                            ...
+                        },
+                    rateSpecification:
+                        RateSpecification {
+                            FixedRateSpecification:
+                                FixedRateSpecification {
+                                    rateSchedule:
+                                        RateSchedule {
+                                            price: if fixedAmountCalculation -> fixedRate exists
+                                                    then MapFixedRateToPriceScheduleWithAddress(
+                                                            fixedAmountCalculation -> fixedRate -> value,
+                                                            fpmlFeeLeg
+                                                        )
+                            }},
+                            FloatingRateSpecification: if fpmlFloatingRate exists
+                                    then MapFloatingRateSpecification(
+                                            fpmlFloatingRate,
+                                            fpmlFeeLeg
+                                        ),
+                            ...
+                        },
+                    dayCountFraction: MapDayCountFractionEnum(
+                                fixedAmountCalculation -> dayCountFraction -> value
+                            ),
+                    calculationPeriodDates:
+                        CalculationPeriodDates {
+                            firstPeriodStartDate: MapUnadjustedDateToAdjustableOrRelativeDate(
+                                        fpmlFeeLeg -> periodicPayment -> firstPeriodStartDate -> date,
+                                        empty
+                                    ),
+                            calculationPeriodFrequency: MapPeriodicPaymentToCalculationPeriodFrequency(
+                                        fpmlFeeLeg -> periodicPayment
+                                    ),
+                            ...
+                        },
+                    paymentDates: MapPeriodicPaymentToPaymentDates(
+                                fpmlFeeLeg -> periodicPayment
+                            ),
+                    resetDates:
+                        ResetDates {
+                            initialFixingDate:
+                                InitialFixingDate {
+                                    initialFixingDate: floatingAmountCalculation -> initialFixingDate -> date,
+                                    ...
+                                },
+                            finalFixingDate: MapAdjustableDate(
+                                        floatingAmountCalculation -> finalFixingDate
+                                    ),
+                            ...
+                        },
+                    ...
+                },
+            ...
+        }
+
+func MapReferencePrice:
+    inputs:
+        fpmlReferencePrice number (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+    output:
+        price Price (0..1)
+
+    alias priceUnits:
+        UnitType {
+            currency: MapCurrency(fpmlCurrency),
+            ...
+        }
+
+    set price:
+        if fpmlReferencePrice exists
+        then Price {
+                value: fpmlReferencePrice,
+                unit: priceUnits,
+                perUnitOf: priceUnits,
+                priceType: AssetPrice,
+                ...
+            }
+
+func MapCreditDefaultSwapPriceQuantityList:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+    output:
+        priceQuantityList PriceQuantity (0..*)
+
+    add priceQuantityList:
+        MapFeeLegToPriceQuantity(
+                fpmlCreditDefaultSwap -> feeLeg,
+                fpmlCreditDefaultSwap -> protectionTerms
+            )
+
+    add priceQuantityList:
+        MapProtectionTermsToPriceQuantity(fpmlCreditDefaultSwap -> protectionTerms)
+
+func MapFeeLegToPriceQuantity:
+    inputs:
+        fpmlFeeLeg fpml.FeeLeg (0..1)
+        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            price: MapFixedOrFloatingAmountCalculationToPriceListWithLocation(
+                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation,
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation,
+                        fpmlProtectionTerms -> calculationAmount -> currency first,
+                        fpmlFeeLeg
+                    ),
+            quantity: MapFixedOrFloatingCalculationAmountToQuantityListWithLocation(
+                        fpmlFeeLeg -> periodicPayment -> fixedAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> calculationAmount,
+                        fpmlFeeLeg
+                    ),
+            observable: MapRateOptionToObservableWithLocation(
+                        fpmlFeeLeg -> periodicPayment -> floatingAmountCalculation -> floatingRate,
+                        fpmlFeeLeg
+                    ),
+            ...
+        }
+
+func MapFixedOrFloatingAmountCalculationToPriceListWithLocation:
+    inputs:
+        fpmlFixedAmountCalculation fpml.FixedAmountCalculation (0..1)
+        fpmlFloatingAmountCalculation fpml.FloatingAmountCalculation (0..1)
+        fpmlCurrency fpml.Currency (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        priceScheduleList PriceSchedule (0..*)
+            [metadata location]
+
+    add priceScheduleList:
+        if fpmlFixedAmountCalculation -> fixedRate exists
+        then MapFixedRateToPriceScheduleWithLocation(
+                    fpmlFixedAmountCalculation -> fixedRate -> value,
+                    empty,
+                    fpmlCurrency,
+                    fpmlLeg
+                )
+        else if fpmlFloatingAmountCalculation -> floatingRate exists
+        then MapSpreadScheduleToPriceWithLocation(
+                    fpmlFloatingAmountCalculation -> floatingRate,
+                    fpmlCurrency,
+                    fpmlLeg
+                )
+
+func MapProtectionTermsToPriceQuantity:
+    inputs:
+        fpmlProtectionTerms fpml.ProtectionTerms (0..*)
+    output:
+        priceQuantity PriceQuantity (0..1)
+
+    set priceQuantity:
+        PriceQuantity {
+            quantity: fpmlProtectionTerms
+                    extract
+                        MapNotionalAmountToQuantityWithLocation(
+                                calculationAmount -> amount,
+                                empty,
+                                calculationAmount -> currency,
+                                empty
+                            ),
+            ...
+        }
+
+func MapCreditDefaultSwapAccountPartyReference:
+    inputs:
+        fpmlCreditDefaultSwap fpml.CreditDefaultSwap (0..1)
+        fpmlAccount fpml.Account (0..1)
+    output:
+        partyReference Party (0..1)
+            [metadata reference]
+
+    set partyReference:
+        MapBuyerSellerToAccountPartyReference(
+                fpmlAccount,
+                fpmlCreditDefaultSwap -> generalTerms -> buyerSellerModel
+            )
