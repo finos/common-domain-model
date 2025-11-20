@@ -1,36 +1,41 @@
-# Legal Agreement Model - Updating PartyContactInformation
+# *CDM Ingestion - FpML Confirmation Ingestion Tests*
 
 _Background_
 
-The `PartyContactInformation` type is used throughout the legal agreement namespaces, and specifies the party details involved in the legal agreement as well as the party reference. Only the party reference should be specified, and the parties themselves anonymised, being referred to as Party1 or Party2 to the agreement.
-
-Furthermore, `PartyContactInformation` is used inconsistently across the model. In `DemandsAndNotices`, the `PartyContactInformation` type is used to specified the party election attribute. The `addressForTransfer` attribute of a CSA however, uses `ContactElection`, which is comprised of two `PartyContactInformation` types.  
-
-_What is being released?_
-
-This update removes `PartyContactInformation` and redefines how the contact information is set in a more consistent and reusable way. 
-- A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
-- Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
-- Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
-- The same structure is applied to the existing `ProcessAgentElection` type with an additional attribute to specify the process agent entity and additional information.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
-
-# _Infrastructure - Dependency Update_
+The ingestion framework has been extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects.  
+This update introduces new tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations.  
+The new tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
 
 _What is being released?_
 
-This release updates the `bundle` dependency.
+This release adds the following ingestion components and scenarios:
 
-Version updates include:
-- `bundle` `11.90.5` Fix issue with C# return type covariance
+Ingestion base class
 
-No expectations are updated as part of this release.
+- **`AbstractIngestionTest`**  
+  Provides a shared foundation for XML ingestion tests, including:
+  - Initialising a Rosetta XML ObjectMapper using the FpML confirmation XML configuration (`fpml-5-13`)
+  - Setting the expected XML schema location
+  - Injecting the ingestion functions:
+    - `Ingest_FpmlConfirmationToTradeState`
+    - `Ingest_FpmlConfirmationToWorkflowStep`
+  - Utility method for loading and configuring the XML mapper (`getXmlMapper`)
+
+Ingestion scenarios
+
+- **`IngestFpmlConfirmationTest`**  
+  Adds full ingestion scenarios demonstrating how to convert FpML confirmation samples into CDM objects:
+  - **FpML Confirmation to TradeState**  
+    Validates ingestion of a vanilla interest rate swap FpML confirmation, ensuring that the XML mapper configuration is correctly applied and that a valid `TradeState` instance is produced.
+  - **FpML Confirmation to WorkflowStep**  
+    Validates ingestion of an execution advice document for a partial novation, producing a valid `WorkflowStep` instance and confirming end-to-end ingestion workflow integrity.
+
+These scenarios provide practical examples for users integrating FpML confirmation ingestion pipelines with CDM.
+
+_Backward-incompatible changes_
+
+None.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
-
-
+Changes can be reviewed in: [PR#4196](https://github.com/finos/common-domain-model/pull/4196)
