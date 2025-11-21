@@ -7,32 +7,12 @@ import cdm.base.staticdata.party.*
 import cdm.legaldocumentation.common.*
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
-import cdm.product.collateral.*
+import cdm.product.collateral.* as collateral
 
 synonym source CreateiQ
 
 synonym source CreateiQ_1_0 extends CreateiQ
 {
-    // AccessConditionsElections:
-    //     + party
-    //         [set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "not_applicable"]
-    //         [set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "not_applicable"]
-    //     + illegality
-    //         [set to True when "partyA_illegality" = "applicable" , set to False when "partyA_illegality" = "not_applicable"]
-    //         [set to True when "partyB_illegality" = "applicable" , set to False when "partyB_illegality" = "not_applicable"]
-    //     + forceMajeure
-    //         [set to True when "partyA_force_majeure" = "applicable" , set to False when "partyA_force_majeure" = "not_applicable"]
-    //         [set to True when "partyB_force_majeure" = "applicable" , set to False when "partyB_force_majeure" = "not_applicable"]
-    //     + taxEvent
-    //         [set to True when "partyA_tax_event" = "applicable" , set to False when "partyA_tax_event" = "not_applicable"]
-    //         [set to True when "partyB_tax_event" = "applicable" , set to False when "partyB_tax_event" = "not_applicable"]
-    //     + taxEventUponMerger
-    //         [set to True when "partyA_tax_event_upon_merger" = "applicable" , set to False when "partyA_tax_event_upon_merger" = "not_applicable"]
-    //         [set to True when "partyB_tax_event_upon_merger" = "applicable" , set to False when "partyB_tax_event_upon_merger" = "not_applicable"]
-    //     + creditEventUponMerger
-    //         [set to True when "partyA_credit_event_upon_merger" = "applicable" , set to False when "partyA_credit_event_upon_merger" = "not_applicable"]
-    //         [set to True when "partyB_credit_event_upon_merger" = "applicable" , set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
-
     AdditionalRepresentation:
         + customElection
             [value "specify" removeHtml]
@@ -196,15 +176,12 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "partyA_specify" removeHtml]
             [value "partyB_specify" removeHtml]
 
-    // ConditionsPrecedent:
-    //     + conditionsPrecedentElection
-    //         [value "specified" path "conditions_precedent"]
-    //         [value "conditions_precedent" path "conditions_precedent"]
-    //     + customProvision
-    //         [value "specify" path "conditions_precedent" removeHtml]
-    //     + accessConditions
-    //         [value "access_conditions" mapper "AdditionalTerminationEvent"]
-    //         [value "access_conditions" path "conditions_precedent" mapper "AdditionalTerminationEvent"]
+    ConditionsPrecedent:
+        + conditionsPrecedentElection
+            [value "specified" path "conditions_precedent"]
+            [value "conditions_precedent" path "conditions_precedent"]
+        + customProvision
+            [value "specify" path "conditions_precedent" removeHtml]
 
     ControlAgreementNecEventElection:
         + party
@@ -327,11 +304,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + collateralManagementAgreement
             [value "collateral_management_agreement" mapper "CollateralManagementAgreement"]
 
-    // DeliveryAmount:
-    //     + standardElection
-    //         [value "delivery_amount"]
-    //     + customElection
-    //         [value "specify_delivery_amount"]
+    collateral.DeliveryAmount:
+        + standardElection
+            [value "delivery_amount"]
+        + customElection
+            [value "specify_delivery_amount"]
 
     DisputeResolution:
         + resolutionTime
@@ -342,11 +319,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "recalculation_of_value" mapper "RecalculationOfValue"]
             [value "recalculation_of_market_value" mapper "RecalculationOfValue"]
 
-    CollateralInterestParameters:
+    collateral.CollateralInterestParameters:
         + currency
             [value "eligible_currency"]
 
-    CollateralInterestCalculationParameters:
+    collateral.CollateralInterestCalculationParameters:
         + fixedRate
             [value "interest_rate" pattern "([0-9.]*)([%])" "$1"]
 
@@ -510,11 +487,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + representativeEventTerms
             [value "specify_text" removeHtml]
 
-    // ReturnAmount:
-    //     + includesDefaultLanguage
-    //         [set to True when "return_amount" = "include" , set to False when "return_amount" = "exclude" , set to False when "return_amount" = "other"]
-    //     + customElection
-    //         [value "specify_return_amount"]
+    collateral.ReturnAmount:
+        + includesDefaultLanguage
+            [set to True when "return_amount" = "include" , set to False when "return_amount" = "exclude" , set to False when "return_amount" = "other"]
+        + customElection
+            [value "specify_return_amount"]
 
     RightsEvents:
         + securityTakerRightsEvent
@@ -706,11 +683,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + creditSupportAgreementType
             [value "documentType"]
         + creditSupportAgreementMarginType
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (Jpn Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (NY Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSA (NY Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSD (Eng Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSD (Eng Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (Jpn Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (NY Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSA (NY Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSD (Eng Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSD (Eng Law)"]
         + masterAgreementType
             [value "documentType"]
 
@@ -1170,7 +1147,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + EachDay
             [value "each_day"]
 
-    DeliveryAmountElectionEnum:
+    collateral.DeliveryAmountElectionEnum:
         + LastLocalBusinessDay
             [value "include_one"]
         + LastAndAnyLocalBusinessDay
@@ -1469,7 +1446,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + ISDAMaster
             [value "Master Agreement"]
 
-    CreditSupportAgreementTypeEnum:
+    collateral.CreditSupportAgreementTypeEnum:
         + CreditSupportDeed
             [value "Credit Support Deed"]
         + CreditSupportAnnex
