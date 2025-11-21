@@ -10,4 +10,4 @@ Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition:
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4183](https://github.com/finos/common-domain-model/pull/4183)
+Changes can be reviewed in PR: [#4205](https://github.com/finos/common-domain-model/pull/4205)
