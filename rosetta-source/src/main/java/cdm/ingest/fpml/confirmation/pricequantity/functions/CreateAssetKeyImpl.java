@@ -1,6 +1,6 @@
 package cdm.ingest.fpml.confirmation.pricequantity.functions;
 
-import fpml.confirmation.Asset;
+import fpml.consolidated.asset.*;
 
 import java.util.Objects;
 import java.util.Optional;

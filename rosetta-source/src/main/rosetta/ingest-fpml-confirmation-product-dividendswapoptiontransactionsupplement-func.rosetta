@@ -9,7 +9,9 @@ import cdm.ingest.fpml.confirmation.settlement.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapDividendSwapOptionTransactionSupplementCounterpartyList:
     inputs:
@@ -38,15 +40,15 @@ func MapDividendSwapOptionTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlDividendSwapOptionTransactionSupplement -> productModel
-                ),
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(
-                    fpmlDividendSwapOptionTransactionSupplement -> productModel
-                ),
+                        fpmlDividendSwapOptionTransactionSupplement -> productModel
+                    ),
             economicTerms: MapDividendSwapOptionTransactionSupplementEconomicTerms(
-                    fpmlDividendSwapOptionTransactionSupplement,
-                    cdmCounterpartyList
-                )
+                        fpmlDividendSwapOptionTransactionSupplement,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapDividendSwapOptionTransactionSupplementEconomicTerms:
@@ -59,9 +61,9 @@ func MapDividendSwapOptionTransactionSupplementEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapDividendSwapOptionTransactionSupplementPayout(
-                    fpmlDividendSwapOptionTransactionSupplement,
-                    cdmCounterpartyList
-                ),
+                        fpmlDividendSwapOptionTransactionSupplement,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -74,40 +76,43 @@ func MapDividendSwapOptionTransactionSupplementPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
-                        fpmlDividendSwapOptionTransactionSupplement -> equityExercise,
-                        empty
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Product: Product {
-                        NonTransferableProduct: MapDividendSwapTransactionSupplementNonTransferableProduct(
-                                fpmlDividendSwapOptionTransactionSupplement -> dividendSwapTransactionSupplement,
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                        ...
-                    },
+                    settlementTerms: MapEquityExerciseValuationSettlementToSettlementTerms(
+                                fpmlDividendSwapOptionTransactionSupplement -> equityExercise,
+                                empty
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapDividendSwapTransactionSupplementNonTransferableProduct(
+                                                fpmlDividendSwapOptionTransactionSupplement -> dividendSwapTransactionSupplement,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlEquityExercise(
+                                        fpmlDividendSwapOptionTransactionSupplement -> equityExercise
+                                    ),
+                                empty,
+                                empty,
+                                fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
                     ...
                 },
-                exerciseTerms: MapExerciseTerms(
-                        GetFpmlEquityExercise(
-                                fpmlDividendSwapOptionTransactionSupplement -> equityExercise
-                            ),
-                        empty,
-                        empty,
-                        fpmlDividendSwapOptionTransactionSupplement -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                ...
-            },
             ...
         }
 

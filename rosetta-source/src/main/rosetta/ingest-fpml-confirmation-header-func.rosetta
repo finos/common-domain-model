@@ -5,7 +5,9 @@ import cdm.base.staticdata.identifier.*
 import cdm.event.common.*
 import cdm.ingest.fpml.confirmation.common.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapTradeIdentifierList:
     inputs:
@@ -73,13 +75,13 @@ func MapIssuerTradeIdModelToTradeIdentifier:
     set cdmTradeIdentifier:
         TradeIdentifier {
             issuer: MapStringWithScheme(
-                    fpmlIssuerTradeIdModel -> issuer -> value,
-                    fpmlIssuerTradeIdModel -> issuer -> issuerIdScheme
-                ),
+                        fpmlIssuerTradeIdModel -> issuer -> value,
+                        fpmlIssuerTradeIdModel -> issuer -> issuerIdScheme
+                    ),
             assignedIdentifier: MapTradeIdToAssignedIdentifier(
-                    fpmlIssuerTradeIdModel -> tradeId,
-                    empty
-                ),
+                        fpmlIssuerTradeIdModel -> tradeId,
+                        empty
+                    ),
             identifierType: MapTradeIdToIdentifierType(fpmlIssuerTradeIdModel -> tradeId),
             ...
         }
@@ -94,9 +96,9 @@ func MapTradeIdToAssignedIdentifier:
     set cdmAssignedIdentifier:
         AssignedIdentifier {
             identifier: MapStringWithScheme(
-                    fpmlTradeId -> value,
-                    fpmlTradeId -> tradeIdScheme
-                ),
+                        fpmlTradeId -> value,
+                        fpmlTradeId -> tradeIdScheme
+                    ),
             version: fpmlVersion
         }
 

@@ -12,7 +12,10 @@ import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.generic.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapGenericProductCounterpartyList:
     inputs:
@@ -41,10 +44,10 @@ func MapGenericProductNonTransferableProduct:
             identifier: MapProductIdentifierList(fpmlGenericProduct -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlGenericProduct -> productModel),
             economicTerms: MapGenericProductEconomicTerms(
-                    fpmlGenericProduct,
-                    cdmCounterpartyList,
-                    fpmlpartyTradeInformation
-                )
+                        fpmlGenericProduct,
+                        cdmCounterpartyList,
+                        fpmlpartyTradeInformation
+                    )
         }
 
 func MapGenericProductEconomicTerms:
@@ -57,21 +60,23 @@ func MapGenericProductEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
-            effectiveDate: AdjustableOrRelativeDate {
-                adjustableDate: MapAdjustable2(fpmlGenericProduct -> effectiveDate),
-                ...
-            },
-            terminationDate: AdjustableOrRelativeDate {
-                adjustableDate: MapAdjustable2(fpmlGenericProduct -> terminationDate),
-                ...
-            },
+            effectiveDate:
+                AdjustableOrRelativeDate {
+                    adjustableDate: MapAdjustable2(fpmlGenericProduct -> effectiveDate),
+                    ...
+                },
+            terminationDate:
+                AdjustableOrRelativeDate {
+                    adjustableDate: MapAdjustable2(fpmlGenericProduct -> terminationDate),
+                    ...
+                },
             dateAdjustments: empty, // MapBusinessDayAdjustments(fpmlTrade, fpmlPartiesAndAccountsModel),
             payout: MapGenericProductPayout(fpmlGenericProduct, cdmCounterpartyList),
             terminationProvision: empty, // MapTerminationProvision(fpmlTrade, fpmlPartiesAndAccountsModel),
             nonStandardisedTerms: fpmlPartyTradeInformation
-                filter nonStandardTerms exists
-                then extract nonStandardTerms
-                then distinct only-element,
+                    filter nonStandardTerms exists
+                    then extract nonStandardTerms
+                    then distinct only-element,
             collateral: empty, // MapCollateral(fpmlTrade, fpmlPartiesAndAccountsModel),
             ...
         }
@@ -87,19 +92,21 @@ func MapGenericProductPayout:
         fpmlGenericProduct
             then extract
                 Payout {
-                    SettlementPayout: SettlementPayout {
-                        payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                                buyerSellerModel,
-                                cdmCounterpartyList
-                            ),
-                        priceQuantity: empty,
-                        settlementTerms: SettlementTerms {
-                            settlementType: settlementType to-enum SettlementTypeEnum,
+                    SettlementPayout:
+                        SettlementPayout {
+                            payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                        buyerSellerModel,
+                                        cdmCounterpartyList
+                                    ),
+                            priceQuantity: empty,
+                            settlementTerms:
+                                SettlementTerms {
+                                    settlementType: settlementType to-enum SettlementTypeEnum,
+                                    ...
+                                },
+                            underlier: empty,
                             ...
                         },
-                        underlier: empty,
-                        ...
-                    },
                     ...
                 }
 
@@ -110,25 +117,33 @@ func MapGenericProductPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
     add priceQuantityList:
         PriceQuantity {
-            price: PriceSchedule {
-                value: empty,
-                unit: UnitType {
-                    currency: fpmlGenericProduct -> notional
-                        then extract
-                            MapCurrency(
-                                    if currency exists then currency
-                                ),
+            price:
+                PriceSchedule {
+                    value: empty,
+                    unit:
+                        UnitType {
+                            currency: fpmlGenericProduct -> notional
+                                    then extract
+                                        MapCurrency(
+                                                if currency exists
+                                                then currency
+                                            ),
+                            ...
+                        },
+                    priceType: AssetPrice,
                     ...
                 },
-                priceType: AssetPrice,
-                ...
-            },
             quantity: fpmlGenericProduct -> notional
-                then extract
-                    MapNotionalAmountToQuantityWithLocation(amount, empty, currency, empty),
+                    then extract
+                        MapNotionalAmountToQuantityWithLocation(
+                                amount,
+                                empty,
+                                currency,
+                                empty
+                            ),
             observable: fpmlGenericProduct -> underlyer -> underlyingAsset
-                first
-                then extract MapAssetToObservableWithLocation,
+                    first
+                    then extract MapAssetToObservableWithLocation,
             ...
         }
 

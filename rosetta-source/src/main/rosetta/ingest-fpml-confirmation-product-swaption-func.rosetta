@@ -10,7 +10,9 @@ import cdm.observable.asset.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapSwaptionCounterpartyList:
     inputs:
@@ -52,11 +54,11 @@ func MapSwaptionEconomicTerms:
         EconomicTerms {
             payout: MapSwaptionPayout(fpmlSwaption, cdmCounterpartyList),
             terminationProvision: MapTerminationProvision(
-                    fpmlSwaption -> earlyTerminationProvision,
-                    empty,
-                    empty,
-                    cdmCounterpartyList
-                ),
+                        fpmlSwaption -> earlyTerminationProvision,
+                        empty,
+                        empty,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -69,41 +71,46 @@ func MapSwaptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlSwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                settlementTerms: if fpmlSwaption -> cashSettlement exists
-                    then MapCashSettlementToSettlementTerms(fpmlSwaption -> cashSettlement)
-                else MapSwaptionPhysicalSettlementToSettlementTerms(
-                        fpmlSwaption -> physicalSettlement
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlSwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Product: Product {
-                        NonTransferableProduct: MapSwapNonTransferableProduct(
-                                fpmlSwaption -> swap,
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlSwaption -> buyerSellerModel,
                                 cdmCounterpartyList
                             ),
-                        ...
-                    },
+                    settlementTerms: if fpmlSwaption -> cashSettlement exists
+                            then MapCashSettlementToSettlementTerms(
+                                    fpmlSwaption -> cashSettlement
+                                )
+                        else MapSwaptionPhysicalSettlementToSettlementTerms(
+                                fpmlSwaption -> physicalSettlement
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlSwaption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapSwapNonTransferableProduct(
+                                                fpmlSwaption -> swap,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    optionType: if fpmlSwaption -> swaptionStraddle = True
+                            then Straddle,
+                    exerciseTerms: MapExerciseTerms(
+                                fpmlSwaption -> exercise,
+                                fpmlSwaption -> exerciseProcedure,
+                                empty,
+                                fpmlSwaption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
                     ...
                 },
-                optionType: if fpmlSwaption -> swaptionStraddle = True
-                    then Straddle,
-                exerciseTerms: MapExerciseTerms(
-                        fpmlSwaption -> exercise,
-                        fpmlSwaption -> exerciseProcedure,
-                        empty,
-                        fpmlSwaption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                ...
-            },
             ...
         }
 
@@ -117,10 +124,11 @@ func MapSwaptionPhysicalSettlementToSettlementTerms:
         if fpmlSwaptionPhysicalSettlement exists
         then SettlementTerms {
                 settlementType: Physical,
-                physicalSettlementTerms: PhysicalSettlementTerms {
-                    clearedPhysicalSettlement: fpmlSwaptionPhysicalSettlement -> clearedPhysicalSettlement,
-                    ...
-                },
+                physicalSettlementTerms:
+                    PhysicalSettlementTerms {
+                        clearedPhysicalSettlement: fpmlSwaptionPhysicalSettlement -> clearedPhysicalSettlement,
+                        ...
+                    },
                 ...
             }
 

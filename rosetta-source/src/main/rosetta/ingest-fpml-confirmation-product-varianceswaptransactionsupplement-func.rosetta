@@ -8,7 +8,9 @@ import cdm.ingest.fpml.confirmation.product.varianceswap.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
 
 func MapVarianceSwapTransactionSupplementCounterpartyList:
     inputs:
@@ -37,15 +39,15 @@ func MapVarianceSwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlVarianceSwapTransactionSupplement -> productModel
-                ),
+                        fpmlVarianceSwapTransactionSupplement -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(
-                    fpmlVarianceSwapTransactionSupplement -> productModel
-                ),
+                        fpmlVarianceSwapTransactionSupplement -> productModel
+                    ),
             economicTerms: MapVarianceSwapTransactionSupplementEconomicTerms(
-                    fpmlVarianceSwapTransactionSupplement,
-                    cdmCounterpartyList
-                )
+                        fpmlVarianceSwapTransactionSupplement,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapVarianceSwapTransactionSupplementEconomicTerms:
@@ -58,7 +60,7 @@ func MapVarianceSwapTransactionSupplementEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: fpmlVarianceSwapTransactionSupplement -> varianceLeg
-                extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
+                    extract MapVarianceLegToPerformancePayout(item, cdmCounterpartyList),
             ...
         }
 
