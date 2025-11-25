@@ -109,7 +109,7 @@ final class FpMLCodingSchemeTests {
     void mustValidateBusinessCenterCodesInTradeStateSample() throws IOException {
         // Load the sample JSON file containing a trade state definition
         final URL source = FpMLCodingSchemeTests.class.getClassLoader()
-                .getResource("result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex01-vanilla-swap.json");
+                .getResource("ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex01-vanilla-swap.json");
 
         // Ensure that the file was found
         assertNotNull(source, "Test JSON file must be available");

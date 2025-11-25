@@ -39,10 +39,10 @@ final class ProcessorPerformanceTests extends AbstractProcessorTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessorPerformanceTests.class);
 
     // Path to the test sample JSON files for TradeState objects within the JAR resources
-    private final String tradeStateTestPackSamples = "result-json-files/fpml-5-13/products";
+    private final String tradeStateTestPackSamples = "ingest/output/fpml-confirmation-to-trade-state";
 
     // Path to the test sample JSON files for WorkflowStep objects within the JAR resources
-    private final String workflowStepTestPackSamples = "result-json-files/fpml-5-13/processes";
+    private final String workflowStepTestPackSamples = "ingest/output/fpml-confirmation-to-workflow-step";
 
     /**
      * Evaluates the performance of serialization, validation, and qualification of TradeState objects.
