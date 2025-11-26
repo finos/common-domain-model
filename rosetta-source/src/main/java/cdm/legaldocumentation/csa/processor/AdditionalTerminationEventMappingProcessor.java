@@ -1,7 +1,8 @@
 package cdm.legaldocumentation.csa.processor;
 
-import cdm.legaldocumentation.csa.AccessConditions;
 import cdm.legaldocumentation.csa.AdditionalTerminationEvent;
+import cdm.legaldocumentation.csa.SpecifiedConditionOrAccessCondition;
+import cdm.legaldocumentation.csa.SpecifiedOrAccessConditionPartyElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -29,21 +30,26 @@ public class AdditionalTerminationEventMappingProcessor extends MappingProcessor
 
 	@Override
 	public void map(Path accessConditionsPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-		AccessConditions.AccessConditionsBuilder accessConditionsBuilder = (AccessConditions.AccessConditionsBuilder) builder;
-		accessConditionsBuilder.setAdditionalTerminationEvent(new ArrayList<>());
+		/*SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder specifiedConditionOrAccessConditionBuilder = (SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder) builder;
+		specifiedConditionOrAccessConditionBuilder.setPartyElection(new ArrayList<>()); //.setAdditionalTerminationEvent(new ArrayList<>());
 
+        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder specifiedOrAccessConditionPartyElection =  (SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder) builder;
 		Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
 		int index = 0;
 		while (true) {
+
 			Optional<AdditionalTerminationEvent> additionalTerminationEventBuilder = getAdditionalTerminationEvent(eventsPath, "name", index++);
 			if (additionalTerminationEventBuilder.isPresent()) {
-				accessConditionsBuilder.addAdditionalTerminationEvent(additionalTerminationEventBuilder.get());
+                specifiedOrAccessConditionPartyElection.addAdditionalTerminationEvent()
+                AdditionalTerminationEvent additionalTerminationEvent = additionalTerminationEventBuilder.get();
+                specifiedOrAccessConditionPartyElection.setAdditionalTerminationEvent(additionalTerminationEvent.getName())
+                specifiedConditionOrAccessConditionBuilder.addPartyElection(specifiedOrAccessConditionPartyElection);// addAdditionalTerminationEvent(additionalTerminationEvent);
 			} else {
 				break;
 			}
 		}
 		getAdditionalTerminationEvent(accessConditionsPath, "specify", null)
-				.ifPresent(accessConditionsBuilder::addAdditionalTerminationEvent);
+				.ifPresent(specifiedConditionOrAccessConditionBuilder::addPartyElection);*/
 	}
 
 	private Optional<AdditionalTerminationEvent> getAdditionalTerminationEvent(Path basePath, String synonym, Integer index) {
