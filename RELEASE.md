@@ -35,7 +35,7 @@ The test packs and expectations for the FpML Confirmation Ingest functions can b
 
 _`FpML as Rune` model_
 
-The FpML Confirmation schemas (.xsd) has been imported into a `FpML as Rune` model, where each schema type has a corresponding Rune data type.  e.g. FpML `<dataDocument>` has been imported into the model as type `fpml.confirmation.DataDocument`.
+The FpML Confirmation schemas (.xsd) have been imported into a `FpML as Rune` model, where each schema type has a corresponding Rune data type.  e.g. FpML `<dataDocument>` has been imported into the model as type `fpml.confirmation.DataDocument`.
 
 This model is hosted as a public Github repository, see [FpML as Rune](https://github.com/rosetta-models/rune-fpml).  `FpML as Rune` is an upstream dependency of CDM.
 
