@@ -1,3 +1,17 @@
+# *PartyRoleEnum - Add new PartyRoleEnum value MarginAffiliate*
+
+_Background_
+
+New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
+
+_What is being released?_
+
+Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4205](https://github.com/finos/common-domain-model/pull/4205)
+
 # _Ingestion - FpML model to CDM model Ingest_
 
 _Background_
@@ -41,15 +55,15 @@ This model is hosted as a public Github repository, see [FpML as Rune](https://g
 
 _Mapping Diagnostics_
 
-The release includes ingestion mapping diagnostics that provide comparison between synonym-based and function-based ingestion.
+_Background_
 
-- Mapping coverage diagnostics can be found [here](https://github.com/finos/common-domain-model/tree/6.x.x-ing.x/tests/src/test/resources/ingest/diagnostics)
-- Mapping diffs files can be found [here](https://github.com/finos/common-domain-model/tree/6.x.x-ing.x/tests/src/test/resources/ingest/expected-output)
+It has been raised that there is some ambiguity with the attribute descriptions under the `ConcentrationLimitTypeEnum`.
+The word portfolio could mean several things; therefore, the CDM Collateral Working Group agreed to add additional language across the descriptions to ensure they indicate the collateral schedule being listed in the collateral criteria and avoid misinterpretation.
 
-_Backward compatibility_
+_What is being released?_
 
-This release contains a new set of Rune namespaces containing ingest functions, so there are no backwards compatibility concerns.
+Updates to descriptions for `ConcentrationLimitTypeEnum` listings to remove 'portfolio' and replace this with 'eligible collateral schedule' where relevant and required.
 
-_Review directions_
+_Review Directions_
 
-Changes can be reviewed in PR: [#4197](https://github.com/finos/common-domain-model/pull/4197)
+The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
