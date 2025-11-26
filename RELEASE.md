@@ -1,29 +1,13 @@
-# *Ingestion Framework - Rune DSL syntax replacing static Java functions*
+# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
 
 _Background_
 
-This change is required to remove references to the hard-coded choice functions such as ToDocumentChoice. These functions are implemented in static Java and can instead be implemented with the switch operator in the Rune syntax.
+New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
 
 _What is being released?_
 
-Everywhere in the ingestion functions where we use a choice function, the function call has been replaced with a switch operator which is now capable of switching over types that extend a base type.
-The following rosetta files are affected:
-
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-common-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-datetime-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-legal-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-message-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-party-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-payment-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-pricequantity-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-commodityswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-creditdefaultswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-equityswaptransactionsupplement-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-returnswap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-product-swap-func.rosetta
-- rosetta-source/src/main/rosetta/ingest-fpml-confirmation-tradestate-func.rosetta
+Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
 
 _Review Directions_
 
-
-Changes can be reviewed in PR: [#4156](https://github.com/finos/common-domain-model/pull/4156)
+Changes can be reviewed in PR: [#4182](https://github.com/finos/common-domain-model/pull/4182)
