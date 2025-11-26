@@ -1,0 +1,160 @@
+namespace cdm.ingest.fpml.confirmation.header
+version "${project.version}"
+
+import cdm.base.staticdata.identifier.*
+import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.common.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.accumulator.* as fpml
+import fpml.consolidated.asset.* as fpml
+import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.business.events.* as fpml
+import fpml.consolidated.business.events.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.clearing.processes.* as fpml
+import fpml.consolidated.com.* as fpml
+import fpml.consolidated.confirmation.processes.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.credit.event.notification.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.fpmlstandard.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.fx.accruals.* as fpml
+import fpml.consolidated.fx.targets.* as fpml
+import fpml.consolidated.generic.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.loan.* as fpml
+import fpml.consolidated.main.* as fpml
+import fpml.consolidated.mktenv.* as fpml
+import fpml.consolidated.msg.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.recordkeeping.processes.* as fpml
+import fpml.consolidated.reg.fpmlreporting.product.* as fpml
+import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
+import fpml.consolidated.repo.* as fpml
+import fpml.consolidated.riskdef.* as fpml
+import fpml.consolidated.sec.lending.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.valuation.* as fpml
+import fpml.consolidated.valuation.fpmlreporting.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+import fpml.custom.*
+
+func MapTradeIdentifierList:
+    inputs:
+        fpmlTradeHeader fpml.TradeHeader (1..1)
+    output:
+        cdmTradeIdentifierList TradeIdentifier (0..*)
+
+    add cdmTradeIdentifierList:
+        fpmlTradeHeader -> tradeIdentifiersModel -> partyTradeIdentifier
+            extract MapPartyTradeIdentifierToTradeIdentifierList
+            then flatten
+    add cdmTradeIdentifierList:
+        fpmlTradeHeader -> tradeIdentifiersModel -> tradeIdentifiersModelSequence -> partyTradeIdentifier
+            extract MapPartyTradeIdentifierToTradeIdentifierList
+            then flatten
+
+func MapPartyTradeIdentifierToTradeIdentifierList:
+    inputs:
+        fpmlPartyTradeIdentifier fpml.PartyTradeIdentifier (0..1)
+    output:
+        cdmTradeIdentifier TradeIdentifier (0..*)
+
+    add cdmTradeIdentifier:
+        MapTradeIdentifierSequenceToTradeIdentifier(
+                fpmlPartyTradeIdentifier -> tradeIdentifierSequence
+            )
+
+    add cdmTradeIdentifier:
+        MapIssuerTradeIdModelToTradeIdentifier(
+                fpmlPartyTradeIdentifier -> issuerTradeIdModel
+            )
+
+func MapTradeIdentifierSequenceToTradeIdentifier:
+    inputs:
+        fpmlTradeIdentifierSequence fpml.TradeIdentifierSequence (0..1)
+    output:
+        cdmTradeIdentifier TradeIdentifier (0..1)
+
+    set cdmTradeIdentifier -> issuerReference -> reference:
+        fpmlTradeIdentifierSequence -> partyAndAccountReferencesModel -> partyReference -> href
+
+    add cdmTradeIdentifier -> assignedIdentifier:
+        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice
+            extract MapTradeIdToAssignedIdentifier(tradeId, empty)
+
+    add cdmTradeIdentifier -> assignedIdentifier:
+        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice
+            extract
+                MapTradeIdToAssignedIdentifier(
+                        versionedTradeId -> tradeId,
+                        versionedTradeId -> versionHistoryModel -> version
+                    )
+
+    set cdmTradeIdentifier -> identifierType:
+        fpmlTradeIdentifierSequence -> tradeIdentifierSequenceChoice -> tradeId
+            extract MapTradeIdToIdentifierType
+            then first
+
+func MapIssuerTradeIdModelToTradeIdentifier:
+    inputs:
+        fpmlIssuerTradeIdModel fpml.IssuerTradeIdModel (0..1)
+    output:
+        cdmTradeIdentifier TradeIdentifier (0..1)
+
+    set cdmTradeIdentifier:
+        TradeIdentifier {
+            issuer: MapStringWithScheme(
+                        fpmlIssuerTradeIdModel -> issuer -> value,
+                        fpmlIssuerTradeIdModel -> issuer -> issuerIdScheme
+                    ),
+            assignedIdentifier: MapTradeIdToAssignedIdentifier(
+                        fpmlIssuerTradeIdModel -> tradeId,
+                        empty
+                    ),
+            identifierType: MapTradeIdToIdentifierType(fpmlIssuerTradeIdModel -> tradeId),
+            ...
+        }
+
+func MapTradeIdToAssignedIdentifier:
+    inputs:
+        fpmlTradeId fpml.TradeId (0..1)
+        fpmlVersion int (0..1)
+    output:
+        cdmAssignedIdentifier AssignedIdentifier (0..1)
+
+    set cdmAssignedIdentifier:
+        AssignedIdentifier {
+            identifier: MapStringWithScheme(
+                        fpmlTradeId -> value,
+                        fpmlTradeId -> tradeIdScheme
+                    ),
+            version: fpmlVersion
+        }
+
+func MapTradeIdToIdentifierType:
+    inputs:
+        fpmlTradeId fpml.TradeId (0..1)
+    output:
+        cdmTradeIdentifierTypeEnum TradeIdentifierTypeEnum (0..1)
+
+    alias tradeIdScheme: fpmlTradeId -> tradeIdScheme
+
+    set cdmTradeIdentifierTypeEnum:
+        if tradeIdScheme = "http://www.fpml.org/coding-scheme/external/uti"
+                or tradeIdScheme = "http://www.fpml.org/coding-scheme/external/unique-transaction-identifier"
+        then TradeIdentifierTypeEnum -> UniqueTransactionIdentifier
+        else if tradeIdScheme = "http://www.fpml.org/coding-scheme/external/usi"
+                or tradeIdScheme = "http://www.fpml.org/coding-scheme/external/unique-swap-identifier"
+        then TradeIdentifierTypeEnum -> UniqueSwapIdentifier
+        else empty

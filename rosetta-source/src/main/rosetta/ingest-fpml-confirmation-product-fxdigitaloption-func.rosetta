@@ -1,0 +1,126 @@
+namespace cdm.ingest.fpml.confirmation.product.fxdigitaloption
+version "${project.version}"
+
+import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.* as fpml
+import fpml.consolidated.accumulator.* as fpml
+import fpml.consolidated.asset.* as fpml
+import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.business.events.* as fpml
+import fpml.consolidated.business.events.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.clearing.processes.* as fpml
+import fpml.consolidated.com.* as fpml
+import fpml.consolidated.confirmation.processes.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.credit.event.notification.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.fpmlstandard.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.fx.accruals.* as fpml
+import fpml.consolidated.fx.targets.* as fpml
+import fpml.consolidated.generic.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.loan.* as fpml
+import fpml.consolidated.main.* as fpml
+import fpml.consolidated.mktenv.* as fpml
+import fpml.consolidated.msg.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.recordkeeping.processes.* as fpml
+import fpml.consolidated.reg.fpmlreporting.product.* as fpml
+import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
+import fpml.consolidated.repo.* as fpml
+import fpml.consolidated.riskdef.* as fpml
+import fpml.consolidated.sec.lending.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.valuation.* as fpml
+import fpml.consolidated.valuation.fpmlreporting.* as fpml
+import fpml.consolidated.variance.swaps.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
+import fpml.custom.*
+
+func MapFxDigitalOptionNonTransferableProduct:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        nonTransferableProduct NonTransferableProduct (0..1)
+
+    set nonTransferableProduct:
+        NonTransferableProduct {
+            identifier: MapProductIdentifierList(fpmlFxDigitalOption -> productModel),
+            taxonomy: MapProductTaxonomyList(fpmlFxDigitalOption -> productModel),
+            economicTerms: MapFxDigitalOptionEconomicTerms(
+                        fpmlFxDigitalOption,
+                        cdmCounterpartyList
+                    )
+        }
+
+func MapFxDigitalOptionCounterpartyList:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+    output:
+        counterpartyList Counterparty (0..2)
+
+    add counterpartyList:
+        MapBuyerSellerModelToCounterpartyList(fpmlFxDigitalOption -> buyerSellerModel)
+
+func MapFxDigitalOptionEconomicTerms:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    set economicTerms:
+        EconomicTerms {
+            payout: MapFxDigitalOptionPayout(fpmlFxDigitalOption, cdmCounterpartyList),
+            ...
+        }
+
+func MapFxDigitalOptionPayout:
+    inputs:
+        fpmlFxDigitalOption fpml.FxDigitalOption (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        payout Payout (0..1)
+
+    set payout:
+        Payout {
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    settlementTerms: MapFxDigitalOptionToSettlementTerms(
+                                fpmlFxDigitalOption
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier: empty,
+                    exerciseTerms: MapExerciseTerms(
+                                GetFpmlFxDigitalExercise(fpmlFxDigitalOption),
+                                fpmlFxDigitalOption -> exerciseProcedure,
+                                empty,
+                                fpmlFxDigitalOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    ...
+                },
+            ...
+        }

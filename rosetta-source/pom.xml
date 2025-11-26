@@ -99,6 +99,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -183,6 +184,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -247,6 +249,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -329,6 +332,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -411,6 +415,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -508,6 +513,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -604,6 +610,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -685,6 +692,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -783,6 +791,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -822,6 +831,7 @@
                                     <goal>generate</goal>
                                 </goals>
                                 <configuration>
+                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                                     <sourceRoots>
                                         <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
                                     </sourceRoots>
@@ -924,11 +934,38 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-rune-fpml-rosetta</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/parent-dependency</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.regnosys.rune-fpml</groupId>
+                                    <artifactId>rosetta-source</artifactId>
+                                    <includes>fpml/rosetta/*.rosetta</includes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeScope>runtime</includeScope>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>default-cli</id>
-                        <phase>validate</phase>
+                        <phase>initialize</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -936,28 +973,16 @@
                             <outputDirectory>${basedir}/target/classes/cdm/rosetta</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>src/main/rosetta</directory>
+                                    <directory>${project.build.directory}/parent-dependency/fpml/rosetta</directory>
                                     <includes>
                                         <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-json-hierarchy-file</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/main/rosetta</outputDirectory>
-                            <resources>
                                 <resource>
-                                    <directory>src/generated/java</directory>
+                                    <directory>src/main/rosetta</directory>
                                     <includes>
-                                        <include>namespace-hierarchy.json</include>
+                                        <include>*.rosetta</include>
                                     </includes>
                                     <filtering>true</filtering>
                                 </resource>
@@ -1007,9 +1032,9 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
                             <sourceRoots>
                                 <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
-                                <sourceRoot>src/test/resources/</sourceRoot>
                             </sourceRoots>
                             <!-- Matches the Rosetta lib jar file from the class path - this is used to get the basictype and annotations.rosetta files -->
                             <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
@@ -1020,10 +1045,6 @@
                                         <!-- Default output folder -->
                                         <outputConfiguration>
                                             <outputDirectory>src/generated/java/</outputDirectory>
-                                        </outputConfiguration>
-                                        <outputConfiguration>
-                                            <name>SRC_TEST_GEN_JAVA_OUTPUT</name>
-                                            <outputDirectory>src/test/generated/java/</outputDirectory>
                                         </outputConfiguration>
                                     </outputConfigurations>
                                 </language>
@@ -1068,8 +1089,11 @@
                     <sourcepath>
                         ${project.build.sourceDirectory}:${project.basedir}/src/generated/java
                     </sourcepath>
+                    <notimestamp>true</notimestamp>
+                    <quiet>true</quiet>
                     <additionalJOption>${maven-javadoc-plugin.option}</additionalJOption>
                     <maxmemory>2g</maxmemory>
+                    <excludePackageNames>fpml.*:cdm.ingest.*:cdm.mapping.*</excludePackageNames>
                 </configuration>
                 <executions>
                     <execution>
@@ -1091,6 +1115,10 @@
         <dependency>
             <groupId>com.regnosys.rosetta</groupId>
             <artifactId>com.regnosys.rosetta.lib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.regnosys.rune-fpml</groupId>
+            <artifactId>rosetta-source</artifactId>
         </dependency>
         <dependency>
             <groupId>com.regnosys</groupId>
