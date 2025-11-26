@@ -186,7 +186,7 @@ class SecLendingFunctionInputCreationTest {
                         CounterpartyRoleEnum.PARTY_1,
                         0.60))
                 // Fund 2 lends 80k SDOL to Borrower CP001
-                .addBreakdown(createAllocationInstruction(blockExecutionTradeState,
+                .addBreakdown(createAllocationInstruction( blockExecutionTradeState,
                         "lender-2",
                         "Fund 2",
                         CounterpartyRoleEnum.PARTY_1,

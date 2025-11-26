@@ -60,7 +60,7 @@ type CreditSupportAgreementElections: <"The set of elections which specify a Cre
     additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
     otherEligibleAndPostedSupport OtherEligibleAndPostedSupport (1..1) <"The Other Eligible Support elections associated with margin agreements.">
     demandsAndNotices DemandsAndNotices (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
-    addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
+    addressesForTransfer AddressesForTransfer (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
     otherAgreements OtherAgreements (0..1) <"The bespoke definition of other agreement terms as specified by the parties to the agreement.">
     terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
     minimumTransferAmountAmendment MinimumTransferAmountAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
@@ -99,7 +99,7 @@ type CollateralTransferAgreementElections: <"The set of elections which specify 
     custodyArrangements CustodyArrangements (1..1) <"The Custodian and Segregated Account details in respect of each party to the agreement.">
     additionalRepresentations AdditionalRepresentations (1..1) <"The specification Additional Representations that may be applicable to the agreement.">
     demandsAndNotices DemandsAndNotices (0..1) <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
-    addressesForTransfer ContactElection (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
+    addressesForTransfer AddressesForTransfer (0..1) <"The optional specification of address for transfer as specified by the respective parties to the agreement.">
     otherCsa string (0..1) <"The bespoke definition of Other CSA as specified by the parties to the agreement.">
     terminationCurrencyAmendment TerminationCurrencyAmendment (1..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Termination Currency.  Unless specified the definition of Termination Currency has the meaning specified in the Schedule to the ISDA Master Agreement.">
     minimumTransferAmountAmendment MinimumTransferAmountAmendment (0..1) <"The bespoke provision that might be specified by the parties to the agreement applicable to Minimum Transfer Amount.  Unless specified the definition of Minimum Transfer Amount in any Other Regulatory CSA has the meaning specified in such Other Regulatory CSA.">
@@ -727,19 +727,23 @@ type PostingObligationsElection: <"Specifies the collateral posting obligations 
         if eligibleCollateral exists
         then eligibleCollateral -> appliesTo count = 0
 
-type ProcessAgent: <"A class to specify the Process Agent that might be appointed by the parties as part of a Credit Support Annex/Deed or Collateral Transfer Agreement.">
-    partyElection ProcessAgentElection (2..2) <"The parties' Process Agent election.">
+type ProcessAgent: <"Specifies the Process Agent that might be appointed by the parties as part of a Credit Support Annex/Deed or Collateral Transfer Agreement.">
+    partyElection ProcessAgentElection (1..2) <"The parties' Process Agent election.">
 
-type ProcessAgentElection: <"A class to specify the parties' respective elections with respect to the Process Agent.">
-    party CounterpartyRoleEnum (1..1) <"The elective party.">
+type ProcessAgentElection extends ContactInformationElection: <"Specifies the parties' respective elections with respect to the Process Agent.">
     isApplicable boolean (1..1) <"The qualification of whether the Process Agent is applicable (True) or not applicable (False).">
-    processAgent PartyContactInformation (0..1) <"The Process Agent specification, when applicable.">
+    entity LegalEntity (0..1) <"Specification of the process agent entity.">
+    additionalInformation string (0..1) <"Additional information relating to the Process Agent.">
 
-    condition Applicable: <"A data rule to enforce that the Process Agent must be specified when it is applicable.">
-        if isApplicable = True then processAgent exists
+    condition Applicable: <"A data rule to enforce that the Process Agent details must be specified when it is applicable.">
+        if isApplicable = True
+        then primaryContactInformation exists and entity exists and partyReference exists
 
-    condition NotApplicable: <"A data rule to enforce that the Process Agent cannot be specified if deemed not applicable.">
-        if isApplicable = False then processAgent is absent
+    condition NotApplicable: <"A data rule to enforce that the Process Agent details cannot be specified if deemed not applicable.">
+        if isApplicable = False
+        then primaryContactInformation is absent
+                and entity is absent
+                and partyReference is absent
 
 type RecalculationOfValue: <"A class to specify terms for Recalculation of the Market Value of Posted Collateral when a dispute has been failed to be resolved by Resolution Time.">
 
@@ -1468,7 +1472,10 @@ type RatingAgencyValue extends CreditNotation: <"A logical container designed to
                 or (agency is absent and notation is absent and ratingType is absent))
             and (scale is absent and debt is absent and outlook is absent and creditWatch is absent)
 
-type DemandsAndNotices: <"The optional specification of address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
+type DemandsAndNotices: <"Specifies the address where the demands, specifications and notices will be communicated to for each of the parties to the agreement.">
     [docReference ISDA CSA_NewYork_1994 paragraph "13" clause "(k)"]
-    partyElection PartyContactInformation (2..2) <"The parties' contact information election.">
+    partyElection NoticeInformationElection (1..2) <"The parties' contact information election.">
     deemedEffectiveNextLBD boolean (1..1) <"Specifies if notice shall be deemed to be effective at the time such notice is actually received unless such notice is received on a day which is not a Local Business Day or after the Notification Time on any Local Business Day in which event such notice shall be deemed to be effective on the next succeeding Local Business Day. If deemed effective,'True'. If not deemed effective, or not stated,'False'.">
+
+type AddressesForTransfer: <"Specifies the address for transfer as specified by the respective parties to the agreement.">
+    partyElection TransferInformationElection (1..2) <"The parties' contact and transfer information election.">
