@@ -1,5 +1,6 @@
 package cdm.legaldocumentation.csa.processor;
 
+import cdm.base.datetime.BusinessCenterEnum;
 import cdm.legaldocumentation.csa.ValuationCalculationDateLocation;
 import cdm.legaldocumentation.csa.ValuationCalculationDateLocationElection;
 import com.regnosys.rosetta.common.translation.MappingContext;
@@ -7,7 +8,6 @@ import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
-import org.isda.cdm.processor.CreateiQMappingProcessorUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +41,9 @@ public class ValuationCalculationDateLocationMappingProcessor extends MappingPro
 
 		//TH Sprint 2025-12: CDM Reference Data update. Requires further review.
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_location"),
-				value -> calculationDateLocationElectionBuilder.setBusinessCenter(CreateiQMappingProcessorUtils.toFieldWithMetaString(value)));
+				(value) -> getSynonymToEnumMap().getEnumValueOptional(BusinessCenterEnum.class, value)
+						.map(Enum::name)
+						.ifPresent(calculationDateLocationElectionBuilder::setBusinessCenterValue));
 
 		setValueAndUpdateMappings(synonymPath.addElement(party + "_specify"),
 				value -> calculationDateLocationElectionBuilder.setCustomLocation(removeHtml(value)));
