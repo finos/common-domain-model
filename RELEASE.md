@@ -1,13 +1,17 @@
-# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
+# LegalAgreement - High level refactoring of CSA and CTA Elections
 
 _Background_
 
-New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
+This contribution enhances the Legal Agreement part of CDM. Members of the Legal Agreement WG have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinalities.
 
 _What is being released?_
 
-Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+1. Refactoring CreditSupportAgreementElections into CSABase, CSAIM, CSAVM and CSALegacy. IM, VM and Legacy extend base.
+2. Refactoring CreditSupportObligations into CreditSupportObligationsBase, CreditSupportObligationsIM, CreditSupportObligationsVM, CreditSupportObligationsCTA and CreditSupportObligationsLegacy. IM, VM, CTA and Legacy extend base.
+3. Refactoring CalculationandTiming into CalculationandTimingBase, CalculationandTimingIM, CalculationandTimingVM, CalculationandTimingCTA and CalculationandTimingLegacy. IM, VM, CTA and Legacy extend base.
+4. CreditSupportObligationsVM replaces existing CreditSupportObligationsVariationMargin.
+5. Some misc updates to cardinalities and descriptions.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4182](https://github.com/finos/common-domain-model/pull/4182)
+Changes can be reviewed in PR: [#4170] (https://github.com/finos/common-domain-model/pull/4170)
