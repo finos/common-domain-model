@@ -125,7 +125,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "calculation_date" mapper "ValuationCalculationDateLocation"]
             [value "designated_city" mapper "ValuationCalculationDateLocation"]
         + notificationTime
-            [value "notification_time"]
+            [value "notification_time" mapper "NotificationTime"]
         + valuationAgent
             [value "collateral_valuation_agent"]
         + cashSettlementDay
@@ -335,7 +335,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     DisputeResolution:
         + resolutionTime
-            [value "resolution_time" set when "resolution_time->specified" = "true"]
+            [value "resolution_time" mapper "ResolutionTime"] //set when "resolution_time->specified" = "true"
         + otherTerms
             [value "specify" path "resolution_time" set when "resolution_time->specified" = "false" removeHtml]
         + recalculationOfValue
@@ -445,14 +445,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to True when "include_reference_to_41a_is_applicable" = "applicable" , set to False when "include_reference_to_41a_is_applicable" = "not_applicable"]
         + transferTimingProviso
             [set to True when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "applicable" , set to False when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "not_applicable"]
-
-    NotificationTimeElection:
-        + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "false" , set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "true"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "false" , set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "true"]
-        + customNotification
-            [value "partyA_specify" set when "partyA_notification_time" = "false" removeHtml]
-            [value "partyB_specify" set when "partyB_notification_time" = "false" removeHtml]
 
     OneWayProvisions:
         + isApplicable
@@ -733,16 +725,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to True when "specify_other_csa" = "true" , set to False when "specify_other_csa" = "false"]
         + legalDocument
             [value "specify"]
-
-    BusinessCenterTime:
-        + hourMinuteTime
-            [value "partyA_time"]
-            [value "partyB_time"]
-            [value "time"]
-        + businessCenter
-            [value "partyA_location"]
-            [value "partyB_location"]
-            [value "location"]
 
     CustomisableOffset:
         + customProvision
@@ -1201,6 +1183,232 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "not_applicable"]
         + Other
             [value "other"]
+
+    BusinessCenterEnum:
+        + AEAD
+            [value "Abu Dhabi, United Arab Emirates"]
+        + AMYE
+            [value "Yerevan, Armenia"]
+        + AOLU
+            [value "Luanda, Angola"]
+        + ARBA
+            [value "Buenos Aires, Argentina"]
+        + ATVI
+            [value "Vienna, Austria"]
+        + AUCA
+            [value "Canberra, Australia"]
+        + AUSY
+            [value "Sydney, Australia"]
+        + BBBR
+            [value "Bridgetown, Barbados"]
+        + BDDH
+            [value "Dhaka, Bangladesh"]
+        + BEBR
+            [value "Brussels, Belgium"]
+        + BGSO
+            [value "Sofia, Bulgaria"]
+        + BHMA
+            [value "Manama, Bahrain"]
+        + BMHA
+            [value "Hamilton, Bermuda"]
+        + BNBS
+            [value "Bandar Seri Begawan, Brunei Darussalam"]
+        + BOLP
+            [value "La Paz, Bolivia"]
+        + BRBR
+            [value "Braslia, Brazil"]
+        + BSNA
+            [value "Nassau, Bahamas"]
+        + BWGA
+            [value "Gaborone, Botswana"]
+        + BYMI
+            [value "Minsk, Belarus"]
+        + CAOT
+            [value "Ottawa-Gatineau, Canada"]
+        + CATO
+            [value "Toronto, Canada"]
+        + CIAB
+            [value "Abidjan, Cte d'Ivoire"]
+        + CLSA
+            [value "Santiago, Chile"]
+        + CNBE
+            [value "Beijing, China"]
+        + CNSH
+            [value "Shanghai, China"]
+        + COBO
+            [value "Bogot, Colombia"]
+        + CRSJ
+            [value "San Jos, Costa Rica"]
+        + CYNI
+            [value "Nicosia, Cyprus"]
+        + CZPR
+            [value "Prague, Czechia"]
+        + DEFR
+            [value "Frankfurt, Germany"]
+        + DKCO
+            [value "Copenhagen, Denmark"]
+        + DOSD
+            [value "Santo Domingo, Dominican Republic"]
+        + DZAL
+            [value "Algiers, Algeria"]
+        + EETA
+            [value "Tallinn, Estonia"]
+        + EGCA
+            [value "Cairo, Egypt"]
+        + ESMA
+            [value "Madrid, Spain"]
+        + FIHE
+            [value "Helsinki, Finland"]
+        + FRPA
+            [value "Paris, France"]
+        + GBLO
+            [value "London, United Kingdom"]
+        + GETB
+            [value "Tbilisi, Georgia"]
+        + GRAT
+            [value "Athens, Greece"]
+        + HKHK
+            [value "Hong Kong, China"]
+        + HNTE
+            [value "Tegucigalpa, Honduras"]
+        + HRZA
+            [value "Zagreb, Croatia"]
+        + HUBU
+            [value "Budapest, Hungary"]
+        + IDJA
+            [value "Jakarta, Indonesia"]
+        + IEDU
+            [value "Dublin, Ireland"]
+        + ILJE
+            [value "Jerusalem, Israel"]
+        + INND
+            [value "New Delhi, India"]
+        + IRTE
+            [value "Tehran, Iran (Islamic Republic of)"]
+        + ISRE
+            [value "Reykjavk, Iceland"]
+        + JESH
+            [value "St. Helier, Channel Islands"]
+        + JMKI
+            [value "Kingston, Jamaica"]
+        + JOAM
+            [value "Amman, Jordan"]
+        + JPTO
+            [value "Tokyo, Japan"]
+        + KENA
+            [value "Nairobi, Kenya"]
+        + KRSE
+            [value "Seoul, Republic of Korea"]
+        + KWKC
+            [value "Kuwait City, Kuwait"]
+        + KYGE
+            [value "George Town, Cayman Islands"]
+        + LBBE
+            [value "Beirut, Lebanon"]
+        + LKCO
+            [value "Colombo, Sri Lanka"]
+        + LULU
+            [value "Luxembourg, Luxembourg"]
+        + LVRI
+            [value "Riga, Latvia"]
+        + MARA
+            [value "Rabat, Morocco"]
+        + MCMO
+            [value "Monaco, Monaco"]
+        + MOMA
+            [value "Macao, China, Macao SAR"]
+        + MTVA
+            [value "Valletta, Malta"]
+        + MUPL
+            [value "Port Louis, Mauritius"]
+        + MVMA
+            [value "Male, Maldives"]
+        + MWLI
+            [value "Lilongwe, Malawi"]
+        + MXMC
+            [value "Mexico City, Mexico"]
+        + MYKL
+            [value "Kuala Lumpur, Malaysia"]
+        + NAWI
+            [value "Windhoek, Namibia"]
+        + NGAB
+            [value "Abuja, Nigeria"]
+        + NLAM
+            [value "Amsterdam, Netherlands"]
+        + NOOS
+            [value "Oslo, Norway"]
+        + NPKA
+            [value "Kathmandu, Nepal"]
+        + NZWE
+            [value "Wellington, New Zealand"]
+        + OMMU
+            [value "Masqat (Muscat), Oman"]
+        + PAPC
+            [value "Panama City, Panama"]
+        + PELI
+            [value "Lima, Peru"]
+        + PHMA
+            [value "Manila, Philippines"]
+        + PLWA
+            [value "Warsaw, Poland"]
+        + PRSJ
+            [value "San Juan, Puerto Rico"]
+        + PTLI
+            [value "Lisbon, Portugal"]
+        + QADO
+            [value "Doha, Qatar"]
+        + RSBE
+            [value "Belgrade, Serbia"]
+        + RUMO
+            [value "Moscow, Russian Federation"]
+        + SARI
+            [value "Riyadh, Saudi Arabia"]
+        + SEST
+            [value "Stockholm, Sweden"]
+        + SGSI
+            [value "Singapore, Singapore"]
+        + SILJ
+            [value "Ljubljana, Slovenia"]
+        + SKBR
+            [value "Bratislava, Slovakia"]
+        + SNDA
+            [value "Dakar, Senegal"]
+        + SVSS
+            [value "San Salvador, El Salvador"]
+        + THBA
+            [value "Bangkok, Thailand"]
+        + TNTU
+            [value "Tunis, Tunisia"]
+        + TRAN
+            [value "Ankara, Turkey"]
+        + TTPS
+            [value "Port of Spain, Trinidad and Tobago"]
+        + TWTA
+            [value " Taibei, China, Taiwan Province of China"]
+        + TZDO
+            [value "Dodoma, United Republic of Tanzania"]
+        + UAKI
+            [value "Kiev, Ukraine"]
+        + UGKA
+            [value "Kampala, Uganda"]
+        + USDC
+            [value "Washington, D.C., United States of America"]
+        + USNY
+            [value "New York, United States of America"]
+        + UYMO
+            [value "Montevideo, Uruguay"]
+        + VECA
+            [value "Caracas, Venezuela (Bolivarian Republic of)"]
+        + VGRT
+            [value "Road Town, British Virgin Islands"]
+        + VNHA
+            [value "H Noi, Viet Nam"]
+        + VNHC
+            [value "Ho Chi Minh (formerly Saigon), Vietnam"]
+        + ZMLU
+            [value "Lusaka, Zambia"]
+        + ZWHA
+            [value "Harare, Zimbabwe"]
 
     DayTypeEnum:
         + Business
