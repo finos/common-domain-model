@@ -1,13 +1,17 @@
-# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
+# *Rosetta Visualisations - Securities Lending*
 
 _Background_
 
-New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
+Rosetta has an extensive suite of CDM examples available under its Visualisations tab. This update adds further securities lending examples.
 
 _What is being released?_
 
-Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+Three examples of Trade Execution are being added to the Securities Lending examples:
+
+- Execution of securities lending trade using cash as collateral
+- Execution of securities lending trade using cash as collateral and using a benchmark index rate
+- Execution of securities lending trade using non-cash as collateral
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4182](https://github.com/finos/common-domain-model/pull/4182)
+Changes can be reviewed in [#4188](https://github.com/finos/common-domain-model/pull/4188)
