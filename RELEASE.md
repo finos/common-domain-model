@@ -29,4 +29,4 @@ Extensive analysis and review was performed in order to define these changes. Fo
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4207](https://github.com/finos/common-domain-model/pull/4207)
+Changes can be reviewed in PR: [#4218](https://github.com/finos/common-domain-model/pull/4218)
