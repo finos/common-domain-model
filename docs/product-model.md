@@ -948,10 +948,11 @@ which together further qualify the price.
 type PriceSchedule extends MeasureSchedule:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
+  priceSubType PriceSubTypeEnum (0..1)
   priceExpression PriceExpressionEnum (0..1)
   composite PriceComposite (0..1)
   arithmeticOperator ArithmeticOperationEnum (0..1)
-  cashPrice CashPrice (0..1)
+  premiumType PremiumTypeEnum (0..1)
 ```
 
 Note that the conditions for this data type are excluded from the
