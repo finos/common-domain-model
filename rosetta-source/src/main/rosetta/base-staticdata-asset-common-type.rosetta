@@ -231,9 +231,32 @@ type DebtEconomics: <"Specifies selected economics of a debt instrument.">
     debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
     debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
     debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+    secured SecuredDebt (0..1) <"Specifies the type of secured debt.">
+
+type SecuredDebt:
+    securedType SecuredTypeEnum (0..1) <"Specifies the type of secured debt product.">
+    assetBacked AssetBackedEnum (0..1) <"Specifies the type of Asset Backed Security.">
+    mortgageBacked PropertyTypeEnum (0..1) <"Specifies the type of Mortgage Backed Security.">
+    collateralizedObligations CollateralizedObligationEnum (0..1) <"Specifies the type of Collateralized Obligation Security.">
+    coveredBonds CoveredBondsEnum (0..1) <"Specifies the type of Covered Bonds.">
+
+    condition AssetBackedExists: <"Condition to restrict selection of the assetBacked attribute if AssetBacked is not set as the securedType value.">
+        if securedType <> SecuredTypeEnum -> AssetBacked
+        then assetBacked is absent
+
+    condition MortgageBackedExists: <"Condition to restrict selection of the mortgageBacked attribute if MortgageBacked is not set as the securedType value.">
+        if securedType <> SecuredTypeEnum -> MortgageBacked
+        then mortgageBacked is absent
+
+    condition CollateralizedObligationExists: <"Condition to restrict selection of the collateralizedObligations attribute if CollateralizedObligation is not set as the securedType value.">
+        if securedType <> SecuredTypeEnum -> CollateralizedObligation
+        then collateralizedObligations is absent
+    
+    condition CoveredBondsExists: <"Condition to restrict selection of the coveredBonds attribute if CoveredBonds is not set as the securedType value.">
+        if securedType <> SecuredTypeEnum -> CoveredBonds
+        then coveredBonds is absent
 
 type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
-
     issuerType IssuerTypeEnum (1..1) <"Specifies the origin of entity issuing the collateral.">
     supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Specifies debt issued by international organisations and multilateral banks.">
     quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
