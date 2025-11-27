@@ -1,13 +1,21 @@
-# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
+# Product Model - Update Scheduled Transfer types
 
 _Background_
 
-New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
+In a securities lending trade, the lender will deliver the security being lent to the borrower. This is performed on a date agreed by the parties (i.e. it is scheduled) and forms part of the settlement obligations of the trade.
+
+The actual transfer of the shares can be processed using the TransferInstruction primitive instruction. However, under the scheduledTransfer type there is a mandatory transferType attribute where the type of this scheduled transfer must be defined. This enum currently has no option that can be used to define the delivery of the security to the borrower.
 
 _What is being released?_
 
-Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+The changes being contributed are as follows:
+
+Update the cdm.product.common.settlement.enum ScheduledTransferEnum "PrincipalPayment` option to now be named "Principal".
+This allows "Principal" to be used for any transfers related to the principal i.e. the cash paid as collateral or the securities being delivered.
+The Asset itself within the transfer will describe what is actually being transferred.
+Update the Create_CashFlowFromSettlementPayout function in cdm.product.template.func to use "Principal" instead of "PrincipalPayment"
+Update the FpML mapping and ingest namespaces to use "Principal" instead of "PrincipalPayment" where appropriate
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4182](https://github.com/finos/common-domain-model/pull/4182)
+Changes can be reviewed in PR: #4203
