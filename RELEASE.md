@@ -21,7 +21,7 @@ The corresponding mappings have been added to map the `entityIdentifier` apart f
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4221](https://github.com/finos/common-domain-model/pull/4221)
+Changes can be reviewed in PR: [#4222](https://github.com/finos/common-domain-model/pull/4222)
 
 
 # PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
