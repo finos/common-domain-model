@@ -23,7 +23,6 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4222](https://github.com/finos/common-domain-model/pull/4222)
 
-
 # PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
 
 _Background_
