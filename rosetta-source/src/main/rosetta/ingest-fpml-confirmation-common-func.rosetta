@@ -60,7 +60,6 @@ import fpml.consolidated.variance.swaps.* as fpml
 import fpml.consolidated.volatility.swaps.* as fpml
 import fpml.custom.*
 
-
 func GetFpmlTrade:
     inputs:
         fpmlTradingEventsBaseModel fpml.TradingEventsBaseModel (0..1)
@@ -92,9 +91,10 @@ func MapStringWithScheme:
         stringWithScheme string (0..1)
             [metadata scheme]
 
-    set stringWithScheme: value with-meta {
-        scheme: scheme
-    }
+    set stringWithScheme:
+        value with-meta {
+            scheme: scheme
+        }
 
 func MapStringWithReference:
     inputs:
@@ -104,9 +104,10 @@ func MapStringWithReference:
         stringWithReference string (0..1)
             [metadata reference]
 
-    set stringWithReference: value with-meta {
-        reference: reference
-    }
+    set stringWithReference:
+        value with-meta {
+            reference: reference
+        }
 
 func MapCurrency:
     inputs:
@@ -125,7 +126,7 @@ func MapCurrencyReference:
         currencyReference string (0..1)
             [metadata reference]
 
-    set currencyReference: 
+    set currencyReference:
         MapStringWithReference(empty, fpmlIdentifiedCurrencyReference -> href)
 
 func MapResolvablePriceQuantityReference:
@@ -135,9 +136,10 @@ func MapResolvablePriceQuantityReference:
         quantityReference ResolvablePriceQuantity (0..1)
             [metadata reference]
 
-    set quantityReference: empty with-meta {
-        reference: fpmlHref
-    }
+    set quantityReference:
+        empty with-meta {
+            reference: fpmlHref
+        }
 
 func MapProductTaxonomyList:
     inputs:
@@ -148,9 +150,9 @@ func MapProductTaxonomyList:
     add taxonomy:
         ProductTaxonomy {
             primaryAssetClass: MapAssetClassWithScheme(
-                    fpmlProductModel -> primaryAssetClass -> value,
-                    fpmlProductModel -> primaryAssetClass -> assetClassScheme
-                ),
+                        fpmlProductModel -> primaryAssetClass -> value,
+                        fpmlProductModel -> primaryAssetClass -> assetClassScheme
+                    ),
             ...
         }
 
@@ -159,10 +161,11 @@ func MapProductTaxonomyList:
             extract
                 ProductTaxonomy {
                     source: MapTaxonomySourceEnum(productTypeScheme),
-                    value: TaxonomyValue {
-                        name: MapStringWithScheme(value, productTypeScheme),
-                        ...
-                    },
+                    value:
+                        TaxonomyValue {
+                            name: MapStringWithScheme(value, productTypeScheme),
+                            ...
+                        },
                     ...
                 }
 
@@ -174,9 +177,10 @@ func MapAssetClassWithScheme:
         enumWithScheme AssetClassEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum AssetClassEnum with-meta {
-        scheme: scheme
-    }
+    set enumWithScheme:
+        value to-enum AssetClassEnum with-meta {
+            scheme: scheme
+        }
 
 func MapUnitTypeWithScheme:
     inputs:
@@ -188,11 +192,11 @@ func MapUnitTypeWithScheme:
     set unitType:
         UnitType {
             capacityUnit: if MapCapacityUnitEnum(value) exists
-                then MapCapacityUnitWithScheme(value, scheme),
+                    then MapCapacityUnitWithScheme(value, scheme),
             weatherUnit: if value to-enum WeatherUnitEnum exists
-                then MapWeatherUnitWithScheme(value, scheme),
+                    then MapWeatherUnitWithScheme(value, scheme),
             financialUnit: if value to-enum FinancialUnitEnum exists
-                then MapFinancialUnitWithScheme(value, scheme),
+                    then MapFinancialUnitWithScheme(value, scheme),
             ...
         }
 
@@ -204,9 +208,10 @@ func MapCapacityUnitWithScheme:
         enumWithScheme CapacityUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapCapacityUnitEnum(value) with-meta {
-        scheme: scheme
-    }
+    set enumWithScheme:
+        MapCapacityUnitEnum(value) with-meta {
+            scheme: scheme
+        }
 
 func MapWeatherUnitWithScheme:
     inputs:
@@ -216,9 +221,10 @@ func MapWeatherUnitWithScheme:
         enumWithScheme WeatherUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum WeatherUnitEnum with-meta {
-        scheme: scheme
-    }
+    set enumWithScheme:
+        value to-enum WeatherUnitEnum with-meta {
+            scheme: scheme
+        }
 
 func MapFinancialUnitWithScheme:
     inputs:
@@ -228,9 +234,10 @@ func MapFinancialUnitWithScheme:
         enumWithScheme FinancialUnitEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: value to-enum FinancialUnitEnum with-meta {
-        scheme: scheme
-    }
+    set enumWithScheme:
+        value to-enum FinancialUnitEnum with-meta {
+            scheme: scheme
+        }
 
 func MapTaxonomySourceEnum:
     inputs:
@@ -255,9 +262,10 @@ func MapFeeTypeEnumWithScheme:
         enumWithScheme FeeTypeEnum (0..1)
             [metadata scheme]
 
-    set enumWithScheme: MapFeeTypeEnum(value) with-meta {
-        scheme: scheme
-    }
+    set enumWithScheme:
+        MapFeeTypeEnum(value) with-meta {
+            scheme: scheme
+        }
 
 func MapProductIdentifierList:
     inputs:
@@ -276,9 +284,9 @@ func MapProductIdentifier:
     set productIdentifier:
         ProductIdentifier {
             identifier: MapStringWithScheme(
-                    fpmlProductId -> value,
-                    fpmlProductId -> productIdScheme
-                ),
+                        fpmlProductId -> value,
+                        fpmlProductId -> productIdScheme
+                    ),
             source: MapProductIdType(fpmlProductId -> productIdScheme)
         }
 
@@ -325,10 +333,11 @@ func MapReferenceCurrency:
             [metadata id]
             [metadata scheme]
 
-    set currency: fpmlReferenceCurrency -> value with-meta {
-        id: fpmlReferenceCurrency -> id,
-        scheme: fpmlReferenceCurrency -> currencyScheme
-    }
+    set currency:
+        fpmlReferenceCurrency -> value with-meta {
+            id: fpmlReferenceCurrency -> id,
+            scheme: fpmlReferenceCurrency -> currencyScheme
+        }
 
 func MapComposite:
     inputs:
@@ -342,8 +351,8 @@ func MapComposite:
             relativeDate: MapRelativeDateOffset(fpmlComposite -> relativeDate),
             fxSpotRateSource: MapFxSpotRateSource(fpmlComposite -> fxSpotRateSource),
             fixingTime: MapBusinessCenterTime(
-                    fpmlComposite -> fxSpotRateSource -> fixingTime
-                )
+                        fpmlComposite -> fxSpotRateSource -> fixingTime
+                    )
         }
 
 func MapQuanto:
@@ -391,9 +400,10 @@ func MapQuotedCurrencyPairWithLocation:
         quotedCurrencyPair QuotedCurrencyPair (0..1)
             [metadata location]
 
-    set quotedCurrencyPair: MapQuotedCurrencyPair(fpmlQuotedCurrencyPair) with-meta {
-        location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair)
-    }
+    set quotedCurrencyPair:
+        MapQuotedCurrencyPair(fpmlQuotedCurrencyPair) with-meta {
+            location: CreateQuotedCurrencyPairKey(fpmlQuotedCurrencyPair)
+        }
 
 func MapFxSpotRateSource:
     inputs:
@@ -405,8 +415,8 @@ func MapFxSpotRateSource:
         FxSpotRateSource {
             primarySource: MapInformationSource(fpmlFxSpotRateSource -> primaryRateSource),
             secondarySource: MapInformationSource(
-                    fpmlFxSpotRateSource -> secondaryRateSource
-                )
+                        fpmlFxSpotRateSource -> secondaryRateSource
+                    )
         }
 
 func MapInformationSource:
@@ -419,9 +429,9 @@ func MapInformationSource:
         InformationSource {
             sourceProvider: fpmlInformationSource -> rateSource -> value to-enum InformationProviderEnum,
             sourcePage: MapStringWithScheme(
-                    fpmlInformationSource -> rateSourcePage -> value,
-                    fpmlInformationSource -> rateSourcePage -> rateSourcePageScheme
-                ),
+                        fpmlInformationSource -> rateSourcePage -> value,
+                        fpmlInformationSource -> rateSourcePage -> rateSourcePageScheme
+                    ),
             sourcePageHeading: fpmlInformationSource -> rateSourcePageHeading
         }
 
@@ -435,10 +445,11 @@ func MapMoney:
         if fpmlMoney exists
         then Money {
                 value: fpmlMoney -> amount,
-                unit: UnitType {
-                    currency: MapCurrency(fpmlMoney -> currency),
-                    ...
-                },
+                unit:
+                    UnitType {
+                        currency: MapCurrency(fpmlMoney -> currency),
+                        ...
+                    },
                 ...
             }
 
@@ -525,17 +536,28 @@ func MapExerciseTerms:
 
     set exerciseTerms:
         fpmlExercise switch
-            fpml.EuropeanExercise then MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.EquityEuropeanExercise then MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.CommodityEuropeanExercise then MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.FxEuropeanExercise then MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.BermudaExercise then MapBermudaExerciseTerms(item, cdmExerciseProcedure),
-            fpml.EquityBermudaExercise then MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
-            fpml.AmericanExercise then MapAmericanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.EquityAmericanExercise then MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.CommodityAmericanExercise then MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.FxAmericanExercise then MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
-            fpml.FxDigitalAmericanExercise then MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
+            fpml.EuropeanExercise then
+                MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityEuropeanExercise then
+                MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityEuropeanExercise then
+                MapCommodityEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxEuropeanExercise then
+                MapFxEuropeanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.BermudaExercise then
+                MapBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityBermudaExercise then
+                MapEquityBermudaExerciseTerms(item, cdmExerciseProcedure),
+            fpml.AmericanExercise then
+                MapAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.EquityAmericanExercise then
+                MapEquityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.CommodityAmericanExercise then
+                MapCommodityAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxAmericanExercise then
+                MapFxAmericanExerciseTerms(item, cdmExerciseProcedure),
+            fpml.FxDigitalAmericanExercise then
+                MapFxDigitalAmericanExercise(item, cdmExerciseProcedure),
             default empty
 
 func MapExerciseProcedure:
@@ -551,27 +573,30 @@ func MapExerciseProcedure:
 
     set exerciseProcedure:
         ExerciseProcedure {
-            manualExercise: ManualExercise {
-                exerciseNotice: ExerciseNotice {
-                    exerciseNoticeGiver: if buyerSeller -> buyer = MapCounterpartyRoleEnum(
-                                fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
-                                cdmCounterpartyList
-                            )
-                        then Buyer
-                    else if buyerSeller -> seller = MapCounterpartyRoleEnum(
-                                fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
-                                cdmCounterpartyList
-                            )
-                    then Seller,
-                    businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
+            manualExercise:
+                ManualExercise {
+                    exerciseNotice:
+                        ExerciseNotice {
+                            exerciseNoticeGiver: if buyerSeller -> buyer = MapCounterpartyRoleEnum(
+                                            fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                                            cdmCounterpartyList
+                                        )
+                                    then Buyer
+                                else if buyerSeller -> seller = MapCounterpartyRoleEnum(
+                                            fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> partyReference -> href,
+                                            cdmCounterpartyList
+                                        )
+                                then Seller,
+                            businessCenter: fpmlExerciseProcedure -> manualExercise -> exerciseNotice -> businessCenter -> value to-enum BusinessCenterEnum,
+                            ...
+                        },
                     ...
                 },
-                ...
-            },
-            automaticExercise: AutomaticExercise {
-                isApplicable: fpmlAutomaticExercise,
-                ...
-            },
+            automaticExercise:
+                AutomaticExercise {
+                    isApplicable: fpmlAutomaticExercise,
+                    ...
+                },
             followUpConfirmation: fpmlExerciseProcedure -> followUpConfirmation,
             ...
         }
@@ -587,26 +612,26 @@ func MapEuropeanExerciseTerms:
         ExerciseTerms {
             style: European,
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlEuropeanExercise -> expirationDate
-                ),
+                        fpmlEuropeanExercise -> expirationDate
+                    ),
             earliestExerciseTime: MapBusinessCenterTime(
-                    fpmlEuropeanExercise -> earliestExerciseTime
-                ),
+                        fpmlEuropeanExercise -> earliestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(fpmlEuropeanExercise -> expirationTime),
             expirationTimeType: if fpmlEuropeanExercise -> expirationTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
-            partialExercise: PartialExercise {
-                notionaReference: empty,
-                integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
-                minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
-                ...
-            },
+            partialExercise:
+                PartialExercise {
+                    notionaReference: empty,
+                    integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
+                    minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
+                    ...
+                },
             ...
+        } with-meta {
+            key: fpmlEuropeanExercise -> id
         }
-            with-meta {
-                key: fpmlEuropeanExercise -> id
-            }
 
 func MapEquityEuropeanExerciseTerms:
     inputs:
@@ -622,18 +647,17 @@ func MapEquityEuropeanExerciseTerms:
         ExerciseTerms {
             style: European,
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlEquityEuropeanExercise -> expirationDate
-                ),
+                        fpmlEquityEuropeanExercise -> expirationDate
+                    ),
             expirationTime: MapBusinessCenterTime(
-                    equityExpirationModel -> equityExpirationTime
-                ),
+                        equityExpirationModel -> equityExpirationTime
+                    ),
             expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlEquityEuropeanExercise -> id
         }
-            with-meta {
-                key: fpmlEquityEuropeanExercise -> id
-            }
 
 func MapCommodityEuropeanExerciseTerms:
     inputs:
@@ -649,19 +673,18 @@ func MapCommodityEuropeanExerciseTerms:
         ExerciseTerms {
             style: European,
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlCommodityEuropeanExercise -> expirationDate
-                ),
+                        fpmlCommodityEuropeanExercise -> expirationDate
+                    ),
             expirationTime: MapBusinessCenterTime(
-                    fpmlCommodityEuropeanExercise -> expirationTime
-                ),
+                        fpmlCommodityEuropeanExercise -> expirationTime
+                    ),
             expirationTimeType: if fpmlCommodityEuropeanExercise -> expirationTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlCommodityEuropeanExercise -> id
         }
-            with-meta {
-                key: fpmlCommodityEuropeanExercise -> id
-            }
 
 func MapFxEuropeanExerciseTerms:
     inputs:
@@ -674,17 +697,16 @@ func MapFxEuropeanExerciseTerms:
         ExerciseTerms {
             style: European,
             expirationDate: MapDateToAdjustableOrRelativeDate(
-                    fpmlFxEuropeanExercise -> expiryDate -> date
-                ),
+                        fpmlFxEuropeanExercise -> expiryDate -> date
+                    ),
             expirationTime: MapBusinessCenterTime(fpmlFxEuropeanExercise -> expiryTime),
             expirationTimeType: if fpmlFxEuropeanExercise -> expiryTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlFxEuropeanExercise -> id
         }
-            with-meta {
-                key: fpmlFxEuropeanExercise -> id
-            }
 
 func MapBermudaExerciseTerms:
     inputs:
@@ -697,26 +719,25 @@ func MapBermudaExerciseTerms:
         ExerciseTerms {
             style: Bermuda,
             exerciseDates: MapAdjustableOrRelativeDates(
-                    fpmlBermudaExercise -> bermudaExerciseDates
-                ),
+                        fpmlBermudaExercise -> bermudaExerciseDates
+                    ),
             relevantUnderlyingDate: MapAdjustableOrRelativeDates(
-                    fpmlBermudaExercise -> relevantUnderlyingDate
-                ),
+                        fpmlBermudaExercise -> relevantUnderlyingDate
+                    ),
             earliestExerciseTime: MapBusinessCenterTime(
-                    fpmlBermudaExercise -> earliestExerciseTime
-                ),
+                        fpmlBermudaExercise -> earliestExerciseTime
+                    ),
             latestExerciseTime: MapBusinessCenterTime(
-                    fpmlBermudaExercise -> latestExerciseTime
-                ),
+                        fpmlBermudaExercise -> latestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(fpmlBermudaExercise -> expirationTime),
             expirationTimeType: if fpmlBermudaExercise -> expirationTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlBermudaExercise -> id
         }
-            with-meta {
-                key: fpmlBermudaExercise -> id
-            }
 
 func MapEquityBermudaExerciseTerms:
     inputs:
@@ -733,29 +754,28 @@ func MapEquityBermudaExerciseTerms:
             style: Bermuda,
             expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             commencementDate: MapAdjustableOrRelativeDate(
-                    fpmlEquityBermudaExercise -> commencementDate
-                ),
+                        fpmlEquityBermudaExercise -> commencementDate
+                    ),
             multipleExercise: MapEquityMultipleExercise(
-                    fpmlEquityBermudaExercise -> equityMultipleExercise
-                ),
+                        fpmlEquityBermudaExercise -> equityMultipleExercise
+                    ),
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlEquityBermudaExercise -> expirationDate
-                ),
+                        fpmlEquityBermudaExercise -> expirationDate
+                    ),
             exerciseDates: MapDateListToAdjustableOrRelativeDates(
-                    fpmlEquityBermudaExercise -> bermudaExerciseDates -> date -> date
-                ),
+                        fpmlEquityBermudaExercise -> bermudaExerciseDates -> date -> date
+                    ),
             latestExerciseTime: MapBusinessCenterTime(
-                    fpmlEquityBermudaExercise -> latestExerciseTime
-                ),
+                        fpmlEquityBermudaExercise -> latestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(
-                    equityExpirationModel -> equityExpirationTime
-                ),
+                        equityExpirationModel -> equityExpirationTime
+                    ),
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlEquityBermudaExercise -> id
         }
-            with-meta {
-                key: fpmlEquityBermudaExercise -> id
-            }
 
 func MapAmericanExerciseTerms:
     inputs:
@@ -768,30 +788,29 @@ func MapAmericanExerciseTerms:
         ExerciseTerms {
             style: American,
             commencementDate: MapAdjustableOrRelativeDate(
-                    fpmlAmericanExercise -> commencementDate
-                ),
+                        fpmlAmericanExercise -> commencementDate
+                    ),
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlAmericanExercise -> expirationDate
-                ),
+                        fpmlAmericanExercise -> expirationDate
+                    ),
             relevantUnderlyingDate: MapAdjustableOrRelativeDates(
-                    fpmlAmericanExercise -> relevantUnderlyingDate
-                ),
+                        fpmlAmericanExercise -> relevantUnderlyingDate
+                    ),
             earliestExerciseTime: MapBusinessCenterTime(
-                    fpmlAmericanExercise -> earliestExerciseTime
-                ),
+                        fpmlAmericanExercise -> earliestExerciseTime
+                    ),
             latestExerciseTime: MapBusinessCenterTime(
-                    fpmlAmericanExercise -> latestExerciseTime
-                ),
+                        fpmlAmericanExercise -> latestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(fpmlAmericanExercise -> expirationTime),
             expirationTimeType: if fpmlAmericanExercise -> expirationTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             multipleExercise: MapMultipleExercise(fpmlAmericanExercise -> multipleExercise),
             ...
+        } with-meta {
+            key: fpmlAmericanExercise -> id
         }
-            with-meta {
-                key: fpmlAmericanExercise -> id
-            }
 
 func MapMultipleExercise:
     inputs:
@@ -805,8 +824,7 @@ func MapMultipleExercise:
             minimumNumberOfOptions: fpmlMultipleExercise -> partialExerciseModel -> minimumNumberOfOptions,
             maximumNumberOfOptions: fpmlMultipleExercise -> maximumNumberOfOptions,
             minimumNotionalAmount: fpmlMultipleExercise -> partialExerciseModel -> minimumNotionalAmount,
-            notionaReference: empty
-                with-meta {
+            notionaReference: empty with-meta {
                     reference: fpmlMultipleExercise -> partialExerciseModel -> notionalReference -> href first
                 },
             ...
@@ -826,27 +844,26 @@ func MapEquityAmericanExerciseTerms:
         ExerciseTerms {
             style: American,
             commencementDate: MapAdjustableOrRelativeDate(
-                    fpmlEqutiyAmericanExercise -> commencementDate
-                ),
+                        fpmlEqutiyAmericanExercise -> commencementDate
+                    ),
             expirationDate: MapAdjustableOrRelativeDate(
-                    fpmlEqutiyAmericanExercise -> expirationDate
-                ),
+                        fpmlEqutiyAmericanExercise -> expirationDate
+                    ),
             latestExerciseTime: MapBusinessCenterTime(
-                    fpmlEqutiyAmericanExercise -> latestExerciseTime
-                ),
+                        fpmlEqutiyAmericanExercise -> latestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(
-                    equityExpirationModel -> equityExpirationTime
-                ),
+                        equityExpirationModel -> equityExpirationTime
+                    ),
             expirationTimeType: equityExpirationModel -> equityExpirationTimeType to-enum ExpirationTimeTypeEnum,
             exerciseProcedure: cdmExerciseProcedure,
             multipleExercise: MapEquityMultipleExercise(
-                    fpmlEqutiyAmericanExercise -> equityMultipleExercise
-                ),
+                        fpmlEqutiyAmericanExercise -> equityMultipleExercise
+                    ),
             ...
+        } with-meta {
+            key: fpmlEqutiyAmericanExercise -> id
         }
-            with-meta {
-                key: fpmlEqutiyAmericanExercise -> id
-            }
 
 func MapEquityMultipleExercise:
     inputs:
@@ -874,24 +891,23 @@ func MapCommodityAmericanExerciseTerms:
         ExerciseTerms {
             style: American,
             commencementDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
-                extract MapAdjustableOrRelativeDate(commencementDate)
-                then first,
+                    extract MapAdjustableOrRelativeDate(commencementDate)
+                    then first,
             expirationDate: fpmlCommodityAmericanExercise -> commodityAmericanExerciseSequence -> exercisePeriod
-                extract MapAdjustableOrRelativeDate(expirationDate),
+                    extract MapAdjustableOrRelativeDate(expirationDate),
             latestExerciseTime: MapBusinessCenterTime(
-                    fpmlCommodityAmericanExercise -> latestExerciseTime
-                ),
+                        fpmlCommodityAmericanExercise -> latestExerciseTime
+                    ),
             expirationTime: MapBusinessCenterTime(
-                    fpmlCommodityAmericanExercise -> expirationTime
-                ),
+                        fpmlCommodityAmericanExercise -> expirationTime
+                    ),
             expirationTimeType: if fpmlCommodityAmericanExercise -> expirationTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlCommodityAmericanExercise -> id
         }
-            with-meta {
-                key: fpmlCommodityAmericanExercise -> id
-            }
 
 func MapFxDigitalAmericanExercise:
     inputs:
@@ -904,20 +920,19 @@ func MapFxDigitalAmericanExercise:
         ExerciseTerms {
             style: American,
             commencementDate: MapAdjustableOrRelativeDate(
-                    fpmlFxAmericanExercise -> commencementDate
-                ),
+                        fpmlFxAmericanExercise -> commencementDate
+                    ),
             expirationDate: MapDateToAdjustableOrRelativeDate(
-                    fpmlFxAmericanExercise -> expiryDate -> date
-                ),
+                        fpmlFxAmericanExercise -> expiryDate -> date
+                    ),
             expirationTime: MapBusinessCenterTime(fpmlFxAmericanExercise -> expiryTime),
             expirationTimeType: if fpmlFxAmericanExercise -> expiryTime exists
-                then SpecificTime,
+                    then SpecificTime,
             exerciseProcedure: cdmExerciseProcedure,
             ...
+        } with-meta {
+            key: fpmlFxAmericanExercise -> id
         }
-            with-meta {
-                key: fpmlFxAmericanExercise -> id
-            }
 
 func MapFxAmericanExerciseTerms:
     inputs:
@@ -940,7 +955,9 @@ func GetPerUnitOfForEquityDerivativeBase:
 
     alias financialUnit:
         fpmlUnderlyingAsset switch
-            fpml.Index then if instrumentId exists then FinancialUnitEnum -> IndexUnit,
+            fpml.Index then
+                if instrumentId exists
+                then FinancialUnitEnum -> IndexUnit,
             default empty
 
     set perUnitOf:
@@ -958,20 +975,23 @@ func MapAdjustableOrRelativeDateToObservationTerms:
     set obserrvationTerms:
         if fpmlAdjustableOrRelativeDate exists
         then ObservationTerms {
-                observationDates: ObservationDates {
-                    periodicSchedule: PeriodicDates {
-                        startDate: AdjustableOrRelativeDate {
-                            adjustableDate: MapAdjustableDate(
-                                    fpmlAdjustableOrRelativeDate -> adjustableDate
-                                ),
-                            relativeDate: MapRelativeDateOffsetToAdjustedRelativeDateOffset(
-                                    fpmlAdjustableOrRelativeDate -> relativeDate
-                                )
-                        },
+                observationDates:
+                    ObservationDates {
+                        periodicSchedule:
+                            PeriodicDates {
+                                startDate:
+                                    AdjustableOrRelativeDate {
+                                        adjustableDate: MapAdjustableDate(
+                                                    fpmlAdjustableOrRelativeDate -> adjustableDate
+                                                ),
+                                        relativeDate: MapRelativeDateOffsetToAdjustedRelativeDateOffset(
+                                                    fpmlAdjustableOrRelativeDate -> relativeDate
+                                                )
+                                    },
+                                ...
+                            },
                         ...
                     },
-                    ...
-                },
                 ...
             }
 
@@ -993,6 +1013,6 @@ func MapMessageAction:
         if reason = "RaisedInError"
         then ActionEnum -> Cancel
         else isCorrection switch
-    True then Correct,
-    False then New,
-    default empty
+            True then Correct,
+            False then New,
+            default empty
