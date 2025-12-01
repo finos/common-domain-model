@@ -8,10 +8,10 @@ import cdm.base.staticdata.party.*
 import cdm.event.common.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.common.settlement.*
-import cdm.ingest.fpml.confirmation.other.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.* as fpml
@@ -56,7 +56,6 @@ import fpml.consolidated.valuation.fpmlreporting.* as fpml
 import fpml.consolidated.variance.swaps.* as fpml
 import fpml.consolidated.volatility.swaps.* as fpml
 import fpml.custom.*
-
 
 func MapTransferStateList:
     inputs:
@@ -166,7 +165,12 @@ func MapPaymentListToTransferStateList:
         transferStateList TransferState (0..*)
 
     add transferStateList:
-        fpmlPaymentList extract MapPaymentToTransferState(item, MapFeeTypeEnum(paymentType -> value) default cdmFeeType)
+        fpmlPaymentList
+            extract
+                MapPaymentToTransferState(
+                        item,
+                        MapFeeTypeEnum(paymentType -> value) default cdmFeeType
+                    )
 
 func MapPaymentToTransferState:
     inputs:

@@ -8,20 +8,19 @@ import cdm.event.common.*
 import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.header.*
 import cdm.ingest.fpml.confirmation.legal.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.payment.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
-import cdm.ingest.fpml.confirmation.payment.*
-import cdm.ingest.fpml.confirmation.header.*
 
-import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.* as fpml
+import fpml.consolidated.business.events.* as fpml
 import fpml.consolidated.doc.* as fpml
 import fpml.consolidated.msg.* as fpml
-
 import fpml.consolidated.shared.* as fpml
 
 func MapWorkflowStep:
@@ -139,7 +138,8 @@ func MapAmendmentToPrimitiveInstruction:
         primitiveInstruction PrimitiveInstruction (0..1)
 
     alias payment: amendment -> tradeAlterationPaymentModel -> payment
-    alias feeType: if payment exists then FeeTypeEnum -> Renegotiation else empty
+    alias feeType:
+        if payment exists then FeeTypeEnum -> Renegotiation else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -170,12 +170,16 @@ func MapBreakdown:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
     alias remainingAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
-    
-    alias changeInstruction: if outstandingNotionalAmount exists or remainingAmount exists
+
+    alias changeInstruction:
+        if outstandingNotionalAmount exists or remainingAmount exists
         then QuantityChangeDirectionEnum -> Replace
         else Decrease
-    alias changeAmount: if outstandingNotionalAmount exists then outstandingNotionalAmount else if remainingAmount exists then remainingAmount default novatedAmount
-
+    alias changeAmount:
+        if outstandingNotionalAmount exists
+        then outstandingNotionalAmount
+        else if remainingAmount exists
+        then remainingAmount default novatedAmount
 
     add breakdown:
         if novatedAmount exists or changeInNotionalAmount exists
@@ -251,7 +255,10 @@ func MapTerminationToPrimitiveInstruction:
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
     alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
-    alias transferExpression: if termination exists then FeeTypeEnum -> Termination else empty
+    alias transferExpression:
+        if termination exists
+        then FeeTypeEnum -> Termination
+        else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -320,11 +327,11 @@ func MapPriceQuantity:
 
     alias outstandingNotionalAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmount -> tradeLegNotionalChangeModel -> outstandingNotionalAmount
-        extract MapNonNegativeMoneyNonNegativeQuantitySchedule
+            extract MapNonNegativeMoneyNonNegativeQuantitySchedule
 
     alias remainingAmount:
         fpmlPostTradeEventsBaseModel -> novation -> novationAmountsModel -> novationAmountsOldModel -> novationAmountsOldModelSequence0 -> remainingAmount
-        extract MapMoneyToNonNegativeQuantitySchedule
+            extract MapMoneyToNonNegativeQuantitySchedule
 
     alias q:
         [outstandingTradeNotional, outstandingSizeChange, novatedAmount, changeInNotionalAmount, outstandingNotionalAmount, remainingAmount]
