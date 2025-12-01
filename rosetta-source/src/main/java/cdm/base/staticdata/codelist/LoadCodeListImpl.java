@@ -63,7 +63,7 @@ public class LoadCodeListImpl extends LoadCodeList {
                 .orElseThrow(() -> new FileNotFoundException("No matching CodeList found for: " + domain));
 
         // Load the JSON resource as a CodeList and save cache
-        codeList = mapper.readValue(match.toFile(), CodeList.class);
+        CodeList codeList = mapper.readValue(ClassPathUtils.getResource(match, LoadCodeListImpl.class.getClassLoader()), CodeList.class);
         logger.debug("Saving cache for {} with version {} and {} codes",
                 domain, codeList.getIdentification().getVersion(), codeList.getCodes().size());
         cache.put(domain, codeList);
