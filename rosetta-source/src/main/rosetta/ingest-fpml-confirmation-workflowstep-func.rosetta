@@ -17,49 +17,10 @@ import cdm.ingest.fpml.confirmation.tradestate.*
 import cdm.observable.asset.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.* as fpml
-import fpml.consolidated.accumulator.* as fpml
-import fpml.consolidated.asset.* as fpml
-import fpml.consolidated.bond.option.* as fpml
 import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.cd.* as fpml
-import fpml.consolidated.clearing.processes.* as fpml
-import fpml.consolidated.com.* as fpml
-import fpml.consolidated.confirmation.processes.* as fpml
-import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.credit.event.notification.* as fpml
-import fpml.consolidated.dividend.swaps.* as fpml
 import fpml.consolidated.doc.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
-import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlreturn.swaps.* as fpml
-import fpml.consolidated.fpmlstandard.* as fpml
-import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.fx.accruals.* as fpml
-import fpml.consolidated.fx.targets.* as fpml
-import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.ird.* as fpml
-import fpml.consolidated.loan.* as fpml
-import fpml.consolidated.main.* as fpml
-import fpml.consolidated.mktenv.* as fpml
 import fpml.consolidated.msg.* as fpml
-import fpml.consolidated.option.shared.* as fpml
-import fpml.consolidated.recordkeeping.processes.* as fpml
-import fpml.consolidated.reg.fpmlreporting.product.* as fpml
-import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
-import fpml.consolidated.repo.* as fpml
-import fpml.consolidated.riskdef.* as fpml
-import fpml.consolidated.sec.lending.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.consolidated.valuation.* as fpml
-import fpml.consolidated.valuation.fpmlreporting.* as fpml
-import fpml.consolidated.variance.swaps.* as fpml
-import fpml.consolidated.volatility.swaps.* as fpml
-import fpml.custom.*
-import fpml.custom.*
 
 func MapWorkflowStep:
     inputs:
@@ -261,13 +222,12 @@ func MapTerminationToPrimitiveInstruction:
                                 counterpartyList
                             )
                 },
-            quantityChange: termination -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
-                    extract
-                        QuantityChangeInstruction {
-                            change: MapPriceQuantity,
-                            direction: if exists then Replace,
-                            ...
-                        },
+            quantityChange: if termination exists
+                    then QuantityChangeInstruction {
+                        change: MapPriceQuantity(termination),
+                        direction: Replace,
+                        ...
+                    },
             transfer:
                 TransferInstruction {
                     transferState:
@@ -329,15 +289,21 @@ func MapTerminationToPrimitiveInstruction:
 
 func MapPriceQuantity:
     inputs:
-        f fpml.TradeNotionalChangeModelSequence0 (0..1)
+        f fpml.TradeNotionalChange (0..1)
     output:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
         PriceQuantity {
             quantity: CreateQuantityWithLocation(
-                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(f),
+                        MapTradeNotionalChangeModelSequenceToNonNegativeQuantitySchedule(
+                                f -> tradeNotionalChangeModel -> tradeNotionalChangeModelSequence0
+                            ),
                         CreateQuantityKey(empty, empty)
+                    ),
+            effectiveDate: MapAdjustedDateToAdjustableOrRelativeDate(
+                        f -> agreementAndEffectiveDatesModel -> effectiveDate -> date,
+                        empty
                     ),
             ...
         }

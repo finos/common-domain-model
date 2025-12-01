@@ -104,12 +104,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     CalculationAgentTerms:
         + party
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "partyA"]
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "party_A"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "partyB"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "party_B"]
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "calculation_agent" = "partyA"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "calculation_agent" = "party_A"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "calculation_agent" = "partyB"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "calculation_agent" = "party_B"]
+            [set to CalculationValuationAgentPartyEnum -> PartyMakingDemand when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
         + bespokeCalculationAgentTerms
             [value "specify" set when "is_applicable" = "applicable" removeHtml]
 
@@ -122,12 +121,12 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "calculation_time"]
             [value "credit_support_amount_calculation_time"]
         + calculationDateLocation
-            [value "calculation_date_location" mapper "CalculationDateLocation"]
-            [value "calculation_date" mapper "CalculationDateLocation"]
-            [value "designated_city" mapper "CalculationDateLocation"]
+            [value "calculation_date_location" mapper "ValuationCalculationDateLocation"]
+            [value "calculation_date" mapper "ValuationCalculationDateLocation"]
+            [value "designated_city" mapper "ValuationCalculationDateLocation"]
         + notificationTime
             [value "notification_time"]
-        + collateralValuationAgent
+        + valuationAgent
             [value "collateral_valuation_agent"]
         + cashSettlementDay
             [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
@@ -168,7 +167,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + demandsAndNotices
             [value "demands_and_notices" mapper "DemandsAndNotices"]
         + addressesForTransfer
-            [value "addresses_for_transfers" mapper "ContactElection"]
+            [value "addresses_for_transfers" mapper "AddressesForTransfer"]
         + otherCsa
             [value "other_csa->specify" set when "other_csa->specified" = "true"]
             [value "other_csa->other_csa_specify" set when "other_csa->specified" = "true"]
@@ -189,10 +188,10 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + pledgeeRepresentativeRider
             [value "rider"]
 
-    CollateralValuationAgentElection:
+    ValuationAgent:
         + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
         + additionalLanguage
             [value "partyA_specify" removeHtml]
             [value "partyB_specify" removeHtml]
@@ -237,7 +236,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + demandsAndNotices
             [value "demands_and_notices" mapper "DemandsAndNotices"]
         + addressesForTransfer
-            [value "addresses_for_transfers" mapper "ContactElection"]
+            [value "addresses_for_transfers" mapper "AddressesForTransfer"]
         + terminationCurrencyAmendment
             [value "amendment_to_termination_currency" , "pledgor_posting_obligations" , "chargor_posting_obligations" , "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"]
         + minimumTransferAmountAmendment
@@ -486,12 +485,17 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 
     ProcessAgentElection:
-        + party
+        + partyReference
             [set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "other"]
             [set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "other"]
         + isApplicable
             [set to True when "partyA_process_agent" = "other" , set to False when "partyA_process_agent" = "not_applicable"]
             [set to True when "partyB_process_agent" = "other" , set to False when "partyB_process_agent" = "not_applicable"]
+        + additionalInformation
+            [value "partyA_specify" set when "partyA_process_agent" = "other" removeHtml]
+            [value "partyA_specify" set when "partyA_process_agent" = "not_applicable" removeHtml]
+            [value "partyB_specify" set when "partyB_process_agent" = "other" removeHtml]
+            [value "partyB_specify" set when "partyB_process_agent" = "not_applicable" removeHtml]
 
     Regime:
         + applicableRegime
@@ -593,10 +597,20 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" removeHtml]
 
     SensitivityMethodologies:
+        + partyElection
+
+    SensitivityMethodologiesPartyElection:
         + sensitivityToEquity
-            [value "sensitivities_to_equity_indices_funds_etfs"]
         + sensitivityToCommodity
             [value "sensitivities_to_commodity_indices"]
+
+    SensitivityToEquity:
+        + sensitivityToIndices
+            [value "sensitivities_to_equity_indices_funds_etfs"]
+        + sensitivityToETFs
+            [value "sensitivities_to_equity_indices_funds_etfs"]
+        + sensitivityToFunds
+            [value "sensitivities_to_equity_indices_funds_etfs"]
 
     SensitivityMethodology:
         + specifiedMethodology
@@ -613,6 +627,9 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" set when "is_specified" = "other" removeHtml]
 
     Substitution:
+        + partyElection
+
+    SubstitutionPartyElection:
         + needsConsent
             [set to True when "is_applicable" = "standard" , set to False when "is_applicable" = "other"]
             [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
@@ -737,8 +754,8 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + accountName
             [value "name"]
 
-    PartyContactInformation:
-        + additionalInformation
+    NoticeInformationElection:
+        + additionalContactInformation
             [value "partyA_specify" removeHtml]
             [value "partyB_specify" removeHtml]
 
@@ -1480,4 +1497,9 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "executed_in_belgium"]
         + OtherLocation
             [value "other"]
+
+    CalculationValuationAgentPartyEnum:
+        + Party1
+        + Party2
+        + PartyMakingDemand
 }
