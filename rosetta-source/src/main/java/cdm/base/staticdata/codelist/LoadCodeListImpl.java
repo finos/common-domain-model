@@ -6,16 +6,19 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.regnosys.rosetta.common.serialisation.RosettaObjectMapper;
 import com.regnosys.rosetta.common.util.ClassPathUtils;
+import com.regnosys.rosetta.common.util.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoadCodeListImpl extends LoadCodeList {
@@ -56,14 +59,18 @@ public class LoadCodeListImpl extends LoadCodeList {
         List<Path> codeListPaths = ClassPathUtils.findPathsFromClassPath(Collections.singletonList(CODELIST_COLLECTION_PATH), ".*\\.json", Optional.empty(), LoadCodeListImpl.class.getClassLoader());
 
         // Find the first JSON file whose name contains the given domain
-        Pattern pattern = Pattern.compile("^(.*?)org/isda/codelist/json/" + Pattern.quote(domain.toLowerCase()) + "-\\d+-\\d+\\.json$");
-        Path match = codeListPaths.stream()
-                .filter(path -> pattern.matcher(path.toString().replace(File.separatorChar, '/')).matches())
+        Pattern pattern = Pattern.compile("^(.*?)/(org/isda/codelist/json/" + Pattern.quote(domain.toLowerCase()) + "-\\d+-\\d+\\.json)$");
+        String match = codeListPaths.stream()
+                .map(p -> pattern.matcher(UrlUtils.toPortableString(p)))
+                .filter(Matcher::matches)
                 .findFirst()
+                .map(m -> m.group(2))
                 .orElseThrow(() -> new FileNotFoundException("No matching CodeList found for: " + domain));
 
         // Load the JSON resource as a CodeList and save cache
-        codeList = mapper.readValue(match.toFile(), CodeList.class);
+        URL url = LoadCodeListImpl.class.getClassLoader().getResource(match);
+        if (url == null) throw new FileNotFoundException("No matching CodeList found for: " + domain);
+        codeList = mapper.readValue(url, CodeList.class);
         logger.debug("Saving cache for {} with version {} and {} codes",
                 domain, codeList.getIdentification().getVersion(), codeList.getCodes().size());
         cache.put(domain, codeList);
