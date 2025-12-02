@@ -31,13 +31,6 @@ public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends Map
 
     private Optional<SpecifiedOrAccessConditionPartyElection> getSpecifiedOrAccessConditionPartyElection(Path synonymPath, String party) {
         SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder = SpecifiedOrAccessConditionPartyElection.builder();
-//
-//        if(synonymPath.addElement(String.format("%s_illegality", party))
-//
-//        setValueAndUpdateMappings(synonymPath.addElement(party + "_" + synonymPath.getLastElement().getPathName()),
-//                (value) -> {
-//                    builder.setParty(toCounterpartyRoleEnum(party));
-//                });
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_illegality", party)),
                 (value) -> applicableToBoolean(value).ifPresent(applicable -> {
                     builder.setParty(toCounterpartyRoleEnum(party));
@@ -49,24 +42,18 @@ public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends Map
                 }));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event", party)),
                 (value) -> applicableToBoolean(value).ifPresent(applicable -> {
+                    builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT));
+                }));
+        setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event_upon_merger", party)),
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> {
                     builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER));
                 }));
-        setValueAndUpdateMappings(synonymPath.addElement(String.format("%s__credit_event_upon_merger", party)),
+        setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_credit_event_upon_merger", party)),
                 (value) -> applicableToBoolean(value).ifPresent(applicable -> {
                     builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER));
                 }));
 
         return builder.hasData() ? Optional.of(builder.build()) : Optional.empty();
-    }
-
-    private Optional<Boolean> yesNoToBoolean(String yesNo) {
-        if ("yes".equals(yesNo)) {
-            return Optional.of(true);
-        } else if ("no".equals(yesNo)) {
-            return Optional.of(false);
-        } else {
-            return Optional.empty();
-        }
     }
 
     private Optional<Boolean> applicableToBoolean(String applicable) {
