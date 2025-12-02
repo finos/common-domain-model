@@ -7,7 +7,7 @@ This update fixes securities lending examples from previous PR [#4188](https://g
 
 _What is being released?_
 
-A JSON file was missed in the PR [#4188](https://github.com/finos/common-domain-model/pull/4188).
+A JSON file was missed in the PR [#4188](https://github.com/finos/common-domain-model/pull/4188) which meant that the new visualisations were not visible in Rosetta.
 
 _Review Directions_
 
