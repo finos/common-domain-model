@@ -690,8 +690,37 @@ func MapLegalEntity:
             entityId: [entityIdFromLegalEntitySequence, entityIdFromLegalEntity],
             name: fpmlLegalEntity -> legalEntitySequence -> entityName
                 extract MapStringWithScheme(value, entityNameScheme),
+            entityIdentifier: MapEntityIdentifier(fpmlLegalEntity)
         }
     set legalEntity -> key: fpmlLegalEntity -> id
+
+func MapEntityIdentifier:
+    inputs:
+        fpmlLegalEntity fpml.LegalEntity (0..1)
+    output:
+        entityIdentifier EntityIdentifier (0..*)
+    
+    add entityIdentifier: 
+    fpmlLegalEntity -> entityId extract  
+    
+    EntityIdentifier {
+        identifier: MapStringWithScheme(value, entityIdScheme),
+        identifierType: MapEntityIdentifierTypeEnum(entityIdScheme)
+    }
+
+func MapEntityIdentifierTypeEnum:
+    inputs:
+        productIdScheme string (0..1)
+    output:
+        source EntityIdentifierTypeEnum (0..1)
+
+    set source:
+        MapPartyIdentifierTypeEnum(productIdScheme) to-enum EntityIdentifierTypeEnum
+        default if StringContains(productIdScheme, "-id-RED-")
+        then REDID
+        else if StringContains(productIdScheme, "iso3166")
+        then CountryCode
+        else Other
 
 func MapLegalEntityReference:
     inputs:
