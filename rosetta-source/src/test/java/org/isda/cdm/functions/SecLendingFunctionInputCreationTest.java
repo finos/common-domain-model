@@ -83,7 +83,13 @@ class SecLendingFunctionInputCreationTest {
 
     // SETTLEMENT AND RETURN WORKFLOWS ARE BASED OF THIS..
     public static final String SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON = "/functions/sec-lending/new-settlement-workflow-func-input.json";
+
+    public static final String EXECUTION_CASH_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-cash-input.json";
+    public static final String EXECUTION_CASH_BENCHMARK_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-cash-benchmark-input.json";
+    public static final String EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON = "/functions/sec-lending/execution/execution-noncash-portfolio-input.json";
+
     
+
     private static Injector injector;
 
     @BeforeAll
@@ -98,6 +104,22 @@ class SecLendingFunctionInputCreationTest {
         injector = Guice.createInjector(module);
     }
 
+
+    @Test
+    void executionCash() throws IOException {
+        assertJsonConformsToRosettaType(EXECUTION_CASH_FUNC_INPUT_JSON, CreateBusinessEventInput.class);
+    }
+
+    @Test
+    void executionCashBenchmark() throws IOException {
+        assertJsonConformsToRosettaType(EXECUTION_CASH_BENCHMARK_FUNC_INPUT_JSON, CreateBusinessEventInput.class);
+    }
+
+    @Test
+    void executionNoncashPortfolio() throws IOException {
+        assertJsonConformsToRosettaType(EXECUTION_NONCASH_PORTFOLIO_FUNC_INPUT_JSON, CreateBusinessEventInput.class);
+    }
+    
     @Test
     void validateNewSettlementWorkflowFuncInputJson() throws IOException {
         assertJsonConformsToRosettaType(SETTLEMENT_WORKFLOW_FUNC_INPUT_JSON, ExecutionInstruction.class);

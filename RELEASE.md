@@ -1,36 +1,14 @@
-# Legal Agreement Model - Updating PartyContactInformation
+# *Rosetta Visualisations - Securities Lending - FIX Samples*
 
 _Background_
 
-The `PartyContactInformation` type is used throughout the legal agreement namespaces, and specifies the party details involved in the legal agreement as well as the party reference. Only the party reference should be specified, and the parties themselves anonymised, being referred to as Party1 or Party2 to the agreement.
-
-Furthermore, `PartyContactInformation` is used inconsistently across the model. In `DemandsAndNotices`, the `PartyContactInformation` type is used to specified the party election attribute. The `addressForTransfer` attribute of a CSA however, uses `ContactElection`, which is comprised of two `PartyContactInformation` types.  
-
-_What is being released?_
-
-This update removes `PartyContactInformation` and redefines how the contact information is set in a more consistent and reusable way. 
-- A base type called `ContactInformationElection` is created which contains the party reference and the contact information.
-- Two types are created to be used specifically for notice information & transfer information, both of which extend `ContactInformationElection.`
-- Both new election types have additional information provided by their contact information attributes. e.g. `TransferContactInformation` contains an account, and `NoticeContactInformation` contains a natural person and additional information.
-- The same structure is applied to the existing `ProcessAgentElection` type with an additional attribute to specify the process agent entity and additional information.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
-
-# _Infrastructure - Dependency Update_
+Rosetta has an extensive suite of CDM examples available under its Visualisations tab.
+This update fixes securities lending examples from previous PR [#4188](https://github.com/finos/common-domain-model/pull/4188). 
 
 _What is being released?_
 
-This release updates the `bundle` dependency.
-
-Version updates include:
-- `bundle` `11.90.5` Fix issue with C# return type covariance
-
-No expectations are updated as part of this release.
+A JSON file was missed in the PR [#4188](https://github.com/finos/common-domain-model/pull/4188) which meant that the new visualisations were not visible in Rosetta.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4020](https://github.com/finos/common-domain-model/pull/4020)
-
-
+Changes can be reviewed in [#4238](https://github.com/finos/common-domain-model/pull/4238)
