@@ -1,4 +1,3 @@
-
 package cdm.legaldocumentation.csa.processor;
 
 import cdm.legaldocumentation.csa.CSASpecifiedOrAccessConditionEnum;
@@ -19,6 +18,8 @@ import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpart
 
 public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends MappingProcessor {
 
+    private static final String ADDITIONAL_TERMINATION_EVENT = "additional_termination_event";
+
     public SpecifiedOrAccessConditionPartyElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(modelPath, synonymPaths, mappingContext);
     }
@@ -36,24 +37,22 @@ public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends Map
                     builder.setParty(toCounterpartyRoleEnum(party));
                     builder.addSpecifiedOrAccessCondition(CSASpecifiedOrAccessConditionEnum.ILLEGALITY);
                 }));
+        setValueAndUpdateMappings(synonymPath.addElement(ADDITIONAL_TERMINATION_EVENT).addElement(String.format("%s_%s", party, ADDITIONAL_TERMINATION_EVENT)),
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> setSpecifiedAdditionalTerminationEvent(synonymPath, builder)));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_force_majeure", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> {
-                    builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT));
-                }));
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> {
-                    builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT));
-                }));
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event_upon_merger", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> {
-                    builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER));
-                }));
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_credit_event_upon_merger", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> {
-                    builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER));
-                }));
+                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER))));
 
         return builder.hasData() ? Optional.of(builder.build()) : Optional.empty();
+    }
+
+    private void setSpecifiedAdditionalTerminationEvent(Path synonymPath, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder) {
+        setValueAndUpdateMappings(synonymPath.addElement(ADDITIONAL_TERMINATION_EVENT).addElement("name"), builder::addSpecifiedAdditionalTerminationEvent);
     }
 
     private Optional<Boolean> applicableToBoolean(String applicable) {
