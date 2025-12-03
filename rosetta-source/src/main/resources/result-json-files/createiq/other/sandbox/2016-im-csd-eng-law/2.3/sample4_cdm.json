@@ -135,12 +135,29 @@
         },
         "identifiedCrossCurrencySwap" : false,
         "sensitivityMethodologies" : {
-          "sensitivityToEquity" : {
-            "specifiedMethodology" : "Alternative"
-          },
-          "sensitivityToCommodity" : {
-            "specifiedMethodology" : "Standard"
-          }
+          "partyElection" : [ {
+            "sensitivityToEquity" : {
+              "sensitivityToETFs" : {
+                "specifiedMethodology" : "Alternative"
+              }
+            }
+          }, {
+            "sensitivityToEquity" : {
+              "sensitivityToFunds" : {
+                "specifiedMethodology" : "Alternative"
+              }
+            }
+          }, {
+            "sensitivityToEquity" : {
+              "sensitivityToIndices" : {
+                "specifiedMethodology" : "Alternative"
+              }
+            }
+          }, {
+            "sensitivityToCommodity" : {
+              "specifiedMethodology" : "Standard"
+            }
+          } ]
         },
         "fxHaircutCurrency" : {
           "isTerminationCurrency" : false,
@@ -168,37 +185,6 @@
         },
         "additionalObligations" : "Add'l obligations tbd",
         "creditSupportObligations" : {
-          "threshold" : {
-            "partyElection" : [ {
-              "party" : "Party1",
-              "electiveAmount" : "Zero"
-            }, {
-              "party" : "Party2",
-              "amount" : {
-                "value" : 45000,
-                "unit" : {
-                  "currency" : {
-                    "value" : "GBP",
-                    "meta" : {
-                      "scheme" : "http://www.fpml.org/ext/iso4217"
-                    }
-                  }
-                },
-                "meta" : {
-                  "globalKey" : "620b4c66"
-                }
-              }
-            } ]
-          },
-          "minimumTransferAmount" : {
-            "partyElection" : [ {
-              "party" : "Party1",
-              "customElection" : "Variable MTA"
-            }, {
-              "party" : "Party2",
-              "electiveAmount" : "Zero"
-            } ]
-          },
           "rounding" : {
             "deliveryAmount" : 10000,
             "returnAmount" : 10000
@@ -206,6 +192,37 @@
           "bespokeTransferTiming" : {
             "isApplicable" : true,
             "bespokeTransferTimingTerms" : "Variable timing"
+          },
+          "threshold" : {
+            "partyElection" : [ {
+              "party" : "Party1"
+            }, {
+              "party" : "Party2",
+              "fixedAmount" : {
+                "amount" : {
+                  "value" : 45000,
+                  "unit" : {
+                    "currency" : {
+                      "value" : "GBP",
+                      "meta" : {
+                        "scheme" : "http://www.fpml.org/ext/iso4217"
+                      }
+                    }
+                  },
+                  "meta" : {
+                    "globalKey" : "620b4c66"
+                  }
+                }
+              }
+            } ]
+          },
+          "minimumTransferAmount" : {
+            "partyElection" : [ {
+              "party" : "Party1",
+              "other" : "Variable MTA"
+            }, {
+              "party" : "Party2"
+            } ]
           }
         },
         "calculationAndTiming" : {
@@ -264,7 +281,9 @@
           }
         },
         "substitution" : {
-          "needsConsent" : true
+          "partyElection" : [ {
+            "needsConsent" : true
+          } ]
         },
         "disputeResolution" : {
           "resolutionTime" : {
@@ -405,44 +424,33 @@
         },
         "demandsAndNotices" : {
           "partyElection" : [ {
-            "partyReference" : {
-              "globalReference" : "5eae9e6d",
-              "externalReference" : "partyA"
-            },
-            "contactInformation" : {
+            "partyReference" : "Party1",
+            "primaryContactInformation" : {
               "address" : [ {
                 "street" : [ "Foo" ]
               } ]
             }
           }, {
-            "partyReference" : {
-              "globalReference" : "51f1a37d",
-              "externalReference" : "partyB"
-            },
-            "contactInformation" : {
+            "partyReference" : "Party2",
+            "primaryContactInformation" : {
               "address" : [ {
                 "street" : [ "Bar" ]
               } ]
             }
-          } ]
+          } ],
+          "deemedEffectiveNextLBD" : false
         },
         "addressesForTransfer" : {
           "partyElection" : [ {
-            "partyReference" : {
-              "globalReference" : "5eae9e6d",
-              "externalReference" : "partyA"
-            },
-            "contactInformation" : {
+            "partyReference" : "Party1",
+            "primaryContactInformation" : {
               "address" : [ {
                 "street" : [ "Foo++" ]
               } ]
             }
           }, {
-            "partyReference" : {
-              "globalReference" : "51f1a37d",
-              "externalReference" : "partyB"
-            },
-            "contactInformation" : {
+            "partyReference" : "Party2",
+            "primaryContactInformation" : {
               "address" : [ {
                 "street" : [ "Bar++" ]
               } ]
@@ -485,13 +493,11 @@
         },
         "processAgent" : {
           "partyElection" : [ {
-            "party" : "Party1",
+            "partyReference" : "Party1",
             "isApplicable" : true,
-            "processAgent" : {
-              "additionalInformation" : "Specific process"
-            }
+            "additionalInformation" : "Specific process"
           }, {
-            "party" : "Party2",
+            "partyReference" : "Party2",
             "isApplicable" : false
           } ]
         },
@@ -540,6 +546,6 @@
     "isApplicable" : false
   },
   "meta" : {
-    "globalKey" : "c0e8465f"
+    "globalKey" : "4709caac"
   }
 }
