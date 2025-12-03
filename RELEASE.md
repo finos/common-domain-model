@@ -18,4 +18,4 @@ The following types have been updated:
 
 *Review Directions*
 
-Changes can be reviewed in PR: [#4237](https://github.com/finos/common-domain-model/pull/4237)
+Changes can be reviewed in PR: [#4235](https://github.com/finos/common-domain-model/pull/4235)
