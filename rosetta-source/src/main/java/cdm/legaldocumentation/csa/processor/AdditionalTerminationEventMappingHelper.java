@@ -2,7 +2,6 @@ package cdm.legaldocumentation.csa.processor;
 
 import cdm.legaldocumentation.csa.SpecifiedOrAccessConditionPartyElection;
 import com.regnosys.rosetta.common.translation.*;
-import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.*;
@@ -12,9 +11,8 @@ import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.upda
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
- * CreateiQ mapping processor.
+ * CreateiQ mapping processor helper.
  */
-@SuppressWarnings("unused")
 public class AdditionalTerminationEventMappingHelper {
 
     private static final String APPLICABLE = "applicable";
@@ -22,20 +20,12 @@ public class AdditionalTerminationEventMappingHelper {
     private final RosettaPath path;
     private final List<Mapping> mappings;
 
-    public AdditionalTerminationEventMappingHelper(RosettaPath path, List<Mapping> mappings, SynonymToEnumMap synonymToEnumMap) {
+    public AdditionalTerminationEventMappingHelper(RosettaPath path, List<Mapping> mappings) {
         this.path = path;
         this.mappings = mappings;
     }
 
-    public void map(Path accessConditionsPath,
-                    SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder,
-                    RosettaModelObjectBuilder parent,
-                    String party) {
-
-        if (builder.getSpecifiedAdditionalTerminationEvent() == null) {
-            builder.setSpecifiedAdditionalTerminationEvent(new ArrayList<>());
-        }
-
+    public void map(Path accessConditionsPath, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, String party) {
         Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
         int index = 0;
         while (true) {
@@ -46,27 +36,26 @@ public class AdditionalTerminationEventMappingHelper {
                 break;
             }
         }
-
         getSpecifiedAdditionalTerminationEvent(accessConditionsPath, "specify", null, party)
                 .ifPresent(builder::addSpecifiedAdditionalTerminationEvent);
     }
 
     private Optional<List<String>> getSpecifiedAdditionalTerminationEvent(Path basePath, String synonym, Integer index, String party) {
-        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder eventBuilder = SpecifiedOrAccessConditionPartyElection.builder();
-        setValueAndUpdateMappings(basePath.addElement(synonym, index), eventBuilder::addSpecifiedAdditionalTerminationEvent, mappings, path);
-        boolean nameSet = eventBuilder.hasData();
+        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder = SpecifiedOrAccessConditionPartyElection.builder();
+        setValueAndUpdateMappings(basePath.addElement(synonym, index), builder::addSpecifiedAdditionalTerminationEvent, mappings, path);
+        boolean nameSet = builder.hasData();
 
         SUFFIXES.forEach(suffix ->
                 setValueAndUpdateMappings(basePath.addElement(party + suffix, index),
-                        (value) -> addIfApplicable(eventBuilder, party, value, nameSet), mappings, path));
+                        (value) -> addIfApplicable(builder, party, value, nameSet), mappings, path));
 
-        boolean applicablePartySet = eventBuilder.getParty() != null;
+        boolean applicablePartySet = builder.getParty() != null;
 
         if (nameSet || applicablePartySet) {
             updateMappings(basePath, mappings, path);
         }
 
-        return eventBuilder.hasData() && applicablePartySet ? Optional.of(eventBuilder.getSpecifiedAdditionalTerminationEvent()) : Optional.empty();
+        return builder.hasData() && applicablePartySet ? Optional.of(builder.getSpecifiedAdditionalTerminationEvent()) : Optional.empty();
     }
 
     private void addIfApplicable(SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, String party, String value, boolean nameSet) {
