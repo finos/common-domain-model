@@ -1,15 +1,15 @@
-# LegalAgreement - High level refactoring of CSA and CTA Elections
+# Legal Agreements - High-level refactoring of CSA and CTA Elections
 
 _Background_
 
-This contribution enhances the Legal Agreement part of CDM. Members of the Legal Agreement WG have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinalities.
+This contribution enhances the Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
 
 _What is being released?_
 
-1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. IM, VM and Legacy extend base.
-2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. IM, VM, CTA and Legacy extend base.
-3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. IM, VM, CTA and Legacy extend base.
-5. Some miscellaneous updates to cardinalities and descriptions.
+1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. These new types extend the base type.
+2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. These new types extend the base type.
+3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. These new types extend the base type.
+5. Updates to cardinality and descriptions.
 
 _Review Directions_
 
