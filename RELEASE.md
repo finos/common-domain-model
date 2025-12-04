@@ -13,4 +13,4 @@ _What is being released?_
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4215] (https://github.com/finos/common-domain-model/pull/4215)
+Changes can be reviewed in PR: [#4215](https://github.com/finos/common-domain-model/pull/4215)
