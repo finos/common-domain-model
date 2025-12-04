@@ -1,8 +1,8 @@
-# *LegalAgreement - Clause updates in relation to High Level CSA and CTA refactoring*
+# *Legal Agreement - High-Level CSA and CTA Refactoring Clause Updates*
 
 _Background_
 
-This contribution enhances the legal documentation aspect of CDM. This contribution enhances the Legal Agreement part of CDM. Members of the Legal Agreement WG have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinalities.
+This contribution enhances Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
 
 _What is being released?_
 
@@ -11,7 +11,7 @@ _What is being released?_
 - Updated description for `CustodyArrangements` and cardinality for `CustodianEvent`.
 - Updated `docReference` and description for `NotificationTime`.
 - Updated description for `OtherAgreements`.
-- Moved Value into `OtherEligibleandPostedSupport`.
+- Moved `value` into `OtherEligibleandPostedSupport`.
 - Updated cardinality for `TerminationCurrencyElection`.
 - Updated cardinalities within `CoveredTransactions`.
 - Updated cardinality for `ThresholdElection`.
