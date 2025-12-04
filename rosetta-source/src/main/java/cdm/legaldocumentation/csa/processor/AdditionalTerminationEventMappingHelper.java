@@ -9,7 +9,6 @@ import java.util.*;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
 /**
@@ -28,46 +27,52 @@ public class AdditionalTerminationEventMappingHelper {
         this.mappings = mappings;
     }
 
-    public void map(Path accessConditionsPath, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder accessConditionsBuilder, RosettaModelObjectBuilder parent) {
-        if (accessConditionsBuilder.getSpecifiedAdditionalTerminationEvent() == null) {
-            accessConditionsBuilder.setSpecifiedAdditionalTerminationEvent(new ArrayList<>());
+    public void map(Path accessConditionsPath,
+                    SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder,
+                    RosettaModelObjectBuilder parent,
+                    String party) {
+
+        if (builder.getSpecifiedAdditionalTerminationEvent() == null) {
+            builder.setSpecifiedAdditionalTerminationEvent(new ArrayList<>());
         }
+
         Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
         int index = 0;
         while (true) {
-            Optional<List<String>> additionalTerminationEventBuilder = getSpecifiedAdditionalTerminationEvent(eventsPath, "name", index++);
-            if (additionalTerminationEventBuilder.isPresent()) {
-                accessConditionsBuilder.addSpecifiedAdditionalTerminationEvent(additionalTerminationEventBuilder.get());
+            Optional<List<String>> event = getSpecifiedAdditionalTerminationEvent(eventsPath, "name", index++, party);
+            if (event.isPresent()) {
+                builder.addSpecifiedAdditionalTerminationEvent(event.get());
             } else {
                 break;
             }
         }
-        getSpecifiedAdditionalTerminationEvent(accessConditionsPath, "specify", null)
-                .ifPresent(accessConditionsBuilder::addSpecifiedAdditionalTerminationEvent);
+
+        getSpecifiedAdditionalTerminationEvent(accessConditionsPath, "specify", null, party)
+                .ifPresent(builder::addSpecifiedAdditionalTerminationEvent);
     }
 
-    private Optional<List<String>> getSpecifiedAdditionalTerminationEvent(Path basePath, String synonym, Integer index) {
+    private Optional<List<String>> getSpecifiedAdditionalTerminationEvent(Path basePath, String synonym, Integer index, String party) {
         SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder eventBuilder = SpecifiedOrAccessConditionPartyElection.builder();
         setValueAndUpdateMappings(basePath.addElement(synonym, index), eventBuilder::addSpecifiedAdditionalTerminationEvent, mappings, path);
         boolean nameSet = eventBuilder.hasData();
 
-        PARTIES.forEach(party ->
-                SUFFIXES.forEach(suffix ->
-                        setValueAndUpdateMappings(basePath.addElement(party + suffix, index),
-                                (value) -> addIfApplicable(eventBuilder, party, value, nameSet), mappings, path)));
+        SUFFIXES.forEach(suffix ->
+                setValueAndUpdateMappings(basePath.addElement(party + suffix, index),
+                        (value) -> addIfApplicable(eventBuilder, party, value, nameSet), mappings, path));
 
-        boolean applicablePartySet = Optional.ofNullable(eventBuilder.getParty())
-                .isPresent();
+        boolean applicablePartySet = eventBuilder.getParty() != null;
 
         if (nameSet || applicablePartySet) {
             updateMappings(basePath, mappings, path);
         }
+
         return eventBuilder.hasData() && applicablePartySet ? Optional.of(eventBuilder.getSpecifiedAdditionalTerminationEvent()) : Optional.empty();
     }
 
-    private void addIfApplicable(SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder eventBuilder, String party, String value, boolean nameSet) {
+    private void addIfApplicable(SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, String party, String value, boolean nameSet) {
         if (APPLICABLE.equals(value) && nameSet) {
-            eventBuilder.setParty(toCounterpartyRoleEnum(party));
+            builder.setParty(toCounterpartyRoleEnum(party));
         }
     }
+
 }

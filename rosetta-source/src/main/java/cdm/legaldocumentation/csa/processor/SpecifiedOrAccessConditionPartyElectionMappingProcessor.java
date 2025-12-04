@@ -29,27 +29,25 @@ public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends Map
                 (SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder) builder;
 
         PARTIES.forEach(party -> {
-            // Single builder for this party
             SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder partyBuilder =
                     SpecifiedOrAccessConditionPartyElection.builder();
 
-            // Add enums
             getSpecifiedOrAccessConditionPartyElection(synonymPath, party)
                     .ifPresent(existing -> {
                         partyBuilder.setParty(existing.getParty());
                         partyBuilder.addSpecifiedOrAccessCondition(existing.getSpecifiedOrAccessCondition());
                     });
 
-            // Use helper to populate additional termination events
+            // pass current party to helper
             AdditionalTerminationEventMappingHelper helper =
                     new AdditionalTerminationEventMappingHelper(getModelPath(), getMappings(), null);
-            helper.map(synonymPath, partyBuilder, parent);
+            helper.map(synonymPath, partyBuilder, parent, party);
 
-            // Add fully populated builder once
             if (partyBuilder.hasData()) {
                 parentBuilder.addPartyElection(partyBuilder.build());
             }
         });
+
 
     }
 
