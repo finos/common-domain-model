@@ -1,4 +1,4 @@
-# *Legal Agreement - High-Level CSA and CTA Refactoring Clause Updates*
+# *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
 
 _Background_
 
