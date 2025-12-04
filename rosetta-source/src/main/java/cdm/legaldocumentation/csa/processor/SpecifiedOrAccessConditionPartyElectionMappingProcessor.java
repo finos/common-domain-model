@@ -18,51 +18,71 @@ import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpart
 
 public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends MappingProcessor {
 
-    private static final String ADDITIONAL_TERMINATION_EVENT = "additional_termination_event";
-
-    public SpecifiedOrAccessConditionPartyElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
+    public SpecifiedOrAccessConditionPartyElectionMappingProcessor(
+            RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(modelPath, synonymPaths, mappingContext);
     }
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder specifiedConditionPartyElectionBuilder = (SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder) builder;
-        PARTIES.forEach(party -> getSpecifiedOrAccessConditionPartyElection(synonymPath, party).ifPresent(specifiedConditionPartyElectionBuilder::addPartyElection));
+        SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder parentBuilder =
+                (SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder) builder;
+
+        PARTIES.forEach(party -> {
+            // Single builder for this party
+            SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder partyBuilder =
+                    SpecifiedOrAccessConditionPartyElection.builder();
+
+            // Add enums
+            getSpecifiedOrAccessConditionPartyElection(synonymPath, party)
+                    .ifPresent(existing -> {
+                        partyBuilder.setParty(existing.getParty());
+                        partyBuilder.addSpecifiedOrAccessCondition(existing.getSpecifiedOrAccessCondition());
+                    });
+
+            // Use helper to populate additional termination events
+            AdditionalTerminationEventMappingHelper helper =
+                    new AdditionalTerminationEventMappingHelper(getModelPath(), getMappings(), null);
+            helper.map(synonymPath, partyBuilder, parent);
+
+            // Add fully populated builder once
+            if (partyBuilder.hasData()) {
+                parentBuilder.addPartyElection(partyBuilder.build());
+            }
+        });
+
     }
 
+
     private Optional<SpecifiedOrAccessConditionPartyElection> getSpecifiedOrAccessConditionPartyElection(Path synonymPath, String party) {
-        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder = SpecifiedOrAccessConditionPartyElection.builder();
+        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder =
+                SpecifiedOrAccessConditionPartyElection.builder();
+
+        // Map the standard party-specific enumerations
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_illegality", party)),
                 (value) -> applicableToBoolean(value).ifPresent(applicable -> {
                     builder.setParty(toCounterpartyRoleEnum(party));
                     builder.addSpecifiedOrAccessCondition(CSASpecifiedOrAccessConditionEnum.ILLEGALITY);
                 }));
-        setValueAndUpdateMappings(synonymPath.addElement(ADDITIONAL_TERMINATION_EVENT).addElement(String.format("%s_%s", party, ADDITIONAL_TERMINATION_EVENT)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> setSpecifiedAdditionalTerminationEvent(synonymPath, builder)));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_force_majeure", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT))));
+                (value) -> applicableToBoolean(value).ifPresent(applicable ->
+                        builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT))));
+                (value) -> applicableToBoolean(value).ifPresent(applicable ->
+                        builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event_upon_merger", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER))));
+                (value) -> applicableToBoolean(value).ifPresent(applicable ->
+                        builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER))));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_credit_event_upon_merger", party)),
-                (value) -> applicableToBoolean(value).ifPresent(applicable -> builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER))));
+                (value) -> applicableToBoolean(value).ifPresent(applicable ->
+                        builder.addSpecifiedOrAccessCondition(Lists.newArrayList(CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER))));
 
         return builder.hasData() ? Optional.of(builder.build()) : Optional.empty();
     }
 
-    private void setSpecifiedAdditionalTerminationEvent(Path synonymPath, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder) {
-        setValueAndUpdateMappings(synonymPath.addElement(ADDITIONAL_TERMINATION_EVENT).addElement("name"), builder::addSpecifiedAdditionalTerminationEvent);
-    }
-
     private Optional<Boolean> applicableToBoolean(String applicable) {
-        if ("applicable".equals(applicable)) {
-            return Optional.of(true);
-        } else if ("not_applicable".equals(applicable)) {
-            return Optional.of(false);
-        } else {
-            return Optional.empty();
-        }
+        if ("applicable".equals(applicable)) return Optional.of(true);
+        if ("not_applicable".equals(applicable)) return Optional.of(false);
+        return Optional.empty();
     }
 }
-
