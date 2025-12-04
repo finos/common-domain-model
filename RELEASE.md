@@ -1,25 +1,27 @@
-# CDM Party Model - Support for Legal Entity Identifier Type
+# Reference Data Model – Legal Entity Identifier Type Support
 
 _Background_
 
-The LegalEntity structure did not allow specify the identifier type, unlike PartyIdentifier, making it impossible to distinguish the type of ID being expressed.
+In the current model, the `LegalEntity` structure allows capturing an entity’s identifier, but it does not allow specifyng the **type** of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
 
-For reporting or similar applications, this forced the logic to infer the type from the metadata scheme, adding unnecessary complexity.
+Because of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
+
+To address this limitation, the model is being extended so that the identifier type can be represented directly within the `LegalEntity` structure.
 
 _What is being released?_
 
-This release adds support to represent the legal entity identifier type representation guaranteeing backward compatibility.
+This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
+- Added a deprecated tag under the `entityId` attribute
+- Added `EntityIdentifier` attribute on `LegalEntity`, with the following contents:
+  - the `identifier`
+  - the `identifierType`, of type `EntityIdentifierTypeEnum`
 
-Under the `LegalEntity` type:
+Create new enum `EntityIdentifierTypeEnum` that extends `PartyIdentifierTypeEnum` to include additional identifier types used for legal entities:
+- **RED**
+- **CountryCode**
+- **Other**
 
-- Added a deprecated tag to `entityId`
-- Added new `EntityIdentifier` type attribute comprising and `identifier` and the `identifierType`.
-
-Extended the `PartyIdentifierTypeEnum` to also include legal entity Id types `RED`, `CountryCode` and `Other`.
-
-The corresponding mappings have been added to map the `entityIdentifier` apart from the entityId.
-
-_Review Directions_
+Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId` ensuring the coverage of the previous representation.
 
 Changes can be reviewed in PR: [#4222](https://github.com/finos/common-domain-model/pull/4222)
 
