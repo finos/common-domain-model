@@ -57,18 +57,26 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
     <td><b>Contribution Review WG</b><br>Rotating</td>
     　<td><ul>
        <li>CDM7.0 Release- end Feb</li>
+       <li>Date / timestamp Harmonisation *</li>
+       <li>Interest Rate Swap reset design **</li>
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
       <td><ul>
+       <li>Date / timestamp Harmonisation *</li>
+       <li>Delivery of IRS Reset workflow (April) **</li>
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
       <td><ul>
+       <li>Events & Positions *</li>        
+       <li>Position Algebra *</li>        
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
       <td><ul>
+       <li>Events & Positions *</li>        
+       <li>Position Algebra *</li>                
        <li>Continued managed release service</li>
        <li>BAU </li>
       </ul></td>
@@ -88,7 +96,7 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
         <li>Develop functions for collateral workflows</li>
       </ul></td>
       <td><ul>
-        <li>TBC</li>
+        <li>BAU</li>
       </ul></td>
      </tr>
   </tr>
@@ -128,26 +136,132 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
      </tr>
   </tr>
     <tr>
-    <td><b>ISDA DRR WG WG</b><br>Tabish Ahmed</td>
+    <td><b>ISDA DRR WG</b><br>Tabish Ahmed</td>
     　<td><ul>
        <li>SEC</li>
-      <li>ReportableInformation improvements</li>
+       <li>SFTR (led by ISLA & ICMA)</li>     
+       <li>Traceability Tool, RFQ decision</li>
+       <li>ReportableInformation improvements</li>
+       <li>DRR 7 production</li>       
       </ul></td>
       <td><ul>
         <li>SFTR (led by ISLA & ICMA)</li>
         <li>Strate</li>
-        <li>Traceability Tool</li>
+        <li>Traceability Tool build</li>
         <li>ReportableInformation improvements</li>
       </ul></td>
       <td><ul>
+        <li>SFTR (led by ISLA & ICMA)</li>
         <li>MiFiR EU build</li>
         <li>Strate</li>
         <li>Traceability Tool</li>
       </ul></td>
       <td><ul>
         <li>MiFiR EU UAT</li>
+        <li>Traceability Tool</li>
+      </ul></td>
+     </tr>
+  </tr>
+  </tr>
+    <tr>
+    <td><b>Tokenised Assets WG</b><br>Ciaran McGonagle</td>
+    　<td><ul>
+       <li>DTI schema for tokenised assets and ledgers</li>
+       <li>Intra-day trading</li>       
+      </ul></td>
+      <td><ul>
+        <li>TokenisedAsset type</li>
+      </ul></td>
+      <td><ul>
+        <li>Basic token lifecycle events</li>
+      </ul></td>
+      <td><ul>
+        <li>Expand lifecycle events</li>
+      </ul></td>
+     </tr>
+  </tr>
+    </tr>
+    <tr>
+    <td><b>Physical Risk WG</b><br>Johnny Mattimore</td>
+    　<td><ul>
+       <li>Asset Attributes</li>
+       <li>Risk time series and Distrubtions data</li>       
+      </ul></td>
+      <td><ul>
+        <li>Production & adoption</li>
+        <li>Full lifecycle on CDM</li>        
+      </ul></td>
+      <td><ul>
+        <li>Extension of enrichment</li>
+        <li>Further testing</li>
+        <li>Wider adoption</li>        
+      </ul></td>
+      <td><ul>
+        <li>Maturity stage</li>
+        <li>Wider adoption</li>        
+        <li>Interbank and client integration</li>           
       </ul></td>
      </tr>
   </tr>
 </table>
 
+\* Items sponsored by ISDA for cross-product modelling
+
+\** Items delivered by the Smart Contract Taskforce
+
+## Support Framework
+
+<table>
+  <tr>
+    <th style="width: 25%;">1Q 2026</th>
+    <th style="width: 25%;">2Q 2026</th>
+    <th style="width: 25%;">3Q 2026</th>
+    <th style="width: 25%;">4Q 2026</th>
+  </tr>
+  <tr>
+    <td><ul>
+        <li>Current documentation annual review</li>
+        <li>CDM Release Management Service</li>
+        <li>AI Bot: document assistance, user query tool</li>          
+      </ul></td>
+      <td><ul>
+        <li>CDM Release Management Service</li>    
+        <li>AI Bot: document assistance, user query tool</li>
+      </ul></td>
+      <td><ul>
+        <li>CDM Release Management Service</li>        
+        <li>Ongoing maintenance</li>  
+      </ul></td>
+      <td><ul>
+        <li>CDM Release Management Service</li>        
+        <li>Ongoing maintenance</li>            
+      </ul></td>
+     </tr>
+</table>
+
+## 2026 Events
+
+<table>
+  <tr>
+    <th style="width: 25%;">1Q 2026</th>
+    <th style="width: 25%;">2Q 2026</th>
+    <th style="width: 25%;">3Q 2026</th>
+    <th style="width: 25%;">4Q 2026</th>
+  </tr>
+  <tr>
+    <td><ul>
+        <li>CDM Showcase (4 March)</li>
+      </ul></td>
+      <td><ul>
+        <li>OSFF London</li>
+        <li>Trade Association AGMs</li>        
+      </ul></td>
+      <td><ul>
+        <li>OSFF New York</li>
+      </ul></td>
+      <td><ul>
+        <li>ISLA Post Trade </li>
+      </ul></td>
+     </tr>
+</table>
+  
