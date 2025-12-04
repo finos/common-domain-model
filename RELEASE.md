@@ -6,11 +6,10 @@ This contribution enhances the Legal Agreement part of CDM. Members of the Legal
 
 _What is being released?_
 
-1. Refactoring CreditSupportAgreementElections into CSABase, CSAIM, CSAVM and CSALegacy. IM, VM and Legacy extend base.
-2. Refactoring CreditSupportObligations into CreditSupportObligationsBase, CreditSupportObligationsIM, CreditSupportObligationsVM, CreditSupportObligationsCTA and CreditSupportObligationsLegacy. IM, VM, CTA and Legacy extend base.
-3. Refactoring CalculationandTiming into CalculationandTimingBase, CalculationandTimingIM, CalculationandTimingVM, CalculationandTimingCTA and CalculationandTimingLegacy. IM, VM, CTA and Legacy extend base.
-4. CreditSupportObligationsVM replaces existing CreditSupportObligationsVariationMargin.
-5. Some misc updates to cardinalities and descriptions.
+1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. IM, VM and Legacy extend base.
+2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. IM, VM, CTA and Legacy extend base.
+3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. IM, VM, CTA and Legacy extend base.
+5. Some miscellaneous updates to cardinalities and descriptions.
 
 _Review Directions_
 
