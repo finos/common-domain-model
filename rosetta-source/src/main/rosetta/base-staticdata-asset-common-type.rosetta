@@ -238,22 +238,22 @@ type SecuredDebt:
     assetBacked AssetBackedEnum (0..1) <"Specifies the type of Asset Backed Security.">
     collateralizedObligation CollateralizedObligationEnum (0..1) <"Specifies the type of Collateralized Obligation.">
     coveredBond CoveredBondEnum (0..1) <"Specifies the type of Covered Bond.">
-    property PropertyTypeEnum (0..1) <"Specifies the type of property in a Mortgage Backed Security.">
+    propertyType PropertyTypeEnum (0..1) <"Specifies the type of property when the security is linked to a property asset.">
 
     condition AssetBackedExists: <"Condition to restrict selection of the assetBacked attribute if AssetBacked is not set as the securedType value.">
         if securedType <> SecuredTypeEnum -> AssetBacked
         then assetBacked is absent
 
-    condition MortgageBackedExists: <"Condition to restrict selection of the property attribute if MortgageBacked or CMO is not set as the securedType value.">
-        if securedType <> SecuredTypeEnum -> MortgageBacked or collateralizedObligation <> CollateralizedObligationEnum -> CMO
-        then property is absent and assetBacked <> AssetBackedEnum -> Property
+    condition PropertyExists: <"Condition to restrict selection of the property attribute if the security is not linked to a property asset: mortgage, property, CMO.">
+        if assetBacked <> Mortgage or assetBacked <> Property or collateralizedObligation <> CMO
+        then propertyType is absent 
     
     condition CollateralizedObligationExists: <"Condition to restrict selection of the collateralizedObligations attribute if CollateralizedObligation is not set as the securedType value.">
-        if securedType <> SecuredTypeEnum -> CollateralizedObligation
+        if securedType <> CollateralizedObligation
         then collateralizedObligation is absent
     
     condition CoveredBondsExists: <"Condition to restrict selection of the coveredBonds attribute if CoveredBonds is not set as the securedType value.">
-        if securedType <> SecuredTypeEnum -> CoveredBonds
+        if securedType <> CoveredBonds
         then coveredBond is absent
 
 type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
