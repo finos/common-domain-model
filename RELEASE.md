@@ -19,7 +19,7 @@ _What is being released?_
 - Removed `CSADatedasofDate` and `CSAMadeOn` date (as they are already covered) and renamed type to `MasterAgreementDatedAsOfDate`.
 - `LegacyDeliveryAmount` and `LegacyReturnAmount` are renamed to `DeliveryAmount` and `ReturnAmount`.
 - Updated description for `ValuationAgent`.
-- Miscellaneous Type name and Enum name updates.
+- Type name and Enum name updates.
 
 _Review Directions_
 
