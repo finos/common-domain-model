@@ -69,7 +69,7 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
 
     agreementTerms AgreementTerms (0..1) <"Specification of the content of the legal agreement.">
     relatedAgreements LegalAgreement (0..*) <"Specifies the agreement(s) that govern the agreement, either as a reference to such agreements when specified as part of the CDM, or through identification of some of the key terms of those agreements, such as the type of agreement, the publisher, the vintage, the agreement identifier and the agreement date.">
-    umbrellaAgreement UmbrellaAgreement (0..1) <"The determination of whether Umbrella Agreement terms are applicable (True) or Not Applicable (False).">
+    umbrellaAgreement UmbrellaAgreement (0..1) <"TSpecifies a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement.">
     
     condition ConsistentlyExecutedAgreements: <"An executed agreement can only point to executed related agreements if any.">
         if relatedAgreements exists and agreementDate exists
@@ -156,20 +156,27 @@ type AgreementName: <"Specifies the agreement name through an agreement type and
 type UmbrellaAgreement: <"Specifies a set of legal entities which are part of a legal agreement beyond the two contracting parties to that agreement.">
 
     agreementSet UmbrellaAgreementSet (1..*) <"The language associated with the umbrella agreement, and which applies to all the parties to the umbrella agreement.">
-    parties UmbrellaAgreementEntity (2..*) <"Specifies the underlying entities to the agreement that either act as legal parties to the agreement or represent Legal constructs that are managed by a party to the agreement but do not represent a Legal Entity as of themselves.">
+    parties UmbrellaAgreementEntity (2..*) <"Specifies the underlying entities to the agreement that either act as legal parties to the agreement or represent legal constructs that are managed by a party to the agreement but do not represent a Legal Entity as of themselves.">
     language string (0..1) <"Represents any additional language that may need to be captured regarding the structure or application of terms that may exist for the agreement.">
 
-type UmbrellaAgreementEntity extends Counterparty: <"A class to specify the legal entities that are part of the umbrella agreement.">
+type UmbrellaAgreementEntity extends Counterparty: <"Specifies the entities that are part of the umbrella agreement.">
     umbrellaPartyrole UmbrellaPartyRoleEnum (0..1) <"Represents the legal role that each defined entity to the agreement performs within the structure of that agreement.">
-    parentParty Parentparty (0..1) <"Represents the identification of a parent child relationship between two entities in the Umbrella agreement, allowing non-legal entities to be linked to the appropriate legal entity and allowing funds, portfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
+    nonLegalEntityIdentifier string (0..1) <"Specifies the unique identifier value for a non legal entity such as a sleeve, or sub account, that is a party to the agreement and has a relationship with a legal entity defined on the agreement.">
+    nonLegalEntityIdentifierType string (0..1) <"Specifies the Identifier type for a non Legal entity to the agreement, for example the use of an alert code to uniquely identify a non Legal entity.">
+    parentParty ParentParty (0..1) <"Represents the identification of a parent child relationship between two entities in the Umbrella agreement, allowing non-legal entities to be linked to the appropriate legal entity and allowing funds, portfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
+    
+    condition NonLegalEntityIdentifier: <"If nonLegalIdentifier string is specified then nonLegalEntityIdentifierType must be specified">
+        if nonLegalEntityIdentifier exists then nonLegalEntityIdentifierType exists
+        or
+        if nonLegalEntityIdentifier is absent then nonLegalEntityIdentifierType is absent
 
-    condition Parentparty: <"Identifies where a parent child relationship exists between two parties to the Umbrella agreement, allowing none legal entities to be linked to the appropriate legal entity and allowing funds, protfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
+    condition ParentParty: <"Identifies where a parent child relationship exists between two parties to the Umbrella agreement, allowing none legal entities to be linked to the appropriate legal entity and allowing funds, protfolio or managed accounts to be linked to their applicable Investment Manager or Agent within the agreement.">
         if umbrellaPartyrole = UmbrellaPartyRoleEnum -> Sleeve then parentParty exists
         or
         if umbrellaPartyrole = UmbrellaPartyRoleEnum -> Agent then parentParty is absent
 
-type Parentparty: <"A class to specify the hierarchical structure of the entity relationships within the Umbrella agreement.">
-   parentIdentifier string (0..1) <"Represents the Entity Identifier of the parent entity on this agreement for the party defined.">
+type ParentParty: <"Specifies the hierarchical structure of the entity relationships within the Umbrella agreement.">
+   parentIdentifier LegalEntity (0..1) <"Represents the Entity Identifier of the parent entity on this agreement for the party defined.">
 
 type UmbrellaAgreementSet: <"Represents the groups of agreement term elections that exist within the agreement and to which entities that particular group of elections apply. Where all entities under the umbrella have the same set of elections only one agreement set will exist. At least one agreement set must be defined for an Umbrella agreement">
     agreement Agreement (1..1) <"Specification of the standard set of terms that define a legal agreement.">
