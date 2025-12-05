@@ -38,7 +38,7 @@ None.
 
 _Review Directions_
 
-Changes can be reviewed in: [PR#4196](https://github.com/finos/common-domain-model/pull/4196)
+Changes can be reviewed in PR: [#4248](https://github.com/finos/common-domain-model/pull/4248)
 
 # *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
 
