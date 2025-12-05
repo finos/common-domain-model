@@ -122,13 +122,12 @@ type PremiumExpression: <"This class corresponds to the FpML Premium.model group
     percentageOfNotional number (0..1) <"The amount of premium to be paid expressed as a percentage of the notional value of the transaction. A percentage of 5% would be expressed as 0.05.">
 
 type CashPrice: <"Specifies the nature of a cash price either as a fee type, cash price type, or premium expression.">
-    cashPriceType CashPriceTypeEnum (1..1) <"Specifies the type of Cash Price.">
+    priceSubType PriceSubTypeEnum (1..1) <"Specifies the type of Cash Price.">
     premiumExpression PremiumExpression (0..1) <"Specifies a premium when expressed in a way other than an amount, and any required forward starting price definition.">
     feeType FeeTypeEnum (0..1) <"Specifies the event type associated with a fee.">
 
     condition PremiumType: <"Premium type can only be specified when the cash price type is a premium.">
-        if premiumExpression exists
-        then cashPriceType = CashPriceTypeEnum -> Premium
+        if premiumExpression exists then priceSubType = Premium
 
 type PriceComposite: <"Defines the inputs required to calculate a price as a simple composite of 2 other values. The inputs consist of 2 numbers and a simple arithmetic operator. This generic data type applies to a variety of use cases where a price is obtained by simple composition, e.g. dirty = clean + accrued (Bond), forward rate = spot rate + forward point (FX) etc.">
     baseValue number (1..1) <"The 1st value in the arithmetic operation, which may be non-commutative in some cases: Subtract, Divide). This 1st operand is called 'baseValue' as it refers to the price anchor in the arithmetic operation: e.g. the clean price (Bond) or the spot rate (FX).">
@@ -146,10 +145,11 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
 
     perUnitOf UnitType (0..1) <"Provides an attribute to define the unit of the thing being priced. For example, {amount, unitOfAmount, PerUnitOfAmount} = [10, EUR, Shares] = (10.00 EUR/SHARE) * (300,000 SHARES) = EUR 3,000,000.00 (Shares cancel out in the calculation).">
     priceType PriceTypeEnum (1..1) <"Specifies the price type as an enumeration: interest rate, exchange rate, asset price etc. This attribute is mandatory so that prices can always be clasiffied according to their type. The price type implies some constraints on the price's units.">
+    priceSubType PriceSubTypeEnum (0..1) <"Allows further classification of the chosen price type.">
     priceExpression PriceExpressionEnum (0..1) <"(Optionally) Specifies whether the price is expressed in absolute or percentage terms.">
     composite PriceComposite (0..1) <"(Optionally) Specifies the underlying price components if the price can be expressed as a composite: e.g. dirty price = clean price + accrued.">
     arithmeticOperator ArithmeticOperationEnum (0..1) <"(Optionally) When the price is to be understood as an operator to apply to an observable, i.e. a spread, multiplier or min/max.">
-    cashPrice CashPrice (0..1) <"(Optionally when the price type is cash) Additional attributes that further define a cash price, e.g. what type of fee it is.">
+    premiumType PremiumTypeEnum (0..1) <"(Optionally) Additional attribute that can further define any premium to the price.">
 
     condition UnitOfAmountExists: <"Requires that a unit of amount must be specified for price unless price type is Variance, Volatility or Correlation.">
         if priceType = PriceTypeEnum -> Variance
@@ -176,12 +176,14 @@ type PriceSchedule extends MeasureSchedule: <"Specifies the price of a financial
         if priceType = PriceTypeEnum -> InterestRate
         then unit -> currency exists
 
-    condition Choice: <"The price can be specified mutually exclusively as a cashflow, an operator (e.g. a spread or multiplier), or a composite.">
-        optional choice cashPrice, arithmeticOperator, composite
+    condition Choice: <"The price can be specified mutually exclusively as an operator (e.g. a spread or multiplier) or a composite.">
+        optional choice arithmeticOperator, composite
 
-    condition CashPrice: <"If a cash price type is specified, the price type must be cash, otherwise it must be non-cash.">
-        if cashPrice exists
-        then priceType = PriceTypeEnum -> CashPrice
+    condition Premium: <"If we are applying a premium to the price then we must define this as a premium in priceSubType.">
+        if premiumType exists then priceSubType = Premium
+
+    condition PremiumSubType: <"If we define this as a premium then the price must be a cash price.">
+        if priceSubType = Premium then priceType = CashPrice
 
     condition ArithmeticOperator: <"Operator must not be subtract or divide.">
         arithmeticOperator <> ArithmeticOperationEnum -> Subtract
