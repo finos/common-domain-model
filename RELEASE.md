@@ -6,11 +6,6 @@ An upcoming DSL release has found a number of areas where the use of `empty` in 
 
 *What is being released?*
 
-The following functions have been updated:
-
-- InterestRateObservableCondition
-    - Return a valid status when `pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists` is false.
-
 The following types have been updated:
 
 - Instruction
