@@ -10,57 +10,50 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
-import java.util.Optional;
 
+import static cdm.legaldocumentation.csa.SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
 @SuppressWarnings("unused") //used in generated code
 public class SpecifiedOrAccessConditionPartyElectionMappingProcessor extends MappingProcessor {
 
+    private final AdditionalTerminationEventMappingHelper helper;
+
     public SpecifiedOrAccessConditionPartyElectionMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
         super(modelPath, synonymPaths, mappingContext);
+        this.helper = new AdditionalTerminationEventMappingHelper(getModelPath(), getMappings());
     }
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder parentBuilder = (SpecifiedConditionOrAccessCondition.SpecifiedConditionOrAccessConditionBuilder) builder;
         PARTIES.forEach(party -> {
-            SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder partyBuilder = SpecifiedOrAccessConditionPartyElection.builder();
-            getSpecifiedOrAccessConditionPartyElection(synonymPath, party)
-                    .ifPresent(specifiedOrAccessConditionPartyElection -> {
-                        partyBuilder.setParty(specifiedOrAccessConditionPartyElection.getParty());
-                        partyBuilder.addSpecifiedOrAccessCondition(specifiedOrAccessConditionPartyElection.getSpecifiedOrAccessCondition());
-                    });
-            AdditionalTerminationEventMappingHelper helper = new AdditionalTerminationEventMappingHelper(getModelPath(), getMappings());
-            helper.map(synonymPath, partyBuilder, party);
-            if (partyBuilder.hasData()) {
-                parentBuilder.addPartyElection(partyBuilder.build());
+            SpecifiedOrAccessConditionPartyElectionBuilder partyElectionBuilder = SpecifiedOrAccessConditionPartyElection.builder();
+            mapSpecifiedOrAccessConditionPartyElection(partyElectionBuilder, synonymPath, party);
+            helper.mapAdditionalTerminationEvent(partyElectionBuilder, synonymPath, party);
+
+            if (partyElectionBuilder.hasData()) {
+                partyElectionBuilder.setParty(toCounterpartyRoleEnum(party));
+                parentBuilder.addPartyElection(partyElectionBuilder);
             }
         });
     }
 
-    private Optional<SpecifiedOrAccessConditionPartyElection> getSpecifiedOrAccessConditionPartyElection(Path synonymPath, String party) {
-        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder = SpecifiedOrAccessConditionPartyElection.builder();
-
+    private void mapSpecifiedOrAccessConditionPartyElection(SpecifiedOrAccessConditionPartyElectionBuilder partyElectionBuilder, Path synonymPath, String party) {
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_illegality", party)),
-                (value) -> {
-                    setSpecifiedOrAccessCondition(value, builder, CSASpecifiedOrAccessConditionEnum.ILLEGALITY);
-                    builder.setParty(toCounterpartyRoleEnum(party));
-                });
+                (value) -> setSpecifiedOrAccessCondition(value, partyElectionBuilder, CSASpecifiedOrAccessConditionEnum.ILLEGALITY));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_force_majeure", party)),
-                (value) -> setSpecifiedOrAccessCondition(value, builder, CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT));
+                (value) -> setSpecifiedOrAccessCondition(value, partyElectionBuilder, CSASpecifiedOrAccessConditionEnum.FORCE_MAJEURE_EVENT));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event", party)),
-                (value) -> setSpecifiedOrAccessCondition(value, builder, CSASpecifiedOrAccessConditionEnum.TAX_EVENT));
+                (value) -> setSpecifiedOrAccessCondition(value, partyElectionBuilder, CSASpecifiedOrAccessConditionEnum.TAX_EVENT));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_tax_event_upon_merger", party)),
-                (value) -> setSpecifiedOrAccessCondition(value, builder, CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER));
+                (value) -> setSpecifiedOrAccessCondition(value, partyElectionBuilder, CSASpecifiedOrAccessConditionEnum.TAX_EVENT_UPON_MERGER));
         setValueAndUpdateMappings(synonymPath.addElement(String.format("%s_credit_event_upon_merger", party)),
-                (value) -> setSpecifiedOrAccessCondition(value, builder, CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER));
-
-        return builder.hasData() ? Optional.of(builder.build()) : Optional.empty();
+                (value) -> setSpecifiedOrAccessCondition(value, partyElectionBuilder, CSASpecifiedOrAccessConditionEnum.CREDIT_EVENT_UPON_MERGER));
     }
 
-    private void setSpecifiedOrAccessCondition(String value, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, CSASpecifiedOrAccessConditionEnum csaSpecifiedOrAccessConditionEnum) {
+    private void setSpecifiedOrAccessCondition(String value, SpecifiedOrAccessConditionPartyElectionBuilder builder, CSASpecifiedOrAccessConditionEnum csaSpecifiedOrAccessConditionEnum) {
         if (isApplicable(value)) {
             builder.addSpecifiedOrAccessCondition(csaSpecifiedOrAccessConditionEnum);
         }

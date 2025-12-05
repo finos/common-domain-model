@@ -1,14 +1,15 @@
 package cdm.legaldocumentation.csa.processor;
 
 import cdm.legaldocumentation.csa.SpecifiedOrAccessConditionPartyElection;
-import com.regnosys.rosetta.common.translation.*;
+import com.regnosys.rosetta.common.translation.Mapping;
+import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.path.RosettaPath;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndUpdateMappings;
-import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappings;
-import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
+import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getValueAndUpdateMappings;
 
 /**
  * CreateiQ mapping processor helper.
@@ -17,6 +18,7 @@ public class AdditionalTerminationEventMappingHelper {
 
     private static final String APPLICABLE = "applicable";
     private static final List<String> SUFFIXES = Arrays.asList("_additional_termination_event", "_additional_termination_events");
+
     private final RosettaPath path;
     private final List<Mapping> mappings;
 
@@ -25,43 +27,45 @@ public class AdditionalTerminationEventMappingHelper {
         this.mappings = mappings;
     }
 
-    public void map(Path accessConditionsPath, SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, String party) {
-        Path eventsPath = accessConditionsPath.addElement("additional_termination_event");
+    public void mapAdditionalTerminationEvent(SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder partyElectionBuilder, Path accessConditionsPath, String party) {
+        Path basePath = accessConditionsPath.addElement("additional_termination_event");
         int index = 0;
         while (true) {
-            Optional<List<String>> event = getSpecifiedAdditionalTerminationEvent(eventsPath, "name", index++, party);
-            if (event.isPresent()) {
-                builder.addSpecifiedAdditionalTerminationEvent(event.get());
-            } else {
+            List<String> terminationEvents = getSpecifiedAdditionalTerminationEvents(basePath, "name", index++, party);
+            if (terminationEvents.isEmpty()) {
                 break;
+            } else {
+                partyElectionBuilder.addSpecifiedAdditionalTerminationEvent(terminationEvents);
             }
         }
-        getSpecifiedAdditionalTerminationEvent(accessConditionsPath, "specify", null, party)
-                .ifPresent(builder::addSpecifiedAdditionalTerminationEvent);
+
+        List<String> specifyEvents = getSpecifiedAdditionalTerminationEvents(accessConditionsPath, "specify", null, party);
+        partyElectionBuilder.addSpecifiedAdditionalTerminationEvent(specifyEvents);
     }
 
-    private Optional<List<String>> getSpecifiedAdditionalTerminationEvent(Path basePath, String synonym, Integer index, String party) {
-        SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder = SpecifiedOrAccessConditionPartyElection.builder();
-        setValueAndUpdateMappings(basePath.addElement(synonym, index), builder::addSpecifiedAdditionalTerminationEvent, mappings, path);
-        boolean nameSet = builder.hasData();
+    private List<String> getSpecifiedAdditionalTerminationEvents(Path basePath, String synonym, Integer index, String party) {
+        List<String> events = new ArrayList<>();
 
-        SUFFIXES.forEach(suffix ->
-                setValueAndUpdateMappings(basePath.addElement(party + suffix, index),
-                        (value) -> addIfApplicable(builder, party, value, nameSet), mappings, path));
+        // first get the event name
+        Path eventNameSynonymPath = basePath.addElement(synonym, index);
+        getValueAndUpdateMappings(eventNameSynonymPath, mappings, path)
+                .ifPresent(eventName ->
+                        // then check if the event is applicable for the given party
+                        SUFFIXES.forEach(suffix ->
+                        {
+                            Path eventApplicableToPartySynonymPath = basePath.addElement(party + suffix, index);
+                            getValueAndUpdateMappings(eventApplicableToPartySynonymPath, mappings, path)
+                                    .ifPresent(applicable -> {
+                                        if (isApplicable(applicable)) {
+                                            events.add(eventName);
+                                        }
+                                    });
+                        }));
 
-        boolean applicablePartySet = builder.getParty() != null;
-
-        if (nameSet || applicablePartySet) {
-            updateMappings(basePath, mappings, path);
-        }
-
-        return builder.hasData() && applicablePartySet ? Optional.of(builder.getSpecifiedAdditionalTerminationEvent()) : Optional.empty();
+        return events;
     }
 
-    private void addIfApplicable(SpecifiedOrAccessConditionPartyElection.SpecifiedOrAccessConditionPartyElectionBuilder builder, String party, String value, boolean nameSet) {
-        if (APPLICABLE.equals(value) && nameSet) {
-            builder.setParty(toCounterpartyRoleEnum(party));
-        }
+    private static boolean isApplicable(String value) {
+        return APPLICABLE.equals(value);
     }
-
 }
