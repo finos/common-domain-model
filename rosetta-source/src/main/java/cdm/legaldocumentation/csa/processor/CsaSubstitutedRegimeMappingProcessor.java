@@ -1,6 +1,6 @@
 package cdm.legaldocumentation.csa.processor;
 
-import cdm.legaldocumentation.csa.CSAInitialMarginElections;
+import cdm.legaldocumentation.csa.CreditSupportAgreementInitialMarginElections;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -8,8 +8,6 @@ import com.rosetta.model.lib.RosettaModelObjectBuilder;
 import com.rosetta.model.lib.path.RosettaPath;
 
 import java.util.List;
-
-import static cdm.legaldocumentation.csa.CreditSupportAgreementElections.CreditSupportAgreementElectionsBuilder;
 
 /**
  * CreateiQ mapping processor.
@@ -26,7 +24,7 @@ public class CsaSubstitutedRegimeMappingProcessor extends MappingProcessor {
 
 	@Override
 	public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builders, RosettaModelObjectBuilder parent) {
-		((CSAInitialMarginElections.CSAInitialMarginElectionsBuilder) parent)
+		((CreditSupportAgreementInitialMarginElections.CreditSupportAgreementInitialMarginElectionsBuilder) parent)
 				.setSubstitutedRegime(helper.getSubstitutedRegimes(synonymPath));
 	}
 }
