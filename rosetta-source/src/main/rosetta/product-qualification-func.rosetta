@@ -87,6 +87,12 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                                     settlementUnderlier -> Product ->> economicTerms
                                 ) = True
                         else False))
+            or (SettlementPayoutOnlyExists(economicTerms -> payout)
+                or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists)
+                    and (settlementUnderlier switch
+                        TransferableProduct then Instrument -> Security -> instrumentType = Debt,
+                        NonTransferableProduct then taxonomy -> primaryAssetClass any = InterestRate,
+                        Observable then Index ->> assetClass = InterestRate))
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
     inputs:
@@ -197,6 +203,11 @@ func Qualify_AssetClass_Equity:
                                     settlementUnderlier -> Product ->> economicTerms
                                 ) = True
                         else False))
+            or (SettlementPayoutOnlyExists(economicTerms -> payout)
+                or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists)
+                    and (settlementUnderlier switch
+                        Observable then Qualify_UnderlierObservable_Equity,
+                        Product then TransferableProduct -> Instrument -> Security -> instrumentType = Equity))
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
     inputs:
@@ -1829,6 +1840,18 @@ func CommodityPayoutOnlyExists: <"At least one CommodityPayout exists and no oth
             then all = True
             then default False
 
+func OptionPayoutOnlyExists: <"At least one OptionPayout exists and no other payouts exist.">
+    inputs:
+        payouts Payout (0..*)
+    output:
+        result boolean (1..1)
+
+    set result:
+        payouts
+            extract OptionPayout exists
+            then all = True
+            then default False
+
 func PerformancePayoutAndFixedPricePayoutOnlyExists: <"At least one PerformancePayout exists, and at least one FixedPricePayout exists, and no other payouts exist.">
     inputs:
         payouts Payout (0..*)
@@ -1854,3 +1877,42 @@ func PerformancePayoutAndInterestRatePayoutOnlyExists: <"At least one Performanc
                 // check no other payouts exist
             and payouts extract [ PerformancePayout exists or InterestRatePayout exists ]
             all = True
+
+func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap (Other) with properties of an Equity Swap with non standard terms.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+
+    set is_product:
+        // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
+        Qualify_BaseProduct_EquitySwap(economicTerms) = True
+            and ((economicTerms -> payout -> InterestRatePayout, economicTerms -> payout -> PerformancePayout) only exists
+                and economicTerms -> payout -> InterestRatePayout count = 1
+                and economicTerms -> payout -> PerformancePayout count = 1)
+            and economicTerms -> nonStandardisedTerms = True
+
+func Qualify_Credit_OptionOther: <"Qualifies a product as an Credit Option (Other) with properties of an Credit Option with non standard terms.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+    set is_product:
+       OptionPayoutOnlyExists(economicTerms -> payout)
+            and Qualify_AssetClass_Credit(economicTerms) = True
+            and economicTerms -> nonStandardisedTerms = True
+
+func Qualify_Commodity_OptionOther: <"Qualifies a product as an Commodity Option (Other) with properties of an Commodity Option with non standard terms.">
+    [qualification Product]
+    inputs:
+        economicTerms EconomicTerms (1..1)
+    output:
+        is_product boolean (1..1)
+            [synonym ISDA_Taxonomy_v1 value "Commodity_Option"]
+            [synonym ISDA_Taxonomy_v2 value "Commodity_Option"]
+    set is_product:
+        Qualify_AssetClass_Commodity(economicTerms) = True
+            and OptionPayoutOnlyExists(economicTerms -> payout)
+            and economicTerms -> nonStandardisedTerms = True
