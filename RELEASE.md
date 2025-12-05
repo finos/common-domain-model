@@ -1,26 +1,21 @@
-# *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
+## Conditions and Validation - Fix use of empty in conditions and validation functions
 
-_Background_
+*Background*
 
-This contribution enhances Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
+An upcoming DSL release has found a number of areas where the use of `empty` in validation functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release.
 
-_What is being released?_
+*What is being released?*
 
-- `SpecifiedCondition` and `AccessCondition` merged into same structure.
-- Updated description for `CalculationAgentTerms`.
-- Updated description for `CustodyArrangements` and cardinality for `CustodianEvent`.
-- Updated `docReference` and description for `NotificationTime`.
-- Updated description for `OtherAgreements`.
-- Moved `value` into `OtherEligibleandPostedSupport`.
-- Updated cardinality for `TerminationCurrencyElection`.
-- Updated cardinalities within `CoveredTransactions`.
-- Updated cardinality for `ThresholdElection`.
-- Updated cardinality for `MTAElection`.
-- Removed `CSADatedasofDate` and `CSAMadeOn` date (as they are already covered) and renamed type to `MasterAgreementDatedAsOfDate`.
-- `LegacyDeliveryAmount` and `LegacyReturnAmount` are renamed to `DeliveryAmount` and `ReturnAmount`.
-- Updated description for `ValuationAgent`.
-- Type name and Enum name updates.
+The following functions have been updated:
 
-_Review Directions_
+- InterestRateObservableCondition
+    - Return a valid status when `pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists` is false.
 
-Changes can be reviewed in PR: [#4216](https://github.com/finos/common-domain-model/pull/4216)
+The following types have been updated:
+
+- Instruction
+    - Update condition `NewTrade` to return a valid status when `primitiveInstruction -> execution` is absent and `before` exists.
+
+*Review Directions*
+
+Changes can be reviewed in PR: [#4237](https://github.com/finos/common-domain-model/pull/4237)
