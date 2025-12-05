@@ -58,4 +58,4 @@ Detailed changes include:
 
 _Review Directions_
 
-Full implementation details and review discussion can be found in PR [#3819](https://github.com/finos/common-domain-model/pull/3819).
+Full implementation details and review discussion can be found in PR [#4227](https://github.com/finos/common-domain-model/pull/4227).
