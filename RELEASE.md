@@ -8,8 +8,8 @@ An upcoming DSL release has found a number of areas where the use of `empty` in 
 
 The following functions have been updated:
 
-- InterestRateObservableCondition
-    - Return a valid status when `pq -> observable -> Index -> InterestRateIndex exists and pq -> price exists` is false.
+- Qualify_PairOff
+    - Update comparisons for optional fields such as ancillaryParty and adjustment, to check either both are absent or both equal
 
 The following types have been updated:
 
