@@ -77,19 +77,23 @@ func CompareTradeLot: <"Compare the Quantity in TradeLot 1 to the Quantity (with
                                 },
                         unitOfAmount
                     )
-            ] all = True
+            ] any = True //the comparison succeeds if at least one quantity meets the condition
 
-func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount (regardless of unit of amount), based on the CompareOp enum.">
+func CompareTradeLotToAmount: <"Compare the Quantity amount in TradeLot to the given amount, based on the CompareOp enum. If Unit Types are specified, only quantities with those units are compared. Otherwise, the comparison applies to all quantities, regardless of the unit type">
     inputs:
         tradeLot TradeLot (1..1)
         op CompareOp (1..1)
         amount number (1..1)
+        unitTypes UnitType (0..*) <"Unit Types to which comparison should be applied.">
     output:
         result boolean (1..1)
-
+    
     set result:
-        tradeLot -> priceQuantity -> quantity
+    tradeLot -> priceQuantity -> quantity
             filter item -> value exists
+            then (if unitTypes exists
+                then filter unitTypes any = item -> unit
+                else item)
             then extract [ CompareNumbers(item -> value, op, amount) ]
                 all = True
 
