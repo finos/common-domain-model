@@ -22,10 +22,6 @@ import static cdm.legaldocumentation.common.LegalAgreement.builder;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 
-/**
- * CreateiQ mapping processor.
- */
-@SuppressWarnings("unused")
 public class RelatedAgreementMappingProcessor extends MappingProcessor {
 
     public RelatedAgreementMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {

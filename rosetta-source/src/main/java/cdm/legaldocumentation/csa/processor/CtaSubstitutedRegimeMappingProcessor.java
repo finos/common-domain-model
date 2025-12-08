@@ -10,9 +10,6 @@ import java.util.List;
 
 import static cdm.legaldocumentation.csa.CollateralTransferAgreementElections.CollateralTransferAgreementElectionsBuilder;
 
-/**
- * CreateiQ mapping processor.
- */
 @SuppressWarnings("unused")
 public class CtaSubstitutedRegimeMappingProcessor extends MappingProcessor {
 

@@ -1,155 +1,22 @@
 namespace cdm.product.common.settlement : <"Common product settlement concepts: cash vs physical, non-deliverable, money and cashflow, delivery vs payment.">
 version "${project.version}"
 
-import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.observable.asset.*
 
-func UpdateAmountForEachMatchingQuantity: <"Updates any price or quantity from the list of PriceQuantity if the unit of amount matches.">
+func UpdateAmountForEachQuantity: <"Updates all quantities on each price quantity with the new amount.">
+    [codeImplementation]
     inputs:
-        priceQuantityList PriceQuantity (1..*) <"List of PriceQuantity to update.">
-        change PriceQuantity (1..*) <"List of new PriceQuantity to use where the units match.">
-        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
+        priceQuantity PriceQuantity (0..*) <"List of price quantities to update.">
+        amount number (1..1) <"The new amount.">
     output:
-        updatedPriceQuantity PriceQuantity (1..*) <"List of PriceQuantity with the price and quantity amounts updated.">
+        updatedPriceQuantity PriceQuantity (0..*) <"List of price quantities with all quantity amounts updated.">
 
-    add updatedPriceQuantity: <"For each PriceQuantity, update the price and quantity amounts.">
-        priceQuantityList
-            extract priceQuantity [
-                PriceQuantity {
-                    price: priceQuantity -> price
-                            extract
-                                UpdatePriceAmountForEachMatchingQuantity(
-                                        item,
-                                        change -> price, // FilterChangePriceQuantity(priceQuantity, change) -> price,
-                                        direction
-                                    ),
-                    quantity: priceQuantity -> quantity
-                            extract
-                                UpdateQuantityAmountForEachMatchingQuantity(
-                                        item,
-                                        change, // FilterChangePriceQuantity(priceQuantity, change),
-                                        // PriceQuantity used as input to keep the quantity and effectiveDate linked
-                                        direction
-                                    ),
-                    observable: priceQuantity -> observable,
-                    effectiveDate: priceQuantity -> effectiveDate
-                }
-            ]
-
-// TODO uncomment usage to support matching on PriceQuantity observable
-func FilterChangePriceQuantity: <"Filter the change PriceQuantity list to match on Observable if present.">
+func UpdateAmountForEachMatchingQuantity: <"Updates any quantity from the list of new quantities if the unit of amount matches.">
+    [codeImplementation]
     inputs:
-        priceQuantity PriceQuantity (0..1) <"List of PriceQuantity to update.">
-        change PriceQuantity (0..*) <"List of new PriceQuantity to use where the units match.">
+        priceQuantity PriceQuantity (1..*) <"List of price quantities to update.">
+        change PriceQuantity (1..*)
+        direction QuantityChangeDirectionEnum (1..1)
     output:
-        filteredChange PriceQuantity (0..*)
-
-    alias changeWithMatchingObservable:
-        change
-            filter
-                // match on observable is absent
-                (item -> observable is absent and priceQuantity -> observable is absent)
-                        // or, match on observable
-                    or item -> observable = priceQuantity -> observable
-
-    add filteredChange: changeWithMatchingObservable default change
-
-func UpdatePriceAmountForEachMatchingQuantity: <"Updates any price from the PriceSchedule list if the unit of amount matches.">
-    inputs:
-        price PriceSchedule (0..1) <"List of PriceSchedule to update.">
-            [metadata location]
-        change PriceSchedule (0..*) <"List of new PriceSchedule to use where the units match.">
-        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
-    output:
-        updatedPrice PriceSchedule (0..1)
-            [metadata location]
-
-    alias changedAmount:
-        change
-            filter PriceUnitEquals(item, price)
-            then first
-            then extract UpdateAmount(price -> value, value, direction)
-
-    set updatedPrice: price
-    set updatedPrice -> value: changedAmount default price -> value
-
-func UpdateQuantityAmountForEachMatchingQuantity: <"Updates any quantity from the NonNegativeQuantitySchedule list if the unit of amount matches.">
-    inputs:
-        quantity NonNegativeQuantitySchedule (0..1) <"List of NonNegativeQuantitySchedule to update.">
-            [metadata location]
-        change PriceQuantity (0..*) <"List of new PriceQuantity elements to be applied where units match. PriceQuantity is defined as input to ensure the quantity change remains associated with its corresponding effectiveDate.">
-        direction QuantityChangeDirectionEnum (1..1) <"Enum specifying how the updated amounts should be applied, e.g., add, subtract or replace.">
-    output:
-        updatedQuantity NonNegativeQuantitySchedule (0..1)
-            [metadata location]
-
-    alias changeMatching:
-        SplitQuantityChange(change)
-            filter UnitEquals(item -> quantity only-element -> unit, quantity -> unit)
-            then first
-
-    alias changedAmount:
-        UpdateAmount(
-                quantity -> value,
-                changeMatching -> quantity only-element -> value,
-                direction
-            )
-
-    alias changeEffectiveDate:
-        AdjustableDateResolution(changeMatching -> effectiveDate -> adjustableDate)
-    // ResolveAdjustableDate(changeMatching -> effectiveDate)
-    // TODO uncomment usage once function is available
-    alias changedDatedValue:
-        UpdateDatedValues(
-                quantity -> datedValue,
-                changeMatching -> quantity only-element -> value,
-                direction,
-                changeEffectiveDate
-            )
-
-    set updatedQuantity: quantity
-    set updatedQuantity -> value: changedAmount default quantity -> value
-    set updatedQuantity -> datedValue: changedDatedValue default quantity -> datedValue
-
-func PriceUnitEquals: <"Compares two PriceSchedule to check if all attributes match, except for the amount.">
-    inputs:
-        p1 PriceSchedule (0..1)
-        p2 PriceSchedule (0..1)
-    output:
-        result boolean (1..1)
-
-    alias unitMatches: UnitEquals(p1 -> unit, p2 -> unit)
-    alias perUnitOfMatches: UnitEquals(p1 -> perUnitOf, p2 -> perUnitOf)
-    alias priceTypeMatches:
-        (p1 -> priceType is absent and p2 -> priceType is absent)
-            or p1 -> priceType = p2 -> priceType
-    alias priceExpressionMatches:
-        (p1 -> priceExpression is absent and p2 -> priceExpression is absent)
-            or p1 -> priceExpression = p2 -> priceExpression
-    alias arithmeticOperatorMatches:
-        (p1 -> arithmeticOperator is absent and p2 -> arithmeticOperator is absent)
-            or p1 -> arithmeticOperator = p2 -> arithmeticOperator
-
-    set result:
-        unitMatches and perUnitOfMatches and priceTypeMatches and priceExpressionMatches and arithmeticOperatorMatches
-
-func SplitQuantityChange: <"Splits a PriceQuantity list into separate elements, each containing a single quantity and its corresponding effective date, if multiple quantities exist.">
-    inputs:
-        changeList PriceQuantity (1..*) <"Original PriceQuantity list where each of them may contain multiple quantities.">
-    output:
-        splitChange PriceQuantity (1..*) <"New list of PriceQuantity where each of them contain a single quantity.">
-
-    set splitChange: <"Iterates through the original PriceQuantity list and the quantity list.">
-        changeList
-            extract change [
-                change -> quantity
-                    extract quantity [
-                        PriceQuantity {
-                            quantity: quantity,
-                            effectiveDate: change -> effectiveDate,
-                            ...
-                        }
-                    ]
-            ]
-            then flatten
+        updatedPriceQuantity PriceQuantity (1..*) <"List of price quantities with quantity amounts updated.">

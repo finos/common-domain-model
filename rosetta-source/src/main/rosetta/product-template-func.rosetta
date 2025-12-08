@@ -128,20 +128,18 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     alias assetLeg: <"The asset leg consists in a cashflow which has the same attributes (asset, quantity, date and direction) as the settlement payout that generates it.">
         Cashflow {
-            quantity:
-                NonNegativeQuantity {
-                    value: payout -> priceQuantity -> quantitySchedule -> value,
-                    unit: payout -> priceQuantity -> quantitySchedule -> unit,
-                    ...
-                },
+            quantity: NonNegativeQuantity {
+                value: payout -> priceQuantity -> quantitySchedule -> value,
+                unit: payout -> priceQuantity -> quantitySchedule -> unit,
+                ...
+            },
             asset: payout -> underlier -> Observable -> Asset,
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: payout -> payerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: Principal,
-                    ...
-                },
+            cashflowType: CashflowType {
+                cashflowType: PrincipalPayment,
+                ...
+            },
             ...
         }
 
@@ -159,36 +157,30 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     alias priceLeg: <"The price leg consists in a cashflow whose attributes (asset, quantity, date and direction) are inferred from the settlement payout. The quantity / unit is the currency amount to pay for the asset and the payer/receiver direction is flipped.">
         Cashflow {
-            quantity:
-                NonNegativeQuantity {
-                    value: priceLegAmount,
-                    unit:
-                        UnitType {
-                            currency: priceLegCurrency,
-                            ...
-                        },
+            quantity: NonNegativeQuantity {
+                value: priceLegAmount,
+                unit: UnitType {
+                    currency: priceLegCurrency,
                     ...
                 },
-            asset:
-                Asset {
-                    Cash:
-                        Cash {
-                            identifier:
-                                AssetIdentifier {
-                                    identifier: priceLegCurrency,
-                                    identifierType: CurrencyCode
-                                },
-                            ...
-                        },
+                ...
+            },
+            asset: Asset {
+                Cash: Cash {
+                    identifier: AssetIdentifier {
+                        identifier: priceLegCurrency,
+                        identifierType: CurrencyCode
+                    },
                     ...
                 },
+                ...
+            },
             settlementDate: payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate,
             payerReceiver: priceLegPayerReceiver,
-            cashflowType:
-                CashflowType {
-                    cashflowType: Principal,
-                    ...
-                },
+            cashflowType: CashflowType {
+                cashflowType: PrincipalPayment,
+                ...
+            },
             ...
         }
 

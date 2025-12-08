@@ -17,16 +17,16 @@ import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 @SuppressWarnings("unused")
 public class MinimumTransferAmountMappingProcessor extends MappingProcessor {
 
-	private final MinimumTransferAmountElectionMappingHelper helper;
+	private final ElectiveAmountElectionMappingHelper helper;
 
 	public MinimumTransferAmountMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
 		super(modelPath, synonymPaths, mappingContext);
-		this.helper = new MinimumTransferAmountElectionMappingHelper(getModelPath(), getMappings(), mappingContext.getSynonymToEnumMap());
+		this.helper = new ElectiveAmountElectionMappingHelper(getModelPath(), getMappings(), mappingContext.getSynonymToEnumMap());
 	}
 
 	@Override
 	public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
 		MinimumTransferAmount.MinimumTransferAmountBuilder minimumTransferAmountBuilder = (MinimumTransferAmount.MinimumTransferAmountBuilder) builder;
-		PARTIES.forEach(party -> helper.getMinimumTransferAmountElection(synonymPath, party).ifPresent(minimumTransferAmountBuilder::addPartyElection));
+		PARTIES.forEach(party -> helper.getElectiveAmountElection(synonymPath, party).ifPresent(minimumTransferAmountBuilder::addPartyElection));
 	}
 }

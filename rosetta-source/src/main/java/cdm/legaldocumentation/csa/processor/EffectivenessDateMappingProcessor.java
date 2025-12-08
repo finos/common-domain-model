@@ -14,10 +14,6 @@ import java.util.Optional;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.setValueAndOptionallyUpdateMappings;
 
-/**
- * CreateiQ mapping processor.
- */
-@SuppressWarnings("unused")
 public class EffectivenessDateMappingProcessor extends MappingProcessor {
     public EffectivenessDateMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext context) {
         super(modelPath, synonymPaths, context);

@@ -28,19 +28,13 @@ type CounterpartyPosition extends ContractBase: <"A Position describes the accum
     partyRole PartyRole (0..*) <"Represents the role each specified party takes in the position.">
     positionBase TradableProduct (1..1) <"Encapsulates the core constituents that characterize a position.">
 
-type PositionBase: <"Base class to describe a Position, which could be a group of products (e.g. trade portfolio) or a group of assets (e.g. collateral portfolio).">
+type Position: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
+
     priceQuantity PriceQuantity (1..*) <"Position with many price quantities.">
-    product Product (0..1) <"The product underlying the position.">
-    asset Asset (0..1) <"The asset that underlies the position.">
-    cashBalance Money (0..1) <"The aggregate cost of proceeds.">
-    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed.">
+    product Product (1..1) <"The product underlying the position.">
+    cashBalance Money (0..1) <"The aggregate cost of proceeds">
+    tradeReference TradeState (0..1) <"Reference to the Contract, in case product is contractual and the contract has been formed">
         [metadata reference]
-
-    condition ProductOrAsset: <"A Position must either refer to a grouping by product or a grouping by asset.">
-        required choice product, asset
-
-type Position extends PositionBase: <"A Position describes how much of a given Product is being held and constitutes the atomic element of a Portfolio.">
-    override product Product (1..1) <"The product underlying the position.">
 
 type PortfolioState: <"State-full representation of a Portfolio that describes all the positions held at a given time, in various states which can be either traded, settled, etc., with lineage information to the previous state">
     [metadata key]
@@ -78,7 +72,6 @@ type InventoryRecord: <"An individual piece of inventory. This represents a sing
     security Security (1..1) <"The security details.">
 
 type AvailableInventory: <"A data type that can be used to describe the inventory of securities that a party holds. The securities are held in the AvailableInventoryRecord, with each item in the array being an individual security and its associated criteria. Criteria can include the quantity available, the rate at which the security is available to borrow at, as well as other details that can affect the decision as to whether a party wants to utilise the securities listed.">
-    [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1) <"Defines the purpose of this inventory.">
     messageInformation MessageInformation (0..1) <"Allows details related to the availability messaging use case to be defined">
     party Party (0..*) <"Defines all parties involved for the list of inventory records in this set of inventory. For example, when used to describe securities lending availability, this could hold the sender of the availability, the intended recipient, the beneficial owner(s), the lender (which may differ from the sender as the lender may have the same piece of availability going through multiple agents), an agent or a venue.">
@@ -109,7 +102,6 @@ type AvailableInventoryRecord extends InventoryRecord: <"An individual piece of 
             )
 
 type SecurityLocate extends AvailableInventory: <"A locate is an approval from a broker that needs to be obtained prior to effecting a short sale in an equity security. Similar to security availability, a borrower can request a single or multiple securities, but at least one must be requested.">
-    [rootType]
 
     condition RequestOneSecurityMinimum: <"A locate must request the availability of at least one security.">
         availableInventoryRecord exists

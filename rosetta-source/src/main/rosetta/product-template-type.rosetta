@@ -129,13 +129,9 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
-    condition AsianOptionChoice_averagingStrikeFeature: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
-        if strike -> averagingStrikeFeature exists
-        then feature -> averagingFeature is absent
-
-    condition AsianOptionChoice_averagingFeature: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
-        if feature -> averagingFeature exists
-        then strike -> averagingStrikeFeature is absent
+    condition AsianOptionChoice: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
+        (if strike -> averagingStrikeFeature exists then feature -> averagingFeature is absent)
+            and (if feature -> averagingFeature exists then strike -> averagingStrikeFeature is absent)
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists

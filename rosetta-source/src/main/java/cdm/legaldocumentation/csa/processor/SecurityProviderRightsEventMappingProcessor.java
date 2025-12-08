@@ -15,10 +15,6 @@ import java.util.Optional;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.PARTIES;
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.toCounterpartyRoleEnum;
 
-/**
- * CreateiQ mapping processor.
- */
-@SuppressWarnings("unused")
 public class SecurityProviderRightsEventMappingProcessor extends MappingProcessor {
 
     private static final List<String> SUFFIXES = Arrays.asList("_pledgor_rights_event", "_chargor_rights_event", "_obligor_rights_event", "_security_provider_rights_event");

@@ -13,9 +13,6 @@ import java.util.Optional;
 
 import static org.isda.cdm.processor.CreateiQMappingProcessorUtils.*;
 
-/**
- * CreateiQ mapping processor.
- */
 @SuppressWarnings("unused")
 public class FrenchLawAddendumMappingProcessor extends MappingProcessor {
     public FrenchLawAddendumMappingProcessor(RosettaPath modelPath, List<Path> synonymPaths, MappingContext mappingContext) {
