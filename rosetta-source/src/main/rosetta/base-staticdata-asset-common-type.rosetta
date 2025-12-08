@@ -302,7 +302,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -310,21 +310,21 @@ type AssetType: <"Represents a class to allow specification of the asset product
 
     condition SecuritySubType:
         if assetType <> AssetTypeEnum -> Security
-        then securityType is absent
+        then instrumentType is absent
                 and debtType is absent
                 and equityType is absent
                 and fundType is absent
 
     condition BondSubType:
-        if securityType <> InstrumentTypeEnum -> Debt
+        if instrumentType <> InstrumentTypeEnum -> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if securityType <> InstrumentTypeEnum -> Equity
+        if instrumentType <> InstrumentTypeEnum -> Equity
         then equityType is absent
 
     condition FundSubType:
-        if securityType <> InstrumentTypeEnum -> Fund
+        if instrumentType <> InstrumentTypeEnum -> Fund
         then fundType is absent
 
     condition OtherAssetSubType:
