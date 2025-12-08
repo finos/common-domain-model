@@ -1809,7 +1809,7 @@ func Qualify_Equity_OtherSwap: <"Qualifies a product as an Equity Swap (Other) w
     set is_product:
         // qualifies that the Base Product is an Equity Swap (i.e.: only performance, interest rate or fixed price payouts)
         Qualify_BaseProduct_EquitySwap(economicTerms) = True
-            and ((economicTerms -> payout -> InterestRatePayout, economicTerms -> payout -> PerformancePayout) only exists
+            and (PerformancePayoutAndInterestRatePayoutOnlyExists(economicTerms -> payout)
                 and economicTerms -> payout -> InterestRatePayout count = 1
                 and economicTerms -> payout -> PerformancePayout count = 1)
             and economicTerms -> nonStandardisedTerms = True
@@ -1896,7 +1896,7 @@ func OptionPayoutOnlyExists: <"At least one OptionPayout exists and no other pay
         payouts
             extract OptionPayout exists
             then all = True
-            then default False
+             default False
 
 func PerformancePayoutAndFixedPricePayoutOnlyExists: <"At least one PerformancePayout exists, and at least one FixedPricePayout exists, and no other payouts exist.">
     inputs:
