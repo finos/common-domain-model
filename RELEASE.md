@@ -31,4 +31,4 @@ Finally, the legacy mappings to populate the new entityIdentifier attribute have
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4241](https://github.com/finos/common-domain-model/pull/4241)
+Changes can be reviewed in PR: [#4247](https://github.com/finos/common-domain-model/pull/4247)
