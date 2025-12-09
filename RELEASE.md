@@ -1,33 +1,30 @@
-# Event Model - Legal Entity Identifier Type Support
+# Reference Data Model – Legal Entity Identifier Type Support
 
-_Background_
+### **Background**
 
-In the current model, the `LegalEntity` structure allows capturing an entity’s identifier, but it does not provide a way to specify the type of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
+In the current model, the `LegalEntity` structure allows the capturing of an entity’s identifier, but it does not allow specifying the **type** of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
 
-Because of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
+Due to the existence of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
 
-To address this limitation, the model is being extended so that the identifier type can be represented directly within the `LegalEntity` structure.
+To address this limitation, the model has been extended so that the identifier type can be represented directly within the `LegalEntity` structure.
 
-_What is being released?_
+### **What is being released?**
 
-This update introduces native support for representing the legal entity identifier type within the `LegalEntity` type. The changes under the `LegalEntity` type are:
+This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
 
-- Added a deprecated tag under the `entityId` attribute
-- Added a new `EntityIdentifier` attribute on `LegalEntity`, containing:
+* A deprecated tag to the `entityId` attribute
 
-    - the `identifier`
-    - the `identifierType`, of type `EntityIdentifierTypeEnum`
-  
-Create new enum `EntityIdentifierTypeEnum` that extends `PartyIdentifier`TypeEnum to include additional legal entity id types:
+* A new `EntityIdentifier` attribute under `LegalEntity` type, with the following contents:
+  * the `identifier`
+  * the `identifierType`, of type `EntityIdentifierTypeEnum`
 
-- RED
-- CountryCode
-- Other 
 
-Finally, the legacy mappings to populate the new entityIdentifier attribute have been modelled, while still keeping the ones from entityId ensuring the coverage of the previous representation. The functional mappings from translate 2.0 have also been modelled by adding the following functions:
+A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifierTypeEnum` to include additional identifier types used for legal entities:
+  * **RED**
+  * **CountryCode**
+  * **Other**
 
-- MapEntityIdentifier
-- MapEntityIdentifierTypeEnum
+Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId`, ensuring the coverage of the previous representation.
 
 _Review Directions_
 
