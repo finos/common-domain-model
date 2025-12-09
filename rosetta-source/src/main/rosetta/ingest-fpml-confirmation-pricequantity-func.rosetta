@@ -9,6 +9,7 @@ import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.product.common.settlement.*
 import cdm.observable.asset.*
 import cdm.product.asset.*
 import cdm.product.template.*
@@ -24,6 +25,7 @@ import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.ird.* as fpml
 import fpml.consolidated.option.shared.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.dividend.swaps.* as fpml
 
 func CreateKey:
     [codeImplementation]
@@ -1432,6 +1434,20 @@ func MapCommmodityFixedPriceToPriceSchedule:
             ...
         }
 
+func MapDividendFixedPriceToPriceSchedule:
+    inputs:
+        fpmlDividendSwapTransactionSupplement fpml.DividendSwapTransactionSupplement (0..1)
+        
+    output:
+        fixedPrice PriceSchedule (0..1)
+
+    set fixedPrice:
+        PriceSchedule {
+            value: fpmlDividendSwapTransactionSupplement -> dividendLeg -> dividendPeriod -> fixedStrike,
+            priceType: Dividend,
+            ...
+        }
+
 func MapCommmodityFixedPriceScheduleToPriceSchedule:
     inputs:
         fpmlCommodityFixedPriceSchedule fpml.CommodityFixedPriceSchedule (0..1)
@@ -2361,3 +2377,42 @@ func MapCommodityClassificationOrdinal:
             "http://www.fpml.org/coding-scheme/isda-layer-2-commodity-classification" then 2,
             "http://www.fpml.org/coding-scheme/isda-layer-3-commodity-classification" then 3,
             default empty
+
+func MapFixedPriceWithLocation:
+    inputs:
+        fpmlFixedLeg fpml.FixedPaymentLeg (0..1)
+        keyValue string (0..1)
+    output:
+        quantitySchedule NonNegativeQuantitySchedule (0..*)
+            [metadata location]
+
+add quantitySchedule:
+        if fpmlFixedLeg exists then fpmlFixedLeg -> fixedPayment 
+        extract
+        NonNegativeQuantitySchedule {
+            value: paymentAmount -> amount,
+            unit: UnitType {
+                currency: paymentAmount -> currency -> value,
+                ...
+                },
+            ...
+        } with-meta {
+            address: keyValue
+        }
+
+    //then CreateQuantityWithAddress(CreateQuantityKey(id, fpmlLeg))
+
+func X:
+    inputs:
+        fpmlNotionalAmount number (0..1)
+        fpmlLeg fpml.Leg (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata address]
+
+    set nonNegativeQuantitySchedule:
+        MapNotionalAmountWithIdToQuantityWithAddress(
+                fpmlNotionalAmount,
+                "notionalAmount",
+                fpmlLeg
+            )
