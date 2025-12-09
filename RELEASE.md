@@ -7,7 +7,7 @@ It has been raised that improvements can be made to capture party details more c
 _What is being released?_
 
 Replacing the securityProvider attribute option of string with the CounterpartyRoleEnum, this already exists in the model and offers the clarity for identifying party1 or party2 , it is also recommended to change the cardinality to (1..2) will allow for both parties to be identified as well as individually.
-
+Added CounterpartyRoleEnum to CreateIQ synonyms.
 _Review Directions_
 
-Changes can be reviewed in PR: #4140
+Changes can be reviewed in PR: [#4230](https://github.com/finos/common-domain-model/pull/4230)
