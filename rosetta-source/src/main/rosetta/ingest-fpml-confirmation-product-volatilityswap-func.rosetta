@@ -1,16 +1,16 @@
 namespace cdm.ingest.fpml.confirmation.product.volatilityswap: <"FpML VolatilitySwap product mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.observable.asset.*
-import cdm.product.template.*
-import cdm.base.math.*
-import cdm.product.common.settlement.*
-import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.product.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.shared.* as fpml
@@ -128,22 +128,22 @@ func MapVolatilitySwapReturnTerms:
                     volatilityStrikePrice:
                         Price {
                             value: fpmlVolatilityLeg -> amount -> volatility -> volatilityStrikePrice,
-                            priceType: if fpmlVolatilityLeg -> amount -> volatility exists then Volatility,
+                            priceType: if fpmlVolatilityLeg -> amount -> volatility exists
+                                    then Volatility,
                             ...
                         },
                     expectedN: fpmlVolatilityLeg -> amount -> volatility -> expectedN, // not in original
-                    volatilityCapFloor: VolatilityCapFloor {
-                        applicable: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> applicable,
-                        totalVolatilityCap: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> totalVolatilityCap,
-                        volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapSequence -> volatilityCapFactor
-                    },
+                    volatilityCapFloor:
+                        VolatilityCapFloor {
+                            applicable: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> applicable,
+                            totalVolatilityCap: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> totalVolatilityCap,
+                            volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapSequence -> volatilityCapFactor
+                        },
                     valuationTerms: empty,
                     ...
                 },
             ...
         }
-
-
 
 func MapVolatilitySwapToResolvablePriceQuantity:
     inputs:
