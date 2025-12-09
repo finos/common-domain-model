@@ -1,13 +1,43 @@
-# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
+# Legal Agreements - High-level refactoring of CSA and CTA Elections
 
 _Background_
 
-New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
+This contribution enhances the Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
 
 _What is being released?_
 
-Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. These new types extend the base type.
+2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. These new types extend the base type.
+3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. These new types extend the base type.
+5. Updates to cardinality and descriptions.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4182](https://github.com/finos/common-domain-model/pull/4182)
+Changes can be reviewed in PR: [#4215](https://github.com/finos/common-domain-model/pull/4215)
+
+# *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
+
+_Background_
+
+This contribution enhances Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
+
+_What is being released?_
+
+- `SpecifiedCondition` and `AccessCondition` merged into same structure.
+- Updated description for `CalculationAgentTerms`.
+- Updated description for `CustodyArrangements` and cardinality for `CustodianEvent`.
+- Updated `docReference` and description for `NotificationTime`.
+- Updated description for `OtherAgreements`.
+- Moved `value` into `OtherEligibleandPostedSupport`.
+- Updated cardinality for `TerminationCurrencyElection`.
+- Updated cardinalities within `CoveredTransactions`.
+- Updated cardinality for `ThresholdElection`.
+- Updated cardinality for `MTAElection`.
+- Removed `CSADatedasofDate` and `CSAMadeOn` date (as they are already covered) and renamed type to `MasterAgreementDatedAsOfDate`.
+- `LegacyDeliveryAmount` and `LegacyReturnAmount` are renamed to `DeliveryAmount` and `ReturnAmount`.
+- Updated description for `ValuationAgent`.
+- Type name and Enum name updates.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4216](https://github.com/finos/common-domain-model/pull/4216)
