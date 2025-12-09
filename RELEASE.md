@@ -2,8 +2,7 @@
 
 _Background_
 
-The ingestion framework needs to be extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects.  
-This update introduces new tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations.  
+The ingestion framework needs to be extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects. This update introduces new tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations.  
 The tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
 
 _What is being released?_
