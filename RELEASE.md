@@ -20,4 +20,4 @@ Removed redundant "debt" prefix in the attributes of `DebtEconomics`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4219](https://github.com/finos/common-domain-model/pull/4219)
+Changes can be reviewed in PR: [#4257](https://github.com/finos/common-domain-model/pull/4257)
