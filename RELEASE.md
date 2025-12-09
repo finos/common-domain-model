@@ -1,43 +1,23 @@
-# Legal Agreements - High-level refactoring of CSA and CTA Elections
+# Asset - Addition of secured attribute to debt type
 
 _Background_
 
-This contribution enhances the Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
+Different types of secured debt are not well represented in CDM.
+
+In the current model, Asset Backed Securities could exist in CDM using the value in `DebtClassEnum`, however, there is no way to represent Mortgage Backed Securities or other types of secured debt.
 
 _What is being released?_
 
-1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. These new types extend the base type.
-2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. These new types extend the base type.
-3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. These new types extend the base type.
-5. Updates to cardinality and descriptions.
+This release supports the inclusion of secured debt by making the following changes:
+
+Created a new `SecuredDebt` type for different types of secured debt
+Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
+Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
+Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
+Removed `AssetBacked` as a value from `DebtClassEnum`
+Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
+Removed redundant "debt" prefix in the attributes of `DebtEconomics`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4215](https://github.com/finos/common-domain-model/pull/4215)
-
-# *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
-
-_Background_
-
-This contribution enhances Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
-
-_What is being released?_
-
-- `SpecifiedCondition` and `AccessCondition` merged into same structure.
-- Updated description for `CalculationAgentTerms`.
-- Updated description for `CustodyArrangements` and cardinality for `CustodianEvent`.
-- Updated `docReference` and description for `NotificationTime`.
-- Updated description for `OtherAgreements`.
-- Moved `value` into `OtherEligibleandPostedSupport`.
-- Updated cardinality for `TerminationCurrencyElection`.
-- Updated cardinalities within `CoveredTransactions`.
-- Updated cardinality for `ThresholdElection`.
-- Updated cardinality for `MTAElection`.
-- Removed `CSADatedasofDate` and `CSAMadeOn` date (as they are already covered) and renamed type to `MasterAgreementDatedAsOfDate`.
-- `LegacyDeliveryAmount` and `LegacyReturnAmount` are renamed to `DeliveryAmount` and `ReturnAmount`.
-- Updated description for `ValuationAgent`.
-- Type name and Enum name updates.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4216](https://github.com/finos/common-domain-model/pull/4216)
+Changes can be reviewed in PR: [#4219](https://github.com/finos/common-domain-model/pull/4219)
