@@ -113,9 +113,11 @@ func ExtractNotionalAdjustmentByLeg:
             default empty
 
     set adjustment:
-        fpmlProduct -> returnSwapLeg first switch
-            fpml.ReturnLeg then notionalAdjustments to-string,
-            default empty
+        fpmlProduct -> returnSwapLeg
+                first
+                switch
+                fpml.ReturnLeg then notionalAdjustments to-string,
+                default empty
 
 func MapNonTransferableProduct:
     inputs:
@@ -125,138 +127,110 @@ func MapNonTransferableProduct:
         nonTransferableProduct NonTransferableProduct (0..1)
 
     set nonTransferableProduct:
-        if fpmlTrade -> product exists then
-            fpmlTrade -> product switch
-                fpml.BondOption then MapBondOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.BrokerEquityOption then MapBrokerEquityOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CapFloor then MapCapFloorNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CommodityForward then MapCommodityForwardNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CommodityOption then MapCommodityOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CommoditySwap then MapCommoditySwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CommoditySwaption then MapCommoditySwaptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CorrelationSwap then MapCorrelationSwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.CreditDefaultSwap then MapCreditDefaultSwapNonTransferableProduct(
-                            item,
-                            fpmlTrade -> tradeHeader,
-                            cdmCounterpartyList
-                        ),
-                fpml.CreditDefaultSwapOption then MapCreditDefaultSwapOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.DividendSwapOptionTransactionSupplement then MapDividendSwapOptionTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.DividendSwapTransactionSupplement then MapDividendSwapTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.EquityForward then MapEquityForwardNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.EquityOption then MapEquityOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.EquityOptionTransactionSupplement then MapEquityOptionTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.EquitySwapTransactionSupplement then MapEquitySwapTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.Fra then MapFraNonTransferableProduct(item, cdmCounterpartyList),
-                fpml.FxOption then MapFxOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.FxDigitalOption then MapFxDigitalOptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.FxSingleLeg then MapFxSingleLegNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.FxSwap then MapFxSwapNonTransferableProduct(item, cdmCounterpartyList),
-                fpml.FxVarianceSwap then MapFxVarianceSwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.FxVolatilitySwap then MapFxVolatilitySwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.GenericProduct then MapGenericProductNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList,
-                            fpmlTrade -> tradeHeader -> partyTradeInformation
-                        ),
-                fpml.ReturnSwap then MapReturnSwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.Swap then MapSwapNonTransferableProduct(item, cdmCounterpartyList),
-                fpml.Swaption then MapSwaptionNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.VarianceOptionTransactionSupplement then MapVarianceOptionTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.VarianceSwap then MapVarianceSwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.VarianceSwapTransactionSupplement then MapVarianceSwapTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.VolatilitySwap then MapVolatilitySwapNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                fpml.VolatilitySwapTransactionSupplement then MapVolatilitySwapTransactionSupplementNonTransferableProduct(
-                            item,
-                            cdmCounterpartyList
-                        ),
-                default // TODO DSL bug causes NPE
+        if fpmlTrade -> product exists
+        then fpmlTrade -> product switch
+            fpml.BondOption then
+                MapBondOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.BrokerEquityOption then
+                MapBrokerEquityOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CapFloor then
+                MapCapFloorNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CommodityForward then
+                MapCommodityForwardNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CommodityOption then
+                MapCommodityOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CommoditySwap then
+                MapCommoditySwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CommoditySwaption then
+                MapCommoditySwaptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CorrelationSwap then
+                MapCorrelationSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.CreditDefaultSwap then
+                MapCreditDefaultSwapNonTransferableProduct(
+                        item,
+                        fpmlTrade -> tradeHeader,
+                        cdmCounterpartyList
+                    ),
+            fpml.CreditDefaultSwapOption then
+                MapCreditDefaultSwapOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.DividendSwapOptionTransactionSupplement then
+                MapDividendSwapOptionTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.DividendSwapTransactionSupplement then
+                MapDividendSwapTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.EquityForward then
+                MapEquityForwardNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.EquityOption then
+                MapEquityOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.EquityOptionTransactionSupplement then
+                MapEquityOptionTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.EquitySwapTransactionSupplement then
+                MapEquitySwapTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.Fra then
+                MapFraNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxOption then
+                MapFxOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxDigitalOption then
+                MapFxDigitalOptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxSingleLeg then
+                MapFxSingleLegNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxSwap then
+                MapFxSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxVarianceSwap then
+                MapFxVarianceSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.FxVolatilitySwap then
+                MapFxVolatilitySwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.GenericProduct then
+                MapGenericProductNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList,
+                        fpmlTrade -> tradeHeader -> partyTradeInformation
+                    ),
+            fpml.ReturnSwap then
+                MapReturnSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.Swap then
+                MapSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.Swaption then
+                MapSwaptionNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.VarianceOptionTransactionSupplement then
+                MapVarianceOptionTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.VarianceSwap then
+                MapVarianceSwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.VarianceSwapTransactionSupplement then
+                MapVarianceSwapTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            fpml.VolatilitySwap then
+                MapVolatilitySwapNonTransferableProduct(item, cdmCounterpartyList),
+            fpml.VolatilitySwapTransactionSupplement then
+                MapVolatilitySwapTransactionSupplementNonTransferableProduct(
+                        item,
+                        cdmCounterpartyList
+                    ),
+            default // TODO DSL bug causes NPE
                 NonTransferableProduct {
                     economicTerms: empty,
                     ...
                 }
-            else NonTransferableProduct {
-                    economicTerms: empty,
-                    ...
-                }
+        else NonTransferableProduct {
+            economicTerms: empty,
+            ...
+        }
 
     set nonTransferableProduct -> economicTerms -> calculationAgent:
         MapCalculationAgent(fpmlTrade -> calculationAgentModel)
@@ -270,10 +244,10 @@ func MapCalculationAgent:
     set calculationAgent:
         CalculationAgent {
             calculationAgentParty: if fpmlCalculationAgentModel -> calculationAgent -> calculationAgentPartyReference -> href exists
-                then CalculationAgentIndependent,
+                    then CalculationAgentIndependent,
             calculationAgentPartyEnum: empty,
             calculationAgentBusinessCenter: MapBusinessCenter(
-                    fpmlCalculationAgentModel -> calculationAgentBusinessCenter
+                        fpmlCalculationAgentModel -> calculationAgentBusinessCenter
             ),
         }
 
@@ -297,37 +271,36 @@ func MapPriceQuantityList:
         priceQuantityList PriceQuantity (0..*)
 
     add priceQuantityList:
-        fpmlTrade -> product
-            switch
-        fpml.BondOption then MapBondOptionPriceQuantityList,
-        fpml.BrokerEquityOption then MapBrokerEquityOptionPriceQuantityList,
-        fpml.CapFloor then MapCapFloorPriceQuantityList,
-        fpml.CommodityForward then MapCommodityForwardPriceQuantityList,
-        fpml.CommodityOption then MapCommodityOptionPriceQuantityList,
-        fpml.CommoditySwap then MapCommoditySwapPriceQuantityList,
-        fpml.CommoditySwaption then MapCommoditySwaptionPriceQuantityList,
-        fpml.CorrelationSwap then MapCorrelationSwapPriceQuantityList,
-        fpml.CreditDefaultSwap then MapCreditDefaultSwapPriceQuantityList,
-        fpml.CreditDefaultSwapOption then MapCreditDefaultSwapOptionPriceQuantityList,
-        fpml.DividendSwapOptionTransactionSupplement then MapDividendSwapOptionTransactionSupplementPriceQuantityList,
-        fpml.DividendSwapTransactionSupplement then MapDividendSwapTransactionSupplementPriceQuantityList,
-        fpml.EquityForward then MapEquityForwardPriceQuantityList,
-        fpml.EquityOption then MapEquityOptionPriceQuantityList,
-        fpml.EquityOptionTransactionSupplement then MapEquityOptionTransactionSupplementPriceQuantityList,
-        fpml.EquitySwapTransactionSupplement then MapEquitySwapTransactionSupplementPriceQuantityList,
-        fpml.Fra then MapFraPriceQuantityList,
-        fpml.FxOption then MapFxOptionPriceQuantityList,
-        fpml.FxSingleLeg then MapFxSingleLegPriceQuantityList,
-        fpml.FxSwap then MapFxSwapPriceQuantityList,
-        fpml.FxVarianceSwap then MapFxVarianceSwapPriceQuantityList,
-        fpml.FxVolatilitySwap then MapFxVolatilitySwapPriceQuantityList,
-        fpml.GenericProduct then MapGenericProductPriceQuantityList,
-        fpml.ReturnSwap then MapReturnSwapPriceQuantityList,
-        fpml.Swap then MapSwapPriceQuantityList,
-        fpml.Swaption then MapSwaptionPriceQuantityList,
-        fpml.VarianceOptionTransactionSupplement then MapVarianceOptionTransactionSupplementPriceQuantityList,
-        fpml.VarianceSwap then MapVarianceSwapPriceQuantityList,
-        fpml.VarianceSwapTransactionSupplement then MapVarianceSwapTransactionSupplementPriceQuantityList,
-        fpml.VolatilitySwap then MapVolatilitySwapPriceQuantityList,
-        fpml.VolatilitySwapTransactionSupplement then MapVolatilitySwapTransactionSupplementPriceQuantityList,
-        default empty
+        fpmlTrade -> product switch
+            fpml.BondOption then MapBondOptionPriceQuantityList,
+            fpml.BrokerEquityOption then MapBrokerEquityOptionPriceQuantityList,
+            fpml.CapFloor then MapCapFloorPriceQuantityList,
+            fpml.CommodityForward then MapCommodityForwardPriceQuantityList,
+            fpml.CommodityOption then MapCommodityOptionPriceQuantityList,
+            fpml.CommoditySwap then MapCommoditySwapPriceQuantityList,
+            fpml.CommoditySwaption then MapCommoditySwaptionPriceQuantityList,
+            fpml.CorrelationSwap then MapCorrelationSwapPriceQuantityList,
+            fpml.CreditDefaultSwap then MapCreditDefaultSwapPriceQuantityList,
+            fpml.CreditDefaultSwapOption then MapCreditDefaultSwapOptionPriceQuantityList,
+            fpml.DividendSwapOptionTransactionSupplement then MapDividendSwapOptionTransactionSupplementPriceQuantityList,
+            fpml.DividendSwapTransactionSupplement then MapDividendSwapTransactionSupplementPriceQuantityList,
+            fpml.EquityForward then MapEquityForwardPriceQuantityList,
+            fpml.EquityOption then MapEquityOptionPriceQuantityList,
+            fpml.EquityOptionTransactionSupplement then MapEquityOptionTransactionSupplementPriceQuantityList,
+            fpml.EquitySwapTransactionSupplement then MapEquitySwapTransactionSupplementPriceQuantityList,
+            fpml.Fra then MapFraPriceQuantityList,
+            fpml.FxOption then MapFxOptionPriceQuantityList,
+            fpml.FxSingleLeg then MapFxSingleLegPriceQuantityList,
+            fpml.FxSwap then MapFxSwapPriceQuantityList,
+            fpml.FxVarianceSwap then MapFxVarianceSwapPriceQuantityList,
+            fpml.FxVolatilitySwap then MapFxVolatilitySwapPriceQuantityList,
+            fpml.GenericProduct then MapGenericProductPriceQuantityList,
+            fpml.ReturnSwap then MapReturnSwapPriceQuantityList,
+            fpml.Swap then MapSwapPriceQuantityList,
+            fpml.Swaption then MapSwaptionPriceQuantityList,
+            fpml.VarianceOptionTransactionSupplement then MapVarianceOptionTransactionSupplementPriceQuantityList,
+            fpml.VarianceSwap then MapVarianceSwapPriceQuantityList,
+            fpml.VarianceSwapTransactionSupplement then MapVarianceSwapTransactionSupplementPriceQuantityList,
+            fpml.VolatilitySwap then MapVolatilitySwapPriceQuantityList,
+            fpml.VolatilitySwapTransactionSupplement then MapVolatilitySwapTransactionSupplementPriceQuantityList,
+            default empty

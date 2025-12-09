@@ -59,7 +59,7 @@
 | fpml-5-10-products-rates | swaption | 10 | 98% |
 | fpml-5-10-products-variance-swaps | varianceSwap | 4 | 105% |
 | fpml-5-10-products-variance-swaps | varianceSwapTransactionSupplement | 3 | 102% |
-| fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 72% |
+| fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 106% |
 | fpml-5-12-incomplete-products-equity | returnSwap | 1 | 103% |
 | fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
 | fpml-5-12-products-commodity | commodityOption | 1 | 94% |
@@ -127,4 +127,4 @@
 | fpml-5-13-products-interest-rate-derivatives | swaption | 11 | 100% |
 | fpml-5-13-products-variance-swaps | varianceSwap | 2 | 103% |
 | fpml-5-13-products-variance-swaps | varianceSwapTransactionSupplement | 3 | 102% |
-| fpml-5-13-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 72% |
+| fpml-5-13-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 106% |
