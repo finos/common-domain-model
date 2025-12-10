@@ -17,4 +17,4 @@ Updates to mapping of Dividend Swap Transaction Supplement:
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4268](https://github.com/finos/common-domain-model/pull/4268)
+Changes can be reviewed in PR: [#4278](https://github.com/finos/common-domain-model/pull/4278)
