@@ -1,56 +1,20 @@
 namespace cdm.ingest.fpml.confirmation.product.volatilityswap: <"FpML VolatilitySwap product mapping functions.">
 version "${project.version}"
 
+import cdm.base.math.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.observable.asset.*
+import cdm.product.asset.*
+import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.* as fpml
-import fpml.consolidated.accumulator.* as fpml
-import fpml.consolidated.asset.* as fpml
-import fpml.consolidated.bond.option.* as fpml
-import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.cd.* as fpml
-import fpml.consolidated.clearing.processes.* as fpml
-import fpml.consolidated.com.* as fpml
-import fpml.consolidated.confirmation.processes.* as fpml
-import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.credit.event.notification.* as fpml
-import fpml.consolidated.dividend.swaps.* as fpml
-import fpml.consolidated.doc.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
-import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlreturn.swaps.* as fpml
-import fpml.consolidated.fpmlstandard.* as fpml
-import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.fx.accruals.* as fpml
-import fpml.consolidated.fx.targets.* as fpml
-import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.ird.* as fpml
-import fpml.consolidated.loan.* as fpml
-import fpml.consolidated.main.* as fpml
-import fpml.consolidated.mktenv.* as fpml
-import fpml.consolidated.msg.* as fpml
-import fpml.consolidated.option.shared.* as fpml
-import fpml.consolidated.recordkeeping.processes.* as fpml
-import fpml.consolidated.reg.fpmlreporting.product.* as fpml
-import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
-import fpml.consolidated.repo.* as fpml
-import fpml.consolidated.riskdef.* as fpml
-import fpml.consolidated.sec.lending.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.consolidated.valuation.* as fpml
-import fpml.consolidated.valuation.fpmlreporting.* as fpml
-import fpml.consolidated.variance.swaps.* as fpml
 import fpml.consolidated.volatility.swaps.* as fpml
-import fpml.custom.*
 
 func MapVolatilitySwapCounterpartyList:
     inputs:
@@ -122,10 +86,76 @@ func MapVolatilityLegToPerformancePayout:
                                     ),
                             ...
                         },
-                    valuationDates: empty,
+                    priceQuantity: MapVolatilitySwapToResolvablePriceQuantity(
+                                fpmlVolatilityLeg
+                            ),
+                    settlementTerms:
+                        SettlementTerms {
+                            settlementCurrency: MapCurrency(
+                                        fpmlVolatilityLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                                    ),
+                            settlementType: empty,
+                            ...
+                        },
+                    observationTerms: MapAdjustableOrRelativeDateToObservationTerms(
+                                fpmlVolatilityLeg -> amount -> observationStartDate
+                            ),
+                    valuationDates:
+                        ValuationDates {
+                            finalValuationDate: MapPerformanceValuationDates(
+                                        empty,
+                                        fpmlVolatilityLeg -> valuation
+                                    ),
+                            ...
+                        },
+                    returnTerms: MapVolatilitySwapReturnTerms(fpmlVolatilityLeg),
                     paymentDates: empty,
                     ...
                 },
+            ...
+        }
+
+func MapVolatilitySwapReturnTerms:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        returnTerms ReturnTerms (0..1)
+
+    set returnTerms:
+        ReturnTerms {
+            volatilityReturnTerms:
+                VolatilityReturnTerms {
+                    volatilityStrikePrice:
+                        Price {
+                            value: fpmlVolatilityLeg -> amount -> volatility -> volatilityStrikePrice,
+                            priceType: if fpmlVolatilityLeg -> amount -> volatility exists
+                                    then Volatility,
+                            ...
+                        },
+                    expectedN: fpmlVolatilityLeg -> amount -> volatility -> expectedN, // not in original
+                    volatilityCapFloor:
+                        VolatilityCapFloor {
+                            applicable: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> applicable,
+                            totalVolatilityCap: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> totalVolatilityCap,
+                            volatilityCapFactor: fpmlVolatilityLeg -> amount -> volatility -> volatilityCap -> volatilityCapSequence -> volatilityCapFactor
+                        },
+                    valuationTerms: empty,
+                    ...
+                },
+            ...
+        }
+
+func MapVolatilitySwapToResolvablePriceQuantity:
+    inputs:
+        fpmlVolatilitySwap fpml.VolatilityLeg (0..1)
+    output:
+        priceQuantityList ResolvablePriceQuantity (0..1)
+
+    set priceQuantityList:
+        ResolvablePriceQuantity {
+            quantitySchedule: MapVolatilityLegToNonNegativeQuantityScheduleWithAddress(
+                        fpmlVolatilitySwap
+                    ),
             ...
         }
 
@@ -147,7 +177,45 @@ func MapVolatilityLegToPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             observable: MapUnderlyerToObservableWithLocation(fpmlVolatilityLeg -> underlyer),
+            quantity: MapVolatilityLegToNonNegativeQuantityScheduleWithLocation(
+                        fpmlVolatilityLeg
+                    ),
             ...
+        }
+
+func MapVolatilityLegToNonNegativeQuantityScheduleWithLocation:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+
+    set nonNegativeQuantitySchedule:
+        NonNegativeQuantitySchedule {
+            value: fpmlVolatilityLeg -> amount -> volatility -> vegaNotionalAmount,
+            unit:
+                UnitType {
+                    currency: MapCurrency(
+                                fpmlVolatilityLeg -> optionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                            ),
+                    ...
+                },
+            ...
+        } with-meta {
+            location: CreateQuantityKey("vegaNotional", fpmlVolatilityLeg)
+        }
+
+func MapVolatilityLegToNonNegativeQuantityScheduleWithAddress:
+    inputs:
+        fpmlVolatilityLeg fpml.VolatilityLeg (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata address]
+
+    set nonNegativeQuantitySchedule:
+        if fpmlVolatilityLeg -> amount -> volatility -> vegaNotionalAmount exists
+        then empty with-meta {
+            address: CreateQuantityKey("vegaNotional", fpmlVolatilityLeg)
         }
 
 func MapVolatilitySwapAccountPartyReference:

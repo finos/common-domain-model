@@ -12,6 +12,7 @@
 | fxSwap | 7 | 111% |
 | fxDigitalOption | 12 | 109% |
 | commodityDigitalOption | 2 | 108% |
+| volatilitySwapTransactionSupplement | 4 | 106% |
 | varianceSwap | 8 | 105% |
 | fra | 5 | 104% |
 | fxVarianceSwap | 2 | 103% |
@@ -38,5 +39,4 @@
 | commoditySwaption | 10 | 86% |
 | instrumentTradeDetails | 2 | 83% |
 | dividendSwapTransactionSupplement | 12 | 77% |
-| volatilitySwapTransactionSupplement | 4 | 72% |
 | creditDefaultSwapOption | 18 | 37% |
