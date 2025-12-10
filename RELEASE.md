@@ -1,4 +1,4 @@
-# _CDM Reference Data – Externalized FpML Coding Scheme Validation_
+# _Reference Data – Externalized FpML Coding Scheme Validation_
 
 _Background_
 
