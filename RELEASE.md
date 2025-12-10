@@ -1,4 +1,4 @@
-# Asset - Addition of secured attribute to debt type
+# Asset - Expanded Coverage for Secured Debt
 
 _Background_
 
