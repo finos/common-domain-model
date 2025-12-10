@@ -1,4 +1,4 @@
-## Conditions and Validation - Fix use of empty in conditions and validation functions
+## Event Model - Empty Value Handling Updates
 
 *Background*
 
