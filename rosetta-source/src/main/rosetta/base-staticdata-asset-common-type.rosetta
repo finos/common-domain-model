@@ -241,11 +241,11 @@ type SecuredDebt:
     propertyType PropertyTypeEnum (0..1) <"Specifies the type of property when the security is linked to a property asset.">
 
     condition AssetBackedExists: <"Condition to restrict selection of the assetBacked attribute if AssetBacked is not set as the securedType value.">
-        if securedType <> SecuredTypeEnum -> AssetBacked
+        if securedType <> AssetBacked
         then assetBacked is absent
 
     condition PropertyExists: <"Condition to restrict selection of the property attribute if the security is not linked to a property asset: mortgage, property, CMO.">
-        if assetBacked <> Mortgage or assetBacked <> Property or collateralizedObligation <> CMO
+        if assetBacked <> Mortgage and assetBacked <> Property and collateralizedObligation <> CMO
         then propertyType is absent 
     
     condition CollateralizedObligationExists: <"Condition to restrict selection of the collateralizedObligations attribute if CollateralizedObligation is not set as the securedType value.">
@@ -302,33 +302,30 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of instrument.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
     otherAssetType string (0..*) <"Specifies the eligible asset type when not enumerated.">
 
-    condition SecuritySubType:
-        if assetType <> AssetTypeEnum -> Security
+    condition SubType:
+        if assetType <> Security
         then instrumentType is absent
-                and debtType is absent
-                and equityType is absent
-                and fundType is absent
 
     condition BondSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if instrumentType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if instrumentType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if instrumentType <> Fund
         then fundType is absent
 
     condition OtherAssetSubType:
-        if assetType = AssetTypeEnum -> Other
+        if assetType = Other
         then otherAssetType exists
 
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
