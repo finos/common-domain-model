@@ -14,48 +14,10 @@ import cdm.product.common.settlement.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
-import fpml.consolidated.* as fpml
-import fpml.consolidated.accumulator.* as fpml
 import fpml.consolidated.asset.* as fpml
-import fpml.consolidated.bond.option.* as fpml
-import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.business.events.* as fpml
-import fpml.consolidated.cd.* as fpml
-import fpml.consolidated.clearing.processes.* as fpml
-import fpml.consolidated.com.* as fpml
-import fpml.consolidated.confirmation.processes.* as fpml
-import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.credit.event.notification.* as fpml
 import fpml.consolidated.dividend.swaps.* as fpml
-import fpml.consolidated.doc.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
-import fpml.consolidated.eqd.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlenum.* as fpml
-import fpml.consolidated.fpmlreturn.swaps.* as fpml
-import fpml.consolidated.fpmlstandard.* as fpml
-import fpml.consolidated.fx.* as fpml
-import fpml.consolidated.fx.accruals.* as fpml
-import fpml.consolidated.fx.targets.* as fpml
-import fpml.consolidated.generic.* as fpml
-import fpml.consolidated.ird.* as fpml
-import fpml.consolidated.loan.* as fpml
-import fpml.consolidated.main.* as fpml
-import fpml.consolidated.mktenv.* as fpml
-import fpml.consolidated.msg.* as fpml
 import fpml.consolidated.option.shared.* as fpml
-import fpml.consolidated.recordkeeping.processes.* as fpml
-import fpml.consolidated.reg.fpmlreporting.product.* as fpml
-import fpml.consolidated.reg.fpmlreporting.shared.* as fpml
-import fpml.consolidated.repo.* as fpml
-import fpml.consolidated.riskdef.* as fpml
-import fpml.consolidated.sec.lending.* as fpml
 import fpml.consolidated.shared.* as fpml
-import fpml.consolidated.valuation.* as fpml
-import fpml.consolidated.valuation.fpmlreporting.* as fpml
-import fpml.consolidated.variance.swaps.* as fpml
-import fpml.consolidated.volatility.swaps.* as fpml
-import fpml.custom.*
 
 func MapDividendSwapTransactionSupplementCounterpartyList:
     inputs:
@@ -127,6 +89,7 @@ func MapDividendSwapTransactionSupplementPayoutList:
     add payoutList:
         MapFixedPaymentLegToFixedPricePayout(
                 fpmlDividendSwapTransactionSupplement -> fixedLeg,
+                fpmlDividendSwapTransactionSupplement -> dividendLeg,
                 cdmCounterpartyList
             )
 
@@ -145,6 +108,7 @@ func MapDividendLegToPerformancePayout:
                                 fpmlDividendLeg -> payerReceiverModel,
                                 cdmCounterpartyList
                             ),
+                    // REMEMBER - Java needed to have priceQuantity populate with multiple dividendPeriods and FixedPayments as no ID's to correctly match
                     paymentDates: empty,
                     valuationDates: empty,
                     settlementTerms: MapOptionSettlementModelToSettlementTerms(
@@ -161,8 +125,7 @@ func MapDividendLegToPerformancePayout:
                     returnTerms:
                         ReturnTerms {
                             dividendReturnTerms: MapSwapTransactionSupplementDividendReturnTerms(
-                                        fpmlDividendLeg -> underlyer,
-                                        fpmlDividendLeg -> dividendPeriod
+                                        fpmlDividendLeg
                                     ),
                             ...
                         },
@@ -173,10 +136,14 @@ func MapDividendLegToPerformancePayout:
 
 func MapSwapTransactionSupplementDividendReturnTerms:
     inputs:
-        fpmlUnderlyer fpml.Underlyer (0..1)
-        fpmlDividendPeriodPaymentList fpml.DividendPeriodPayment (0..*)
+        fpmlDividendLeg fpml.DividendLeg (0..1)
     output:
         dividendReturnTerms DividendReturnTerms (0..1)
+
+    alias fpmlUnderlyer: fpmlDividendLeg -> underlyer
+    alias fpmlDividendPeriodPaymentList: fpmlDividendLeg -> dividendPeriod
+    alias fpmlDividendPercentageModel:
+        fpmlDividendLeg -> declaredCashAndCashEquivalentDividendPercentageModel
 
     set dividendReturnTerms:
         DividendReturnTerms {
@@ -186,11 +153,14 @@ func MapSwapTransactionSupplementDividendReturnTerms:
                         DividendPayoutRatio {
                             totalRatio: dividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
                             basketConstituent: MapBasketConstituentWithAddress,
-                            ...
+                            cashRatio: fpmlDividendPercentageModel -> declaredCashDividendPercentage,
+                            nonCashRatio: fpmlDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
                         }
                 else if fpmlUnderlyer -> singleUnderlyer exists
                 then DividendPayoutRatio {
                         totalRatio: fpmlUnderlyer -> singleUnderlyer -> dividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
+                        cashRatio: fpmlDividendPercentageModel -> declaredCashDividendPercentage,
+                        nonCashRatio: fpmlDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
                         ...
                     },
             dividendPeriod: fpmlDividendPeriodPaymentList
@@ -206,6 +176,9 @@ func MapSwapTransactionSupplementDividendReturnTerms:
                                         paymentDate
                                     ),
                             dateAdjustments: MapBusinessDayAdjustments(dateAdjustments),
+                            dividendValuationDate: MapAdjustableOrRelativeDate(
+                                        valuationDate
+                                    ),
                             ...
                         },
             ...
@@ -214,6 +187,7 @@ func MapSwapTransactionSupplementDividendReturnTerms:
 func MapFixedPaymentLegToFixedPricePayout:
     inputs:
         fpmlFixedPaymentLeg fpml.FixedPaymentLeg (0..1)
+        fpmlDividendLeg fpml.DividendLeg (0..1)
         cdmCounterpartyList Counterparty (0..2)
     output:
         payout Payout (0..1)
@@ -234,8 +208,52 @@ func MapFixedPaymentLegToFixedPricePayout:
                                     ),
                             ...
                         },
+                    // REMEMBER - Java needed to have these populate with multiple dividendPeriods and FixedPayments as no IDs to correctly match
+                    settlementTerms: MapFixedLegSettlementTerms(
+                                fpmlFixedPaymentLeg,
+                                empty,
+                                empty,
+                                empty,
+                                empty
+                            ),
                     paymentDates: empty,
-                    fixedPrice: empty,
+                    // REMEMBER - Known issue that we don't know how to populate as the synonym's artificially creates payer/receiver, and on the fixedPayment(s) there is no payer/receiver or ID's that can be used.
+                    fixedPrice:
+                        FixedPrice {
+                            price: if fpmlDividendLeg -> dividendPeriod -> fixedStrike exists
+                                    then PriceSchedule {
+                                        value: fpmlDividendLeg -> dividendPeriod -> fixedStrike,
+                                        priceType: Dividend,
+                                        ...
+                    }},
+                    ...
+                },
+            ...
+        }
+
+func MapFixedLegSettlementTerms:
+    inputs:
+        fpmlFixedPaymentLeg fpml.FixedPaymentLeg (0..1)
+        fpmlOptionSettlementModel fpml.OptionSettlementModel (0..1)
+        fpmlRelativeDateOffset fpml.RelativeDateOffset (0..1)
+        fpmlUnadjustedDate date (0..1)
+        fpmlAdjustableDate fpml.AdjustableDate (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
+            settlementCurrency: MapCurrency(
+                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                    ),
+            settlementDate:
+                SettlementDate {
+                    adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                fpmlUnadjustedDate,
+                                fpmlAdjustableDate,
+                                fpmlRelativeDateOffset
+                            ),
                     ...
                 },
             ...
@@ -259,30 +277,18 @@ func MapFixedPaymentLegToPriceQuantity:
     output:
         priceQuantity PriceQuantity (0..1)
 
+    alias fpmlFixedPaymentAmount: fpmlFixedPaymentLeg -> fixedPayment first -> paymentAmount
+
     set priceQuantity:
         PriceQuantity {
-            quantity: MapFixedPaymentAmountListToQuantityListWithLocation(
-                        fpmlFixedPaymentLeg -> fixedPayment,
+            quantity: MapNotionalAmountToQuantityWithLocation(
+                        fpmlFixedPaymentAmount -> amount,
+                        empty,
+                        fpmlFixedPaymentAmount -> currency,
                         fpmlFixedPaymentLeg
                     ),
             ...
         }
-
-func MapFixedPaymentAmountListToQuantityListWithLocation:
-    inputs:
-        fpmlFixedPaymentAmount fpml.FixedPaymentAmount (0..*)
-        fpmlLeg fpml.Leg (0..1)
-    output:
-        nonNegativeQuantitySchedules NonNegativeQuantitySchedule (0..*)
-            [metadata location]
-
-    add nonNegativeQuantitySchedules:
-        MapNotionalAmountToQuantityWithLocation( // TODO handle multi-cardinality as a schedule
-                fpmlFixedPaymentAmount -> paymentAmount -> amount,
-                empty,
-                fpmlFixedPaymentAmount -> paymentAmount -> currency,
-                fpmlLeg
-            )
 
 func MapDividendLegToPriceQuantity:
     inputs:
@@ -293,8 +299,33 @@ func MapDividendLegToPriceQuantity:
     set priceQuantity:
         PriceQuantity {
             observable: MapUnderlyerToObservableWithLocation(fpmlDividendLeg -> underlyer),
+            quantity: MapSingleUnderlyerToNonNegativeQuantityScheduleWithLocation(
+                        fpmlDividendLeg -> underlyer -> singleUnderlyer
+                    ),
             ...
         }
+
+func MapSingleUnderlyerToNonNegativeQuantityScheduleWithLocation:
+    inputs:
+        singleUnderlyer fpml.SingleUnderlyer (0..1)
+    output:
+        nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
+            [metadata location]
+
+    set nonNegativeQuantitySchedule:
+        if singleUnderlyer -> openUnits exists
+        then CreateQuantityWithLocation(
+                    NonNegativeQuantitySchedule {
+                        value: singleUnderlyer -> openUnits,
+                        unit:
+                            UnitType {
+                                financialUnit: IndexUnit,
+                                ...
+                            },
+                        ...
+                    },
+                    CreateQuantityKey("openUnits", empty)
+                )
 
 func MapDividendSwapTransactionSupplementAccountPartyReference:
     inputs:

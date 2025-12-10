@@ -36,7 +36,7 @@
 | bulletPayment | 2 | 92% |
 | equitySwapTransactionSupplement | 30 | 91% |
 | commoditySwaption | 10 | 86% |
+| dividendSwapTransactionSupplement | 12 | 84% |
 | instrumentTradeDetails | 2 | 83% |
-| dividendSwapTransactionSupplement | 12 | 77% |
 | volatilitySwapTransactionSupplement | 4 | 72% |
 | creditDefaultSwapOption | 18 | 37% |
