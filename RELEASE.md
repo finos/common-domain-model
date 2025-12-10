@@ -10,4 +10,4 @@ This release fixes mapping issues related to FpML events such as Novation and Te
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
+Changes can be reviewed in PR: [#4276](https://github.com/finos/common-domain-model/pull/4276)
