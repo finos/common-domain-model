@@ -1,4 +1,4 @@
-# Credit Support Document Concept of "catch all" - Added CreditDocumentSupportTypes and relevant validation
+# Legal Documentation - Catch-all attribute added to CreditSupportDocumentElection
 
 _Background_
 
