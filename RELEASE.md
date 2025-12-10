@@ -10,13 +10,13 @@ _What is being released?_
 
 This release supports the inclusion of secured debt by making the following changes:
 
-Created a new `SecuredDebt` type for different types of secured debt
-Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
-Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
-Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
-Removed `AssetBacked` as a value from `DebtClassEnum`
-Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
-Removed redundant "debt" prefix in the attributes of `DebtEconomics`
+- Created a new `SecuredDebt` type for different types of secured debt
+- Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
+- Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
+- Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
+- Removed `AssetBacked` as a value from `DebtClassEnum`
+- Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
+- Removed redundant "debt" prefix in the attributes of `DebtEconomics`
 
 _Review Directions_
 
