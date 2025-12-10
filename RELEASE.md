@@ -15,6 +15,8 @@ Updates to `MapVolatilityLegToPerformancePayout` function to map:
 - valuationDates
 - returnTerms
 
+This release also removes unused imports in the `cdm.ingest.fpml.confirmation` and associated namespaces.
+
 _Review Directions_
 
 Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
