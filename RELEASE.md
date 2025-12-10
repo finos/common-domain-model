@@ -91,7 +91,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
 
-## Event Model - Empty Value Handling Updates
+# *Event Model - Empty Value Handling Updates*
 
 *Background*
 
