@@ -8,6 +8,7 @@ import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import org.finos.cdm.CdmRuntimeModule;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -48,5 +49,15 @@ public class FisIngestionTest extends IngestionTest<WorkflowStep> {
     @SuppressWarnings("unused")//used by the junit parameterized test
     private static Stream<Arguments> fpMLFiles() {
         return readExpectationsFrom(EXPECTATION_FILES);
+    }
+
+    /**
+     * Even though this method static, junit calls this one instead of the super class tearDown.
+     * This override is necessary because the super class calls IngestionFactory.getInstance() (i.e. with no param)
+     * which throws an exception because no default instance exists.
+     */
+    @AfterAll
+    static void tearDown() {
+        IngestionFactory.getInstance(ENV_INSTANCE_NAME).clear();
     }
 }
