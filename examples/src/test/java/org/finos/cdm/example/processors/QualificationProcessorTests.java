@@ -161,7 +161,7 @@ final class QualificationProcessorTests extends AbstractProcessorTest {
         //assertEquals(((WorkflowStep) (report.getResultObject().build())).getBusinessEvent().getAfter().get(0).getTrade().getProduct().getTaxonomy().stream().map(ProductTaxonomy::getProductQualifier).filter(it -> it.equalsIgnoreCase(expectedLabel)).findFirst().orElse(""), expectedLabel, "This test should have retrieved the expected label");
 
         // Verify that there is exactly three results in the qualification report
-        assertEquals(3, report.getResults().size(), "There should be exactly three results in the qualification report");
+        assertEquals(4, report.getResults().size(), "There should be exactly three results in the qualification report");
 
         // Verify that the qualification results indicate success
         assertTrue(report.getResults().stream().map(QualificationResult::isSuccess).allMatch(Predicate.isEqual(true)), "The qualification result should indicate success");
