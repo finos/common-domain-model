@@ -1,4 +1,4 @@
-# *FpML Ingest - Events*
+# *FpML Ingest - Dividend Swap Transaction Supplement*
 
 _Background_
 
@@ -6,8 +6,15 @@ Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for som
 
 _What is being released?_
 
-This release fixes mapping issues related to FpML events such as Novation and Terminations, as per [#4272](https://github.com/finos/common-domain-model/issues/4272).
+This release maps Dividend Swap Transaction Supplement products, as per [#4262](https://github.com/finos/common-domain-model/issues/4262).
+
+Updates to mapping of Dividend Swap Transaction Supplement:
+- priceQuantity
+- settlementTerms
+- dividendPayoutRatio
+- returnTerms
+- dividendValuationDate
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4276](https://github.com/finos/common-domain-model/pull/4276)
+Changes can be reviewed in PR: [#4268](https://github.com/finos/common-domain-model/pull/4268)

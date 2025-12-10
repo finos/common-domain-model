@@ -138,8 +138,9 @@ func MapAmendmentToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    alias payment: amendment -> tradeAlterationPaymentModel -> payment distinct only-element
-    alias feeType: MapFeeTypeEnum(payment -> id)
+    alias payment: amendment -> tradeAlterationPaymentModel -> payment
+    alias feeType:
+        if payment exists then FeeTypeEnum -> Renegotiation else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -251,6 +252,10 @@ func MapTerminationToPrimitiveInstruction:
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
     alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
+    alias transferExpression:
+        if termination exists
+        then FeeTypeEnum -> Termination
+        else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -262,7 +267,7 @@ func MapTerminationToPrimitiveInstruction:
                             )
                 },
             quantityChange: MapQuantityChangeInstruction(termination, empty, Replace),
-            transfer: MapTransferInstruction(terminationPayment, Termination),
+            transfer: MapTransferInstruction(terminationPayment, transferExpression),
             ...
         }
 
