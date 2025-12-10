@@ -48,7 +48,7 @@
 | fpml-5-10-incomplete-products-equity-swaps | 14 | 93% |
 | fpml-5-13-products-credit-derivatives | 44 | 91% |
 | fpml-5-10-incomplete-products-credit-derivatives | 43 | 91% |
+| fpml-5-10-products-dividend-swaps | 6 | 84% |
+| fpml-5-13-products-dividend-swaps | 6 | 84% |
 | fpml-5-12-products-credit | 21 | 81% |
 | fpml-5-10-products-credit | 24 | 80% |
-| fpml-5-10-products-dividend-swaps | 6 | 77% |
-| fpml-5-13-products-dividend-swaps | 6 | 77% |

@@ -42,7 +42,7 @@
 | fpml-5-10-products-correlation-swaps | correlationSwap | 4 | 100% |
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
 | fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 38% |
-| fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 77% |
+| fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-10-products-equity | equityOption | 2 | 105% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 95% |
 | fpml-5-10-products-equity | returnSwap | 3 | 101% |
@@ -109,7 +109,7 @@
 | fpml-5-13-products-correlation-swaps | correlationSwap | 3 | 100% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwap | 39 | 101% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 38% |
-| fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 77% |
+| fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-13-products-equity-options | brokerEquityOption | 3 | 101% |
 | fpml-5-13-products-equity-options | equityOption | 4 | 89% |
 | fpml-5-13-products-equity-swaps | equitySwapTransactionSupplement | 10 | 90% |
