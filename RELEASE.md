@@ -1,34 +1,13 @@
-# *FpML Ingest - Dividend Swap Transaction Supplement*
+# Legal Agreement - CSA type PostingObligations - Update securityProvider
 
 _Background_
 
-Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+It has been raised that improvements can be made to capture party details more consistently within the attribute securityProvider under the data type PostingObligations, which is a CSA election structure. Currently the attribute offers a `string` option.
 
 _What is being released?_
 
-This release maps Dividend Swap Transaction Supplement products, as per [#4262](https://github.com/finos/common-domain-model/issues/4262).
-
-Updates to mapping of Dividend Swap Transaction Supplement:
-- priceQuantity
-- settlementTerms
-- dividendPayoutRatio
-- returnTerms
-- dividendValuationDate
+Replacing the securityProvider attribute option of string with the CounterpartyRoleEnum will offer the clarity for identifying party1 or party2. It is also recommended to change the cardinality to (1..2). This allows for both parties to be identified as well as individually.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4278](https://github.com/finos/common-domain-model/pull/4278)
-
-# *FpML Ingest - Events*
-
-_Background_
-
-Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
-
-_What is being released?_
-
-This release fixes mapping issues related to FpML events such as Novation and Terminations, as per [#4272](https://github.com/finos/common-domain-model/issues/4272).
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4276](https://github.com/finos/common-domain-model/pull/4276)
+Changes can be reviewed in PR: [#4230](https://github.com/finos/common-domain-model/pull/4230)
