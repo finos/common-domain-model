@@ -1351,12 +1351,14 @@ type CreditSupportDocument: <"Identification of party specific Credit Support Do
 type CreditSupportDocumentElection: <"The party election of Credit Support Provider(s), if any.">
     party Party (1..1) <"The elective party.">
     creditSupportDocumentTerms CreditSupportDocumentTermsEnum (1..1) <"Specification of the Credit Support Document terms.">
+    creditSupportDocumentTypes LegalAgreementIdentification (0..*) <"If a Credit Support Document is specified but not yet in CDM representation, it can still be captured. This argument should be used if the creditSupportDocument argument cannot be used due to not being able to represent the document fully in CDM format.">
     creditSupportDocument LegalAgreement (0..*) <"The specified Credit Support Document(s), if any.">
     bespokeCreditSuppportDocument string (0..1) <"Specification of a document when not captured under RelatedAgreement.">
 
-    condition CreditSupportDocument: <"A validation rule to ensure that a Credit Support Document is specified when required.">
+    condition CreditSupportDocument: <"A validation rule to ensure that a Credit Support Document is specified when required, either by a full legal agreement, or by specification explicitly. Note only one can be provided..">
         if creditSupportDocumentTerms = CreditSupportDocumentTermsEnum -> Specified
-        then creditSupportDocument exists
+        then (creditSupportDocument exists and creditSupportDocumentTypes is absent)
+                or (creditSupportDocument is absent and creditSupportDocumentTypes exists)
 
 type CreditSupportProvider: <"Identification of party specific Credit Support Providers applicable to the document.">
 
