@@ -1,35 +1,21 @@
-# *Ingestion - FpML Confirmation Ingestion Tests*
+## Event Model - Empty Value Handling Updates
 
-_Background_
+*Background*
 
-The ingestion framework needs to be extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects. This update introduces tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations. The tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
+An upcoming DSL release has found a number of areas where the use of `empty` in validation functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release.
 
-_What is being released?_
+*What is being released?*
 
-This release introduces the following ingestion components and scenarios:
+The following functions have been updated:
 
-Ingestion base class
+- Qualify_PairOff
+    - Update comparisons for optional fields such as ancillaryParty and adjustment, to check either both are absent or both equal
 
-- **`AbstractIngestionTest`**  
-  Provides a shared foundation for XML ingestion tests, including:
-    - Initialising a Rosetta XML ObjectMapper using the FpML confirmation XML configuration (`fpml-5-13`)
-    - Setting the expected XML schema location
-    - Injecting the ingestion functions:
-        - `Ingest_FpmlConfirmationToTradeState`
-        - `Ingest_FpmlConfirmationToWorkflowStep`
-    - Utility method for loading and configuring the XML mapper (`getXmlMapper`)
+The following types have been updated:
 
-Ingestion scenarios
+- Instruction
+    - Update condition `NewTrade` to return a valid status when `primitiveInstruction -> execution` is absent and `before` exists.
 
-- **`IngestFpmlConfirmationTest`**  
-  Adds full ingestion scenarios demonstrating how to convert FpML confirmation samples into CDM objects:
-    - **FpML Confirmation to TradeState**  
-      Validates ingestion of a Vanilla Interest Rate Swap FpML confirmation, ensuring that the XML mapper configuration is correctly applied and that a valid `TradeState` instance is produced.
-    - **FpML Confirmation to WorkflowStep**  
-      Validates ingestion of an execution advice document for a partial novation, producing a valid `WorkflowStep` instance and confirming end-to-end ingestion workflow integrity.
+*Review Directions*
 
-These scenarios provide practical examples for users integrating FpML confirmation ingestion pipelines with CDM.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4248](https://github.com/finos/common-domain-model/pull/4248)
+Changes can be reviewed in PR: [#4237](https://github.com/finos/common-domain-model/pull/4237)
