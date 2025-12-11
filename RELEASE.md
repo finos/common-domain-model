@@ -1,21 +1,13 @@
-## Event Model - Empty Value Handling Updates
+# *FpML Ingest - Events*
 
-*Background*
+_Background_
 
-An upcoming DSL release has found a number of areas where the use of `empty` in validation functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release.
+Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
 
-*What is being released?*
+_What is being released?_
 
-The following functions have been updated:
+This release fixes mapping issues related to FpML events such as Novation and Terminations, as per [#4272](https://github.com/finos/common-domain-model/issues/4272).
 
-- Qualify_PairOff
-    - Update comparisons for optional fields such as ancillaryParty and adjustment, to check either both are absent or both equal
+_Review Directions_
 
-The following types have been updated:
-
-- Instruction
-    - Update condition `NewTrade` to return a valid status when `primitiveInstruction -> execution` is absent and `before` exists.
-
-*Review Directions*
-
-Changes can be reviewed in PR: [#4237](https://github.com/finos/common-domain-model/pull/4237)
+Changes can be reviewed in PR: [#4276](https://github.com/finos/common-domain-model/pull/4276)
