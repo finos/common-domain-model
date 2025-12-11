@@ -1,16 +1,35 @@
-# Legal Documentation - Catch-all attribute added to CreditSupportDocumentElection
+# *Ingestion - FpML Confirmation Ingestion Tests*
 
 _Background_
 
-In the situation where an ISDA master agreement has been defined in the CDM structure of legal documentation, if it has any supporting documents that are not currently available in CDM format, or are simply not to hand for data entry, the current structure enforces that the legalAgreement must be defined if it is specified.
-This is counter intuitive, in so much that constructing a CDM representation of an ISDA (if it has an accompanying support document such as a CSA or CSD, etc.) requires the full CDM representation of that supporting document.
-As a workaround currently a user could specify the details as "None" or "Any", but that would technically be incorrect, and it is impossible to capture the details without needing to have available the supporting document to convert to CDM format.
+The ingestion framework needs to be extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects. This update introduces tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations. The tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
 
 _What is being released?_
 
-Add a "catch all" string array, that allows a user to express which credit support document types are being provided, without needing to completely define the support document in question in the legalAgreement format. This will allow for an ISDA agreement to be captured in CDM format without needing to locate and categorise all supporting documents immediately.
-Also updated the validation such that if "Specified" is selected as the creditSupportDocumentTerms, EITHER one of the actual CDM representation OR a string array representation can be provided. This ensure backwards compatibility and removes potential for overlap
+This release introduces the following ingestion components and scenarios:
+
+Ingestion base class
+
+- **`AbstractIngestionTest`**  
+  Provides a shared foundation for XML ingestion tests, including:
+    - Initialising a Rosetta XML ObjectMapper using the FpML confirmation XML configuration (`fpml-5-13`)
+    - Setting the expected XML schema location
+    - Injecting the ingestion functions:
+        - `Ingest_FpmlConfirmationToTradeState`
+        - `Ingest_FpmlConfirmationToWorkflowStep`
+    - Utility method for loading and configuring the XML mapper (`getXmlMapper`)
+
+Ingestion scenarios
+
+- **`IngestFpmlConfirmationTest`**  
+  Adds full ingestion scenarios demonstrating how to convert FpML confirmation samples into CDM objects:
+    - **FpML Confirmation to TradeState**  
+      Validates ingestion of a Vanilla Interest Rate Swap FpML confirmation, ensuring that the XML mapper configuration is correctly applied and that a valid `TradeState` instance is produced.
+    - **FpML Confirmation to WorkflowStep**  
+      Validates ingestion of an execution advice document for a partial novation, producing a valid `WorkflowStep` instance and confirming end-to-end ingestion workflow integrity.
+
+These scenarios provide practical examples for users integrating FpML confirmation ingestion pipelines with CDM.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4256](https://github.com/finos/common-domain-model/pull/4256)
+Changes can be reviewed in PR: [#4248](https://github.com/finos/common-domain-model/pull/4248)
