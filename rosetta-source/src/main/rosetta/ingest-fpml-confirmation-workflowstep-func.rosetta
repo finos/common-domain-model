@@ -9,9 +9,11 @@ import cdm.event.workflow.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.header.*
+import cdm.ingest.fpml.confirmation.header.*
 import cdm.ingest.fpml.confirmation.legal.*
 import cdm.ingest.fpml.confirmation.other.*
 import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.payment.*
 import cdm.ingest.fpml.confirmation.payment.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.tradestate.*
@@ -137,8 +139,9 @@ func MapAmendmentToPrimitiveInstruction:
     output:
         primitiveInstruction PrimitiveInstruction (0..1)
 
-    alias payment: amendment -> tradeAlterationPaymentModel -> payment distinct only-element
-    alias feeType: MapFeeTypeEnum(payment -> id)
+    alias payment: amendment -> tradeAlterationPaymentModel -> payment
+    alias feeType:
+        if payment exists then FeeTypeEnum -> Renegotiation else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
@@ -254,6 +257,10 @@ func MapTerminationToPrimitiveInstruction:
 
     alias counterpartyList: MapCounterpartyList(fpmlTrade)
     alias terminationPayment: termination -> tradeAlterationPaymentModel -> payment
+    alias transferExpression:
+        if termination exists
+        then FeeTypeEnum -> Termination
+        else empty
 
     set primitiveInstruction:
         PrimitiveInstruction {
