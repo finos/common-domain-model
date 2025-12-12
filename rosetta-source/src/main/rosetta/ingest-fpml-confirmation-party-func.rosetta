@@ -259,8 +259,8 @@ func MapPartyReference:
         partyReference Party (0..1)
             [metadata reference]
 
-    set partyReference: 
-        if fpmlPartyHref exists 
+    set partyReference:
+        if fpmlPartyHref exists
             then empty with-meta {
                 reference: fpmlPartyHref
             }
@@ -268,14 +268,16 @@ func MapPartyReference:
 func MapPartyList:
     inputs:
         fpmlParties fpml.Party (0..*)
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         partyList Party (0..*)
 
-    add partyList: fpmlParties extract MapParty
+    add partyList: fpmlParties extract MapParty(item, fpmlPartyTradeInformation)
 
 func MapParty:
     inputs:
         fpmlParty fpml.Party (0..1)
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         party Party (0..1)
 
@@ -288,7 +290,7 @@ func MapParty:
             name: MapStringWithScheme(partyName -> value, partyName -> partyNameScheme),
             businessUnit: partyModel -> businessUnit extract MapBusinessUnit,
             person: partyModel -> person extract MapNaturalPerson,
-            personRole: empty, // MapNaturalPersonRoleList(empty),
+            personRole: MapNaturalPersonRoleList(fpmlParty, fpmlPartyTradeInformation),
             account: empty, // MapAccount(empty),
             contactInformation: MapContactInformation(partyModel -> contactInfo)
         }
@@ -423,17 +425,55 @@ func MapPersonIdentifier:
 
 func MapNaturalPersonRoleList:
     inputs:
-        fpmlTrade fpml.Trade (0..1)
-        fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlParty fpml.Party (0..1)
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
     output:
         naturalPersonRoleList NaturalPersonRole (0..*)
+
+    alias relatedPerson:
+        fpmlPartyTradeInformation -> relatedPerson
+
     add naturalPersonRoleList:
-        [
-            NaturalPersonRole {
-                personReference: MapNaturalPerson(empty),
-                role: empty // MapRoleWithSchemeList(fpmlTrade, fpmlPartiesAndAccountsModel),
+        relatedPerson extract
+            if GetPartyPersonForRelatedPerson(fpmlParty, item) exists
+            then MapRelatedPersonToNaturalPersonRole
+
+func GetPartyPersonForRelatedPerson:
+    inputs:
+        fpmlParty fpml.Party (0..1)
+        fpmlRelatedPerson fpml.RelatedPerson (0..1)
+    output:
+        fpmlPerson fpml.Person (0..1)
+
+    set fpmlPerson:
+        fpmlParty -> partyModel -> person filter id = fpmlRelatedPerson -> personReference -> href
+        then first
+
+func MapRelatedPersonToNaturalPersonRole:
+    inputs:
+        fpmlRelatedPerson fpml.RelatedPerson (0..1)
+    output:
+        naturalPersonRole NaturalPersonRole (0..1)
+
+    set naturalPersonRole:
+        NaturalPersonRole {
+            personReference: MapNaturalPersonRoleReference(fpmlRelatedPerson -> personReference -> href),
+            role: [fpmlRelatedPerson -> role -> value to-enum NaturalPersonRoleEnum]
+        }
+
+func MapNaturalPersonRoleReference:
+    inputs:
+        href string (0..1)
+    output:
+        personReference NaturalPerson (0..1)
+            [metadata reference]
+
+    set personReference:
+        if href exists
+            then empty with-meta {
+                reference: href
             }
-        ]
+
 
 func MapPartyRoleList:
     inputs:
