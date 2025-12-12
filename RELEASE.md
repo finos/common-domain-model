@@ -12,4 +12,4 @@ Updates to mapping of `Party` to now map the `NaturalPersonRole` field.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4278](https://github.com/finos/common-domain-model/pull/4284)
+Changes can be reviewed in PR: [#4284](https://github.com/finos/common-domain-model/pull/4284)
