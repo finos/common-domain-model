@@ -1,35 +1,13 @@
-# *Ingestion - FpML Confirmation Ingestion Tests*
+# Legal Agreement - CSA type PostingObligations - Update securityProvider
 
 _Background_
 
-The ingestion framework needs to be extended to provide clearer, tested examples of how FpML confirmation documents can be transformed into CDM objects. This update introduces tests validating the full ingestion workflow using the Rosetta XML ObjectMapper configured for FpML 5.13 confirmations. The tests ensure that FpML documents are correctly parsed, validated, and ingested into `TradeState` and `WorkflowStep` objects.
+It has been raised that improvements can be made to capture party details more consistently within the attribute securityProvider under the data type PostingObligations, which is a CSA election structure. Currently the attribute offers a `string` option.
 
 _What is being released?_
 
-This release introduces the following ingestion components and scenarios:
-
-Ingestion base class
-
-- **`AbstractIngestionTest`**  
-  Provides a shared foundation for XML ingestion tests, including:
-    - Initialising a Rosetta XML ObjectMapper using the FpML confirmation XML configuration (`fpml-5-13`)
-    - Setting the expected XML schema location
-    - Injecting the ingestion functions:
-        - `Ingest_FpmlConfirmationToTradeState`
-        - `Ingest_FpmlConfirmationToWorkflowStep`
-    - Utility method for loading and configuring the XML mapper (`getXmlMapper`)
-
-Ingestion scenarios
-
-- **`IngestFpmlConfirmationTest`**  
-  Adds full ingestion scenarios demonstrating how to convert FpML confirmation samples into CDM objects:
-    - **FpML Confirmation to TradeState**  
-      Validates ingestion of a Vanilla Interest Rate Swap FpML confirmation, ensuring that the XML mapper configuration is correctly applied and that a valid `TradeState` instance is produced.
-    - **FpML Confirmation to WorkflowStep**  
-      Validates ingestion of an execution advice document for a partial novation, producing a valid `WorkflowStep` instance and confirming end-to-end ingestion workflow integrity.
-
-These scenarios provide practical examples for users integrating FpML confirmation ingestion pipelines with CDM.
+Replacing the securityProvider attribute option of string with the CounterpartyRoleEnum will offer the clarity for identifying party1 or party2. It is also recommended to change the cardinality to (1..2). This allows for both parties to be identified as well as individually.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4248](https://github.com/finos/common-domain-model/pull/4248)
+Changes can be reviewed in PR: [#4230](https://github.com/finos/common-domain-model/pull/4230)
