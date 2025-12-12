@@ -42,7 +42,7 @@
 | fpml-5-10-products-correlation-swaps | correlationSwap | 4 | 100% |
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
 | fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 38% |
-| fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 77% |
+| fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-10-products-equity | equityOption | 2 | 105% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 95% |
 | fpml-5-10-products-equity | returnSwap | 3 | 101% |
@@ -59,7 +59,7 @@
 | fpml-5-10-products-rates | swaption | 10 | 98% |
 | fpml-5-10-products-variance-swaps | varianceSwap | 4 | 105% |
 | fpml-5-10-products-variance-swaps | varianceSwapTransactionSupplement | 3 | 102% |
-| fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 72% |
+| fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 106% |
 | fpml-5-12-incomplete-products-equity | returnSwap | 1 | 103% |
 | fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
 | fpml-5-12-products-commodity | commodityOption | 1 | 94% |
@@ -109,7 +109,7 @@
 | fpml-5-13-products-correlation-swaps | correlationSwap | 3 | 100% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwap | 39 | 101% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 38% |
-| fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 77% |
+| fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-13-products-equity-options | brokerEquityOption | 3 | 101% |
 | fpml-5-13-products-equity-options | equityOption | 4 | 89% |
 | fpml-5-13-products-equity-swaps | equitySwapTransactionSupplement | 10 | 90% |
@@ -127,4 +127,4 @@
 | fpml-5-13-products-interest-rate-derivatives | swaption | 11 | 100% |
 | fpml-5-13-products-variance-swaps | varianceSwap | 2 | 103% |
 | fpml-5-13-products-variance-swaps | varianceSwapTransactionSupplement | 3 | 102% |
-| fpml-5-13-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 72% |
+| fpml-5-13-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 106% |
