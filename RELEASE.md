@@ -8,7 +8,7 @@ _What is being released?_
 
 This release maps the Price field for Fixed Rate Schedules, as per [#4262](https://github.com/finos/common-domain-model/issues/4276).
 
-Updates to mapping of `FixedRateSchedule` to now map the `PRice` field.
+Updates to mapping of `FixedRateSchedule` to now map the `price` field.
 
 _Review Directions_
 
