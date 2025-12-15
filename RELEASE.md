@@ -6,7 +6,7 @@ Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for som
 
 _What is being released?_
 
-This release maps the Natural Person Role field, as per [#4262](https://github.com/finos/common-domain-model/issues/4276).
+This release maps the Natural Person Role field, as per [#4289](https://github.com/finos/common-domain-model/issues/4289).
 
 Updates to mapping of `Party` to now map the `NaturalPersonRole` field.
 
