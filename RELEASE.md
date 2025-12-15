@@ -2,13 +2,13 @@
 
 _Background_
 
-Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
 
 _What is being released?_
 
 This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
 
-Updates to mapping of `FixedRateSchedule` to now map the `price` field.
+Updates to mapping of `FixedRateSchedule` to map the `price` field.
 
 _Review Directions_
 
