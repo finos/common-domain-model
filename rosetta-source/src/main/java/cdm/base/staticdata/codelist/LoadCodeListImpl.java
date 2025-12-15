@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class LoadCodeListImpl extends LoadCodeList {
 
     /** Directory path where JSON CodeLists are stored inside the resources. */
-    private final String CODELIST_COLLECTION_PATH = "org/isda/codelist/json";
+    private final String CODELIST_COLLECTION_PATH = "codelist/json";
 
     private final Logger logger = LoggerFactory.getLogger(LoadCodeListImpl.class);
     private final ObjectMapper mapper = RosettaObjectMapper.getNewRosettaObjectMapper();
@@ -59,7 +59,7 @@ public class LoadCodeListImpl extends LoadCodeList {
         List<Path> codeListPaths = ClassPathUtils.findPathsFromClassPath(Collections.singletonList(CODELIST_COLLECTION_PATH), ".*\\.json", Optional.empty(), LoadCodeListImpl.class.getClassLoader());
 
         // Find the first JSON file whose name contains the given domain
-        Pattern pattern = Pattern.compile("^(.*?)/(org/isda/codelist/json/" + Pattern.quote(domain.toLowerCase()) + "-\\d+-\\d+\\.json)$");
+        Pattern pattern = Pattern.compile("^(.*?)/(codelist/json/" + Pattern.quote(domain.toLowerCase()) + "-\\d+-\\d+\\.json)$");
         String match = codeListPaths.stream()
                 .map(p -> pattern.matcher(UrlUtils.toPortableString(p)))
                 .filter(Matcher::matches)

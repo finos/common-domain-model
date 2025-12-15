@@ -54,7 +54,7 @@ public class CodeListTransformer {
     public void transformDirectory(String inputDirectory, String outputDirectory) throws TransformerConfigurationException, IOException, URISyntaxException {
 
         // Path to the XSLT transformation script located in resources.
-        final String XSLT_RESOURCE = "/org/isda/codelist/codelist2cdmjson.xsl";
+        final String XSLT_RESOURCE = "/codelist/codelist2cdmjson.xsl";
 
         // Load the XSLT transformation script as a resource
         try (InputStream xsltStream = CodeListTransformer.class.getResourceAsStream(XSLT_RESOURCE)){
@@ -123,7 +123,7 @@ public class CodeListTransformer {
      */
     public static void main(String[] args) {
         try {
-            new CodeListTransformer().transformDirectory("rosetta-source/src/main/resources/org/isda/codelist/xml", "rosetta-source/src/main/resources/org/isda/codelist/json");
+            new CodeListTransformer().transformDirectory("rosetta-source/src/main/resources/codelist/xml", "rosetta-source/src/main/resources/org/isda/codelist/json");
         } catch (Exception e) {
             logger.error("Transformation process failed", e);
         }

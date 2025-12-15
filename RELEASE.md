@@ -54,7 +54,7 @@ Detailed changes include:
     - Maven execution added for:
 
         * XML-to-JSON code list transformation.
-        * Relocating generated resources to `src/main/resources/org/isda/codelist` for consistent runtime access.
+        * Relocating generated resources to `src/main/resources/codelist` for consistent runtime access.
 
 _Review Directions_
 
