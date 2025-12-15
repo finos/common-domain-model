@@ -1,19 +1,3 @@
-# *FpML Ingest - Fixed Rate Price*
-
-_Background_
-
-Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
-
-_What is being released?_
-
-This release maps the Price field for Fixed Rate Schedules, as per [#4262](https://github.com/finos/common-domain-model/issues/4276).
-
-Updates to mapping of `FixedRateSchedule` to now map the `PRice` field.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4287](https://github.com/finos/common-domain-model/pull/4287)
-
 # Reference Data Model – Legal Entity Identifier Type Support
 
 ### **Background**
@@ -159,6 +143,22 @@ Updates to mapping of Dividend Swap Transaction Supplement:
 _Review Directions_
 
 Changes can be reviewed in PR: [#4271](https://github.com/finos/common-domain-model/pull/4271)
+
+# *FpML Ingest - Fixed Rate Price*
+
+_Background_
+
+Ingest functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+
+Updates to mapping of `FixedRateSchedule` to now map the `price` field.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4287](https://github.com/finos/common-domain-model/pull/4287)
 
 # *Event Model - Empty Value Handling Updates*
 
