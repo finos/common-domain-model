@@ -1,4 +1,4 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Natural Person Role"*
+# *Ingestion Framework for FpML - Mapping Coverage: Natural Person Role*
 
 _Background_
 
