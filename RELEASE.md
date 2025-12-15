@@ -100,7 +100,7 @@ _Review Directions_
 
 The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
 
-# *FpML Ingest - Volatility Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Volatility Swap Transaction Supplement*
 
 _Background_
 
@@ -123,7 +123,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
 
-# *FpML Ingest - Dividend Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Dividend Swap Transaction Supplement*
 
 _Background_
 
