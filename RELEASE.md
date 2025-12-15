@@ -1,4 +1,4 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Natural Person Role*
+# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
 
 _Background_
 
@@ -6,10 +6,10 @@ Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for 
 
 _What is being released?_
 
-This release maps the Natural Person Role field, as per [#4289](https://github.com/finos/common-domain-model/issues/4289).
+This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
 
-Updates to mapping of `Party` to now map the `NaturalPersonRole` field.
+Updates to mapping of `FixedRateSchedule` to map the `price` field.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4284](https://github.com/finos/common-domain-model/pull/4284)
+Changes can be reviewed in PR: [#4285](https://github.com/finos/common-domain-model/pull/4285)
