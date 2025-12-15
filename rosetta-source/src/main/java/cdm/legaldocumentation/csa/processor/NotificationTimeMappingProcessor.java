@@ -25,8 +25,6 @@ public class NotificationTimeMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        System.out.println("hello " + synonymPath.toString() + " " + builder.getType().getSimpleName() + " " + parent.getType().getSimpleName());
-
         NotificationTime.NotificationTimeBuilder notificationTimeBuilder = (NotificationTime.NotificationTimeBuilder) builder;
         PARTIES.forEach(party -> getNotificationTimeElection(synonymPath, party).ifPresent(notificationTimeBuilder::addPartyElections));
     }

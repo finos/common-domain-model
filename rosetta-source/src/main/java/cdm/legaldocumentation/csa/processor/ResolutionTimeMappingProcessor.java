@@ -27,8 +27,6 @@ public class ResolutionTimeMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
-        System.out.println("hello " + synonymPath.toString() + " " + builder.getType().getSimpleName() + " " + parent.getType().getSimpleName());
-
         BusinessCenterTime.BusinessCenterTimeBuilder businessCenterTimeBuilder = (BusinessCenterTime.BusinessCenterTimeBuilder) builder;
 
         // hourMinuteTime
