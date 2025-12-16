@@ -170,7 +170,7 @@ _What is being released?_
 
 This release maps the Underlier field for Credit Default Swaption products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
 
-Updates to mapping of `CreditDefaultSwapOption` to now map the `underlier` field.
+Updates to mapping of `CreditDefaultSwapOption` to map the `underlier` field.
 
 _Review Directions_
 
