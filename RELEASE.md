@@ -1,4 +1,4 @@
-## Event Model - Empty Value Handling Updates
+# _Event Model - Empty Value Handling Updates_
 
 *Background*
 
