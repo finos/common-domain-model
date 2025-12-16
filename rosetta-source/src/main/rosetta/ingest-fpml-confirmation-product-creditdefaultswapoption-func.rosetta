@@ -2,10 +2,11 @@ namespace cdm.ingest.fpml.confirmation.product.creditdefaultswapoption: <"FpML C
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.party.*
 import cdm.observable.asset.*
 import cdm.product.template.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswap.*
 
 import fpml.consolidated.* as fpml
 import fpml.consolidated.cd.* as fpml
@@ -89,8 +90,20 @@ func MapCreditDefaultSwapOptionPayout:
                     observationTerms: empty, // MapObservationTerms(fpmlTrade, fpmlPartiesAndAccountsModel),
                     schedule: empty, // MapCalculationSchedule(fpmlTrade, fpmlPartiesAndAccountsModel),
                     delivery: empty, // MapAssetDeliveryInformation(fpmlTrade, fpmlPartiesAndAccountsModel),
-                    underlier: empty,
-                    optionType: empty,
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapCreditDefaultSwapNonTransferableProduct(
+                                                fpmlCreditDefaultSwapOption -> creditDefaultSwap,
+                                                empty,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    optionType: fpmlCreditDefaultSwapOption -> optionType to-enum OptionTypeEnum,
                     exerciseTerms: MapExerciseTerms(
                                 fpmlCreditDefaultSwapOption -> exercise,
                                 fpmlCreditDefaultSwapOption -> exerciseProcedure,
