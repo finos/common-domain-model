@@ -1,3 +1,35 @@
+# Reference Data Model – Legal Entity Identifier Type Support
+
+### **Background**
+
+In the current model, the `LegalEntity` structure allows the capturing of an entity’s identifier, but it does not allow specifying the **type** of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
+
+Due to the existence of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
+
+To address this limitation, the model has been extended so that the identifier type can be represented directly within the `LegalEntity` structure.
+
+### **What is being released?**
+
+This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
+
+* A deprecated tag to the `entityId` attribute
+
+* A new `EntityIdentifier` attribute under `LegalEntity` type, with the following contents:
+    * the `identifier`
+    * the `identifierType`, of type `EntityIdentifierTypeEnum`
+
+
+A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifierTypeEnum` to include additional identifier types used for legal entities:
+* **RED**
+* **CountryCode**
+* **Other**
+
+Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId`, ensuring the coverage of the previous representation.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4247](https://github.com/finos/common-domain-model/pull/4247)
+
 # *PartyRoleEnum - Add new PartyRoleEnum value MarginAffiliate*
 
 _Background_
@@ -68,7 +100,7 @@ _Review Directions_
 
 The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
 
-# *FpML Ingest - Volatility Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Volatility Swap Transaction Supplement*
 
 _Background_
 
@@ -91,7 +123,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
 
-# *FpML Ingest - Dividend Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Dividend Swap Transaction Supplement*
 
 _Background_
 
@@ -111,6 +143,38 @@ Updates to mapping of Dividend Swap Transaction Supplement:
 _Review Directions_
 
 Changes can be reviewed in PR: [#4271](https://github.com/finos/common-domain-model/pull/4271)
+
+# *Ingestion Framework for FpML - Mapping Coverage: Natural Person Role*
+
+_Background_
+
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps the Natural Person Role field, as per [#4289](https://github.com/finos/common-domain-model/issues/4289).
+
+Updates to mapping of `Party` to map the `NaturalPersonRole` field.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4283](https://github.com/finos/common-domain-model/pull/4283)
+
+# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
+
+_Background_
+
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+
+Updates to mapping of `FixedRateSchedule` to map the `price` field.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4287](https://github.com/finos/common-domain-model/pull/4287)
 
 # *Event Model - Empty Value Handling Updates*
 
