@@ -6,7 +6,7 @@ Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for 
 
 _What is being released?_
 
-This release maps the Underlier field for Credit Default Swaption products, as per [#4289](https://github.com/finos/common-domain-model/issues/4289).
+This release maps the Underlier field for Credit Default Swaption products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
 
 Updates to mapping of `CreditDefaultSwapOption` to now map the `underlier` field.
 
