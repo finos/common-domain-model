@@ -399,7 +399,7 @@ data to detail collateral.
 issuer containing data attributes as
 follows:
 
-- `issuerType` of type `IssuerTypeEnum` specifies the origin of entity issuing the
+- `issuerType` of type `CollateralEntityTypeEnum` specifies the origin of entity issuing the
 collateral with the following enumerations shown as examples but not
 limited to:
 
@@ -418,6 +418,15 @@ with enumerations to define:
   - InternationalOrganisation
   - MultilateralBank
 
+#### Defining Collateral Guarantors:
+
+`CollateralGuarantor` allows for multiple expressions of data related to the
+guarantor containing data attributes as
+follows:
+
+- `guarantorType` of type `CollateralEntityTypeEnum` specifies the origin of entity guaranteeing the
+collateral.
+    
 #### Defining Collateral Assets:
 
 `AssetType` - Represents the type of collateral asset with data attributes

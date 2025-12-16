@@ -1,15 +1,17 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
+# Collateral - Adding collateral guarantor to collateral criteria
 
 _Background_
 
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+There is gap in the collateral model where you cannot specify the party guaranteeing the collateral asset. Although you can specify the collateral issuer type, the guarantor is not yet supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
 
 _What is being released?_
 
-This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+Adding a `CollateralGuarantorType` to Collateral Criteria.
 
-Updates to mapping of `FixedRateSchedule` to map the `price` field.
+- Renamed `IssuerTypeEnum` to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
+- Created a new type called `CollateralGuarantorType` which has the `CollateralEntityTypeEnum` as an attribute.
+- Added `CollateralGuarantorType` to `CollateralCriteria`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4285](https://github.com/finos/common-domain-model/pull/4285)
+Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
