@@ -102,6 +102,19 @@ func MapSettlementProvisionToSettlementTerms:
             ...
         }
 
+func MapReturnSwapAmountToSettlementTerms:
+    inputs:
+        amount fpml.ReturnSwapAmount (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+    
+    set settlementTerms:
+        SettlementTerms {
+                settlementType: if amount -> cashSettlement = True then Cash,
+                settlementCurrency: MapCurrency(amount -> currencyAndDeterminationMethodModel -> currency),
+                ... 
+        }
+
 func MapOptionSettlementModelToSettlementTerms:
     inputs:
         fpmlOptionSettlementModel fpml.OptionSettlementModel (0..1)
