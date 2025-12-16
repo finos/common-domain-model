@@ -174,7 +174,7 @@ Updates to mapping of `CreditDefaultSwapOption` to now map the `underlier` field
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4291](https://github.com/finos/common-domain-model/pull/4291)
+Changes can be reviewed in PR: [#4292](https://github.com/finos/common-domain-model/pull/4292)
 
 # *Event Model - Empty Value Handling Updates*
 
