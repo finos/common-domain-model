@@ -100,7 +100,7 @@ _Review Directions_
 
 The changes can be reviewed in PR: [#4027](https://github.com/finos/common-domain-model/pull/4027)
 
-# *FpML Ingest - Volatility Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Volatility Swap Transaction Supplement*
 
 _Background_
 
@@ -123,7 +123,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4255](https://github.com/finos/common-domain-model/pull/4255)
 
-# *FpML Ingest - Dividend Swap Transaction Supplement*
+# *Ingestion Framework for FpML - Mapping Coverage: Dividend Swap Transaction Supplement*
 
 _Background_
 
@@ -154,7 +154,7 @@ _What is being released?_
 
 This release maps the Natural Person Role field, as per [#4289](https://github.com/finos/common-domain-model/issues/4289).
 
-Updates to mapping of `Party` to now map the `NaturalPersonRole` field.
+Updates to mapping of `Party` to map the `NaturalPersonRole` field.
 
 _Review Directions_
 
@@ -175,6 +175,22 @@ Updates to mapping of `CreditDefaultSwapOption` to now map the `underlier` field
 _Review Directions_
 
 Changes can be reviewed in PR: [#4292](https://github.com/finos/common-domain-model/pull/4292)
+
+# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
+
+_Background_
+
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+
+Updates to mapping of `FixedRateSchedule` to map the `price` field.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4287](https://github.com/finos/common-domain-model/pull/4287)
 
 # *Event Model - Empty Value Handling Updates*
 
