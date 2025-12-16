@@ -1,15 +1,17 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+This release updates the `DSL` dependency.
 
-Updates to mapping of `FixedRateSchedule` to map the `price` field.
+Version updates include:
+- `DSL` `9.68.1` Duplicate name detection. See DSL release notes: [DSL 9.68.1](https://github.com/finos/rune-dsl/releases/tag/9.68.1)
+- `DSL` `9.69.0` Bug fix related to accessing enum values. See DSL release notes: [DSL 9.69.0](https://github.com/finos/rune-dsl/releases/tag/9.69.0)
+- `DSL` `9.69.1` Fixed issue to do with overriding ruleReference annotations with empty. See DSL release notes: [DSL 9.69.1](https://github.com/finos/rune-dsl/releases/tag/9.69.1)
+- `DSL` `9.70.0` Fixed validation null pointer. See DSL release notes: [DSL 9.70.0](https://github.com/finos/rune-dsl/releases/tag/9.70.0)
+
+No expectations are updated as part of this release.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4285](https://github.com/finos/common-domain-model/pull/4285)
+The changes can be reviewed in PR: [#4294](https://github.com/finos/common-domain-model/pull/4294)
