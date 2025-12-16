@@ -1,4 +1,4 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
+# *Ingestion Framework for FpML - Mapping Coverage: Credit Default Swaption Underlier*
 
 _Background_
 
@@ -6,10 +6,10 @@ Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for 
 
 _What is being released?_
 
-This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+This release maps the Underlier field for Credit Default Swaption products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
 
-Updates to mapping of `FixedRateSchedule` to map the `price` field.
+Updates to mapping of `CreditDefaultSwapOption` to map the `underlier` field.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4285](https://github.com/finos/common-domain-model/pull/4285)
+Changes can be reviewed in PR: [#4291](https://github.com/finos/common-domain-model/pull/4291)
