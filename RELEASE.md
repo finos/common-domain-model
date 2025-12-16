@@ -31,4 +31,4 @@ No expectations are updated as part of this release.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4294](https://github.com/finos/common-domain-model/pull/4294)
+The changes can be reviewed in PR: [#4295](https://github.com/finos/common-domain-model/pull/4295)
