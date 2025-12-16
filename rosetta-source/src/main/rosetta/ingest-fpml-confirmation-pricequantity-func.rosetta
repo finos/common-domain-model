@@ -1616,6 +1616,7 @@ func MapFloatingRateIndex:
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Instrument,
             ...
         }
 
@@ -1635,6 +1636,7 @@ func MapInflationIndex:
                         model -> floatingRateIndex -> value
                     ),
             indexTenor: MapPeriod(model -> indexTenor),
+            assetType: Instrument,
             ...
         }
 
@@ -1690,6 +1692,7 @@ func MapFloatingRateIndexToRateOptionWithLocation:
                                             fpmlFloatingRateIndex -> value
                                         ),
                                 indexTenor: MapPeriod(fpmlIndexTenor),
+                                assetType: Instrument,
                                 ...
                             },
                         ...
@@ -1822,7 +1825,7 @@ func MapAsset:
                         item,
                         exchangeId,
                         exchangeIdentifierModel -> relatedExchangeId,
-                        ListedDerivative
+                        empty
                     ),
             fpml.Loan then
                 MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
@@ -1846,7 +1849,7 @@ func MapIdentifiedAssetToAssetListedDerivative:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1862,7 +1865,8 @@ func MapIdentifiedAssetToAssetListedDerivative:
                             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
-                            instrumentType: instrumentType,
+                            instrumentType: ListedDerivative,
+                            assetType: Instrument,
                             ...
                         },
                     ...
@@ -1892,6 +1896,7 @@ func MapIdentifiedAssetToAssetLoan:
                             relatedExchange: fpmlRelatedExchangeId
                                     extract MapExchangeIdToLegalEntity,
                             instrumentType: instrumentType,
+                            assetType: Instrument,
                             ...
                         },
                     ...
@@ -1904,7 +1909,7 @@ func MapIdentifiedAssetToAssetSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1916,7 +1921,7 @@ func MapIdentifiedAssetToAssetSecurity:
                                 fpmlIdentifiedAsset,
                                 fpmlExchangeId,
                                 fpmlRelatedExchangeId,
-                                instrumentType
+                                securityType
                             ),
                     ...
                 },
@@ -1928,7 +1933,7 @@ func MapIdentifiedAssetToSecurity:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        instrumentType InstrumentTypeEnum (1..1)
+        securityType SecurityTypeEnum (1..1)
     output:
         security Security (0..1)
 
@@ -1938,7 +1943,9 @@ func MapIdentifiedAssetToSecurity:
             isExchangeListed: if fpmlExchangeId exists then True,
             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
             relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
-            instrumentType: instrumentType,
+            securityType: securityType,
+            instrumentType: Security,
+            assetType: Instrument,
             ...
         }
 
@@ -1961,6 +1968,7 @@ func MapAssetCommodity:
                             deliveryNearby: MapCommodityDeliveryDates(fpmlCommodity),
                             ...
                         },
+                    assetType: Commodity,
                     ...
                 },
             ...
@@ -1984,6 +1992,7 @@ func MapEquityIndex:
                             extract MapExchangeIdToLegalEntity,
                     name: fpmlIndex -> description,
                     assetClass: Equity,
+                    assetType: Instrument,
                     ...
                 },
             ...
@@ -2000,6 +2009,7 @@ func MapBasket:
             identifier: empty,
             basketConstituent: fpmlBasket -> basketConstituent
                     extract MapBasketConstituentWithLocation,
+            assetType: Instrument,
             ...
         }
 
@@ -2197,6 +2207,7 @@ func MapCurrencyToAssetCash:
                             identifier: MapCurrency(fpmlCurrency),
                             identifierType: CurrencyCode
                         },
+                    assetType: Cash,
                     ...
                 },
             ...
@@ -2227,6 +2238,7 @@ func MapQuotedCurrencyPairToObservableWithLocation:
                                     sourceProvider: empty,
                                     ...
                                 },
+                            assetType: Instrument,
                             ...
                         },
                     ...
@@ -2294,6 +2306,7 @@ func MapCommodityClassificationListToObservableCommodity:
                             priceQuoteType: empty,
                             taxonomy: fpmlCommodityClassificationList
                                     extract MapCommodityClassificationToTaxonomy,
+                            assetType: Commodity,
                             ...
                         },
                     ...
