@@ -12,9 +12,9 @@ _What is being released?_
 
 Added qualification functions
 
-- `Qualify_Equity_OtherSwap` - This function qualifies a product as an Equity Swap (Other) where the base product qualifies as Equity Swap with non standard terms.
-- `Qualify_Credit_OptionOther` - This function qualifies a product as a Credit Option (Other) where the base product qualifies as Credit Option with non standard terms.
-- `Qualify_Commodity_OptionOther` - This function qualifies a product as an Commodity Option (Other) where the base product qualifies as Commodity Option with non standard terms.
+- `Qualify_Equity_Swap_NonStandard` - This function qualifies a product as an Equity Swap (Other) where the base product qualifies as Equity Swap with non standard terms.
+- `Qualify_Credit_Option_NonStandard` - This function qualifies a product as a Credit Option (Other) where the base product qualifies as Credit Option with non standard terms.
+- `Qualify_Commodity_Option_NonStandard` - This function qualifies a product as an Commodity Option (Other) where the base product qualifies as Commodity Option with non standard terms.
 
 Modified qualification functions
 
