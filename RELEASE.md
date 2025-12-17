@@ -144,7 +144,7 @@ Changes can be reviewed in PR: [#4269](https://github.com/finos/common-domain-mo
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+This release updates the `DSL` dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
 Version updates include:
 - `DSL` `9.68.1` Duplicate name detection. See DSL release notes: [DSL 9.68.1](https://github.com/finos/rune-dsl/releases/tag/9.68.1)
@@ -153,6 +153,10 @@ Version updates include:
 - `DSL` `9.70.0` Fixed validation null pointer. See DSL release notes: [DSL 9.70.0](https://github.com/finos/rune-dsl/releases/tag/9.70.0)
 
 No expectations are updated as part of this release.
+
+Third-party software library updates:
+- `npm/axios` upgraded from version 0.30.1 to 1.12.0, see [GHSA-4hjh-wcwx-xvwj](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) for further details
+- `npm/docusaurus` upgraded from version 2.4.1 to 3.8.1 to remove a transitive dependency on axios 0.7.0.
 
 _Review Directions_
 
