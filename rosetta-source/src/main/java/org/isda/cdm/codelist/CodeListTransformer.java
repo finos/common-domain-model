@@ -123,7 +123,7 @@ public class CodeListTransformer {
      */
     public static void main(String[] args) {
         try {
-            new CodeListTransformer().transformDirectory("rosetta-source/src/main/resources/codelist/xml", "rosetta-source/src/main/resources/org/isda/codelist/json");
+            new CodeListTransformer().transformDirectory("rosetta-source/src/main/resources/codelist/xml", "rosetta-source/src/main/resources/codelist/json");
         } catch (Exception e) {
             logger.error("Transformation process failed", e);
         }
