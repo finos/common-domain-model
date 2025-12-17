@@ -28,14 +28,14 @@
 | fxOption | 26 | 101% |
 | bondOption | 11 | 101% |
 | equityOption | 36 | 101% |
+| equitySwapTransactionSupplement | 30 | 100% |
 | swap | 163 | 100% |
 | correlationSwap | 8 | 100% |
+| returnSwap | 36 | 99% |
 | swaption | 25 | 99% |
-| returnSwap | 36 | 97% |
 | commodityOption | 25 | 96% |
 | equityOptionTransactionSupplement | 16 | 95% |
 | bulletPayment | 2 | 92% |
-| equitySwapTransactionSupplement | 30 | 91% |
 | instrumentTradeDetails | 2 | 90% |
 | commoditySwaption | 10 | 86% |
 | creditDefaultSwapOption | 18 | 85% |

@@ -108,7 +108,7 @@
                                     <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- DAML output folder -->
                                                 <outputConfiguration>
@@ -192,7 +192,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- TypeScript output folder -->
                                                 <outputConfiguration>
@@ -257,7 +257,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- Scala output folder -->
                                                 <outputConfiguration>
@@ -340,7 +340,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- GOLANG output folder -->
                                                 <outputConfiguration>
@@ -423,7 +423,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- csharp8 output folder -->
                                                 <outputConfiguration>
@@ -521,7 +521,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- csharp9 output folder -->
                                                 <outputConfiguration>
@@ -618,7 +618,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- Kotlin output folder -->
                                                 <outputConfiguration>
@@ -678,105 +678,6 @@
             </build>
         </profile>
         <profile>
-            <id>python</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.regnosys.rosetta</groupId>
-                        <artifactId>rosetta-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>generate-python-src</id>
-                                <phase>generate-sources</phase>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                                <configuration>
-                                    <rosettaConfig>${project.basedir}/src/main/resources/rosetta-config.yml</rosettaConfig>
-                                    <sourceRoots>
-                                        <sourceRoot>${project.build.directory}/classes/cdm/rosetta</sourceRoot>
-                                    </sourceRoots>
-                                    <!-- Matches the Rosetta lib jar file from the class path - this is used to get the basictype and annotations.rosetta files -->
-                                    <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
-                                    <incrementalXtextBuild>false</incrementalXtextBuild>
-                                    <languages>
-                                        <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
-                                            <outputConfigurations>
-                                                <!-- Python output folder -->
-                                                <outputConfiguration>
-                                                    <name>SRC_GEN_PYTHON_OUTPUT</name>
-                                                    <outputDirectory>src/generated/python</outputDirectory>
-                                                </outputConfiguration>
-                                            </outputConfigurations>
-                                        </language>
-                                    </languages>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>copy-src-generated-python</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${basedir}/src/generated/python</directory>
-                                            <includes>
-                                                <include>**/*.py</include>
-                                                <include>**/*.toml</include>
-                                            </includes>
-                                            <filtering>true</filtering>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>cdm-code-gen-python-resources</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>com.regnosys.rosetta.code-generators</groupId>
-                                            <artifactId>python</artifactId>
-                                            <version>${rosetta.code-gen.version}</version>
-                                            <type>jar</type>
-                                            <outputDirectory>${project.build.directory}/classes/cdm/python</outputDirectory>
-                                            <includes>runtime/rosetta_runtime-2.1.0-py3-none-any.whl</includes>
-                                        </artifactItem>
-                                    </artifactItems>
-                                    <overWriteReleases>false</overWriteReleases>
-                                    <overWriteSnapshots>false</overWriteSnapshots>
-                                    <overWriteIfNewer>true</overWriteIfNewer>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>excel</id>
             <build>
                 <plugins>
@@ -799,7 +700,7 @@
                                     <classPathLookupFilter>.*org[\\/]finos[\\/]rune[\\/]rune-runtime.*\.jar</classPathLookupFilter>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- Excel output folder -->
                                                 <outputConfiguration>
@@ -840,7 +741,7 @@
                                     <incrementalXtextBuild>false</incrementalXtextBuild>
                                     <languages>
                                         <language>
-                                            <setup>org.isda.cdm.generators.CDMRosettaSetupWithDeprecatedPythonGenerator</setup>
+                                            <setup>org.isda.cdm.generators.CDMRosettaSetup</setup>
                                             <outputConfigurations>
                                                 <!-- json-schema output folder -->
                                                 <outputConfiguration>
