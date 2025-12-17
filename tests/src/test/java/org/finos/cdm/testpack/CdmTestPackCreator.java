@@ -64,8 +64,7 @@ public class CdmTestPackCreator {
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
-                // TODO move this to FpML repo
-                .withInputSerialisationFormatMap(ImmutableMap.<Class<?>, PipelineModel.Serialisation.Format>builder().put(Document.class, PipelineModel.Serialisation.Format.XML).build())
+                .withInputSerialisationFormatMap(RuneFpmlModelConfig.TYPE_TO_FORMAT_MAP)
                 .withXmlConfigMap(RuneFpmlModelConfig.TYPE_TO_XML_CONFIG_MAP)
                 .withTestPackFilter(filter)
                 .strictUniqueIds()
