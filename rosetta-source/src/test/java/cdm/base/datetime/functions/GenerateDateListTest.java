@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.base.datetime.BusinessCenters;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
@@ -66,7 +66,7 @@ public class GenerateDateListTest extends AbstractFunctionTest {
 						getBusinessCenters(LONDON_TARGET_US_BC)));
 	}
 
-	private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+	private List<String> getBusinessCenters(BusinessCenters businessCenters) {
 		return businessCentersFunc.evaluate(businessCenters);
 	}
 }
