@@ -4,6 +4,7 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.rates.*
+import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
@@ -99,8 +100,7 @@ func MapSwapPayout:
         fpmlSwapStream -> settlementProvision -> settlementCurrency default notionalStepScheduleCalculation -> notionalSchedule -> notionalStepSchedule -> currency
 
     alias fixedRateSchedule:
-        notionalStepScheduleCalculation -> calculationSequence -> fixedRateSchedule
-        default notionalStepScheduleCalculation -> calculationSequence1 -> fixedRateSchedule
+        notionalStepScheduleCalculation -> calculationSequence -> fixedRateSchedule default notionalStepScheduleCalculation -> calculationSequence1 -> fixedRateSchedule
 
     set payout:
         Payout {
@@ -381,7 +381,7 @@ func MapOptionalEarlyTermination:
             exerciseNotice: fpmlOptionalEarlyTermination -> exerciseNotice
                     extract
                         ExerciseNotice {
-                            businessCenter: businessCenter -> value to-enum BusinessCenterEnum,
+                            businessCenter: businessCenter -> value,
                             exerciseNoticeGiver: empty,
                             ...
                         },
@@ -689,15 +689,10 @@ func MapCalculationPeriodAmountToPriceList:
     alias fpmlCurrency: GetInterestRatePriceCurrency(fpmlCalculationPeriodAmount)
 
     alias fixedRateSchedule:
-        fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule
-        default fpmlCalculationPeriodAmount -> calculation -> calculationSequence1 -> fixedRateSchedule
+        fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> calculationSequence1 -> fixedRateSchedule
 
     add priceSchedules:
-        MapFixedRateScheduleToPriceWithLocation(
-                fixedRateSchedule,
-                fpmlCurrency,
-                fpmlLeg
-            )
+        MapFixedRateScheduleToPriceWithLocation(fixedRateSchedule, fpmlCurrency, fpmlLeg)
 
     add priceSchedules:
         MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
