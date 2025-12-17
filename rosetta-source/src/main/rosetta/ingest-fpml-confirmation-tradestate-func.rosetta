@@ -93,7 +93,10 @@ func MapTrade:
             adjustment: MapNotionalAdjustmentEnum(ExtractNotionalAdjustmentByLeg(fpmlTrade)),
             tradeIdentifier: MapTradeIdentifierList(fpmlTrade -> tradeHeader),
             tradeDate: MapIdentifiedDate(fpmlTrade -> tradeHeader -> tradeDate),
-            party: MapPartyList(fpmlPartiesAndAccountsModel -> party, fpmlTrade -> tradeHeader -> partyTradeInformation),
+            party: MapPartyList(
+                        fpmlPartiesAndAccountsModel -> party,
+                        fpmlTrade -> tradeHeader -> partyTradeInformation
+                    ),
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
             account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel),
@@ -114,10 +117,11 @@ func ExtractNotionalAdjustmentByLeg:
 
     set adjustment:
         fpmlProduct -> returnSwapLeg
-                first
-                switch
-                fpml.ReturnLeg then notionalAdjustments to-string,
-                default empty
+            extract
+                (switch
+                    fpml.ReturnLeg then notionalAdjustments to-string,
+                    default empty)
+            then distinct only-element
 
 func MapNonTransferableProduct:
     inputs:
