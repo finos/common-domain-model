@@ -13,7 +13,7 @@
 | fpml-5-10-incomplete-products-commodity-derivatives | commoditySwaption | 5 | 86% |
 | fpml-5-10-incomplete-products-commodity-derivatives | swap | 1 | 103% |
 | fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwap | 38 | 101% |
-| fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwapOption | 5 | 38% |
+| fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwapOption | 5 | 84% |
 | fpml-5-10-incomplete-products-equity-options | brokerEquityOption | 3 | 101% |
 | fpml-5-10-incomplete-products-equity-options | equityOption | 16 | 100% |
 | fpml-5-10-incomplete-products-equity-options | equityOptionTransactionSupplement | 8 | 95% |
@@ -41,7 +41,7 @@
 | fpml-5-10-products-commodity | commoditySwap | 6 | 107% |
 | fpml-5-10-products-correlation-swaps | correlationSwap | 4 | 100% |
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
-| fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 38% |
+| fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 86% |
 | fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-10-products-equity | equityOption | 2 | 105% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 101% |
@@ -65,7 +65,7 @@
 | fpml-5-12-products-commodity | commodityOption | 1 | 94% |
 | fpml-5-12-products-commodity | commoditySwap | 2 | 108% |
 | fpml-5-12-products-credit | creditDefaultSwap | 17 | 99% |
-| fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 36% |
+| fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 85% |
 | fpml-5-12-products-equity | equityOption | 2 | 105% |
 | fpml-5-12-products-equity | equitySwapTransactionSupplement | 10 | 100% |
 | fpml-5-12-products-equity | returnSwap | 7 | 103% |
@@ -108,7 +108,7 @@
 | fpml-5-13-products-commodity-derivatives | swap | 2 | 105% |
 | fpml-5-13-products-correlation-swaps | correlationSwap | 3 | 100% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwap | 39 | 101% |
-| fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 38% |
+| fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 84% |
 | fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-13-products-equity-options | brokerEquityOption | 3 | 101% |
 | fpml-5-13-products-equity-options | equityOption | 4 | 89% |
