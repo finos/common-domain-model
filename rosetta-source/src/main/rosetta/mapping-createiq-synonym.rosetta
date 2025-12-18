@@ -94,7 +94,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     CalculationAndTimingBase:
         + notificationTime
-            [value "notification_time"]
+            [value "notification_time" mapper "NotificationTime"]
 
     CalculationAndTimingVariationMargin:
         + valuationAgent
@@ -112,6 +112,8 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "calculation_date_location" mapper "ValuationCalculationDateLocation"] // Need new mapper
             [value "calculation_date" mapper "ValuationCalculationDateLocation"] // Need new mapper
             [value "designated_city" mapper "ValuationCalculationDateLocation"] // Need new mapper
+        + notificationTime
+            [value "notification_time" mapper "NotificationTime"]
         + cashSettlementDay
             [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
         + securitiesSettlementDay
@@ -353,7 +355,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     DisputeResolution:
         + resolutionTime
-            [value "resolution_time" set when "resolution_time->specified" = "true"]
+            [value "resolution_time" mapper "ResolutionTime"] // set when "resolution_time->specified" = "true"
         + otherTerms
             [value "specify" path "resolution_time" set when "resolution_time->specified" = "false" removeHtml]
         + recalculationOfValue
@@ -463,14 +465,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to True when "include_reference_to_41a_is_applicable" = "applicable" , set to False when "include_reference_to_41a_is_applicable" = "not_applicable"]
         + transferTimingProviso
             [set to True when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "applicable" , set to False when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "not_applicable"]
-
-    NotificationTimeElection:
-        + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "false" , set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "true"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "false" , set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "true"]
-        + customNotification
-            [value "partyA_specify" set when "partyA_notification_time" = "false" removeHtml]
-            [value "partyB_specify" set when "partyB_notification_time" = "false" removeHtml]
 
     OneWayProvisions:
         + isApplicable
@@ -771,16 +765,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to True when "specify_other_csa" = "true" , set to False when "specify_other_csa" = "false"]
         + legalDocument
             [value "specify"]
-
-    BusinessCenterTime:
-        + hourMinuteTime
-            [value "partyA_time"]
-            [value "partyB_time"]
-            [value "time"]
-        + businessCenter
-            [value "partyA_location"]
-            [value "partyB_location"]
-            [value "location"]
 
     CustomisableOffset:
         + customProvision
