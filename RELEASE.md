@@ -7,7 +7,7 @@ This release updates the `DSL` dependency.
 Version updates include:
 - `DSL` `9.71.0` Fixes incorrect treatment of empty for boolean resolution, equality, and implicit else. See DSL release notes: [DSL 9.71.0](https://github.com/finos/rune-dsl/releases/tag/9.71.0)
 
-No expectations are updated as part of this release.
+The PairOff qualification function now correctly qualifies. See updated sample in `src/main/resources/cdm-sample-files/functions/repo-and-bond/pair-off-output.json`
 
 _Review Directions_
 
