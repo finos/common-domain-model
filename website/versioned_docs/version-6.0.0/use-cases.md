@@ -21,6 +21,15 @@ haircut.
 
 Please see [Eligible Collateral Representation](/docs/eligible-collateral-representation) for more details.
 
+## Standardized Schedule Method for Initial Margin Calculation
+
+Standardized Schedule Method for Initial Margin Calculation is a simplified 
+approach to determine the required initial margin for derivatives transactions, 
+it assigns predefined margin rates to different asset classes based on their risk 
+and volatility, facilitating regulatory compliance.
+
+Please see [Standardized Functions](/docs/standardized-functions) for more details.
+
 ## Repurchase Agreement Representation
 
 Repurchase transactions and lifecycle events are represented in the CDM, with 
