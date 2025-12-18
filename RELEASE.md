@@ -1,19 +1,24 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Equity Swap Transaction Supplement*
+# *Product Model - Qualification Functions Updates*
 
 _Background_
 
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+Qualification functions are used extensively in the Common Domain Model and Digital Regulatory Reporting to determine the type of product.
+
+Several functions were added and modified in the Common Domain Model version 5 without the changes being applied to Common Domain Model versions 6 & 7. This release adds qualification functions to Common Domain Model 6 & 7.
 
 _What is being released?_
 
-This release maps the Price field for Fixed Rate Schedules, as per [#4303](https://github.com/finos/common-domain-model/issues/4303).
+Added qualification functions
 
-Updates to the mapping of `EquitySwapTransactionSupplement` for:
+- `Qualify_Equity_Other_NonStandard` - This function qualifies a product as an Equity Swap (Non-Standard) where the base product qualifies as Equity Swap with non-standard terms.
+- `Qualify_Credit_Option_NonStandard` - This function qualifies a product as a Credit Option (Non-Standard) where the base product qualifies as Credit Option with non-standard terms.
+- `Qualify_Commodity_Option_NonStandard` - This function qualifies a product as an Commodity Option (Non-Standard) where the base product qualifies as Commodity Option with non-standard terms.
 
-- ReturnTerms
-- DividendReturnTerms
-- ValuationDates
+Modified qualification functions
+
+- `Qualify_AssetClass_InterestRate`
+- `Qualify_AssetClass_Equity`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4304](https://github.com/finos/common-domain-model/pull/4304)
+Changes can be reviewed in PR: [#4279](https://github.com/finos/common-domain-model/pull/4279)
