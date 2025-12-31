@@ -1,23 +1,18 @@
-# Asset - Expanded Coverage for Secured Debt
-
-_Background_
-
-Different types of secured debt are not well represented in CDM.
-
-In the current model, Asset Backed Securities could exist in CDM using the value in `DebtClassEnum`, however, there is no way to represent Mortgage Backed Securities or other types of secured debt.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This release supports the inclusion of secured debt by making the following changes:
+This release updates the `DSL` dependency:
 
-- Created a new `SecuredDebt` type for different types of secured debt
-- Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
-- Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
-- Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
-- Removed `AssetBacked` as a value from `DebtClassEnum`
-- Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
-- Removed redundant "debt" prefix in the attributes of `DebtEconomics`
+Version updates include:
+- `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
+- `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
+- `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
+- `DSL` `9.73.0` Clean up DSL warnings. See DSL release notes: [9.73.0](https://github.com/finos/rune-dsl/releases/tag/9.73.0)
+- `DSL` `9.72.0` Fix for serialisation. See DSL release notes: [9.72.0](https://github.com/finos/rune-dsl/releases/tag/9.72.0)
+
+No changes to the test pack expectations.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4257](https://github.com/finos/common-domain-model/pull/4257)
+The changes can be reviewed in PR: [#4314](https://github.com/finos/common-domain-model/pull/4314)
