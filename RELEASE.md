@@ -30,4 +30,4 @@ No changes to the test pack expectations.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4314](https://github.com/finos/common-domain-model/pull/4314)
+The changes can be reviewed in PR: [#4315](https://github.com/finos/common-domain-model/pull/4315)
