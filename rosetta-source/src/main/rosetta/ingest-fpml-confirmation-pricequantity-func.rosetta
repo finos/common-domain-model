@@ -230,25 +230,24 @@ func MapCurrencyAmountToQuantity:
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
 
+    alias mappedUnit:
+        if fpmlCurrency exists
+        then UnitType {
+                currency: MapCurrency(fpmlCurrency),
+                ...
+            }
+        else if fpmlFinancialUnit exists
+        then UnitType {
+                financialUnit: fpmlFinancialUnit,
+                ...
+            }
+
     set nonNegativeQuantitySchedule:
         if fpmlNotionalAmount exists
         then NonNegativeQuantitySchedule {
                 value: fpmlNotionalAmount,
                 datedValue: MapScheduleToDatedValueList(fpmlStepList),
-                unit:
-                    UnitType {
-                        currency: MapCurrency(fpmlCurrency),
-                        ...
-                    },
-                multiplier:
-                    Measure {
-                        value: fpmlNotionalAmount,
-                        unit:
-                            UnitType {
-                                financialUnit: if fpmlFinancialUnit exists
-                                        then fpmlFinancialUnit,
-                                ...
-                },},
+                unit: mappedUnit,
                 ...
             }
 
@@ -1424,11 +1423,7 @@ func MapCommmodityFixedPriceToPriceSchedule:
             unit: unit,
             perUnitOf: perUnitOf,
             priceType: CashPrice,
-            cashPrice:
-                CashPrice {
-                    cashPriceType: Fee,
-                    ...
-                },
+            priceSubType: Fee,
             ...
         }
 
@@ -1467,11 +1462,7 @@ func MapCommmodityFixedPriceScheduleToPriceSchedule:
             unit: unit,
             perUnitOf: perUnitOf,
             priceType: CashPrice,
-            cashPrice:
-                CashPrice {
-                    cashPriceType: Fee,
-                    ...
-                },
+            priceSubType: Fee,
             ...
         }
 
