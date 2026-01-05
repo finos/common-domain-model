@@ -228,12 +228,36 @@ type DebtType: <"Specifies the type of debt instrument.">
     debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
 
 type DebtEconomics: <"Specifies selected economics of a debt instrument.">
-    debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
-    debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
-    debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+    seniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
+    interest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
+    principal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
+    secured SecuredDebt (0..1) <"Specifies the type of secured debt.">
+
+type SecuredDebt:
+    securedType SecuredTypeEnum (0..1) <"Specifies the type of secured debt product.">
+    assetBacked AssetBackedEnum (0..1) <"Specifies the type of Asset Backed Security.">
+    collateralizedObligation CollateralizedObligationEnum (0..1) <"Specifies the type of Collateralized Obligation.">
+    coveredBond CoveredBondEnum (0..1) <"Specifies the type of Covered Bond.">
+    propertyType PropertyTypeEnum (0..1) <"Specifies the type of property when the security is linked to a property asset.">
+
+    condition AssetBackedExists: <"Condition to restrict selection of the assetBacked attribute if AssetBacked is not set as the securedType value.">
+        if securedType <> SecuredTypeEnum -> AssetBacked
+        then assetBacked is absent
+
+    condition PropertyExists: <"Condition to restrict selection of the property attribute if the security is not linked to a property asset: mortgage, property, CMO.">
+        if assetBacked <> Mortgage
+                or assetBacked <> Property
+                or collateralizedObligation <> CMO
+        then propertyType is absent
+
+    condition CollateralizedObligationExists: <"Condition to restrict selection of the collateralizedObligations attribute if CollateralizedObligation is not set as the securedType value.">
+        if securedType <> CollateralizedObligation
+        then collateralizedObligation is absent
+
+    condition CoveredBondsExists: <"Condition to restrict selection of the coveredBonds attribute if CoveredBonds is not set as the securedType value.">
+        if securedType <> CoveredBonds then coveredBond is absent
 
 type CollateralIssuerType: <"Represents a class to allow specification of the type of entity issuing the collateral.">
-
     issuerType IssuerTypeEnum (1..1) <"Specifies the origin of entity issuing the collateral.">
     supraNationalType SupraNationalIssuerTypeEnum (0..1) <"Specifies debt issued by international organisations and multilateral banks.">
     quasiGovernmentType QuasiGovernmentIssuerType (0..1) <"Specifies debt issues by institutions or bodies, typically constituted by statute, with a function mandated by the government and subject to government supervision inclusive of profit- and non-profit making bodies. Includes the US Agencies and GSEs and the EU concept of public sector entities. Excluding any entities which are also Regional Government.">
@@ -279,7 +303,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    securityType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -287,21 +311,21 @@ type AssetType: <"Represents a class to allow specification of the asset product
 
     condition SecuritySubType:
         if assetType <> AssetTypeEnum -> Security
-        then securityType is absent
+        then instrumentType is absent
                 and debtType is absent
                 and equityType is absent
                 and fundType is absent
 
     condition BondSubType:
-        if securityType <> InstrumentTypeEnum -> Debt
+        if instrumentType <> InstrumentTypeEnum -> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if securityType <> InstrumentTypeEnum -> Equity
+        if instrumentType <> InstrumentTypeEnum -> Equity
         then equityType is absent
 
     condition FundSubType:
-        if securityType <> InstrumentTypeEnum -> Fund
+        if instrumentType <> InstrumentTypeEnum -> Fund
         then fundType is absent
 
     condition OtherAssetSubType:
