@@ -48,7 +48,11 @@ Ways to interact with the CDM community:
 
 ## Roadmap
 
-- The latest CDM roadmap of expected contributions sponsored by the presently participating trade associations: ICMA, ISDA and ISLA can be found under [Roadmap.md](ROADMAP.md).
+- Each year, the chairs of the CDM Working Groups collaborate with the three participating trade associations (ISDA, ICMA and ISLA) to prepare plans for the coming year.
+- View the following resources:
+  - [2026 CDM Roadmaps](ROADMAP26.md):  outlines planned contributions and deliverables from each Working Group 
+  - [2026 CDM Schedule](SCHEDULE26.md):  outlines the plans for CDM releases 
+  - [Prior Year's Roadmaps](ROADMAP.md).
 
 - Releases can be tracked on the [CDM Releases](https://github.com/finos/common-domain-model/releases/tag/5.0.0-dev.7) page.
 
