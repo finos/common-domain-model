@@ -29,4 +29,4 @@ Finally, the mappings to populate the new `entityIdentifier` attribute have been
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4282](https://github.com/finos/common-domain-model/pull/4282)
+Changes can be reviewed in PR: [#4319](https://github.com/finos/common-domain-model/pull/4319)
