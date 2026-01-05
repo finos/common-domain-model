@@ -1,3 +1,4 @@
+/*
 package cdm.legaldocumentation.common.processor;
 
 import cdm.legaldocumentation.common.UmbrellaAgreement.UmbrellaAgreementBuilder;
@@ -16,9 +17,11 @@ import java.util.Optional;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
+*/
 /**
  * CreateiQ mapping processor.
- */
+ *//*
+
 @SuppressWarnings("unused")
 public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
@@ -56,4 +59,4 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
 		return umbrellaAgreementEntityBuilder.hasData() ? Optional.of(umbrellaAgreementEntityBuilder.build()) : Optional.empty();
 	}
-}
+}*/
