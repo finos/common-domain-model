@@ -26,4 +26,4 @@ Type
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4190](https://github.com/finos/common-domain-model/pull/4190)
+Changes can be reviewed in PR: [#4322](https://github.com/finos/common-domain-model/pull/4322)
