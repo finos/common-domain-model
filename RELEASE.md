@@ -1,23 +1,32 @@
-# Asset - Expanded Coverage for Secured Debt
+# *Reference Data Model - Legal Entity Identifier Type Support*
 
 _Background_
 
-Different types of secured debt are not well represented in CDM.
+In the current model, the `LegalEntity` structure allows the capturing of an entity’s identifier, but it does not allow specifying the type of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
 
-In the current model, Asset Backed Securities could exist in CDM using the value in `DebtClassEnum`, however, there is no way to represent Mortgage Backed Securities or other types of secured debt.
+Due to the existence of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
+
+To address this limitation, the model has been extended so that the identifier type can be represented directly within the `LegalEntity` structure.
 
 _What is being released?_
 
-This release supports the inclusion of secured debt by making the following changes:
+This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
 
-- Created a new `SecuredDebt` type for different types of secured debt
-- Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
-- Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
-- Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
-- Removed `AssetBacked` as a value from `DebtClassEnum`
-- Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
-- Removed redundant "debt" prefix in the attributes of `DebtEconomics`
+- A deprecated tag to the `entityId` attribute
+
+- A new EntityIdentifier attribute under `LegalEntity` type, with the following contents:
+
+    - the `identifier`
+    - the `identifierType`, of type `EntityIdentifierTypeEnum`
+
+A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifier`TypeEnum to include additional identifier types used for legal entities:
+
+- **RED**
+- **CountryCode**
+- **Other**
+
+Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId`, ensuring the coverage of the previous representation.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4257](https://github.com/finos/common-domain-model/pull/4257)
+Changes can be reviewed in PR: [#4282](https://github.com/finos/common-domain-model/pull/4282)
