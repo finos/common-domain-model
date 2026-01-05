@@ -1140,6 +1140,36 @@ func MapOptionStrikePrice:
                     },
                 ...
             }
+func MapSwapOptionStrikePrice:
+    inputs:
+        fpmlCreditDefaultSwapOption fpml.CreditDefaultSwapOption (0..1)
+        fpmlStrikePrice number (0..1)
+        fpmlStrikePercentage number (0..1)
+        currency fpml.Currency (0..1)
+
+    output:
+        optionStrike OptionStrike (0..1)
+
+    set optionStrike:
+        if fpmlStrikePrice exists or fpmlStrikePercentage exists
+        then OptionStrike {
+                strikePrice:
+                    Price {
+                        value: fpmlStrikePrice default fpmlStrikePercentage,
+                        unit: UnitType{
+                            currency: MapCurrency(currency),
+                        ...
+                        },
+                        perUnitOf: UnitType{
+                            currency: MapCurrency(currency),
+                        ...
+                        },
+                        priceType: InterestRate,
+                        arithmeticOperator: if fpmlCreditDefaultSwapOption -> strike -> spread exists then ArithmeticOperationEnum -> Add,
+                        ...
+                    },
+                ...
+            }
 
 func MapOptionStrikeReferenceSwapCurve:
     inputs:
