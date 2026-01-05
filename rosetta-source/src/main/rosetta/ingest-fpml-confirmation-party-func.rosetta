@@ -707,13 +707,13 @@ func MapEntityIdentifier:
     output:
         entityIdentifier EntityIdentifier (0..*)
 
-    add entityIdentifier: 
-    fpmlLegalEntity -> entityId extract  
-
-    EntityIdentifier {
-        identifier: MapStringWithScheme(value, entityIdScheme),
-        identifierType: MapEntityIdentifierTypeEnum(entityIdScheme)
-    }
+    add entityIdentifier:
+        fpmlLegalEntity -> entityId
+            extract
+                EntityIdentifier {
+                    identifier: MapStringWithScheme(value, entityIdScheme),
+                    identifierType: MapEntityIdentifierTypeEnum(entityIdScheme)
+                }
 
 func MapEntityIdentifierTypeEnum:
     inputs:
@@ -723,11 +723,11 @@ func MapEntityIdentifierTypeEnum:
 
     set source:
         MapPartyIdentifierTypeEnum(productIdScheme) to-enum EntityIdentifierTypeEnum
-        default if StringContains(productIdScheme, "-id-RED-")
-        then REDID
-        else if StringContains(productIdScheme, "iso3166")
-        then CountryCode
-        else Other
+            default if StringContains(productIdScheme, "-id-RED-")
+                then REDID
+                else if StringContains(productIdScheme, "iso3166")
+                then CountryCode
+                else Other
 
 func MapLegalEntityReference:
     inputs:
