@@ -1038,8 +1038,6 @@ class FunctionInputCreationTest {
                         .setReferenceInformation(ReferenceInformation.builder()
                                 .setReferenceEntity(
                                         LegalEntity.builder()
-                                                .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
-                                                        .setValue("UE2136O97NLB5BYP9H04")))
                                                 .setName(FieldWithMetaString.builder()
                                                         .setValue("McDonald's Corporation")))
                                 .setNoReferenceObligation(true))
@@ -1085,8 +1083,6 @@ class FunctionInputCreationTest {
                         .setAuctionDate(Date.of(2023, 3, 3))
                         .setReferenceInformation(ReferenceInformation.builder()
                                 .setReferenceEntity(LegalEntity.builder()
-                                        .setEntityId(Collections.singletonList(FieldWithMetaString.builder()
-                                                .setValue("UE2136O97NLB5BYP9H04")))
                                         .setName(FieldWithMetaString.builder()
                                                 .setValue("McDonald's Corporation")))
                                 .setNoReferenceObligation(true))
