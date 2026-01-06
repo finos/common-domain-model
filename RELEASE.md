@@ -16,4 +16,4 @@ Create a new `DebtRedemption` type
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4259](https://github.com/finos/common-domain-model/pull/4259)
+Changes can be reviewed in PR: [#4332](https://github.com/finos/common-domain-model/pull/4332)
