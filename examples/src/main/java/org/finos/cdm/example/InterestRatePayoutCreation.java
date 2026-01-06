@@ -3,7 +3,6 @@ package org.finos.cdm.example;
 import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
 import cdm.base.datetime.daycount.metafields.FieldWithMetaDayCountFractionEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.base.datetime.metafields.ReferenceWithMetaBusinessCenters;
 import cdm.base.math.UnitType;
 import cdm.base.math.metafields.ReferenceWithMetaNonNegativeQuantitySchedule;
@@ -26,6 +25,7 @@ import cdm.product.common.schedule.RateSchedule;
 import cdm.product.common.settlement.ResolvablePriceQuantity;
 import com.rosetta.model.lib.meta.Reference;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
 
 import java.math.BigDecimal;
 
@@ -113,7 +113,7 @@ public class InterestRatePayoutCreation {
                                                         .setBusinessCentersReference(ReferenceWithMetaBusinessCenters.builder()
                                                                 .setExternalReference("primaryBusinessCenters"))
                                                         .addBusinessCenter(
-                                                                FieldWithMetaBusinessCenterEnum.builder().setValue(BusinessCenterEnum.EUTA).build())))))
+                                                                FieldWithMetaString.builder().setValue("EUTA").build())))))
                         .setCalculationPeriodFrequency(CalculationPeriodFrequency.builder()
                                 .setRollConvention(RollConventionEnum._3)
                                 .setPeriodMultiplier(3)
