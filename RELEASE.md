@@ -1,15 +1,13 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Fixed Rate Price*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage.  For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+# *Reference Data - Update ISOCurrencyCodeEnum*
 
 _What is being released?_
 
-This release maps the Price field for Fixed Rate Schedules, as per [#4288](https://github.com/finos/common-domain-model/issues/4288).
+Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
 
-Updates to mapping of `FixedRateSchedule` to map the `price` field.
+Version updates include:
 
-_Review Directions_
+removed value: BGN
 
-Changes can be reviewed in PR: [#4285](https://github.com/finos/common-domain-model/pull/4285)
+_Review directions_
+
+The changes can be reviewed in PR: [#4321](https://github.com/finos/common-domain-model/pull/4321)

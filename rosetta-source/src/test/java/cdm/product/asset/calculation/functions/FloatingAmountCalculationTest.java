@@ -2,7 +2,6 @@ package cdm.product.asset.calculation.functions;
 
 import cdm.base.datetime.*;
 import cdm.base.datetime.daycount.DayCountFractionEnum;
-import cdm.base.datetime.metafields.FieldWithMetaBusinessCenterEnum;
 import cdm.observable.asset.InterestRateIndex;
 import cdm.observable.asset.calculatedrate.functions.IndexValueObservation;
 import cdm.product.asset.InterestRatePayout;
@@ -16,6 +15,7 @@ import cdm.product.common.schedule.functions.CalculationPeriod;
 import com.google.inject.Binder;
 import javax.inject.Inject;
 import com.rosetta.model.lib.records.Date;
+import com.rosetta.model.metafields.FieldWithMetaString;
 import org.isda.cdm.functions.AbstractFunctionTest;
 import org.junit.jupiter.api.Test;
 
@@ -74,7 +74,7 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
     }
 
     private InterestRatePayout initInterestPayout(InterestRateIndex fro, DayCountFractionEnum dcf) {
-        ResetDates resetDates = initResetDates(BusinessCenterEnum.EUTA, 3, 2, false);
+        ResetDates resetDates = initResetDates("EUTA", 3, 2, false);
         CalculationPeriodDates calculationPeriodDates = initCalculationPeriodDates();
 
         return InterestRatePayout.builder()
@@ -102,8 +102,8 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                                 .setDateAdjustments(BusinessDayAdjustments.builder()
                                         .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                                         .setBusinessCenters(BusinessCenters.builder()
-                                                .addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
-                                                        .setValue(BusinessCenterEnum.EUTA)
+                                                .addBusinessCenter(FieldWithMetaString.builder()
+                                                        .setValue("EUTA")
                                                         .build())
                                                 .build())
                                         .build())
@@ -116,8 +116,8 @@ public class FloatingAmountCalculationTest  extends AbstractFunctionTest {
                 .setCalculationPeriodDatesAdjustments(BusinessDayAdjustments.builder()
                          .setBusinessDayConvention(BusinessDayConventionEnum.MODFOLLOWING)
                         .setBusinessCenters(BusinessCenters.builder()
-                                .addBusinessCenter(FieldWithMetaBusinessCenterEnum.builder()
-                                        .setValue(BusinessCenterEnum.EUTA)
+                                .addBusinessCenter(FieldWithMetaString.builder()
+                                        .setValue("EUTA")
                                         .build())
                                 .build())
                         .build())
