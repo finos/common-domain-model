@@ -1,43 +1,13 @@
-# Legal Agreements - High-level refactoring of CSA and CTA Elections
-
-_Background_
-
-This contribution enhances the Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
+# *Reference Data - Update ISOCurrencyCodeEnum*
 
 _What is being released?_
 
-1. Refactoring `CreditSupportAgreementElections` into `CreditSupportAgreementElectionsBase`, `CreditSupportAgreementInitialMarginElections`, `CreditSupportAgreementVariationMarginElections` and `CreditSupportAgreementLegacyElections`. These new types extend the base type.
-2. Refactoring `CreditSupportObligations` into `CreditSupportObligationsBase`, `CreditSupportObligationsInitialMargin`, `CreditSupportObligationsVariationMargin`, `CreditSupportObligationsCollateralTransferAgreement` and `CreditSupportObligationsLegacy`. These new types extend the base type.
-3. Refactoring `CalculationandTiming` into `CalculationandTimingBase`, `CalculationAndTimingInitialMargin`, `CalculationAndTimingVariationMargin`, `CalculationAndTimingCollateralTransferAgreement` and `CalculationandTimingLegacy`. These new types extend the base type.
-5. Updates to cardinality and descriptions.
+Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
 
-_Review Directions_
+Version updates include:
 
-Changes can be reviewed in PR: [#4215](https://github.com/finos/common-domain-model/pull/4215)
+removed value: BGN
 
-# *Legal Agreements - High-Level CSA and CTA Refactoring Clause Updates*
+_Review directions_
 
-_Background_
-
-This contribution enhances Legal Agreements in CDM. Members of the Legal Agreement Working Group have approved the changes below as it streamlines this part of the model and reduces validation errors while improving data integrity and enforcement of conditions and cardinality.
-
-_What is being released?_
-
-- `SpecifiedCondition` and `AccessCondition` merged into same structure.
-- Updated description for `CalculationAgentTerms`.
-- Updated description for `CustodyArrangements` and cardinality for `CustodianEvent`.
-- Updated `docReference` and description for `NotificationTime`.
-- Updated description for `OtherAgreements`.
-- Moved `value` into `OtherEligibleandPostedSupport`.
-- Updated cardinality for `TerminationCurrencyElection`.
-- Updated cardinalities within `CoveredTransactions`.
-- Updated cardinality for `ThresholdElection`.
-- Updated cardinality for `MTAElection`.
-- Removed `CSADatedasofDate` and `CSAMadeOn` date (as they are already covered) and renamed type to `MasterAgreementDatedAsOfDate`.
-- `LegacyDeliveryAmount` and `LegacyReturnAmount` are renamed to `DeliveryAmount` and `ReturnAmount`.
-- Updated description for `ValuationAgent`.
-- Type name and Enum name updates.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4216](https://github.com/finos/common-domain-model/pull/4216)
+The changes can be reviewed in PR: [#4321](https://github.com/finos/common-domain-model/pull/4321)
