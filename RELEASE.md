@@ -1,14 +1,13 @@
-# _Infrastructure - Dependency Update_
+# *Reference Data - Update ISOCurrencyCodeEnum*
 
 _What is being released?_
 
-This release updates the `DSL` dependency.
+Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
 
 Version updates include:
-- `DSL` `9.71.0` Fixes incorrect treatment of empty for boolean resolution, equality, and implicit `else`. See DSL release notes: [DSL 9.71.0](https://github.com/finos/rune-dsl/releases/tag/9.71.0)
 
-No expectations are updated as part of this release.
+removed value: BGN
 
-_Review Directions_
+_Review directions_
 
-The changes can be reviewed in PR: [#4309](https://github.com/finos/common-domain-model/pull/4309)
+The changes can be reviewed in PR: [#4321](https://github.com/finos/common-domain-model/pull/4321)
