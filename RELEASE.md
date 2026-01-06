@@ -1,13 +1,19 @@
-# *Reference Data - Update ISOCurrencyCodeEnum*
+# *Asset - Adding redemption attribute to Debt type*
+
+_Background_
+
+There are several values in the `DebtClassEnum` relating to the redemption of the debt which could be more granular and composable.
+
+There are 4 attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable` whereas this could be represented using separate enums and conditions within `DebtType`. This would also remove the additional Convertible attribute.
 
 _What is being released?_
 
-Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
+Create a new `DebtRedemption` type
+ - The attributes mentioned above can be combined to create combinations of Issuer/Convertible, Issuer/Call, Holder/Put etc.
+ - Add `ConvertibleTypeEnum` as an attribute with `Convertible`, `Exchangeable`, `Sinkable` values
+ - Add `putCallEnum` as an attribute
+ - Add `RedemptionPartyElectionEnum` with values for `Issuer` and `Holder`
 
-Version updates include:
+_Review Directions_
 
-removed value: BGN
-
-_Review directions_
-
-The changes can be reviewed in PR: [#4321](https://github.com/finos/common-domain-model/pull/4321)
+Changes can be reviewed in PR: [#4259](https://github.com/finos/common-domain-model/pull/4259)
