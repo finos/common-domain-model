@@ -86,6 +86,9 @@ type LegalAgreement extends LegalAgreementBase: <"The specification of a legal a
         else if agreementTerms -> agreement -> masterAgreementSchedule exists
         then legalAgreementIdentification -> agreementName -> agreementType = LegalAgreementTypeEnum -> MasterAgreement
 
+    condition AgreementType: <"Either the Agreement Terms (i.e. a bilateral or one way agreement) or an Umbrella Agreement (i.e. an agreement where multiple parties and variations of terms are described within a single document but represent multiple agreements for operational purposes) should be included, but not both.">
+        required choice agreementTerms, umbrellaAgreement
+
 type LegalAgreementBase: <"Specifies the legal agreement baseline information, being negotiated or having been executed. It excludes specialized elections">
     agreementDate date (0..1) <"The date on which the legal agreement has been agreed between the parties. This corresponds to the Date of Deed in an English Law document.">
     effectiveDate date (0..1) <"The date on which, or as of which, the agreement is effective, if different from the agreement date. It is expected that it will most often correspond to the agreement date, although there could be situations where the parties will explicitly agree on a distinct effective date.">
