@@ -1,15 +1,20 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
+# *Product Model - Enhance Security Lending Qualification*
 
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+The Qualify_SecurityLending function expects that a collateralPortfolio -> collateralPosition -> product ->  TransferableProduct exists. This is not always going to be the case.
+
+If a trade is against cash then collateralPortfolio -> collateralPosition -> product -> TransferableProduct will hold the details of the cash being used as collateral - so this scenario is fine.
+
+If a trade is against non-cash though, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio at all, instead we would have a collateralPortfolio -> portfolioIdentifer that will hold the identifier for the collateral pool being used as collateral against this trade.
+
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+The Qualify_SecurityLending function has been updated to now just check for the presence of collateral -> collateralPortfolio.
 
-_Review Directions_
+This is generic enough to cover cash (which would be under collateralPortfolio -> collateralPosition -> product -> TransferableProduct) and non-cash (which would have a collateralPortfolio -> portfolioIdentifier).
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+_Review directions_
+
+The changes can be reviewed in PR: [#4301](https://github.com/finos/common-domain-model/pull/4301)

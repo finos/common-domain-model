@@ -1696,7 +1696,7 @@ func Qualify_BuySellBack: <"Qualifies a product as a Buy/Sell Back based on the 
             and economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout exists
             and economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product ->> economicTerms -> payout -> AssetPayout -> tradeType any = BuySellBack
 
-func Qualify_SecurityLending: <"Qualifies a product as Securities Lending based on the asset to be lent (usually a security) being defined in a singular AssetPayout, with the collateral, which can be an asset (usually cash or securities), defined in a CollateralPosition.">
+func Qualify_SecurityLending: <"Qualifies a product as Securities Lending based on the asset to be lent (usually a security) being defined in a singular AssetPayout, with the collateral, which can be an asset (usually cash or securities), defined in a CollateralPortfolio.">
     [qualification Product]
     inputs:
         economicTerms EconomicTerms (1..1)
@@ -1704,7 +1704,7 @@ func Qualify_SecurityLending: <"Qualifies a product as Securities Lending based 
         is_product boolean (1..1)
     set is_product:
         economicTerms -> payout only-element -> AssetPayout exists
-            and economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> TransferableProduct exists
+            and economicTerms -> collateral -> collateralPortfolio exists
 
 func Qualify_Commodity_Swap_FixedFloat: <"Qualifies a product as a Fixed Float Commodity Swap.  The determination of the qualification is based on the economic terms and the following criteria: 1) One Floating Leg represented by the CommodityPayout, with an underlier that is a commodity, 2) One Fixed Leg represented by the FixedPricePayout, and 3) there are no other payout types.">
     [qualification Product]
