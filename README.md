@@ -22,7 +22,6 @@ The Common Domain Model is an open standard project hosted under FINOS, the [Fin
 To subscribe to our mailing list using the following [link](mailto:cdm+subscribe@lists.finos.org).
 
 
-
 ## CDM Design Principles
 
 Contributions to the CDM have to comply with the following set of design principles that include the following concepts:
