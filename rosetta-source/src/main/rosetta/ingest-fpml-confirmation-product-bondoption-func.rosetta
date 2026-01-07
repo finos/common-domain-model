@@ -1,18 +1,19 @@
 namespace cdm.ingest.fpml.confirmation.product.bondoption: <"FpML BondOption product mapping functions.">
 version "${project.version}"
 
-import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.common.settlement.*
-import cdm.product.template.*
 import cdm.base.math.*
-
-import fpml.confirmation.* as fpml
-
+import cdm.base.staticdata.party.*
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.bond.option.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapBondOptionCounterpartyList:
     inputs:
@@ -68,39 +69,42 @@ func MapBondOptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapOptionBaseExtendedQuantityListWithAddress(
-                            fpmlBondOption
-                        ),
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapOptionBaseExtendedQuantityListWithAddress(
+                                        fpmlBondOption
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapOptionSettlementModelToSettlementTerms(
+                                fpmlBondOption -> optionSettlementModel
+                            ),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapAssetToObservableWithAddress(fpmlUnderlyingAsset),
+                            ...
+                        },
+                    optionType: fpmlBondOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                fpmlBondOption -> exercise,
+                                fpmlBondOption -> exerciseProcedure,
+                                empty,
+                                fpmlBondOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: MapBondOptionStrikeToOptionStrike(fpmlBondOption -> strike),
                     ...
                 },
-                settlementTerms: MapOptionSettlementModelToSettlementTerms(
-                        fpmlBondOption -> optionSettlementModel
-                    ),
-                buyerSeller: MapBuyerSeller(
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                underlier: Underlier {
-                    Observable: MapAssetToObservableWithAddress(fpmlUnderlyingAsset),
-                    ...
-                },
-                optionType: fpmlBondOption -> optionType to-enum OptionTypeEnum,
-                exerciseTerms: MapExerciseTerms(
-                        fpmlBondOption -> exercise,
-                        fpmlBondOption -> exerciseProcedure,
-                        empty,
-                        fpmlBondOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: MapBondOptionStrikeToOptionStrike(fpmlBondOption -> strike),
-                ...
-            },
             ...
         }
 

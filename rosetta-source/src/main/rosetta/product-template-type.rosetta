@@ -5,6 +5,7 @@ import cdm.base.*
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
+import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
@@ -129,9 +130,13 @@ type OptionPayout extends PayoutBase: <" The option payout specification terms. 
     exerciseTerms ExerciseTerms (1..1) <"The terms for exercising the option, which include the option style (e.g. American style option), the exercise procedure (e.g. manual exercise) and the settlement terms (e.g. physical vs. cash).">
     strike OptionStrike (0..1) <"Specifies the strike of the option">
 
-    condition AsianOptionChoice: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
-        (if strike -> averagingStrikeFeature exists then feature -> averagingFeature is absent)
-            and (if feature -> averagingFeature exists then strike -> averagingStrikeFeature is absent)
+    condition AsianOptionChoice_averagingStrikeFeature: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
+        if strike -> averagingStrikeFeature exists
+        then feature -> averagingFeature is absent
+
+    condition AsianOptionChoice_averagingFeature: <"Choice rule between AveragingFeature and AveragingStrikeFeature.">
+        if feature -> averagingFeature exists
+        then strike -> averagingStrikeFeature is absent
 
     condition ClearedPhysicalSettlementExists:
         if settlementTerms -> physicalSettlementTerms exists
@@ -783,7 +788,7 @@ type ExerciseNotice: <"Defines to whom and where notice of execution should be g
 
     exerciseNoticeGiver ExerciseNoticeGiverEnum (1..1) <"Specifies the principal party of the trade that has the right to exercise.">
     exerciseNoticeReceiver AncillaryRoleEnum (0..1) <"Specifies the party to which notice of exercise should be given, e.g. by the buyer of the option. Although in many cases it is the buyer of the option who sends the exercise notice to the seller of the option, this component is reused, e.g. in case of OptionEarlyTermination, either or both parties have the right to exercise.">
-    businessCenter BusinessCenterEnum (1..1) <"Specifies the location where the exercise must be reported, e.g. where the exercise notice receiver is based.">
+    businessCenter BusinessCenter (1..1) <"Specifies the location where the exercise must be reported, e.g. where the exercise notice receiver is based.">
         [metadata scheme]
 
 type ExerciseProcedure: <"A class describing how notice of exercise should be given. This can be either manual or automatic.">

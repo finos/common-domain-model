@@ -32,7 +32,7 @@ public class SerialisationTest {
         // Get the classLoader from any class in CDM
         ClassLoader classLoader = TradeState.class.getClassLoader();
         Path sampleFilePath = ClassPathUtils
-                .loadFromClasspath("result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json", classLoader)
+                .loadFromClasspath("ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json", classLoader)
                 .findFirst()
                 .orElseThrow();
         assertNotNull(sampleFilePath);
@@ -47,7 +47,7 @@ public class SerialisationTest {
     @Test
     void shouldDeserialiseCdmSampleFileWithResources() throws IOException {
         // Get the classLoader from any class in CDM
-        URL sampleFilePath = Resources.getResource("result-json-files/fpml-5-10/products/equity/eqs-ex01-single-underlyer-execution-long-form.json");
+        URL sampleFilePath = Resources.getResource("ingest/output/fpml-confirmation-to-trade-state/fpml-5-10-products-equity/eqs-ex01-single-underlyer-execution-long-form.json");
         assertNotNull(sampleFilePath);
 
         TradeState deserializedTradeState =

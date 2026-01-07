@@ -2,13 +2,15 @@ namespace cdm.ingest.fpml.confirmation.product.creditdefaultswapoption: <"FpML C
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.creditdefaultswap.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
-
-import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.party.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapCreditDefaultSwapOptionCounterpartyList:
     inputs:
@@ -37,13 +39,13 @@ func MapCreditDefaultSwapOptionNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlCreditDefaultSwapOption -> productModel
-                ),
+                        fpmlCreditDefaultSwapOption -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(fpmlCreditDefaultSwapOption -> productModel),
             economicTerms: MapCreditDefaultSwapOptionEconomicTerms(
-                    fpmlCreditDefaultSwapOption,
-                    cdmCounterpartyList
-                )
+                        fpmlCreditDefaultSwapOption,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapCreditDefaultSwapOptionEconomicTerms:
@@ -56,9 +58,9 @@ func MapCreditDefaultSwapOptionEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapCreditDefaultSwapOptionPayout(
-                    fpmlCreditDefaultSwapOption,
-                    cdmCounterpartyList
-                ),
+                        fpmlCreditDefaultSwapOption,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -71,33 +73,46 @@ func MapCreditDefaultSwapOptionPayout:
 
     set payout:
         Payout {
-            OptionPayout: OptionPayout {
-                payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
-                        fpmlCreditDefaultSwapOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: empty,
-                principalPayment: empty, // MapPrincipalPayments(fpmlTrade, fpmlPartiesAndAccountsModel),
-                settlementTerms: empty, // MapSettlementTerms(fpmlTrade, fpmlPartiesAndAccountsModel),
-                buyerSeller: MapBuyerSeller(
-                        fpmlCreditDefaultSwapOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                feature: empty, // MapOptionFeature(fpmlTrade, fpmlPartiesAndAccountsModel),
-                observationTerms: empty, // MapObservationTerms(fpmlTrade, fpmlPartiesAndAccountsModel),
-                schedule: empty, // MapCalculationSchedule(fpmlTrade, fpmlPartiesAndAccountsModel),
-                delivery: empty, // MapAssetDeliveryInformation(fpmlTrade, fpmlPartiesAndAccountsModel),
-                underlier: empty,
-                optionType: empty,
-                exerciseTerms: MapExerciseTerms(
-                        fpmlCreditDefaultSwapOption -> exercise,
-                        fpmlCreditDefaultSwapOption -> exerciseProcedure,
-                        empty,
-                        fpmlCreditDefaultSwapOption -> buyerSellerModel,
-                        cdmCounterpartyList
-                    ),
-                strike: empty // MapOptionStrike(fpmlTrade, fpmlPartiesAndAccountsModel)
-            },
+            OptionPayout:
+                OptionPayout {
+                    payerReceiver: MapSellerAsPayerAndBuyerAsReceiver(
+                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity: empty,
+                    principalPayment: empty, // MapPrincipalPayments(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    settlementTerms: empty, // MapSettlementTerms(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    buyerSeller: MapBuyerSeller(
+                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    feature: empty, // MapOptionFeature(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    observationTerms: empty, // MapObservationTerms(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    schedule: empty, // MapCalculationSchedule(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    delivery: empty, // MapAssetDeliveryInformation(fpmlTrade, fpmlPartiesAndAccountsModel),
+                    underlier:
+                        Underlier {
+                            Product:
+                                Product {
+                                    NonTransferableProduct: MapCreditDefaultSwapNonTransferableProduct(
+                                                fpmlCreditDefaultSwapOption -> creditDefaultSwap,
+                                                empty,
+                                                cdmCounterpartyList
+                                            ),
+                                    ...
+                                },
+                            ...
+                        },
+                    optionType: fpmlCreditDefaultSwapOption -> optionType to-enum OptionTypeEnum,
+                    exerciseTerms: MapExerciseTerms(
+                                fpmlCreditDefaultSwapOption -> exercise,
+                                fpmlCreditDefaultSwapOption -> exerciseProcedure,
+                                empty,
+                                fpmlCreditDefaultSwapOption -> buyerSellerModel,
+                                cdmCounterpartyList
+                            ),
+                    strike: empty // MapOptionStrike(fpmlTrade, fpmlPartiesAndAccountsModel)
+                },
             ...
         }
 

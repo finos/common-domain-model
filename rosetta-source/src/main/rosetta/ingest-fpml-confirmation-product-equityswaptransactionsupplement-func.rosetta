@@ -2,15 +2,17 @@ namespace cdm.ingest.fpml.confirmation.product.equityswaptransactionsupplement: 
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
+import cdm.ingest.fpml.confirmation.common.*
+import cdm.ingest.fpml.confirmation.datetime.*
+import cdm.ingest.fpml.confirmation.party.*
+import cdm.ingest.fpml.confirmation.product.returnswap.*
 import cdm.observable.asset.*
 import cdm.product.template.*
 
-import fpml.confirmation.* as fpml
-import fpml.confirmation.custom.*
-
-import cdm.ingest.fpml.confirmation.common.*
-import cdm.ingest.fpml.confirmation.party.*
-import cdm.ingest.fpml.confirmation.product.returnswap.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.fpmlreturn.swaps.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapEquitySwapTransactionSupplementCounterpartyList:
     inputs:
@@ -39,15 +41,15 @@ func MapEquitySwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlEquitySwapTransactionSupplement -> productModel
-                ),
+                        fpmlEquitySwapTransactionSupplement -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(
-                    fpmlEquitySwapTransactionSupplement -> productModel
-                ),
+                        fpmlEquitySwapTransactionSupplement -> productModel
+                    ),
             economicTerms: MapEquitySwapTransactionSupplementEconomicTerms(
-                    fpmlEquitySwapTransactionSupplement,
-                    cdmCounterpartyList
-                )
+                        fpmlEquitySwapTransactionSupplement,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapEquitySwapTransactionSupplementEconomicTerms:
@@ -59,10 +61,20 @@ func MapEquitySwapTransactionSupplementEconomicTerms:
 
     set economicTerms:
         EconomicTerms {
+            effectiveDate: MapAdjustableOrRelativeDate(
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> effectiveDate
+                            distinct
+                            only-element
+                    ),
+            terminationDate: MapAdjustableOrRelativeDate(
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg -> terminationDate
+                            distinct
+                            only-element
+                    ),
             payout: MapReturnSwapLegListToPayoutList(
-                    fpmlEquitySwapTransactionSupplement -> returnSwapLeg,
-                    cdmCounterpartyList
-                ),
+                        fpmlEquitySwapTransactionSupplement -> returnSwapLeg,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -75,16 +87,19 @@ func MapReturnSwapLegListToPayoutList:
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter InterestLeg exists
-            then extract
-                MapInterestLegToInterestRatePayout(InterestLeg, cdmCounterpartyList)
+            extract
+                item switch
+                    fpml.InterestLeg then
+                        MapInterestLegToInterestRatePayout(item, cdmCounterpartyList),
+                    default empty
 
     add payoutList:
         fpmlDirectionalLegList
-            extract ToLegChoice
-            then filter ReturnLeg exists
-            then extract MapReturnLegToPerformancePayout(ReturnLeg, cdmCounterpartyList)
+            extract
+                item switch
+                    fpml.ReturnLeg then
+                        MapReturnLegToPerformancePayout(item, cdmCounterpartyList),
+                    default empty
 
 func MapEquitySwapTransactionSupplementPriceQuantityList:
     inputs:
@@ -92,13 +107,22 @@ func MapEquitySwapTransactionSupplementPriceQuantityList:
     output:
         priceQuantityList PriceQuantity (0..*)
 
+    alias returnLeg:
+        (fpmlEquitySwapTransactionSupplement -> returnSwapLeg
+            extract
+                switch
+                    fpml.ReturnLeg then item,
+                    default empty)
+            then only-element
+
     add priceQuantityList:
         fpmlEquitySwapTransactionSupplement -> returnSwapLeg
             extract
-                ToLegChoice switch
-           InterestLeg then MapInterestLegToPriceQuantity,
-           ReturnLeg then MapReturnLegToPriceQuantity,
-           default empty
+                item switch
+                    fpml.InterestLeg then
+                        MapInterestLegToPriceQuantity(item, returnLeg),
+                    fpml.ReturnLeg then MapReturnLegToPriceQuantity,
+                    default empty
 
 func MapEquitySwapTransactionSupplementAccountPartyReference:
     inputs:

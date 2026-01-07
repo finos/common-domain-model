@@ -663,7 +663,7 @@ the underlying product may be.
 
 In its simplest form, that trade's terms will specify the settlement date
 in addition to the price and quantity and can be represented using the
-[`SettlementPayout`](#SettlementPayout).
+[`SettlementPayout`](#settlementpayout).
 
 A `TradableProduct` also provides a mechanism to trade indices that
 otherwise cannot be directly transfered. The `Payout` would define how
@@ -948,10 +948,11 @@ which together further qualify the price.
 type PriceSchedule extends MeasureSchedule:
   perUnitOf UnitType (0..1)
   priceType PriceTypeEnum (1..1)
+  priceSubType PriceSubTypeEnum (0..1)
   priceExpression PriceExpressionEnum (0..1)
   composite PriceComposite (0..1)
   arithmeticOperator ArithmeticOperationEnum (0..1)
-  cashPrice CashPrice (0..1)
+  premiumType PremiumTypeEnum (0..1)
 ```
 
 Note that the conditions for this data type are excluded from the
@@ -1030,9 +1031,13 @@ type QuantitySchedule extends MeasureSchedule:
 ``` Haskell
 type NonNegativeQuantitySchedule extends QuantitySchedule:
 
-  condition NonNegativeQuantity_amount:
-    if value exists then value >= 0.0 and
-    if datedValue exists then datedValue -> value all >= 0.0
+    condition NonNegativeQuantity_value:
+        if value exists
+        then value >= 0.0
+
+    condition NonNegativeQuantity_datedValue:
+        if datedValue exists
+        then datedValue -> value all >= 0.0
 ```
 
 The inherited attributes of `value`, `unit` and `datedValue` (in case

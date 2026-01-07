@@ -3,13 +3,14 @@ version "${project.version}"
 
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
+import cdm.ingest.fpml.confirmation.other.*
 import cdm.legaldocumentation.common.*
 import cdm.legaldocumentation.master.*
 import cdm.product.collateral.*
 
-import fpml.confirmation.* as fpml
-
-import cdm.ingest.fpml.confirmation.other.*
+import fpml.consolidated.* as fpml
+import fpml.consolidated.doc.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapContractDetails:
     inputs:
@@ -21,9 +22,9 @@ func MapContractDetails:
     set contractDetails:
         ContractDetails {
             documentation: MapLegalAgreementList(
-                    fpmlTrade -> documentation,
-                    cdmCounterpartyList
-                ),
+                        fpmlTrade -> documentation,
+                        cdmCounterpartyList
+                    ),
             governingLaw: MapGoverningLaw(fpmlTrade -> governingLaw)
         }
 
@@ -69,8 +70,8 @@ func MapMasterAgreement:
     alias cdmAgreementName:
         AgreementName {
             masterAgreementType: MapMasterAgreementTypeEnumWithScheme(
-                    fpmlMasterAgreement -> masterAgreementType
-                ),
+                        fpmlMasterAgreement -> masterAgreementType
+                    ),
             agreementType: MasterAgreement,
             ...
         }
@@ -91,9 +92,9 @@ func MapMasterAgreementTypeEnumWithScheme:
             [metadata scheme]
 
     set masterAgreementTypeEnum:
-        MapMasterAgreementTypeEnum(fpmlMasterAgreementType -> value)
-    set masterAgreementTypeEnum -> scheme:
-        fpmlMasterAgreementType -> masterAgreementTypeScheme
+        MapMasterAgreementTypeEnum(fpmlMasterAgreementType -> value) with-meta {
+            scheme: fpmlMasterAgreementType -> masterAgreementTypeScheme
+        }
 
 func MapMasterConfirmation:
     inputs:
@@ -105,11 +106,11 @@ func MapMasterConfirmation:
     alias cdmAgreementName:
         AgreementName {
             masterConfirmationType: MapMasterConfirmationTypeEnumWithScheme(
-                    fpmlMasterConfirmation -> masterConfirmationType
-                ),
+                        fpmlMasterConfirmation -> masterConfirmationType
+                    ),
             masterConfirmationAnnexType: MapMasterConfirmationAnnexTypeEnumWithScheme(
-                    fpmlMasterConfirmation -> masterConfirmationAnnexType
-                ),
+                        fpmlMasterConfirmation -> masterConfirmationAnnexType
+                    ),
             agreementType: MasterConfirmation,
             ...
         }
@@ -130,9 +131,9 @@ func MapMasterConfirmationTypeEnumWithScheme:
             [metadata scheme]
 
     set masterConfirmationTypeEnum:
-        MapMasterConfirmationTypeEnum(fpmlMasterConfirmationType -> value)
-    set masterConfirmationTypeEnum -> scheme:
-        fpmlMasterConfirmationType -> masterConfirmationTypeScheme
+        MapMasterConfirmationTypeEnum(fpmlMasterConfirmationType -> value) with-meta {
+            scheme: fpmlMasterConfirmationType -> masterConfirmationTypeScheme
+        }
 
 func MapMasterConfirmationAnnexTypeEnumWithScheme:
     inputs:
@@ -142,9 +143,9 @@ func MapMasterConfirmationAnnexTypeEnumWithScheme:
             [metadata scheme]
 
     set masterConfirmationAnnexType:
-        MapMasterConfirmationAnnexTypeEnum(fpmlMasterConfirmationAnnexType -> value)
-    set masterConfirmationAnnexType -> scheme:
-        fpmlMasterConfirmationAnnexType -> masterConfirmationAnnexTypeScheme
+        MapMasterConfirmationAnnexTypeEnum(fpmlMasterConfirmationAnnexType -> value) with-meta {
+            scheme: fpmlMasterConfirmationAnnexType -> masterConfirmationAnnexTypeScheme
+        }
 
 func MapCreditSupportAgreement:
     inputs:
@@ -156,8 +157,8 @@ func MapCreditSupportAgreement:
     alias cdmAgreementName:
         AgreementName {
             creditSupportAgreementType: MapCreditSupportAgreementTypeEnumWithScheme(
-                    fpmlCreditSupportAgreement -> _type
-                ),
+                        fpmlCreditSupportAgreement -> ^type
+                    ),
             agreementType: CreditSupportAgreement,
             ...
         }
@@ -178,9 +179,9 @@ func MapCreditSupportAgreementTypeEnumWithScheme:
             [metadata scheme]
 
     set creditSupportAgreementTypeEnum:
-        MapCreditSupportAgreementTypeEnum(fpmlCreditSupportAgreementType -> value)
-    set creditSupportAgreementTypeEnum -> scheme:
-        fpmlCreditSupportAgreementType -> creditSupportAgreementTypeScheme
+        MapCreditSupportAgreementTypeEnum(fpmlCreditSupportAgreementType -> value) with-meta {
+            scheme: fpmlCreditSupportAgreementType -> creditSupportAgreementTypeScheme
+        }
 
 func MapConfirmationLegalAgreement:
     inputs:
@@ -192,21 +193,21 @@ func MapConfirmationLegalAgreement:
     alias cdmAgreementName:
         AgreementName {
             contractualDefinitionsType: fpmlDocumentation -> contractualDefinitions
-                extract MapContractualDefinitionsEnumWithScheme,
+                    extract MapContractualDefinitionsEnumWithScheme,
             contractualMatrix: fpmlDocumentation -> contractualMatrix
-                extract
-                    ContractualMatrix {
-                        matrixType: MapMatrixTypeEnumWithScheme(matrixType),
-                        matrixTerm: MapMatrixTermEnumWithScheme(matrixTerm)
-                    },
+                    extract
+                        ContractualMatrix {
+                            matrixType: MapMatrixTypeEnumWithScheme(matrixType),
+                            matrixTerm: MapMatrixTermEnumWithScheme(matrixTerm)
+                        },
             contractualTermsSupplement: fpmlDocumentation -> contractualTermsSupplement
-                extract
-                    ContractualTermsSupplement {
-                        contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
-                                _type
-                            ),
-                        publicationDate: publicationDate -> date
-                    },
+                    extract
+                        ContractualTermsSupplement {
+                            contractualTermsSupplementType: MapContractualSupplementTypeEnumWithScheme(
+                                        ^type
+                                    ),
+                            publicationDate: publicationDate -> date
+                        },
             agreementType: Confirmation,
             ...
         }
@@ -222,9 +223,9 @@ func MapContractualDefinitionsEnumWithScheme:
             [metadata scheme]
 
     set contractualDefinitionsEnum:
-        MapContractualDefinitionsEnum(fpmlContractualDefinitions -> value)
-    set contractualDefinitionsEnum -> scheme:
-        fpmlContractualDefinitions -> contractualDefinitionsScheme
+        MapContractualDefinitionsEnum(fpmlContractualDefinitions -> value) with-meta {
+            scheme: fpmlContractualDefinitions -> contractualDefinitionsScheme
+        }
 
 func MapMatrixTypeEnumWithScheme:
     inputs:
@@ -233,8 +234,10 @@ func MapMatrixTypeEnumWithScheme:
         matrixTypeEnum MatrixTypeEnum (0..1)
             [metadata scheme]
 
-    set matrixTypeEnum: MapMatrixTypeEnum(fpmlMatrixType -> value)
-    set matrixTypeEnum -> scheme: fpmlMatrixType -> matrixTypeScheme
+    set matrixTypeEnum:
+        MapMatrixTypeEnum(fpmlMatrixType -> value) with-meta {
+            scheme: fpmlMatrixType -> matrixTypeScheme
+        }
 
 func MapMatrixTermEnumWithScheme:
     inputs:
@@ -243,8 +246,10 @@ func MapMatrixTermEnumWithScheme:
         matrixTermEnum MatrixTermEnum (0..1)
             [metadata scheme]
 
-    set matrixTermEnum: MapMatrixTermEnum(fpmlMatrixTerm -> value)
-    set matrixTermEnum -> scheme: fpmlMatrixTerm -> matrixTermScheme
+    set matrixTermEnum:
+        MapMatrixTermEnum(fpmlMatrixTerm -> value) with-meta {
+            scheme: fpmlMatrixTerm -> matrixTermScheme
+        }
 
 func MapContractualSupplementTypeEnumWithScheme:
     inputs:
@@ -254,9 +259,9 @@ func MapContractualSupplementTypeEnumWithScheme:
             [metadata scheme]
 
     set contractualSupplementTypeEnum:
-        MapContractualSupplementTypeEnum(fpmlContractualSupplement -> value)
-    set contractualSupplementTypeEnum -> scheme:
-        fpmlContractualSupplement -> contractualSupplementScheme
+        MapContractualSupplementTypeEnum(fpmlContractualSupplement -> value) with-meta {
+            scheme: fpmlContractualSupplement -> contractualSupplementScheme
+        }
 
 func MapOtherAgreements:
     inputs:
@@ -267,7 +272,7 @@ func MapOtherAgreements:
 
     alias agreementName:
         AgreementName {
-            otherAgreement: fpmlOtherAgreement -> _type -> value,
+            otherAgreement: fpmlOtherAgreement -> ^type -> value,
             agreementType: Other,
             ...
         }
@@ -294,12 +299,13 @@ func MapLegalAgreement:
         LegalAgreement {
             agreementDate: fpmlAgreementDate,
             contractualParty: MapContractualParty(cdmCounterpartyList),
-            legalAgreementIdentification: LegalAgreementIdentification {
-                governingLaw: empty,
-                agreementName: cdmAgreementName,
-                publisher: empty,
-                vintage: cdmVintage,
-            },
+            legalAgreementIdentification:
+                LegalAgreementIdentification {
+                    governingLaw: empty,
+                    agreementName: cdmAgreementName,
+                    publisher: empty,
+                    vintage: cdmVintage,
+                },
             ...
         }
 

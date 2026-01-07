@@ -1,6 +1,6 @@
 package cdm.base.datetime.functions;
 
-import cdm.base.datetime.BusinessCenterEnum;
+
 import cdm.base.datetime.BusinessCenters;
 import javax.inject.Inject;
 import org.isda.cdm.functions.AbstractFunctionTest;
@@ -31,7 +31,7 @@ public class BusinessCenterHolidaysMultipleTest extends AbstractFunctionTest {
 		assertEquals(TARGET_HOLIDAYS_2021, func.evaluate(getBusinessCenters(TARGET_BC_REF)));
 	}
 
-	private List<BusinessCenterEnum> getBusinessCenters(BusinessCenters businessCenters) {
+	private List<String> getBusinessCenters(BusinessCenters businessCenters) {
 		return businessCentersFunc.evaluate(businessCenters);
 	}
 }

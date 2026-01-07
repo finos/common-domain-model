@@ -4,14 +4,23 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.staticdata.asset.credit.*
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.common.settlement.*
-
-import fpml.confirmation.* as fpml
-
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
 import cdm.ingest.fpml.confirmation.other.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.cd.* as fpml
+import fpml.consolidated.com.* as fpml
+import fpml.consolidated.correlation.swaps.* as fpml
+import fpml.consolidated.eq.shared.* as fpml
+import fpml.consolidated.eqd.* as fpml
+import fpml.consolidated.fpmlenum.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.ird.* as fpml
+import fpml.consolidated.option.shared.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapSettlementProvisionToSettlementTerms:
     inputs:
@@ -28,31 +37,52 @@ func MapSettlementProvisionToSettlementTerms:
         SettlementTerms {
             settlementType: settlementType,
             settlementCurrency: MapCurrency(settlementProvision -> settlementCurrency),
-            cashSettlementTerms: CashSettlementTerms {
-                valuationMethod: ValuationMethod {
-                    valuationSource: ValuationSource {
-                        settlementRateOption: SettlementRateOption {
-                            settlementRateOption: MapStringWithScheme(
-                                    settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> value,
-                                    settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> settlementRateOptionScheme
-                                )
-                                to-enum SettlementRateOptionEnum,
+            cashSettlementTerms:
+                CashSettlementTerms {
+                    valuationMethod:
+                        ValuationMethod {
+                            valuationSource:
+                                ValuationSource {
+                                    settlementRateOption:
+                                        SettlementRateOption {
+                                            settlementRateOption: MapStringWithScheme(
+                                                        settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> value,
+                                                        settlementProvision -> nonDeliverableSettlement -> settlementRateOption -> settlementRateOptionScheme
+                                                    )
+                                                    to-enum SettlementRateOptionEnum,
+                                            ...
+                                        },
+                                    ...
+                                },
                             ...
                         },
-                        ...
-                    },
+                    valuationDate:
+                        ValuationDate {
+                            fxFixingDate: if settlementProvision -> nonDeliverableSettlement -> fxFixingDate exists
+                                    then MapFxFixingDate(
+                                            settlementProvision -> nonDeliverableSettlement -> fxFixingDate,
+                                            paymentDates
+                                        ),
+                            ...
+                        },
                     ...
                 },
-                valuationDate: ValuationDate {
-                    fxFixingDate: if settlementProvision -> nonDeliverableSettlement -> fxFixingDate exists
-                        then MapFxFixingDate(
-                                settlementProvision -> nonDeliverableSettlement -> fxFixingDate,
-                                paymentDates
-                            ),
-                    ...
-                },
-                ...
-            },
+            ...
+        }
+
+func MapReturnSwapAmountToSettlementTerms:
+    inputs:
+        amount fpml.ReturnSwapAmount (0..1)
+    output:
+        settlementTerms SettlementTerms (0..1)
+
+    set settlementTerms:
+        SettlementTerms {
+            settlementType: if amount -> cashSettlement = True
+                    then Cash,
+            settlementCurrency: MapCurrency(
+                        amount -> currencyAndDeterminationMethodModel -> currency
+                    ),
             ...
         }
 
@@ -66,18 +96,18 @@ func MapOptionSettlementModelToSettlementTerms:
         SettlementTerms {
             settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
             settlementCurrency: MapCurrency(
-                    fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
-                ),
+                        fpmlOptionSettlementModel -> settlementAmountOrCurrencyModel -> settlementCurrency
+                    ),
             settlementDate: fpmlOptionSettlementModel -> settlementDate
-                extract
-                    SettlementDate {
-                        adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
-                                adjustableDate -> unadjustedDate -> value -> date,
-                                adjustableDate,
-                                relativeDate
-                            ),
-                        ...
-                    },
+                    extract
+                        SettlementDate {
+                            adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        adjustableDate -> unadjustedDate -> value -> date,
+                                        adjustableDate,
+                                        relativeDate
+                                    ),
+                            ...
+                        },
             ...
         }
 
@@ -92,22 +122,23 @@ func MapEquityExerciseValuationSettlementToSettlementTerms:
         SettlementTerms {
             settlementType: fpmlEquityExerciseValuationSettlement -> settlementType to-enum SettlementTypeEnum,
             settlementDate: fpmlEquityExerciseValuationSettlement -> settlementDate
-                extract
-                    SettlementDate {
-                        adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
-                                adjustableDate -> unadjustedDate -> value -> date,
-                                adjustableDate,
-                                relativeDate
-                            ),
-                        ...
-                    },
+                    extract
+                        SettlementDate {
+                            adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                        adjustableDate -> unadjustedDate -> value -> date,
+                                        adjustableDate,
+                                        relativeDate
+                                    ),
+                            ...
+                        },
             settlementCurrency: fpmlEquityExerciseValuationSettlement -> settlementCurrency -> value,
-            physicalSettlementTerms: PhysicalSettlementTerms {
-                clearedPhysicalSettlement: fpmlClearingInstructions -> clearedPhysicalSettlement,
-                predeterminedClearingOrganizationParty: if fpmlClearingInstructions -> predeterminedClearingOrganizationPartyReference -> href exists
-                    then AncillaryRoleEnum -> PredeterminedClearingOrganizationParty,
-                ...
-            },
+            physicalSettlementTerms:
+                PhysicalSettlementTerms {
+                    clearedPhysicalSettlement: fpmlClearingInstructions -> clearedPhysicalSettlement,
+                    predeterminedClearingOrganizationParty: if fpmlClearingInstructions -> predeterminedClearingOrganizationPartyReference -> href exists
+                            then AncillaryRoleEnum -> PredeterminedClearingOrganizationParty,
+                    ...
+                },
             ...
         }
 
@@ -122,11 +153,11 @@ func MapCashSettlementToSettlementTerms:
         then SettlementTerms {
                 settlementType: Cash,
                 settlementCurrency: MapCurrency(
-                        GetFpmlCashSettlementCurrency(fpmlCashSettlement) first
-                    ),
+                            GetFpmlCashSettlementCurrency(fpmlCashSettlement) first
+                        ),
                 cashSettlementTerms: MapCashSettlementToCashSettlementTerms(
-                        fpmlCashSettlement
-                    ),
+                            fpmlCashSettlement
+                        ),
                 ...
             }
 
@@ -222,8 +253,8 @@ func MapCashSettlementToCashSettlementTerms:
     set cashSettlementTerms -> valuationDate:
         ValuationDate {
             valuationDate: MapRelativeDateOffset(
-                    fpmlCashSettlement -> cashSettlementValuationDate
-                ),
+                        fpmlCashSettlement -> cashSettlementValuationDate
+                    ),
             ...
         }
     set cashSettlementTerms -> valuationTime:
@@ -242,18 +273,18 @@ func MapMidMarketValuationMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: cdmCashSettlementMethod,
                 valuationMethod: MapValuationMethod(
-                        empty,
-                        fpmMidMarketValuationMethod -> cashSettlementReferenceBanks,
-                        empty,
-                        MapCashCollateralValuationMethod(
-                                fpmMidMarketValuationMethod -> applicableCsa,
-                                fpmMidMarketValuationMethod -> cashCollateralCurrency,
-                                fpmMidMarketValuationMethod -> cashCollateralInterestRate,
-                                fpmMidMarketValuationMethod -> agreedDiscountRate,
-                                empty,
-                                empty
-                            )
-                    ),
+                            empty,
+                            fpmMidMarketValuationMethod -> cashSettlementReferenceBanks,
+                            empty,
+                            MapCashCollateralValuationMethod(
+                                    fpmMidMarketValuationMethod -> applicableCsa,
+                                    fpmMidMarketValuationMethod -> cashCollateralCurrency,
+                                    fpmMidMarketValuationMethod -> cashCollateralInterestRate,
+                                    fpmMidMarketValuationMethod -> agreedDiscountRate,
+                                    empty,
+                                    empty
+                                )
+                        ),
                 ...
             }
 
@@ -268,18 +299,18 @@ func MapReplacementValueFirmQuotationsMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: ReplacementValueFirmQuotations,
                 valuationMethod: MapValuationMethod(
-                        empty,
-                        fpmReplacementValueFirmQuotationsMethod -> cashSettlementReferenceBanks,
-                        empty,
-                        MapCashCollateralValuationMethod(
-                                empty,
-                                fpmReplacementValueFirmQuotationsMethod -> cashCollateralCurrency,
-                                empty,
-                                empty,
-                                fpmReplacementValueFirmQuotationsMethod -> protectedParty,
-                                fpmReplacementValueFirmQuotationsMethod -> prescribedDocumentationAdjustment
-                            )
-                    ),
+                            empty,
+                            fpmReplacementValueFirmQuotationsMethod -> cashSettlementReferenceBanks,
+                            empty,
+                            MapCashCollateralValuationMethod(
+                                    empty,
+                                    fpmReplacementValueFirmQuotationsMethod -> cashCollateralCurrency,
+                                    empty,
+                                    empty,
+                                    fpmReplacementValueFirmQuotationsMethod -> protectedParty,
+                                    fpmReplacementValueFirmQuotationsMethod -> prescribedDocumentationAdjustment
+                                )
+                        ),
                 ...
             }
 
@@ -294,18 +325,18 @@ func MapReplacementValueCalculationAgentDeterminationMethodToCashSettlementTerms
         then CashSettlementTerms {
                 cashSettlementMethod: ReplacementValueCalculationAgentDetermination,
                 valuationMethod: MapValuationMethod(
-                        empty,
-                        fpmReplacementValueCalculationAgentDeterminationMethod -> cashSettlementReferenceBanks,
-                        empty,
-                        MapCashCollateralValuationMethod(
-                                empty,
-                                fpmReplacementValueCalculationAgentDeterminationMethod -> cashCollateralCurrency,
-                                empty,
-                                empty,
-                                fpmReplacementValueCalculationAgentDeterminationMethod -> protectedParty,
-                                empty
-                            )
-                    ),
+                            empty,
+                            fpmReplacementValueCalculationAgentDeterminationMethod -> cashSettlementReferenceBanks,
+                            empty,
+                            MapCashCollateralValuationMethod(
+                                    empty,
+                                    fpmReplacementValueCalculationAgentDeterminationMethod -> cashCollateralCurrency,
+                                    empty,
+                                    empty,
+                                    fpmReplacementValueCalculationAgentDeterminationMethod -> protectedParty,
+                                    empty
+                                )
+                        ),
                 ...
             }
 
@@ -320,18 +351,18 @@ func MapCollateralizedCashPriceMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: CollateralizedCashPriceMethod,
                 valuationMethod: MapValuationMethod(
-                        fpmlCollateralizedCashPriceMethod -> settlementRateSource,
-                        fpmlCollateralizedCashPriceMethod -> settlementRateSource -> cashSettlementReferenceBanks,
-                        fpmlCollateralizedCashPriceMethod -> quotationRateType,
-                        MapCashCollateralValuationMethod(
-                                empty,
-                                empty,
-                                empty,
-                                fpmlCollateralizedCashPriceMethod -> agreedDiscountRate,
-                                empty,
-                                empty
-                            )
-                    ),
+                            fpmlCollateralizedCashPriceMethod -> settlementRateSource,
+                            fpmlCollateralizedCashPriceMethod -> settlementRateSource -> cashSettlementReferenceBanks,
+                            fpmlCollateralizedCashPriceMethod -> quotationRateType,
+                            MapCashCollateralValuationMethod(
+                                    empty,
+                                    empty,
+                                    empty,
+                                    fpmlCollateralizedCashPriceMethod -> agreedDiscountRate,
+                                    empty,
+                                    empty
+                                )
+                        ),
                 ...
             }
 
@@ -347,11 +378,11 @@ func MapCashPriceMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: cdmCashSettlementMethod,
                 valuationMethod: MapValuationMethod(
-                        empty,
-                        fpmlCashPriceMethod -> cashSettlementReferenceBanks,
-                        fpmlCashPriceMethod -> quotationRateType,
-                        empty
-                    ),
+                            empty,
+                            fpmlCashPriceMethod -> cashSettlementReferenceBanks,
+                            fpmlCashPriceMethod -> quotationRateType,
+                            empty
+                        ),
                 ...
             }
 
@@ -367,11 +398,11 @@ func MapYieldCurveMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: cdmCashSettlementMethod,
                 valuationMethod: MapValuationMethod(
-                        fpmlParYieldCurveUnadjustedMethod -> settlementRateSource,
-                        fpmlParYieldCurveUnadjustedMethod -> settlementRateSource -> cashSettlementReferenceBanks,
-                        fpmlParYieldCurveUnadjustedMethod -> quotationRateType,
-                        empty
-                    ),
+                            fpmlParYieldCurveUnadjustedMethod -> settlementRateSource,
+                            fpmlParYieldCurveUnadjustedMethod -> settlementRateSource -> cashSettlementReferenceBanks,
+                            fpmlParYieldCurveUnadjustedMethod -> quotationRateType,
+                            empty
+                        ),
                 ...
             }
 
@@ -386,11 +417,11 @@ func MapCrossCurrencyMethodToCashSettlementTerms:
         then CashSettlementTerms {
                 cashSettlementMethod: CrossCurrencyMethod,
                 valuationMethod: MapValuationMethod(
-                        empty,
-                        empty,
-                        fpmlCrossCurrencyMethod -> quotationRateType,
-                        empty
-                    ),
+                            empty,
+                            empty,
+                            fpmlCrossCurrencyMethod -> quotationRateType,
+                            empty
+                        ),
                 ...
             }
 
@@ -405,17 +436,19 @@ func MapValuationMethod:
 
     set valuationMethod:
         ValuationMethod {
-            valuationSource: ValuationSource {
-                quotedCurrencyPair: empty,
-                informationSource: FxSpotRateSource {
-                    primarySource: MapInformationSource(
-                            fpmlSettlementRateSource -> informationSource
-                        ),
+            valuationSource:
+                ValuationSource {
+                    quotedCurrencyPair: empty,
+                    informationSource:
+                        FxSpotRateSource {
+                            primarySource: MapInformationSource(
+                                        fpmlSettlementRateSource -> informationSource
+                                    ),
+                            ...
+                        },
+                    referenceBanks: MapReferenceBanks(fpmlCashSettlementReferenceBanks),
                     ...
                 },
-                referenceBanks: MapReferenceBanks(fpmlCashSettlementReferenceBanks),
-                ...
-            },
             quotationMethod: fpmlQuotationRateType to-enum QuotationRateTypeEnum,
             cashCollateralValuationMethod: cdmCashCollateralValuationMethod,
             ...
@@ -437,15 +470,15 @@ func MapCashCollateralValuationMethod:
             applicableCsa: fpmlApplicableCsa to-enum CsaTypeEnum,
             cashCollateralCurrency: MapCurrency(fpmlCashCollateralCurrency),
             cashCollateralInterestRate: MapStringWithScheme(
-                    fpmlCashCollateralInterestRate -> value,
-                    fpmlCashCollateralInterestRate -> benchmarkRateScheme
-                ),
+                        fpmlCashCollateralInterestRate -> value,
+                        fpmlCashCollateralInterestRate -> benchmarkRateScheme
+                    ),
             agreedDiscountRate: MapStringWithScheme(
-                    fpmlAgreedDiscountRate -> value,
-                    fpmlAgreedDiscountRate -> benchmarkRateScheme
-                ),
+                        fpmlAgreedDiscountRate -> value,
+                        fpmlAgreedDiscountRate -> benchmarkRateScheme
+                    ),
             protectedParty: fpmlProtectedParty
-                extract partyDetermination to-enum PartyDeterminationEnum,
+                    extract partyDetermination to-enum PartyDeterminationEnum,
             prescribedDocumentationAdjustment: fpmlPrescribedDocumentationAdjustment
         }
 
@@ -458,7 +491,7 @@ func MapReferenceBanks:
     set referenceBanks:
         ReferenceBanks {
             referenceBank: fpmlCashSettlementReferenceBanks -> referenceBank
-                extract MapReferenceBank
+                    extract MapReferenceBank
         }
 
 func MapReferenceBank:
@@ -470,9 +503,9 @@ func MapReferenceBank:
     set referenceBank:
         ReferenceBank {
             referenceBankId: MapStringWithScheme(
-                    fpmlReferenceBank -> referenceBankId -> value,
-                    fpmlReferenceBank -> referenceBankId -> referenceBankIdScheme
-                ),
+                        fpmlReferenceBank -> referenceBankId -> value,
+                        fpmlReferenceBank -> referenceBankId -> referenceBankIdScheme
+                    ),
             referenceBankName: fpmlReferenceBank -> referenceBankName
         }
 
@@ -487,33 +520,38 @@ func MapFxCashSettlementToSettlementTerms:
         SettlementTerms {
             settlementType: Cash,
             settlementCurrency: MapCurrency(fpmlFxCashSettlement -> settlementCurrency),
-            settlementDate: SettlementDate {
-                adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
-                        empty,
-                        fpmlFxCashSettlement -> settlementDate,
-                        empty
-                    ),
-                valueDate: valueDate,
-                ...
-            },
-            cashSettlementTerms: CashSettlementTerms {
-                cashSettlementMethod: empty,
-                valuationMethod: ValuationMethod {
-                    valuationSource: ValuationSource {
-                        quotedCurrencyPair: empty,
-                        informationSource: FxSpotRateSource {
-                            primarySource: empty,
-                            ...
-                        },
-                        referenceBanks: empty,
-                        ...
-                    },
-                    quotationMethod: empty,
-                    cashCollateralValuationMethod: empty,
+            settlementDate:
+                SettlementDate {
+                    adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                empty,
+                                fpmlFxCashSettlement -> settlementDate,
+                                empty
+                            ),
+                    valueDate: valueDate,
                     ...
                 },
-                ...
-            },
+            cashSettlementTerms:
+                CashSettlementTerms {
+                    cashSettlementMethod: empty,
+                    valuationMethod:
+                        ValuationMethod {
+                            valuationSource:
+                                ValuationSource {
+                                    quotedCurrencyPair: empty,
+                                    informationSource:
+                                        FxSpotRateSource {
+                                            primarySource: empty,
+                                            ...
+                                        },
+                                    referenceBanks: empty,
+                                    ...
+                                },
+                            quotationMethod: empty,
+                            cashCollateralValuationMethod: empty,
+                            ...
+                        },
+                    ...
+                },
             ...
         }
 
@@ -539,56 +577,68 @@ func MapFxOptionToSettlementTerms:
     set settlementTerms:
         if settlementDate exists
         then SettlementTerms {
-                settlementDate: SettlementDate {
-                    valueDate: MapZoneDateTimeToDate(settlementDate),
-                    ...
-                },
+                settlementDate:
+                    SettlementDate {
+                        valueDate: MapZoneDateTimeToDate(settlementDate),
+                        ...
+                    },
                 settlementType: settlementType,
                 settlementCurrency: MapCurrency(
-                        fpmlFxOption -> cashSettlement -> settlementCurrency
-                    ),
+                            fpmlFxOption -> cashSettlement -> settlementCurrency
+                        ),
                 cashSettlementTerms: fpmlFxOption -> cashSettlement -> fixing
-                    then extract
-                        CashSettlementTerms {
-                            valuationMethod: ValuationMethod {
-                                valuationSource: ValuationSource {
-                                    quotedCurrencyPair: quotedCurrencyPair
-                                        then extract
-                                            QuotedCurrencyPair {
-                                                currency1: MapCurrency(currency1),
-                                                currency2: MapCurrency(currency2),
-                                                quoteBasis: quoteBasis to-enum QuoteBasisEnum
+                        then extract
+                            CashSettlementTerms {
+                                valuationMethod:
+                                    ValuationMethod {
+                                        valuationSource:
+                                            ValuationSource {
+                                                quotedCurrencyPair: quotedCurrencyPair
+                                                        then extract
+                                                            QuotedCurrencyPair {
+                                                                currency1: MapCurrency(
+                                                                            currency1
+                                                                        ),
+                                                                currency2: MapCurrency(
+                                                                            currency2
+                                                                        ),
+                                                                quoteBasis: quoteBasis to-enum QuoteBasisEnum
+                                                            },
+                                                informationSource:
+                                                    FxSpotRateSource {
+                                                        primarySource: MapInformationSource(
+                                                                    fxSpotRateSource -> primaryRateSource
+                                                                ),
+                                                        ...
+                                                    },
+                                                ...
                                             },
-                                    informationSource: FxSpotRateSource {
-                                        primarySource: MapInformationSource(
-                                                fxSpotRateSource -> primaryRateSource
-                                            ),
                                         ...
                                     },
-                                    ...
-                                },
-                                ...
-                            },
-                            valuationDate: ValuationDate {
-                                fxFixingDate: FxFixingDate {
-                                    period: empty,
-                                    periodMultiplier: empty,
-                                    fxFixingDate: AdjustableOrRelativeDate {
-                                        adjustableDate: AdjustableDate {
-                                            adjustedDate: fixingDate -> date,
-                                            ...
-                                        },
+                                valuationDate:
+                                    ValuationDate {
+                                        fxFixingDate:
+                                            FxFixingDate {
+                                                period: empty,
+                                                periodMultiplier: empty,
+                                                fxFixingDate:
+                                                    AdjustableOrRelativeDate {
+                                                        adjustableDate:
+                                                            AdjustableDate {
+                                                                adjustedDate: fixingDate -> date,
+                                                                ...
+                                                            },
+                                                        ...
+                                                    },
+                                                ...
+                                            },
                                         ...
                                     },
-                                    ...
-                                },
+                                valuationTime: MapBusinessCenterTime(
+                                            fxSpotRateSource -> fixingTime
+                                        ),
                                 ...
                             },
-                            valuationTime: MapBusinessCenterTime(
-                                    fxSpotRateSource -> fixingTime
-                                ),
-                            ...
-                        },
                 ...
             }
 
@@ -611,10 +661,11 @@ func MapFxDigitalOptionToSettlementTerms:
 
     set settlementTerms:
         SettlementTerms {
-            settlementDate: SettlementDate {
-                valueDate: MapZoneDateTimeToDate(settlementDate),
-                ...
-            },
+            settlementDate:
+                SettlementDate {
+                    valueDate: MapZoneDateTimeToDate(settlementDate),
+                    ...
+                },
             settlementType: empty,
             ...
         }
@@ -633,44 +684,63 @@ func MapCreditDefaultSwapChoiceToSettlementTerms:
         then SettlementTerms {
                 settlementType: SettlementTypeEnum -> Physical,
                 settlementCurrency: MapCurrency(physical -> settlementCurrency),
-                physicalSettlementTerms: PhysicalSettlementTerms {
-                    physicalSettlementPeriod: PhysicalSettlementPeriod {
-                        businessDays: physical -> physicalSettlementPeriod -> businessDays,
+                physicalSettlementTerms:
+                    PhysicalSettlementTerms {
+                        physicalSettlementPeriod:
+                            PhysicalSettlementPeriod {
+                                businessDaysNotSpecified: physical -> physicalSettlementPeriod -> businessDaysNotSpecified,
+                                businessDays: physical -> physicalSettlementPeriod -> businessDays,
+                                maximumBusinessDays: physical -> physicalSettlementPeriod -> maximumBusinessDays,
+                            },
+                        deliverableObligations:
+                            DeliverableObligations {
+                                accruedInterest: physical -> deliverableObligations -> accruedInterest,
+                                category: MapObligationCategoryEnum(
+                                            physical -> deliverableObligations -> category to-string
+                                        ),
+                                notSubordinated: physical -> deliverableObligations -> notSubordinated,
+                                notSovereignLender: physical -> deliverableObligations -> notSovereignLender,
+                                notDomesticLaw: physical -> deliverableObligations -> notDomesticLaw,
+                                notContingent: physical -> deliverableObligations -> notContingent,
+                                notDomesticIssuance: physical -> deliverableObligations -> notDomesticIssuance,
+                                specifiedCurrency:
+                                    SpecifiedCurrency {
+                                        applicable: physical -> deliverableObligations -> specifiedCurrency -> applicable,
+                                        ...
+                                    },
+                                assignableLoan:
+                                    PCDeliverableObligationCharac {
+                                        applicable: physical -> deliverableObligations -> assignableLoan -> applicable,
+                                        ...
+                                    },
+                                consentRequiredLoan:
+                                    PCDeliverableObligationCharac {
+                                        applicable: physical -> deliverableObligations -> consentRequiredLoan -> applicable,
+                                        ...
+                                    },
+                                transferable: physical -> deliverableObligations -> transferable,
+                                maximumMaturity: MapPeriod(
+                                            physical -> deliverableObligations -> maximumMaturity
+                                        ),
+                                notBearer: physical -> deliverableObligations -> notBearer,
+                                ...
+                            },
+                        escrow: physical -> escrow,
+                        sixtyBusinessDaySettlementCap: physical -> sixtyBusinessDaySettlementCap,
                         ...
                     },
-                    deliverableObligations: DeliverableObligations {
-                        accruedInterest: physical -> deliverableObligations -> accruedInterest,
-                        category: MapObligationCategoryEnum(
-                                physical -> deliverableObligations -> category to-string
-                            ),
-                        notSubordinated: physical -> deliverableObligations -> notSubordinated,
-                        notContingent: physical -> deliverableObligations -> notContingent,
-                        specifiedCurrency: SpecifiedCurrency {
-                            applicable: physical -> deliverableObligations -> specifiedCurrency -> applicable,
-                            ...
-                        },
-                        assignableLoan: PCDeliverableObligationCharac {
-                            applicable: physical -> deliverableObligations -> assignableLoan -> applicable,
-                            ...
-                        },
-                        consentRequiredLoan: PCDeliverableObligationCharac {
-                            applicable: physical -> deliverableObligations -> consentRequiredLoan -> applicable,
-                            ...
-                        },
-                        transferable: physical -> deliverableObligations -> transferable,
-                        maximumMaturity: MapPeriod(
-                                physical -> deliverableObligations -> maximumMaturity
-                            ),
-                        notBearer: physical -> deliverableObligations -> notBearer,
-                        ...
-                    },
-                    escrow: physical -> escrow,
-                    ...
-                },
                 ...
             }
         else if cash exists
-        then empty
+        then SettlementTerms {
+                settlementType: SettlementTypeEnum -> Cash,
+                cashSettlementTerms:
+                    CashSettlementTerms {
+                        recoveryFactor: cash -> fixedRecoveryModel -> recoveryFactor,
+                        ...
+                    },
+                ...
+            }
 
 func MapCommoditySettlementModelToSettlementTerms:
     inputs:
@@ -681,11 +751,11 @@ func MapCommoditySettlementModelToSettlementTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: if fpmlCommoditySwapDetailsModel -> settlementCurrency exists
-                then SettlementTypeEnum -> Cash,
+                    then SettlementTypeEnum -> Cash,
             settlementCurrency: MapStringWithScheme(
-                    fpmlCommoditySwapDetailsModel -> settlementCurrency -> value,
-                    fpmlCommoditySwapDetailsModel -> settlementCurrency -> currencyScheme
-                ),
+                        fpmlCommoditySwapDetailsModel -> settlementCurrency -> value,
+                        fpmlCommoditySwapDetailsModel -> settlementCurrency -> currencyScheme
+                    ),
             ...
         }
 
@@ -698,17 +768,19 @@ func MapFxPerformanceSwapToSettlementTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: if fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency exists
-                then SettlementTypeEnum -> Cash,
+                    then SettlementTypeEnum -> Cash,
             settlementCurrency: fpmlFxPerformanceSwap -> cashSettlement -> settlementCurrency -> value,
-            settlementDate: SettlementDate {
-                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
-                    adjustedDate: MapDateWithId(
-                            fpmlFxPerformanceSwap -> settlementDate -> adjustedDate
-                        ),
+            settlementDate:
+                SettlementDate {
+                    adjustableOrRelativeDate:
+                        AdjustableOrAdjustedOrRelativeDate {
+                            adjustedDate: MapDateWithId(
+                                        fpmlFxPerformanceSwap -> settlementDate -> adjustedDate
+                                    ),
+                            ...
+                        },
                     ...
                 },
-                ...
-            },
             ...
         }
 
@@ -723,14 +795,15 @@ func MapCorrelationLegToSettlmentTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: fpmlOptionSettlementModel -> settlementType to-enum SettlementTypeEnum,
-            settlementDate: SettlementDate {
-                adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
-                        empty,
-                        fpmlOptionSettlementModel -> settlementDate -> adjustableDate,
-                        fpmlOptionSettlementModel -> settlementDate -> relativeDate
-                    ),
-                ...
-            },
+            settlementDate:
+                SettlementDate {
+                    adjustableOrRelativeDate: MapAdjustableOrAdjustedOrRelativeDate(
+                                empty,
+                                fpmlOptionSettlementModel -> settlementDate -> adjustableDate,
+                                fpmlOptionSettlementModel -> settlementDate -> relativeDate
+                            ),
+                    ...
+                },
             ...
         }
 
@@ -743,16 +816,18 @@ func MapCommodityExerciseToSettlementTerms:
     set settlementTerms:
         SettlementTerms {
             settlementType: if fpmlCommodityExercise -> settlementCurrency exists
-                then Cash,
+                    then Cash,
             settlementCurrency: fpmlCommodityExercise -> settlementCurrency -> value,
-            settlementDate: SettlementDate {
-                adjustableOrRelativeDate: AdjustableOrAdjustedOrRelativeDate {
-                    relativeDate: MapDateOffsetToRelativeDateOffset(
-                            fpmlCommodityExercise -> commodityPaymentDatesModel -> relativePaymentDates -> paymentDaysOffset
-                        ),
+            settlementDate:
+                SettlementDate {
+                    adjustableOrRelativeDate:
+                        AdjustableOrAdjustedOrRelativeDate {
+                            relativeDate: MapDateOffsetToRelativeDateOffset(
+                                        fpmlCommodityExercise -> commodityPaymentDatesModel -> relativePaymentDates -> paymentDaysOffset
+                                    ),
+                            ...
+                        },
                     ...
                 },
-                ...
-            },
             ...
         }

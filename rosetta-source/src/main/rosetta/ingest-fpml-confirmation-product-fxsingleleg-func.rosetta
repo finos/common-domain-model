@@ -2,16 +2,17 @@ namespace cdm.ingest.fpml.confirmation.product.fxsingleleg: <"FpML FxSingleLeg p
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.common.settlement.*
-import cdm.product.template.*
-
-import fpml.confirmation.* as fpml
-
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.pricequantity.*
 import cdm.ingest.fpml.confirmation.settlement.*
+import cdm.observable.asset.*
+import cdm.product.common.settlement.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.fx.* as fpml
+import fpml.consolidated.shared.* as fpml
 
 func MapFxSingleLegCounterpartyList:
     inputs:
@@ -54,10 +55,10 @@ func MapFxSingleLegEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: MapFxCoreDetailsModelToSettlementPayout(
-                    fpmlFxSingleLeg -> fxCoreDetailsModel,
-                    empty,
-                    cdmCounterpartyList
-                ),
+                        fpmlFxSingleLeg -> fxCoreDetailsModel,
+                        empty,
+                        cdmCounterpartyList
+                    ),
             ...
         }
 
@@ -73,35 +74,38 @@ func MapFxCoreDetailsModelToSettlementPayout:
 
     set payout:
         Payout {
-            SettlementPayout: SettlementPayout {
-                payerReceiver: MapPayerReceiver(
-                        exchangedCurrency -> payerReceiverModel,
-                        cdmCounterpartyList
-                    ),
-                priceQuantity: ResolvablePriceQuantity {
-                    quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
-                            fpmlFxCoreDetailsModel,
-                            fpmlLeg
-                        ),
-                    priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
-                            fpmlFxCoreDetailsModel,
-                            fpmlLeg
-                        ),
+            SettlementPayout:
+                SettlementPayout {
+                    payerReceiver: MapPayerReceiver(
+                                exchangedCurrency -> payerReceiverModel,
+                                cdmCounterpartyList
+                            ),
+                    priceQuantity:
+                        ResolvablePriceQuantity {
+                            quantitySchedule: MapFxCoreDetailsModelQuantityWithAddress(
+                                        fpmlFxCoreDetailsModel,
+                                        fpmlLeg
+                                    ),
+                            priceSchedule: MapFxCoreDetailsModelPriceWithAddress(
+                                        fpmlFxCoreDetailsModel,
+                                        fpmlLeg
+                                    ),
+                            ...
+                        },
+                    settlementTerms: MapFxCashSettlementToSettlementTerms(
+                                fpmlFxCoreDetailsModel -> nonDeliverableSettlement,
+                                fpmlFxCoreDetailsModel -> valueDate -> date
+                            ),
+                    underlier:
+                        Underlier {
+                            Observable: MapCurrencyToObservableCashWithAddress(
+                                        exchangedCurrency -> paymentAmount -> currency,
+                                        fpmlLeg
+                                    ),
+                            ...
+                        },
                     ...
                 },
-                settlementTerms: MapFxCashSettlementToSettlementTerms(
-                        fpmlFxCoreDetailsModel -> nonDeliverableSettlement,
-                        fpmlFxCoreDetailsModel -> valueDate -> date
-                    ),
-                underlier: Underlier {
-                    Observable: MapCurrencyToObservableCashWithAddress(
-                            exchangedCurrency -> paymentAmount -> currency,
-                            fpmlLeg
-                        ),
-                    ...
-                },
-                ...
-            },
             ...
         }
 

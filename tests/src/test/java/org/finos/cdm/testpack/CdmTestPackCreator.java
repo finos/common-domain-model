@@ -2,13 +2,16 @@ package org.finos.cdm.testpack;
 
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
+import com.regnosys.rosetta.common.transform.PipelineModel;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
+import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.slf4j.Logger;
@@ -26,7 +29,8 @@ public class CdmTestPackCreator {
      * This set of test packs need to be excluded for all test packs except the one defined.
      */
     public static final List<String> EVENT_TEST_PACKS =
-            List.of("fpml-5-10-incomplete-processes",
+            List.of("fpml-5-10-native-cdm-events",
+                    "fpml-5-10-incomplete-processes",
                     "fpml-5-10-processes",
                     "fpml-5-12-processes",
                     "fpml-5-13-incomplete-processes-execution-advice",
@@ -60,6 +64,7 @@ public class CdmTestPackCreator {
         return new PipelineTreeConfig()
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToTradeState.class)
                 .starting(TransformType.TRANSLATE, Ingest_FpmlConfirmationToWorkflowStep.class)
+                .withInputSerialisationFormatMap(RuneFpmlModelConfig.TYPE_TO_FORMAT_MAP)
                 .withXmlConfigMap(RuneFpmlModelConfig.TYPE_TO_XML_CONFIG_MAP)
                 .withTestPackFilter(filter)
                 .strictUniqueIds()

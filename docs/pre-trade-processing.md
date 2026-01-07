@@ -51,7 +51,8 @@ pertain to the overall availability and the records held within it should be
 specified. 
 
 ``` Haskell
-type AvailableInventory: 
+type AvailableInventory:
+    [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1) 
     messageInformation MessageInformation (0..1) 
     party Party (0..*) 
@@ -329,7 +330,8 @@ _Note: ```SecurityLocate``` is an extension of ```AvailableInventory``` and
 thus inherits all the data points from within it._
 
 ``` Haskell
-type AvailableInventory: 
+type AvailableInventory:
+    [rootType]
     availableInventoryType AvailableInventoryTypeEnum (1..1) 
     messageInformation MessageInformation (0..1) 
     party Party (0..*) 

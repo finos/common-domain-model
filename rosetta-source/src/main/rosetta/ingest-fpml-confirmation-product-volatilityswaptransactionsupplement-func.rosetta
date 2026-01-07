@@ -2,14 +2,15 @@ namespace cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsuppleme
 version "${project.version}"
 
 import cdm.base.staticdata.party.*
-import cdm.observable.asset.*
-import cdm.product.template.*
-
-import fpml.confirmation.* as fpml
-
 import cdm.ingest.fpml.confirmation.common.*
 import cdm.ingest.fpml.confirmation.party.*
 import cdm.ingest.fpml.confirmation.product.volatilityswap.*
+import cdm.observable.asset.*
+import cdm.product.template.*
+
+import fpml.consolidated.* as fpml
+import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.volatility.swaps.* as fpml
 
 func MapVolatilitySwapTransactionSupplementCounterpartyList:
     inputs:
@@ -38,15 +39,15 @@ func MapVolatilitySwapTransactionSupplementNonTransferableProduct:
     set nonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(
-                    fpmlVolatilitySwapTransactionSupplement -> productModel
-                ),
+                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                    ),
             taxonomy: MapProductTaxonomyList(
-                    fpmlVolatilitySwapTransactionSupplement -> productModel
-                ),
+                        fpmlVolatilitySwapTransactionSupplement -> productModel
+                    ),
             economicTerms: MapVolatilitySwapTransactionSupplementEconomicTerms(
-                    fpmlVolatilitySwapTransactionSupplement,
-                    cdmCounterpartyList
-                )
+                        fpmlVolatilitySwapTransactionSupplement,
+                        cdmCounterpartyList
+                    )
         }
 
 func MapVolatilitySwapTransactionSupplementEconomicTerms:
@@ -59,7 +60,7 @@ func MapVolatilitySwapTransactionSupplementEconomicTerms:
     set economicTerms:
         EconomicTerms {
             payout: fpmlVolatilitySwapTransactionSupplement -> volatilityLeg
-                extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
+                    extract MapVolatilityLegToPerformancePayout(item, cdmCounterpartyList),
             ...
         }
 

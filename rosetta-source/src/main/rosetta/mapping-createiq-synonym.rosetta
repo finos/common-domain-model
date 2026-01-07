@@ -7,32 +7,12 @@ import cdm.base.staticdata.party.*
 import cdm.legaldocumentation.common.*
 import cdm.legaldocumentation.csa.*
 import cdm.legaldocumentation.master.*
-import cdm.product.collateral.*
+import cdm.product.collateral.* as collateral
 
 synonym source CreateiQ
 
 synonym source CreateiQ_1_0 extends CreateiQ
 {
-    AccessConditionsElections:
-        + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_illegality" = "not_applicable"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_illegality" = "not_applicable"]
-        + illegality
-            [set to True when "partyA_illegality" = "applicable" , set to False when "partyA_illegality" = "not_applicable"]
-            [set to True when "partyB_illegality" = "applicable" , set to False when "partyB_illegality" = "not_applicable"]
-        + forceMajeure
-            [set to True when "partyA_force_majeure" = "applicable" , set to False when "partyA_force_majeure" = "not_applicable"]
-            [set to True when "partyB_force_majeure" = "applicable" , set to False when "partyB_force_majeure" = "not_applicable"]
-        + taxEvent
-            [set to True when "partyA_tax_event" = "applicable" , set to False when "partyA_tax_event" = "not_applicable"]
-            [set to True when "partyB_tax_event" = "applicable" , set to False when "partyB_tax_event" = "not_applicable"]
-        + taxEventUponMerger
-            [set to True when "partyA_tax_event_upon_merger" = "applicable" , set to False when "partyA_tax_event_upon_merger" = "not_applicable"]
-            [set to True when "partyB_tax_event_upon_merger" = "applicable" , set to False when "partyB_tax_event_upon_merger" = "not_applicable"]
-        + creditEventUponMerger
-            [set to True when "partyA_credit_event_upon_merger" = "applicable" , set to False when "partyA_credit_event_upon_merger" = "not_applicable"]
-            [set to True when "partyB_credit_event_upon_merger" = "applicable" , set to False when "partyB_credit_event_upon_merger" = "not_applicable"]
-
     AdditionalRepresentation:
         + customElection
             [value "specify" removeHtml]
@@ -104,16 +84,23 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     CalculationAgentTerms:
         + party
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "partyA"]
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent" = "party_A"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "partyB"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent" = "party_B"]
-            [set to CounterpartyRoleEnum -> Party1 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
-            [set to CounterpartyRoleEnum -> Party2 when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "calculation_agent" = "partyA"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "calculation_agent" = "party_A"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "calculation_agent" = "partyB"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "calculation_agent" = "party_B"]
+            [set to CalculationValuationAgentPartyEnum -> PartyMakingDemand when "calculation_agent_IM_party" = "demanding_party_and_secured_party"]
         + bespokeCalculationAgentTerms
             [value "specify" set when "is_applicable" = "applicable" removeHtml]
 
-    CalculationAndTiming:
+    CalculationAndTimingBase:
+        + notificationTime
+            [value "notification_time" mapper "NotificationTime"]
+
+    CalculationAndTimingVariationMargin:
+        + valuationAgent
+            [value "collateral_valuation_agent"]
+
+    CalculationAndTimingInitialMargin:
         + calculationAgentTerms
             [value "calculation_agent_IM"]
         + bespokeCalculationDate
@@ -122,13 +109,32 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "calculation_time"]
             [value "credit_support_amount_calculation_time"]
         + calculationDateLocation
-            [value "calculation_date_location" mapper "CalculationDateLocation"]
-            [value "calculation_date" mapper "CalculationDateLocation"]
-            [value "designated_city" mapper "CalculationDateLocation"]
+            [value "calculation_date_location" mapper "ValuationCalculationDateLocation"] // Need new mapper
+            [value "calculation_date" mapper "ValuationCalculationDateLocation"] // Need new mapper
+            [value "designated_city" mapper "ValuationCalculationDateLocation"] // Need new mapper
         + notificationTime
-            [value "notification_time"]
-        + collateralValuationAgent
+            [value "notification_time" mapper "NotificationTime"]
+        + cashSettlementDay
+            [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
+        + securitiesSettlementDay
+            [value "specify" path "securities_settlement_day" set when "securities_settlement_day->specified" = "true"]
+
+    CalculationAndTimingLegacy:
+        + valuationAgent
             [value "collateral_valuation_agent"]
+
+    CalculationAndTimingCollateralTransferAgreement:
+        + calculationAgentTerms
+            [value "calculation_agent_IM"]
+        + bespokeCalculationDate
+            [value "calculation_date"]
+        + bespokeCalculationTime
+            [value "calculation_time"]
+            [value "credit_support_amount_calculation_time"]
+        + calculationDateLocation
+            [value "calculation_date_location" mapper "ValuationCalculationDateLocation"] // Need new mapper
+            [value "calculation_date" mapper "ValuationCalculationDateLocation"] // Need new mapper
+            [value "designated_city" mapper "ValuationCalculationDateLocation"] // Need new mapper
         + cashSettlementDay
             [value "specify" path "cash_settlement_day" set when "cash_settlement_day->specified" = "true"]
         + securitiesSettlementDay
@@ -168,10 +174,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + demandsAndNotices
             [value "demands_and_notices" mapper "DemandsAndNotices"]
         + addressesForTransfer
-            [value "addresses_for_transfers" mapper "ContactElection"]
-        + otherCsa
-            [value "other_csa->specify" set when "other_csa->specified" = "true"]
-            [value "other_csa->other_csa_specify" set when "other_csa->specified" = "true"]
+            [value "addresses_for_transfers" mapper "AddressesForTransfer"]
         + terminationCurrencyAmendment
             [value "amendment_to_termination_currency" , "security_provider_posting_obligations" mapper "TerminationCurrencyAmendment"]
         + minimumTransferAmountAmendment
@@ -189,10 +192,10 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + pledgeeRepresentativeRider
             [value "rider"]
 
-    CollateralValuationAgentElection:
+    ValuationAgent:
         + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
+            [set to CalculationValuationAgentPartyEnum -> Party1 when "partyA_collateral_valuation_agent" = "other"]
+            [set to CalculationValuationAgentPartyEnum -> Party2 when "partyB_collateral_valuation_agent" = "other"]
         + additionalLanguage
             [value "partyA_specify" removeHtml]
             [value "partyB_specify" removeHtml]
@@ -203,9 +206,8 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "conditions_precedent" path "conditions_precedent"]
         + customProvision
             [value "specify" path "conditions_precedent" removeHtml]
-        + accessConditions
-            [value "access_conditions" mapper "AdditionalTerminationEvent"]
-            [value "access_conditions" path "conditions_precedent" mapper "AdditionalTerminationEvent"]
+        + specifiedConditionOrAccessCondition
+            [value "access_conditions" mapper "SpecifiedOrAccessConditionPartyElection"]
 
     ControlAgreementNecEventElection:
         + party
@@ -216,6 +218,23 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to True when "partyB_control_agreement_nec_event" = "applicable" , set to False when "partyB_control_agreement_nec_event" = "not_applicable"]
 
     CreditSupportAgreementElections:
+        + CreditSupportAgreementInitialMarginElections
+            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Annex"]
+            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Deed"]
+        + CreditSupportAgreementVariationMarginElections
+            [value "ignore"]
+        + CreditSupportAgreementLegacyElections
+            [value "ignore"]
+
+    CreditSupportAgreementElectionsBase:
+        + substitution
+            [value "consent"]
+        + distributionAndInterestPayment
+            [value "eligible_currencies" path "interest_rate" mapper "DistributionAndInterestPayment"] // Need new mapper
+        + demandsAndNotices
+            [value "demands_and_notices" mapper "DemandsAndNotices"] // Need new mapper on latest version
+
+    CreditSupportAgreementInitialMarginElections:
         + oneWayProvisions
             [value "one_way_provisions"]
         + identifiedCrossCurrencySwap
@@ -223,25 +242,15 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + fxHaircutCurrency
             [value "fx_haircut_percentage"]
         + postingObligations
-            [value "chargor_posting_obligations" mapper "PostingObligations"]
-            [value "pledgor_posting_obligations" mapper "PostingObligations"]
-            [value "obligor_posting_obligations" mapper "PostingObligations"]
+            [value "chargor_posting_obligations" mapper "PostingObligations"] // Need new mapper
+            [value "pledgor_posting_obligations" mapper "PostingObligations"] // Need new mapper
+            [value "obligor_posting_obligations" mapper "PostingObligations"] // Need new mapper
         + substitutedRegime
-            [value "substituted_regimes" mapper "CsaSubstitutedRegime"]
-        + additionalObligations
-            [value "additional_obligations_specify" path "additional_obligations" set when "additional_obligations->additional_obligations" = "specify" removeHtml]
-        + substitution
-            [value "consent"]
-        + distributionAndInterestPayment
-            [value "eligible_currencies" path "interest_rate" mapper "DistributionAndInterestPayment"]
-        + demandsAndNotices
-            [value "demands_and_notices" mapper "DemandsAndNotices"]
-        + addressesForTransfer
-            [value "addresses_for_transfers" mapper "ContactElection"]
+            [value "substituted_regimes" mapper "CsaSubstitutedRegime"] // Need new mapper
         + terminationCurrencyAmendment
-            [value "amendment_to_termination_currency" , "pledgor_posting_obligations" , "chargor_posting_obligations" , "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"]
+            [value "amendment_to_termination_currency" , "pledgor_posting_obligations" , "chargor_posting_obligations" , "obligor_posting_obligations" mapper "TerminationCurrencyAmendment"] // Need new mapper
         + minimumTransferAmountAmendment
-            [value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"]
+            [value "amendment_to_minimum_transfer_amount" mapper "MinimumTransferAmountAmendment"] // Need new mapper
         + interpretationTerms
             [value "paragraph_10ki_specify" path "interpretation" set when "interpretation->paragraph_10ki_is" = "specify" removeHtml]
             [value "paragraph_11g_specify" path "interpretation" set when "interpretation->paragraph_11g_is" = "specify" removeHtml]
@@ -257,6 +266,16 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" path "bespoke_provisions" set when "bespoke_provisions->is_applicable" = "applicable" removeHtml]
         + trustSchemeAddendum
             [set to True when "trust_scheme_addendum->is_applicable" = "applicable" , set to False when "trust_scheme_addendum->is_applicable" = "not_applicable"]
+
+    CreditSupportAgreementVariationMarginElections:
+        + fxHaircutCurrency
+            [value "fx_haircut_percentage"]
+        + addressesForTransfer
+            [value "addresses_for_transfers" mapper "AddressesForTransfer"]
+
+    CreditSupportAgreementLegacyElections:
+        + addressesForTransfer
+            [value "addresses_for_transfers" mapper "AddressesForTransfer"]
 
     CustodianEvent:
         + isApplicable
@@ -328,7 +347,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + collateralManagementAgreement
             [value "collateral_management_agreement" mapper "CollateralManagementAgreement"]
 
-    DeliveryAmount:
+    collateral.DeliveryAmount:
         + standardElection
             [value "delivery_amount"]
         + customElection
@@ -336,18 +355,18 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     DisputeResolution:
         + resolutionTime
-            [value "resolution_time" set when "resolution_time->specified" = "true"]
+            [value "resolution_time" mapper "ResolutionTime"] // set when "resolution_time->specified" = "true"
         + otherTerms
             [value "specify" path "resolution_time" set when "resolution_time->specified" = "false" removeHtml]
         + recalculationOfValue
             [value "recalculation_of_value" mapper "RecalculationOfValue"]
             [value "recalculation_of_market_value" mapper "RecalculationOfValue"]
 
-    CollateralInterestParameters:
+    collateral.CollateralInterestParameters:
         + currency
             [value "eligible_currency"]
 
-    CollateralInterestCalculationParameters:
+    collateral.CollateralInterestCalculationParameters:
         + fixedRate
             [value "interest_rate" pattern "([0-9.]*)([%])" "$1"]
 
@@ -447,14 +466,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + transferTimingProviso
             [set to True when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "applicable" , set to False when "inclusion_of_proviso_for_transfer_timing_is_applicable" = "not_applicable"]
 
-    NotificationTimeElection:
-        + party
-            [set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "false" , set to CounterpartyRoleEnum -> Party1 when "partyA_notification_time" = "true"]
-            [set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "false" , set to CounterpartyRoleEnum -> Party2 when "partyB_notification_time" = "true"]
-        + customNotification
-            [value "partyA_specify" set when "partyA_notification_time" = "false" removeHtml]
-            [value "partyB_specify" set when "partyB_notification_time" = "false" removeHtml]
-
     OneWayProvisions:
         + isApplicable
             [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
@@ -462,7 +473,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [set to CounterpartyRoleEnum -> Party1 when "posting_party" = "partyA" , set to CounterpartyRoleEnum -> Party2 when "posting_party" = "partyB"]
 
     OtherAgreements:
-        + otherCsa
+        + otherCSA
             [value "other_csa"]
         + japaneseLawCsa
             [value "japanese_law_csa_vm"]
@@ -475,10 +486,10 @@ synonym source CreateiQ_1_0 extends CreateiQ
 
     PostingObligations:
         + securityProvider
-            [value "pledgor"]
-            [value "chargor"]
-            [value "obligor"]
-            [value "security_provider"]
+            [value "pledgor" mapper "SecurityProvider"]
+            [value "chargor" mapper "SecurityProvider"]
+            [value "obligor" mapper "SecurityProvider"]
+            [value "security_provider" mapper "SecurityProvider"]
 
     PostingObligationsElection:
         + eligibleCollateral
@@ -486,12 +497,17 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "partyB_eligible_currencies" set when "partyB_type" = "specify"]
 
     ProcessAgentElection:
-        + party
+        + partyReference
             [set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party1 when "partyA_process_agent" = "other"]
             [set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "not_applicable" , set to CounterpartyRoleEnum -> Party2 when "partyB_process_agent" = "other"]
         + isApplicable
             [set to True when "partyA_process_agent" = "other" , set to False when "partyA_process_agent" = "not_applicable"]
             [set to True when "partyB_process_agent" = "other" , set to False when "partyB_process_agent" = "not_applicable"]
+        + additionalInformation
+            [value "partyA_specify" set when "partyA_process_agent" = "other" removeHtml]
+            [value "partyA_specify" set when "partyA_process_agent" = "not_applicable" removeHtml]
+            [value "partyB_specify" set when "partyB_process_agent" = "other" removeHtml]
+            [value "partyB_specify" set when "partyB_process_agent" = "not_applicable" removeHtml]
 
     Regime:
         + applicableRegime
@@ -511,7 +527,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + representativeEventTerms
             [value "specify_text" removeHtml]
 
-    ReturnAmount:
+    collateral.ReturnAmount:
         + includesDefaultLanguage
             [set to True when "return_amount" = "include" , set to False when "return_amount" = "exclude" , set to False when "return_amount" = "other"]
         + customElection
@@ -593,10 +609,20 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" removeHtml]
 
     SensitivityMethodologies:
+        + partyElection
+
+    SensitivityMethodologiesPartyElection:
         + sensitivityToEquity
-            [value "sensitivities_to_equity_indices_funds_etfs"]
         + sensitivityToCommodity
             [value "sensitivities_to_commodity_indices"]
+
+    SensitivityToEquity:
+        + sensitivityToIndices
+            [value "sensitivities_to_equity_indices_funds_etfs"]
+        + sensitivityToETFs
+            [value "sensitivities_to_equity_indices_funds_etfs"]
+        + sensitivityToFunds
+            [value "sensitivities_to_equity_indices_funds_etfs"]
 
     SensitivityMethodology:
         + specifiedMethodology
@@ -613,6 +639,9 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "specify" set when "is_specified" = "other" removeHtml]
 
     Substitution:
+        + partyElection
+
+    SubstitutionPartyElection:
         + needsConsent
             [set to True when "is_applicable" = "standard" , set to False when "is_applicable" = "other"]
             [set to True when "is_applicable" = "applicable" , set to False when "is_applicable" = "not_applicable"]
@@ -628,29 +657,49 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + baseCurrency
             [value "currency" path "base_currency" mapper "IsoCurrency"]
 
-    CreditSupportObligations:
+    CreditSupportObligationsBase:
+        + minimumTransferAmount
+            [value "minimum_transfer_amount" mapper "MinimumTransferAmount"] // Need new mapper?
+        + bespokeTransferTiming
+            [value "transfer_timing"]
+
+    CreditSupportObligationsLegacy:
+        + threshold
+            [value "threshold" mapper "Threshold"] // Need new mapper?
+        + rounding
+            [value "rounding"]
+
+    CreditSupportObligationsInitialMargin:
         + marginApproach
             [value "selection_of_margin_approach"]
         + otherEligibleSupportIM
             [value "eligible_support_specify" path "other_eligible_support" set when "other_eligible_support->other_eligible_support" = "specify" removeHtml]
             [value "other_eligible_support" path "eligible_support" removeHtml]
         + threshold
-            [value "threshold" mapper "Threshold"]
-        + minimumTransferAmount
-            [value "minimum_transfer_amount" mapper "MinimumTransferAmount"]
+            [value "threshold" mapper "Threshold"] // Need new mapper?
         + rounding
             [value "rounding"]
-        + bespokeTransferTiming
-            [value "transfer_timing"]
+
+    CreditSupportObligationsCollateralTransferAgreement:
+        + marginApproach
+            [value "selection_of_margin_approach"]
+        + otherEligibleSupportIM
+            [value "eligible_support_specify" path "other_eligible_support" set when "other_eligible_support->other_eligible_support" = "specify" removeHtml]
+            [value "other_eligible_support" path "eligible_support" removeHtml]
+        + threshold
+            [value "threshold" mapper "Threshold"] // Need new mapper?
+        + rounding
+            [value "rounding"]
+
+    CreditSupportObligationsVariationMargin:
+        + rounding
+            [value "rounding"]
 
     OtherAgreement:
         + date
             [value "collateral_transfer_agreement_date" path "collateral_transfer_agreement"]
 
     Agreement:
-        + creditSupportAgreementElections
-            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Annex"]
-            [value "partyA" path "answers" set when "document->documentType" = "Credit Support Deed"]
         + collateralTransferAgreementElections
             [value "partyA" path "answers" set when "document->documentType" = "Collateral Transfer Agreement"]
         + securityAgreementElections
@@ -694,11 +743,11 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + creditSupportAgreementType
             [value "documentType"]
         + creditSupportAgreementMarginType
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (Jpn Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (NY Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSA (NY Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSD (Eng Law)"]
-            [set to CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSD (Eng Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (Jpn Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSA (NY Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSA (NY Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2016 IM CSD (Eng Law)"]
+            [set to collateral.CollateralMarginTypeEnum -> InitialMargin when "abbreviation" = "2018 IM CSD (Eng Law)"]
         + masterAgreementType
             [value "documentType"]
 
@@ -717,16 +766,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + legalDocument
             [value "specify"]
 
-    BusinessCenterTime:
-        + hourMinuteTime
-            [value "partyA_time"]
-            [value "partyB_time"]
-            [value "time"]
-        + businessCenter
-            [value "partyA_location"]
-            [value "partyB_location"]
-            [value "location"]
-
     CustomisableOffset:
         + customProvision
             [value "re_end_date__days_after_representative_event__other__specify" set when "re_end_date__days_after_representative_event" = "other__specify" removeHtml]
@@ -737,8 +776,8 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + accountName
             [value "name"]
 
-    PartyContactInformation:
-        + additionalInformation
+    NoticeInformationElection:
+        + additionalContactInformation
             [value "partyA_specify" removeHtml]
             [value "partyB_specify" removeHtml]
 
@@ -747,6 +786,38 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "partyA"]
 
     enums
+
+    CounterpartyRoleEnum:
+        + Party1
+            [value "partyA"]
+        + Party2
+            [value "partyB"]
+
+    CSASpecifiedOrAccessConditionEnum:
+        + Illegality
+        + TaxEvent
+        + TaxEventUponMerger
+        + CreditEventUponMerger
+        + AdditionalTerminationEvents
+        + ForceMajeureEvent
+        + PotentialTerminationEvents
+
+    DeliveryReturnAmountEnum:
+        + Standard
+        + NonStandardRatings
+        + NonStandardOther
+
+    AdditionalTerminationEventEnum:
+        + FailureToNotifyNAV
+        + InvestmentAdvisor
+        + KeyPersons
+        + NAVDeclineTrigger
+        + NAVFloor
+        + OperativeDocs
+        + RatingsDowngradeOrWithdrawalParty1
+        + RatingsDowngradeOrWithdrawalParty2
+        + AsApplicable
+        + AsSpecified
 
     ISOCurrencyCodeEnum:
         + AED
@@ -773,8 +844,6 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "Barbados Dollar"]
         + BDT
             [value "Bangladeshi Taka"]
-        + BGN
-            [value "Bulgarian Lev"]
         + BHD
             [value "Bahraini Dinar"]
         + BIF
@@ -1158,7 +1227,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + EachDay
             [value "each_day"]
 
-    DeliveryAmountElectionEnum:
+    collateral.DeliveryAmountElectionEnum:
         + LastLocalBusinessDay
             [value "include_one"]
         + LastAndAnyLocalBusinessDay
@@ -1457,7 +1526,7 @@ synonym source CreateiQ_1_0 extends CreateiQ
         + ISDAMaster
             [value "Master Agreement"]
 
-    CreditSupportAgreementTypeEnum:
+    collateral.CreditSupportAgreementTypeEnum:
         + CreditSupportDeed
             [value "Credit Support Deed"]
         + CreditSupportAnnex
@@ -1480,4 +1549,9 @@ synonym source CreateiQ_1_0 extends CreateiQ
             [value "executed_in_belgium"]
         + OtherLocation
             [value "other"]
+
+    CalculationValuationAgentPartyEnum:
+        + Party1
+        + Party2
+        + PartyMakingDemand
 }

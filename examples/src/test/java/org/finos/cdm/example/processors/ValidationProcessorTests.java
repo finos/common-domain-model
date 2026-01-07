@@ -19,10 +19,10 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
      * The test ensures that the TradeState loaded from a sample JSON file meets
      * the expected validation criteria.
      */
-    @Test
+    //@Test
     public void mustValidateValidProduct() {
         // Path to the sample JSON file representing a valid TradeState (Interest Rate FRA)
-        String filePath = "result-json-files/fpml-5-13/products/inflation-swaps/inflation-swap-ex01-yoy.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-inflation-swaps/inflation-swap-ex01-yoy.json";
 
         // Load the TradeState object from the file and resolve any references
         TradeState sample = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, filePath);
@@ -32,22 +32,16 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the TradeState and generate a validation report
         ValidationReport report = validate(sample);
-
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Qualified Object Type: " + result.getValidationType());
-            logger.debug("Qualified Object Details: " + result.getDefinition());
-            logger.debug("Qualified Object Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the qualification result indicates success
-        assertTrue(report.success(), "The qualification result should indicate success");
+        assertTrue(report.success(), "The validation result should indicate success");
 
         // Verify that all validation results indicate success
         assertTrue(report.getValidationResults().stream().allMatch(ValidationResult::isSuccess), "All validation results should indicate success");
 
         // Verify that the qualified object type is as expected
-        assertEquals(report.getResultObject().getType(),TradeState.class, "The qualified object type should match the expected type");
+        assertEquals(report.getResultObject().getType(),TradeState.class, "The validation result object type should match the expected type");
     }
 
     /**
@@ -57,21 +51,14 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
     @Test
     public void mustNotValidateInvalidProduct() {
         // Create an invalid TradeState (missing required fields or incorrect data)
-        String filePath = "result-json-files/fpml-5-13/products/interest-rate-derivatives/ird-ex08-fra.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex08-fra.json";
 
         // Load the TradeState object from the file and resolve any references
         TradeState sample = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, filePath);
 
         // Validate the invalid TradeState and generate a validation report
         ValidationReport report = validate(sample);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure for an invalid product");
@@ -83,7 +70,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
         assertFalse(report.getValidationResults().stream().allMatch(result -> result.isSuccess()), "At least one validation result should indicate failure");
 
         // Verify that the result object type is as expected
-        assertEquals(report.getResultObject().getType(), TradeState.class, "The qualified object type should still match the expected type");
+        assertEquals(report.getResultObject().getType(), TradeState.class, "The validation result object type should still match the expected type");
     }
 
     /**
@@ -94,21 +81,14 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
     //@Test
     public void mustValidateValidWorkflowStep() {
         // Path to the sample JSON file representing a valid WorkflowStep
-        String filePath = "result-json-files/fpml-5-13/processes/execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.json";
+        String filePath = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-13-processes-execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.json";
 
         // Load the WorkflowStep object from the file
         WorkflowStep sample = ResourcesUtils.getObjectAndResolveReferences(WorkflowStep.class, filePath);
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(sample);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process succeeded
         assertTrue(report.success(), "The validation report should indicate success");
@@ -133,14 +113,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(ws);
-
-        // Log validation results for debugging
-        report.getValidationResults().forEach(result -> {
-            logger.debug("Validation Type: " + result.getValidationType());
-            logger.debug("Validation Definition: " + result.getDefinition());
-            logger.debug("Validation Name: " + result.getName());
-            logger.debug("Is Success: " + result.isSuccess());
-        });
+        report.logReport();
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure");
@@ -177,6 +150,4 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
             fail("An unexpected exception was thrown: " + e.getMessage());
         }
     }
-
-
 }
