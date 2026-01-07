@@ -1,13 +1,17 @@
-# *Reference Data - Update ISOCurrencyCodeEnum*
+# *Product Model - Support for Uncollateralised trades*
+
+_Background_
+
+In certain scenarios it is possible for securities lending trades to be set up with no collateral defined i.e. where there is an agreement between the borrower and the lender that there will be no cash or non-cash collateral posted as collateral against the trade.
+
+This is commonly seen between internal counterparties, i.e. intra-group trades.
 
 _What is being released?_
 
-Updated ISOCurrencyCodeEnum based on updated scheme ISO Standard 4217.
+A new option is being added to the CollateralTypeEnum of "Uncollateralised".
 
-Version updates include:
-
-removed value: BGN
+This allows trades to specifically state that there is no collateral expected to be posted against them.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#4321](https://github.com/finos/common-domain-model/pull/4321)
+The changes can be reviewed in PR: [#4300](https://github.com/finos/common-domain-model/pull/4300)
