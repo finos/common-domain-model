@@ -1,15 +1,17 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
+# *Product Model - Support for Uncollateralised trades*
 
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+In certain scenarios it is possible for securities lending trades to be set up with no collateral defined i.e. where there is an agreement between the borrower and the lender that there will be no cash or non-cash collateral posted as collateral against the trade.
+
+This is commonly seen between internal counterparties, i.e. intra-group trades.
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+A new option is being added to the CollateralTypeEnum of "Uncollateralised".
 
-_Review Directions_
+This allows trades to specifically state that there is no collateral expected to be posted against them.
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+_Review directions_
+
+The changes can be reviewed in PR: [#4300](https://github.com/finos/common-domain-model/pull/4300)
