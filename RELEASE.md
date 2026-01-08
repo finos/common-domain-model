@@ -1,8 +1,8 @@
-# *Legaldocumentation - Enhance the Umbrella functionality within the Legaldocumentation section of the CDM.*
+# *Legal Documentation - Enhanced functionality for Umbrella Agreements.*
 
 _Background_
 
-The Umbrella functionality within the CDM required to be built out to meet the requirements of the members to support the capture of Legal Agreement terms within an Umbrella Structure.
+The Umbrella functionality within the CDM is required to be built out to meet the requirements of the members to support the capture of Legal Agreement terms within an Umbrella Structure.
 
 The original solution only allowed for the identification that the agreement had an Umbrella structure and allowed the capture of term election variations through the use of a single string variable.
 
@@ -16,13 +16,13 @@ Updated types and enumerated lists have been added to the legal documentation co
 
 Enum
 
-- UmbrellaPartyRoleEnum - Represents the legal role a party is assigned for the agreement
+- `UmbrellaPartyRoleEnum` - Represents the legal role a party is assigned for the agreement
 
 Type
 
-- UmbrellaAgreementSet - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement
-- UmbrellaAgreementEntity - Defines the parties to the agreement
-- Parentparty - Allows parties to be associated with a parent party on the agreement. Within umbrella agreements funds, portfolio or managed accounts which are not legal entities can be defined that are required to be rolled up to a parent party for things such as margin management. Additionally multiple investment managers may exist within a single agreement and parties need to be associated with the applicable Investment Manager.
+- `UmbrellaAgreementSet` - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement
+- `UmbrellaAgreementEntity` - Defines the parties to the agreement
+- `ParentParty` - Allows parties to be associated with a parent party on the agreement. Within umbrella agreements funds, portfolio or managed accounts which are not legal entities can be defined that are required to be rolled up to a parent party for things such as margin management. Additionally multiple investment managers may exist within a single agreement and parties need to be associated with the applicable Investment Manager.
 
 _Review Directions_
 
