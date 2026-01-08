@@ -2,12 +2,12 @@
 
 _Background_
 
-The umbrella functionality within the CDM needs to support the capture of Legal Agreement terms under an umbrella agreement structure. The existing legal agreement types are not currently used under the existing `UmbrellaAgreement` type. 
+The umbrella functionality within the CDM needs to support the capture of Legal Agreement terms under an umbrella agreement structure. The existing legal agreement types are not currently used under the `UmbrellaAgreement` type, and there is no way of defining multiple sets of umbrella agreements. 
 
 
 _What is being released?_
 
-Updated types and enumerated lists have been added to support the specification of multiple sets of agreements and the related parties under an `UmbrellaAgremeent`.
+Updated types and enumerated lists have been added to support the specification of multiple sets of agreements and their related parties under an `UmbrellaAgremeent`.
 
 Enum
 
