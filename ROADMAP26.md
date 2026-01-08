@@ -129,9 +129,9 @@ Each of the Working Groups owns its Roadmap, facilitated by the Chair.  The Stee
      </tr>
   </tr>
     <tr>
-    <td><b>ISDA Legal Agreement WG</b><br>Vernon Alden-Smith</td>
+    <td><b>ISDA Legal Technology WG</b><br>Heather Smith</td>
     　<td colspan="4" ><ul>
-       <li>ISDA Document contributions (Community led)</li>
+       <li>ISDA Document and legal technology contributions (Community led)</li>
       </ul></td>
      </tr>
   </tr>
