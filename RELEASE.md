@@ -1,4 +1,4 @@
-# *Legal Documentation - Enhanced functionality for Umbrella Agreements.*
+# *Legal Documentation - Enhanced functionality for Umbrella Agreements*
 
 _Background_
 
@@ -6,7 +6,7 @@ The Umbrella functionality within the CDM is required to be built out to meet th
 
 The original solution only allowed for the identification that the agreement had an Umbrella structure and allowed the capture of term election variations through the use of a single string variable.
 
-The proposed solution creates an Umbrella structure that is mapped to the existing Legal documentation agreement election structures while allowing multiple agreement sets to be created that identify different election combinations and allows the agreement set to be defined against 1 or more parties to the agreement.
+The proposed solution creates an Umbrella structure that is mapped to the existing legal documentation agreement election structures while allowing multiple agreement sets to be created that identify different election combinations and allows the agreement set to be defined against 1 or more parties to the agreement.
 
 Parties to the agreement are also assigned roles identifying the legal and business purpose of those entities within the agreement.
 
@@ -16,12 +16,12 @@ Updated types and enumerated lists have been added to the legal documentation co
 
 Enum
 
-- `UmbrellaPartyRoleEnum` - Represents the legal role a party is assigned for the agreement
+- `UmbrellaPartyRoleEnum` - Represents the legal role a party is assigned for the agreement.
 
 Type
 
-- `UmbrellaAgreementSet` - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement
-- `UmbrellaAgreementEntity` - Defines the parties to the agreement
+- `UmbrellaAgreementSet` - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement.
+- `UmbrellaAgreementEntity` - Defines the parties to the agreement.
 - `ParentParty` - Allows parties to be associated with a parent party on the agreement. Within umbrella agreements funds, portfolio or managed accounts which are not legal entities can be defined that are required to be rolled up to a parent party for things such as margin management. Additionally multiple investment managers may exist within a single agreement and parties need to be associated with the applicable Investment Manager.
 
 _Review Directions_
