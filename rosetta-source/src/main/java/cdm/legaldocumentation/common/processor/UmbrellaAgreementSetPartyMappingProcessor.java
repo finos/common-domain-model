@@ -25,12 +25,12 @@ public class UmbrellaAgreementSetPartyMappingProcessor extends MappingProcessor 
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-        UmbrellaAgreementSet.UmbrellaAgreementSetBuilder umbrellaAgreementPartyBuilder = (UmbrellaAgreementSet.UmbrellaAgreementSetBuilder) parent;
+        UmbrellaAgreementSet.UmbrellaAgreementSetBuilder umbrellaAgreementSetBuilder = (UmbrellaAgreementSet.UmbrellaAgreementSetBuilder) parent;
         int index = 0;
         while (true) {
             Optional<UmbrellaAgreementParty> umbrellaAgreementParty = getUmbrellaAgreementParty(synonymPath, index++);
             if (umbrellaAgreementParty.isPresent()) {
-                umbrellaAgreementPartyBuilder.addParty(umbrellaAgreementParty.get());
+                umbrellaAgreementSetBuilder.addParty(umbrellaAgreementParty.get());
             } else {
                 break;
             }
