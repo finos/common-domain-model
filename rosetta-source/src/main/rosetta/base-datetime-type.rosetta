@@ -2,6 +2,7 @@ namespace cdm.base.datetime : <"Basic date and time concepts: relative date, dat
 version "${project.version}"
 
 import cdm.base.staticdata.codelist.*
+import cdm.base.math.*
 
 type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
     [metadata key]
@@ -172,9 +173,27 @@ type RelativeDateOffset extends Offset: <"A class defining a date (referred to a
     adjustedDate date (0..1) <"The date once the adjustment has been performed. (Note that this date may change if the business center holidays change).">
 
 type TimeZone: <"The time alongside with the timezone location information. This class makes use of the FpML TimezoneLocation construct.">
+     [metadata key]
     time time (1..1) <"The observation time.">
     location string (0..1) <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">
         [metadata scheme]
+
+type DirectOrRelativeTime: <"Represents a time definition that can be either an absolute (direct) time or a time calculated relative to another reference.">
+    directTime TimeZone (0..1)
+    relativeTime RelativeTime (0..1)
+
+type RelativeTime extends RelativeTimeOffset: <"Defines a time calculated relative to a reference time zone, optionally including offsets and rounding rules.">
+    timeRelativeTo TimeZone (0..1)
+        [metadata reference]
+
+type RelativeTimeOffset: <"Describes how a time is offset from a reference point, including the unit, magnitude, and rounding behavior.">
+    offsetTimeUnit TimeUnitEnum (0..1)
+    offsetMultiplier int (0..1) <"A time offset multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying a negative offset, e.g. -2 hours.">
+    rounding TimeRounding (0..1)
+
+type TimeRounding: <"Specifies how a calculated time should be rounded, including the direction and the unit to round to.">
+    roundingDirection RoundingDirectionEnum (1..1)
+    roundToUnit TimeUnitEnum (0..1)
 
 type PeriodRange: <"Indicates The period range defined as either a lower and upper period bound, or both.">
     lowerBound PeriodBound (0..1) <"Specifies the lower bound of a period range, e.g. greater than or equal to 5Y.">
