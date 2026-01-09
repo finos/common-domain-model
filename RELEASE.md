@@ -1,15 +1,38 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
+# Logging upgrade for validation java samples
 
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+The validation framework currently produces detailed but low-level log output during test execution, which can be difficult to interpret, especially for users who are not deeply familiar with the internal validation model or development tooling. As validation coverage grows, there is an increasing need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+This release introduces an enhanced logging approach for validation tests, designed to improve clarity and readability of validation results.
+
+_Validation logging enhancements_
+
+- **Improved validation result aggregation**  
+  Validation results are now grouped by key validation attributes (validation type, name, definition, failure reason, and model object name). This avoids duplicated log entries and presents a consolidated view of each distinct validation outcome, including all affected model paths.
+
+- **Clear validation summary section**  
+  A visual summary is logged at the beginning of the validation output, providing:
+  - Total number of distinct validation results
+  - Number of successful validations
+  - Number of failures  
+  This allows users to immediately assess the overall validation status at a glance.
+
+- **Dedicated and readable failure reporting**  
+  Failed validations are logged in clearly delimited sections, explicitly highlighting:
+  - Validation type and name
+  - Validation definition and failure reason
+  - Affected model object
+  - All relevant paths where the failure occurred  
+  This structure makes root causes easier to identify, even for non-expert users.
+
+- **Simplified success logging**  
+  Successful validations are logged in a concise, single-line format, confirming which rules passed without overwhelming the log output with unnecessary detail.
+
+These improvements are implemented via a new helper method in `ValidationProcessorTests`, ensuring consistent validation logging across test scenarios. The underlying validation logic remains unchanged; only the presentation of validation results has been enhanced to improve usability.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+Changes can be reviewed in PR: [#4344](https://github.com/finos/common-domain-model/pull/4344)
