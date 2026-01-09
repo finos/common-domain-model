@@ -14,7 +14,7 @@ This update introduces native support for representing the identifier type of a 
 
 - A deprecated tag to the `entityId` attribute
 
-- A new EntityIdentifier attribute under `LegalEntity` type, with the following contents:
+- A new EntityIdentifier attribute under `LegalEntity` type, with the following content:
 
     - the `identifier`
     - the `identifierType`, of type `EntityIdentifierTypeEnum`
