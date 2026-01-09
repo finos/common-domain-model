@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.isda.cdm.processor.CdmMappingProcessorUtils.removeHtml;
-import static org.isda.cdm.processor.CdmMappingProcessorUtils.toFieldWithMetaString;
 
 /**
  * CreateiQ mapping processor.
@@ -47,9 +46,6 @@ public class UmbrellaAgreementEntityMappingProcessor extends MappingProcessor {
 
 		setValueAndUpdateMappings(synonymPath.addElement("principal_name", index),
 				umbrellaAgreementEntityBuilder::setNameValue);
-
-		setValueAndUpdateMappings(synonymPath.addElement("lei", index),
-				value -> umbrellaAgreementEntityBuilder.addEntityId(toFieldWithMetaString(value)));
 
 		setValueAndUpdateMappings(synonymPath.addElement("additional", index),
 				value -> umbrellaAgreementEntityBuilder.setTerms(removeHtml(value)));
