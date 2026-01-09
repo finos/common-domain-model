@@ -73,7 +73,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
     //@Test
     void mustValidateValidProduct() {
         // Path to the sample JSON file representing a valid TradeState (Interest Rate FRA)
-        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-fx-derivatives/fx-ex01-fx-spot.json";
+        String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-inflation-swaps/inflation-swap-ex01-yoy.json";
 
         // Load the TradeState object from the file and resolve any references
         TradeState sample = ResourcesUtils.getObjectAndResolveReferences(TradeState.class, filePath);
@@ -88,13 +88,13 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
         logValidationResults(report);
 
         // Verify that the qualification result indicates success
-        assertTrue(report.success(), "The qualification result should indicate success");
+        assertTrue(report.success(), "The validation result should indicate success");
 
         // Verify that all validation results indicate success
         assertTrue(report.getValidationResults().stream().allMatch(ValidationResult::isSuccess), "All validation results should indicate success");
 
         // Verify that the qualified object type is as expected
-        assertEquals(report.getResultObject().getType(),TradeState.class, "The qualified object type should match the expected type");
+        assertEquals(report.getResultObject().getType(),TradeState.class, "The validation result object type should match the expected type");
     }
 
     /**
@@ -125,7 +125,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
         assertFalse(report.getValidationResults().stream().allMatch(ValidationResult::isSuccess), "At least one validation result should indicate failure");
 
         // Verify that the result object type is as expected
-        assertEquals(report.getResultObject().getType(), TradeState.class, "The qualified object type should still match the expected type");
+        assertEquals(report.getResultObject().getType(), TradeState.class, "The validation result object type should still match the expected type");
     }
 
     /**
@@ -209,6 +209,4 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
             fail("An unexpected exception was thrown: " + e.getMessage());
         }
     }
-
-
 }
