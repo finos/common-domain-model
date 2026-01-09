@@ -1,15 +1,24 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
+# *Legal Documentation - Enhanced functionality for Umbrella Agreements*
 
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+The umbrella functionality within the CDM needs to support the capture of Legal Agreement terms under an umbrella agreement structure. The existing legal agreement types are not currently used under the `UmbrellaAgreement` type, and there is no way of defining multiple sets of umbrella agreements. 
+
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+Updated types and enumerated lists have been added to support the specification of multiple sets of agreements and their related parties under an `UmbrellaAgremeent`.
+
+Enum
+
+- `UmbrellaPartyRoleEnum` - Represents the legal role a party is assigned for the agreement.
+
+Type
+
+- `UmbrellaAgreementSet` - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement.
+- `UmbrellaAgreementEntity` - Defines the parties to the agreement.
+- `ParentParty` - Allows parties to be associated with a parent party on the agreement.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+Changes can be reviewed in PR: [#4322](https://github.com/finos/common-domain-model/pull/4322)
