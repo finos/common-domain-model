@@ -665,9 +665,16 @@ type TerminationProvision: <"A class for defining option provisions.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
     extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
+    recallProvision RecallProvision (0..1) <"A provision defining criteria controlling the ability for a lender to recall securities it has lent out.">
 
     condition TerminationProvisionChoice:
-        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
+        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision, recallProvision
+
+type RecallProvision: <"Defines the additional features that allow securities to be recalled by the lender before the term of the loan. A recall is not the same as an early termination, but may result in the early termination of a loan.">
+    isRecallable boolean (1..1) <"Whether the securities on loan can be recalled by the lender.">
+    issuanceCutoffTime TimeZone (0..1) <"The operational deadline on T+0 before which a recall must be requested. For the UK, best practice recommends that this would be 30 minutes before market close i.e. 16:00:00 GMT.">
+    notificationTime TimeZone (0..1) <"The time on the day of intended settlement by which the borrower must notify the lender that they will be returning the requested security. For the UK, best practice recommends that this would be 30 minutes before the CREST DVP cut-off time i.e. 15:15:00 GMT">
+    intendedSettlementDate RelativeDateOffset (0..1) <"The intended settlement date of the recall, expressed as an offset against a relative date e.g. T+1. The best practice is that the borrower must make their best efforts to settle on T+1.">
 
 type OptionStrike: <"Defines the strike price of an option.">
 
