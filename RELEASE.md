@@ -5,6 +5,7 @@ _What is being released?_
 This release updates the DSL dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
 Version updates include:
+- `DSL` `9.75.1` Performance improvements and bug fix. See DSL release notes: [9.75.1](https://github.com/finos/rune-dsl/releases/tag/9.75.1)
 - `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
 - `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
 - `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
