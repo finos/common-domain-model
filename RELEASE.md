@@ -13,11 +13,10 @@ _What is being released?_
 This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
 
 - A deprecated tag to the `entityId` attribute
-
 - A new EntityIdentifier attribute under `LegalEntity` type, with the following items:
 
-    - the `identifier`
-    - the `identifierType`, of type `EntityIdentifierTypeEnum`
+  - the `identifier`
+  - the `identifierType`, of type `EntityIdentifierTypeEnum`
 
 A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifier`TypeEnum to include additional identifier types used for legal entities:
 
