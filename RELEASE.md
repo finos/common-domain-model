@@ -26,7 +26,7 @@ Third-party software library updates:
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4316](https://github.com/finos/common-domain-model/pull/4316) && [#4295](https://github.com/finos/common-domain-model/pull/4295) && [#4311] (https://github.com/finos/common-domain-model/pull/4311)
+The changes can be reviewed in PR: [#4316](https://github.com/finos/common-domain-model/pull/4316) && [#4295](https://github.com/finos/common-domain-model/pull/4295) && [#4311](https://github.com/finos/common-domain-model/pull/4311)
 
 # _Event Model - `empty` Value Handling Updates_
 
