@@ -16,4 +16,4 @@ This is generic enough to cover cash (which would be under `collateralPortfolio 
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4301](https://github.com/finos/common-domain-model/pull/4301)
+The changes can be reviewed in PR: [#4347](https://github.com/finos/common-domain-model/pull/4347)
