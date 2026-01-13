@@ -1,8 +1,6 @@
 namespace cdm.base.datetime: <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
-import cdm.base.staticdata.codelist.*
-
 func TimeZoneFromBusinessCenterTime: <"Function to resolve a time passed as BusinessCenterTime into a TimeZone time.">
     [codeImplementation]
     inputs:
@@ -134,25 +132,25 @@ func Today: <"Current date.">
     output:
         today date (1..1)
 
-func GetAllBusinessCenters: <"Returns a merged list of BusinessCenter codes for the supplied BusinessCenters.">
+func GetAllBusinessCenters: <"Returns a merged list of BusinessCenterEnums for the supplied BusinessCenters.">
     inputs:
         businessCenters BusinessCenters (1..1)
     output:
-        businessCenterCodes BusinessCenter (0..*)
+        businessCenterEnums BusinessCenterEnum (0..*)
 
-    add businessCenterCodes: <"Get list of BusinessCenter.">
+    add businessCenterEnums: <"Get list of BusinessCenterEnum.">
         businessCenters -> businessCenter
 
-    add businessCenterCodes: <"Get list of BusinessCenter from referenced BusinessCenters.">
+    add businessCenterEnums: <"Get list of BusinessCenterEnum from referenced BusinessCenters.">
         if businessCenters -> businessCentersReference exists
         then GetAllBusinessCenters(businessCenters -> businessCentersReference)
 
-    set businessCenterCodes: <"Remove any duplicates from the list.">
-        businessCenterCodes distinct
+    set businessCenterEnums: <"Remove any duplicates from the list.">
+        businessCenterEnums distinct
 
 func BusinessCenterHolidaysMultiple: <"Returns a merged list of holidays for the supplied business centers.">
     inputs:
-        businessCenters BusinessCenter (0..*) <"The business centers for which the holiday list is required.">
+        businessCenters BusinessCenterEnum (0..*) <"The business centers for which the holiday list is required.">
     output:
         holidayDates date (0..*) <"The combined list of holidays in all of the supplied business centers.">
 
@@ -167,7 +165,7 @@ func BusinessCenterHolidays:
     [codeImplementation]
     // data provider - implementation provides dates from data source
     inputs:
-        businessCenter BusinessCenter (1..1)
+        businessCenter BusinessCenterEnum (1..1)
     output:
         holidayDates date (0..*)
 
@@ -237,7 +235,7 @@ func PopOffDateList: <"Remove last element from a list of dates.">
 func IsWeekend: <"returns whether the supplied date is a weekend. This assumes a 5 day week with Saturday and Sunday as holidays. A more sophisticated implementation might use the business centers to determine which days are weekends, but most jurisdictions where derivatives are traded follow this convention.">
     inputs:
         date date (1..1) <"The date for which the weekday is needed">
-        businessCenters BusinessCenter (0..*) <"Not needed for the current implementation so ignored, but kept for future extensibility">
+        businessCenters BusinessCenterEnum (0..*) <"Not needed for the current implementation so ignored, but kept for future extensibility">
     output:
         isWeekend boolean (1..1)
 
@@ -248,7 +246,7 @@ func IsWeekend: <"returns whether the supplied date is a weekend. This assumes a
 func IsHoliday: <"Returns whether a day is a holiday for the specified business centers">
     inputs:
         checkDate date (1..1) <"The date being tested">
-        businessCenters BusinessCenter (0..*) <"The business centers for which the test is required">
+        businessCenters BusinessCenterEnum (0..*) <"The business centers for which the test is required">
     output:
         isHoliday boolean (1..1) <"true if the supplied date is a holiday">
 
@@ -261,7 +259,7 @@ func IsHoliday: <"Returns whether a day is a holiday for the specified business 
 func IsBusinessDay: <"returns an indicator of whether the supplied date is a good business date given the supplied business centers. True => good date, i.e. not a weekend or holiday. False means that it is either a weekend or a holiday">
     inputs:
         date date (1..1) <"The date for which we want to determine whether it's a good business day">
-        businessCenters BusinessCenter (0..*) <"The list of business centers to use">
+        businessCenters BusinessCenterEnum (0..*) <"The list of business centers to use">
     output:
         isGoodBusinessDay boolean (1..1) <"True if a good business day, false if a weekend or holiday">
 
@@ -276,7 +274,7 @@ func AddBusinessDays: <"Returns a good business date that has been offset by the
     inputs:
         originalDate date (1..1) <"date to be shifted. If not a good business day, a supplied shift of 0 will shift it to the next business day">
         offsetBusinessDays int (1..1) <"number of business days to shift the original date">
-        businessCenters BusinessCenter (0..*) <"business centers to use in the shifting">
+        businessCenters BusinessCenterEnum (0..*) <"business centers to use in the shifting">
     output:
         shiftedDate date (1..1)
 
@@ -302,7 +300,7 @@ func GenerateDateList: <"Creates a list of good business days starting from the 
     inputs:
         startDate date (1..1) <"Start of the date range to be generated.">
         endDate date (1..1) <"End of the date range to be generated">
-        businessCenters BusinessCenter (0..*) <"Business centers to be used to generate the list of good business days">
+        businessCenters BusinessCenterEnum (0..*) <"Business centers to be used to generate the list of good business days">
     output:
         dateList date (0..*) <"Resulting list of good business days.">
 

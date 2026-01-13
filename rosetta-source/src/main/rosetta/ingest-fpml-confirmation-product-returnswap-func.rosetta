@@ -283,11 +283,9 @@ func MapReturnLegToPerformancePayout:
                                 fpmlReturnLeg -> rateOfReturn -> notionalReset,
                                 fpmlReturnLeg
                             ),
-                    settlementTerms: if fpmlReturnLeg -> optionSettlementModel exists
-                            then MapOptionSettlementModelToSettlementTerms(
-                                    fpmlReturnLeg -> optionSettlementModel
-                                )
-                        else MapReturnSwapAmountToSettlementTerms(fpmlReturnLeg -> amount),
+                    settlementTerms: MapOptionSettlementModelToSettlementTerms(
+                                fpmlReturnLeg -> optionSettlementModel
+                            ),
                     underlier:
                         Underlier {
                             Observable: MapUnderlyerToObservableWithAddress(
@@ -349,10 +347,7 @@ func MapReturnLegValuationToValuationDates:
                         fpmlReturnLegValuation -> valuationPriceFinal -> priceSequence -> determinationMethod,
                         fpmlReturnLegValuation -> valuationPriceFinal -> valuationRules
                     ),
-            initialValuationDate: MapPerformanceValuationDates(
-                        fpmlReturnLegValuation -> initialPrice -> priceSequence -> determinationMethod,
-                        fpmlReturnLegValuation -> initialPrice -> valuationRules
-                    )
+            ...
         }
 
 func MapReturnSwapDividendReturnTerms:
@@ -370,8 +365,6 @@ func MapReturnSwapDividendReturnTerms:
                     dividendPayoutRatio:
                         DividendPayoutRatio {
                             totalRatio: fpmlDividendPayout -> dividendPayoutSequence -> dividendPayoutRatio,
-                            cashRatio: fpmlDividendConditions -> declaredCashAndCashEquivalentDividendPercentageModel -> declaredCashDividendPercentage,
-                            nonCashRatio: fpmlDividendConditions -> declaredCashAndCashEquivalentDividendPercentageModel -> declaredCashEquivalentDividendPercentage,
                             ...
                         },
                     firstOrSecondPeriod: MapDividendPeriodEnum(dividendPeriod to-string),
@@ -385,8 +378,6 @@ func MapReturnSwapDividendReturnTerms:
                     dividendCurrency: MapDividendCurrency(
                                 currencyAndDeterminationMethodModel
                             ),
-                    dividendComposition: fpmlDividendConditions -> dividendComposition to-enum DividendCompositionEnum,
-                    nonCashDividendTreatment: fpmlDividendConditions -> nonCashDividendTreatment to-enum NonCashDividendTreatmentEnum,
                     dividendPeriod:
                         DividendPeriod {
                             startDate: MapDateReferenceToDividendPaymentDate(
@@ -426,7 +417,7 @@ func MapReturnSwapPriceQuantityList:
     alias returnLeg:
         (fpmlReturnSwap -> returnSwapLeg
             extract
-                switch
+                item switch
                     fpml.ReturnLeg then item,
                     default empty)
             then only-element
@@ -434,7 +425,7 @@ func MapReturnSwapPriceQuantityList:
     add priceQuantityList:
         fpmlReturnSwap -> returnSwapLeg
             extract
-                switch
+                item switch
                     fpml.InterestLeg then
                         MapInterestLegToPriceQuantity(item, returnLeg),
                     fpml.ReturnLeg then MapReturnLegToPriceQuantity,

@@ -230,24 +230,16 @@ func MapCurrencyAmountToQuantity:
     output:
         nonNegativeQuantitySchedule NonNegativeQuantitySchedule (0..1)
 
-    alias mappedUnit:
-        if fpmlCurrency exists
-        then UnitType {
-                currency: MapCurrency(fpmlCurrency),
-                ...
-            }
-        else if fpmlFinancialUnit exists
-        then UnitType {
-                financialUnit: fpmlFinancialUnit,
-                ...
-            }
-
     set nonNegativeQuantitySchedule:
         if fpmlNotionalAmount exists
         then NonNegativeQuantitySchedule {
                 value: fpmlNotionalAmount,
                 datedValue: MapScheduleToDatedValueList(fpmlStepList),
-                unit: mappedUnit,
+                unit:
+                    UnitType {
+                        currency: MapCurrency(fpmlCurrency),
+                        ...
+                    },
                 ...
             }
 

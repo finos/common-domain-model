@@ -397,13 +397,13 @@ func MapNaturalPersonRoleList:
     output:
         naturalPersonRoleList NaturalPersonRole (0..*)
 
-    alias relatedPerson: fpmlPartyTradeInformation -> relatedPerson
+    alias relatedPerson:
+        fpmlPartyTradeInformation -> relatedPerson
 
     add naturalPersonRoleList:
-        relatedPerson
-            extract
-                if GetPartyPersonForRelatedPerson(fpmlParty, item) exists
-                then MapRelatedPersonToNaturalPersonRole
+        relatedPerson extract
+            if GetPartyPersonForRelatedPerson(fpmlParty, item) exists
+            then MapRelatedPersonToNaturalPersonRole
 
 func GetPartyPersonForRelatedPerson:
     inputs:
@@ -413,9 +413,8 @@ func GetPartyPersonForRelatedPerson:
         fpmlPerson fpml.Person (0..1)
 
     set fpmlPerson:
-        fpmlParty -> partyModel -> person
-            filter id = fpmlRelatedPerson -> personReference -> href
-            then first
+        fpmlParty -> partyModel -> person filter id = fpmlRelatedPerson -> personReference -> href
+        then first
 
 func MapRelatedPersonToNaturalPersonRole:
     inputs:
@@ -425,9 +424,7 @@ func MapRelatedPersonToNaturalPersonRole:
 
     set naturalPersonRole:
         NaturalPersonRole {
-            personReference: MapNaturalPersonRoleReference(
-                        fpmlRelatedPerson -> personReference -> href
-                    ),
+            personReference: MapNaturalPersonRoleReference(fpmlRelatedPerson -> personReference -> href),
             role: [fpmlRelatedPerson -> role -> value to-enum NaturalPersonRoleEnum]
         }
 
@@ -440,9 +437,9 @@ func MapNaturalPersonRoleReference:
 
     set personReference:
         if href exists
-        then empty with-meta {
-            reference: href
-        }
+            then empty with-meta {
+                reference: href
+            }
 
 func MapPartyRoleList:
     inputs:

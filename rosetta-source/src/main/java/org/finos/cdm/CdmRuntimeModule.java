@@ -2,8 +2,6 @@ package org.finos.cdm;
 
 import cdm.base.datetime.functions.*;
 import cdm.base.math.functions.*;
-import cdm.base.staticdata.codelist.*;
-import cdm.base.staticdata.codelist.functions.*;
 import cdm.ingest.fpml.confirmation.common.functions.StringContains;
 import cdm.ingest.fpml.confirmation.common.functions.StringContainsImpl;
 import cdm.ingest.fpml.confirmation.pricequantity.functions.*;
@@ -71,23 +69,11 @@ public class CdmRuntimeModule extends AbstractModule {
 		bind(ResolveAdjustableDates.class).to(bindResolveAdjustableDates());
 		bind(JsonSchemaParser.class).to(CreateiQJsonSchemaParser.class);
 
-		// External FpML Coding Schemes data loader
-		bind(LoadCodeList.class).to(bindLoadCodeList());
-		bind(ValidateFpMLCodingSchemeDomain.class).to(bindValidateFpMLCodingSchemeDomain());
-    
-    // Ingest
+		// Ingest
 		bind(StringContains.class).to(StringContainsImpl.class);
 		bind(CreateKey.class).to(CreateKeyImpl.class);
 		bind(CreateAssetKey.class).to(CreateAssetKeyImpl.class);
 		bind(CreateKeyForQuotedCurrencyPair.class).to(CreateKeyForQuotedCurrencyPairImpl.class);
-	}
-
-	protected Class<? extends LoadCodeList> bindLoadCodeList() {
-		return LoadCodeListImpl.class;
-	}
-
-	protected Class<? extends ValidateFpMLCodingSchemeDomain> bindValidateFpMLCodingSchemeDomain() {
-		return ValidateFpMLCodingSchemeImpl.class;
 	}
 
 	protected Class<? extends CalculationPeriodRange> bindCalculationPeriodRange() {

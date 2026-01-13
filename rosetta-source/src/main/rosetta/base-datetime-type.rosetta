@@ -1,8 +1,6 @@
 namespace cdm.base.datetime : <"Basic date and time concepts: relative date, date range, offset, business centre etc.">
 version "${project.version}"
 
-import cdm.base.staticdata.codelist.*
-
 type AdjustableDate: <"A class for defining a date that shall be subject to adjustment if it would otherwise fall on a day that is not a business day in the specified business centers, together with the convention for adjusting the date.">
     [metadata key]
 
@@ -79,7 +77,7 @@ type AdjustedRelativeDateOffset extends RelativeDateOffset: <"A type defining a 
 type BusinessCenters: <"A class for specifying the business day calendar location used in determining whether a day is a business day or not, either by specifying this business center by reference to an enumerated list that is maintained by the FpML standard, or by reference to such specification when it exists elsewhere as part of the instance document. This class corresponds to the FpML BusinessCentersOrReference.model.">
     [metadata key]
 
-    businessCenter BusinessCenter (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
+    businessCenter BusinessCenterEnum (0..*) <"A code identifying one or several business day calendar location(s). The set of business day calendar locations are specified by the business day calendar location enumeration which is maintained by the FpML standard.">
         [metadata scheme]
     commodityBusinessCalendar CommodityBusinessCalendarEnum (0..*)
         [metadata scheme]
@@ -92,7 +90,7 @@ type BusinessCenters: <"A class for specifying the business day calendar locatio
 type BusinessCenterTime: <"A class for defining a time with respect to a business day calendar location. For example, 11:00:00 GBLO.">
 
     hourMinuteTime time (1..1) <"A time specified in hh:mm:ss format where the second component must be '00', e.g. 11am would be represented as 11:00:00.">
-    businessCenter BusinessCenter (1..1) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">
+    businessCenter BusinessCenterEnum (1..1) <"A code identifying a business day calendar location. A business day calendar location is drawn from the list identified by the business day calendar location enumeration.">
         [metadata scheme]
 
 type BusinessDateRange extends DateRange: <"A class defining a range of contiguous business days by defining an unadjusted first date, an unadjusted last date and a business day convention and business centers for adjusting the first and last dates if they would otherwise fall on a non business day in the specified business centers. The days between the first and last date must also be good business days in the specified centers to be counted in the range.">
@@ -252,7 +250,7 @@ type CalculationFrequency: <"Represents the parameters for describing how often 
     weekOfMonth number (0..1) <"Specifies the week of the month if used.">
     offsetDays number (1..1) <"Specifies how many days from the trigger event should the payment occur.">
     dateLocation BusinessCenterTime (1..1) <"Specifies where is the time measured.">
-    businessCenter BusinessCenter (0..*) <"Specifies the business center for adjustment of calculation period.">
+    businessCenter BusinessCenterEnum (0..*) <"Specifies the business center for adjustment of calculation period.">
 
     condition Moy:
         if monthOfYear exists then monthOfYear <= 12

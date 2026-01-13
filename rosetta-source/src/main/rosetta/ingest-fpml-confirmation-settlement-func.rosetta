@@ -14,7 +14,6 @@ import fpml.consolidated.* as fpml
 import fpml.consolidated.cd.* as fpml
 import fpml.consolidated.com.* as fpml
 import fpml.consolidated.correlation.swaps.* as fpml
-import fpml.consolidated.eq.shared.* as fpml
 import fpml.consolidated.eqd.* as fpml
 import fpml.consolidated.fpmlenum.* as fpml
 import fpml.consolidated.fx.* as fpml
@@ -67,22 +66,6 @@ func MapSettlementProvisionToSettlementTerms:
                         },
                     ...
                 },
-            ...
-        }
-
-func MapReturnSwapAmountToSettlementTerms:
-    inputs:
-        amount fpml.ReturnSwapAmount (0..1)
-    output:
-        settlementTerms SettlementTerms (0..1)
-
-    set settlementTerms:
-        SettlementTerms {
-            settlementType: if amount -> cashSettlement = True
-                    then Cash,
-            settlementCurrency: MapCurrency(
-                        amount -> currencyAndDeterminationMethodModel -> currency
-                    ),
             ...
         }
 
