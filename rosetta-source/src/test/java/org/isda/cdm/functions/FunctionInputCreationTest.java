@@ -21,8 +21,8 @@ import cdm.event.workflow.WorkflowStep;
 import cdm.event.workflow.functions.Create_WorkflowStep;
 import cdm.legaldocumentation.common.*;
 import cdm.legaldocumentation.master.MasterAgreementTypeEnum;
-import cdm.observable.asset.Observable;
 import cdm.observable.asset.*;
+import cdm.observable.asset.Observable;
 import cdm.observable.asset.metafields.FieldWithMetaInterestRateIndex;
 import cdm.observable.asset.metafields.FieldWithMetaPriceSchedule;
 import cdm.product.asset.InterestRatePayout;
@@ -54,7 +54,6 @@ import com.rosetta.model.metafields.FieldWithMetaString;
 import com.rosetta.model.metafields.MetaFields;
 import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1030,7 +1029,7 @@ class FunctionInputCreationTest {
     }
 
     ObservationEvent getCreditEventObservationEvent() {
-        ObservationEvent observationEvent = ObservationEvent.builder()
+        return ObservationEvent.builder()
                 .setCreditEvent(CreditEvent.builder()
                         .setCreditEventType(CreditEventTypeEnum.BANKRUPTCY)
                         .setEventDeterminationDate(Date.of(2022, 2, 4))
@@ -1039,17 +1038,16 @@ class FunctionInputCreationTest {
                                 .setReferenceEntity(
                                         LegalEntity.builder()
                                                 .setName(FieldWithMetaString.builder()
-                                                        .setValue("McDonald's Corporation")))
+                                                        .setValue("McDonald's Corporation"))
+                                                .addEntityIdentifier(EntityIdentifier.builder()
+                                                        .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                        .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
-
                 );
-
-        return observationEvent;
     }
 
     @Test
     void validateCreditEventFuncInputJson() throws IOException {
-
         ObservationInstruction observationInstruction = ObservationInstruction.builder()
                 .setObservationEvent(getCreditEventObservationEvent());
 
@@ -1084,7 +1082,10 @@ class FunctionInputCreationTest {
                         .setReferenceInformation(ReferenceInformation.builder()
                                 .setReferenceEntity(LegalEntity.builder()
                                         .setName(FieldWithMetaString.builder()
-                                                .setValue("McDonald's Corporation")))
+                                                .setValue("McDonald's Corporation"))
+                                        .addEntityIdentifier(EntityIdentifier.builder()
+                                                .setIdentifierValue("UE2136O97NLB5BYP9H04")
+                                                .setIdentifierType(EntityIdentifierTypeEnum.LEI)))
                                 .setNoReferenceObligation(true))
 
                 );
