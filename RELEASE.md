@@ -1,8 +1,8 @@
-# Logging upgrade for validation java samples
+# Java samples - Validation tests logging
 
 _Background_
 
-The validation java samples tests currently produce detailed but low-level log output during test execution, which can be difficult to interpret for users who are not deeply familiar with the internal validation model or development tooling. As validation coverage grows, there is an increasing need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
+The validation java samples tests currently produce detailed but low-level log output during test execution, which can be difficult to interpret for users who are not deeply familiar with the internal validation model or development tooling. There is a need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
 
 _What is being released?_
 
