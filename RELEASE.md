@@ -1,24 +1,19 @@
-# *Legal Documentation - Enhanced functionality for Umbrella Agreements*
+# *Ingestion Framework for FpML - Mapping Coverage: Credit Default Swap Option*
 
 _Background_
 
-The umbrella functionality within the CDM needs to support the capture of Legal Agreement terms under an umbrella agreement structure. The existing legal agreement types are not currently used under the `UmbrellaAgreement` type, and there is no way of defining multiple sets of umbrella agreements. 
-
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
 
 _What is being released?_
 
-Updated types and enumerated lists have been added to support the specification of multiple sets of agreements and their related parties under an `UmbrellaAgremeent`.
+This release maps Credit Default Swap Option products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
 
-Enum
+Updates to mapping of FpML products `creditDefaultSwapOption` and `creditDefaultSwap`:
 
-- `UmbrellaPartyRoleEnum` - Represents the legal role a party is assigned for the agreement.
-
-Type
-
-- `UmbrellaAgreementSet` - Allows multiple sets of elections to be captured and assigned to specific parties to the agreement.
-- `UmbrellaAgreementEntity` - Defines the parties to the agreement.
-- `ParentParty` - Allows parties to be associated with a parent party on the agreement.
+- `Product` attributes `taxonomy`
+- `TradeLot` attributes `priceQuantity`
+- `OptionPayout` attributes `exerciseTerms`, `referenceInformation`, `priceQuantity`, `settlementTerms`, `feature`, `underlier`, `optionType` and `strike`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4322](https://github.com/finos/common-domain-model/pull/4322)
+Changes can be reviewed in PR: [#4340](https://github.com/finos/common-domain-model/pull/4340)
