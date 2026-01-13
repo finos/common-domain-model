@@ -35,6 +35,14 @@ type BaseCurrency: <"The definitions regarding base currency determinations rela
 type EventsOfDefaultElection: <"The specific party elections for events of default.">
     party Party (1..1) <"The specified party">
     automaticEarlyTerminationApplies ApplicabilityOfGMSLAElectionEnum (1..1) <"Does automatic early termination apply to the specified party?">
+    automaticEarlyTerminationSpecifiedSeparatelyForEachPrinciple boolean (1..1) <"In the case where party is acting as an agent, is automatic early termination specified on a per principle basis?">
+    automaticEarlyTerminationRequiredDueToSystemOfLaw boolean (1..1) <"Automatic early termination only applies if required due to system of law, otherwise it is not applicable">
+    automaticEarlyTerminationInModifiedForm boolean (1..1) <"Automatic early termination applies in a modified form only">
+    automaticEarlyTerminationOther string (0..1) <"Optional string to capture any further information regarding the automatic early termination even of default.">
+
+    condition AetMustBeApplicableCondition: <"A validation rule to ensure that if aet applies in a modified form or separately for each principle that the applicability is set to be 'applicable'">
+        if automaticEarlyTerminationInModifiedForm or automaticEarlyTerminationSpecifiedSeparatelyForEachPrinciple
+        then automaticEarlyTerminationApplies = ApplicabilityOfGMSLAElectionEnum -> Applicable
 
 type EventsOfDefault: <"The definitions regarding any different events of default relating to the GMSLA.">
     partyElection EventsOfDefaultElection (2..2) <"The specified events of default elections for the respective parties signing the GMSLA.">
