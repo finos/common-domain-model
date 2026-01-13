@@ -1,4 +1,4 @@
-# *Product Model - Security Lending Qualification Updates*
+# *Product Model - Securities-Lending Qualification Updates*
 
 _Background_
 
