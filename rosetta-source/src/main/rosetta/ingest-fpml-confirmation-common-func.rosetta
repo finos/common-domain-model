@@ -4,7 +4,6 @@ version "${project.version}"
 import cdm.base.datetime.*
 import cdm.base.math.*
 import cdm.base.staticdata.asset.common.*
-import cdm.base.staticdata.codelist.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
@@ -503,7 +502,7 @@ func MapExerciseTerms:
     set exerciseTerms:
         fpmlExercise switch
             fpml.EuropeanExercise then
-                MapEuropeanExerciseTerms(item, cdmExerciseProcedure),
+                MapEuropeanExerciseTerms(item, cdmExerciseProcedure, empty),
             fpml.EquityEuropeanExercise then
                 MapEquityEuropeanExerciseTerms(item, cdmExerciseProcedure),
             fpml.CommodityEuropeanExercise then
@@ -571,6 +570,7 @@ func MapEuropeanExerciseTerms:
     inputs:
         fpmlEuropeanExercise fpml.EuropeanExercise (0..1)
         cdmExerciseProcedure ExerciseProcedure (0..1)
+        payout Payout (0..1)
     output:
         exerciseTerms ExerciseTerms (1..1)
 
@@ -589,7 +589,9 @@ func MapEuropeanExerciseTerms:
             exerciseProcedure: cdmExerciseProcedure,
             partialExercise:
                 PartialExercise {
-                    notionalReference: empty,
+                    notionalReference: empty with-meta {
+                            reference: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> notionalReference -> href first
+                        },
                     integralMultipleAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> integralMultipleAmount,
                     minimumNotionalAmount: fpmlEuropeanExercise -> partialExercise -> partialExerciseModel -> minimumNotionalAmount,
                     ...
