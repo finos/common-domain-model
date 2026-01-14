@@ -1616,7 +1616,7 @@ func MapFloatingRateIndex:
             assetClass: InterestRate,
             floatingRateIndex: MapFloatingRateIndexEnum(model -> floatingRateIndex -> value),
             indexTenor: MapPeriod(model -> indexTenor),
-            assetType: Instrument,
+            assetType: Other,
             ...
         }
 
@@ -1636,7 +1636,7 @@ func MapInflationIndex:
                         model -> floatingRateIndex -> value
                     ),
             indexTenor: MapPeriod(model -> indexTenor),
-            assetType: Instrument,
+            assetType: Other,
             ...
         }
 
@@ -1814,7 +1814,7 @@ func MapAsset:
     set asset:
         fpmlAsset switch
             fpml.ExchangeTradedFund then
-                MapIdentifiedAssetToAssetListedDerivative(
+                MapIdentifiedAssetToAssetSecurity(
                         item,
                         exchangeId,
                         exchangeIdentifierModel -> relatedExchangeId,
@@ -1824,8 +1824,7 @@ func MapAsset:
                 MapIdentifiedAssetToAssetListedDerivative(
                         item,
                         exchangeId,
-                        exchangeIdentifierModel -> relatedExchangeId,
-                        empty
+                        exchangeIdentifierModel -> relatedExchangeId
                     ),
             fpml.Loan then
                 MapIdentifiedAssetToAssetSecurity(item, exchangeId, empty, Debt),
@@ -1849,7 +1848,6 @@ func MapIdentifiedAssetToAssetListedDerivative:
         fpmlIdentifiedAsset fpml.IdentifiedAsset (0..1)
         fpmlExchangeId fpml.ExchangeId (0..1)
         fpmlRelatedExchangeId fpml.ExchangeId (0..*)
-        securityType SecurityTypeEnum (1..1)
     output:
         asset Asset (0..1)
 
@@ -1943,7 +1941,11 @@ func MapIdentifiedAssetToSecurity:
             isExchangeListed: if fpmlExchangeId exists then True,
             exchange: fpmlExchangeId extract MapExchangeIdToLegalEntity,
             relatedExchange: fpmlRelatedExchangeId extract MapExchangeIdToLegalEntity,
-            securityType: securityType,
+            securityType:
+                SecurityType {
+                    securityType: securityType,
+                    ...
+                },
             instrumentType: Security,
             assetType: Instrument,
             ...

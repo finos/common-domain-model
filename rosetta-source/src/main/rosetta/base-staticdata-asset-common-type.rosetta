@@ -218,39 +218,42 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
 type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
-    securityType SecurityTypeEnum (0..1) <"Identifies the type of security.">
-    debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
-    equityType EquityType (0..1) <"Identifies the type of equity.">
-    fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
+    securityType SecurityType (0..1) <"Identifies the type of security.">
 
     condition SecurityType: <"The instrument type of a Security should always be Security.">
         instrumentType = Security
+
+type SecurityType: <"Identifies the type of security as either debt, equity, or fund.">
+    securityType SecurityTypeEnum (1..1) <"Identifies the type of security.">
+    debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
+    equityType EquityType (0..1) <"Identifies the type of equity.">
+    fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
     
-    condition DebtSubType:
+    condition DebtSubType: <"The debtType type is absent if the security type is not debt.">
         if securityType <> Debt
         then debtType is absent
 
-    condition EquitySubType:
+    condition EquitySubType: <"The equityType type is absent if the security type is not equity.">
         if securityType <> Equity
         then equityType is absent
 
-    condition FundSubType:
+    condition FundSubType: <"The fundType type is absent if the security type is not fund.">
         if securityType <> Fund
         then fundType is absent
 
-type EquityType:
-    equityType EquityTypeEnum (0..1)
-    depositaryReceipt DepositaryReceiptTypeEnum (0..1)
+type EquityType: <"Specifies the type of equity security.">
+    equityType EquityTypeEnum (0..1) <"Specifies the type of equity security.">
+    depositaryReceipt DepositaryReceiptTypeEnum (0..1) <"Specifies the type of depository receipt.">
 
-    condition DepositaryReceiptSubType:
-        if equityType <> EquityTypeEnum -> DepositaryReceipt
+    condition DepositaryReceiptSubType: <"The depository receipt type is absent if the equityType is not depository receipt.">
+        if equityType <> DepositaryReceipt
         then depositaryReceipt is absent
 
-type DebtType: <"Specifies the type of debt instrument.">
-    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
-    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
+type DebtType: <"Specifies the type of debt security.">
+    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt security.">
+    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt security.">
 
-type DebtEconomics: <"Specifies selected economics of a debt instrument.">
+type DebtEconomics: <"Specifies selected economics of a debt security.">
     debtSeniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
     debtInterest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
     debtPrincipal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
@@ -264,19 +267,19 @@ type CollateralIssuerType: <"Represents a class to allow specification of the ty
     specialPurposeVehicleType SpecialPurposeVehicleIssuerType (0..1) <"Specifies a subsidiary company that is formed to undertake a specific business purpose of acquisition and financing of specific assets on a potentially limited recourse basis dependent of how it is designed. E.g. asset backed securities, including securitisations.">
 
     condition SupraNationalSubType:
-        if issuerType <> IssuerTypeEnum -> SupraNational
+        if issuerType <> SupraNational
         then supraNationalType is absent
 
     condition QuasiGovernmentSubType:
-        if issuerType <> IssuerTypeEnum -> QuasiGovernment
+        if issuerType <> QuasiGovernment
         then quasiGovernmentType is absent
 
     condition RegionalGovernmentSubType:
-        if issuerType <> IssuerTypeEnum -> RegionalGovernment
+        if issuerType <> RegionalGovernment
         then regionalGovernmentType is absent
 
     condition SpecialPurposeVehicleSubType:
-        if issuerType <> IssuerTypeEnum -> SpecialPurposeVehicle
+        if issuerType <> SpecialPurposeVehicle
         then specialPurposeVehicleType is absent
 
 type QuasiGovernmentIssuerType: <"Represents a class to allow specification of different types of Quasi Government collateral.">
@@ -300,33 +303,18 @@ type TaxonomyClassification:
     description string (0..1) <"A description of the class.">
     ordinal int (0..1) <"In the case of multi-layered hierarchical classification systems such as commodity classification, the layer the value and className occupy in the classification hierarchy, where 1 represents the top-layer.">
 
-type AssetType: <"Represents a class to allow specification of the asset product type.">
-    assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of instrument.">
-    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
-    debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
-    equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
-    fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
+type AssetType: <"Specifies the type of asset. This type is aligned with the asset object defined in the asset choice type.">
+    assetType AssetTypeEnum (1..1) <"Specifies the type of asset.">
+    instrumentType InstrumentTypeEnum (0..1) <"Specifies the type of instrument. The enum is aligned with the instrument object defined in the instrument choice type.">
+    securityType SecurityType (0..1) <"Specifies the type of security.">
 
-    condition InstrumentSubType: 
+    condition InstrumentSubType: <"The instrumentType is absent if the assetType is not instrument.">
         if assetType <> Instrument
         then instrumentType is absent
 
-    condition SecuritySubType:
+    condition SecuritySubType: <"The securityType is absent if the assetType is not security.">
         if instrumentType <> Security
         then securityType is absent
-
-    condition BondSubType:
-        if securityType <> Debt
-        then debtType is absent
-
-    condition EquitySubType:
-        if securityType <> Equity
-        then equityType is absent
-
-    condition FundSubType:
-        if securityType <> Fund
-        then fundType is absent
 
 type PriceSource: <"Specifies a publication that provides the commodity price, including, where applicable, the details of where in the publication the price is published.">
     pricePublisher string (1..1) <"Defines a publication in which the price can be found. (e.g Gas Daily, Platts Bloomberg. Commodity publishers can be found at this URL:  http://www.fpml.org/coding-scheme/commodity-information-provider>">

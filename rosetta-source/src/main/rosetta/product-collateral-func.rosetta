@@ -165,11 +165,11 @@ func CheckAssetType:
             or (collateralAssetTypes
                 then filter assetType = query -> collateralAssetType -> assetType
                 then filter
-                    debtType is absent
-                        or debtType -> debtClass = query -> collateralAssetType -> debtType -> debtClass
+                    securityType -> debtType is absent
+                        or securityType -> debtType -> debtClass = query -> collateralAssetType -> securityType ->  debtType -> debtClass
                 then filter
-                    instrumentType is absent
-                        or instrumentType = query -> collateralAssetType -> instrumentType
+                    securityType is absent
+                        or securityType = query -> collateralAssetType -> securityType
                 then item exists
                 )
 
@@ -226,10 +226,10 @@ func CheckIssuerType:
 
     set isEqual: issuerType is absent or issuerType contains query -> issuerType
 
-func CriteriaMatchesAssetType:
+func CriteriaMatchesSecurityType:
     inputs:
         inputCriteria CollateralCriteria (0..1)
-        assetType SecurityTypeEnum (0..1)
+        securityType SecurityTypeEnum (0..1)
     output:
         matches boolean (1..1)
 
@@ -237,14 +237,14 @@ func CriteriaMatchesAssetType:
 
     set matches:
         inputCriteria switch
-            AssetType then securityType = assetType,
+            AssetType then item -> securityType -> securityType = securityType,
             AllCriteria then
                 allCriteria
-                    extract CriteriaMatchesAssetType(item, assetType)
+                    extract CriteriaMatchesSecurityType(item, securityType)
                     then all = True,
             AnyCriteria then
                 anyCriteria
-                    extract CriteriaMatchesAssetType(item, assetType)
+                    extract CriteriaMatchesSecurityType(item, securityType)
                     then any = True,
-            NegativeCriteria then CriteriaMatchesAssetType(negativeCriteria, assetType) = False,
+            NegativeCriteria then CriteriaMatchesSecurityType(negativeCriteria, securityType) = False,
             default False
