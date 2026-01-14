@@ -14,4 +14,4 @@ The `Qualify_SecurityLending` function has been updated to just check for the pr
 
 _Review directions_
 
-The changes can be reviewed in PR: [#4301](https://github.com/finos/common-domain-model/pull/4301)
+The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
