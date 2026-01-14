@@ -18,6 +18,7 @@ import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
 import cdm.product.template.*
+import cdm.product.qualification.*
 
 func QuantityIncreased:
     inputs:
@@ -642,10 +643,22 @@ func Create_Transfer: <"Defines how a transfer should be constructed, when repre
     output:
         transfer TradeState (1..1)
 
+    // alias newPositionState: <"If this is a securities lending trade and the settlement obligations of the trade have been fulfilled (i.e. full quantity of shares have been delivered and (optionally) full amount of cash has been paid), then update the positionState to be Settled ">
+    //     // if Qualify_SecurityLending(tradeState -> trade -> product -> economicTerms)
+    //     // and 
+    //     if PayoutObligationFulfillmentFromTrade(tradeState) = True
+    //         then PositionStatusEnum -> Settled
+    //     else tradeState -> state -> positionState
+
     set transfer: tradeState
 
     add transfer -> transferHistory: <"Assigns the transfer contained in the transfer instruction to the transferHistory attribute.">
         instruction -> transferState
+
+    set transfer -> state -> positionState:        
+     if PayoutObligationFulfillmentFromTrade(transfer) = True
+            then PositionStatusEnum -> Settled
+        else tradeState -> state -> positionState
 
 func Create_CashTransfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
     inputs:
@@ -2312,3 +2325,79 @@ func Create_ExposureFromTrades: <"Builds an Exposure structure from a list of tr
                 }
 
     set exposure -> tradePortfolio -> lineage -> tradeReference: trades -> trade first
+
+func PayoutObligationFulfillmentFromTrade:
+    inputs:
+        tradeState TradeState (0..1)
+    output:
+        result boolean (0..1)
+
+    alias payoutList: tradeState -> trade -> product -> economicTerms -> payout
+
+    alias collateralPayoutList:
+        if tradeState -> trade -> product -> economicTerms -> collateral -> collateralProvisions -> collateralType = Cash
+        then tradeState -> trade -> product -> economicTerms -> collateral -> collateralPortfolio -> collateralPosition -> product -> TransferableProduct -> economicTerms -> payout
+
+    set result:
+        ([payoutList]
+            extract
+                switch
+                    AssetPayout then
+                        CalculateAssetPayoutObligationsFulfilled(
+                                item,
+                                tradeState -> transferHistory
+                            ),
+                    // InterestRatePayout then
+                    //     CalculateInterestPayoutObligationsFulfilled(
+                    //             item,
+                    //             tradeState -> transferHistory
+                    //         ),
+                    default False)
+            then all = True
+
+func CalculateAssetPayoutObligationsFulfilled: <"Determine whether the obligations defined by the AssetPayout have been fulfilled by checking that the quantity of shares required have been successfully transferred.">
+    inputs:
+        assetPayout AssetPayout (1..1) <"The payout that defines the quantity of shares that need to be transferred for settlement.">
+        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated the payout.">
+    output:
+        isFulfilled boolean (1..1)
+
+    alias payoutQuantitySchedule: <"The total quantity of shares that need to be transferred is held in the AssetPayout PriceQuantity.">
+        FilterQuantityByFinancialUnit(
+                assetPayout -> priceQuantity -> quantitySchedule,
+                FinancialUnitEnum -> Share
+            )
+            -> value sum
+
+    alias securityTransferredQuantity: <"The total quantity of settled security transfers can be extracted from the transferHistory.">
+         transferHistory
+            filter transfer -> asset -> Instrument -> Security exists
+            then filter transferStatus = Settled
+            then transfer -> quantity -> value sum
+
+    set isFulfilled:
+        if securityTransferredQuantity = payoutQuantitySchedule
+        then True
+        else False
+
+func CalculateInterestPayoutObligationsFulfilled: <"Determine whether the obligations defined by the AssetPayout have been fulfilled by checking that the quantity of shares required have been successfully transferred.">
+    inputs:
+        interestPayout InterestRatePayout (1..1) <"The payout that defines the quantity of shares that need to be transferred for settlement.">
+        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated the payout.">
+    output:
+        isFulfilled boolean (1..1)
+
+    alias payoutQuantitySchedule: <"The total quantity of shares that need to be transferred is held in the AssetPayout PriceQuantity.">
+        FilterQuantityByCurrencyExists(interestPayout -> priceQuantity -> quantitySchedule)
+            only-element -> value
+
+    alias cashTransferredQuantity: <"The total quantity of settled security transfers can be extracted from the transferHistory.">
+        transferHistory
+        filter transfer -> asset -> Cash exists
+            then filter transferStatus = Settled
+            then transfer -> quantity -> value sum
+
+    set isFulfilled:
+        if cashTransferredQuantity = payoutQuantitySchedule
+        then True
+        else False
