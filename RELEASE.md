@@ -1,30 +1,23 @@
-# *Reference Data Model - Legal Entity Identifier Type Support*
-
-_Background_
-
-In the current model, the `LegalEntity` structure allows the capturing of an entity’s identifier, but it does not allow specifying the type of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
-
-Due to the existence of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
-
-To address this limitation, the model has been extended so that the identifier type can be represented directly within the `LegalEntity` structure.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
+This release updates the DSL dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
-- A deprecated tag to the `entityId` attribute
-- A new EntityIdentifier attribute under `LegalEntity` type, with the following items:
-  - the `identifier`
-  - the `identifierType`, of type `EntityIdentifierTypeEnum`
+Version updates include:
+- `DSL` `9.75.1` Performance improvements and bug fix. See DSL release notes: [9.75.1](https://github.com/finos/rune-dsl/releases/tag/9.75.1)
+- `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
+- `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
+- `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
+- `DSL` `9.73.0` Clean up DSL warnings. See DSL release notes: [9.73.0](https://github.com/finos/rune-dsl/releases/tag/9.73.0)
+- `DSL` `9.72.0` Fix for serialisation. See DSL release notes: [9.72.0](https://github.com/finos/rune-dsl/releases/tag/9.72.0)
 
-A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifier`TypeEnum to include additional identifier types used for legal entities:
+No expectations are updated as part of this release.
 
-- **RED**
-- **CountryCode**
-- **Other**
+Third-party software library updates:
 
-Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId`, ensuring the coverage of the previous representation.
+- `npm/qs` upgraded from version 6.13.0 to 6.14.1, see [GHSA-6rw7-vpxm-498p](https://github.com/advisories/GHSA-6rw7-vpxm-498p) for further details
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4319](https://github.com/finos/common-domain-model/pull/4319)
+The changes can be reviewed in PR: [#4314](https://github.com/finos/common-domain-model/pull/4314)
