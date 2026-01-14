@@ -1,4 +1,4 @@
-# Java samples - Validation tests logging
+# Java test scenarios improvement - Validation logging
 
 _Background_
 
