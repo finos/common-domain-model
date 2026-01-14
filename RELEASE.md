@@ -1,30 +1,36 @@
-# *Reference Data Model - Legal Entity Identifier Type Support*
+# Java test scenarios improvement - Validation logging
 
 _Background_
 
-In the current model, the `LegalEntity` structure allows the capturing of an entity’s identifier, but it does not allow specifying the type of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
-
-Due to the existence of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
-
-To address this limitation, the model has been extended so that the identifier type can be represented directly within the `LegalEntity` structure.
+The validation java samples tests currently produce detailed but low-level log output during test execution, which can be difficult to interpret for users who are not deeply familiar with the internal validation model or development tooling. There is a need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
 
 _What is being released?_
 
-This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
+This release introduces an enhanced logging approach for validation tests, designed to improve clarity and readability of validation results.
 
-- A deprecated tag to the `entityId` attribute
-- A new EntityIdentifier attribute under `LegalEntity` type, with the following items:
-  - the `identifier`
-  - the `identifierType`, of type `EntityIdentifierTypeEnum`
+- Improved validation result aggregation
+  Validation results are now grouped by key validation attributes (validation type, name, definition, failure reason, and model object name). This avoids duplicated log entries and presents a consolidated view of each distinct validation outcome, including all affected model paths.
 
-A new enum `EntityIdentifierTypeEnum` has also been created by extending `PartyIdentifier`TypeEnum to include additional identifier types used for legal entities:
+- Clear validation summary section 
+  A visual summary is logged at the beginning of the validation output, providing:
+  - Total number of distinct validation results
+  - Number of successful validations
+  - Number of failures  
+  This allows users to immediately assess the overall validation status at a glance.
 
-- **RED**
-- **CountryCode**
-- **Other**
+- Dedicated and readable failure reporting
+  Failed validations are logged in clearly delimited sections, explicitly highlighting:
+  - Validation type and name
+  - Validation definition and failure reason
+  - Affected model object
+  - All relevant paths where the failure occurred  
+  This structure makes root causes easier to identify, even for non-expert users.
 
-Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId`, ensuring the coverage of the previous representation.
+- Simplified success logging
+  Successful validations are logged in a concise, single-line format, confirming which rules passed without overwhelming the log output with unnecessary detail.
+
+These improvements are implemented via a new helper method in `ValidationProcessorTests`, ensuring consistent validation logging across test scenarios. The underlying validation logic remains unchanged; only the presentation of validation results has been enhanced to improve usability.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4319](https://github.com/finos/common-domain-model/pull/4319)
+Changes can be reviewed in PR: [#4344](https://github.com/finos/common-domain-model/pull/4344)
