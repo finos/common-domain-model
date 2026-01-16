@@ -1,40 +1,47 @@
-# Reference Data Model – Legal Entity Identifier Type Support
-
-_Background_
-
-In the current model, the `LegalEntity` structure allows capturing an entity’s identifier, but it does not allow specifyng the **type** of identifier being used. This differs from the `PartyIdentifier` structure, which supports explicit identifier types.
-
-Because of this gap, the identifier type must be inferred from the metadata scheme, adding complexity, increasing the risk of inconsistent handling across implementations, and making downstream logic harder to maintain.
-
-To address this limitation, the model is being extended so that the identifier type can be represented directly within the `LegalEntity` structure.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-This update introduces native support for representing the identifier type of a legal entity. The following changes have been added under the `LegalEntity` type:
-- Added a deprecated tag under the `entityId` attribute
-- Added `EntityIdentifier` attribute on `LegalEntity`, with the following contents:
-  - the `identifier`
-  - the `identifierType`, of type `EntityIdentifierTypeEnum`
+This release updates the DSL dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
 
-Create new enum `EntityIdentifierTypeEnum` that extends `PartyIdentifierTypeEnum` to include additional identifier types used for legal entities:
-- **RED**
-- **CountryCode**
-- **Other**
+Version updates include:
+- `DSL` `9.75.1` Performance improvements and bug fix. See DSL release notes: [9.75.1](https://github.com/finos/rune-dsl/releases/tag/9.75.1)
+- `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
+- `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
+- `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
+- `DSL` `9.73.0` Clean up DSL warnings. See DSL release notes: [9.73.0](https://github.com/finos/rune-dsl/releases/tag/9.73.0)
+- `DSL` `9.72.0` Fix for serialisation. See DSL release notes: [9.72.0](https://github.com/finos/rune-dsl/releases/tag/9.72.0)
+- `DSL` `9.71.0` Fixes incorrect treatment of empty for boolean resolution, equality, and implicit `else`. See DSL release notes: [DSL 9.71.0](https://github.com/finos/rune-dsl/releases/tag/9.71.0)
+- `DSL` `9.70.0` Fixed validation null pointer. See DSL release notes: [DSL 9.70.0](https://github.com/finos/rune-dsl/releases/tag/9.70.0)
+- `DSL` `9.69.1` Fixed issue to do with overriding `ruleReference` annotations with `empty`. See DSL release notes: [DSL 9.69.1](https://github.com/finos/rune-dsl/releases/tag/9.69.1)
+- `DSL` `9.69.0` Bug fix related to accessing enum values. See DSL release notes: [DSL 9.69.0](https://github.com/finos/rune-dsl/releases/tag/9.69.0)
+- `DSL` `9.68.1` Duplicate name detection. See DSL release notes: [DSL 9.68.1](https://github.com/finos/rune-dsl/releases/tag/9.68.1)
 
-Finally, the mappings to populate the new `entityIdentifier` attribute have been modelled, while preserving the existing mappings to `entityId` ensuring the coverage of the previous representation.
+No expectations are updated as part of this release.
 
-Changes can be reviewed in PR: [#4222](https://github.com/finos/common-domain-model/pull/4222)
+Third-party software library updates:
 
-# PartyRoleEnum - Add new `PartyRoleEnum` value `MarginAffiliate`
-
-_Background_
-
-New DTCC field required by CFTC 3.2, specific to Collateral. To support this, the `PartyRoleEnum` is extended by adding the value `MarginAffiliate`. The `PartyRoleEnum` originates from the FpML `partyRoleScheme`, and this role is already published in section 4 of the FpML coding scheme. Therefore, it needs to be added to the CDM to maintain alignment.
-
-_What is being released?_
-
-Add a new enumerated value `MarginAffiliate` to `PartyRoleEnum` with definition: “Margin affiliate as defined by U.S. margin and capital rules §23.151.”
+- `npm/qs` upgraded from version 6.13.0 to 6.14.1, see [GHSA-6rw7-vpxm-498p](https://github.com/advisories/GHSA-6rw7-vpxm-498p) for further details
+- `npm/axios` upgraded from version 0.30.1 to 1.12.0, see [GHSA-4hjh-wcwx-xvwj](https://github.com/advisories/GHSA-4hjh-wcwx-xvwj) for further details
+- `npm/docusaurus` upgraded from version 2.4.1 to 3.8.1 to remove a transitive dependency on axios 0.7.0.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4184](https://github.com/finos/common-domain-model/pull/4184)
+The changes can be reviewed in PR: [#4316](https://github.com/finos/common-domain-model/pull/4316) && [#4295](https://github.com/finos/common-domain-model/pull/4295) && [#4311](https://github.com/finos/common-domain-model/pull/4311)
+
+# _Event Model - `empty` Value Handling Updates_
+
+*Background*
+
+An upcoming DSL release has found a number of areas where the use of `empty` in validation functions and conditions was not being handled correctly. This change contains fixes that prepare the model for the upcoming DSL release.
+
+*What is being released?*
+
+The following types have been updated:
+
+- Instruction
+  - Update condition `NewTrade` to return a valid status when `primitiveInstruction -> execution` is absent and `before` exists.
+
+*Review Directions*
+
+Changes can be reviewed in PR: [#4235](https://github.com/finos/common-domain-model/pull/4235)
