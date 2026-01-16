@@ -64,12 +64,13 @@ func MapTradeState:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         tradeState TradeState (0..1)
 
     set tradeState:
         TradeState {
-            trade: MapTrade(fpmlTrade, fpmlPartiesAndAccountsModel),
+            trade: MapTrade(fpmlTrade, fpmlPartiesAndAccountsModel,fpmlTradeHeader),
             transferHistory: MapTransferStateList(fpmlTrade),
             ...
         }
@@ -78,6 +79,7 @@ func MapTrade:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         fpmlPartiesAndAccountsModel fpml.PartiesAndAccountsModel (0..1)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         trade Trade (0..1)
 
@@ -85,7 +87,7 @@ func MapTrade:
 
     set trade:
         Trade {
-            product: MapNonTransferableProduct(fpmlTrade, counterpartyList),
+            product: MapNonTransferableProduct(fpmlTrade, counterpartyList,fpmlTradeHeader),
             tradeLot: MapTradeLotList(fpmlTrade, fpmlPartiesAndAccountsModel),
             counterparty: counterpartyList,
             ancillaryParty: MapAncillaryPartyList(fpmlTrade),
@@ -126,6 +128,7 @@ func MapNonTransferableProduct:
     inputs:
         fpmlTrade fpml.Trade (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
 
@@ -193,7 +196,7 @@ func MapNonTransferableProduct:
             fpml.FxSingleLeg then
                 MapFxSingleLegNonTransferableProduct(item, cdmCounterpartyList),
             fpml.FxSwap then
-                MapFxSwapNonTransferableProduct(item, cdmCounterpartyList),
+                MapFxSwapNonTransferableProduct(item, cdmCounterpartyList, fpmlTradeHeader),
             fpml.FxVarianceSwap then
                 MapFxVarianceSwapNonTransferableProduct(item, cdmCounterpartyList),
             fpml.FxVolatilitySwap then
@@ -207,9 +210,9 @@ func MapNonTransferableProduct:
             fpml.ReturnSwap then
                 MapReturnSwapNonTransferableProduct(item, cdmCounterpartyList),
             fpml.Swap then
-                MapSwapNonTransferableProduct(item, cdmCounterpartyList),
+                MapSwapNonTransferableProduct(item, cdmCounterpartyList,fpmlTradeHeader),
             fpml.Swaption then
-                MapSwaptionNonTransferableProduct(item, cdmCounterpartyList),
+                MapSwaptionNonTransferableProduct(item, cdmCounterpartyList,fpmlTradeHeader),
             fpml.VarianceOptionTransactionSupplement then
                 MapVarianceOptionTransactionSupplementNonTransferableProduct(
                         item,

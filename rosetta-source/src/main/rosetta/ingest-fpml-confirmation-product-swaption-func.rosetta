@@ -13,6 +13,7 @@ import cdm.product.template.*
 import fpml.consolidated.* as fpml
 import fpml.consolidated.ird.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.doc.* as fpml
 
 func MapSwaptionCounterpartyList:
     inputs:
@@ -33,6 +34,8 @@ func MapSwaptionNonTransferableProduct:
     inputs:
         fpmlSwaption fpml.Swaption (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+        
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
 
@@ -40,19 +43,20 @@ func MapSwaptionNonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(fpmlSwaption -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlSwaption -> productModel),
-            economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList)
+            economicTerms: MapSwaptionEconomicTerms(fpmlSwaption, cdmCounterpartyList, fpmlTradeHeader)
         }
 
 func MapSwaptionEconomicTerms:
     inputs:
         fpmlSwaption fpml.Swaption (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
         EconomicTerms {
-            payout: MapSwaptionPayout(fpmlSwaption, cdmCounterpartyList),
+            payout: MapSwaptionPayout(fpmlSwaption, cdmCounterpartyList,fpmlTradeHeader),
             terminationProvision: MapTerminationProvision(
                         fpmlSwaption -> earlyTerminationProvision,
                         empty,
@@ -66,6 +70,8 @@ func MapSwaptionPayout:
     inputs:
         fpmlSwaption fpml.Swaption (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+
     output:
         payout Payout (0..1)
 
@@ -94,7 +100,8 @@ func MapSwaptionPayout:
                                 Product {
                                     NonTransferableProduct: MapSwapNonTransferableProduct(
                                                 fpmlSwaption -> swap,
-                                                cdmCounterpartyList
+                                                cdmCounterpartyList,
+                                                fpmlTradeHeader
                                             ),
                                     ...
                                 },

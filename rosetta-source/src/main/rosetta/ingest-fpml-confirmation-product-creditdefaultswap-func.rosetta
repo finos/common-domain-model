@@ -78,12 +78,6 @@ func MapCreditDefaultSwapEconomicTerms:
     output:
         economicTerms EconomicTerms (0..1)
 
-    alias nonStandardisedTerms:
-        if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms exists
-        then if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms any = True
-            then True
-            else False
-
     set economicTerms:
         EconomicTerms {
             effectiveDate: MapAdjustableDate2ToAdjustableOrRelativeDate(
@@ -99,7 +93,7 @@ func MapCreditDefaultSwapEconomicTerms:
                         fpmlCreditDefaultSwap,
                         cdmCounterpartyList
                     ),
-            nonStandardisedTerms: nonStandardisedTerms,
+            nonStandardisedTerms: MapNonStandardisedTerms(fpmlTradeHeader, cdmCounterpartyList) -> nonStandardisedTerms,
             ...
         }
 
