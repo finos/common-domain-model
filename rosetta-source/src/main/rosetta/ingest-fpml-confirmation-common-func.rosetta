@@ -984,3 +984,19 @@ func MapMessageAction:
             True then Correct,
             False then New,
             default empty
+
+    func MapNonStandardisedTerms:
+    inputs:
+        fpmlTradeHeader fpml.TradeHeader (0..1)
+        cdmCounterpartyList Counterparty (0..2)
+    output:
+        economicTerms EconomicTerms (0..1)
+
+    alias nonStandardisedTerms:
+        if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms exists
+        then if fpmlTradeHeader -> partyTradeInformation -> nonStandardTerms any = True
+            then True
+            else False
+
+    set economicTerms: EconomicTerms{ payout: empty,
+    nonStandardisedTerms: nonStandardisedTerms, ...}

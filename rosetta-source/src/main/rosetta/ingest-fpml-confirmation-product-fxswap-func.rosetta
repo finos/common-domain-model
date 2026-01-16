@@ -12,6 +12,7 @@ import cdm.product.template.*
 import fpml.consolidated.* as fpml
 import fpml.consolidated.fx.* as fpml
 import fpml.consolidated.shared.* as fpml
+import fpml.consolidated.doc.* as fpml
 
 func MapFxSwapCounterpartyList:
     inputs:
@@ -34,6 +35,7 @@ func MapFxSwapNonTransferableProduct:
     inputs:
         fpmlFxSwap fpml.FxSwap (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         nonTransferableProduct NonTransferableProduct (0..1)
 
@@ -41,20 +43,23 @@ func MapFxSwapNonTransferableProduct:
         NonTransferableProduct {
             identifier: MapProductIdentifierList(fpmlFxSwap -> productModel),
             taxonomy: MapProductTaxonomyList(fpmlFxSwap -> productModel),
-            economicTerms: MapFxSwapEconomicTerms(fpmlFxSwap, cdmCounterpartyList)
+            economicTerms: MapFxSwapEconomicTerms(fpmlFxSwap, cdmCounterpartyList, fpmlTradeHeader)
         }
 
 func MapFxSwapEconomicTerms:
     inputs:
         fpmlFxSwap fpml.FxSwap (0..1)
         cdmCounterpartyList Counterparty (0..2)
+        fpmlTradeHeader fpml.TradeHeader (0..1)
     output:
         economicTerms EconomicTerms (0..1)
 
     set economicTerms:
         EconomicTerms {
             payout: MapFxSwapPayoutList(fpmlFxSwap, cdmCounterpartyList),
+            nonStandardisedTerms: MapNonStandardisedTerms(fpmlTradeHeader, cdmCounterpartyList) -> nonStandardisedTerms,
             ...
+            
         }
 
 func MapFxSwapPayoutList:
