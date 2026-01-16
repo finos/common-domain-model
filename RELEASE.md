@@ -1,12 +1,16 @@
-# Product Model - Relax cardinality of Barrier and Knock trigger events
+# *Product Model - Adding knockIn and knockOut to Barrier and relaxing cardinality*
 
 _Background_
 
-Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the `knockIn` or `knockOut` / `barrierCap` or `barrierFloor` attributes is currently `(0..1)`.
+Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the knock-in or out / barrierCap or floor attributes is currently `(0..1)`.
+
+Furthermore, knock-ins and knock-outs are features of Barrier Options, so the `knockIn` or `knockOut` attributes should be within the Barrier type.
 
 _What is being released?_
 
-Relaxing the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut` / `barrierCap` or `barrierFloor`.
+- Removal of the `knock` attribute from `OptionFeature` and removal of the `Knock` type
+- Rename the attributes within `Barrier` to `knockIn` & `knockOut`.
+- Relaxing of the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut`.
 
 _Review Directions_
 
