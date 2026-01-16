@@ -10,7 +10,7 @@ Relaxing the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut` 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4353](https://github.com/finos/common-domain-model/pull/4353)
+Changes can be reviewed in PR: [#4357](https://github.com/finos/common-domain-model/pull/4357)
 
 # _Infrastructure - Dependency Update_
 
