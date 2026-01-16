@@ -1,23 +1,17 @@
-# _Infrastructure - Dependency Update_
+# *Product Model - Security-Lending Qualification Updates*
+
+_Background_
+
+The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
+
+If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
+
+However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
 
 _What is being released?_
 
-This release updates the DSL dependency, and third-party software libraries updated to comply with the “Common Vulnerabilities and Exposures” standard (CVE, https://www.cve.org/).
+The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
 
-Version updates include:
-- `DSL` `9.75.1` Performance improvements and bug fix. See DSL release notes: [9.75.1](https://github.com/finos/rune-dsl/releases/tag/9.75.1)
-- `DSL` `9.75.0` Suppress warnings annotation. See DSL release notes: [9.75.0](https://github.com/finos/rune-dsl/releases/tag/9.75.0)
-- `DSL` `9.74.1` Fix usage of `default` with multi-cardinality. See DSL release notes: [9.74.1](https://github.com/finos/rune-dsl/releases/tag/9.74.1)
-- `DSL` `9.74.0` Fix `empty` meta coercion. See DSL release notes: [9.74.0](https://github.com/finos/rune-dsl/releases/tag/9.74.0)
-- `DSL` `9.73.0` Clean up DSL warnings. See DSL release notes: [9.73.0](https://github.com/finos/rune-dsl/releases/tag/9.73.0)
-- `DSL` `9.72.0` Fix for serialisation. See DSL release notes: [9.72.0](https://github.com/finos/rune-dsl/releases/tag/9.72.0)
+_Review directions_
 
-No expectations are updated as part of this release.
-
-Third-party software library updates:
-
-- `npm/qs` upgraded from version 6.13.0 to 6.14.1, see [GHSA-6rw7-vpxm-498p](https://github.com/advisories/GHSA-6rw7-vpxm-498p) for further details
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4314](https://github.com/finos/common-domain-model/pull/4314)
+The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
