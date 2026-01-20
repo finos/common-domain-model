@@ -1,4 +1,4 @@
-# *Asset - Redemption Attribute added to Debt type*
+# *Asset Model - Redemption Attribute added to Debt type*
 
 _Background_
 
