@@ -2353,7 +2353,7 @@ func PayoutObligationFulfillmentFromTrade: <"Determines the payouts and collater
 func AssetPayoutObligationsFulfilled: <"Determines whether the obligations defined by the AssetPayout have been fulfilled by checking that the quantity of shares required have been successfully transferred.">
     inputs:
         assetPayout AssetPayout (1..1) <"The payout that defines the quantity of shares that need to be transferred for settlement.">
-        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated on the payout.">
+        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated to the trade.">
     output:
         isFulfilled boolean (1..1)
 
@@ -2374,15 +2374,15 @@ func AssetPayoutObligationsFulfilled: <"Determines whether the obligations defin
         then True
         else False
 
-func InterestPayoutObligationsFulfilled: <"Determines whether the obligations defined by the InterestRatePayout have been fulfilled by checking that the price quantity required has been successfully transferred in Cash.">
+func InterestPayoutObligationsFulfilled: <"Determines whether the obligations defined by the InterestRatePayout have been fulfilled by checking that the total value of cash required has been successfully transferred.">
     inputs:
-        interestPayout InterestRatePayout (1..1) <"The payout that defines the priceQuantity that needs to be transferred for settlement.">
-        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated on the payout.">
+        interestRatePayout InterestRatePayout (1..1) <"The payout that defines the priceQuantity that needs to be transferred for settlement.">
+        transferHistory TransferState (0..*) <"Contains a list of all the asset transfers associated to the trade.">
     output:
         isFulfilled boolean (1..1)
 
     alias payoutQuantitySchedule: <"The total price quantity that needs to be transferred is held in the InterestRatePayout PriceQuantity.">
-        FilterQuantityByCurrencyExists(interestPayout -> priceQuantity -> quantitySchedule)
+        FilterQuantityByCurrencyExists(interestRatePayout -> priceQuantity -> quantitySchedule)
             -> value sum
 
     alias cashTransferredQuantity: <"The total quantity of settled cash transfers can be extracted from the transferHistory.">
