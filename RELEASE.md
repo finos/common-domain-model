@@ -1,17 +1,19 @@
-# *Product Model - Security-Lending Qualification Updates*
+# *Asset Model - Redemption Attribute added to Debt type*
 
 _Background_
 
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
+There are several values in the `DebtClassEnum` relating to the redemption of debt which could be more granular and composable.
 
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+There are four attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable` whereas this could be better represented using separate enums and conditions within `DebtType`. This would also remove the additional Convertible attribute.
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+A new `DebtRedemption` type:
+ - The attributes mentioned above can be combined to create combinations of Issuer/Convertible, Issuer/Call, Holder/Put etc.
+ - Add `ConvertibleTypeEnum` as an attribute with `Convertible`, `Exchangeable`, `Sinkable` values
+ - Add `putCallEnum` as an attribute
+ - Add `RedemptionPartyElectionEnum` with values for `Issuer` and `Holder`
 
-_Review directions_
+_Review Directions_
 
-The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
+Changes can be reviewed in PR: [#4332](https://github.com/finos/common-domain-model/pull/4332)
