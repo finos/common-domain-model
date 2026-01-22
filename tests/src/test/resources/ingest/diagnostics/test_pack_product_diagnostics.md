@@ -33,7 +33,7 @@
 | fpml-5-10-incomplete-products-securities | option | 1 | 129% |
 | fpml-5-10-invalid-products | creditDefaultSwap | 29 | 98% |
 | fpml-5-10-invalid-products | swap | 11 | 100% |
-| fpml-5-10-processes | creditDefaultSwap | 9 | 111% |
+| fpml-5-10-processes | creditDefaultSwap | 9 | 112% |
 | fpml-5-10-processes | fxSingleLeg | 1 | 104% |
 | fpml-5-10-processes | swap | 3 | 102% |
 | fpml-5-10-products-commodity | commodityBasketOption | 1 | 118% |
