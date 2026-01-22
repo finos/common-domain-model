@@ -34,9 +34,9 @@
 | returnSwap | 36 | 100% |
 | swaption | 25 | 99% |
 | bulletPayment | 2 | 98% |
+| creditDefaultSwapOption | 18 | 98% |
 | commodityOption | 25 | 96% |
 | equityOptionTransactionSupplement | 16 | 96% |
 | instrumentTradeDetails | 2 | 94% |
 | commoditySwaption | 10 | 87% |
-| creditDefaultSwapOption | 18 | 85% |
 | dividendSwapTransactionSupplement | 12 | 84% |

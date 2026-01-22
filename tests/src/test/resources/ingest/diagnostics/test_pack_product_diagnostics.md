@@ -13,7 +13,7 @@
 | fpml-5-10-incomplete-products-commodity-derivatives | commoditySwaption | 5 | 87% |
 | fpml-5-10-incomplete-products-commodity-derivatives | swap | 1 | 103% |
 | fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwap | 38 | 102% |
-| fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwapOption | 5 | 84% |
+| fpml-5-10-incomplete-products-credit-derivatives | creditDefaultSwapOption | 5 | 98% |
 | fpml-5-10-incomplete-products-equity-options | brokerEquityOption | 3 | 102% |
 | fpml-5-10-incomplete-products-equity-options | equityOption | 16 | 100% |
 | fpml-5-10-incomplete-products-equity-options | equityOptionTransactionSupplement | 8 | 96% |
@@ -41,7 +41,7 @@
 | fpml-5-10-products-commodity | commoditySwap | 6 | 108% |
 | fpml-5-10-products-correlation-swaps | correlationSwap | 4 | 100% |
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
-| fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 86% |
+| fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-10-products-equity | equityOption | 2 | 105% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 101% |
@@ -64,8 +64,8 @@
 | fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
 | fpml-5-12-products-commodity | commodityOption | 1 | 94% |
 | fpml-5-12-products-commodity | commoditySwap | 2 | 108% |
-| fpml-5-12-products-credit | creditDefaultSwap | 17 | 99% |
-| fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 85% |
+| fpml-5-12-products-credit | creditDefaultSwap | 17 | 100% |
+| fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-12-products-equity | equityOption | 2 | 105% |
 | fpml-5-12-products-equity | equitySwapTransactionSupplement | 10 | 100% |
 | fpml-5-12-products-equity | returnSwap | 7 | 104% |
@@ -78,7 +78,7 @@
 | fpml-5-12-products-rates | swap | 16 | 100% |
 | fpml-5-12-products-rates | swaption | 4 | 99% |
 | fpml-5-12-products-repo | securityLending | 2 | 109% |
-| fpml-5-13-incomplete-processes-execution-advice | creditDefaultSwap | 2 | 419% |
+| fpml-5-13-incomplete-processes-execution-advice | creditDefaultSwap | 2 | 421% |
 | fpml-5-13-incomplete-processes-execution-advice | instrumentTradeDetails | 1 | 87% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityBasketOption | 1 | 118% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityDigitalOption | 1 | 117% |
@@ -108,7 +108,7 @@
 | fpml-5-13-products-commodity-derivatives | swap | 2 | 105% |
 | fpml-5-13-products-correlation-swaps | correlationSwap | 3 | 100% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwap | 39 | 102% |
-| fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 84% |
+| fpml-5-13-products-credit-derivatives | creditDefaultSwapOption | 5 | 98% |
 | fpml-5-13-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
 | fpml-5-13-products-equity-options | brokerEquityOption | 3 | 102% |
 | fpml-5-13-products-equity-options | equityOption | 4 | 89% |
