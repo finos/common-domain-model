@@ -1,6 +1,7 @@
 namespace cdm.ingest.fpml.confirmation.tradestate: <"FpML type mapping functions.">
 version "${project.version}"
 
+import cdm.base.staticdata.identifier.*
 import cdm.base.staticdata.party.*
 import cdm.event.common.*
 import cdm.ingest.fpml.confirmation.datetime.*
@@ -42,6 +43,7 @@ import cdm.ingest.fpml.confirmation.product.varianceswaptransactionsupplement.*
 import cdm.ingest.fpml.confirmation.product.volatilityswap.*
 import cdm.ingest.fpml.confirmation.product.volatilityswaptransactionsupplement.*
 import cdm.observable.asset.*
+import cdm.product.collateral.*
 import cdm.product.template.*
 
 import fpml.consolidated.* as fpml
@@ -100,6 +102,28 @@ func MapTrade:
             partyRole: MapPartyRoleList(fpmlTrade),
             contractDetails: MapContractDetails(fpmlTrade, counterpartyList),
             account: MapAccountList(fpmlTrade, fpmlPartiesAndAccountsModel),
+            collateral: MapCollateral(fpmlTrade -> tradeHeader -> partyTradeInformation),
+            ...
+        }
+
+func MapCollateral:
+    inputs:
+        fpmlPartyTradeInformation fpml.PartyTradeInformation (0..*)
+    output:
+        collateral Collateral (0..1)
+
+    set collateral:
+        Collateral {
+            portfolioIdentifier: fpmlPartyTradeInformation
+                    extract
+                        Identifier {
+                            assignedIdentifier:
+                                AssignedIdentifier {
+                                    identifier: collateralPortfolio -> value,
+                                    ...
+                                },
+                            ...
+                        },
             ...
         }
 
@@ -242,6 +266,9 @@ func MapNonTransferableProduct:
 
     set nonTransferableProduct -> economicTerms -> calculationAgent:
         MapCalculationAgent(fpmlTrade -> calculationAgentModel)
+    
+    set nonTransferableProduct -> economicTerms -> nonStandardisedTerms:
+        fpmlTrade -> tradeHeader -> partyTradeInformation -> nonStandardTerms any = True default empty
 
 func MapCalculationAgent:
     inputs:
