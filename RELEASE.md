@@ -1,4 +1,4 @@
-# *Product Model - Adding knockIn and knockOut to Barrier and relaxing cardinality*
+# *Product Model - Adding knockIn and knockOut to Barrier and Cardinality Update*
 
 _Background_
 
