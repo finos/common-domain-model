@@ -1,4 +1,4 @@
-# Product Model - Relax cardinality of Barrier and Knock trigger events
+# Product Model - Barrier Options Cardinality Updates
 
 _Background_
 
