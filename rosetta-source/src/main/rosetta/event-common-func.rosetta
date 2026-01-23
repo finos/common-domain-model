@@ -17,8 +17,8 @@ import cdm.observable.event.*
 import cdm.product.asset.*
 import cdm.product.common.schedule.*
 import cdm.product.common.settlement.*
-import cdm.product.template.*
 import cdm.product.qualification.*
+import cdm.product.template.*
 
 func QuantityIncreased:
     inputs:
@@ -2327,7 +2327,7 @@ func PayoutObligationFulfillmentFromTrade: <"Determines the payouts and collater
         result boolean (0..1)
 
     alias payoutList: <"The list of payouts on the trade.">
-    tradeState -> trade -> product -> economicTerms -> payout
+        tradeState -> trade -> product -> economicTerms -> payout
 
     alias collateralPayoutList: <"The list of collateral payouts on the trade when the collateral type is cash.">
         if tradeState -> trade -> product -> economicTerms -> collateral -> collateralProvisions -> collateralType = Cash
@@ -2338,10 +2338,7 @@ func PayoutObligationFulfillmentFromTrade: <"Determines the payouts and collater
             extract
                 switch
                     AssetPayout then
-                        AssetPayoutObligationsFulfilled(
-                                item,
-                                tradeState -> transferHistory
-                            ),
+                        AssetPayoutObligationsFulfilled(item, tradeState -> transferHistory),
                     InterestRatePayout then
                         InterestPayoutObligationsFulfilled(
                                 item,
@@ -2382,8 +2379,9 @@ func InterestPayoutObligationsFulfilled: <"Determines whether the obligations de
         isFulfilled boolean (1..1)
 
     alias payoutQuantitySchedule: <"The total price quantity that needs to be transferred is held in the InterestRatePayout PriceQuantity.">
-        FilterQuantityByCurrencyExists(interestRatePayout -> priceQuantity -> quantitySchedule)
-            -> value sum
+        FilterQuantityByCurrencyExists(
+                interestRatePayout -> priceQuantity -> quantitySchedule
+            ) -> value sum
 
     alias cashTransferredQuantity: <"The total quantity of settled cash transfers can be extracted from the transferHistory.">
         transferHistory
