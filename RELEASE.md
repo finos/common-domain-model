@@ -1,16 +1,14 @@
-# *Product Model - Security-Lending Qualification Updates*
+# *Event Model - Create_Transfer Can Set the positionState on Securities-Lending Trades*
 
 _Background_
 
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
-
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+For securities lending, knowing whether a trade has "Settled" is imperative, as this controls whether specific lifecycle events can be performed upon it.
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+Adding logic to the Create_Transfer function to update the positionState to Settled if the payout obligations have been fulfilled.
+
+New functions to determine whether the transferred security and cash amounts match the quantities on the payout.
 
 _Review directions_
 
