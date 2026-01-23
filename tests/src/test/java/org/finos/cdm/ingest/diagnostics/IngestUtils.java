@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.regnosys.rosetta.common.RegPaths.directoryNameOfDataset;
+import static com.regnosys.testing.TestingExpectationUtil.TEST_WRITE_BASE_PATH;
 import static org.finos.cdm.testpack.CdmTestPackCreator.EVENT_TEST_PACKS;
 
 public class IngestUtils {
@@ -20,7 +21,7 @@ public class IngestUtils {
     static final ObjectMapper OBJECT_MAPPER = RosettaObjectMapper.getNewMinimalRosettaObjectMapper();
 
     static final Path PROJECT_ROOT = Path.of("").toAbsolutePath().getParent();
-    static final Path MAIN_RESOURCES_PATH = PROJECT_ROOT.resolve(Path.of("rosetta-source/src/main/resources"));
+    static final Path MAIN_RESOURCES_PATH = TEST_WRITE_BASE_PATH.orElseThrow();
     static final Path INGEST_OUTPUT_PATH = MAIN_RESOURCES_PATH.resolve(TransformType.TRANSLATE.getResourcePath()).resolve("output");
     static final Path SYNONYM_INGEST_OUTPUT_BASE_PATH = MAIN_RESOURCES_PATH.resolve("result-json-files");
     // synonym ingest folder structure - top level folders
