@@ -6,7 +6,7 @@ For securities lending, knowing whether a trade has "Settled" is imperative, as 
 
 _What is being released?_
 
-Adding logic to the Create_Transfer function to update the positionState to Settled if the payout obligations have been fulfilled.
+Adding logic to the Create_Transfer function to update the `positionState` to `Settled` if the payout obligations have been fulfilled.
 
 New functions to determine whether the transferred security and cash amounts match the quantities on the payout.
 
