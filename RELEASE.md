@@ -10,4 +10,4 @@ This release includes a modification to the Qualify_AssetClass_InterestRate and 
 
 _Review directions_
 
-Changes can be reviewed in PR: [#4382](https://github.com/finos/common-domain-model/pull/4382)
+Changes can be reviewed in PR: [#4385](https://github.com/finos/common-domain-model/pull/4385)
