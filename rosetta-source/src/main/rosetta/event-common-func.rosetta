@@ -649,9 +649,10 @@ func Create_Transfer: <"Defines how a transfer should be constructed, when repre
         instruction -> transferState
 
     set transfer -> state -> positionState: <"If this is a securities lending trade and the settlement obligations of the trade have been fulfilled (i.e. full quantity of shares have been delivered and (optionally) full amount of cash has been paid), then update the positionState to be Settled ">
-        if Qualify_SecurityLending(tradeState -> trade -> product -> economicTerms)
+        if tradeState -> state -> positionState = Executed
+                and Qualify_SecurityLending(tradeState -> trade -> product -> economicTerms)
                 and PayoutObligationFulfillmentFromTrade(transfer)
-        then PositionStatusEnum -> Settled
+        then Settled
         else tradeState -> state -> positionState
 
 func Create_CashTransfer: <"Defines how Transfer that represents an exchange of cash, should be constructed.">
