@@ -44,33 +44,23 @@ Version updates include:
 
 The PairOff qualification function now correctly qualifies. See updated sample in `src/main/resources/cdm-sample-files/functions/repo-and-bond/pair-off-output.json`
 
-No expectations are updated as part of this release.
-
-Third-party software library updates:
-
-- `npm/qs` upgraded from version 6.13.0 to 6.14.1, see [GHSA-6rw7-vpxm-498p](https://github.com/advisories/GHSA-6rw7-vpxm-498p) for further details
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4315](https://github.com/finos/common-domain-model/pull/4315) && [#4310](https://github.com/finos/common-domain-model/pull/4310)
-
-# *Ingestion Framework for FpML - Mapping Coverage: Credit Default Swap Option*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+Currently, some FX Products are qualifying as Interest rate, Equity and FX. This is due to a minor issue with the Interest Rate and Equity Qualification Function.
 
 _What is being released?_
 
-This release maps Credit Default Swap Option products, as per [#4293](https://github.com/finos/common-domain-model/issues/4293).
-
-Updates to mapping of FpML products `creditDefaultSwapOption` and `creditDefaultSwap`:
-
-- `Product` attributes `taxonomy`
-- `TradeLot` attributes `priceQuantity`
-- `OptionPayout` attributes `exerciseTerms`, `referenceInformation`, `priceQuantity`, `settlementTerms`, `feature`, `underlier`, `optionType` and `strike`
+This release includes a modification to the `Qualify_AssetClass_InterestRate` and `Qualify_AssetClass_Equity` logic to avoid qualifying FX Products as Interest Rate or Equity. 
 
 _Review Directions_
+
+Changes can be reviewed in PR: [#4377](https://github.com/finos/common-domain-model/pull/4377)
+
+
+
+
+
+
+
+
 
 Changes can be reviewed in PR: [#4339](https://github.com/finos/common-domain-model/pull/4339)
 
