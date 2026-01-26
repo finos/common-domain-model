@@ -77,17 +77,17 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                                 ) = True
                         else False))
             or ((SettlementPayoutOnlyExists(economicTerms -> payout)
-                or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
-                    and (UnderlierQualification(
-                            settlementUnderlier,
-                            InstrumentTypeEnum -> Debt,
-                            AssetClassEnum -> InterestRate
-                        )
-                        or if settlementUnderlier -> Product ->> economicTerms exists
-                            then Qualify_AssetClass_InterestRate(
-                                        settlementUnderlier -> Product ->> economicTerms
-                                    ) = True
-                            else False))
+                    or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
+                and (UnderlierQualification(
+                        settlementUnderlier,
+                        InstrumentTypeEnum -> Debt,
+                        AssetClassEnum -> InterestRate
+                    )
+                    or if settlementUnderlier -> Product ->> economicTerms exists
+                        then Qualify_AssetClass_InterestRate(
+                                    settlementUnderlier -> Product ->> economicTerms
+                                ) = True
+                        else False))
 
 func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class classification Credit Default.">
     inputs:
@@ -192,15 +192,13 @@ func Qualify_AssetClass_Equity:
                                 ) = True
                         else False))
             or ((SettlementPayoutOnlyExists(economicTerms -> payout)
-                or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
-                    and (Qualify_UnderlierObservable_Equity(
-                            settlementUnderlier -> Observable
-                        )
-                        or if settlementUnderlier -> Product ->> economicTerms exists
-                            then Qualify_AssetClass_Equity(
-                                        settlementUnderlier -> Product ->> economicTerms
-                                    ) = True
-                            else False))
+                    or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
+                and (Qualify_UnderlierObservable_Equity(settlementUnderlier -> Observable)
+                    or if settlementUnderlier -> Product ->> economicTerms exists
+                        then Qualify_AssetClass_Equity(
+                                    settlementUnderlier -> Product ->> economicTerms
+                                ) = True
+                        else False))
 
 func Qualify_AssetClass_Commodity: <"Qualifies a product as having the Asset Class classification Commodity">
     inputs:

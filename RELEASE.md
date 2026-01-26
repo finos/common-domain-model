@@ -1,17 +1,13 @@
-# *Product Model - Security-Lending Qualification Updates*
+# *Product Model - Modification to Interest Rate and Equity Qualification functions*
 
 _Background_
 
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
-
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+Currently, some FX Products are qualifying as Interest rate, Equity and FX. This is due to a minor issue with the Interest Rate and Equity Qualification Function.
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+This release includes a modification to the Qualify_AssetClass_InterestRate and Qualify_AssetClass_Equity logic to avoid qualifying FX Products as Interest Rate or Equity.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
+Changes can be reviewed in PR: [#4382](https://github.com/finos/common-domain-model/pull/4382)
