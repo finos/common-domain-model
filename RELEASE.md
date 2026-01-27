@@ -1,21 +1,17 @@
-# *Event Model - Termination for Schedules*
+# *Product Model - Security-Lending Qualification Updates*
 
 _Background_
 
-Previously, when a termination applied to a quantity schedule, the model did not correctly update all dated values following the termination’s effective period. As a result, quantities after the termination date could still retain non-zero values.
+The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
 
-To address this, the logic has been improved so that any dated values from the effective period onward are correctly set to zero when a termination occurs.
+If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
+
+However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
 
 _What is being released?_
 
-The `UpdateQuantityAmountForEachMatchingQuantity` function has been enhanced to apply the quantity change to all dated values from the current period onward. A new function `UpdateDatedValues` has been created to perform the update of the `DatedValue`.
+The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
 
-The period from which the change should take effect is determined using the `primitiveInstruction → quantityChange → change → effectiveDate`.
+_Review directions_
 
-_Mappings_
-
-The mapping from the FpML termination effective date has been added to the function `MapPriceQuantity` pointing to the `primitiveInstruction → quantityChange → change → effectiveDate`.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4144](https://github.com/finos/common-domain-model/pull/4144)
+The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
