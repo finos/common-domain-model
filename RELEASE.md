@@ -1,23 +1,31 @@
-# Asset - Expanded Coverage for Secured Debt
+# *Product Model - Modification to Interest Rate and Equity Qualification functions*
 
 _Background_
 
-Different types of secured debt are not well represented in CDM.
-
-In the current model, Asset Backed Securities could exist in CDM using the value in `DebtClassEnum`, however, there is no way to represent Mortgage Backed Securities or other types of secured debt.
+Currently, some FX Products are qualifying as Interest rate, Equity and FX. This is due to a minor issue with the Interest Rate and Equity Qualification Function.
 
 _What is being released?_
 
-This release supports the inclusion of secured debt by making the following changes:
-
-- Created a new `SecuredDebt` type for different types of secured debt
-- Added `secured` as an attribute under `DebtEconomics` with the `SecuredDebt` type
-- Added `assetBacked`, `collateralizedObligations`, and `coveredBonds` as attributes in `SecuredType`, each with their own corresponding enumeration
-- Added a `PropertyTypeEnum` to determine the type of property when the security is linked to a property asset
-- Removed `AssetBacked` as a value from `DebtClassEnum`
-- Added conditions to validate the values selected from `SecuredTypeEnum` correspond to the correct attribute in `SecuredType`
-- Removed redundant "debt" prefix in the attributes of `DebtEconomics`
+This release includes a modification to the Qualify_AssetClass_InterestRate and Qualify_AssetClass_Equity logic to avoid qualifying FX Products as Interest Rate or Equity.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4257](https://github.com/finos/common-domain-model/pull/4257)
+Changes can be reviewed in PR: [#4385](https://github.com/finos/common-domain-model/pull/4385)
+
+# *Product Model - Adding knockIn and knockOut to Barrier and Cardinality Update*
+
+_Background_
+
+Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the knock-in or out / barrierCap or floor attributes is currently `(0..1)`.
+
+Furthermore, knock-ins and knock-outs are features of Barrier Options, so the `knockIn` or `knockOut` attributes should be within the Barrier type.
+
+_What is being released?_
+
+- Removal of the `knock` attribute from `OptionFeature` and removal of the `Knock` type
+- Rename the attributes within `Barrier` to `knockIn` & `knockOut`.
+- Relaxing of the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut`.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4359](https://github.com/finos/common-domain-model/pull/4359)
