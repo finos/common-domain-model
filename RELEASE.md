@@ -1,17 +1,17 @@
-# *Product Model - Security-Lending Qualification Updates*
+# *Product Model - Adding knockIn and knockOut to Barrier and Cardinality Update*
 
 _Background_
 
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
+Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the knock-in or out / barrierCap or floor attributes is currently `(0..1)`.
 
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+Furthermore, knock-ins and knock-outs are features of Barrier Options, so the `knockIn` or `knockOut` attributes should be within the Barrier type.
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+- Removal of the `knock` attribute from `OptionFeature` and removal of the `Knock` type
+- Rename the attributes within `Barrier` to `knockIn` & `knockOut`.
+- Relaxing of the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut`.
 
-_Review directions_
+_Review Directions_
 
-The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
+Changes can be reviewed in PR: [#4359](https://github.com/finos/common-domain-model/pull/4359)
