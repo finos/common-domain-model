@@ -1,32 +1,35 @@
-# Java test scenarios improvement - Validation logging
+# *Ingestion mappings and CDM model validation rules. - Updates CDM model rules and FpML mappings to resolve validation issues and inconsistencies.*
 
 _Background_
 
-The validation java samples tests currently produce detailed but low-level log output during test execution, which can be difficult to interpret for users who are not deeply familiar with the internal validation model or development tooling. There is a need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
+This PR aims to improve the CDM model and mappings to achieve better validation results.
 
 _What is being released?_
 
-This release introduces an enhanced logging approach for validation tests, designed to improve clarity and readability of validation results.
+**Overview**
+This release focuses on improving FpML ingestion mappings and CDM model alignment to enhance validation accuracy and ensure consistent trade representation.
 
-- Improved validation result aggregation. Validation results are now grouped by key validation attributes (validation type, name, definition, failure reason, and model object name). This avoids duplicated log entries and presents a consolidated view of each distinct validation outcome, including all affected model paths.
+**Summary of Changes**
+The following updates have been included in this pull request:
 
-- Clear validation summary section. A visual summary is logged at the beginning of the validation output, providing:
-  - Total number of distinct validation results
-  - Number of successful validations
-  - Number of failures  
-  This allows users to immediately assess the overall validation status at a glance.
+1. `ingest-fpml-confirmation-other-func.rosetta`
+    - **MapWeeklyRollConventionEnum**: Completed the implementation by adding missing roll convention mappings.
+2. `ingest-fpml-confirmation-party-func.rosetta`
+    - **MapRelatedPartyToPartyRole**: Added support for **ClearingBroker** as a synonym of **ClearingFirm**.
+3. `ingest-fpml-confirmation-product-fra-func.rosetta`
+   - **MapFraToFixedInterestRatePayout**: Removed the **paymentDates** mapping for FRA products, as FRAs support only a single payment and should use **paymentDate** instead.
+4. `ingest-fpml-confirmation-product-swap-func.rosetta`
+   - **MapOptionalEarlyTermination**: Implemented missing **exerciseNotice** mapping.
+   - **MapCalculationPeriodAmountToPriceList**: Updated **FixedRateSpecification** mapping to include the **IRD_29** condition (via `MapSwapPayout`).
+5. `product-common-settlement-type.rosetta`
+   - **FxFixingDate**: Aligned with FpML by enforcing a choice between **dateRelativeToPaymentDates** and **dateRelativeToCalculationPeriodDates**.
+6. `product-template-type.rosetta`
+   - **MultipleExercise** / **PartialExercise**: Updated cardinality to make **notionalReference** optional, aligning with the FpML specification.
 
-- Dedicated and readable failure reporting. Failed validations are logged in clearly delimited sections, explicitly highlighting:
-  - Validation type and name
-  - Validation definition and failure reason
-  - Affected model object
-  - All relevant paths where the failure occurred  
-  This structure makes root causes easier to identify, even for non-expert users.
+**Impact**
 
-- Simplified success logging. Successful validations are logged in a concise, single-line format, confirming which rules passed without overwhelming the log output with unnecessary detail.
-
-These improvements are implemented via a new helper method in `ValidationProcessorTests`, ensuring consistent validation logging across test scenarios. The underlying validation logic remains unchanged; only the presentation of validation results has been enhanced to improve usability.
+These changes improve mapping completeness, reduce validation errors, and strengthen alignment between FpML samples and the CDM model.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4344](https://github.com/finos/common-domain-model/pull/4344)
+Changes can be reviewed in PR: [#4394](https://github.com/finos/common-domain-model/pull/4394).
