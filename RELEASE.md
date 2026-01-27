@@ -32,4 +32,4 @@ These changes improve mapping completeness, reduce validation errors, and streng
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4318](https://github.com/finos/common-domain-model/pull/4318).
+Changes can be reviewed in PR: [#4394](https://github.com/finos/common-domain-model/pull/4394).
