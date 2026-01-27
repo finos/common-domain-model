@@ -1,31 +1,35 @@
-# *Product Model - Modification to Interest Rate and Equity Qualification functions*
+# *Ingestion mappings and CDM model validation rules. - Updates CDM model rules and FpML mappings to resolve validation issues and inconsistencies.*
 
 _Background_
 
-Currently, some FX Products are qualifying as Interest rate, Equity and FX. This is due to a minor issue with the Interest Rate and Equity Qualification Function.
+This PR aims to improve the CDM model and mappings to achieve better validation results.
 
 _What is being released?_
 
-This release includes a modification to the Qualify_AssetClass_InterestRate and Qualify_AssetClass_Equity logic to avoid qualifying FX Products as Interest Rate or Equity.
+**Overview**
+This release focuses on improving FpML ingestion mappings and CDM model alignment to enhance validation accuracy and ensure consistent trade representation.
+
+**Summary of Changes**
+The following updates have been included in this pull request:
+
+1. `ingest-fpml-confirmation-other-func.rosetta`
+    - **MapWeeklyRollConventionEnum**: Completed the implementation by adding missing roll convention mappings.
+2. `ingest-fpml-confirmation-party-func.rosetta`
+    - **MapRelatedPartyToPartyRole**: Added support for **ClearingBroker** as a synonym of **ClearingFirm**.
+3. `ingest-fpml-confirmation-product-fra-func.rosetta`
+   - **MapFraToFixedInterestRatePayout**: Removed the **paymentDates** mapping for FRA products, as FRAs support only a single payment and should use **paymentDate** instead.
+4. `ingest-fpml-confirmation-product-swap-func.rosetta`
+   - **MapOptionalEarlyTermination**: Implemented missing **exerciseNotice** mapping.
+   - **MapCalculationPeriodAmountToPriceList**: Updated **FixedRateSpecification** mapping to include the **IRD_29** condition (via `MapSwapPayout`).
+5. `product-common-settlement-type.rosetta`
+   - **FxFixingDate**: Aligned with FpML by enforcing a choice between **dateRelativeToPaymentDates** and **dateRelativeToCalculationPeriodDates**.
+6. `product-template-type.rosetta`
+   - **MultipleExercise** / **PartialExercise**: Updated cardinality to make **notionalReference** optional, aligning with the FpML specification.
+
+**Impact**
+
+These changes improve mapping completeness, reduce validation errors, and strengthen alignment between FpML samples and the CDM model.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4385](https://github.com/finos/common-domain-model/pull/4385)
-
-# *Product Model - Adding knockIn and knockOut to Barrier and Cardinality Update*
-
-_Background_
-
-Barrier Options can have multiple knock-ins and knock-outs which are not supported with the current cardinality. The cardinality of the knock-in or out / barrierCap or floor attributes is currently `(0..1)`.
-
-Furthermore, knock-ins and knock-outs are features of Barrier Options, so the `knockIn` or `knockOut` attributes should be within the Barrier type.
-
-_What is being released?_
-
-- Removal of the `knock` attribute from `OptionFeature` and removal of the `Knock` type
-- Rename the attributes within `Barrier` to `knockIn` & `knockOut`.
-- Relaxing of the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut`.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4359](https://github.com/finos/common-domain-model/pull/4359)
+Changes can be reviewed in PR: [#4318](https://github.com/finos/common-domain-model/pull/4318).

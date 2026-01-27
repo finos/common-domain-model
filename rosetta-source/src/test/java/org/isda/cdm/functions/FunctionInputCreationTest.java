@@ -1420,6 +1420,7 @@ class FunctionInputCreationTest {
                     calculationPeriodDates.getTerminationDate().getAdjustableDate().setUnadjustedDate(Date.of(2025, 4, 1));
                 });
         interestRatePayouts.stream()
+                .filter(payout -> payout.getRateSpecification() != null)
                 .filter(payout -> payout.getRateSpecification().getFixedRateSpecification() != null)
                 .findFirst()
                 .ifPresent(fixedLeg -> {
