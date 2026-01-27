@@ -2,7 +2,7 @@
 
 _What is being released?_
 
-This release updates the Rune-Fpml dependency.
+This release updates the Rune-FpML dependency.
 
 Version updates include:
 - `Rune-Fpml` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
