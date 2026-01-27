@@ -9,6 +9,6 @@ _What is being released?_
 - Adding logic to the Create_Transfer function to update the `positionState` to `Settled` if the payout obligations have been fulfilled.
 - New functions to determine whether the payout obligations have been fulfilled, i.e., do the transferred security and cash amounts match the quantities on the payout.
 
-_Review directions_
+_Review Directions_
 
 The changes can be reviewed in PR: [#4378](https://github.com/finos/common-domain-model/pull/4378)
