@@ -86,9 +86,11 @@ type EquityIndex extends IndexBase: <"Specification of an index based on equity 
     condition EquityAssetClass: <"The asset class must be Equity.">
         assetClass = AssetClassEnum -> Equity
 
-    condition EquityIndexEnumExists: <"There must be one and only one currency code and it must be valid (ie in the enumerated list).">
-        AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnum) count = 1
-            and AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnum) -> identifier
+    condition EquityIndexEnumIsValid: <"If the index is identified by an EquityIndexEnumerator, it must be singular and valid (ie in the enumerated list EquityIndexEnum).">
+        if identifier -> identifierType any = AssetIdTypeEnum -> EquityIndexEnumerator
+        then 
+           AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnumerator) count = 1
+           and AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnumerator) -> identifier
                 first
                 to-enum EquityIndexEnum
                 exists      
