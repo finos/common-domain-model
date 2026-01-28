@@ -1,17 +1,32 @@
-# *Product Model - Security-Lending Qualification Updates*
+# Java test scenarios improvement - Validation logging
 
 _Background_
 
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
-
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+The validation java samples tests currently produce detailed but low-level log output during test execution, which can be difficult to interpret for users who are not deeply familiar with the internal validation model or development tooling. There is a need for clearer and more accessible feedback that allows users to quickly understand validation outcomes and identify issues without analysing verbose or repetitive logs.
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+This release introduces an enhanced logging approach for validation tests, designed to improve clarity and readability of validation results.
 
-_Review directions_
+- Improved validation result aggregation. Validation results are now grouped by key validation attributes (validation type, name, definition, failure reason, and model object name). This avoids duplicated log entries and presents a consolidated view of each distinct validation outcome, including all affected model paths.
 
-The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
+- Clear validation summary section. A visual summary is logged at the beginning of the validation output, providing:
+  - Total number of distinct validation results
+  - Number of successful validations
+  - Number of failures  
+  This allows users to immediately assess the overall validation status at a glance.
+
+- Dedicated and readable failure reporting. Failed validations are logged in clearly delimited sections, explicitly highlighting:
+  - Validation type and name
+  - Validation definition and failure reason
+  - Affected model object
+  - All relevant paths where the failure occurred  
+  This structure makes root causes easier to identify, even for non-expert users.
+
+- Simplified success logging. Successful validations are logged in a concise, single-line format, confirming which rules passed without overwhelming the log output with unnecessary detail.
+
+These improvements are implemented via a new helper method in `ValidationProcessorTests`, ensuring consistent validation logging across test scenarios. The underlying validation logic remains unchanged; only the presentation of validation results has been enhanced to improve usability.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4344](https://github.com/finos/common-domain-model/pull/4344)
