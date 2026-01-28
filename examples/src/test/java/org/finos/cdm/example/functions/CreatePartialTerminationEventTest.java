@@ -81,11 +81,11 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                         .setDirection(QuantityChangeDirectionEnum.DECREASE)
                         .addChange(PriceQuantity.builder()
                                 .addQuantityValue(NonNegativeQuantitySchedule.builder()
-                                                .setValue(BigDecimal.valueOf(7000000))
-                                                .setUnit(UnitType.builder()
-                                                        .setCurrency(FieldWithMetaString.builder()
-                                                                .setValue("USD")
-                                                                .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
+                                        .setValue(BigDecimal.valueOf(7000000))
+                                        .setUnit(UnitType.builder()
+                                                .setCurrency(FieldWithMetaString.builder()
+                                                        .setValue("USD")
+                                                        .setMeta(MetaFields.builder().setScheme(CURRENCY_SCHEME))))));
 
         // Transfer instruction specifying the partial termination fee
         ReferenceWithMetaParty payerPartyReference = beforeTradeState.getTrade().getCounterparty().get(0).getPartyReference();
@@ -94,7 +94,8 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
                 .addTransferState(TransferState.builder()
                         .setTransfer(Transfer.builder()
                                 .setTransferExpression(TransferExpression.builder()
-                                        .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION))
+                                        .setUnscheduledTransfer(UnscheduledTransfer.builder()
+                                                .setPriceTransfer(FeeTypeEnum.PARTIAL_TERMINATION).build()))
                                 .setPayerReceiver(PartyReferencePayerReceiver.builder()
                                         .setPayerPartyReference(payerPartyReference)
                                         .setReceiverPartyReference(receiverPartyReference))
@@ -171,7 +172,7 @@ public class CreatePartialTerminationEventTest extends AbstractExampleTest {
 
         // Assert transfer fee
         Transfer transfer = afterTradeState.getTransferHistory().get(0).getTransfer();
-        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getPriceTransfer());
+        assertEquals(FeeTypeEnum.PARTIAL_TERMINATION, transfer.getTransferExpression().getUnscheduledTransfer().getPriceTransfer());
         assertEquals(new BigDecimal("2000.0"), transfer.getQuantity().getValue());
     }
 
