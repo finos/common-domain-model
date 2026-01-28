@@ -32,18 +32,19 @@ public class SynonymIngestExpectationTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("namedArguments")
     void checkExpectationsIsComplete(String name, Path expectationsPath) throws IOException {
-        Set<String> expectationsSamples = MAPPER.readValue(UrlUtils.toUrl(expectationsPath), TYPE_REFERENCE)
-                .stream().map(Expectation::getFileName)
+        Set<String> filesListedInExpectationsFile = MAPPER.readValue(UrlUtils.toUrl(expectationsPath), TYPE_REFERENCE)
+                .stream()
+                .map(Expectation::getFileName)
                 .collect(Collectors.toSet());
 
-        Set<String> xmlFilesInDir = Files.walk(expectationsPath.getParent())
+        Set<String> filesInDir = Files.walk(expectationsPath.getParent())
                 .filter(Files::isRegularFile)
-                .filter(x -> EXCLUDED_FILENAMES.stream().noneMatch(f -> x.toString().endsWith(f)))
+                .filter(path -> EXCLUDED_FILENAMES.stream().noneMatch(f -> path.toString().endsWith(f)))
                 .map(RESOURCES_FOLDER::relativize)
                 .map(UrlUtils::toPortableString)
                 .collect(Collectors.toSet());
         
-        assertThat(xmlFilesInDir, Matchers.containsInAnyOrder(expectationsSamples.toArray()));
+        assertThat(filesInDir, Matchers.containsInAnyOrder(filesListedInExpectationsFile.toArray()));
     }
 
     private static List<Arguments> namedArguments() throws IOException {
