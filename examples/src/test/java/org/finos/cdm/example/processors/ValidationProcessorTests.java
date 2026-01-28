@@ -9,18 +9,69 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 final class ValidationProcessorTests extends AbstractProcessorTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ValidationProcessorTests.class);
+
+    private void logValidationResults(ValidationReport report) {
+        List<ValidationResult<?>> results = report.getValidationResults();
+
+        Map<String, ValidationResult<?>> distinctResults = new LinkedHashMap<>();
+        Map<String, LinkedHashSet<String>> pathsByKey = new LinkedHashMap<>();
+
+        for (ValidationResult<?> r : results) {
+            String key = r.getValidationType() + "|" + r.getName() + "|" + r.getDefinition() + "|" + r.getFailureReason() + "|" + r.getModelObjectName();
+            distinctResults.putIfAbsent(key, r);
+            pathsByKey.computeIfAbsent(key, k -> new LinkedHashSet<>()).add(String.valueOf(r.getPath()));
+        }
+
+        long total = distinctResults.size();
+        long success = distinctResults.values().stream().filter(ValidationResult::isSuccess).count();
+        long failure = total - success;
+
+        logger.debug("===========================================");
+        logger.debug("            VALIDATION SUMMARY            ");
+        logger.debug("===========================================");
+        logger.debug("Results : {}", total);
+        logger.debug("Success : {}", success);
+        logger.debug("Failures: {}", failure);
+        logger.debug("===========================================\n");
+
+        distinctResults.forEach((key, r) -> {
+            if (!r.isSuccess()) {
+                String paths = String.join(", ", pathsByKey.getOrDefault(key, new LinkedHashSet<>()));
+                logger.debug("--------------- FAILED VALIDATION ----------------");
+                logger.debug("Type: {}", r.getValidationType());
+                logger.debug("Name: {}", r.getName());
+                logger.debug("Details: {}", r.getDefinition());
+                logger.debug("Failure Reason: {}", r.getFailureReason());
+                logger.debug("ModelObjectName: {}", r.getModelObjectName());
+                logger.debug("Paths: {}", paths);
+                logger.debug("--------------------------------------------\n");
+            }
+        });
+
+        distinctResults.forEach((key, r) -> {
+            if (r.isSuccess()) {
+                String paths = String.join(", ", pathsByKey.getOrDefault(key, new LinkedHashSet<>()));
+                logger.debug("SUCCESS | Type: {} | Name: {} | Details: {} | Paths: {} | ModelObjectName: {}",
+                        r.getValidationType(), r.getName(), r.getDefinition(), paths, r.getModelObjectName());
+            }
+        });
+
+    }
+
     /**
      * This test checks that a valid product represented as a TradeState object validates correctly.
      * The test ensures that the TradeState loaded from a sample JSON file meets
      * the expected validation criteria.
      */
     //@Test
-    public void mustValidateValidProduct() {
+    void mustValidateValidProduct() {
         // Path to the sample JSON file representing a valid TradeState (Interest Rate FRA)
         String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-inflation-swaps/inflation-swap-ex01-yoy.json";
 
@@ -32,7 +83,9 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the TradeState and generate a validation report
         ValidationReport report = validate(sample);
-        report.logReport();
+
+        // Log the validation results for debugging
+        logValidationResults(report);
 
         // Verify that the qualification result indicates success
         assertTrue(report.success(), "The validation result should indicate success");
@@ -49,7 +102,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
      * missing or incorrect data, fails validation.
      */
     @Test
-    public void mustNotValidateInvalidProduct() {
+    void mustNotValidateInvalidProduct() {
         // Create an invalid TradeState (missing required fields or incorrect data)
         String filePath = "ingest/output/fpml-confirmation-to-trade-state/fpml-5-13-products-interest-rate-derivatives/ird-ex08-fra.json";
 
@@ -58,7 +111,9 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the invalid TradeState and generate a validation report
         ValidationReport report = validate(sample);
-        report.logReport();
+
+        // Log validation results for debugging
+        logValidationResults(report);
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure for an invalid product");
@@ -67,7 +122,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
         assertFalse(report.getValidationResults().isEmpty(), "The validation results should not be empty for an invalid product");
 
         // Verify that at least one validation result indicates failure
-        assertFalse(report.getValidationResults().stream().allMatch(result -> result.isSuccess()), "At least one validation result should indicate failure");
+        assertFalse(report.getValidationResults().stream().allMatch(ValidationResult::isSuccess), "At least one validation result should indicate failure");
 
         // Verify that the result object type is as expected
         assertEquals(report.getResultObject().getType(), TradeState.class, "The validation result object type should still match the expected type");
@@ -79,7 +134,7 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
      * and ensures that the validation process succeeds with no errors.
      */
     //@Test
-    public void mustValidateValidWorkflowStep() {
+    void mustValidateValidWorkflowStep() {
         // Path to the sample JSON file representing a valid WorkflowStep
         String filePath = "ingest/output/fpml-confirmation-to-workflow-step/fpml-5-13-processes-execution-advice/msg-ex52-execution-advice-trade-partial-novation-C02-00.json";
 
@@ -88,7 +143,9 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(sample);
-        report.logReport();
+
+        // Log validation results for debugging
+        logValidationResults(report);
 
         // Verify that the validation process succeeded
         assertTrue(report.success(), "The validation report should indicate success");
@@ -106,14 +163,16 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
      * process detects errors and does not succeed.
      */
     @Test
-    public void mustNotValidateEmptyWorkflowStep() {
+    void mustNotValidateEmptyWorkflowStep() {
 
         // Attempt to create an accepted WorkflowStep using the invalid TradeState
         WorkflowStep ws = WorkflowStep.builder().build();
 
         // Validate the WorkflowStep and generate a validation report
         ValidationReport report = validate(ws);
-        report.logReport();
+
+        // Log validation results for debugging
+        logValidationResults(report);
 
         // Verify that the validation process did not succeed
         assertFalse(report.success(), "The validation report should indicate failure");
@@ -134,16 +193,16 @@ final class ValidationProcessorTests extends AbstractProcessorTest {
      * crashing, by throwing a NullPointerException.
      */
     @Test
-    public void mustNotValidateNullWorkflowStep() {
+    void mustNotValidateNullWorkflowStep() {
         try {
             // Validate the null WorkflowStep (this should throw an exception or fail)
-            ValidationReport report = validate(null);
+            validate(null);
 
             // If no exception is thrown, fail the test explicitly
             fail("Validation of a null WorkflowStep should throw an exception or fail validation.");
         } catch (NullPointerException e) {
             // Verify that a NullPointerException is thrown
-            logger.info("NullPointerException caught as expected: " + e.getMessage());
+            logger.info("NullPointerException caught as expected: {}", e.getMessage());
             logger.info("NullPointerException was correctly thrown for a null WorkflowStep.");
         } catch (Exception e) {
             // Catch any other exceptions and fail the test if unexpected
