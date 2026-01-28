@@ -7,7 +7,6 @@ import cdm.base.staticdata.party.PayerReceiver;
 import cdm.legaldocumentation.contract.processor.PartyMappingHelper;
 import cdm.observable.asset.Money;
 import cdm.product.common.settlement.PrincipalPayment;
-import cdm.product.common.settlement.PrincipalPayments;
 import com.regnosys.rosetta.common.translation.MappingContext;
 import com.regnosys.rosetta.common.translation.MappingProcessor;
 import com.regnosys.rosetta.common.translation.Path;
@@ -37,25 +36,15 @@ public class PrincipalPaymentScheduleMappingProcessor extends MappingProcessor {
     @Override
     public void map(Path synonymPath, RosettaModelObjectBuilder builder, RosettaModelObjectBuilder parent) {
         PrincipalPaymentScheduleBuilder principalPaymentScheduleBuilder = (PrincipalPaymentScheduleBuilder) builder;
-        PrincipalPayments principalPaymentParent = (PrincipalPayments) parent;
 
-        boolean initialPayment = Optional.ofNullable(principalPaymentParent.getInitialPayment()).orElse(false);
-        boolean finalPayment = Optional.ofNullable(principalPaymentParent.getFinalPayment()).orElse(false);
-        
         LinkedList<PrincipalPayment> principalPayments = getPrincipalPayments(synonymPath);
-        if (principalPayments.isEmpty()) {
-            return;
+        // for the earliest payment, set as initial payment
+        if (principalPayments.size() > 0) {
+            principalPaymentScheduleBuilder.setInitialPrincipalPayment(principalPayments.getFirst());
         }
-        if (initialPayment) {
-            PrincipalPayment firstPrincipalPayment = principalPayments.removeFirst();
-            principalPaymentScheduleBuilder.setInitialPrincipalPayment(firstPrincipalPayment);;
-        }
-        if (principalPayments.isEmpty()) {
-            return;
-        }
-        if (finalPayment) {
-            PrincipalPayment finalPrincipalPayment = principalPayments.getLast();
-            principalPaymentScheduleBuilder.setFinalPrincipalPayment(finalPrincipalPayment);
+        // for the latest payment, set as final payment
+        if (principalPayments.size() > 1) {
+            principalPaymentScheduleBuilder.setFinalPrincipalPayment(principalPayments.getLast());
         }
     }
 
