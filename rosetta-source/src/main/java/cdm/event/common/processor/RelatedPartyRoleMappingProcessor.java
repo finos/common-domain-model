@@ -15,11 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
@@ -44,59 +43,53 @@ public class RelatedPartyRoleMappingProcessor extends MappingProcessor {
 
     @Override
     public void map(Path synonymPath, List<? extends RosettaModelObjectBuilder> builder, RosettaModelObjectBuilder parent) {
-
         Collection<PartyRoleMapping> partyRoleMappings = getMappings().stream()
+                .filter(m -> m.getXmlValue() != null)
                 // find all partyTradeInformation.relatedParty mappings
                 .filter(m -> synonymPath.getParent().nameStartMatches(m.getXmlPath()))
                 // group by relatedParty path index
                 .collect(Collectors.groupingBy(this::getKey, collectingAndThen(toList(), this::toPartyRoleMapping)))
                 .values();
 
-        partyRoleMappings.forEach(m -> {
-            Trade.TradeBuilder tradeBuilder = (Trade.TradeBuilder) parent;
-
-                // Check if m.role is non-null before calling fromDisplayName
-                if (m != null && m.role != null) {
-                    try {
-                        // Normalize the XML value to match the enum constant (convert to uppercase and replace spaces/underscores)
-                        PartyRoleEnum roleEnum = PartyRoleEnum.fromDisplayName(m.role);
-
+        Trade.TradeBuilder tradeBuilder = (Trade.TradeBuilder) parent;
+        for (PartyRoleMapping partyRoleMapping : partyRoleMappings) {// Check if m.role is non-null before calling fromDisplayName
+            // if (partyRoleMapping != null && partyRoleMapping.role != null) {
+            // Normalize the XML value to match the enum constant (convert to uppercase and replace spaces/underscores)
+            getPartyRoleEnum(partyRoleMapping)
+                    .ifPresent(roleEnum -> {
                         // Create the PartyRoleBuilder and add the necessary values
-                        PartyRole.PartyRoleBuilder partyRoleBuilder = PartyRole.builder()
-                                .setRole(roleEnum);
+                        PartyRole.PartyRoleBuilder partyRoleBuilder = PartyRole.builder().setRole(roleEnum);
 
                         // Check if m.partyReference is non-null before setting it
-                        if (m.partyReference != null) {
+                        if (partyRoleMapping.partyReference != null) {
                             partyRoleBuilder.setPartyReference(ReferenceWithMetaParty.builder()
-                                    .setExternalReference(m.partyReference));
+                                    .setExternalReference(partyRoleMapping.partyReference));
                         }
 
                         // Check if m.ownershipPartyReference is non-null before setting it
-                        if (m.ownershipPartyReference != null) {
+                        if (partyRoleMapping.ownershipPartyReference != null) {
                             partyRoleBuilder.setOwnershipPartyReference(ReferenceWithMetaParty.builder()
-                                    .setExternalReference(m.ownershipPartyReference));
+                                    .setExternalReference(partyRoleMapping.ownershipPartyReference));
+                        }
+
+                        // Update mappings if they are non-null
+                        if (partyRoleMapping.partyReferenceMapping != null && partyRoleMapping.partyReferenceModelPath != null) {
+                            updateMappingSuccess(partyRoleMapping.partyReferenceMapping, partyRoleMapping.partyReferenceModelPath);
+                        }
+                        if (partyRoleMapping.roleMapping != null && partyRoleMapping.roleModelPath != null) {
+                            updateMappingSuccess(partyRoleMapping.roleMapping, partyRoleMapping.roleModelPath);
                         }
 
                         // Add the PartyRole to the trade
                         tradeBuilder.addPartyRole(partyRoleBuilder);
+                    });
+        }
+    }
 
-                        // Update mappings if they are non-null
-                        if (m.partyReferenceMapping != null && m.partyReferenceModelPath != null) {
-                            updateMappingSuccess(m.partyReferenceMapping, m.partyReferenceModelPath);
-                        }
-                        if (m.roleMapping != null && m.roleModelPath != null) {
-                            updateMappingSuccess(m.roleMapping, m.roleModelPath);
-                        }
-                    }
-                    catch (IllegalArgumentException e) {
-                        // If the value is not a valid enum constant, do nothing and skip this iteration
-                        LOGGER.warn("Invalid PartyRoleEnum: " + m.role, e);
-
-                    }
-                }
-
-
-        });
+    private Optional<PartyRoleEnum> getPartyRoleEnum(PartyRoleMapping partyRoleMapping) {
+        return Optional.ofNullable(partyRoleMapping)
+                .map(m -> m.role)
+                .flatMap(r -> getSynonymToEnumMap().getEnumValueOptional(PartyRoleEnum.class, r));
     }
 
     /**
@@ -140,18 +133,16 @@ public class RelatedPartyRoleMappingProcessor extends MappingProcessor {
                     );
 
                     // Proceed with your existing mapping logic
-                    RosettaPath ownershipPartyReferenceModelPath = getModelPath().newSubPath("ownershipPartyReference").newSubPath("externalReference");
-                    Mapping partyReferenceMapping = getMapping(mappings.stream().filter(m -> m.getXmlValue() != null).collect(Collectors.toList()), Path.parse("partyReference.href"));
+                    Mapping partyReferenceMapping = getMapping(mappings, Path.parse("partyReference.href"));
                     RosettaPath partyReferenceModelPath = getModelPath().newSubPath("partyReference").newSubPath("externalReference");
-                    Mapping roleMapping = getMapping(mappings.stream().filter(m -> m.getXmlValue() != null).collect(Collectors.toList()), Path.parse("role"));
+                    Mapping roleMapping = getMapping(mappings, Path.parse("role"));
                     RosettaPath roleModelPath = getModelPath().newSubPath("role");
 
                     // Build and return the PartyRoleMapping if the mappings are valid
                     if (partyReferenceMapping != null && partyReferenceMapping.getXmlValue() != null
-                            && roleMapping != null && roleMapping.getXmlValue() != null) {                        return new PartyRoleMapping(
+                            && roleMapping != null && roleMapping.getXmlValue() != null) {
+                        return new PartyRoleMapping(
                                 String.valueOf(ownershipPartyReferenceMapping.getXmlValue()),
-                                ownershipPartyReferenceMapping,
-                                ownershipPartyReferenceModelPath,
                                 String.valueOf(partyReferenceMapping.getXmlValue()),
                                 partyReferenceMapping,
                                 partyReferenceModelPath,
@@ -170,14 +161,12 @@ public class RelatedPartyRoleMappingProcessor extends MappingProcessor {
 
 
     private Mapping getMapping(List<Mapping> mappings, Path endsWith) {
-        return mappings.stream().filter(m -> m.getXmlPath().endsWith(endsWith)).findFirst().orElse(null);
+        return mappings.stream().filter(m -> m.getXmlPath().endsWith(endsWith)).filter(m -> m.getXmlValue() != null).findFirst().orElse(null);
     }
 
     private static class PartyRoleMapping {
 
         private final String ownershipPartyReference;
-        private final Mapping ownershipPartyReferenceMapping;
-        private final RosettaPath ownershipPartyReferenceModelPath;
         private final String partyReference;
         private final Mapping partyReferenceMapping;
         private final RosettaPath partyReferenceModelPath;
@@ -185,10 +174,8 @@ public class RelatedPartyRoleMappingProcessor extends MappingProcessor {
         private final Mapping roleMapping;
         private final RosettaPath roleModelPath;
 
-        public PartyRoleMapping(String ownershipPartyReference, Mapping ownershipPartyReferenceMapping, RosettaPath ownershipPartyReferenceModelPath,String partyReference, Mapping partyReferenceMapping, RosettaPath partyReferenceModelPath, String role, Mapping roleMapping, RosettaPath roleModelPath) {
+        public PartyRoleMapping(String ownershipPartyReference, String partyReference, Mapping partyReferenceMapping, RosettaPath partyReferenceModelPath, String role, Mapping roleMapping, RosettaPath roleModelPath) {
             this.ownershipPartyReference = ownershipPartyReference;
-            this.ownershipPartyReferenceMapping = ownershipPartyReferenceMapping;
-            this.ownershipPartyReferenceModelPath = ownershipPartyReferenceModelPath;
             this.partyReference = partyReference;
             this.partyReferenceMapping = partyReferenceMapping;
             this.partyReferenceModelPath = partyReferenceModelPath;
