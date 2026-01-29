@@ -1,4 +1,4 @@
-# *EquityForward Qualification functions*
+# *Product Model - EquityForward Qualification functions*
 
 _Background_
 
