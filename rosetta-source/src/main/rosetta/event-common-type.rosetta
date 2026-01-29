@@ -219,18 +219,18 @@ type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash
 
 type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
     priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
-    scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
-    contingentTransfer ContingentTransferEnum (0..1) <"any">
+    scheduledTransfer ScheduledTransferEnum (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    contingentTransfer ContingentTransfer (0..1) <"any">
 
     condition:
         one-of
 
-type ScheduledTransfer:
-    transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+type ContingentTransfer:
+    transferType ContingentTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
     corporateActionTransferType CorporateActionTypeEnum (0..1)
 
-    condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
-        if transferType = ScheduledTransferEnum -> CorporateAction
+        condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
+        if transferType = ContingentTransferEnum -> CorporateAction
         then corporateActionTransferType exists
 
 type TradeIdentifier extends Identifier: <"Defines a trade identifier as a special case of the generic identifier type, that also includes the trade identifier class.">
