@@ -26,4 +26,3 @@ To support the processing of transfers associated to returns or recalls the foll
 _Review Directions_
 
 Changes can be reviewed in PR: [#4397](https://github.com/finos/common-domain-model/pull/4397)
-
