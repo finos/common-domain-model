@@ -1,12 +1,13 @@
-# _Infrastructure - Dependency Update_
+# *Ingestion Framework for FpML - Principal Payment Schedule*
+
+_Background_
+
+An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
 
 _What is being released?_
 
-This change updates the version of the `FpML as Rune` dependency to version 1.4.0.
-
-Version updates include:
-- `FpML as Rune` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
+Synonym Ingest mappings related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4390](https://github.com/finos/common-domain-model/pull/4390)
+Changes can be reviewed in PR: [#4403](https://github.com/finos/common-domain-model/pull/4403)
