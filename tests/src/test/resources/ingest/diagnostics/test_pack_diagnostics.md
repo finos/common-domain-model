@@ -2,14 +2,14 @@
 
 | Test Pack | Samples | Completeness |
 |:-----------------------------------------------------|:-------:|:-------:|
-| fpml-5-13-incomplete-processes-execution-advice | 3 | 266% |
-| fpml-5-10-incomplete-processes | 11 | 120% |
+| fpml-5-13-incomplete-processes-execution-advice | 3 | 267% |
+| fpml-5-10-incomplete-processes | 11 | 121% |
 | fpml-5-10-incomplete-products-securities | 2 | 118% |
 | fpml-5-13-incomplete-products-fx-derivatives | 16 | 113% |
 | fpml-5-10-incomplete-products-fx-derivatives | 20 | 111% |
 | fpml-5-13-processes-execution-advice | 14 | 109% |
 | fpml-5-13-incomplete-products-variance-swaps | 2 | 109% |
-| fpml-5-10-processes | 13 | 108% |
+| fpml-5-10-processes | 15 | 106% |
 | fpml-5-13-incomplete-products-repo | 2 | 106% |
 | fpml-5-12-products-repo | 2 | 106% |
 | fpml-5-10-products-volatility-swaps | 2 | 106% |
@@ -17,22 +17,23 @@
 | fpml-5-12-incomplete-products-equity | 1 | 104% |
 | fpml-5-10-products-variance-swaps | 7 | 104% |
 | fpml-5-13-incomplete-products-commodity-derivatives | 31 | 104% |
-| fpml-5-12-products-commodity | 3 | 103% |
 | fpml-5-13-products-bond-options | 4 | 102% |
 | fpml-5-10-incomplete-products-commodity-derivatives | 32 | 102% |
 | fpml-5-13-products-variance-swaps | 5 | 102% |
 | fpml-5-10-products-commodity | 14 | 102% |
 | fpml-5-12-products-equity | 19 | 102% |
-| fpml-5-10-products-equity | 11 | 101% |
+| fpml-5-10-products-equity | 12 | 101% |
 | fpml-5-13-products-fx-derivatives | 17 | 101% |
 | fpml-5-13-incomplete-products-equity-options | 20 | 101% |
 | fpml-5-13-incomplete-products-equity-swaps | 3 | 101% |
 | fpml-5-12-products-fx | 15 | 101% |
 | fpml-5-10-products-fx | 15 | 101% |
+| fpml-5-13-products-credit-derivatives | 44 | 101% |
+| fpml-5-10-incomplete-products-credit-derivatives | 43 | 101% |
 | fpml-5-10-incomplete-products-bond-options | 3 | 100% |
 | fpml-5-13-products-commodity-derivatives | 18 | 100% |
+| fpml-5-12-products-rates | 27 | 100% |
 | fpml-5-13-products-correlation-swaps | 3 | 100% |
-| fpml-5-12-products-rates | 26 | 100% |
 | fpml-5-13-products-interest-rate-derivatives | 67 | 100% |
 | fpml-5-10-products-correlation-swaps | 4 | 100% |
 | fpml-5-10-products-rates | 74 | 100% |
@@ -40,15 +41,14 @@
 | fpml-5-12-processes | 2 | 99% |
 | fpml-5-10-incomplete-products-equity-options | 27 | 99% |
 | fpml-5-10-incomplete-products-equity-swaps | 14 | 99% |
+| fpml-5-12-products-credit | 21 | 99% |
 | fpml-5-13-products-equity-swaps | 22 | 99% |
-| fpml-5-10-invalid-products | 40 | 99% |
-| fpml-5-13-products-credit-derivatives | 44 | 98% |
-| fpml-5-10-incomplete-products-credit-derivatives | 43 | 98% |
+| fpml-5-10-invalid-products | 42 | 98% |
 | fpml-5-13-products-inflation-swaps | 13 | 98% |
 | fpml-5-10-incomplete-products-inflation-swaps | 2 | 97% |
+| fpml-5-10-products-credit | 24 | 97% |
 | fpml-5-10-products-inflation-swaps | 5 | 96% |
-| fpml-5-12-products-credit | 21 | 95% |
-| fpml-5-10-products-credit | 24 | 94% |
 | fpml-5-13-products-equity-options | 7 | 93% |
 | fpml-5-10-products-dividend-swaps | 6 | 84% |
 | fpml-5-13-products-dividend-swaps | 6 | 84% |
+| fpml-5-12-products-commodity | 5 | 82% |
