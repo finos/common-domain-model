@@ -13,7 +13,7 @@ Adding the below qualification functions to CDM:
 
 _Review Directions_
 
-Changes can be reviewed in PR: #4387
+Changes can be reviewed in PR: [#4404](https://github.com/finos/common-domain-model/pull/4404)
 
 # _Infrastructure - Dependency Update_
 
