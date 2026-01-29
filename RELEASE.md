@@ -1,12 +1,16 @@
-# _Infrastructure - Dependency Update_
+# *EquityForward Qualification functions*
+
+_Background_
+
+There are no qualification functions for Equity Forwards
 
 _What is being released?_
 
-This change updates the version of the `FpML as Rune` dependency to version 1.4.0.
-
-Version updates include:
-- `FpML as Rune` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
+Adding the below qualification functions to CDM:
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket` qualification functions
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4390](https://github.com/finos/common-domain-model/pull/4390)
+The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
