@@ -2,14 +2,14 @@
 
 _Background_
 
-There are no qualification functions for Equity Forwards
+There are no qualification functions for Equity Forwards.
 
 _What is being released?_
 
-Adding the below qualification functions to CDM:
+Qualification Functions for Equity Forwards:
 - `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
 - `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
-- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket` qualification functions
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
 
 _Review Directions_
 
