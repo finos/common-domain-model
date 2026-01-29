@@ -6,7 +6,7 @@ An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule
 
 _What is being released?_
 
-Synonym Ingest mappings related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
+Ingest function mappings related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
 
 _Review Directions_
 
