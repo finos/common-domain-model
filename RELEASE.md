@@ -20,7 +20,7 @@ The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domai
 
 _Background_
 
-An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
+An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4410](https://github.com/finos/common-domain-model/issues/4410).
 
 _What is being released?_
 
