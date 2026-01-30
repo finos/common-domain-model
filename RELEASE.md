@@ -12,4 +12,4 @@ Usages of legacy label syntax have been removed.  No changes to the test pack ex
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4357](https://github.com/finos/common-domain-model/pull/4357)
+The changes can be reviewed in PR: [#4411](https://github.com/finos/common-domain-model/pull/4411)
