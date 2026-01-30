@@ -178,22 +178,22 @@ type TimeZone: <"The time alongside with the timezone location information. This
     location string (0..1) <"FpML specifies the timezoneLocationScheme by reference to the Time Zone Database (a.k.a. tz database) maintained by IANA, the Internet Assigned Numbers Authority.">
         [metadata scheme]
 
-type DirectOrRelativeTime: <"Represents a time definition that can be either an absolute (direct) time or a time calculated relative to another reference.">
-    directTime TimeZone (0..1)
-    relativeTime RelativeTime (0..1)
+type DirectOrRelativeTime: <"Represents a time definition that can be either an absolute (direct) time or a time calculated relative to another referenced time. Either one directTime or one relativeTime should be provided">
+    directTime TimeZone (0..1) <"An absolute time value expressed in a specific time zone">
+    relativeTime RelativeTime (0..1) <"A time value calculated relative to another reference time.">
 
-type RelativeTime extends RelativeTimeOffset: <"Defines a time calculated relative to a reference time zone, optionally including offsets and rounding rules.">
-    timeRelativeTo TimeZone (0..1)
+type RelativeTime extends RelativeTimeOffset: <"Defines a time value calculated relative to a reference time. The final value is derived by applying any offset and rounding rules inherited from `RelativeTimeOffset` to the reference time.">
+    timeRelativeTo TimeZone (0..1)  <"The reference time zone or base time from which the relative time is calculated.">
         [metadata reference]
 
 type RelativeTimeOffset: <"Describes how a time is offset from a reference point, including the unit, magnitude, and rounding behavior.">
-    offsetTimeUnit TimeUnitEnum (0..1)
+    offsetTimeUnit TimeUnitEnum (0..1)  <"The unit of time for the offset (e.g., seconds, minutes, hours, days). ">
     offsetMultiplier int (0..1) <"A time offset multiplier, e.g. 1, 2 or 3 etc. A negative value can be used when specifying a negative offset, e.g. -2 hours.">
-    rounding TimeRounding (0..1)
+    rounding TimeRounding (0..1)    <"Optional rules that define how the calculated time should be rounded after the offset has been applied.">
 
-type TimeRounding: <"Specifies how a calculated time should be rounded, including the direction and the unit to round to.">
-    roundingDirection RoundingDirectionEnum (1..1)
-    roundToUnit TimeUnitEnum (0..1)
+type TimeRounding: <"Specifies how a calculated time should be rounded, including both the direction of rounding and the unit to which the time is rounded. Rounding is applied after all offsets have been calculated.">
+    roundingDirection RoundingDirectionEnum (1..1)  <"The direction in which rounding is performed (e.g., up, down, or to the nearest value).">
+    roundToUnit TimeUnitEnum (0..1) <"The time unit to which the value should be rounded (e.g., minute, hour, day).">
 
 type PeriodRange: <"Indicates The period range defined as either a lower and upper period bound, or both.">
     lowerBound PeriodBound (0..1) <"Specifies the lower bound of a period range, e.g. greater than or equal to 5Y.">
