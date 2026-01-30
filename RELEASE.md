@@ -9,8 +9,6 @@ Version updates include:
 - `bundle` `11.108.0` Performance improvements and bug fix.
 - `FpML as Rune` `1.5.0` See Release notes: [1.5.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.5.0).
 
-Usages of legacy label syntax have been removed.  No changes to the test pack expectations.
-
 _Review Directions_
 
 The changes can be reviewed in PR: [#4411](https://github.com/finos/common-domain-model/pull/4411)
