@@ -1,13 +1,15 @@
-# *Ingestion Framework for FpML - Principal Payment Schedule*
-
-_Background_
-
-An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-Ingest function mappings related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
+This release updates the `DSL` and `bundle` dependency:
+
+Version updates include:
+- `DSL` `9.75.3` Performance improvements and bug fix. See DSL release notes: [9.75.3](https://github.com/finos/rune-dsl/releases/tag/9.75.3)
+- `bundle` `11.108.0` Performance improvements and bug fix.
+
+Usages of legacy label syntax have been removed.  No changes to the test pack expectations.
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4403](https://github.com/finos/common-domain-model/pull/4403)
+The changes can be reviewed in PR: [#4357](https://github.com/finos/common-domain-model/pull/4357)
