@@ -2,11 +2,12 @@
 
 _What is being released?_
 
-This release updates the `DSL` and `bundle` dependency:
+This release updates the `DSL` , `bundle` and `FpML as Rune` dependency:
 
 Version updates include:
 - `DSL` `9.75.3` Performance improvements and bug fix. See DSL release notes: [9.75.3](https://github.com/finos/rune-dsl/releases/tag/9.75.3)
 - `bundle` `11.108.0` Performance improvements and bug fix.
+- `FpML as Rune` `1.5.0` See Release notes: [1.5.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.5.0).
 
 Usages of legacy label syntax have been removed.  No changes to the test pack expectations.
 
