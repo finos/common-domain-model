@@ -14,7 +14,7 @@ Usages of legacy label syntax have been removed.  No changes to the test pack ex
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domain-model/pull/4391) && [#4357](https://github.com/finos/common-domain-model/pull/4357) 
+The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domain-model/pull/4391) && [#4410](https://github.com/finos/common-domain-model/pull/4410) 
 
 # *Ingestion Framework for FpML - Principal Payment Schedule*
 
