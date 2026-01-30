@@ -12,7 +12,7 @@ Usages of legacy label syntax have been removed.  No changes to the test pack ex
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4357](https://github.com/finos/common-domain-model/pull/4357)
+The changes can be reviewed in PR: [#4409](https://github.com/finos/common-domain-model/pull/4409)
 
 # Product Model - Barrier Options Cardinality Updates
 
@@ -26,7 +26,7 @@ Relaxing the cardinality to `(0..*)` to handle multiple `knockIn` or `knockOut` 
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4409](https://github.com/finos/common-domain-model/pull/4409)
+Changes can be reviewed in PR: [#4357](https://github.com/finos/common-domain-model/pull/4357)
 
 # *Ingestion Framework for FpML - Principal Payment Schedule*
 
