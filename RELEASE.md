@@ -1,13 +1,16 @@
-# *Ingestion Framework for FpML - Principal Payment Schedule*
+# *Product Model - EquityForward Qualification functions*
 
 _Background_
 
-An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
+There are no qualification functions for Equity Forwards.
 
 _What is being released?_
 
-Ingest function mappings related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
+Qualification Functions for Equity Forwards introduced:
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4403](https://github.com/finos/common-domain-model/pull/4403)
+The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
