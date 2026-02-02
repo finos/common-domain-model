@@ -1,3 +1,17 @@
+# *Product Model - Updating Qualification Functions to Handle `only exists` Syntax*
+
+_Background_
+
+In 6.x.x, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
+
+_What is being released?_
+
+Updating any previous instance of `only-exist` to use a function which checks whether only the payout in questions exists, allowing for multiple of the same payouts.
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4407](https://github.com/finos/common-domain-model/pull/4407)
+
 # _Infrastructure - Dependency Update_
 
 _What is being released?_
