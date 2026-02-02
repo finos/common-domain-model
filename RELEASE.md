@@ -10,7 +10,7 @@ Updating any previous instance of `only-exist` to use a function which checks wh
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4407](https://github.com/finos/common-domain-model/pull/4407)
+Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
 
 # _Infrastructure - Dependency Update_
 
