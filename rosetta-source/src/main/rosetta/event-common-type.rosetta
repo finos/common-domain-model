@@ -218,14 +218,21 @@ type Transfer extends AssetFlowBase: <"Defines the movement of an Asset (eg cash
     transferExpression TransferExpression (1..1) <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
 
 type TransferExpression: <"Specifies a transfer expression (cash price, performance amount, scheduled payment amount, etc.) to define the nature of the transfer amount and its source.">
-    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
     scheduledTransfer ScheduledTransfer (0..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+    unscheduledTransfer UnscheduledTransfer (0..1) <"Specifies an ad-hoc transfer instigated by a party to the contract e.g. Recall, Return.">
+
+    condition: 
+         one-of
+
+type UnscheduledTransfer: <"An ad-hoc transfer instigated by a party to the contract.">
+    transferType UnscheduledTransferEnum (0..1) <"Specifies the type of unscheduled transfer.">
+    priceTransfer FeeTypeEnum (0..1) <"Specifies a transfer amount exchanged as a price or fee for entering into a Business Event, e.g. Premium, Termination fee, Novation fee.">
 
     condition:
         one-of
-
-type ScheduledTransfer:
-    transferType ScheduledTransferEnum (1..1) <"Specifies a transfer created from a scheduled or contingent event on a contract, e.g. Exercise, Performance, Credit Event">
+   
+type ScheduledTransfer: <"A scheduled transfer built into the contract.">
+    transferType ScheduledTransferEnum (1..1) <"Specifies the type of scheduled transfer.">
     corporateActionTransferType CorporateActionTypeEnum (0..1)
 
     condition CorporateActionTransferTypeExists: <"When transfer type is Performance or Transfer then the type of event must be specified.">
