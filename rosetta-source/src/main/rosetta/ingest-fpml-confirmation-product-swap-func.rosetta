@@ -149,11 +149,14 @@ func MapSwapPayout:
                     rateSpecification:
                         RateSpecification {
                             FixedRateSpecification:
+                            if notionalStepScheduleCalculation -> compoundingMethod to-enum CompoundingMethodEnum <> None
+                            then empty
+                            else
                                 FixedRateSpecification {
                                     rateSchedule:
                                         RateSchedule {
                                             price: MapFixedRateScheduleToPriceWithAddress(
-                                                        fixedRateSchedule,
+                                                        notionalStepScheduleCalculation -> calculationSequence -> fixedRateSchedule,
                                                         fpmlSwapStream
                                                     )
                             }},
@@ -381,7 +384,11 @@ func MapOptionalEarlyTermination:
                     extract
                         ExerciseNotice {
                             businessCenter: businessCenter -> value,
-                            exerciseNoticeGiver: empty,
+                            exerciseNoticeGiver: if fpmlOptionalEarlyTermination -> singlePartyOption -> buyerSellerModel -> buyerPartyReference exists
+                                    then ExerciseNoticeGiverEnum -> Buyer
+                                else if fpmlOptionalEarlyTermination -> singlePartyOption -> buyerSellerModel -> sellerPartyReference exists
+                                then ExerciseNoticeGiverEnum -> Seller
+                                else ExerciseNoticeGiverEnum -> Both,
                             ...
                         },
             followUpConfirmation: fpmlOptionalEarlyTermination -> followUpConfirmation,
@@ -689,9 +696,13 @@ func MapCalculationPeriodAmountToPriceList:
 
     alias fixedRateSchedule:
         fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule default fpmlCalculationPeriodAmount -> calculation -> calculationSequence1 -> fixedRateSchedule
-
+        
     add priceSchedules:
-        MapFixedRateScheduleToPriceWithLocation(fixedRateSchedule, fpmlCurrency, fpmlLeg)
+        MapFixedRateScheduleToPriceWithLocation(
+                fpmlCalculationPeriodAmount -> calculation -> calculationSequence -> fixedRateSchedule,
+                fpmlCurrency,
+                fpmlLeg
+            )
 
     add priceSchedules:
         MapSpreadScheduleToPriceWithLocation(fpmlRate, fpmlCurrency, fpmlLeg)
