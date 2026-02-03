@@ -329,7 +329,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
         then product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents -> restructuring -> multipleHolderObligation exists
 
     condition AdditionalFixedPaymentsMortgages: <"The below set of additional fixed payment provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -338,7 +338,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> additionalFixedPayments -> writedownReimbursement exists)
 
     condition FloatingAmountEventsMortgages: <"The below set of floating amount events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents exists
@@ -347,7 +347,7 @@ type Trade extends TradableProduct: <"Defines the output of a financial transact
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> floatingAmountEvents -> impliedWritedown exists)
 
     condition CreditEventsMortgages: <"The below set of credit events provisions are specified as optional boolean in FpML and the CDM because they only apply to mortgage credit default swaps. As a result, this data rule specifies that those provisions are required if the contract corresponds to a mortgage credit default swap. The provision related to the existence of the Contractual Term Supplement is meant to address the case where the underlier is a mortgage index.">
-        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> instrumentType any = InstrumentTypeEnum -> Debt
+        if ((product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> securityType any = Debt
                         and product -> economicTerms -> payout -> CreditDefaultPayout -> generalTerms -> referenceInformation -> referenceObligation -> security -> debtType -> debtEconomics -> secured -> securedType any = AssetBacked)
                     or contractDetails -> documentation -> legalAgreementIdentification -> agreementName -> contractualTermsSupplement -> contractualTermsSupplementType contains ContractualSupplementTypeEnum -> CDSonMBS)
                 and product -> economicTerms -> payout -> CreditDefaultPayout -> protectionTerms -> creditEvents exists
@@ -571,8 +571,8 @@ type SpinOff: <"Defines the underlier for both the Parent Company and the Child 
     childSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Child Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-        parentSecurity -> instrumentType = InstrumentTypeEnum -> Equity
-            and childSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+        parentSecurity -> securityType = Equity
+            and childSecurity -> securityType = Equity
 
 type Merger: <"Defines the underlier for both the Purchaser Company and the Acquired Compagny involved in Merger corporate action, as well as th respective price observation for each.">
     purchaserSecurity Security (1..1) <"Defines the underlier for the Purchaser Company involved in Merger corporate action.">
@@ -581,8 +581,8 @@ type Merger: <"Defines the underlier for both the Purchaser Company and the Acqu
     acquiredSecurityPrice Price (1..1) <"The price observation that relates to underlier for the Acquired Company.">
 
     condition EquityPrice: <"Each attribute shall define both the equity instrument and the price at stake.">
-        purchaserSecurity -> instrumentType = InstrumentTypeEnum -> Equity
-            and acquiredSecurity -> instrumentType = InstrumentTypeEnum -> Equity
+        purchaserSecurity -> securityType = Equity
+            and acquiredSecurity -> securityType = Equity
 
 type ClearingInstruction: <"All information required to perform the clear life cycle event; the clearing party (CCP), the two parties facing each other on the alpha contract, and optionally the parties acting as clearing members.">
     alphaContract TradeState (1..1) <"The contract that will be submitted to the clearing house for clearing. The contract should indicate that it should be cleared by assigning a clearing organisation as a party role.">
