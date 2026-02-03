@@ -103,6 +103,9 @@ type Cash extends AssetBase: <"An Asset that consists solely of a monetary holdi
 
     condition NoExchange: <"Cash cannot be a listed Asset.">
         exchange is absent and isExchangeListed is absent
+    
+    condition AssetType: <"AssetType must be cash.">
+        assetType = Cash
 
 type Commodity extends AssetBase: <"Identifies a specific commodity by referencing a product identifier or by a product definition.">
     commodityProductDefinition CommodityProductDefinition (0..1) <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Benchmark exists.">
@@ -113,6 +116,9 @@ type Commodity extends AssetBase: <"Identifies a specific commodity by referenci
     condition ValueSource: <"Requires that value and source are present when product taxonomy is present">
         if taxonomy exists
         then (taxonomy -> source exists and taxonomy -> value exists)
+
+    condition AssetType: <"AssetType must be commodity.">
+        assetType = Commodity
 
 type CommodityProductDefinition: <"Specifies the commodity underlier in the event that no ISDA Commodity Reference Price exists.">
     referenceFramework CommodityReferenceFramework (1..1) <"Specifies the type of commodity.">
@@ -146,6 +152,9 @@ type CommodityReferenceFramework: <"Specifies the type of commodity.">
 
 type DigitalAsset extends AssetBase: <"An Asset that exists only in digital form, eg Bitcoin or Ethereum, that is not backed by other Assets; excludes the digital representation of other Assets, eg coins or Tokenised assets.">
 
+    condition AssetType: <"Asset type must be Other.">
+        assetType = Other
+
 type ListedDerivative extends InstrumentBase: <"A securitized derivative on another asset.">
     deliveryTerm string (0..1) <"Also called contract month or delivery month. However, it's not always a month. It is usually expressed using a code, e.g. Z23 would be the Dec 2023 contract, (Z = December). For crude oil, the corresponding contract might be called CLZ23. Optional as this can be uniquely identified in the identifier.">
     optionType PutCallEnum (0..1) <"The type of option, ie Put or Call. Left empty if it is a Future.">
@@ -153,6 +162,9 @@ type ListedDerivative extends InstrumentBase: <"A securitized derivative on anot
 
     condition Options: <"Options must have a strike price.">
         if optionType exists then strike exists else strike is absent
+
+    condition AssetType: <"Asset type must be ListedDerivative.">
+        assetType = ListedDerivative
 
 type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset identifier and through an optional set of attributes.">
     borrower LegalEntity (0..*) <"Specifies the borrower. There can be more than one borrower. It is meant to be used in the event that there is no Bloomberg Id or the Secured List isn't applicable.">
@@ -163,6 +175,9 @@ type Loan extends InstrumentBase: <"Identifies a loan by referencing an asset id
     creditAgreementDate date (0..1) <"Specifies the credit agreement date is the closing date (the date where the agreement has been signed) for the loans in the credit agreement. Funding of the facilities occurs on (or sometimes a little after) the Credit Agreement date. This underlier attribute is used to help identify which of the company's outstanding loans are being referenced by knowing to which credit agreement it belongs. ISDA Standards Terms Supplement term: Date of Original Credit Agreement.">
     tranche string (0..1) <"Denotes the loan tranche that is subject to the derivative transaction. It will typically be referenced as the Bloomberg tranche number. ISDA Standards Terms Supplement term: Bloomberg Tranche Number.">
         [metadata scheme]
+
+    condition AssetType: <"Asset type must be Loan.">
+        assetType = Loan
 
 type CollateralTaxonomy: <"Specifies the collateral taxonomy, which is composed of a taxonomy value and a taxonomy source.">
     taxonomyValue CollateralTaxonomyValue (1..1) <"Specifies the taxonomy value.">
@@ -215,6 +230,9 @@ type Security extends InstrumentBase: <"Identifies a security by referencing an 
     condition FundSubType:
         if securityType <> Fund
         then fundType is absent
+
+    condition AssetType: <"Asset type must be Security.">
+        assetType = Security
 
 type EquityType:
     equityType EquityTypeEnum (0..1)
