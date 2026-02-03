@@ -2,7 +2,7 @@
 
 _Background_
 
-In 6.x.x, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
+In 7 dev, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
 
 _What is being released?_
 
@@ -38,3 +38,20 @@ Synonym Ingest and Ingest Functions related to `PrincipalPaymentSchedule` have b
 _Review Directions_
 
 Changes can be reviewed in PR: [#4401](https://github.com/finos/common-domain-model/pull/4401)
+
+# *Product Model - EquityForward Qualification functions*
+
+_Background_
+
+There are no qualification functions for Equity Forwards.
+
+_What is being released?_
+
+Qualification Functions for Equity Forwards introduced:
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
