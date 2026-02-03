@@ -14,26 +14,26 @@ isProduct root EconomicTerms;
 func UnderlierQualification: <"Identifies whether the underlier(s) have either the specified securityType or assetClass.">
     inputs:
         underlier Underlier (1..1) <"An Underlier is an Observable (eg Asset, Basket or Index) or a Product.">
-        securityType InstrumentTypeEnum (0..1)
+        securityType SecurityTypeEnum (0..1)
         assetClass AssetClassEnum (0..1)
     output:
         qualifies boolean (1..1)
 
     set qualifies:
         ObservableQualification(underlier -> Observable, securityType, assetClass)
-            or (securityType exists and underlier -> Product -> TransferableProduct -> Instrument -> Security -> instrumentType = securityType)
+            or (securityType exists and underlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType = securityType)
 
 // The EconomicTerms of any TransferableProduct or a NonTransferableProduct should be checked outside this function.
 func ObservableQualification: <"Identifies whether the observable(s) have either the specified securityType or assetClass.">
     inputs:
         observable Observable (0..1) <"An Observable is an Asset, Basket or Index.">
-        securityType InstrumentTypeEnum (0..1)
+        securityType SecurityTypeEnum (0..1)
         assetClass AssetClassEnum (0..1)
     output:
         qualifies boolean (1..1)
 
     set qualifies:
-        (securityType exists and observable -> Asset -> Instrument -> Security -> instrumentType = securityType)
+        (securityType exists and observable -> Asset -> Instrument -> Security -> securityType = securityType)
             or (assetClass exists and observable -> Index ->> assetClass = assetClass)
             or if observable -> Basket exists
                 then observable -> Basket -> basketConstituent
@@ -67,10 +67,10 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
             or (economicTerms -> payout only-element -> OptionPayout exists
                 and (ObservableQualification(
                         optionUnderlier -> Observable,
-                        InstrumentTypeEnum -> Debt,
+                        SecurityTypeEnum -> Debt,
                         AssetClassEnum -> InterestRate
                     )
-                    or optionUnderlier -> Product -> TransferableProduct -> Instrument ->> instrumentType = InstrumentTypeEnum -> Debt
+                    or optionUnderlier -> Product -> TransferableProduct -> Instrument -> Security -> securityType = Debt
                     or if optionUnderlier -> Product exists
                         then Qualify_AssetClass_InterestRate(
                                     optionUnderlier -> Product ->> economicTerms
@@ -80,7 +80,7 @@ func Qualify_AssetClass_InterestRate: <"Qualifies a product as having the Asset 
                     or (economicTerms -> payout -> SettlementPayout exists and economicTerms -> payout -> InterestRatePayout exists))
                 and (UnderlierQualification(
                         settlementUnderlier,
-                        InstrumentTypeEnum -> Debt,
+                        SecurityTypeEnum -> Debt,
                         AssetClassEnum -> InterestRate
                     )
                     or if settlementUnderlier -> Product ->> economicTerms exists
@@ -135,8 +135,8 @@ func Qualify_AssetClass_Credit: <"Qualifies a product as having the Asset Class 
                 and if performanceUnderlier exists
                     then performanceUnderlier switch
                         Loan then True,
-                        Instrument then item ->> instrumentType = InstrumentTypeEnum -> Debt,
-                        Index then item ->> assetClass = AssetClassEnum -> Credit,
+                        Security then securityType = Debt,
+                        Index then item ->> assetClass = Credit,
                         default False)
 
 func Qualify_AssetClass_ForeignExchange: <"Qualifies a product as having the Asset Class classification Foreign Exchange">
@@ -325,7 +325,7 @@ func Qualify_UnderlierObservable_Equity: <"Qualifies an Observable as having the
         is_product boolean (1..1)
 
     set is_product:
-        Qualify_InstrumentTypeEquity(observable -> Asset -> Instrument)
+        Qualify_SecurityTypeEquity(observable -> Asset -> Instrument -> Security)
             or observable -> Index ->> assetClass = AssetClassEnum -> Equity
                 // Qualifies that the underlier is a basket composed of equity products only
             or (observable -> Basket exists
@@ -349,21 +349,21 @@ func Qualify_TotalReturnSwap_Index: <"Qualifies a product as a Total Return Swap
                 and if performanceUnderlier exists
                     then (performanceUnderlier -> Observable -> Index ->> assetClass = AssetClassEnum -> Credit))
 
-func Qualify_InstrumentTypeEquity: <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
+func Qualify_SecurityTypeEquity: <"Qualifies that the security type, for all of the provided securities, is Equity-related.">
     inputs:
-        instrument Instrument (1..1)
+        security Security (1..1)
     output:
         is_equity boolean (1..1)
 
-    alias instrumentType: instrument ->> instrumentType
+    alias securityType: security -> securityType
 
     set is_equity:
-        instrumentType = InstrumentTypeEnum -> Equity
-            or (instrumentType = InstrumentTypeEnum -> Fund
-                and instrument -> Security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
-            or (instrumentType = InstrumentTypeEnum -> Fund
-                and instrument -> Security -> fundType = FundProductTypeEnum -> MutualFund)
-            or instrumentType = InstrumentTypeEnum -> Warrant
+        securityType = Equity
+            or (securityType = Fund
+                and security -> fundType = FundProductTypeEnum -> ExchangeTradedFund)
+            or (securityType = Fund
+                and security -> fundType = FundProductTypeEnum -> MutualFund)
+            or securityType = Warrant
 
 func Qualify_BaseProduct_EquitySwap: <"Qualifies a product as having the Asset Class classification Equity and Base Product Classification Swap.">
     inputs:
@@ -1508,7 +1508,7 @@ func Qualify_InterestRate_Option_DebtOption: <"Qualifies a product as a Option t
             and economicTerms -> payout only-element -> OptionPayout exists
                 // qualifies the underlyer of the option as a debt security
             and optionPayout -> underlier -> Observable
-                extract [ ObservableQualification(item, InstrumentTypeEnum -> Debt, empty) ]
+                extract [ ObservableQualification(item, SecurityTypeEnum -> Debt, empty) ]
             all = True
 
 func Qualify_InterestRate_Forward_Debt: <"Qualifies a product as Interest Rate Bond Forward based on economic terms, which is defined as a transaction in which one party agrees to pay an agreed price for a specified amount of a bond of an issuer or a basket of bonds of several issuers at a future date and the other party agrees to pay a price for the same amount of the same bond to be set on a specified date in the future.">

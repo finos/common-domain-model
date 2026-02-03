@@ -19,6 +19,7 @@ type AssetBase: <"The base data type to specify common attributes for all Assets
     isExchangeListed boolean (0..1) <"Defines whether the Asset is listed on a public exchange.">
     exchange LegalEntity (0..1) <"If the Asset is listed, defines the public exchange of the listing.">
     relatedExchange LegalEntity (0..*) <"Provides the related Exchanges, if applicable.">
+    assetType AssetTypeEnum (1..1) <"Specifies the type of Asset.">
 
     condition ExchangeListed: <"If Exchange is specified, it must be an exchange-listed Instrument.">
         if exchange exists then isExchangeListed
@@ -32,7 +33,6 @@ type AssetIdentifier: <"The unique identifier for an Asset, specified using an A
     identifierType AssetIdTypeEnum (1..1) <"Defines the symbology source of the Asset Identifier, eg CUSIP, ISIN, etc.">
 
 type InstrumentBase extends AssetBase: <"Defines the common attributes for all Instrument data types.">
-    instrumentType InstrumentTypeEnum (1..1) <"Identifies the type of an instrument using an enumerated list.">
 
 choice Instrument: <"A type of Asset that is issued by one party to one or more others.">
     ListedDerivative <"A securitized derivative on another asset that is created by an exchange.">
@@ -199,20 +199,21 @@ type CollateralTaxonomyValue: <"Specifies the collateral taxonomy value, either 
 type Security extends InstrumentBase: <"Identifies a security by referencing an identifier and by specifying the sector.">
     [docReference ICMA GMRA namingConvention "Purchased Security"
 		provision "As defined in GMRA paragraph 2(oo) The Purchased Securities are the Securities sold or to be sold and any New Purchased Securities transferred by Seller to Buyer under paragraph 8 (Substitution)."]
+    securityType SecurityTypeEnum (1..1) <"Identifies the type of an instrument using an enumerated list.">
     debtType DebtType (0..1) <"Identifies the type of debt and selected debt economics.">
     equityType EquityType (0..1) <"Identifies the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Identifies the type of fund.">
 
     condition DebtSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if securityType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if securityType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if securityType <> Fund
         then fundType is absent
 
 type EquityType:
@@ -306,7 +307,7 @@ type TaxonomyClassification:
 
 type AssetType: <"Represents a class to allow specification of the asset product type.">
     assetType AssetTypeEnum (1..1) <"Represents a filter based on the type of collateral asset.">
-    instrumentType InstrumentTypeEnum (0..1) <"Represents a filter based on the type of security.">
+    securityType SecurityTypeEnum (0..1) <"Represents a filter based on the type of security.">
     debtType DebtType (0..1) <"Represents a filter based on the type of bond.">
     equityType EquityType (0..1) <"Represents a filter based on the type of equity.">
     fundType FundProductTypeEnum (0..1) <"Represents a filter based on the type of fund.">
@@ -314,21 +315,21 @@ type AssetType: <"Represents a class to allow specification of the asset product
 
     condition SecuritySubType:
         if assetType <> AssetTypeEnum -> Security
-        then instrumentType is absent
+        then securityType is absent
                 and debtType is absent
                 and equityType is absent
                 and fundType is absent
 
     condition BondSubType:
-        if instrumentType <> InstrumentTypeEnum -> Debt
+        if securityType <> Debt
         then debtType is absent
 
     condition EquitySubType:
-        if instrumentType <> InstrumentTypeEnum -> Equity
+        if securityType <> Equity
         then equityType is absent
 
     condition FundSubType:
-        if instrumentType <> InstrumentTypeEnum -> Fund
+        if securityType <> Fund
         then fundType is absent
 
     condition OtherAssetSubType:
