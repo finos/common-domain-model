@@ -195,9 +195,40 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     condition SettlementDate: <"Restricts the function's applicability to the adjustable or relative date for the settlement date.">
         payout -> settlementTerms -> settlementDate -> adjustableOrRelativeDate exists
+            or payout -> settlementTerms -> settlementDate -> valueDate exists
 
     condition SinglePriceAndQuantity: <"Restricts the function's applicability to a single quantity and price.">
         payout -> priceQuantity -> quantitySchedule -> value exists
             and payout -> priceQuantity -> priceSchedule only-element -> value exists
 
     set cashflows: [assetLeg, priceLeg]
+
+func Create_CashflowFromPayout:
+    inputs:
+        payout Payout (1..1) <"The settlement payout from which the cashflows are generated.">
+    output:
+        cashflows Cashflow (2..2)
+    alias settlementPayoutFromOptionPayout:
+        payout -> OptionPayout
+            extract
+                SettlementPayout {
+                    priceQuantity: ResolvablePriceQuantity {
+                            quantitySchedule: item -> priceQuantity -> quantitySchedule,
+                            priceSchedule: item -> strike -> strikePrice,
+                            ...},
+                    underlier: underlier,
+                    settlementTerms: settlementTerms,
+                    payerReceiver: payerReceiver,
+                    ...
+                }
+    add cashflows:
+        payout
+            extract
+                switch
+                    OptionPayout then
+                        Create_CashflowFromSettlementPayout(
+                                settlementPayoutFromOptionPayout
+                            ),
+                    SettlementPayout then
+                        Create_CashflowFromSettlementPayout(payout -> SettlementPayout),
+                default empty
