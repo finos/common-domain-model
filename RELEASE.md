@@ -1,15 +1,14 @@
-# Collateral Model - Collateral Guarantor added to Collateral Criteria
-
+# Product Model - Inclusion of time in the event instruction and economic terms
 _Background_
 
-There is a gap in the collateral model where a party cannot be specified to guarantee the collateral asset. Although users can specify the collateral issuer type, the guarantor is not supported in the collateral criteria choice type. A guarantor is a common requirement for collateral criteria. 
+The current data model for trades only includes date references within the economicTerms section for the contract's start and end dates. Additionally, the EventInstruction structure does not currently capture precise intra-day event times. This approach lacks granularity for intra-day transactions, where the exact time of initiation and termination is critical for accurate trade representation and downstream processing. The inclusion of time would allow precise specification of the contract's start and end times and should support a time zone and related time components to ensure accurate interpretation across regions and other referenced times.
 
 _What is being released?_
 
-- `IssuerTypeEnum` is renamed to `CollateralEntityTypeEnum`. This enum can be reused as the entity type values are common across the issuer & guarantor. `IssuerTypeEnum` is used only in the `CollateralIssuerType` so there is minimal impact to other areas of the model. 
-- `CollateralGuarantorType` is created which has the `CollateralEntityTypeEnum` as an attribute.
-- `CollateralGuarantorType` is  added to `CollateralCriteria`.
+Contribution of new types to define the time as a direct or relative object, based on the TimeZone type and potentially having some offsets and adjustments
+The DirectOrRelativeTime applied to the effectiveDate and terminationDate as part of the economicTerms in a new elements: effectiveTime and terminationTime
+The time relative to the event date in the EventInstruction
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4258](https://github.com/finos/common-domain-model/pull/4258)
+Changes can be reviewed in PR: [#4342](https://github.com/finos/common-domain-model/pull/4342)
