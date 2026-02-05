@@ -7,9 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.regnosys.ingest.test.framework.ingestor.IngestionReport;
-import com.regnosys.ingest.test.framework.ingestor.IngestionTest;
-import com.regnosys.ingest.test.framework.ingestor.IngestionTestUtil;
+import com.regnosys.ingest.fis.FisIngestionTest;
+import com.regnosys.ingest.test.framework.ingestor.*;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionFactory;
 import com.regnosys.ingest.test.framework.ingestor.service.IngestionService;
 import com.regnosys.ingest.test.framework.ingestor.testing.Expectation;
@@ -22,6 +21,8 @@ import org.finos.cdm.CdmRuntimeModule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> {
 
 	private static final String SAMPLE_DIR = "cdm-sample-files/createiq/";
+	private static final Logger LOGGER = LoggerFactory.getLogger(CreateiQIngestionServiceTest.class);
 
 	private static ImmutableList<String> EXPECTATION_FILES = ImmutableList.<String>builder()
 		.add(SAMPLE_DIR + "test-pack/production/expectations.json")
@@ -61,6 +63,9 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 		initialiseIngestionFactory(runtimeModule, IngestionTestUtil.getPostProcessors(runtimeModule));
 		ingestionService = IngestionFactory.getInstance().getService("createiQAll");
 		objectMapper = RosettaObjectMapper.getNewRosettaObjectMapper();
+		writeActualExpectations = ExpectationUtil.WRITE_EXPECTATIONS;
+		expectationsManager = new ExpectationManager(writeActualExpectations);
+
 	}
 
 	@Override
@@ -142,5 +147,36 @@ public class CreateiQIngestionServiceTest extends IngestionTest<LegalAgreement> 
 	@SuppressWarnings("unused")//used by the junit parameterized test
 	private static Stream<Arguments> fpMLFiles() {
 		return readExpectationsFromString(EXPECTATION_FILES);
+	}
+
+
+	public static void main(String[] args) {
+		try {
+			CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
+			createiQIngestionServiceTest.run();
+
+			System.exit(0);
+		} catch (Exception e) {
+			LOGGER.error("Error executing {}.main()", CreateiQIngestionServiceTest.class.getName(), e);
+			System.exit(1);
+		}
+	}
+
+
+
+	public void run() {
+		setup();
+		fpMLFiles().forEach(arguments -> {
+			Object[] argsArray = arguments.get();
+			String name = (String) argsArray[0];
+			Expectation expectation = (Expectation) argsArray[1];
+			try {
+				LOGGER.error("Updated CreateiQIngestionService sample(s): " + name );
+				this.ingest(name, expectation, name);
+			} catch (Throwable e) {
+				LOGGER.error("Failed: " + name , e);
+				e.printStackTrace();
+			}
+		});
 	}
 }

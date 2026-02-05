@@ -2,23 +2,28 @@ package org.finos.cdm.testpack;
 
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToTradeState;
 import cdm.ingest.fpml.confirmation.message.functions.Ingest_FpmlConfirmationToWorkflowStep;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.inject.Injector;
-import com.regnosys.rosetta.common.transform.PipelineModel;
+import com.regnosys.functions.FunctionCreator;
+import com.regnosys.ingest.createiq.CreateiQIngestionServiceTest;
+import com.regnosys.ingest.fis.FisIngestionTest;
+import com.regnosys.ingest.ore.OreTradeTest;
+import org.finos.cdm.functions.FunctionInputCreator;
+import org.finos.cdm.functions.SecLendingFunctionInputCreator;
 import com.regnosys.rosetta.common.transform.TransformType;
 import com.regnosys.runefpml.RuneFpmlModelConfig;
 import com.regnosys.testing.pipeline.PipelineConfigWriter;
 import com.regnosys.testing.pipeline.PipelineTestPackFilter;
 import com.regnosys.testing.pipeline.PipelineTreeConfig;
-import fpml.consolidated.doc.Document;
 import jakarta.inject.Inject;
 import org.finos.cdm.CdmRuntimeModuleTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 public class CdmTestPackCreator {
 
@@ -46,11 +51,39 @@ public class CdmTestPackCreator {
             injector.injectMembers(testPackConfigCreator);
 
             testPackConfigCreator.run();
+
+            runIngestion();
+            runFunctionCreators();
+
             System.exit(0);
         } catch (Exception e) {
             LOGGER.error("Error executing {}.main()", CdmTestPackCreator.class.getName(), e);
             System.exit(1);
         }
+    }
+
+    private static void runFunctionCreators() throws Exception {
+        FunctionInputCreator functionInputCreator = new FunctionInputCreator();
+        functionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+
+        SecLendingFunctionInputCreator secLendingFunctionInputCreator = new SecLendingFunctionInputCreator();
+        secLendingFunctionInputCreator.run(Optional.ofNullable(System.getenv("TEST_WRITE_BASE_PATH")).map(Paths::get));
+
+        FunctionCreator functionCreator = new FunctionCreator();
+        functionCreator.run();
+    }
+
+    private static void runIngestion() throws Exception {
+
+        FisIngestionTest fisIngestionTest = new FisIngestionTest();
+
+        fisIngestionTest.run();
+
+        CreateiQIngestionServiceTest createiQIngestionServiceTest = new CreateiQIngestionServiceTest();
+        createiQIngestionServiceTest.run();
+
+        OreTradeTest oreTradeTest = new OreTradeTest();
+        oreTradeTest.run();
     }
 
     private void run() throws IOException {
