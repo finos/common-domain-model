@@ -1,11 +1,16 @@
 # *Product Model - Commodity Qualification Function and Updates to Payout to Cashflow function*
+
 _Background_
 
-Currently, some Commodity Products are not qualifying due to a missing condition. Additionally, modification is required in Create_CashflowFromSettlementPayout function to errors in FX Products.
+Currently, some Commodity Products are not qualifying due to a missing condition. Additionally, modification is required in `Create_CashflowFromSettlementPayout` function to errors in FX Products.
 
 _What is being released?_
 
-This release includes: 1. Modification in Qualify_AssetClass_Commodity 2. Removal of redundant condition in Qualify_Commodity_Swap_FixedFloat 3. Addition of valueDate to SettlementDate condition 4. Addition of generic Create_CashflowFromPayout function from OptionPayoutandSettlementPayout`
+This release includes: 
+1. Modification in `Qualify_AssetClass_Commodity`
+2. Removal of redundant condition in `Qualify_Commodity_Swap_FixedFloat`
+3. Addition of `valueDate` to `SettlementDate` condition
+4. Addition of generic `Create_CashflowFromPayout` function from `OptionPayoutandSettlementPayout`
 
 _Review Directions_
 
