@@ -572,6 +572,7 @@ func MapPrincipalPayments:
             finalPayment: fpmlPrincipalExchanges -> finalExchange,
             intermediatePayment: fpmlPrincipalExchanges -> intermediateExchange,
             principalPaymentSchedule: MapPrincipalPaymentSchedule(
+                        fpmlPrincipalExchanges,
                         fpmlPrincipalExchangeList,
                         fpmlCurrency,
                         fpmlPayerReceiverModel,
@@ -584,6 +585,7 @@ func MapPrincipalPayments:
 
 func MapPrincipalPaymentSchedule:
     inputs:
+        fpmlPrincipalExchanges fpml.PrincipalExchanges (0..1)
         fpmlPrincipalExchangeList fpml.PrincipalExchange (0..*)
         fpmlCurrency fpml.Currency (0..1)
         fpmlPayerReceiverModel fpml.PayerReceiverModel (0..1)
@@ -594,10 +596,11 @@ func MapPrincipalPaymentSchedule:
     alias sortedPrincipalExchangeList:
         fpmlPrincipalExchangeList
             sort [ unadjustedPrincipalExchangeDate default adjustedPrincipalExchangeDate ]
-    alias initialPrincipalExchange: sortedPrincipalExchangeList first
+    alias initialPrincipalExchange: 
+        if fpmlPrincipalExchanges -> initialExchange
+        then sortedPrincipalExchangeList first
     alias finalPrincipalExchange:
-        // check count to avoid a single PrincipalPayment being added as initial and final
-        if sortedPrincipalExchangeList count > 1
+        if fpmlPrincipalExchanges -> finalExchange
         then sortedPrincipalExchangeList last
 
     set principalPaymentSchedule:
