@@ -1,4 +1,4 @@
-# *Ingestion Framework for FpML - Mapping Coverage: FX*
+# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
 
 _Background_
 
@@ -6,9 +6,10 @@ Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for 
 
 _What is being released?_
 
-This release maps FX products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373).
+This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
 
-Updates to mapping of `quantitySchedule` for FpML FX products.
+- Updates to mapping of `quantitySchedule` for FpML FX products
+- Fixes duplicate mappings of product taxonomy for FpML FRA products
 
 _Review Directions_
 
