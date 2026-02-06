@@ -31,11 +31,11 @@
 | fpml-5-10-incomplete-products-inflation-swaps | swap | 2 | 97% |
 | fpml-5-10-incomplete-products-securities | instrumentTradeDetails | 1 | 118% |
 | fpml-5-10-incomplete-products-securities | option | 1 | 118% |
-| fpml-5-10-invalid-products | creditDefaultSwap | 29 | 98% |
-| fpml-5-10-invalid-products | swap | 11 | 100% |
+| fpml-5-10-invalid-products | creditDefaultSwap | 30 | 97% |
+| fpml-5-10-invalid-products | swap | 12 | 100% |
 | fpml-5-10-processes | creditDefaultSwap | 9 | 111% |
 | fpml-5-10-processes | fxSingleLeg | 1 | 104% |
-| fpml-5-10-processes | swap | 3 | 102% |
+| fpml-5-10-processes | swap | 5 | 98% |
 | fpml-5-10-products-commodity | commodityBasketOption | 1 | 113% |
 | fpml-5-10-products-commodity | commodityOption | 7 | 96% |
 | fpml-5-10-products-commodity | commoditySwap | 6 | 107% |
@@ -43,7 +43,7 @@
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
 | fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-10-products-dividend-swaps | dividendSwapTransactionSupplement | 6 | 84% |
-| fpml-5-10-products-equity | equityOption | 2 | 105% |
+| fpml-5-10-products-equity | equityOption | 3 | 105% |
 | fpml-5-10-products-equity | equitySwapTransactionSupplement | 6 | 101% |
 | fpml-5-10-products-equity | returnSwap | 3 | 101% |
 | fpml-5-10-products-fx | fxOption | 6 | 98% |
@@ -62,8 +62,9 @@
 | fpml-5-10-products-volatility-swaps | volatilitySwapTransactionSupplement | 2 | 106% |
 | fpml-5-12-incomplete-products-equity | returnSwap | 1 | 104% |
 | fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
-| fpml-5-12-products-commodity | commodityOption | 1 | 94% |
+| fpml-5-12-products-commodity | commodityOption | 2 | 71% |
 | fpml-5-12-products-commodity | commoditySwap | 2 | 108% |
+| fpml-5-12-products-commodity | commoditySwaption | 1 | 66% |
 | fpml-5-12-products-credit | creditDefaultSwap | 17 | 99% |
 | fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 98% |
 | fpml-5-12-products-equity | equityOption | 2 | 105% |
@@ -72,7 +73,7 @@
 | fpml-5-12-products-fx | fxOption | 6 | 98% |
 | fpml-5-12-products-fx | fxSingleLeg | 8 | 103% |
 | fpml-5-12-products-fx | fxSwap | 1 | 107% |
-| fpml-5-12-products-rates | bondOption | 2 | 100% |
+| fpml-5-12-products-rates | bondOption | 3 | 100% |
 | fpml-5-12-products-rates | capFloor | 3 | 104% |
 | fpml-5-12-products-rates | fra | 1 | 104% |
 | fpml-5-12-products-rates | swap | 16 | 100% |
