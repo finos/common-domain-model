@@ -15,11 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.subPath;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.updateMappingSuccess;
@@ -90,8 +88,7 @@ public class RelatedPartyRoleMappingProcessor extends MappingProcessor {
                     }
                     catch (IllegalArgumentException e) {
                         // If the value is not a valid enum constant, do nothing and skip this iteration
-                        LOGGER.warn("Invalid PartyRoleEnum: " + m.role, e);
-
+                        LOGGER.warn("Invalid PartyRoleEnum: {}", m.role);
                     }
                 }
 
