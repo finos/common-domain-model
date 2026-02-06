@@ -55,8 +55,8 @@ _What is being released?_
 
 This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
 
-- Updates to mapping of `quantitySchedule` for FpML FX products
-- Fixes duplicate mappings of product taxonomy for FpML FRA products
+- Mapping updates to `quantitySchedule` for FpML FX products
+- Duplicate mappings removed in product taxonomy for FpML FRA products
 
 _Review Directions_
 
