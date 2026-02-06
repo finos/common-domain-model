@@ -60,4 +60,4 @@ This release maps FX and Rates products, as per [#4373](https://github.com/finos
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4339](https://github.com/finos/common-domain-model/pull/4339)
+Changes can be reviewed in PR: [#4374](https://github.com/finos/common-domain-model/pull/4374)
