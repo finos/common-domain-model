@@ -10,12 +10,11 @@ This release includes:
 1. Modification in `Qualify_AssetClass_Commodity`
 2. Removal of redundant condition in `Qualify_Commodity_Swap_FixedFloat`
 3. Addition of `valueDate` to `SettlementDate` condition
-4. Addition of generic `Create_CashflowFromPayout` function from `OptionPayoutandSettlementPayout`
+4. Addition of generic `Create_CashflowFromPayout` function from `OptionPayout` and `SettlementPayout`
 
 _Review Directions_
 
 Changes can be reviewed in PR: [#4438](https://github.com/finos/common-domain-model/pull/4438)
-
 
 # *Product Model - EquityForward Qualification functions*
 
