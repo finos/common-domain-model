@@ -1,3 +1,17 @@
+# *Product Model - Commodity Qualification Function and Updates to Payout to Cashflow function*
+_Background_
+
+Currently, some Commodity Products are not qualifying due to a missing condition. Additionally, modification is required in Create_CashflowFromSettlementPayout function to errors in FX Products.
+
+_What is being released?_
+
+This release includes: 1. Modification in Qualify_AssetClass_Commodity 2. Removal of redundant condition in Qualify_Commodity_Swap_FixedFloat 3. Addition of valueDate to SettlementDate condition 4. Addition of generic Create_CashflowFromPayout function from OptionPayoutandSettlementPayout`
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4438](https://github.com/finos/common-domain-model/pull/4438)
+
+
 # *Product Model - EquityForward Qualification functions*
 
 _Background_
