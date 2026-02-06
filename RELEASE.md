@@ -45,7 +45,7 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4401](https://github.com/finos/common-domain-model/pull/4401)
 
-# *Ingestion Framework for FpML - Mapping Coverage: FX and Rate*
+# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
 
 _Background_
 
