@@ -2,7 +2,7 @@
 
 _Background_
 
-Currently, Qualification of Commodity Products is currently incomplete due to a missing condition. Additionally, modification is required in `Create_CashflowFromSettlementPayout` function to address errors in FX Products.
+Qualification of Commodity Products is currently incomplete due to a missing condition. Additionally, modification is required in `Create_CashflowFromSettlementPayout` function to address errors in FX Products.
 
 _What is being released?_
 
