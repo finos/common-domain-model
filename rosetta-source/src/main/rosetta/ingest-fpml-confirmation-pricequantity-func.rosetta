@@ -557,7 +557,7 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                             quantity1 -> currency,
                             empty
                         ),
-                    CreateQuantityKey("exchangedCurrency1", fpmlLeg)
+                    CreateQuantityKey(quantity1 -> currency -> value, fpmlLeg)
                 )
 
     add quantityList:
@@ -569,7 +569,7 @@ func MapFxCoreDetailsModelQuantityListWithLocation:
                             quantity2 -> currency,
                             empty
                         ),
-                    CreateQuantityKey("exchangedCurrency2", fpmlLeg)
+                    CreateQuantityKey(quantity2 -> currency -> value, fpmlLeg)
                 )
 
 func MapFxCoreDetailsModelQuantityWithAddress:
@@ -580,21 +580,33 @@ func MapFxCoreDetailsModelQuantityWithAddress:
         quantity NonNegativeQuantitySchedule (0..1)
             [metadata address]
 
+    alias quotedCurrencyPair: 
+        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+
     set quantity:
-        if fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
-        then CreateQuantityWithAddress(CreateQuantityKey("exchangedCurrency1", fpmlLeg))
-        else CreateQuantityWithAddress(CreateQuantityKey("exchangedCurrency2", fpmlLeg))
+        if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        then CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency1 -> value, fpmlLeg))
+        else CreateQuantityWithAddress(CreateQuantityKey(quotedCurrencyPair -> currency2 -> value, fpmlLeg))
 
 func GetFpmlExchangedCurrency:
     inputs:
         fpmlFxCoreDetailsModel fpml.FxCoreDetailsModel (0..1)
     output:
-        fpmlExchangedCurrency fpml.Payment (1..1)
+        fpmlExchangedCurrency fpml.Payment (0..1)
+
+    alias quotedCurrencyPair: 
+        fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair
+
+    alias currency:
+        if quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        then quotedCurrencyPair -> currency1
+        else quotedCurrencyPair -> currency2
 
     set fpmlExchangedCurrency:
-        if fpmlFxCoreDetailsModel -> exchangeRate -> quotedCurrencyPair -> quoteBasis = Currency2PerCurrency1
+        if fpmlFxCoreDetailsModel -> exchangedCurrency1 -> paymentAmount -> currency = currency
         then fpmlFxCoreDetailsModel -> exchangedCurrency1
-        else fpmlFxCoreDetailsModel -> exchangedCurrency2
+        else if fpmlFxCoreDetailsModel -> exchangedCurrency2 -> paymentAmount -> currency = currency
+        then fpmlFxCoreDetailsModel -> exchangedCurrency2
 
 func MapFxOptionToQuantityListWithLocation:
     inputs:
