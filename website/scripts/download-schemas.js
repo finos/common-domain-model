@@ -8,15 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-
-// CDM versions: { version: 'maven-version', urlPath: 'url-path' }
-const SCHEMA_VERSIONS = [
-  { version: '6.0.0', urlPath: '6.0' },
-  { version: '5.20.0', urlPath: '5.20' },
-  { version: '5.13.0', urlPath: '5.13' },
-];
-
-const MAVEN_URL = 'https://repo1.maven.org/maven2/org/finos/cdm/cdm-json-schema';
+const { versions: SCHEMA_VERSIONS, mavenUrl: MAVEN_URL } = require('./schema-versions');
 const SCHEMAS_DIR = path.join(__dirname, '..', 'static', 'schemas');
 const TEMP_DIR = path.join(__dirname, '..', '.schema-temp');
 
