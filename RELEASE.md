@@ -12,33 +12,6 @@ _Review Directions_
 
 Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
 
-# _Infrastructure - Dependency Update_
-
-_What is being released?_
-
-This change updates the version of the `FpML as Rune` dependency to version 1.4.0.
-
-Version updates include:
-- `FpML as Rune` `1.4.0` See Release notes: [1.4.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.4.0).
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4391](https://github.com/finos/common-domain-model/pull/4391)
-
-# *Ingestion Framework for FpML - Principal Payment Schedule*
-
-_Background_
-
-An issue was identified related to the FpML mapping of `PrincipalPaymentSchedule` for single final payments. For further information, see [#4076](https://github.com/finos/common-domain-model/issues/4076).
-
-_What is being released?_
-
-Synonym Ingest and Ingest Functions related to `PrincipalPaymentSchedule` have been updated to set `principalPaymentSchedule->finalPrincipalPayment` when `principalPayment->finalPayment` is true.
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4401](https://github.com/finos/common-domain-model/pull/4401)
-
 # *Product Model - EquityForward Qualification functions*
 
 _Background_
@@ -55,3 +28,20 @@ Qualification Functions for Equity Forwards introduced:
 _Review Directions_
 
 The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
+
+# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
+
+_Background_
+
+Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+
+_What is being released?_
+
+This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
+
+- Mapping updates to `quantitySchedule` for FpML FX products
+- Duplicate mappings removed in product taxonomy for FpML FRA products
+
+_Review Directions_
+
+Changes can be reviewed in PR: [#4376](https://github.com/finos/common-domain-model/pull/4376)
