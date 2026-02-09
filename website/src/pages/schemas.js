@@ -1,9 +1,11 @@
-const React = require('react');
+import React from 'react';
 import Layout from "@theme/Layout";
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-const { versions } = require('../../scripts/schema-versions');
+import schemaConfig from '../../scripts/schema-versions.js';
 
-const SCHEMA_VERSIONS = versions.map(v => ({
+// Schema versions are loaded from scripts/schema-versions.js
+// Update that file when new CDM versions are released
+const SCHEMA_VERSIONS = schemaConfig.versions.map(v => ({
   version: v.version,
   path: v.urlPath,
   status: v.status
@@ -56,7 +58,7 @@ const styles = {
   },
 };
 
-export default (props) => {
+export default function Schemas() {
   const context = useDocusaurusContext();
   const siteConfig = context.siteConfig;
   const repoUrl = siteConfig.customFields.repoUrl;
@@ -164,4 +166,4 @@ export default (props) => {
       </div>
     </Layout>
   );
-};
+}

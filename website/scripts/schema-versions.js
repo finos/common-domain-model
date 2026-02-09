@@ -3,7 +3,7 @@
  * Update this file when new CDM versions are released
  */
 
-module.exports = {
+const config = {
   // Versions to download and make available
   versions: [
     { version: '6.0.0', urlPath: '6.0', status: 'Latest' },
@@ -14,3 +14,7 @@ module.exports = {
   // Maven repository details
   mavenUrl: 'https://repo1.maven.org/maven2/org/finos/cdm/cdm-json-schema',
 };
+
+// Support both CommonJS (Node scripts) and ES modules (React)
+module.exports = config;
+module.exports.default = config;
