@@ -2000,7 +2000,8 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             ...
         }
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -2075,7 +2076,8 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
     condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
         tradeState -> trade -> tradableProduct -> tradeLot count = 1
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
+    set instruction -> split -> breakdown:
+        [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -2535,9 +2537,11 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         then observation
         else Create_Valuation(primitiveInstruction -> valuation, observation)
 
-    alias terminationDate: <"Use effective Date in absence of eventDate, if it exists">        
+    alias terminationDate: <"Use effective Date in absence of eventDate, if it exists">
         if primitiveInstruction -> quantityChange -> change -> effectiveDate exists
-        then ResolveAdjustableDate(primitiveInstruction -> quantityChange -> change -> effectiveDate first)
+        then ResolveAdjustableDate(
+                    primitiveInstruction -> quantityChange -> change -> effectiveDate first
+                )
         else empty
 
     alias stockSplit:
