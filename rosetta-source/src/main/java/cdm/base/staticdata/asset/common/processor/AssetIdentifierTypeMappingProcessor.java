@@ -59,6 +59,10 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
         if (xmlPath.endsWith("description")) {
             assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.NAME);
         }
+
+        if (xmlPath.endsWith("indexName") && (assetIdentifierBuilder.getIdentifierType() == null || assetIdentifierBuilder.getIdentifierType() == AssetIdTypeEnum.OTHER)) {
+            assetIdentifierBuilder.setIdentifierType(AssetIdTypeEnum.NAME);
+        }
     }
 
     private void setSchemeAndIdentifierType(AssetIdentifierBuilder assetIdentifierBuilder, FieldWithMetaStringBuilder assetIdentifierValueBuilder, Path schemeSynonymPath, Path baseModelPath) {

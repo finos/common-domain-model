@@ -26,9 +26,9 @@
 | fpml-5-13-products-fx-derivatives | 17 | 101% |
 | fpml-5-10-products-equity | 12 | 101% |
 | fpml-5-13-incomplete-products-equity-swaps | 3 | 101% |
+| fpml-5-13-products-credit-derivatives | 44 | 101% |
 | fpml-5-12-products-fx | 15 | 101% |
 | fpml-5-10-products-fx | 15 | 101% |
-| fpml-5-13-products-credit-derivatives | 44 | 101% |
 | fpml-5-10-incomplete-products-credit-derivatives | 43 | 101% |
 | fpml-5-10-incomplete-products-bond-options | 3 | 100% |
 | fpml-5-13-products-commodity-derivatives | 18 | 100% |
