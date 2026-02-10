@@ -1,6 +1,5 @@
 package cdm.base.staticdata.asset.common.processor;
 
-import cdm.observable.asset.QuoteBasisEnum;
 import com.regnosys.rosetta.common.translation.Mapping;
 import com.regnosys.rosetta.common.translation.Path;
 import com.rosetta.model.lib.meta.Reference;
@@ -12,13 +11,13 @@ import java.util.stream.Collectors;
 import static com.regnosys.rosetta.common.translation.MappingProcessorUtils.getNonNullMappedValue;
 
 public class FxMetaHelper {
-    
+
     private final List<Mapping> mappings;
-    
+
     public FxMetaHelper(List<Mapping> mappings) {
         this.mappings = mappings;
     }
-    
+
     public List<Mapping> getNonReferenceMappings() {
         return mappings.stream()
                 .filter(m -> !(m.getRosettaValue() instanceof Reference))
@@ -34,7 +33,7 @@ public class FxMetaHelper {
             return Optional.empty();
         }
     }
-    
+
     private Optional<Path> getQuoteBasisCurrencySynonymPath(Path quoteBasisPath) {
         return getNonNullMappedValue(quoteBasisPath, mappings)
                 .flatMap(this::isUnderlierCurrency1)
@@ -45,10 +44,10 @@ public class FxMetaHelper {
                             quotedCurrencyPairPath.addElement("currency2");
                 });
     }
-    
+
     private Optional<Boolean> isUnderlierCurrency1(String quoteBasis) {
         return Optional.ofNullable(quoteBasis.equals("Currency2PerCurrency1") ?
-                true :
+                Boolean.TRUE :
                 quoteBasis.equals("Currency1PerCurrency2") ?
                         false : null);
     }
@@ -63,27 +62,33 @@ public class FxMetaHelper {
                             productPath.addElement("callCurrencyAmount").addElement("currency");
                 });
     }
-    
+
     private Optional<Boolean> isUnderlierPutCurrency(String strikeQuoteBasis) {
         return Optional.ofNullable(strikeQuoteBasis.equals("CallCurrencyPerPutCurrency") ?
-                true :
+                Boolean.TRUE :
                 strikeQuoteBasis.equals("PutCurrencyPerCallCurrency") ?
                         false : null);
     }
 
     public Optional<Path> getExchangedCurrencyPath(Path quoteBasisPath) {
-        return getNonNullMappedValue(quoteBasisPath, mappings)
-                .map(quoteBasis -> {
+        return getQuoteBasisCurrencySynonymPath(quoteBasisPath)
+                .flatMap(quoteBasisCurrencySynonymPath -> getNonNullMappedValue(quoteBasisCurrencySynonymPath, mappings))
+                .map(currency -> {
                     Path productPath = quoteBasisPath.getParent().getParent().getParent();
-                    QuoteBasisEnum quoteBasisEnum = QuoteBasisEnum.fromDisplayName(quoteBasis);
-                    switch (quoteBasisEnum) {
-                        case CURRENCY_1_PER_CURRENCY_2:
-                            return productPath.addElement("exchangedCurrency2");
-                        case CURRENCY_2_PER_CURRENCY_1:
-                            return productPath.addElement("exchangedCurrency1");
-                        default:
-                            return null;
+
+                    Path exchangedCurrency1Path = productPath.addElement("exchangedCurrency1");
+                    Path exchangedCurrency1CurrencyPath = exchangedCurrency1Path.addElement("paymentAmount").addElement("currency");
+                    String exchangedCurrency1Currency = getNonNullMappedValue(exchangedCurrency1CurrencyPath, mappings).orElse(null);
+                    if (currency.equals(exchangedCurrency1Currency)) {
+                        return exchangedCurrency1Path;
                     }
+                    Path exchangedCurrency2Path = productPath.addElement("exchangedCurrency2");
+                    Path exchangedCurrency2CurrencyPath = exchangedCurrency2Path.addElement("paymentAmount").addElement("currency");
+                    String exchangedCurrency2Currency = getNonNullMappedValue(exchangedCurrency2CurrencyPath, mappings).orElse(null);
+                    if (currency.equals(exchangedCurrency2Currency)) {
+                        return exchangedCurrency2Path;
+                    }
+                    return null;
                 });
     }
 }
