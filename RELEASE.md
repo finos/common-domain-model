@@ -9,7 +9,7 @@ Changed the cardinality of stubPeriodType from 0..1 to 0..2.
 
 _Review directions_
 
-The changes can be reviewed in PR: [#4193](https://github.com/finos/common-domain-model/pull/4193)
+The changes can be reviewed in PR: [#4444](https://github.com/finos/common-domain-model/pull/4444)
 
 # *Product Model - Security-Lending Qualification Updates*
 
