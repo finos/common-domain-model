@@ -90,6 +90,8 @@ public class AssetIdentifierTypeMappingProcessor extends MappingProcessor {
             return AssetIdTypeEnum.ISDACRP;
         } else if (scheme.contains("iso4914")) {
             return AssetIdTypeEnum.UPI;
+        } else if (scheme.contains("-id-RED-")) {
+            return AssetIdTypeEnum.REDID;
         } else {
             return AssetIdTypeEnum.OTHER;
         }
