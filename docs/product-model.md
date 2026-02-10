@@ -471,7 +471,7 @@ type CalculationPeriodDates:
   firstRegularPeriodStartDate date (0..1)
   firstCompoundingPeriodEndDate date (0..1)
   lastRegularPeriodEndDate date (0..1)
-  stubPeriodType StubPeriodTypeEnum (0..1)
+  stubPeriodType StubPeriodTypeEnum (0..2)
   calculationPeriodFrequency CalculationPeriodFrequency (0..1)
 ```
 
