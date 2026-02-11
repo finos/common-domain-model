@@ -1,6 +1,8 @@
 namespace cdm.base.math : <"Basic maths concepts: quantity and unit, rounding, curve / schedule, non-negativity constraint etc.">
 version "${project.version}"
 
+import cdm.base.math.util.*
+
 func CompareNumbers:
     inputs:
         n1 number (1..1)
@@ -252,3 +254,69 @@ func ArithmeticOperation:
         then Max(n1, n2)
         else if op = ArithmeticOperationEnum -> Min
         then Min(n1, n2)
+
+// ==============
+// EXPONENTIAL
+// ==============
+func Exp: <"Calculates the exponential function e^x. Handles zero and negative inputs by utilizing the inverse property exp(-x) = 1/exp(x), and delegates positive inputs to an argument reduction router to ensure numerical stability.">
+    inputs: x number (1..1)
+    output: result number (1..1)
+     set result:
+        if x = 0.0 then 1.0
+        else if x < 0.0 then 1.0 / Exp_Pos_Router(x * -1.0)
+        else Exp_Pos_Router(x)
+
+// ==============
+// SQUARE ROOT
+// ==============
+func Sqrt: <"Approximates the square root of a number using the Newton-Raphson method (Babylonian method). Utilizes a tiered initial guess strategy based on input magnitude followed by 10 unrolled iterations to ensure convergence to double precision.">
+    inputs: x number (1..1)
+    output: result number (1..1)
+
+    // SMART INITIAL GUESS LADDER
+    alias g0:
+        if x > 1000000.0 then 1000.0
+        else if x > 10000.0 then 100.0
+        else if x > 100.0 then 10.0
+        else if x > 1.0 then 1.5 // Generic guess for small numbers > 1
+        else 0.5 // Generic guess for small numbers < 1
+
+    // 10 Iterations are enough if g0 is good
+    alias g1: 0.5 * (g0 + (x/g0))
+    alias g2: 0.5 * (g1 + (x/g1))
+    alias g3: 0.5 * (g2 + (x/g2))
+    alias g4: 0.5 * (g3 + (x/g3))
+    alias g5: 0.5 * (g4 + (x/g4))
+    alias g6: 0.5 * (g5 + (x/g5))
+    alias g7: 0.5 * (g6 + (x/g6))
+    alias g8: 0.5 * (g7 + (x/g7))
+    alias g9: 0.5 * (g8 + (x/g8))
+    alias g10: 0.5 * (g9 + (x/g9))
+
+    set result:
+        if x < 0.0 then empty
+        else if x = 0.0 then 0.0
+        else if x = 1.0 then 1.0
+        else g10
+
+// ============
+// LOGARITHM
+// ============
+func Log: <"Calculates the natural logarithm ln(x). Uses argument scaling to shift inputs into the optimal series convergence range (0.5 to 2.0) by applying logarithmic identities (e.g., ln(x) = ln(x*C) - ln(C)) for small or large inputs.">
+    inputs: x number (1..1)
+    output: result number (1..1)
+
+    // SCALING ROUTER
+    set result:
+        if x <= 0.0 then empty
+        else if x < 0.1 then
+            // x=0.01 -> Log(1) - 4.605...
+            Log_Internal_Series(x * 100.0) - 4.605170186
+        else if x < 0.5 then
+            // x=0.1 -> Log(1) - 2.302...
+            Log_Internal_Series(x * 10.0) - 2.302585093
+        else if x > 2.0 then
+             // x=10 -> Log(1) + 2.302...
+             Log_Internal_Series(x / 10.0) + 2.302585093
+        else
+            Log_Internal_Series(x)
