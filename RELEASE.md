@@ -1,7 +1,7 @@
 # _Asset Model - Adding Redemption Attribute to Debt Type_
 _Background_
 
-There are several values in the the DebtClassEnum relating to the redemption of the debt which could be more granular and composable. There are 4 attributes representing unique combinations for IssuerConvertible, HolderConvertible, IssuerExchangeable, HolderExchangeable. However, these could be represented using separate enums and conditions within DebtType. This would also remove the additional Convertible attribute.
+There are several values in the the `DebtClassEnum` relating to the redemption of the debt which could be more granular and composable. There are 4 attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable`. However, these could be represented using separate enums and conditions within DebtType. This would also remove the additional Convertible attribute.
 
 _What is being released?_
 
