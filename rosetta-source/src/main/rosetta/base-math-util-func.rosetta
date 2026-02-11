@@ -1,0 +1,90 @@
+namespace cdm.base.math.util : <"Basic maths implementation helpers: series approximations for basic math concepts such as Exp, Sqrt, Log.">
+version "${project.version}"
+
+func Exp_Squaring_Helper: <"Reconstructs the exponential result by performing repeated squaring. Acts as the inverse operation to the argument reduction phase, calculating (val)^(2^count) to restore the original magnitude.">
+    inputs: val number (1..1) count_help number (1..1)
+    output: result number (1..1)
+
+    alias s1: val * val
+    alias s2: if count_help >=2 then s1 * s1 else 0.0
+    alias s3: if count_help >= 3.0 then s2 * s2 else 0.0
+    alias s4: if count_help >= 4.0 then s3 * s3 else 0.0
+
+    set result:
+        if count_help = 1.0 then s1
+        else if count_help = 2.0 then s2
+        else if count_help = 3.0 then s3
+        else if count_help = 4.0 then s4
+        else val
+
+func Exp_Pos_Router: <"Routes positive inputs to the Taylor series core. Performs argument reduction by dividing large inputs by powers of 2 (2, 4, 8, or 16) to ensure the value passed to the series falls within the optimal convergence range (0.0 to 0.7).">
+    inputs: val number (1..1)
+    output: res number (1..1)
+
+    set res:
+        // Aggressive reduction to keep inputs small (Sweet Spot < 0.7)
+        if val <= 0.7 then Exp_Core_Taylor(val)
+        else if val <= 1.4 then Exp_Squaring_Helper(Exp_Core_Taylor(val/2.0), 1.0)
+        else if val <= 2.8 then Exp_Squaring_Helper(Exp_Core_Taylor(val/4.0), 2.0)
+        else if val <= 5.6 then Exp_Squaring_Helper(Exp_Core_Taylor(val/8.0), 3.0)
+        else Exp_Squaring_Helper(Exp_Core_Taylor(val/16.0), 4.0)
+
+func Exp_Core_Taylor: <"Calculates the exponential function using a 10th-degree Taylor-Maclaurin series expansion (1 + x + x^2/2! + ...). Optimized for small inputs using unrolled power calculations and pre-computed factorial constants to minimize computational cost.">
+    inputs: val number (1..1)
+    output: approx number (1..1)
+
+    alias p2 : val * val
+    alias p3 : p2 * val
+    alias p4 : p3 * val
+    alias p5 : p4 * val
+    alias p6 : p5 * val
+    alias p7 : p6 * val
+    alias p8 : p7 * val
+    alias p9 : p8 * val
+    alias p10: p9 * val
+
+    alias t1 : val              // x / 1!
+    alias t2 : p2 / 2.0         // x^2 / 2!
+    alias t3 : p3 / 6.0         // x^3 / 3!
+    alias t4 : p4 / 24.0        // x^4 / 4!
+    alias t5 : p5 / 120.0       // x^5 / 5!
+    alias t6 : p6 / 720.0       // x^6 / 6!
+    alias t7 : p7 / 5040.0      // x^7 / 7!
+    alias t8 : p8 / 40320.0     // x^8 / 8!
+    alias t9 : p9 / 362880.0    // x^9 / 9!
+    alias t10: p10 / 3628800.0  // x^10 / 10!
+
+    set approx:
+        1.0 + t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10
+
+func Log_Internal_Series: <"Calculates the natural logarithm using the Inverse Hyperbolic Tangent series expansion up to degree 19. Optimized for the interval (0.5, 2.0) using unrolled power calculations and direct term division.">
+    inputs: x number (1..1)
+    output: res number (1..1)
+
+    alias u : (x - 1.0) / (x + 1.0)
+    alias u2 : u * u
+    alias u3 : u2 * u
+    alias u5 : u3 * u2
+    alias u7 : u5 * u2
+    alias u9 : u7 * u2
+    alias u11: u9 * u2
+    alias u13: u11 * u2
+    alias u15: u13 * u2
+    alias u17: u15 * u2
+    alias u19: u17 * u2
+
+    alias t1 : u
+    alias t3 : u3 / 3.0
+    alias t5 : u5 / 5.0
+    alias t7 : u7 / 7.0
+    alias t9 : u9 / 9.0
+    alias t11: u11 / 11.0
+    alias t13: u13 / 13.0
+    alias t15: u15 / 15.0
+    alias t17: u17 / 17.0
+    alias t19: u19 / 19.0
+
+    alias logsum : t1 + t3 + t5 + t7 + t9 + t11 + t13 + t15 + t17 + t19
+
+    set res:
+        2.0 * logsum
