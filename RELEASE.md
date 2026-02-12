@@ -5,7 +5,7 @@ The cardinality of `stubPeriodType` inside `CalculationPeriodDates` is currently
 
 _What is being released?_
 
-The cardinality of `stubPeriodType` inside `CalculationPeriodDates has been updated from 0..1 to 0..2.
+The cardinality of `stubPeriodType` inside `CalculationPeriodDates` has been updated from 0..1 to 0..2.
 
 _Review directions_
 
