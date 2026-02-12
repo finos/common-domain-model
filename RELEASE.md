@@ -1,11 +1,11 @@
-# *Cardinality of stubPeriodType - Changed cardinality of stubPeriodType from 0..1 to 0..2*
+# *Product Model - Changed cardinality of stubPeriodType*
 _Background_
 
-The cardinality of stubPeriodType should be changed from 0..1 to 0..2. Having a multiplicity of 2 will allow the possibility of expressing the type for both an initial and final stub at the same time.
+The cardinality of `stubPeriodType` inside `CalculationPeriodDates` is currently 0..1 so it doesn't allow to describe the type of stub when two stubs are present in the leg. The cardinality should be changed from 0..1 to 0..2. Having a cardinality of 2 allows expressing the stub type for both an initial and final stub at the same time.
 
 _What is being released?_
 
-Changed the cardinality of stubPeriodType from 0..1 to 0..2.
+The cardinality of `stubPeriodType` inside `CalculationPeriodDates has been updated from 0..1 to 0..2.
 
 _Review directions_
 
