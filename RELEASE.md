@@ -41,7 +41,7 @@ Updating any previous instance of `only-exist` to use a function which checks wh
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
+Changes can be reviewed in PR: [#4430](https://github.com/finos/common-domain-model/pull/4430)
 
 # *Product Model - EquityForward Qualification functions*
 
@@ -59,7 +59,7 @@ Qualification Functions for Equity Forwards introduced:
 _Review Directions_
 
 The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
-=======
+
 # *Product & Event Model - Recall Provisions and Unscheduled Transfers*
 
 _Background_
