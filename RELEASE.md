@@ -1,47 +1,54 @@
-# *Product Model - Updating stubPeriodType cardinality*
+# _Asset Model - Adding Redemption Attribute to Debt Type_
 _Background_
 
-The cardinality of `stubPeriodType` inside `CalculationPeriodDates` is currently `0..1` which prevents specifying the stub type when a leg contains two stubs. The cardinality should be changed from `0..1` to `0..2`. A cardinality of `2` enables the stub type to be specified for both the initial and final stubs simultaneously.
+There are several values in the the `DebtClassEnum` relating to the redemption of the debt which could be more granular and composable. There are 4 attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable`. However, these could be represented using separate enums and conditions within DebtType. This would also remove the additional Convertible attribute.
 
 _What is being released?_
 
-The cardinality of `stubPeriodType` inside `CalculationPeriodDates` has been updated from `0..1` to `0..2`.
+Created a DebtRedemption type 
+- Added `redemptionType` attribute with type `RedemptionTypeEnum` 
+- Added `putCall` attribute with type `PutCallEnum` 
+- Added `party` attribute with type `RedemptionPartyEnum` 
+
+Created 2 new enums 
+- `RedemptionTypeEnum` with values Convertible, Exchangeable, ContingentConvertible, Sinkable, Extraordinary
+- `RedemptionPartyEnum` with values Holder and Issuer
 
 _Review Directions_
 
-The changes can be reviewed in PR: [#4444](https://github.com/finos/common-domain-model/pull/4444)
+The changes can be reviewed in PR: [#4447](https://github.com/finos/common-domain-model/pull/4447)
 
-# *Product Model - Security-Lending Qualification Updates*
-
-_Background_
-
-The `Qualify_SecurityLending` function expects that a `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` exists. This is not always going to be the case.
-
-If a trade is against cash then `collateralPortfolio -> collateralPosition -> product -> TransferableProduct` will hold the details of the cash being used as collateral.
-
-However, if a trade is against non-cash, the collateral will be referenced using a schedule/portfolio identifier and thus there will not be a collateralPosition under collateralPortfolio, but rather a `collateralPortfolio -> portfolioIdentifer` that will hold the identifier for the collateral pool being used as collateral against this trade.
+# _Infrastructure - Dependency Update_
 
 _What is being released?_
 
-The `Qualify_SecurityLending` function has been updated to just check for the presence of `collateral -> collateralPortfolio` which is generic enough to cover cash and non-cash.
+This release updates the `DSL` , `bundle` and `FpML as Rune` dependency:
 
-_Review directions_
-
-The changes can be reviewed in PR: [#4336](https://github.com/finos/common-domain-model/pull/4336)
-
-# *Product Model - Updating Qualification Functions to Handle `only exists` Syntax*
-
-_Background_
-
-In 7 dev, the `only exists` syntax does not apply to the choice `Payout -> SettlementPayout`, because there is always only one. Instead, `only-element` is used on the payout, which is incorrect, because if there is more than one payout then none will be set. The original intention was to allow for multiple of the same payout types.
-
-_What is being released?_
-
-Updating any previous instance of `only-exist` to use a function which checks whether only the payout in questions exists, allowing for multiple of the same payouts.
+Version updates include:
+- `DSL` `9.75.3` Performance improvements and bug fix. See DSL release notes: [9.75.3](https://github.com/finos/rune-dsl/releases/tag/9.75.3)
+- `bundle` `11.108.0` Performance improvements and bug fix.
+- `FpML as Rune` `1.5.0` See Release notes: [1.5.0](https://github.com/rosetta-models/rune-fpml/releases/tag/1.5.0).
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4430](https://github.com/finos/common-domain-model/pull/4430)
+The changes can be reviewed in PR: [#4411](https://github.com/finos/common-domain-model/pull/4411)
+
+# *Product Model - EquityForward Qualification functions*
+
+_Background_
+
+There are no qualification functions for Equity Forwards.
+
+_What is being released?_
+
+Qualification Functions for Equity Forwards introduced:
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName`
+- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex`
+- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
 
 # *Product & Event Model - Recall Provisions and Unscheduled Transfers*
 
