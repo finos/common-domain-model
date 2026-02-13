@@ -38,7 +38,7 @@
 | fpml-5-10-processes | swap | 5 | 98% |
 | fpml-5-10-products-commodity | commodityBasketOption | 1 | 113% |
 | fpml-5-10-products-commodity | commodityOption | 7 | 96% |
-| fpml-5-10-products-commodity | commoditySwap | 6 | 108% |
+| fpml-5-10-products-commodity | commoditySwap | 6 | 107% |
 | fpml-5-10-products-correlation-swaps | correlationSwap | 4 | 100% |
 | fpml-5-10-products-credit | creditDefaultSwap | 20 | 97% |
 | fpml-5-10-products-credit | creditDefaultSwapOption | 4 | 98% |
@@ -63,7 +63,7 @@
 | fpml-5-12-incomplete-products-equity | returnSwap | 1 | 104% |
 | fpml-5-12-processes | creditDefaultSwap | 2 | 99% |
 | fpml-5-12-products-commodity | commodityOption | 2 | 71% |
-| fpml-5-12-products-commodity | commoditySwap | 2 | 109% |
+| fpml-5-12-products-commodity | commoditySwap | 2 | 108% |
 | fpml-5-12-products-commodity | commoditySwaption | 1 | 66% |
 | fpml-5-12-products-credit | creditDefaultSwap | 17 | 99% |
 | fpml-5-12-products-credit | creditDefaultSwapOption | 4 | 98% |
@@ -86,7 +86,7 @@
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityForward | 4 | 119% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityOption | 2 | 101% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commodityPerformanceSwap | 4 | 103% |
-| fpml-5-13-incomplete-products-commodity-derivatives | commoditySwap | 14 | 111% |
+| fpml-5-13-incomplete-products-commodity-derivatives | commoditySwap | 14 | 110% |
 | fpml-5-13-incomplete-products-commodity-derivatives | commoditySwaption | 5 | 87% |
 | fpml-5-13-incomplete-products-correlation-swaps | correlationSwap | 1 | 99% |
 | fpml-5-13-incomplete-products-equity-options | equityOption | 12 | 104% |
@@ -100,12 +100,12 @@
 | fpml-5-13-incomplete-products-fx-derivatives | termDeposit | 1 | 127% |
 | fpml-5-13-incomplete-products-repo | securityLending | 2 | 106% |
 | fpml-5-13-incomplete-products-variance-swaps | varianceSwap | 2 | 109% |
-| fpml-5-13-processes-execution-advice | commoditySwap | 6 | 126% |
+| fpml-5-13-processes-execution-advice | commoditySwap | 6 | 125% |
 | fpml-5-13-processes-execution-advice | creditDefaultSwap | 6 | 101% |
 | fpml-5-13-processes-execution-advice | swap | 2 | 103% |
 | fpml-5-13-products-bond-options | bondOption | 4 | 102% |
 | fpml-5-13-products-commodity-derivatives | commodityOption | 11 | 95% |
-| fpml-5-13-products-commodity-derivatives | commoditySwap | 5 | 108% |
+| fpml-5-13-products-commodity-derivatives | commoditySwap | 5 | 107% |
 | fpml-5-13-products-commodity-derivatives | swap | 2 | 105% |
 | fpml-5-13-products-correlation-swaps | correlationSwap | 3 | 100% |
 | fpml-5-13-products-credit-derivatives | creditDefaultSwap | 39 | 101% |

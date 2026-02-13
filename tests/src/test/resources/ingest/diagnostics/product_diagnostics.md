@@ -8,7 +8,7 @@
 | fxFlexibleForward | 2 | 117% |
 | fxForwardVolatilityAgreement | 2 | 113% |
 | commodityBasketOption | 2 | 113% |
-| commoditySwap | 46 | 113% |
+| commoditySwap | 46 | 112% |
 | fxSwap | 7 | 111% |
 | fxDigitalOption | 12 | 109% |
 | commodityDigitalOption | 2 | 108% |
