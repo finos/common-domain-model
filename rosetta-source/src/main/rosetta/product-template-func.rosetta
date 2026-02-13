@@ -203,19 +203,22 @@ func Create_CashflowFromSettlementPayout: <"Generates two opposite cashflows tha
 
     set cashflows: [assetLeg, priceLeg]
 
-func Create_CashflowFromPayout:
-    inputs:
-        payout Payout (1..1) <"The settlement payout from which the cashflows are generated.">
+func Create_CashflowFromPayout: <"Generates opposite cashflows corresponding to a payout. One leg is an asset leg, that settles the asset according to the quantity, direction and date defined in the payout. The other is the price leg, that settles the price as a currency amount going in the opposite direction. The function's applicability is limited on purpose to a single asset with a single price and quantity specified.">
+inputs:
+        payout Payout (1..1) <"The payout from which the cashflows are generated.">
     output:
-        cashflows Cashflow (2..2)
-    alias settlementPayoutFromOptionPayout:
+        cashflows Cashflow (2..2) <"The two generated cashflows (asset leg and price leg) going in opposite directions.">
+
+    alias settlementPayoutFromOptionPayout: <"Create Settlement Payout structure from Option Payout to deduce both legs of the Payout">
         payout -> OptionPayout
             extract
                 SettlementPayout {
-                    priceQuantity: ResolvablePriceQuantity {
+                    priceQuantity:
+                        ResolvablePriceQuantity {
                             quantitySchedule: item -> priceQuantity -> quantitySchedule,
                             priceSchedule: item -> strike -> strikePrice,
-                            ...},
+                            ...
+                        },
                     underlier: underlier,
                     settlementTerms: settlementTerms,
                     payerReceiver: payerReceiver,
@@ -231,4 +234,4 @@ func Create_CashflowFromPayout:
                             ),
                     SettlementPayout then
                         Create_CashflowFromSettlementPayout(payout -> SettlementPayout),
-                default empty
+                    default empty
