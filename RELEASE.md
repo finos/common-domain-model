@@ -14,4 +14,4 @@ This release maps Credit, Equity and Commodity products, as per [#4453](https://
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4445](https://github.com/finos/common-domain-model/pull/4445)
+Changes can be reviewed in PR: [#4456](https://github.com/finos/common-domain-model/pull/4456)
