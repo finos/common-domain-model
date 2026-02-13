@@ -82,13 +82,18 @@ type CreditIndex extends IndexBase: <"Specification of an index based on credit 
         assetClass = AssetClassEnum -> Credit
 
 type EquityIndex extends IndexBase: <"Specification of an index based on equity securities, e.g. the S&P 500..">
-    equityIndex EquityIndexEnum (0..1) <"The equity index value speciied from the EquityIndexEnum.">
 
     condition EquityAssetClass: <"The asset class must be Equity.">
         assetClass = AssetClassEnum -> Equity
 
-    condition IndexSourceSpecification: <"An equity index enum value cannot be specified if a name is also specified, and vice-versa.">
-        if equityIndex exists then name is absent
+    condition EquityIndexEnumIsValid: <"If the index is identified by an EquityIndexEnumerator, it must be singular and valid (ie in the enumerated list EquityIndexEnum).">
+        if identifier -> identifierType any = AssetIdTypeEnum -> EquityIndexEnumerator
+        then 
+           AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnumerator) count = 1
+           and AssetIdentifierByType(identifier, AssetIdTypeEnum -> EquityIndexEnumerator) -> identifier
+                first
+                to-enum EquityIndexEnum
+                exists      
 
 type OtherIndex extends IndexBase: <"Specification of a user-defined index that does not meet the criteria of other Index data types.">
     description string (0..1) <"A description that defines the OtherIndex.">
