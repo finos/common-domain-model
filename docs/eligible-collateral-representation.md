@@ -228,24 +228,29 @@ The terms are modelled as individual attributes on the `CollateralCriteria`
 choice data type:
 
 ``` MD
-choice CollateralCriteria:  
-    CollateralIssuerType            <"Criteria is the type of entity issuing the asset.">
-    AssetType                       <"Criteria is the asset type of the collateral.">
-    IssuerCountryOfOrigin           <"Criteria is the issuing entity country of origin.">
-    AssetCountryOfOrigin            <"Criteria is the collateral asset country of origin.">
-    CurrencyCodeEnum                <"Criteria is the denominated currency of the collateral.">
-    IssuerName                      <"Criteria is a specific named issuer entity.">
-    IssuerAgencyRating              <"Criteria is the agency rating(s) of the issuer.">
-    SovereignAgencyRating           <"Criteria is the agency rating(s) of the country of the issuer.">
-    AssetAgencyRating               <"Criteria is the agency rating(s) of the collateral asset.">
-    AssetMaturity                   <"Criteria is the maturity characteristics of the collateral asset.">
-    SpecificAsset                   <"Criteria is a specifically identified asset">
-    CollateralTaxonomy              <"Criteria is the taxonomy characteristics of an collateral.">
-    ListingExchange                 <"Criteria is that the collateral is listed on a specific exchange.">
-    ListingSector                   <"Criteria is the industry sector of the collateral asset.">
-    Index                           <"Criteria is that the collateral is a constituent of a specific index.">
-    CounterpartyOwnIssuePermitted   <"Criteria includes collateral issued by the counterparty.">
-    DomesticCurrencyIssued          <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
+choice CollateralCriteria: <"The possible different terms that can be combined, using AND, OR and NOT logic, to define the issuers and/or assets that meet a given criteria for collateral.">
+    AllCriteria <"Enables two or more Collateral Criteria to be combined using AND logic.">
+    AnyCriteria <"Enables two or more Collateral Criteria to be combined using OR logic.">
+    NegativeCriteria <"Enables a single Collateral Criteria to be excluded using NOT logic.">
+    CollateralIssuerType <"Criteria is the type of entity issuing the asset.">
+    CollateralGuarantorType <"Criteria is the type of entity guaranteeing the asset.">
+    AssetType <"Criteria is the asset type of the collateral.">
+    IssuerCountryOfOrigin <"Criteria is the issuing entity country of origin.">
+    AssetCountryOfOrigin <"Criteria is the collateral asset country of origin.">
+    CurrencyCodeEnum <"Criteria is the denominated currency of the collateral.">
+    IssuerName <"Criteria is a specific named issuer entity.">
+    IssuerAgencyRating <"Criteria is the agency rating(s) of the issuer.">
+    SovereignAgencyRating <"Criteria is the agency rating(s) of the country of the issuer.">
+    AssetAgencyRating <"Criteria is the agency rating(s) of the collateral asset.">
+    AssetMaturity <"Criteria is the maturity characteristics of the collateral asset.">
+    SpecificAsset <"Criteria is a specifically identified asset">
+    CollateralTaxonomy <"Criteria is the taxonomy characteristics of an collateral.">
+    ListingExchange <"Criteria is that the collateral is listed on a specific exchange.">
+    ListingSector <"Criteria is the industry sector of the collateral asset.">
+    Index <"Criteria is that the collateral is a constituent of a specific index.">
+    CounterpartyOwnIssuePermitted <"Criteria includes collateral issued by the counterparty.">
+    DomesticCurrencyIssued <"Criteria is that collateral must be denominated in the domestic currency of the issuer.">
+
 ```
 
 ### Combining CollateralCriteria using AND and OR logic
@@ -449,26 +454,30 @@ includes further optional granularity for certain characteristics that
 may be required to define specific details related to debt type assets
 such but not limited to as follows:
 
-  - DebtClass
-    - Asset Backed
-    - Convertible
-    - RegCap
-    - Structured
-
   - DebtEconomics
-    - Debt Seniority
+    - Seniority
       - *Secured*
       - *Senior*
       - *Subordinated*
-    - Debt Interest
+    - Interest
       - *Fixed*
       - *Floating*
       - *Inflation Linked*
-    - Debt Principal
+    - Principal
       - *Bullet*
       - *Callable*
       - *Puttable*
       - *Amortising*
+	- Secured
+      - *Secured Type*
+      - *Asset Backed*
+      - *Collateralized Obligation*
+      - *Covered Bond*
+      - *Property Type*
+    - Redemption
+      - *Redemption Type*
+      - *Put Call*
+      - *Party*
 
 A similar structure exists for `equityType` and `fundType` and other
 collateral assets types.
@@ -747,7 +756,7 @@ define collateral assets through the granular structure of the
 `CollateralCriteria`, but we must understand that expression of asset details
 for eligibility purposes can take other forms across the universe of
 collateral, for some processes there is a requirement to use specific identifiers
-for particular financial products. The data type `Asset` can be used to
+for particular financial products. The data type `SpecificAsset` can be used to
 express specific instrument identifiers such as ISINs, CUSIPs etc. There
 is a section within the CDM documentation that covers this area of the
 model, this can be found in the following link
