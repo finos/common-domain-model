@@ -1,3 +1,16 @@
+# *Product Model - Updating stubPeriodType cardinality*
+_Background_
+
+The cardinality of `stubPeriodType` inside `CalculationPeriodDates` is currently `0..1` which prevents specifying the stub type when a leg contains two stubs. The cardinality should be changed from `0..1` to `0..2`. A cardinality of `2` enables the stub type to be specified for both the initial and final stubs simultaneously.
+
+_What is being released?_
+
+The cardinality of `stubPeriodType` inside `CalculationPeriodDates` has been updated from `0..1` to `0..2`.
+
+_Review Directions_
+
+The changes can be reviewed in PR: [#4444](https://github.com/finos/common-domain-model/pull/4444)
+
 # *Product Model - Updating Qualification Functions to Handle `only exists` Syntax*
 
 _Background_
@@ -10,25 +23,8 @@ Updating any previous instance of `only-exist` to use a function which checks wh
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4415](https://github.com/finos/common-domain-model/pull/4415)
+Changes can be reviewed in PR: [#4430](https://github.com/finos/common-domain-model/pull/4430)
 
-# *Product Model - EquityForward Qualification functions*
-
-_Background_
-
-There are no qualification functions for Equity Forwards.
-
-_What is being released?_
-
-Qualification Functions for Equity Forwards introduced:
-- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleName` 
-- `Qualify_EquityForward_PriceReturnBasicPerformance_SingleIndex` 
-- `Qualify_EquityForward_PriceReturnBasicPerformance_Basket`
-
-_Review Directions_
-
-The changes can be reviewed in PR: [#4405](https://github.com/finos/common-domain-model/pull/4405)
-=======
 # *Product & Event Model - Recall Provisions and Unscheduled Transfers*
 
 _Background_
@@ -57,20 +53,3 @@ To support the processing of transfers associated to returns or recalls the foll
 _Review Directions_
 
 Changes can be reviewed in PR: [#4397](https://github.com/finos/common-domain-model/pull/4397)
-
-# *Ingestion Framework for FpML - Mapping Coverage: FX and Rates*
-
-_Background_
-
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
-
-_What is being released?_
-
-This release maps FX and Rates products, as per [#4373](https://github.com/finos/common-domain-model/issues/4373) and [#4440](https://github.com/finos/common-domain-model/issues/4440).
-
-- Mapping updates to `quantitySchedule` for FpML FX products
-- Duplicate mappings removed in product taxonomy for FpML FRA products
-
-_Review Directions_
-
-Changes can be reviewed in PR: [#4376](https://github.com/finos/common-domain-model/pull/4376)
