@@ -977,6 +977,7 @@ type EventInstruction:
   intent EventIntentEnum (0..1)
   corporateActionIntent CorporateActionTypeEnum (0..1)
   eventDate date (0..1)
+  eventTime TimeZone (0..1)
   effectiveDate date (0..1)
   packageInformation IdentifiedList (0..1)
   instruction Instruction (0..*)
