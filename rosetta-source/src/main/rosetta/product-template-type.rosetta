@@ -622,9 +622,8 @@ type AveragingStrikeFeature: <"Defines the terms required to calculate the avera
     observationTerms ObservationTerms (1..1) <"Class containing terms that are associated with observing a price/benchmark/index across either single or multple observations. ">
 
 type Barrier: <"As per ISDA 2002 Definitions.">
-
-    barrierCap TriggerEvent (0..1) <"A trigger level approached from beneath.">
-    barrierFloor TriggerEvent (0..1) <"A trigger level approached from above.">
+    knockIn TriggerEvent (0..*) <"The option only becomes active when a predetermined trigger level is breached.">
+    knockOut TriggerEvent (0..*) <"The option becomes null and void when a predetermined trigger level is breached.">
 
 type CalendarSpread: <"A type for defining a calendar spread feature.">
 
@@ -648,18 +647,11 @@ type FxFeature: <"A type for defining FX Features.">
     condition FxFeatureChoice: <" Choice rule to represent an FpML choice construct.">
         required choice composite, quanto, crossCurrency
 
-type Knock: <"Knock In means option to exercise comes into existence. Knock Out means option to exercise goes out of existence.">
-
-    knockIn TriggerEvent (0..1) <"The knock in.">
-    knockOut TriggerEvent (0..1) <"The knock out.">
-
 type OptionFeature: <"Defines additional optional features that can be included in an option contract.">
-
     fxFeature FxFeature (0..*) <"Describes a quanto or composite FX feature.">
     strategyFeature StrategyFeature (0..1) <"Defines a simple strategy feature.">
     averagingFeature AveragingFeature (0..1) <"Defines an option feature in which an average market observation price is determined on valuation and compared to the strike to determine a settlement amount.">
     barrier Barrier (0..1) <"Specifies a barrier feature.">
-    knock Knock (0..1) <"Specifies a knock in or knock out feature.">
     passThrough PassThrough (0..1) <"Specifies the rules for pass-through payments from the underlier, such as dividends.">
 
 type TerminationProvision: <"A class for defining option provisions.">
@@ -667,9 +659,16 @@ type TerminationProvision: <"A class for defining option provisions.">
     earlyTerminationProvision EarlyTerminationProvision (0..1) <"Parameters specifying provisions relating to the optional and mandatory early termination of a swap transaction.">
     evergreenProvision EvergreenProvision (0..1) <"A data defining: the right of a party to exercise an Evergreen option">
     extendibleProvision ExtendibleProvision (0..1) <"A provision that allows the specification of an embedded option with a swap giving the buyer of the option the right to extend the swap, in whole or in part, to the extended termination date.">
+    recallProvision RecallProvision (0..1) <"A provision defining criteria controlling the ability for a lender to recall securities it has lent out.">
 
     condition TerminationProvisionChoice:
-        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision
+        required choice cancelableProvision, extendibleProvision, evergreenProvision, earlyTerminationProvision, recallProvision
+
+type RecallProvision: <"Defines the additional features that allow securities to be recalled by the lender before the term of the loan. A recall is not the same as an early termination, but may result in the early termination of a loan.">
+    isRecallable boolean (1..1) <"Whether the securities on loan can be recalled by the lender.">
+    issuanceCutoffTime TimeZone (0..1) <"The operational deadline on T+0 before which a recall must be requested. For the UK, best practice recommends that this would be 30 minutes before market close i.e. 16:00:00 GMT.">
+    notificationTime TimeZone (0..1) <"The time on the day of intended settlement by which the borrower must notify the lender that they will be returning the requested security. For the UK, best practice recommends that this would be 30 minutes before the CREST DVP cut-off time i.e. 15:15:00 GMT">
+    intendedSettlementDate RelativeDateOffset (0..1) <"The intended settlement date of the recall, expressed as an offset against a relative date e.g. T+1. The best practice is that the borrower must make their best efforts to settle on T+1.">
 
 type OptionStrike: <"Defines the strike price of an option.">
 
