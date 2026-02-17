@@ -1,17 +1,19 @@
-# *Ingestion Framework for FpML - Mapping Coverage: Credit, Equity and Commodity*
-
+# _Asset Model - Adding Redemption Attribute to Debt Type_
 _Background_
 
-Ingestion functions for FpML Confirmation to CDM have mapping coverage gaps for some products or test packs compared to the legacy Synonym mapping coverage. For further information, see [#4260](https://github.com/finos/common-domain-model/issues/4260).
+There are several values in the the `DebtClassEnum` relating to the redemption of the debt which could be more granular and composable. There are 4 attributes representing unique combinations for `IssuerConvertible`, `HolderConvertible`, `IssuerExchangeable`, `HolderExchangeable`. However, these could be represented using separate enums and conditions within DebtType. This would also remove the additional Convertible attribute.
 
 _What is being released?_
 
-This release maps Credit, Equity and Commodity products, as per [#4453](https://github.com/finos/common-domain-model/issues/4453), [#4454](https://github.com/finos/common-domain-model/issues/4454) and [#4455](https://github.com/finos/common-domain-model/issues/4455).
+Created a DebtRedemption type 
+- Added `redemptionType` attribute with type `RedemptionTypeEnum` 
+- Added `putCall` attribute with type `PutCallEnum` 
+- Added `party` attribute with type `RedemptionPartyEnum` 
 
-- Mapping support added for `AssetIdTypeEnum` values `Name` and `REDID` for FpML Credit products
-- Mapping of price per option updated for FpML Equity products
-- Mapping of `id` to `CommodityPayout` for FpML Commodity products
+Created 2 new enums 
+- `RedemptionTypeEnum` with values Convertible, Exchangeable, ContingentConvertible, Sinkable, Extraordinary
+- `RedemptionPartyEnum` with values Holder and Issuer
 
 _Review Directions_
 
-Changes can be reviewed in PR: [#4456](https://github.com/finos/common-domain-model/pull/4456)
+The changes can be reviewed in PR: [#4447](https://github.com/finos/common-domain-model/pull/4447)
