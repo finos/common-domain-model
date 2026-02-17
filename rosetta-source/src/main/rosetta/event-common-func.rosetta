@@ -1447,7 +1447,7 @@ func Create_RollPrimitiveInstruction: <"Creates the primitive instructions for a
         tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, effectiveRollDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective and termination dates changed (i.e. terms change instruction) and price / quantity changed.">
         [
@@ -1541,7 +1541,7 @@ func Create_OnDemandRateChangePrimitiveInstruction: <"Creates a full primitive i
         tradeState -> trade -> tradableProduct -> tradeLot count = 1
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, effectiveDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with effective date and price (rate) changed.">
         [
@@ -1689,7 +1689,7 @@ func Create_CancellationPrimitiveInstruction: <"Creates a primitive instruction 
         tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, cancellationDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with the same details as the old one but with termination date changed and price / quantity changed (taking new repurchase price into account).">
         [
@@ -1821,7 +1821,7 @@ func Create_ShapingInstruction: <"Creates a set of instructions to shape a trade
         tradeLots extract item -> lotIdentifier only-element
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     add instruction -> split -> breakdown: <"The second part of the split consists in a quantity change and a new execution for each provided trade lot. The quantity change takes care of the shaping according to the provided quantities. The execution adds the required package component to the execution details.">
         tradeLots
@@ -1901,7 +1901,7 @@ func Create_PartialDeliveryPrimitiveInstruction: <"Creates the primitive instruc
         tradeState -> trade -> tradableProduct -> product -> contractualProduct exists
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
-        [Create_TerminationInstruction(tradeState)]
+        [Create_TerminationInstruction(tradeState, empty)]
 
     set instruction -> split -> breakdown: <"Sets the first part of the split to be a termination instruction for the existing trade.">
         [
@@ -2000,7 +2000,7 @@ func Create_RepricePrimitiveInstruction: <"Creates the primitive instructions fo
             ...
         }
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -2075,7 +2075,7 @@ func Create_AdjustmentPrimitiveInstruction: <"Creates the primitive instructions
     condition SingleTradeLot: <"This repricing function applies only to trades with a single lot.">
         tradeState -> trade -> tradableProduct -> tradeLot count = 1
 
-    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState)]
+    set instruction -> split -> breakdown: [Create_TerminationInstruction(tradeState, effectiveRepriceDate)]
 
     add instruction -> split -> breakdown: <"Sets the second part of the split to be a new contract with a new asset payout.">
         [
@@ -2390,6 +2390,7 @@ func Create_Cashflow:
 func Create_TerminationInstruction: <"Creates the relevant primitive instruction for a termination, which consists in a quantity change to bring the quantity to zero.">
     inputs:
         tradeState TradeState (1..1) <"The original trade to be termintaed.">
+        effectiveDate AdjustableOrRelativeDate (0..1) <"Date of Termination">
     output:
         instruction PrimitiveInstruction (1..1)
 
@@ -2406,6 +2407,7 @@ func Create_TerminationInstruction: <"Creates the relevant primitive instruction
     alias changePriceQuantity: <"Create change PriceQuantity for QuantityChangeInstruction.">
         PriceQuantity {
             quantity: changeQuantity,
+            effectiveDate: effectiveDate,
             ...
         }
 
@@ -2533,6 +2535,11 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         then observation
         else Create_Valuation(primitiveInstruction -> valuation, observation)
 
+    alias terminationDate: <"Use effective Date in absence of eventDate, if it exists">        
+        if primitiveInstruction -> quantityChange -> change -> effectiveDate exists
+        then ResolveAdjustableDate(primitiveInstruction -> quantityChange -> change -> effectiveDate first)
+        else empty
+
     alias stockSplit:
         if primitiveInstruction -> stockSplit is absent
         then valuation
@@ -2548,7 +2555,7 @@ func Create_TradeState: <"Creates a single trade state by applying primitive ins
         if contractFormation -> state -> positionState = PositionStatusEnum -> Closed
         then ClosedState {
                 state: ClosedStateEnum -> Terminated,
-                activityDate: empty, // TODO: set this property
+                activityDate: terminationDate,
                 ...
             }
 
