@@ -223,15 +223,24 @@ type EquityType:
         if equityType <> EquityTypeEnum -> DepositaryReceipt
         then depositaryReceipt is absent
 
-type DebtType: <"Specifies the type of debt instrument.">
-    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt instrument.">
-    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt instrument.">
+type DebtType: <"Specifies the type of debt security.">
+    debtClass DebtClassEnum (0..1) <"Specifies the characteristics of a debt security.">
+    debtEconomics DebtEconomics (0..*) <"Specifies selected financial terms of a debt security.">
 
-type DebtEconomics: <"Specifies selected economics of a debt instrument.">
+type DebtEconomics: <"Specifies selected economics of a debt security.">
     seniority DebtSeniorityEnum (0..1) <"Specifies the order of repayment in the event of a sale or bankruptcy of the issuer or a related party (eg guarantor).">
     interest DebtInterestEnum (0..1) <"Specifies the general rule for periodic interest rate payment.">
     principal DebtPrincipalEnum (0..1) <"Specifies the general rule for repayment of principal.">
     secured SecuredDebt (0..1) <"Specifies the type of secured debt.">
+    redemption DebtRedemption (0..1) <"Specifies the general rule for redemption of a debt security.">
+
+type DebtRedemption: <"Specifies the redemption features and whether the redemption right is exercised at the discretion of the issuer or the holder.">
+    redemptionType RedemptionTypeEnum (0..1) <"Specifies the contractual redemption or conversion features associated with a debt security.">
+    putCall PutCallEnum (0..1) <"Specifies the embedded option feature of a debt security.">
+    party RedemptionPartyEnum (0..1) <"Specifies whether the debt security is redeemed at the election of the Issuer/Holder.">
+
+    condition ConvertibleExchangablePartyElectionExists: <"A type of redemption must be specified if the redeeming party is specified.">
+        if party exists then redemptionType exists or putCall exists
 
 type SecuredDebt:
     securedType SecuredTypeEnum (0..1) <"Specifies the type of secured debt product.">
